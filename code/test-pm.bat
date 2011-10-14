@@ -39,7 +39,7 @@ goto END
 
 :TEST_ALL
 
-FOR /L %%I IN (100,10,100) DO FOR /L %%J IN (66,1,100) DO call :TEST_COMBINATION %%I %%J
+FOR /L %%I IN (100,10,100) DO FOR /L %%J IN (0,5,100) DO call :TEST_COMBINATION %%I %%J
 
 :SUB_PARSE_DATE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

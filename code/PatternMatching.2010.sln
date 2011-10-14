@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MemoizedCast", "msvc\Memoiz
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SyntheticSelectRandom", "msvc\SyntheticSelectRandom\SyntheticSelectRandom.vcxproj", "{50401AFC-D6FA-4209-8BCC-9275C844CDBA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Hierarchy", "msvc\Hierarchy\Hierarchy.vcxproj", "{68F21213-DE98-48CA-BC4E-C6D6B1F2C8F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -99,6 +101,14 @@ Global
 		{50401AFC-D6FA-4209-8BCC-9275C844CDBA}.Release|Win32.Build.0 = Release|Win32
 		{50401AFC-D6FA-4209-8BCC-9275C844CDBA}.Release|x64.ActiveCfg = Release|x64
 		{50401AFC-D6FA-4209-8BCC-9275C844CDBA}.Release|x64.Build.0 = Release|x64
+		{68F21213-DE98-48CA-BC4E-C6D6B1F2C8F2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{68F21213-DE98-48CA-BC4E-C6D6B1F2C8F2}.Debug|Win32.Build.0 = Debug|Win32
+		{68F21213-DE98-48CA-BC4E-C6D6B1F2C8F2}.Debug|x64.ActiveCfg = Debug|x64
+		{68F21213-DE98-48CA-BC4E-C6D6B1F2C8F2}.Debug|x64.Build.0 = Debug|x64
+		{68F21213-DE98-48CA-BC4E-C6D6B1F2C8F2}.Release|Win32.ActiveCfg = Release|Win32
+		{68F21213-DE98-48CA-BC4E-C6D6B1F2C8F2}.Release|Win32.Build.0 = Release|Win32
+		{68F21213-DE98-48CA-BC4E-C6D6B1F2C8F2}.Release|x64.ActiveCfg = Release|x64
+		{68F21213-DE98-48CA-BC4E-C6D6B1F2C8F2}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -150,7 +150,7 @@ public:
                 std::cout << i << " -> " << n << std::endl;
         }
 
-        size_t i = trailing_zeros(static_cast<unsigned int>(m_differ));
+        size_t i = trailing_zeros(static_cast<unsigned int>(differ));
 
         if (i != VTBL_IRRELEVANT_BITS)
         {
@@ -526,7 +526,15 @@ public:
                 os << i << "->" << n << "; ";
         }
 
-        return os << std::count(uses,uses+ARR_SIZE(uses),0)*100/(1<<N) << "% unused" << std::endl;
+        os << std::count(uses,uses+ARR_SIZE(uses),0)*100/(1<<N) << "% unused" << std::endl;
+
+        for (size_t i = 0; i < 1<<cache_bits; ++i)
+        {
+            if (cache[i].vtbl == 0)
+                os << i << ',';
+        }
+
+        return os << std::endl;
     }
     friend std::ostream& operator<<(std::ostream& os, const vtblmap& m) { return m >> os; }
 #endif

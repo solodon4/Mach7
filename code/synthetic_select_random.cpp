@@ -54,36 +54,39 @@ struct shape_kind : OtherBase, Shape
     int m_member9;
 };
 
-#define FOR_EACH_MAX NUMBER_OF_DERIVED-1
-
 struct ShapeVisitor
 {
+    #define FOR_EACH_MAX NUMBER_OF_DERIVED-1
     #define FOR_EACH_N(N) virtual void visit(const shape_kind<N>&) {}
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_N
+    #undef  FOR_EACH_MAX
 };
 
 template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(*this); }
 
-#if 0
+#if 1
 DO_NOT_INLINE_BEGIN
-size_t do_match(Shape& s)
+size_t do_match(const Shape& s)
 {
-    SWITCH_N(s,FOR_EACH_MAX+1)
+    SWITCH_N(s,NUMBER_OF_DERIVED)
     {
-    CASES_BEGIN
+    #define FOR_EACH_MAX      NUMBER_OF_DERIVED-1
+    #define FOR_EACH_PRELUDE  CASES_BEGIN
     #define FOR_EACH_N(N) CASE(shape_kind<N>) return N;
+    #define FOR_EACH_POSTLUDE CASES_END
     #include "loop_over_numbers.hpp"
+    #undef  FOR_EACH_POSTLUDE
     #undef  FOR_EACH_N
-    CASES_END
+    #undef  FOR_EACH_PRELUDE
+    #undef  FOR_EACH_MAX
     }
-    //XTL_ASSERT(!"Inexhaustive search");
     return -1;
 }
 DO_NOT_INLINE_END
 #else
 DO_NOT_INLINE_BEGIN
-size_t do_match(Shape& s)
+size_t do_match(const Shape& s)
 {
     static vtblmap<type_switch_info&,requires_bits<100-1+1>::value> __vtbl2lines_map; 
     auto const        __selector_ptr = addr(s); 
@@ -807,9 +810,11 @@ size_t do_visit(const Shape& s)
 {
     struct Visitor : ShapeVisitor
     {
+        #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
         #define FOR_EACH_N(N) virtual void visit(const shape_kind<N>&) { result = N; }
         #include "loop_over_numbers.hpp"
         #undef  FOR_EACH_N
+        #undef  FOR_EACH_MAX
         size_t result;
     };
 
@@ -824,16 +829,18 @@ Shape* make_shape(size_t i)
 {
     switch (i)
     {
+    #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
     #define FOR_EACH_N(N) case N: return new shape_kind<N>;
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_N
+    #undef  FOR_EACH_MAX
     }
     return 0;
 }
 
 const size_t N = 10000; // The amount of times visitor and matching procedure is invoked in one time measuring
 const size_t M = 101;   // The amount of times time measuring is done
-const size_t K = FOR_EACH_MAX+1; // The amount of cases we have in hierarchy
+const size_t K = NUMBER_OF_DERIVED; // The amount of cases we have in hierarchy
 
 template <typename Container>
 typename Container::value_type mean(const Container& c)
@@ -1037,5 +1044,3 @@ int main()
     int pr = test_randomized();
     std::cout << "OVERALL: Sequential: " << ps << "% slower; Random: " << pr << "% slower;" << std::endl; 
 }
-
-#undef  FOR_EACH_MAX

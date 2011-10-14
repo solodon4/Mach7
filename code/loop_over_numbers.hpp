@@ -1,9 +1,22 @@
+#if FOR_EACH_MAX==99
+    #if !defined (FOR_EACH_PRELUDE)
+        #define FOR_EACH_PRELUDE
+    #endif
+    #if !defined (FOR_EACH_POSTLUDE)
+        #define FOR_EACH_POSTLUDE
+    #endif
+    #include "loop_over_numbers_99.hpp"
+#else
 #if !defined (FOR_EACH_N)
 #error You have to define macro FOR_EACH_N(N)
 #endif
 
 #if !defined (FOR_EACH_MAX)
 #error You have to define macro FOR_EACH_MAX to be the last iteration number
+#endif
+
+#if defined (FOR_EACH_PRELUDE)
+FOR_EACH_PRELUDE
 #endif
 
 #if FOR_EACH_MAX >= 0
@@ -305,4 +318,9 @@ FOR_EACH_N(98)
 #endif
 #if FOR_EACH_MAX >= 99
 FOR_EACH_N(99)
+#endif
+
+#if defined (FOR_EACH_POSTLUDE)
+FOR_EACH_POSTLUDE
+#endif
 #endif

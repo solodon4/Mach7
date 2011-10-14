@@ -1,3 +1,4 @@
+#include "type_switch.hpp"
 #include <algorithm>
 #include <cmath>
 #include <fstream>
@@ -7,7 +8,7 @@
 #include <numeric>
 #include <string>
 #include <vector>
-#include "match.hpp"
+
 #include "timing.hpp"
 
 #if !defined(NUMBER_OF_VFUNCS)
@@ -69,12 +70,12 @@ template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(
 DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s)
 {
-    SWITCH_N(s,NUMBER_OF_DERIVED)
+    TYPE_SWITCH_N(s,NUMBER_OF_DERIVED)
     {
     #define FOR_EACH_MAX      NUMBER_OF_DERIVED-1
-    #define FOR_EACH_PRELUDE  CASES_BEGIN
-    #define FOR_EACH_N(N) CASE(shape_kind<N>) return N;
-    #define FOR_EACH_POSTLUDE CASES_END
+    #define FOR_EACH_PRELUDE  TYPE_CASES_BEGIN
+    #define FOR_EACH_N(N)     TYPE_CASE(shape_kind<N>) return N;
+    #define FOR_EACH_POSTLUDE TYPE_CASES_END
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_POSTLUDE
     #undef  FOR_EACH_N
@@ -899,16 +900,23 @@ long long display(const char* name, std::vector<long long>& timings)
     return med;
 }
 
-int test_repetitive()
+int test_sequential()
 {
-    std::cout << "=================== Repetitive Test ===================" << std::endl;
+    std::cout << "=================== Sequential Test ===================" << std::endl;
 
     size_t a1 = 0,a2 = 0;
     std::vector<int> percentages(K); // Final verdict of medians for each of the K experiments
 
     for (size_t n = 0; n < K; ++n)
     {
-        Shape* s = make_shape(n);
+        std::vector<Shape*> shapes(N);
+
+        for (size_t i = 0; i < N; ++i)
+        {
+            size_t n = i%K;
+            shapes[i] = make_shape(n);
+        }
+
         std::vector<long long> timingsV(M);
         std::vector<long long> timingsM(M);
 
@@ -917,14 +925,14 @@ int test_repetitive()
             time_stamp liStart1 = get_time_stamp();
 
             for (size_t i = 0; i < N; ++i)
-                a1 += do_visit(*s);
+                a1 += do_visit(*shapes[i]);
 
             time_stamp liFinish1 = get_time_stamp();
 
             time_stamp liStart2 = get_time_stamp();
 
             for (size_t i = 0; i < N; ++i)
-                a2 += do_match(*s);
+                a2 += do_match(*shapes[i]);
 
             time_stamp liFinish2 = get_time_stamp();
 
@@ -942,7 +950,12 @@ int test_repetitive()
         //else
         //    std::cout << "Insufficient timer resolution" << std::endl;
         //std::cout << "\t\tThe following 2 numbers should be the same " << a1 << "==" << a2 << " ? " << std::boolalpha << (a1==a2) << std::endl;
-        delete s;
+
+        for (size_t i = 0; i < N; ++i)
+        {
+            delete shapes[i];
+            shapes[i] = 0;
+        }
     }
 
     std::sort(percentages.begin(), percentages.end());
@@ -957,66 +970,78 @@ int test_randomized()
     std::cout << "=================== Randomized Test ===================" << std::endl;
 
     size_t a1 = 0,a2 = 0;
+    std::vector<int> percentages(K); // Final verdict of medians for each of the K experiments
 
-    std::vector<Shape*> shapes(N);
-    TRACE_PERFORMANCE_ONLY(std::vector<size_t> distribution(K));
-
-    for (size_t i = 0; i < N; ++i)
+    for (size_t n = 0; n < K; ++n)
     {
-        size_t n = rand()%K;
-        TRACE_PERFORMANCE_ONLY(distribution[n]++);
-        shapes[i] = make_shape(n);
-    }
+        std::vector<Shape*> shapes(N);
+        TRACE_PERFORMANCE_ONLY(std::vector<size_t> distribution(K));
+
+        for (size_t i = 0; i < N; ++i)
+        {
+            size_t n = rand()%K;
+            TRACE_PERFORMANCE_ONLY(distribution[n]++);
+            shapes[i] = make_shape(n);
+        }
 #if defined(TRACE_PERFORMANCE)
-    size_t min, max, avg, med, dev;
-    statistics(distribution, min, max, avg, med, dev);
-    //std::copy(distribution.begin(), distribution.end(), std::ostream_iterator<size_t>(std::cout, ":"));
-    std::cout << "Shape kind distribution: ["
-              << std::setw(4) << min << " -- " 
-              << std::setw(4) << avg << "/" 
-              << std::setw(4) << med << " -- "
-              << std::setw(4) << max << "] Dev = " 
-              << std::setw(4) << dev << std::endl;
+        size_t min, max, avg, med, dev;
+        statistics(distribution, min, max, avg, med, dev);
+        //std::copy(distribution.begin(), distribution.end(), std::ostream_iterator<size_t>(std::cout, ":"));
+        std::cout << "Shape kind distribution: ["
+                  << std::setw(4) << min << " -- " 
+                  << std::setw(4) << avg << "/" 
+                  << std::setw(4) << med << " -- "
+                  << std::setw(4) << max << "] Dev = " 
+                  << std::setw(4) << dev << std::endl;
 #endif
 
-    std::vector<long long> timingsV(M);
-    std::vector<long long> timingsM(M);
+        std::vector<long long> timingsV(M);
+        std::vector<long long> timingsM(M);
 
-    for (size_t m = 0; m < M; ++m)
-    {
-        time_stamp liStart1 = get_time_stamp();
+        for (size_t m = 0; m < M; ++m)
+        {
+            time_stamp liStart1 = get_time_stamp();
+
+            for (size_t i = 0; i < N; ++i)
+                a1 += do_visit(*shapes[i]);
+
+            time_stamp liFinish1 = get_time_stamp();
+
+            time_stamp liStart2 = get_time_stamp();
+
+            for (size_t i = 0; i < N; ++i)
+                a2 += do_match(*shapes[i]);
+
+            time_stamp liFinish2 = get_time_stamp();
+
+            XTL_ASSERT(a1==a2);
+            timingsV[m] = liFinish1-liStart1;
+            timingsM[m] = liFinish2-liStart2;
+        }
+
+        long long avgV = display("AreaVisRnd", timingsV);
+        long long avgM = display("AreaMatRnd", timingsM);
+        //if (avgV)
+            int percent = percentages[n] = avgM*100/avgV-100;
+            std::cout << "\t\t" << percent << "% slower" << std::endl;
+        //else
+        //    std::cout << "Insufficient timer resolution" << std::endl;
+        //std::cout << "\t\tThe following 2 numbers should be the same " << a1 << "==" << a2 << " ? " << std::boolalpha << (a1==a2) << std::endl;
 
         for (size_t i = 0; i < N; ++i)
-            a1 += do_visit(*shapes[i]);
-
-        time_stamp liFinish1 = get_time_stamp();
-
-        time_stamp liStart2 = get_time_stamp();
-
-        for (size_t i = 0; i < N; ++i)
-            a2 += do_match(*shapes[i]);
-
-        time_stamp liFinish2 = get_time_stamp();
-
-        XTL_ASSERT(a1==a2);
-        timingsV[m] = liFinish1-liStart1;
-        timingsM[m] = liFinish2-liStart2;
+        {
+            delete shapes[i];
+            shapes[i] = 0;
+        }
     }
 
-    long long avgV = display("AreaVisRnd", timingsV);
-    long long avgM = display("AreaMatRnd", timingsM);
-    //if (avgV)
-            int percent = avgM*100/avgV-100;
-            std::cout << "\t\t" << percent << "% slower" << std::endl;
-    //else
-    //    std::cout << "Insufficient timer resolution" << std::endl;
-    //std::cout << "\t\tThe following 2 numbers should be the same " << a1 << "==" << a2 << " ? " << std::boolalpha << (a1==a2) << std::endl;
-    return percent;
+    std::sort(percentages.begin(), percentages.end());
+    return percentages[percentages.size()/2];
 }
 
 int main()
 {
-    int ps = test_repetitive();
+    int ps = test_sequential();
     int pr = test_randomized();
-    std::cout << "OVERALL: Repetitive: " << ps << "% slower; Random: " << pr << "% slower;" << std::endl; 
+    std::cout << "OVERALL: Sequential: " << ps << "% slower; Random: " << pr << "% slower;" << std::endl; 
 }

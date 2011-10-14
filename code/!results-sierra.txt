@@ -1,0 +1,27 @@
+2011-05-02 - Sierra
+
+[Normal Use]
+
+Sequential: -08%
+Random:     -02%
+Repetitive: -16%
+
+2->35; 1->30; 0->63; 49% unused
+
+[Visitor Forwards]
+
+Sequential: -69%
+Random:     -44%
+
+2->3;  1->94; 0->31; 24% unused
+
+[Type Switch]
+
+Sequential: -8%
+Random:     -3%
+
+2->35; 1->30; 0->63; 49% unused
+
+[OCaml Comparison]
+
+OCaml:      0.02070 sec vs. 0.028515 sec = 38% slower
