@@ -12,6 +12,8 @@
 ///
 
 /// FIX: Big question: should null pointers match pointer variables???
+/// FIX: Replace all XXX_SWITCH_N versions of the macro with variadic macro 
+///      taking either 1 or 2 arguments
 
 #pragma once
 
@@ -100,7 +102,7 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
 #define BOUND_VAR_DECL(P,V) auto& V = apply_member(matched, match_members<target_type,default_layout>::XTL_CONCAT(member,P)())
 
 /// A set of macros handling various amount of arguments passed to case statement.
-#define DECL_BOUND_VAR_0(Dummy)                         ;
+#define DECL_BOUND_VAR_0(Dummy)                         XTL_UNUSED(matched);
 #define DECL_BOUND_VAR_1(Dummy,x0)                      BOUND_VAR_DECL(0,x0);
 #define DECL_BOUND_VAR_2(Dummy,x0,x1)                   BOUND_VAR_DECL(0,x0); BOUND_VAR_DECL(1,x1);
 #define DECL_BOUND_VAR_3(Dummy,x0,x1,x2)                BOUND_VAR_DECL(0,x0); BOUND_VAR_DECL(1,x1); BOUND_VAR_DECL(2,x2);
@@ -123,39 +125,55 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
 /// reason 0 (static member of a function vtbl map) is better for random case.
 #if 0
 /// Macro that starts the switch on pattern
-#define SWITCH(s)\
+/// \note case 0: instead of default: will work in the same way because we 
+///       initialize cache with 0, however through experiments we can see
+///       that having default here is quite a bit faster than having case 0.
+#define SWITCH(s) {\
         auto const   __selector_ptr = addr(s);\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = preallocated<vtblmap<type_switch_info&>,__LINE__>::value.get(__selector_ptr);\
-        switch (__switch_info.line)
+        switch (__switch_info.line) {\
+        default: {{
 /// Extended version of the macro that starts the switch on pattern, that takes an expected number of cases in
-#define SWITCH_N(s,N)\
+/// \note case 0: instead of default: will work in the same way because we 
+///       initialize cache with 0, however through experiments we can see
+///       that having default here is quite a bit faster than having case 0.
+#define SWITCH_N(s,N) {\
         auto const   __selector_ptr = addr(s);\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = preallocated<vtblmap<type_switch_info&,requires_bits<N>::value>,__LINE__>::value.get(__selector_ptr);\
-        switch (__switch_info.line)
+        switch (__switch_info.line) {\
+        default: {{
 
 #else /// These are with static function member
 
 /// Macro that starts the switch on pattern
-#define SWITCH(s)\
+/// \note case 0: instead of default: will work in the same way because we 
+///       initialize cache with 0, however through experiments we can see
+///       that having default here is quite a bit faster than having case 0.
+#define SWITCH(s) {\
         static vtblmap<type_switch_info&> __vtbl2lines_map;\
         auto const   __selector_ptr = addr(s);\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
-        switch (__switch_info.line)
+        switch (__switch_info.line) {\
+        default: {{
+
 /// Extended version of the macro that starts the switch on pattern, that takes an expected number of cases in
-#define SWITCH_N(s,N)\
+/// \note case 0: instead of default: will work in the same way because we 
+///       initialize cache with 0, however through experiments we can see
+///       that having default here is quite a bit faster than having case 0.
+#define SWITCH_N(s,N) {\
         static vtblmap<type_switch_info&,requires_bits<N>::value> __vtbl2lines_map;\
         auto const   __selector_ptr = addr(s);\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
-        switch (__switch_info.line)
-
+        switch (__switch_info.line) {\
+        default: {{
 #endif
 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
@@ -187,28 +205,35 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
     #define CASE(...) CASE_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
 #endif
 
-#define CASES_BEGIN default: {{
-#define CASES_END }} if (LIKELY_BRANCH((__switch_info.line == 0))) { __switch_info.line = __LINE__; } case __LINE__: ;
+#define END_SWITCH }} if (LIKELY_BRANCH((__switch_info.line == 0))) { __switch_info.line = __LINE__; } case __LINE__: ; }}
 
 //------------------------------------------------------------------------------
 
 /// Macro that starts the switch on dynamic type of a variable s that can be 
 /// either pointer or reference to a polymorphic type.
-#define TYPE_SWITCH(s)\
+/// \note case 0: instead of default: will work in the same way because we 
+///       initialize cache with 0, however through experiments we can see
+///       that having default here is quite a bit faster than having case 0.
+#define TYPE_SWITCH(s) {\
         static vtblmap<type_switch_info&> __vtbl2lines_map;\
         auto const   __selector_ptr = addr(s);\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
-        switch (__switch_info.line)
+        switch (__switch_info.line) {\
+        default: {
 /// Extended version of the above macro that takes an expected number of cases in
 /// to estimate the size of the cache needed instead of using the default size
-#define TYPE_SWITCH_N(s,N)\
+/// \note case 0: instead of default: will work in the same way because we 
+///       initialize cache with 0, however through experiments we can see
+///       that having default here is quite a bit faster than having case 0.
+#define TYPE_SWITCH_N(s,N) {\
         static vtblmap<type_switch_info&,requires_bits<N>::value> __vtbl2lines_map;\
         auto const   __selector_ptr = addr(s);\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
-        switch (__switch_info.line)
+        switch (__switch_info.line) {\
+        default: {
 
 /// Macro that defines the case statement for the above switch
 /// NOTE: If Visual C++ gives you error C2051: case expression not constant
@@ -219,18 +244,17 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
 ///       but not in Debug. This is a known bug of Visual C++ described here:
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
 #define TYPE_CASE(C)   } if (UNLIKELY_BRANCH(__casted_ptr = dynamic_cast<const C*>(__selector_ptr))) { if (__switch_info.line == 0) { __switch_info.line = __LINE__; __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); } case __LINE__: auto matched = adjust_ptr<C>(__selector_ptr,__switch_info.offset);
-#define TYPE_CASES_BEGIN default: {
-#define TYPE_CASES_END } if (__switch_info.line == 0) { __switch_info.line = __LINE__; } case __LINE__: ;
+#define END_TYPE_SWITCH } if (__switch_info.line == 0) { __switch_info.line = __LINE__; } case __LINE__: ; }}
 
 //------------------------------------------------------------------------------
 
 /// Macro that starts the switch on types that carry their own dynamic type as
 /// a distinct integral value in one of their members.
-#define KIND_SWITCH(s)\
+#define KIND_SWITCH(s) {\
         auto const __selector_ptr  = addr(s);\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         auto const __kind_selector = apply_member(__selector_ptr, match_members<remove_ref<decltype(*__selector_ptr)>::type>::kind_selector());\
-        switch (__kind_selector)
+        switch (__kind_selector) { {{
 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
 ///       seems to be impossible to introduce dummy argument inside the Case 
@@ -249,19 +273,18 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
     #define KIND_CASE(...) KIND_CASE_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
 #endif
 
-#define KIND_CASES_BEGIN {{
-#define KIND_CASES_END   }} default: ;
+#define END_KIND_SWITCH   }} }}
 
 //------------------------------------------------------------------------------
 
 /// Macro that starts the switch on types that carry their own dynamic type as
 /// a distinct integral value in one of their members.
-#define UNION_SWITCH(s)\
+#define UNION_SWITCH(s) {\
         auto const __selector_ptr  = addr(s);\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         auto const __kind_selector = apply_member(__selector_ptr, match_members<remove_ref<decltype(*__selector_ptr)>::type>::kind_selector());\
         typedef remove_ref<decltype(*__selector_ptr)>::type selector_type; \
-        switch (__kind_selector)
+        switch (__kind_selector) { {{
 
 /// Macro that defines the case statement for the above switch
 #define UNION_CASE_(L,...) }} \
@@ -279,8 +302,7 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
     #define UNION_CASE(...) UNION_CASE_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
 #endif
 
-#define UNION_CASES_BEGIN {{
-#define UNION_CASES_END   }} default: ;
+#define END_UNION_SWITCH   }} }}
 
 #include "has_member.hpp"
 
@@ -374,7 +396,7 @@ public:
 
             static inline bool main_condition(const selector_type* selector_ptr, local_data_type& local_data)
             {
-                return local_data.casted_ptr = dynamic_cast<const target_type*>(selector_ptr);
+                return (local_data.casted_ptr = dynamic_cast<const target_type*>(selector_ptr)) != 0;
             }
             
             static inline const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data)
@@ -534,8 +556,34 @@ public:
 
 //------------------------------------------------------------------------------
 
-/// Macro that starts the switch on types that carry their own dynamic type as
-/// a distinct integral value in one of their members.
+template<typename T> struct get_first_param;
+template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 type; };
+
+/// This is a helper macro to be able to pass template instantiations as an
+/// argument of a macro. The actual problem is that template instantiations
+/// may contain commas in their argument list, which are treated as macro 
+/// argument separator by the preprocessor. Enclosing such type argument in 
+/// () directly will not work because (Type) is a conversion expression in C
+/// and compiler reports an error when we try to user (Type) instead of a Type.
+/// \example 
+///       Case(TypeArg(MyMap<int,string>),x,y,z) ...
+/// The solution used here is based on the following discussion:
+/// \see http://stackoverflow.com/questions/4295890/trouble-with-template-parameters-used-in-macros
+#define  TypeArg_(X)           get_first_param<void X>::type
+#define  TypeArg(...)   TypeArg_((__VA_ARGS__))
+/// Same as @TypeArg but to be used in the template context
+#define TTypeArg_(X)  typename get_first_param<void X>::type
+#define TTypeArg(...)  TTypeArg_((__VA_ARGS__))
+
+//------------------------------------------------------------------------------
+
+/// Macro that starts generic switch on types capable of figuring out by itself
+/// which of the 3 cases presented above we are dealing with: open, closed or union.
+/// \note This macro cannot be used in a template context! If you need to have 
+///       it inside a template, please use @TMatch and corresponding @TCase and 
+///       @TEndMatch. Unfortunately at the moment we are unaware how to unify 
+///       these 2 macros as types and templates should only be annotated inside
+///       a template context and not outside.
 #define Match(s) {\
         auto const __selector_ptr = addr(s);\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
@@ -578,6 +626,56 @@ public:
 #define Or(...) } else if (match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
 #define Otherwise() }}} {{ default: auto matched = __selector_ptr; {
 #define EndMatch    }}} switch_traits::on_end(__selector_ptr, local_data, __LINE__-__base_line); case switch_traits::CaseLabel<__LINE__-__base_line>::exit: ; }}
+
+//------------------------------------------------------------------------------
+
+/// Macro that starts generic switch on types capable of figuring out by itself
+/// which of the 3 cases presented above we are dealing with: open, closed or union.
+/// \note The only difference from @Match macro is that this macro is supposed 
+///       to be used in template context, so we properly mark all types and 
+///       templates with typename and template respectively
+#define TMatch(s) {\
+        auto const __selector_ptr = addr(s);\
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
+        enum { __base_line = __LINE__ };\
+        typedef generic_switch<decltype(*__selector_ptr)> switch_traits;\
+        static typename switch_traits::static_data_type static_data;\
+               typename switch_traits::local_data_type  local_data;\
+        switch (switch_traits::choose(__selector_ptr,static_data,local_data))\
+        {\
+            case switch_traits::template CaseLabel<__LINE__-__base_line>::entry: {{{
+
+/// NOTE: We need this extra indirection to properly handle 0 arguments as it
+///       seems to be impossible to introduce dummy argument inside the Case 
+///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
+#define TCase_(C,...) }}} \
+{ \
+    typedef typename switch_traits::template disambiguate<sizeof(C)<sizeof(typename switch_traits::selector_type)>::template parameter<C> target_specific; \
+    typedef typename target_specific::target_type target_type; \
+    enum { default_layout = target_specific::layout }; \
+    if (target_specific::main_condition(__selector_ptr, local_data)) \
+    { \
+        switch_traits::on_first_pass(__selector_ptr, local_data, __LINE__-__base_line); \
+    case target_specific::template CaseLabel<__LINE__-__base_line>::value: \
+        auto matched = target_specific::get_matched(__selector_ptr,local_data); \
+
+/// Macro that defines the case statement for the above switch
+/// NOTE: If Visual C++ gives you error C2051: case expression not constant
+///       on this CASE label, just change the Debug Format in project setting 
+///       Project -> Properties -> C/C++ -> General -> Debug Information Format 
+///       from "Program Database for Edit And Continue (/ZI)" 
+///       to   "Program Database (/Zi)", which is the default in Release builds,
+///       but not in Debug. This is a known bug of Visual C++ described here:
+///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
+#ifdef _MSC_VER
+    #define TCase(...) XTL_APPLY_VARIADIC_MACRO(TCase_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
+#else
+    #define TCase(...) TCase_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
+#endif
+#define TCaseOld(C,...) }}} { typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; if (target_specific::main_condition(__selector_ptr, local_data)) { switch_traits::on_first_pass(__selector_ptr, local_data, __LINE__-__base_line); case target_specific::CaseLabel<__LINE__-__base_line>::value: auto matched = target_specific::get_matched(__selector_ptr,local_data); if (LIKELY_BRANCH(match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
+#define TOr(...) } else if (match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
+#define TOtherwise() }}} {{ default: auto matched = __selector_ptr; {
+#define TEndMatch    }}} switch_traits::on_end(__selector_ptr, local_data, __LINE__-__base_line); case switch_traits::template CaseLabel<__LINE__-__base_line>::exit: ; }}
 
 //------------------------------------------------------------------------------
 

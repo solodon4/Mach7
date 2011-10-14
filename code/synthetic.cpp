@@ -7,7 +7,7 @@
 #include <numeric>
 #include <string>
 #include <vector>
-#include "match.hpp"
+#include "match_generic.hpp"
 #include "timing.hpp"
 
 #define FOR_EACH_MAX 99
@@ -192,7 +192,7 @@ void test_sequential()
 
 void test_randomized()
 {
-    srand (get_time_stamp()/get_frequency()); // Randomize pseudo random number generator
+    srand (unsigned(get_time_stamp()/get_frequency())); // Randomize pseudo random number generator
 
     std::cout << "=================== Randomized Test ===================" << std::endl;
 

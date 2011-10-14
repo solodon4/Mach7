@@ -120,24 +120,18 @@ int main()
 
     Shape* shapes[] = {c,s,t};
 
-    wildcard _;
-    double   x;
-    loc      l;
-    cloc     cl;
-
     double m = 0.0;
 
     for (size_t i = 0; i < 3; ++i)
     {
         KIND_SWITCH(shapes[i])
         {
-        KIND_CASES_BEGIN 
         KIND_CASE(Circle,_,x) std::cout << "Circle"   << std::endl; m += x;       break;
         KIND_CASE(Square,_,x) std::cout << "Square"   << std::endl; m += x;       break;
         KIND_CASE(Triangle,l) std::cout << "Triangle" << std::endl; m += l.first; break;
       //KIND_CASE(Triangle,l) std::cout << "Triangle" << std::endl; m += l.first; break; // NOTE: Not possible to have another kind match
-        KIND_CASES_END
         }
+        END_KIND_SWITCH
     }
 
     std::cout << m << std::endl;
@@ -148,13 +142,12 @@ int main()
     {
         TYPE_SWITCH(shapes[i])
         {
-        TYPE_CASES_BEGIN 
         TYPE_CASE(Circle)   std::cout << "Circle"   << std::endl; m += matched->radius;      break;
         TYPE_CASE(Square)   std::cout << "Square"   << std::endl; m += matched->side;        break;
         TYPE_CASE(Triangle) std::cout << "Triangle" << std::endl; m += matched->first.first; break;
         TYPE_CASE(Triangle) std::cout << "Triangle" << std::endl; m += matched->first.first; break; // NOTE: Possible to have another type case match
-        TYPE_CASES_END
         }
+        END_TYPE_SWITCH
     }
 
     std::cout << m << std::endl;
@@ -165,13 +158,12 @@ int main()
     {
         SWITCH(shapes[i])
         {
-        CASES_BEGIN 
         CASE(Circle,_,x)    std::cout << "Circle"   << std::endl; m += x;       break;
         CASE(Square,_,x)    std::cout << "Square"   << std::endl; m += x;       break;
         CASE(Triangle,l)    std::cout << "Triangle" << std::endl; m += l.first; break;
         CASE(Triangle,l)    std::cout << "Triangle" << std::endl; m += l.first; break; // NOTE: Possible to have another regular match
-        CASES_END
         }
+        END_SWITCH
     }
 
     std::cout << m << std::endl;
@@ -182,13 +174,12 @@ int main()
     {
         UNION_SWITCH(adtshapes[i])
         {
-        UNION_CASES_BEGIN 
         UNION_CASE(ADTShape::circle,_,x)  std::cout << "ADTCircle"   << std::endl; m += x;       break;
         UNION_CASE(ADTShape::square,_,x)  std::cout << "ADTSquare"   << std::endl; m += x;       break;
         UNION_CASE(ADTShape::triangle,cl) std::cout << "ADTTriangle" << std::endl; m += cl.first;break;
       //UNION_CASE(ADTShape::triangle,cl) std::cout << "ADTTriangle" << std::endl; m += cl.first;break; // NOTE: Not possible to have another union match
-        UNION_CASES_END
         }
+        END_UNION_SWITCH
     }
 
     std::cout << m << std::endl;

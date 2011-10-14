@@ -132,13 +132,12 @@ int main()
     {
         TYPE_SWITCH(shapes[i])
         {
-        TYPE_CASES_BEGIN
         TYPE_CASE(Circle)   std::cout << "Circle"   << std::endl; m += matched->radius;      break;
         TYPE_CASE(Square)   std::cout << "Square"   << std::endl; m += matched->side;        break;
         TYPE_CASE(Triangle) std::cout << "Triangle" << std::endl; m += matched->first.first; break;
         TYPE_CASE(Triangle) std::cout << "Triangle" << std::endl; m += matched->first.first; break; // NOTE: Possible to have another type case match
-        TYPE_CASES_END
         }
+        END_TYPE_SWITCH
     }
 
     std::cout << m << std::endl;
@@ -151,14 +150,13 @@ int main()
     {
         SWITCH(shapes[i])
         {
-        CASES_BEGIN 
         CASE(Circle,_,r)    std::cout << "Circle"   << std::endl; m += r;       break;
         CASE(Square,_,r)    std::cout << "Square"   << std::endl; m += r;       break;
         CASE(Triangle,p)    std::cout << "Triangle" << std::endl; m += p.first; break;
         CASE(Triangle,p)    std::cout << "Triangle" << std::endl; m += p.first; break; // NOTE: Possible to have another regular match
-        CASES_END
         }
-    }
+        END_SWITCH
+     }
 
     std::cout << m << std::endl;
 
@@ -431,15 +429,12 @@ void test_autodecl(const Shape* shape)
 {
     double m = 0.0;
 
-    for (size_t i = 0; i < 3; ++i)
+    Match(shape)
     {
-        Match(shape)
-        {
-            Case(Circle,c,r)  std::cout << "Circle"   << std::endl; m += r;       break;
-            Case(Square,c,s)  std::cout << "Square"   << std::endl; m += s;       break;
-            Case(Triangle,p)  std::cout << "Triangle" << std::endl; m += p.first; break;
-            Otherwise()       std::cout << "Other"    << std::endl; m += 2;       break;
-        }
-        EndMatch
+        Case(Circle,c,r)  std::cout << "Circle"   << std::endl; m += r;       break;
+        Case(Square,c,s)  std::cout << "Square"   << std::endl; m += s;       break;
+        Case(Triangle,p)  std::cout << "Triangle" << std::endl; m += p.first; break;
+        Otherwise()       std::cout << "Other"    << std::endl; m += 2;       break;
     }
+    EndMatch
 }

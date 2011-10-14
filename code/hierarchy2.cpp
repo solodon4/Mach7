@@ -7,7 +7,7 @@
 #include <numeric>
 #include <string>
 #include <vector>
-#include "match.hpp"
+#include "match_generic.hpp"
 #include "timing.hpp"
 
 #if !defined(NUMBER_OF_BASES)
@@ -89,18 +89,15 @@ template <size_t N> void shape_derived<N>::accept(ShapeVisitor& v) const { v.vis
 DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s)
 {
-    SWITCH_N(s,NUMBER_OF_DERIVED)
-    {
-        #define FOR_EACH_MAX      NUMBER_OF_BASES-1
-        #define FOR_EACH_PRELUDE  CASES_BEGIN
-        #define FOR_EACH_N(N)     CASE(shape_derived<N>) return N;
-        #define FOR_EACH_POSTLUDE CASES_END
-        #include "loop_over_numbers.hpp"
-        #undef  FOR_EACH_POSTLUDE
-        #undef  FOR_EACH_N
-        #undef  FOR_EACH_PRELUDE
-        #undef  FOR_EACH_MAX
-    }
+    #define FOR_EACH_MAX      NUMBER_OF_BASES-1
+    #define FOR_EACH_PRELUDE  SWITCH_N(s,NUMBER_OF_DERIVED)
+    #define FOR_EACH_N(N)     CASE(shape_derived<N>) return N;
+    #define FOR_EACH_POSTLUDE END_SWITCH
+    #include "loop_over_numbers.hpp"
+    #undef  FOR_EACH_POSTLUDE
+    #undef  FOR_EACH_N
+    #undef  FOR_EACH_PRELUDE
+    #undef  FOR_EACH_MAX
     return -1;
 }
 DO_NOT_INLINE_END
@@ -280,13 +277,13 @@ int relative_performance(long long v, long long m)
     else
     if (v <= m)
     {
-        int percent = m*100/v-100;
+        int percent = int(m*100/v-100);
         std::cout << "\t\t" << percent << "% slower" << std::endl;
         return +percent; // Positive number indicates how many percents slower we are 
     }
     else
     {
-        int percent = v*100/m-100;
+        int percent = int(v*100/m-100);
         std::cout << "\t\t" << percent << "% faster" << std::endl;
         return -percent; // Negative number indicates how many percents faster we are 
     }
@@ -385,7 +382,7 @@ int test_sequential()
 int test_randomized()
 {
 #if !defined(NO_RANDOMIZATION)
-    srand (get_time_stamp()/get_frequency()); // Randomize pseudo random number generator
+    srand (unsigned(get_time_stamp()/get_frequency())); // Randomize pseudo random number generator
 #endif
     std::cout << "=================== Randomized Test ===================" << std::endl;
 

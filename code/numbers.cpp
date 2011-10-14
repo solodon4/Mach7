@@ -12,7 +12,7 @@ fib (2*n+1) = (fib(n+1))^2 + (fib n   )^2
 */
 #include <math.h>
 #include <iostream>
-#include "match.hpp"
+#include "match_generic.hpp"
 #include "timing.hpp"
 
 template <typename T> T& identity(T& t) { return t; }

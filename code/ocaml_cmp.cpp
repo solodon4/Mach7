@@ -3,7 +3,7 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
-#include "match.hpp"
+#include "match_generic.hpp"
 #include "timing.hpp"
 
 #if !defined(NUMBER_OF_VFUNCS)
@@ -25,18 +25,15 @@ struct shape_kind : Shape
 
 size_t do_match(const Shape& s)
 {
-    SWITCH_N(s,NUMBER_OF_DERIVED)
-    {
     #define FOR_EACH_MAX      NUMBER_OF_DERIVED-1
-    #define FOR_EACH_PRELUDE  CASES_BEGIN
+    #define FOR_EACH_PRELUDE  SWITCH_N(s,NUMBER_OF_DERIVED)
     #define FOR_EACH_N(N)     CASE(shape_kind<N>) return N;
-    #define FOR_EACH_POSTLUDE CASES_END
+    #define FOR_EACH_POSTLUDE END_SWITCH
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_POSTLUDE
     #undef  FOR_EACH_N
     #undef  FOR_EACH_PRELUDE
     #undef  FOR_EACH_MAX
-    }
     return -1;
 }
 
@@ -67,7 +64,7 @@ int main()
     Shape* s = make_shape(42);
 
     time_stamp total_time = 0;
-    int z = 0;
+    size_t z = 0;
 
     for (int i = 0; i < M; ++i)
     {

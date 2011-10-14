@@ -52,7 +52,7 @@ all: 	$(TARGETS)
 
 # A rule to clean all the intermediates and targets
 clean:	
-	rm -rf $(TARGETS) $(OBJECTS) *.out *.stackdump
+	rm -rf $(TARGETS) $(OBJECTS) *.out *.stackdump *.cmi *.cmx *.obj *.csv
 
 # A rule to run set of tests
 test:

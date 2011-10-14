@@ -520,7 +520,7 @@ public:
     {
         size_t opt_shift   = 0;
         double opt_entropy = 0.0;
-        double total       = table.size();
+        double total       = double(table.size());
         size_t r = trailing_zeros(static_cast<unsigned int>(m_differ));
 
         for (size_t i = r; i < sizeof(intptr_t)*8; ++i)
@@ -594,7 +594,7 @@ public:
         }
 
         double entropy = 0.0;
-        double total   = table.size();
+        double total   = double(table.size());
 
         for (size_t j = 0; j < (1<<N); ++j)
         {

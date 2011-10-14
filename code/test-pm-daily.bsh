@@ -1,0 +1,75 @@
+#!/bin/bash
+
+##
+## Script for testing C++ pattern matching library
+##
+## Written by Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+## Version 1.0 from 30th April 2011
+##
+## Usage: test-pm-daily.bat
+##                                                                           
+## This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
+## Copyright (C) 2005-2011 Texas A&M University.
+## All rights reserved.
+## 
+
+# Show usage information by dumping the above comment when --help was specified
+if [ "$1" == "--help" ]
+then
+    grep --color "^##" $0
+    exit
+fi
+
+# Prepare log file
+#testlog=`date +"%F-%H-%M"`
+#testlog="all-${app_name}-$testlog.log"
+#logfile="$testlog"
+logfile="test-pm-daily.log"
+results="test-pm-daily.txt"
+line===================================
+echo Test from `date +"%F %R"` > $logfile
+echo Test from `date +"%F %R"` > $results
+
+echo Building executables using G++ ...
+echo [ G++ ] ========================================= >> $logfile
+make >> $logfile 2>&1
+echo Building OCaml sources ...
+echo [ OCaml ] ======================================= >> $logfile
+ocamlopt.opt unix.cmxa -o ocaml_cmp_ml.exe ocaml_cmp.ml>> $logfile 2>&1
+
+# -------------------------------------------------------------------------------
+
+echo Running synthetic.exe
+echo [ synthetic.exe ] ========================== | tee -a $logfile >> $results
+# synthetic.exe                  | tee -a $logfile | grep "L.:" >> $results
+echo Running generic_select_random.exe
+echo [ generic_select_random.exe ] ============== | tee -a $logfile >> $results
+generic_select_random.exe       | tee -a $logfile | grep "L.:" >> $results
+echo Running synthetic_select_random.exe
+echo [ synthetic_select_random.exe ] ============ | tee -a $logfile >> $results
+synthetic_select_random.exe     | tee -a $logfile | grep "L.:" >> $results
+echo Running synthetic_select.exe
+echo [ synthetic_select.exe ] =================== | tee -a $logfile >> $results
+synthetic_select.exe            | tee -a $logfile | grep "L.:" >> $results
+echo Running hierarchy2.exe
+echo [ hierarchy2.exe ] ========================= | tee -a $logfile >> $results
+hierarchy2.exe                  | tee -a $logfile | grep "L.:" >> $results
+echo Running generic_select_kind.exe
+echo [ generic_select_kind.exe ] ================ | tee -a $logfile >> $results
+generic_select_kind.exe         | tee -a $logfile | grep "L.:" >> $results
+echo Running synthetic_select_kind.exe
+echo [ synthetic_select_kind.exe ] ============== | tee -a $logfile >> $results
+synthetic_select_kind.exe       | tee -a $logfile | grep "L.:" >> $results
+echo Running type_switch.exe
+echo [ type_switch.exe ] ======================== | tee -a $logfile >> $results
+type_switch.exe                 | tee -a $logfile | grep "L.:" >> $results
+echo Running ocaml_cmp.exe
+echo [ ocaml_cmp.exe ] ========================== | tee -a $logfile >> $results
+ocaml_cmp.exe                   | tee -a $logfile | grep ":"   >> $results
+echo Running ocaml_cmp_kind.exe
+echo [ ocaml_cmp_kind.exe ] ===================== | tee -a $logfile >> $results
+ocaml_cmp_kind.exe              | tee -a $logfile | grep ":"   >> $results
+echo Running numbers.exe
+echo [ numbers.exe ] ============================ | tee -a $logfile >> $results
+numbers.exe                     | tee -a $logfile | grep "%%"  >> $results 
+

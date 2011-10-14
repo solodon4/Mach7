@@ -1498,13 +1498,13 @@ int relative_performance(long long v, long long m)
     else
     if (UNLIKELY_BRANCH(v <= m))
     {
-        int percent = m*100/v-100;
+        int percent = int(m*100/v-100);
         std::cout << "\t\t" << percent << "% slower" << std::endl;
         return +percent; // Positive number indicates how many percents slower we are 
     }
     else
     {
-        int percent = v*100/m-100;
+        int percent = int(v*100/m-100);
         std::cout << "\t\t" << percent << "% faster" << std::endl;
         return -percent; // Negative number indicates how many percents faster we are 
     }
@@ -1603,7 +1603,7 @@ int test_sequential()
 int test_randomized()
 {
 #if !defined(NO_RANDOMIZATION)
-    srand (get_time_stamp()/get_frequency()); // Randomize pseudo random number generator
+    srand (unsigned(get_time_stamp()/get_frequency())); // Randomize pseudo random number generator
 #endif
     std::cout << "=================== Randomized Test ===================" << std::endl;
 

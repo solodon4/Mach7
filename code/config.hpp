@@ -89,14 +89,20 @@
 
 #else
 #define DEBUG_ONLY(s)
-// Our own version of assert macro because of the fact that normal assert was 
-// not always removed in the release builds.
+/// Our own version of assert macro because of the fact that normal assert was 
+/// not always removed in the release builds.
 #define XTL_ASSERT(x)
-// Our own version of assert macro because of the fact that normal assert was 
-// not always removed in the release builds.
+/// Our own version of assert macro because of the fact that normal assert was 
+/// not always removed in the release builds.
 #define XTL_VERIFY(x) if (!(x)) std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'
 
 #endif
+
+//------------------------------------------------------------------------------
+
+/// The code that our macros generate may produce some variables that are not
+/// necessarily used by the user. This macro is to suppress unused variable warning
+#define XTL_UNUSED(x) (void)x;
 
 //------------------------------------------------------------------------------
 

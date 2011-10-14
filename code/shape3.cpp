@@ -28,12 +28,8 @@ double heron(const loc& l1, const loc& l2, const loc& l3)
 
 double area_select(Shape* shape)
 {
-    loc  x,y,z;
-    double r,s;
-
     SWITCH(shape)
     {
-    CASES_BEGIN
     CASE(Circle,_,r)     
         std::cout << "Circle" << std::endl; 
         return 3.14 * r * r;
@@ -43,8 +39,8 @@ double area_select(Shape* shape)
     CASE(Triangle,x,y,z) 
         std::cout << "Triangle" << std::endl; 
         return heron(x,y,z);
-    CASES_END
     }
+    END_SWITCH
 
     XTL_ASSERT(!"Inexhaustive search"); 
     return 0.0;

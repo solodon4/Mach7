@@ -1,7 +1,7 @@
 #include <iostream>
 #include <typeinfo>
 #include <utility>
-#include "match.hpp"
+#include "match_generic.hpp"
 
 template<class X, class Y, class S, class T>
 std::pair<S, T> lift(const std::pair<X, Y>& p, S f(X), T g(Y))
@@ -98,6 +98,17 @@ const Either<S, T>* lift_ex(const Either<X, Y>& e, S f(X), T g(Y))
 		return 0;
 }
 
+template<class X, class Y, class S, class T>
+const Either<S, T>* lift_ex2(const Either<X, Y>& e, S f(X), T g(Y))
+{
+    TMatch(e)
+    {
+	TCase(TTypeArg( Left<X,Y>), x) return  left<S, T>(f(x));
+	TCase(TTypeArg(Right<X,Y>), y) return right<S, T>(g(y));
+    }
+    TEndMatch
+}
+
 int  my_f(double d) { return (int)(d+0.5); }
 bool my_g(char c)   { return c >= 'A' && c <= 'Z'; }
 
@@ -109,6 +120,8 @@ int main()
 	const Either<int,bool>* pb1 = lift(*pb,my_f,my_g);
 	const Either<int,bool>* pa2 = lift_ex(*pa,my_f,my_g);
 	const Either<int,bool>* pb2 = lift_ex(*pb,my_f,my_g);
+	const Either<int,bool>* pa3 = lift_ex2(*pa,my_f,my_g);
+	const Either<int,bool>* pb3 = lift_ex2(*pb,my_f,my_g);
 
 	std::cout << *pa << std::endl;
 	std::cout << *pb << std::endl;
@@ -116,6 +129,8 @@ int main()
 	std::cout << *pb1 << std::endl;
 	std::cout << *pa2 << std::endl;
 	std::cout << *pb2 << std::endl;
+	std::cout << *pa3 << std::endl;
+	std::cout << *pb3 << std::endl;
 
 }
 /*

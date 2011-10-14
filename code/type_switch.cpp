@@ -70,18 +70,15 @@ template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(
 DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s)
 {
-    TYPE_SWITCH_N(s,NUMBER_OF_DERIVED)
-    {
     #define FOR_EACH_MAX      NUMBER_OF_DERIVED-1
-    #define FOR_EACH_PRELUDE  TYPE_CASES_BEGIN
+    #define FOR_EACH_PRELUDE  TYPE_SWITCH_N(s,NUMBER_OF_DERIVED)
     #define FOR_EACH_N(N)     TYPE_CASE(shape_kind<N>) return N;
-    #define FOR_EACH_POSTLUDE TYPE_CASES_END
+    #define FOR_EACH_POSTLUDE END_TYPE_SWITCH
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_POSTLUDE
     #undef  FOR_EACH_N
     #undef  FOR_EACH_PRELUDE
     #undef  FOR_EACH_MAX
-    }
     return -1;
 }
 DO_NOT_INLINE_END
