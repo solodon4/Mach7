@@ -17,9 +17,12 @@
 
 #include <cassert>
 #include <ostream>
+#include <boost/type_traits/remove_const.hpp>
 #include "exprtmpl.hpp"
 #include "vtblmap.hpp"
 #include "memoized_cast.hpp"
+
+using boost::remove_const;
 
 #ifdef _DEBUG
 #include <typeinfo>
@@ -58,8 +61,8 @@ template <>      struct requires_bits<1> { enum { value = 0 }; };
 
 //------------------------------------------------------------------------------
 
-template <typename T> struct remove_const          { typedef T type; };
-template <typename T> struct remove_const<const T> { typedef T type; };
+//template <typename T> struct remove_const          { typedef T type; };
+//template <typename T> struct remove_const<const T> { typedef T type; };
 
 //------------------------------------------------------------------------------
 

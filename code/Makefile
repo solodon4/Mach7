@@ -10,7 +10,7 @@
 #     make test   - Run the test suite
 #
 
-INCLUDES = 
+INCLUDES = -I"$(BOOST)"
 LIBS     = -lstdc++
 CXXFLAGS = $(INCLUDES) -Wall -time -O3 -DNDEBUG -std=c++0x
 LIBFLAGS =  

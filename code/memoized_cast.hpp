@@ -11,13 +11,14 @@
 /// All rights reserved.
 ///
 
+#include <cstdint>
 #include <iostream>
 #include <unordered_map>
 
 //------------------------------------------------------------------------------
 
-typedef std::unordered_map<intptr_t, ptrdiff_t> vtbl2offset;
-static const ptrdiff_t no_cast_exists = 0x0FF1C1A1; // A dedicated constant marking impossible offset
+typedef std::unordered_map<std::intptr_t, std::ptrdiff_t> vtbl2offset;
+static const std::ptrdiff_t no_cast_exists = 0x0FF1C1A1; // A dedicated constant marking impossible offset
 
 //------------------------------------------------------------------------------
 
@@ -42,9 +43,9 @@ inline vtbl2offset& offset_map()
 //------------------------------------------------------------------------------
 
 template <typename T, typename U>
-inline ptrdiff_t get_offset(const U* p)
+inline std::ptrdiff_t get_offset(const U* p)
 {
-    const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
+    const std::intptr_t vtbl = *reinterpret_cast<const std::intptr_t*>(p);
     vtbl2offset& ofsmap = offset_map<T>();
     const vtbl2offset::iterator q = ofsmap.find(vtbl);
 
@@ -53,7 +54,7 @@ inline ptrdiff_t get_offset(const U* p)
     else
     {
         T k = dynamic_cast<T>(p);
-        const ptrdiff_t offset = k ? reinterpret_cast<const char*>(k)-reinterpret_cast<const char*>(p) : no_cast_exists;
+        const std::ptrdiff_t offset = k ? reinterpret_cast<const char*>(k)-reinterpret_cast<const char*>(p) : no_cast_exists;
         ofsmap.insert(vtbl2offset::value_type(vtbl,offset));
         return offset;
     }
@@ -79,8 +80,8 @@ const int irrelevant_bits = 4;  // vtbl in G++ seem to be alligned by 8 bytes
 /// Structure describing entry in the cache
 struct cache_entry
 {
-    intptr_t  vtbl;   ///< vtbl for which offset has been computed
-    ptrdiff_t offset; ///< offset that has to be added for ptr with given vtbl
+    std::intptr_t  vtbl;   ///< vtbl for which offset has been computed
+    std::ptrdiff_t offset; ///< offset that has to be added for ptr with given vtbl
 };
 
 //------------------------------------------------------------------------------
@@ -92,9 +93,9 @@ inline T memoized_cast(const U* p)
     {
 #ifndef DYN_CAST_CACHING
         static cache_entry cache[1<<cache_bits] = {};
-        const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
+        const std::intptr_t vtbl = *reinterpret_cast<const std::intptr_t*>(p);
         cache_entry& ce = cache[(vtbl>>irrelevant_bits) & cache_mask];
-        ptrdiff_t offset;
+        std::ptrdiff_t offset;
 
         if (ce.vtbl == vtbl)
             offset = ce.offset;
@@ -104,7 +105,7 @@ inline T memoized_cast(const U* p)
             ce.offset = offset = get_offset<T>(p);
         }
 #else
-        ptrdiff_t offset = get_offset<T>(p);
+        std::ptrdiff_t offset = get_offset<T>(p);
 #endif
         return 
             offset == no_cast_exists 
