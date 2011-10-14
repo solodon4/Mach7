@@ -39,7 +39,11 @@ showstringspaces=false,
 \newcommand{\Rule}[1]{{\rmfamily\itshape{#1}}}
 \newcommand{\Alt}{\ensuremath{|}}
 \newcommand{\is}{$::=$}
+\newcommand{\subtype}{\textless:}
 \newcommand{\evals}{\Rightarrow}
+\newcommand{\evalspp}{\Rightarrow^+}
+\newcommand{\DynCast}[2]{\ensuremath{dc\langle{#1}\rangle({#2})}}
+\newcommand{\nullptr}{\ensuremath{\bot}}
 
 \newsavebox{\sembox}
 \newlength{\semwidth}
@@ -153,7 +157,7 @@ the domain where pattern matching is known to cut the edge of laconism and
 clarity -- compiler construction. Imagine a simple language of expressions:
 
 \begin{lstlisting}
-exp ::= val | exp + exp | exp - exp | exp * exp | exp / exp
+@$exp$ \is{} $val$ \Alt{} $exp+exp$ \Alt{} $exp-exp$ \Alt{} $exp*exp$ \Alt{} $exp/exp$@
 \end{lstlisting}
 
 OCaml data type describing this grammar as well as simple evaluator of expressions 
@@ -1270,27 +1274,30 @@ standard\cite{C++0x}.
 
 \begin{center}
 \begin{tabular}{rp{0em}cl}
-\Rule{match statement}     & $M$     & \is{}  & \code{Match(}$e$\code{)} $\left[C s^*\right]^*$ \code{EndMatch} \\
-\Rule{case clause}         & $C$     & \is{}  & \code{Case(}$T\left[,v\right]^*$\code{)} \\
-                           &         & \Alt{} & \code{Que(} $T\left[,c|v|\pi\right]^*$\code{)} \\
-\Rule{target expression}   & $T$     & \is{}  & $\tau$ \Alt{} $l$ \\
-\Rule{match expression}    & $m$     & \is{}  & $\pi(e)$ \\
-\Rule{pattern}             & $\pi$   & \is{}  & $\_$\Alt{} $n$ \Alt{} $g$ \Alt{} $t$ \\
-\Rule{tree pattern}        & $t$     & \is{}  & \code{match<}$\tau\left[,l\right]$\code{>(}$\left[c|v|\pi\right]^*$\code{)} \\
-\Rule{guard pattern}       & $g$     & \is{}  & $n \models x$ \Alt{} $t \models x$ \\
-\Rule{n+k pattern}         & $n$     & \is{}  & $w$ \Alt{} $n \oplus c$ \Alt{} $c \oplus n$ \Alt{} $\ominus n$ \Alt{} $(n)$ \Alt{} $\_$ \\
-\Rule{wildcard pattern}    & $\_^{wildcard}$& & \\
-\Rule{xt expression}       & $x$     & \is{}  & $w$ \Alt{} $x \oplus c$ \Alt{} $c \oplus x$ \Alt{} $\ominus x$ \Alt{} $(x)$ \Alt{} $x \oplus x$ \\
-\Rule{xt variable}         & $w^{variable\langle\tau\rangle}$ & & \ \\
-\Rule{layout}              & $l$     & \is{}  & $c^{int}$ \\
-\Rule{unary operator}      &$\ominus$& $\in$  & $\lbrace*,\&,+,-,!,\sim\rbrace$ \\
-\Rule{binary operator}     & $\oplus$& $\in$  & $\lbrace*,/,\%,+,-,\ll,\gg,\&,\wedge,|,$ \\
-                           &         &        & $<,\leq,>,\geq,=,\neq,\&\&,||\rbrace$ \\
-\Rule{type-id}             & $\tau$  &        & C++\cite[\textsection A.7]{C++0x} \\
-\Rule{statement}           & $s$     &        & C++\cite[\textsection A.5]{C++0x} \\
-\Rule{expression}          & $e^\tau$&        & C++\cite[\textsection A.4]{C++0x} \\
-\Rule{constant-expression} & $c^\tau$&        & C++\cite[\textsection A.4]{C++0x} \\
-\Rule{identifier}          & $v^\tau$&        & C++\cite[\textsection A.2]{C++0x} \\
+\Rule{match statement}     & $M$       & \is{}  & \code{Match(}$e$\code{)} $\left[C s^*\right]^*$ \code{EndMatch} \\
+\Rule{case clause}         & $C$       & \is{}  & \code{Case(}$T\left[,x\right]^*$\code{)} \\
+                           &           & \Alt{} & \code{Que(} $T\left[,c|x|\pi\right]^*$\code{)} \\
+\Rule{target expression}   & $T$       & \is{}  & $\tau$ \Alt{} $l$ \\
+\Rule{match expression}    & $m$       & \is{}  & $\pi(e)$ \\
+\Rule{pattern}             & $\pi$     & \is{}  & $\_$ \Alt{} $\eta$ \Alt{} $\varrho$ \Alt{} $\mu$ \Alt{} $\varsigma$ \Alt{} $\chi$ \\
+\Rule{tree pattern}        & $\mu$     & \is{}  & \code{match<}$\tau\left[,l\right]$\code{>(}$\left[c|x|\pi\right]^*$\code{)} \\
+\Rule{guard pattern}       & $\varrho$ & \is{}  & $\eta \models \varepsilon$ \Alt{} $\mu \models \varepsilon$ \\
+\Rule{n+k pattern}         & $\eta$    & \is{}  & $\chi$ \Alt{} $\eta \oplus c$ \Alt{} $c \oplus \eta$ \Alt{} $\ominus \eta$ \Alt{} $(\eta)$ \Alt{} $\_$ \\
+\Rule{wildcard pattern}    & $\_^{wildcard}$ \\
+\Rule{variable pattern}    & $\chi$    & \is{}  & $\kappa$ \Alt{} $\iota$ \\
+\Rule{value pattern}       & $\varsigma^{value\langle\tau\rangle}$ \\
+\Rule{xt variable}         & $\kappa^{variable\langle\tau\rangle}$ \\
+\Rule{xt reference}        & $\iota^{var\_ref\langle\tau\rangle}$  \\
+\Rule{xt expression}       & $\varepsilon$   & \is{}  & $\chi$ \Alt{} $\varepsilon \oplus c$ \Alt{} $c \oplus \varepsilon$ \Alt{} $\ominus \varepsilon$ \Alt{} $(\varepsilon)$ \Alt{} $\varepsilon \oplus \varepsilon$ \\
+\Rule{layout}              & $l$       & \is{}  & $c^{int}$ \\
+\Rule{unary operator}      & $\ominus$ & $\in$  & $\lbrace*,\&,+,-,!,\sim\rbrace$ \\
+\Rule{binary operator}     & $\oplus$  & $\in$  & $\lbrace*,/,\%,+,-,\ll,\gg,\&,\wedge,|,$ \\
+                           &           &        & $<,\leq,>,\geq,=,\neq,\&\&,||\rbrace$ \\
+\Rule{type-id}             & $\tau$    &        & C++\cite[\textsection A.7]{C++0x} \\
+\Rule{statement}           & $s$       &        & C++\cite[\textsection A.5]{C++0x} \\
+\Rule{expression}          & $e^\tau$  &        & C++\cite[\textsection A.4]{C++0x} \\
+\Rule{constant-expression} & $c^\tau$  &        & C++\cite[\textsection A.4]{C++0x} \\
+\Rule{identifier}          & $x^\tau$  &        & C++\cite[\textsection A.2]{C++0x} \\
 \end{tabular}
 \end{center}
 
@@ -1427,25 +1434,43 @@ int fib(int n)
 
 {\bf Wildcard pattern} in our library is represented by a predefined global 
 variable \code{_} of a dedicated type \code{wildcard} bearing no state. 
-Wildcard pattern is accepted everywhere where an \emph{xt variable} $x$ or a 
-regular variable $v$ are accepted. The important difference from a use of 
-an unused variable is that no code is executed to obtain a value for a given 
-position and copy that value into a variable. The position is ignored 
-alltogether and the pattern matching continues.
+Wildcard pattern is accepted everywhere where a \emph{variable pattern} $\chi$ 
+is accepted. The important difference from a use of an unused variable is that 
+no code is executed to obtain a value for a given position and copy that value 
+into a variable. The position is ignored alltogether and the pattern matching 
+continues.
+
+There are two kinds of {\bf variable patterns} in our library: \emph{xt variable} 
+and \emph{xt reference}. {\bf xt variable} stands for \emph{expression-template 
+variable} and refers to variables whose type is \code{variable<T>} for any given 
+type \code{T}. {\bf xt reference} is an \emph{expression-template variable 
+reference} whose type is \code{var_ref<T>}. The latter is never declared 
+explicitly, but is implicitly introduced by the library to wrap regular 
+variables in places where our syntax accepts $x$. Both variable kinds are 
+terminal symbols in our SELL letting us build expression templates of them. The 
+main difference between the two is that {\bf xt variable} $\kappa$ maintains a 
+value of type \code{T} as its own state, while {\bf xt reference} $\iota$ only 
+keeps a reference to a user-declared variable of type \code{T}. Besides the 
+difference in where the state is stored, both kinds of variables have the same 
+semantics and we will thus refer to them as $\chi$. We will also use $\chi^\tau$ 
+to mean either $\kappa^{variable\langle\tau\rangle}$ or 
+$\iota^{var\_ref\langle\tau\rangle}$ since the type of the actual data $\tau$ is 
+what we are interested in, while the fact that it was wrapped into 
+\code{variable<>} or \code{var_ref<>} can be implicitly inferred from the 
+meta-variable $\chi$. We would also like to point out that in most cases a 
+variable pattern can be used as regular variable in the same context where a 
+variable of type \code{T} can. In few cases where this doesn't happen 
+implicitly, the user might need to put an explicit cast to \code{T&} or 
+\code{const T&}.
+
+{\bf Value pattern} is similarly never declared explicitly and is implicitly 
+introduced by the library in places where $c$ is accepted.
 
 {\bf xt expression} refers to an \emph{expression-template expression} -- a 
 non-terminal symbol in our expression language built by applying a given 
 operator to argument expression templates. We use this syntactic category to 
 distinguish lazily evaluated expressions introduced by our SELL from eagerly 
 evaluated expressions, directly supported by C++.
-
-{\bf xt variable} stands for \emph{expression-template variable} and refers to 
-variables whose type is \code{variable<T>} for any given type \code{T}. They are 
-terminal symbols in our SELL that let us build various expression templates. 
-These variables hold a value of type \code{T} and in most cases can be used in 
-the same context where a variable of type \code{T} can. In few cases where this 
-doesn't happen implicitly, the user might need to put an explicit cast to 
-\code{T&} or \code{const T&}.
 
 {\bf Layout} is an enumerator that user can use to define alternative bindings 
 for the same class. When layout is not mentioned, the default layout is used, 
@@ -1470,110 +1495,211 @@ C++ type of the entity they represent.
 
 \subsection{Semantics}
 
-We use natural semantics\cite{Kahn} (big-step operational semantics) to describe 
-our pattern-matching semantics. As with syntax, we do not formalize our 
-semantics to the entire language, but concentrate only on presenting relevant 
+We use natural semantics\cite{Kahn87} (big-step operational semantics) to 
+describe our pattern-matching semantics. As with syntax, we do not formalize the 
+semantics of the entire language, but concentrate only on presenting relevant 
 parts of our extension. We assume the entire state of the program is modeled by 
-an environment $\Gamma$, which we can query as $\Gamma(v)$ to get a value of a 
-variable $v$. We describe our semantics with several rule sets that deal with 
-different parts of our syntax.
+an environment $\Gamma$, which we can query as $\Gamma(x)$ to get a value of a 
+variable $x$. In addition to meta-variables we have seen already, metavariables 
+$u,v$ and $b^{bool}$ range over values. We make a simplifying assumption that 
+all values of user-defined types are represented via variables of reference 
+types and there exist a non-throwing operation \DynCast{\tau}{v} that can test 
+whether an object of a given type is an instance of another type, returning a 
+proper reference to it or a dedicated value \nullptr{} that represents 
+\code{nullptr}. Intuitively, the semantics of such references is that of 
+pointers in C++, which are implicitly dereferenced. We describe our semantics 
+with several rule sets that deal with different parts of our syntax.
 
 Our first rule set deals with pattern application $\pi(e)$, which essentially 
-performs matching of pattern $\pi$ against expression $e$. The judgements are of 
+performs matching of a pattern $\pi$ against expression $e$. The judgements are of 
 the form $\Gamma\vdash \pi(e) \evals v,\Gamma'$ that can be interpreted as given 
-an environment $\Gamma$, pattern application $\pi{e}$ results in value $v$ and 
-environment $\Gamma'$.
+an environment $\Gamma$, pattern application $\pi(e)$ results in value $v$ and 
+environment $\Gamma'$. When we use $\evalspp$ instead of $\evals$ we simply 
+pointing out that corresponding evaluation rule comes from the C++ semantics and 
+not from our rules.
 
 \begin{mathpar}
 \inferrule[Wildcard]
 {}
 {\Gamma\vdash \_(e) \evals true,\Gamma}
 
+\inferrule[Value]
+{\Gamma\vdash e \evalspp v,\Gamma_1 \\ \Gamma_1\stackrel{eval}{\vdash} \varsigma \evals u,\Gamma_2}
+{\Gamma\vdash \varsigma^\tau(e^\tau) \evals (u==v),\Gamma_2}
+
 \inferrule[Variable]
-{\Gamma\vdash e \evals v,\Gamma'}
-{\Gamma\vdash w(e) \evals true,\Gamma'[w\leftarrow v]}
+{\Gamma\vdash e \evalspp v,\Gamma_1 \\ \Gamma_1 \vdash \DynCast{\tau_1}{v} \evalspp u,\Gamma_2}
+{\Gamma\vdash \chi^{\tau_1}(e^{\tau_2}) \evals (u \neq \nullptr{}),\Gamma_2[\chi\leftarrow u]}
 \end{mathpar}
 
 \begin{mathpar}
-\inferrule[n+k]
-{\Gamma\vdash e \evals v_1,\Gamma_1 \\ \Gamma_1\vdash \Psi_1^\oplus(v_1,c) \evals v_2,\Gamma_2 \\ \Gamma_2\vdash n(v_2) \evals b_3,\Gamma_3}
-{\Gamma\vdash (n \oplus c)(e) \evals b_3,\Gamma_3}
+\inferrule[n+k Binary Left]
+{\Gamma\vdash e \evalspp v_1,\Gamma_1 \\ \Gamma_1\vdash \Psi_\oplus^\tau[v_1](\bullet,c) \evalspp \langle b_2,v_2\rangle,\Gamma_2 \\ \Gamma_2\vdash \eta(v_2) \evals b_3,\Gamma_3}
+{\Gamma\vdash (\eta^\tau \oplus c)(e) \evals (b_2 \wedge b_3),\Gamma_3}
 \end{mathpar}
 
 \begin{mathpar}
-\inferrule[n+k]
-{\Gamma\vdash e \evals v_1,\Gamma_1 \\ \Gamma_1\vdash \Psi_2^\oplus(c,v_1) \evals v_2,\Gamma_2 \\ \Gamma_2\vdash n(v_2) \evals b_3,\Gamma_3}
-{\Gamma\vdash (c \oplus n)(e) \evals b_3,\Gamma_3}
+\inferrule[n+k Binary Right]
+{\Gamma\vdash e \evalspp v_1,\Gamma_1 \\ \Gamma_1\vdash \Psi_\oplus^\tau[v_1](c,\bullet) \evalspp \langle b_2,v_2\rangle,\Gamma_2 \\ \Gamma_2\vdash \eta(v_2) \evals b_3,\Gamma_3}
+{\Gamma\vdash (c \oplus \eta^\tau)(e) \evals (b_2 \wedge b_3),\Gamma_3}
 \end{mathpar}
 
 \begin{mathpar}
-\inferrule[n+k]
-{\Gamma\vdash e \evals v_1,\Gamma_1 \\ \Gamma_1\vdash \Psi_1^\ominus(v_1) \evals v_2,\Gamma_2 \\ \Gamma_2\vdash n(v_2) \evals b_3,\Gamma_3}
-{\Gamma\vdash (\ominus n)(e) \evals b_3,\Gamma_3}
+\inferrule[n+k Unary]
+{\Gamma\vdash e \evalspp v_1,\Gamma_1 \\ \Gamma_1\vdash \Psi_\ominus^\tau[v_1](\bullet)  \evalspp \langle b_2,v_2\rangle,\Gamma_2 \\ \Gamma_2\vdash \eta(v_2) \evals b_3,\Gamma_3}
+{\Gamma\vdash (\ominus \eta^\tau)(e) \evals (b_2 \wedge b_3),\Gamma_3}
 \end{mathpar}
 
 \begin{mathpar}
 \inferrule[Guard]
-{\Gamma\vdash e \evals v_1,\Gamma_1 \\ \Gamma_1\vdash \pi(v_1) \evals b_2,\Gamma_2 \\ \Gamma_2\stackrel{eval}{\vdash} x \evals b_3,\Gamma_3}
-{\Gamma\vdash (\pi \models x)(e) \evals b_2 \wedge b_3,\Gamma_3}
+{\Gamma\vdash e \evalspp v_1,\Gamma_1 \\ \Gamma_1\vdash \pi(v_1) \evals b_2,\Gamma_2 \\ \Gamma_2\stackrel{eval}{\vdash} \varepsilon \evals b_3,\Gamma_3}
+{\Gamma\vdash (\pi \models \varepsilon)(e) \evals (b_2 \wedge b_3),\Gamma_3}
 \end{mathpar}
 
 \begin{mathpar}
 \inferrule[Tree-Nullptr]
-{\Gamma \vdash e \evals v,\Gamma_0 \\ \Gamma_0 \vdash $dynamic\_cast$\langle\tau*\rangle(v) \evals nullptr,\Gamma_1}
-{\Gamma\vdash ($match$\langle\tau\rangle(\pi_1,...,\pi_k))(e) \evals nullptr,\Gamma_1}
+{\Gamma \vdash e \evalspp v,\Gamma_0 \\ \Gamma_0 \vdash \DynCast{\tau}{v} \evalspp \nullptr{},\Gamma_1}
+{\Gamma\vdash ($match$\langle\tau\rangle(\pi_1,...,\pi_k))(e) \evals \nullptr{},\Gamma_1}
 \end{mathpar}
 
 \begin{mathpar}
 \inferrule[Tree-False]
-{\Gamma \vdash e \evals v,\Gamma_0 \\ \Gamma_0 \vdash $dynamic\_cast$\langle\tau*\rangle(v) \evals u^{\tau*},\Gamma_1 \\\\
- \Gamma_1    \vdash \Delta_1    ^\tau(v) \evals v_1,    \Gamma_1'     \\ \Gamma_1'    \vdash \pi(v_1    ) \evals true, \Gamma_2     \\\\
- \Gamma_2    \vdash \Delta_2    ^\tau(v) \evals v_2,    \Gamma_2'     \\ \Gamma_2'    \vdash \pi(v_2    ) \evals true, \Gamma_3     \\\\
+{\Gamma \vdash e \evalspp v,\Gamma_0 \\ \Gamma_0 \vdash \DynCast{\tau}{v} \evalspp u^{\tau},\Gamma_1 \\\\
+ \Gamma_1    \vdash \Delta_1    ^\tau(v) \evalspp v_1,    \Gamma_1'     \\ \Gamma_1'    \vdash \pi(v_1    ) \evals true, \Gamma_2     \\\\
+ \Gamma_2    \vdash \Delta_2    ^\tau(v) \evalspp v_2,    \Gamma_2'     \\ \Gamma_2'    \vdash \pi(v_2    ) \evals true, \Gamma_3     \\\\
  \cdots \\\\
- \Gamma_{i-1}\vdash \Delta_{i-1}^\tau(v) \evals v_{i-1},\Gamma_{i-1}' \\ \Gamma_{i-1}'\vdash \pi(v_{i-1}) \evals true, \Gamma_i     \\\\
- \Gamma_i    \vdash \Delta_i    ^\tau(v) \evals v_i,    \Gamma_i'     \\ \Gamma_i'    \vdash \pi(v_i    ) \evals false,\Gamma_{i+1} \\\\
+ \Gamma_{i-1}\vdash \Delta_{i-1}^\tau(v) \evalspp v_{i-1},\Gamma_{i-1}' \\ \Gamma_{i-1}'\vdash \pi(v_{i-1}) \evals true, \Gamma_i     \\\\
+ \Gamma_i    \vdash \Delta_i    ^\tau(v) \evalspp v_i,    \Gamma_i'     \\ \Gamma_i'    \vdash \pi(v_i    ) \evals false,\Gamma_{i+1} \\\\
 }
-{\Gamma\vdash ($match$\langle\tau\rangle(\pi_1,...,\pi_k))(e) \evals nullptr,\Gamma_{i+1}}
+{\Gamma\vdash ($match$\langle\tau\rangle(\pi_1,...,\pi_k))(e) \evals \nullptr{},\Gamma_{i+1}}
 \end{mathpar}
 
 \begin{mathpar}
 \inferrule[Tree-True]
-{\Gamma \vdash e \evals v,\Gamma_0 \\ \Gamma_0 \vdash $dynamic\_cast$\langle\tau*\rangle(v) \evals u^{\tau*},\Gamma_1 \\\\
- \Gamma_1    \vdash \Delta_1    ^\tau(v) \evals v_1,    \Gamma_1'     \\ \Gamma_1'    \vdash \pi(v_1    ) \evals true, \Gamma_2     \\\\
- \Gamma_2    \vdash \Delta_2    ^\tau(v) \evals v_2,    \Gamma_2'     \\ \Gamma_2'    \vdash \pi(v_2    ) \evals true, \Gamma_3     \\\\
+{\Gamma \vdash e \evalspp v,\Gamma_0 \\ \Gamma_0 \vdash \DynCast{\tau}{v} \evalspp u^{\tau},\Gamma_1 \\\\
+ \Gamma_1    \vdash \Delta_1    ^\tau(v) \evalspp v_1,    \Gamma_1'     \\ \Gamma_1'    \vdash \pi(v_1    ) \evals true, \Gamma_2     \\\\
+ \Gamma_2    \vdash \Delta_2    ^\tau(v) \evalspp v_2,    \Gamma_2'     \\ \Gamma_2'    \vdash \pi(v_2    ) \evals true, \Gamma_3     \\\\
  \cdots \\\\
- \Gamma_{k-1}\vdash \Delta_{k-1}^\tau(v) \evals v_{k-1},\Gamma_{k-1}' \\ \Gamma_{k-1}'\vdash \pi(v_{k-1}) \evals true, \Gamma_k     \\\\
- \Gamma_k    \vdash \Delta_k    ^\tau(v) \evals v_k,    \Gamma_k'     \\ \Gamma_k'    \vdash \pi(v_k    ) \evals true, \Gamma_{k+1} \\\\
+ \Gamma_{k-1}\vdash \Delta_{k-1}^\tau(v) \evalspp v_{k-1},\Gamma_{k-1}' \\ \Gamma_{k-1}'\vdash \pi(v_{k-1}) \evals true, \Gamma_k     \\\\
+ \Gamma_k    \vdash \Delta_k    ^\tau(v) \evalspp v_k,    \Gamma_k'     \\ \Gamma_k'    \vdash \pi(v_k    ) \evals true, \Gamma_{k+1} \\\\
 }
-{\Gamma\vdash ($match$\langle\tau\rangle(\pi_1,...,\pi_k))(e) \evals u^{\tau*},\Gamma_{i+1}[$matched$^{\tau\&}\leftarrow*u]}
+{\Gamma\vdash ($match$\langle\tau\rangle(\pi_1,...,\pi_k))(e) \evals u^{\tau},\Gamma_{i+1}[$matched$^{\tau}\leftarrow u]}
 \end{mathpar}
 
+Matching a wildcard pattern against expression always succeeds without changes 
+to the environment (\RefTirName{Wildcard}). Matching a value pattern against 
+expression succeeds only if the result of evaluating that expression is the same 
+as the constant (\RefTirName{Value}). Matching against variable will always 
+succeeds when the type of expression $e$ is the same as variable's target type 
+$\tau$. When the types are different, the library will try to use 
+\code{dynamic_cast<}$\tau$\code{>(e)} to see whether dynamic type of expression can 
+be casted to $\tau$. If it does, matching succeds, binding variable to the 
+result of \code{dynamic_cast}. If it doesn't, matching fails 
+(\RefTirName{Variable}).
+
+Our semantics for generalized n+k patterns draws on the notion of 
+\emph{backward collecting semantics} used in \emph{abstract 
+interpretation}\cite{CousotCousot92-1}. In general, \emph{backward collecting 
+semantics} $Baexp\Sem{A}(E)R$ of an expression $A$ defines the subset of 
+possible environments $E$ such that the expression may evaluate, without 
+producing a runtime error, to a value belonging to given set $R$:
+
+\begin{lstlisting}
+@$Baexp\Sem{A}(E)R = \{x \in E | A(x) \in R\}$@
+\end{lstlisting} 
+
+This can be interpreted as following: given a set $E$ from where the arguments 
+of an expression $A$ draw their values, as well as a set $R$ of acceptable (not 
+all possible) results, find the largest subset $X \subseteq E$ of arguments that 
+will only render results of evaluating $A$ on them in $R$.
+
+Intuitively n+k patterns like $f(x,y)=v$ relate a known result of a given 
+function application to its arguments (hence analogy with backward collecting 
+semantics). The case where multiple unknown arguments are matched against a 
+single result should not be immediately discarded as there are known n-ary 
+functions whose inverse is unique. An example of such function is Peano curve 
+that uniquely maps $(0,1)$ onto $(0,1)^2$. Even when such mappings are 
+not one-to-one, their restriction to a given argument often is. Most 
+generalizations of n+k patterns seem to agree on the following rules:
+
+\begin{itemize}
+\item Absence of solution that would result in a given value should be indicated 
+      through rejection of the pattern.
+\item Presense of a unique solution should be indicated with acceptance of the 
+      pattern and binding of corresponding variables to the solution.
+\end{itemize}
+
+\noindent As to the case when multiple solutions are possible, several 
+alternatives can be viable:
+
+\begin{itemize}
+\item Reject the pattern.
+\item Accept, binding to either an arbitrary or some normalized solution.
+\item When set of solutions is guaranteed to be finite -- accept, binding 
+      solutions to a set variable.
+\item When set of solutions is guaranteed to be enumerable -- accept, binding 
+      solutions to a generator capable of enumerating them all.
+\end{itemize}
+
+\noindent
+We believe that depending on application, any of these semantic choices can be 
+valid, which is why we prefer not to make such choice for the user, but rather 
+provide him with means to decide himself. This is why our semantics for matching 
+against generalized n+k pattern depends on a family of user-defined functions 
+
+\begin{lstlisting}
+@$\Psi_f^\tau:\tau_r\times\tau_1\times\cdots\times1\times\cdots\times\tau_k\rightarrow bool\times\tau$@
+\end{lstlisting} 
+
+\noindent
+such that $\Psi_f^\tau[r](c_1,\cdots,\bullet,\cdots,c_k)$ for a given function 
+
+\begin{lstlisting}
+@$f:\tau_1,\cdots,\tau,\cdots,\tau_k\rightarrow\tau_r$@
+\end{lstlisting} 
+
+\noindent should return a pair composed of a boolean indicating acceptance of a 
+pattern $f(c_1,\cdots,x^\tau,\cdots,c_k)=r$ and a solution with respect to $x$ 
+when the match was reported successful. Symbol $\bullet$ indicates a position in 
+the argument list for which a solution is sought, the rest of the arguments are 
+known values. We describe how user can supply the function $\Psi_f^\tau$ for his 
+own operation $f$ in \textsection\ref{}.
+
+The only difference between the three rules defining semantics of n+k patterns 
+is the arity of the root operator and the position in the argument list in which 
+the only non-value pattern was spotted (\RefTirName{n+k Binary Left}, 
+\RefTirName{n+k Binary Right} and \RefTirName{n+k Unary}). We use user-defined 
+$\Psi_f^\tau$ to solve for a given argument of a given operator and then recurse 
+to match corresponding sub-expression. Note that when user did not provide 
+$\Psi_f^\tau$ for the argument in which solution is sought, the rule is 
+rejected.
+
 Our second rule set deals with evaluation of expression templates reffered to 
-from the previous rule set via $stackrel{eval}{\vdash}$. The judgements are of 
-the form $\Gamma\vdash x \evals v,\Gamma'$ that can be interpreted as given an 
-environment $\Gamma$, evaluation of an expression template $x$ results in value 
+from the previous rule set via $\stackrel{eval}{\vdash}$. The judgements are of 
+the form $\Gamma\vdash \varepsilon \evals v,\Gamma'$ that can be interpreted as given an 
+environment $\Gamma$, evaluation of an expression template $\varepsilon$ results in value 
 $v$ and environment $\Gamma'$.
 
 \begin{mathpar}
 \inferrule[Var]
 {}
-{\Gamma\vdash w \evals \Gamma(w),\Gamma}
+{\Gamma\vdash \chi \evals \Gamma(\chi),\Gamma}
 
 \inferrule[Unary]
-{\Gamma\vdash x \evals v,\Gamma_1}
-{\Gamma\vdash \ominus x \evals \Sem{\ominus} v,\Gamma_1}
+{\Gamma\vdash \varepsilon \evals v,\Gamma_1}
+{\Gamma\vdash \ominus \varepsilon \evals \Sem{\ominus} v,\Gamma_1}
 
 \inferrule[Binary]
-{\Gamma\vdash x_1 \evals v_1,\Gamma_1 \\ \Gamma_1\vdash x_2 \evals v_2,\Gamma_2}
-{\Gamma\vdash x_1 \oplus x_2 \evals v_1\Sem{\oplus}v_2,\Gamma_2}
+{\Gamma\vdash \varepsilon_1 \evals v_1,\Gamma_1 \\ \Gamma_1\vdash \varepsilon_2 \evals v_2,\Gamma_2}
+{\Gamma\vdash \varepsilon_1 \oplus \varepsilon_2 \evals v_1\Sem{\oplus}v_2,\Gamma_2}
 
 \inferrule[Binary]
-{\Gamma\vdash x \evals v,\Gamma_1}
-{\Gamma\vdash x \oplus c \evals v\Sem{\oplus}c,\Gamma_1}
+{\Gamma\vdash \varepsilon \evals v,\Gamma_1}
+{\Gamma\vdash \varepsilon \oplus c \evals v\Sem{\oplus}c,\Gamma_1}
 
 \inferrule[Binary]
-{\Gamma\vdash x \evals v,\Gamma_1}
-{\Gamma\vdash c \oplus x \evals c\Sem{\oplus}v,\Gamma_1}
+{\Gamma\vdash \varepsilon \evals v,\Gamma_1}
+{\Gamma\vdash c \oplus \varepsilon \evals c\Sem{\oplus}v,\Gamma_1}
 \end{mathpar}
 
 \subsection{Bindings Syntax}
@@ -1600,8 +1726,8 @@ meta-variables introduced in the previous grammar}
 
 \begin{center}
 \begin{tabular}{rp{0em}cl}
-\Rule{bindings}                &           & \is{}  & $b^*$ \\
-\Rule{binding definition}      & $b$       & \is{}  & \code{template <}$\left[\vec{p}\right]$\code{>} \\
+\Rule{bindings}                &           & \is{}  & $\delta^*$ \\
+\Rule{binding definition}      & $\delta$  & \is{}  & \code{template <}$\left[\vec{p}\right]$\code{>} \\
                                &           &        & \code{struct bindings<} $\tau[$\code{<}$\vec{p}$\code{>}$]\left[,l\right]$\code{>} \\
                                &           &        & \code{\{} $\left[cm|ks|kv\right]^*$ \code{\};} \\
 \Rule{class member}            & $cm$      & \is{}  & \code{CM(}$c^{size\_t},q$\code{);} \\
