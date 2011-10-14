@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <unordered_map>
@@ -24,6 +25,9 @@
 #include <iostream>
 #include <string>
 #endif
+
+//------------------------------------------------------------------------------
+
 /// Finds the number of trailing zeros in v.
 /// The following code to count trailing zeros was taken from:
 /// http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightFloatCast
@@ -34,6 +38,21 @@ inline unsigned int trailing_zeros(unsigned int v)
     float  f = (float)(v & -v); // cast the least significant bit in v to a float
     return (*(uint32_t *)&f >> 23) - 0x7f; // the result goes here
 #pragma warning( pop )
+}
+
+//------------------------------------------------------------------------------
+
+/// Counts the number of bits set in v (the Brian Kernighan's way)
+/// The following code to count set bits was taken from:
+/// http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan
+inline unsigned int bits_set(intptr_t v)
+{
+    unsigned int c = 0; // c accumulates the total bits set in v
+
+    for (; v; c++)
+        v &= v - 1; // clear the least significant bit set
+
+    return c;
 }
 
 //------------------------------------------------------------------------------
@@ -373,7 +392,13 @@ private:
 
 public:
 
-    vtblmap() : m_differ(0), m_prev(0), irrelevant_bits(VTBL_IRRELEVANT_BITS) {}
+    vtblmap() :
+        m_differ(0),
+        m_prev(0),
+        irrelevant_bits(VTBL_IRRELEVANT_BITS),
+        different_bits(0),
+        optimal_shift(VTBL_IRRELEVANT_BITS)
+    {}
 #if defined(DUMP_PERFORMANCE)
    ~vtblmap() { std::cout << *this << std::endl; }
 #endif
@@ -384,9 +409,6 @@ public:
     {
         cache_bits = N,
         cache_mask = (1<<cache_bits)-1,
-        /// Irrelevant lowest bits in vtbl pointers that are always the same for given 
-        /// compiler/platform configuration.
-        ///irrelevant_bits = VTBL_IRRELEVANT_BITS
     };
 
     /// Structure describing entry in the cache
@@ -413,9 +435,9 @@ public:
     {
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
     #if defined(USE_PEARSON_HASH)
-        cache_entry&   ce   = cache[pearson_hash(vtbl>>irrelevant_bits) & cache_mask];
+        cache_entry&   ce   = cache[pearson_hash(vtbl>>optimal_shift) & cache_mask];
     #else
-        cache_entry&   ce   = cache[(vtbl>>irrelevant_bits) & cache_mask];
+        cache_entry&   ce   = cache[(vtbl>>optimal_shift) & cache_mask];
     #endif
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
@@ -438,15 +460,18 @@ public:
 
                 m_prev = vtbl;
 
-                // If this is an actual collision, we recompute irrelevant_bits
+                // If this is an actual collision, we recompute irrelevant_bits and/ or optimal_shift
                 if (/*UNLIKELY_BRANCH*/(ce.vtbl))
                 {
                     size_t r = trailing_zeros(static_cast<unsigned int>(m_differ));
+                    size_t d = table.size(); //bits_set(m_differ);
 
-                    if (UNLIKELY_BRANCH(irrelevant_bits != r))
+                    if (UNLIKELY_BRANCH(irrelevant_bits != r || different_bits != d))
                     {
+                        optimal_shift   = get_optimal_shift();
                         irrelevant_bits = r;
-                        auto saved_ptr = ce.ptr; // Since we've alread written it. Putting the whole insertion later degrades performance
+                        different_bits  = d;
+                        auto saved_ptr  = ce.ptr; // Since we've alread written it. Putting the whole insertion later degrades performance
                         std::memset(cache,0,sizeof(cache)); // Reset cache
                         ce.ptr = saved_ptr;
                     }
@@ -462,7 +487,7 @@ public:
     inline bool get_ex(const void* p, T& val) throw()
     {
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
-        const intptr_t key  = vtbl>>irrelevant_bits;     // We do this as we rely that hash function is identity
+        const intptr_t key  = vtbl>>optimal_shift;     // We do this as we rely that hash function is identity
     #if defined(USE_PEARSON_HASH)
         cache_entry&   ce   = cache[pearson_hash(key) & cache_mask];
     #else
@@ -470,7 +495,7 @@ public:
     #endif
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
-        XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
+        //XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
         UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When TRACE_PERFORMANCE is enabled, this will update our performance counters
 
         bool result = false;
@@ -490,6 +515,56 @@ public:
         val = ce.value;
         return result;
     }
+
+    size_t get_optimal_shift() const
+    {
+        size_t opt_shift   = 0;
+        double opt_entropy = 0.0;
+        double total       = table.size();
+        size_t r = trailing_zeros(static_cast<unsigned int>(m_differ));
+
+        for (size_t i = r; i < sizeof(intptr_t)*8; ++i)
+        {
+            size_t uses[1<<N] = {};
+
+            for (typename vtbl_to_t_map::const_iterator p =  table.begin(); p !=  table.end(); ++p)
+            {
+                intptr_t vtbl = p->first;
+            #if defined(USE_PEARSON_HASH)
+                unsigned char h = pearson_hash(vtbl >> i);
+                //os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << (size_t(h) & cache_mask) << std::endl;
+                uses[size_t(h) & cache_mask]++;
+            #else
+                //os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << ((vtbl >> i) & cache_mask) << std::endl;
+                uses[(vtbl >> i) & cache_mask]++;
+            #endif
+            }
+
+            double entropy = 0.0;
+
+            for (size_t j = 0; j < (1<<N); ++j)
+            {
+                if (uses[j])
+                {
+                    double pi = uses[j]/total;
+                    entropy -= pi*std::log(pi)/std::log(2.0);
+                }
+            }
+
+            // We have >= here instead of just > to favor large shifts when multiple optimal exist (happens often)
+            if (entropy > opt_entropy)
+            {
+                opt_entropy = entropy;
+                opt_shift   = i;
+            }
+
+            std::cout << "Shift: " << i << " -> " << entropy << std::endl; 
+        }
+
+        std::cout << "Optimal Shift: " << opt_shift << " -> " << opt_entropy << " after " << int(total) << " vtbls" << std::endl;
+        std::cout << *this << std::endl;
+        return opt_shift;
+    }
 #if defined(DUMP_PERFORMANCE)
     std::ostream& operator>>(std::ostream& os) const
     {
@@ -503,21 +578,38 @@ public:
             if (m_prev & j)
                 str[i-1] = '1';
 
-        os << "VTBLS: " << str << " irrelevant=" << irrelevant_bits << " width=" << str.find_last_of("X")-str.find_first_of("X")+1 << " \t";
         size_t uses[1<<N] = {};
 
         for (typename vtbl_to_t_map::const_iterator p =  table.begin(); p !=  table.end(); ++p)
         {
             intptr_t vtbl = p->first;
         #if defined(USE_PEARSON_HASH)
-            unsigned char h = pearson_hash(vtbl >> irrelevant_bits);
+            unsigned char h = pearson_hash(vtbl >> optimal_shift);
             //os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << (size_t(h) & cache_mask) << std::endl;
             uses[size_t(h) & cache_mask]++;
         #else
-            //os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << ((vtbl >> irrelevant_bits) & cache_mask) << std::endl;
-            uses[(vtbl >> irrelevant_bits) & cache_mask]++;
+            //os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << ((vtbl >> optimal_shift) & cache_mask) << std::endl;
+            uses[(vtbl >> optimal_shift) & cache_mask]++;
         #endif
         }
+
+        double entropy = 0.0;
+        double total   = table.size();
+
+        for (size_t j = 0; j < (1<<N); ++j)
+        {
+            if (uses[j])
+            {
+                double pi = uses[j]/total;
+                entropy -= pi*std::log(pi)/std::log(2.0);
+            }
+        }
+
+        os << "VTBLS: " << str 
+           << " irrelevant="    << irrelevant_bits
+           << " shift="         << optimal_shift
+           << " width="         << str.find_last_of("X")-str.find_first_of("X")+1 
+           << " Entropy: "      << entropy << "\t ";
 
         bool show = false;
 
@@ -531,13 +623,13 @@ public:
 
         os << std::count(uses,uses+ARR_SIZE(uses),0)*100/(1<<N) << "% unused" << std::endl;
 
-        for (size_t i = 0; i < 1<<cache_bits; ++i)
-        {
-            if (cache[i].vtbl == 0)
-                os << i << ',';
-        }
+        //for (size_t i = 0; i < 1<<cache_bits; ++i)
+        //{
+        //    if (cache[i].vtbl == 0)
+        //        os << i << ',';
+        //}
 
-        return os << std::endl;
+        return os/* << std::endl*/;
     }
     friend std::ostream& operator<<(std::ostream& os, const vtblmap& m) { return m >> os; }
 #endif
@@ -554,9 +646,18 @@ public:
     /// through the map. It is needed for computing @m_differ.
     intptr_t m_prev;
 
-    /// Irrelevant lowest bits in vtbl pointers that are always the same for given 
-    /// compiler/platform configuration.
+    /// Irrelevant lowest bits in vtbl pointers that came through this map
     size_t irrelevant_bits;
+
+    /// The amount of bits in which all vtbl pointers differ
+    size_t different_bits;
+
+    /// Optimal shift computed based on the vtbl pointers already in the map.
+    /// Most of the time this value would be equal to @irrelevant_bits, but not
+    /// necessarily always. In case of collisions, optimal_shift will have
+    /// a value of a shift that maximizes entropy of caching vtbl pointers (which 
+    /// effectively also minimizes probability of not finding something in cache)
+    size_t optimal_shift;
 
     /// Actual mapping of vtbl pointers (in reality keys obtained from them) 
     /// to values of type T. Values in this table are cached in @cache.
