@@ -874,13 +874,13 @@ void statistics(std::vector<T>& measurements, T& min, T& max, T& avg, T& med, T&
 
 int relative_performance(long long v, long long m)
 {
-    if (v <= 0 || m <= 0)
+    if (UNLIKELY_BRANCH(v <= 0 || m <= 0))
     {
         std::cout << "ERROR: Insufficient timer resolution. Increase number of iterations N" << std::endl;
         exit(42);
     }
     else
-    if (v <= m)
+    if (UNLIKELY_BRANCH(v <= m))
     {
         int percent = m*100/v-100;
         std::cout << "\t\t" << percent << "% slower" << std::endl;

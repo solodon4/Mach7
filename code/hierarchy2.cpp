@@ -85,7 +85,7 @@ struct ShapeVisitor
 
 template <size_t N> void shape_derived<N>::accept(ShapeVisitor& v) const { v.visit(*this); }
 
-#if 0
+#if 1
 DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s)
 {

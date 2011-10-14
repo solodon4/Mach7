@@ -180,9 +180,9 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
 ///       to   "Program Database (/Zi)", which is the default in Release builds,
 ///       but not in Debug. This is a known bug of Visual C++ described here:
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#define CASE(C,...) } if (UNLIKELY_BRANCH(__casted_ptr = dynamic_cast<const C*>(__selector_ptr))) { if (__switch_info.line == 0) { __switch_info.line = __LINE__; __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); } case __LINE__: if (LIKELY_BRANCH(match<C>(__VA_ARGS__)(adjust_ptr<C>(__selector_ptr,__switch_info.offset)))) 
+#define CASE(C,...) } if (UNLIKELY_BRANCH(__casted_ptr = dynamic_cast<const C*>(__selector_ptr))) { if LIKELY_BRANCH((__switch_info.line == 0)) { __switch_info.line = __LINE__; __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); } case __LINE__: if (LIKELY_BRANCH(match<C>(__VA_ARGS__)(adjust_ptr<C>(__selector_ptr,__switch_info.offset)))) 
 #define CASES_BEGIN default: {
-#define CASES_END } if (__switch_info.line == 0) { __switch_info.line = __LINE__; } case __LINE__: ;
+#define CASES_END } if LIKELY_BRANCH((__switch_info.line == 0)) { __switch_info.line = __LINE__; } case __LINE__: ;
 
 //------------------------------------------------------------------------------
 
@@ -194,13 +194,6 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
         switch (apply_member(__selector_ptr, match_members<remove_ref<decltype(*__selector_ptr)>::type>::kind_selector()))
 
 /// Macro that defines the case statement for the above switch
-/// NOTE: If Visual C++ gives you error C2051: case expression not constant
-///       on this CASE label, just change the Debug Format in project setting 
-///       Project -> Properties -> C/C++ -> General -> Debug Information Format 
-///       from "Program Database for Edit And Continue (/ZI)" 
-///       to   "Program Database (/Zi)", which is the default in Release builds,
-///       but not in Debug. This is a known bug of Visual C++ described here:
-///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
 #define KIND_CASE(C,...) } case match_members<C>::kind_value: { auto result_of_dynamic_cast = stat_cast<C>(__selector_ptr);
 #define KIND_CASES_BEGIN {
 #define KIND_CASES_END   } default: ;

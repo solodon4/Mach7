@@ -71,7 +71,7 @@ template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(
 template <>         struct match_members<Shape>         { KS(Shape::m_kind); };
 template <size_t N> struct match_members<shape_kind<N>> { KV(N); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
 
-#if 0
+#if 1
 DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s)
 {
@@ -602,10 +602,12 @@ size_t do_match(const Shape& s)
         }
     default: ;
     }
+
     return -1;
 }
 DO_NOT_INLINE_END
 #endif
+
 DO_NOT_INLINE_BEGIN
 size_t do_visit(const Shape& s)
 {
@@ -675,13 +677,13 @@ void statistics(std::vector<T>& measurements, T& min, T& max, T& avg, T& med, T&
 
 int relative_performance(long long v, long long m)
 {
-    if (v <= 0 || m <= 0)
+    if (UNLIKELY_BRANCH(v <= 0 || m <= 0))
     {
         std::cout << "ERROR: Insufficient timer resolution. Increase number of iterations N" << std::endl;
         exit(42);
     }
     else
-    if (v <= m)
+    if (UNLIKELY_BRANCH(v <= m))
     {
         int percent = m*100/v-100;
         std::cout << "\t\t" << percent << "% slower" << std::endl;

@@ -419,7 +419,7 @@ public:
         //XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
         UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When TRACE_PERFORMANCE is enabled, this will update our performance counters
 
-        if (ce.vtbl != vtbl)
+        if (UNLIKELY_BRANCH(ce.vtbl != vtbl))
         {
             const iterator q = table.find(vtbl);
 
@@ -430,17 +430,17 @@ public:
                 ce.ptr = &table.insert(value_type(vtbl,dflt)).first->second;
 
                 // Update m_differ with information about which bits in all vtbls differ
-                if (m_prev)
+                if (LIKELY_BRANCH(m_prev))
                     m_differ |= m_prev ^ vtbl;
 
                 m_prev = vtbl;
 
                 // If this is an actual collision, we recompute irrelevant_bits
-                if (ce.vtbl)
+                if (/*UNLIKELY_BRANCH*/(ce.vtbl))
                 {
                     size_t r = trailing_zeros(static_cast<unsigned int>(m_differ));
 
-                    if (irrelevant_bits != r)
+                    if (UNLIKELY_BRANCH(irrelevant_bits != r))
                     {
                         irrelevant_bits = r;
                         auto saved_ptr = ce.ptr; // Since we've alread written it. Putting the whole insertion later degrades performance

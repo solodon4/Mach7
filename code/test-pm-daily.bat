@@ -51,3 +51,22 @@ ocaml_cmp_kind.exe             | tee -a %logfile% | grep ":"   >> %results%
 echo Running numbers.exe
 echo [ numbers.exe ] ============================ | tee -a %logfile% >> %results%
 numbers.exe                    | tee -a %logfile% | grep "%%"  >> %results%
+
+rem Build OCaml sources
+
+if not "%VS100COMNTOOLS%" == "" call "%VS100COMNTOOLS%vsvars32.bat" && echo Using MS Visual C++ 10.0 && goto PROCEED
+if not "%VS90COMNTOOLS%"  == "" call "%VS90COMNTOOLS%vsvars32.bat"  && echo Using MS Visual C++ 9.0  && goto PROCEED
+if not "%VS80COMNTOOLS%"  == "" call "%VS80COMNTOOLS%vsvars32.bat"  && echo Using MS Visual C++ 8.0  && goto PROCEED
+if not "%VS71COMNTOOLS%"  == "" call "%VS71COMNTOOLS%vsvars32.bat"  && echo Using MS Visual C++ 7.1  && goto PROCEED
+
+echo ERROR: Unable to find installation of MS Visual C++ on this computer
+goto END
+
+:PROCEED
+
+rem Build OCaml sources
+
+set PATH=%PATH%C:\Program Files (x86)\flexdll;
+ocamlopt.opt unix.cmxa -oocaml_cmp_ml.exe ocaml_cmp.ml
+
+:END
