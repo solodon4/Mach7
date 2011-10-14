@@ -89,7 +89,16 @@ enum { default_layout = size_t(~0) };
 /// Traits like structure that will define which members should be matched at 
 /// which positions. It is intentionally left undefined as user will have to
 /// provide specializations for his hierarchy.
-template <typename type_being_matched, size_t layout = default_layout> struct match_members;
+template <typename type_being_matched, size_t layout = default_layout> 
+struct match_members;
+
+/// A wrapper class that lets one pack a given layout and type into a view.
+template <typename type_being_matched, size_t layout = default_layout> 
+struct view
+{
+    typedef type_being_matched target_type;
+    static const size_t        target_layout = layout;
+};
 
 /// Macro to define member's position within decomposition of a given data type
 /// Example: CM(0,MyClass::member) or CM(1,external_func)
@@ -1476,97 +1485,266 @@ struct matcher4
 
 //------------------------------------------------------------------------------
 
-template <typename T>
-inline matcher0<T,default_layout> match() throw()
-{
-    return matcher0<T,default_layout>();
-}
-
+/// 0-argument version of a helper function to @match that accepts arguments that
+/// have been already preprocessed with @filter to convert regular variables into
+/// @var_ref and constants into @value.
+/// \note This version will be called from @match with a non-@view target type
 template <typename T, size_t layout>
-inline matcher0<T,layout> match() throw()
+inline matcher0<T,layout> match_ex(const view<T,layout>&) throw()
 {
     return matcher0<T,layout>();
 }
 
+/// 0-argument version of a helper function to @match that accepts arguments that
+/// have been already preprocessed with @filter to convert regular variables into
+/// @var_ref and constants into @value.
+/// \note This version will be called from @match that had its target type a @view
+template <typename T, size_t layout>
+inline matcher0<T,layout> match_ex(const view<view<T,layout>>&) throw()
+{
+    return matcher0<T,layout>();
+}
+
+/// A 0-argument version of a tree-pattern constructor. Target type is allowed 
+/// to be a @view here.
+template <typename T>
+inline auto match() throw() -> XTL_RETURN(match_ex(view<T>()))
+
+/// A 0-argument version of a tree-pattern constructor that takes layout in 
+/// addition to the target type.
+/// \note @view is not supposed to be passed as a target type to this version
+///       of the function because we will then have two potentially conflicting
+///       layouts. Any layout different from @default_layout passed here will 
+///       result in a compile time error.
+template <typename T, size_t layout>
+inline auto match() throw() -> XTL_RETURN(match_ex(view<T,layout>()))
+
 //------------------------------------------------------------------------------
 
+/// 1-argument version of a helper function to @match that accepts arguments that
+/// have been already preprocessed with @filter to convert regular variables into
+/// @var_ref and constants into @value.
+/// \note This version will be called from @match with a non-@view target type
 template <typename T, size_t layout, typename E1>
-inline matcher1<T,layout,E1> match_ex(E1&& e1) throw()
+inline matcher1<T,layout,E1> match_ex(const view<T,layout>&, E1&& e1) throw()
 {
     return matcher1<T,layout,E1>(std::forward<E1>(e1));
 }
 
-template <typename T, typename E1>
-inline auto match(E1&& e1) throw() -> decltype(match_ex<T,default_layout>(filter(std::forward<E1>(e1))))
-{
-    return match_ex<T,default_layout>(filter(std::forward<E1>(e1)));
-}
-
+/// 1-argument version of a helper function to @match that accepts arguments that
+/// have been already preprocessed with @filter to convert regular variables into
+/// @var_ref and constants into @value.
+/// \note This version will be called from @match that had its target type a @view
 template <typename T, size_t layout, typename E1>
-inline auto match(E1&& e1) throw() -> decltype(match_ex<T,layout>(filter(std::forward<E1>(e1))))
+inline matcher1<T,layout,E1> match_ex(const view<view<T,layout>>&, E1&& e1) throw()
 {
-    return match_ex<T,layout>(filter(std::forward<E1>(e1)));
+    return matcher1<T,layout,E1>(std::forward<E1>(e1));
 }
+
+/// A 1-argument version of a tree-pattern constructor. Target type is allowed 
+/// to be a @view here.
+template <typename T, typename E1>
+inline auto match(E1&& e1) throw() -> XTL_RETURN
+(
+    match_ex(
+        view<T>(),
+        filter(std::forward<E1>(e1))
+    )
+)
+
+/// A 1-argument version of a tree-pattern constructor that takes layout in 
+/// addition to the target type.
+/// \note @view is not supposed to be passed as a target type to this version
+///       of the function because we will then have two potentially conflicting
+///       layouts. Any layout different from @default_layout passed here will 
+///       result in a compile time error.
+template <typename T, size_t layout, typename E1>
+inline auto match(E1&& e1) throw() -> XTL_RETURN
+(
+    match_ex(
+        view<T,layout>(),
+        filter(std::forward<E1>(e1))
+    )
+)
 
 //------------------------------------------------------------------------------
 
+/// 2-argument version of a helper function to @match that accepts arguments that
+/// have been already preprocessed with @filter to convert regular variables into
+/// @var_ref and constants into @value.
+/// \note This version will be called from @match with a non-@view target type
 template <typename T, size_t layout, typename E1, typename E2>
-inline matcher2<T,layout,E1,E2> match_ex(E1&& e1, E2&& e2) throw()
+inline matcher2<T,layout,E1,E2> match_ex(const view<T,layout>&, E1&& e1, E2&& e2) throw()
 {
-    return matcher2<T,layout,E1,E2>(std::forward<E1>(e1),std::forward<E2>(e2));
+    return matcher2<T,layout,E1,E2>(
+            std::forward<E1>(e1),
+            std::forward<E2>(e2)
+           );
 }
 
+/// 2-argument version of a helper function to @match that accepts arguments that
+/// have been already preprocessed with @filter to convert regular variables into
+/// @var_ref and constants into @value.
+/// \note This version will be called from @match that had its target type a @view
+template <typename T, size_t layout, typename E1, typename E2>
+inline matcher2<T,layout,E1,E2> match_ex(const view<view<T,layout>>&, E1&& e1, E2&& e2) throw()
+{
+    return matcher2<T,layout,E1,E2>(
+            std::forward<E1>(e1),
+            std::forward<E2>(e2)
+           );
+}
+
+/// A 2-argument version of a tree-pattern constructor. Target type is allowed 
+/// to be a @view here.
 template <typename T, typename E1, typename E2>
-inline auto match(E1&& e1, E2&& e2) throw() -> decltype(match_ex<T,default_layout>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2))))
-{
-    return match_ex<T,default_layout>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)));
-}
+inline auto match(E1&& e1, E2&& e2) throw() -> XTL_RETURN
+(
+    match_ex(
+        view<T>(),
+        filter(std::forward<E1>(e1)), 
+        filter(std::forward<E2>(e2))
+    )
+)
 
+/// A 2-argument version of a tree-pattern constructor that takes layout in 
+/// addition to the target type.
+/// \note @view is not supposed to be passed as a target type to this version
+///       of the function because we will then have two potentially conflicting
+///       layouts. Any layout different from @default_layout passed here will 
+///       result in a compile time error.
 template <typename T, size_t layout, typename E1, typename E2>
-inline auto match(E1&& e1, E2&& e2) throw() -> decltype(match_ex<T,layout>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2))))
-{
-    return match_ex<T,layout>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)));
-}
+inline auto match(E1&& e1, E2&& e2) throw() -> XTL_RETURN
+(
+    match_ex(
+        view<T,layout>(),
+        filter(std::forward<E1>(e1)), 
+        filter(std::forward<E2>(e2))
+    )
+)
 
 //------------------------------------------------------------------------------
 
+/// 3-argument version of a helper function to @match that accepts arguments that
+/// have been already preprocessed with @filter to convert regular variables into
+/// @var_ref and constants into @value.
+/// \note This version will be called from @match with a non-@view target type
 template <typename T, size_t layout, typename E1, typename E2, typename E3>
-inline matcher3<T,layout,E1,E2,E3> match_ex(E1&& e1, E2&& e2, E3&& e3) throw()
+inline matcher3<T,layout,E1,E2,E3> match_ex(const view<T,layout>&, E1&& e1, E2&& e2, E3&& e3) throw()
 {
-    return matcher3<T,layout,E1,E2,E3>(std::forward<E1>(e1),std::forward<E2>(e2),std::forward<E3>(e3));
+    return matcher3<T,layout,E1,E2,E3>(
+            std::forward<E1>(e1),
+            std::forward<E2>(e2),
+            std::forward<E3>(e3)
+           );
 }
 
+/// 3-argument version of a helper function to @match that accepts arguments that
+/// have been already preprocessed with @filter to convert regular variables into
+/// @var_ref and constants into @value.
+/// \note This version will be called from @match that had its target type a @view
+template <typename T, size_t layout, typename E1, typename E2, typename E3>
+inline matcher3<T,layout,E1,E2,E3> match_ex(const view<view<T,layout>>&, E1&& e1, E2&& e2, E3&& e3) throw()
+{
+    return matcher3<T,layout,E1,E2,E3>(
+            std::forward<E1>(e1),
+            std::forward<E2>(e2),
+            std::forward<E3>(e3)
+           );
+}
+
+/// A 3-argument version of a tree-pattern constructor. Target type is allowed 
+/// to be a @view here.
 template <typename T, typename E1, typename E2, typename E3>
-inline auto match(E1&& e1, E2&& e2, E3&& e3) throw() -> decltype(match_ex<T,default_layout>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)), filter(std::forward<E3>(e3))))
-{
-    return match_ex<T,default_layout>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)), filter(std::forward<E3>(e3)));
-}
+inline auto match(E1&& e1, E2&& e2, E3&& e3) throw() -> XTL_RETURN
+(
+    match_ex(
+        view<T>(),
+        filter(std::forward<E1>(e1)), 
+        filter(std::forward<E2>(e2)), 
+        filter(std::forward<E3>(e3))
+    )
+)
 
+/// A 3-argument version of a tree-pattern constructor that takes layout in 
+/// addition to the target type.
+/// \note @view is not supposed to be passed as a target type to this version
+///       of the function because we will then have two potentially conflicting
+///       layouts. Any layout different from @default_layout passed here will 
+///       result in a compile time error.
 template <typename T, size_t layout, typename E1, typename E2, typename E3>
-inline auto match(E1&& e1, E2&& e2, E3&& e3) throw() -> decltype(match_ex<T,layout>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)), filter(std::forward<E3>(e3))))
-{
-    return match_ex<T,layout>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)), filter(std::forward<E3>(e3)));
-}
+inline auto match(E1&& e1, E2&& e2, E3&& e3) throw() -> XTL_RETURN
+(
+    match_ex(
+        view<T,layout>(),
+        filter(std::forward<E1>(e1)), 
+        filter(std::forward<E2>(e2)), 
+        filter(std::forward<E3>(e3))
+    )
+)
 
 //------------------------------------------------------------------------------
 
+/// 4-argument version of a helper function to @match that accepts arguments that
+/// have been already preprocessed with @filter to convert regular variables into
+/// @var_ref and constants into @value.
+/// \note This version will be called from @match with a non-@view target type
 template <typename T, size_t layout, typename E1, typename E2, typename E3, typename E4>
-inline matcher4<T,layout,E1,E2,E3,E4> match_ex(E1&& e1, E2&& e2, E3&& e3, E4&& e4) throw()
+inline matcher4<T,layout,E1,E2,E3,E4> match_ex(const view<T,layout>&, E1&& e1, E2&& e2, E3&& e3, E4&& e4) throw()
 {
-    return matcher4<T,layout,E1,E2,E3,E4>(std::forward<E1>(e1),std::forward<E2>(e2),std::forward<E3>(e3),std::forward<E4>(e4));
+    return matcher4<T,layout,E1,E2,E3,E4>(
+            std::forward<E1>(e1),
+            std::forward<E2>(e2),
+            std::forward<E3>(e3),
+            std::forward<E4>(e4)
+           );
 }
 
+/// 4-argument version of a helper function to @match that accepts arguments that
+/// have been already preprocessed with @filter to convert regular variables into
+/// @var_ref and constants into @value.
+/// \note This version will be called from @match that had its target type a @view
+template <typename T, size_t layout, typename E1, typename E2, typename E3, typename E4>
+inline matcher4<T,layout,E1,E2,E3,E4> match_ex(const view<view<T,layout>>&, E1&& e1, E2&& e2, E3&& e3, E4&& e4) throw()
+{
+    return matcher4<T,layout,E1,E2,E3,E4>(
+            std::forward<E1>(e1),
+            std::forward<E2>(e2),
+            std::forward<E3>(e3),
+            std::forward<E4>(e4)
+           );
+}
+
+/// A 4-argument version of a tree-pattern constructor. Target type is allowed 
+/// to be a @view here.
 template <typename T, typename E1, typename E2, typename E3, typename E4>
-inline auto match(E1&& e1, E2&& e2, E3&& e3, E4&& e4) throw() -> decltype(match_ex<T,default_layout>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)), filter(std::forward<E3>(e3)), filter(std::forward<E4>(e4))))
-{
-    return match_ex<T,default_layout>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)), filter(std::forward<E3>(e3)), filter(std::forward<E4>(e4)));
-}
+inline auto match(E1&& e1, E2&& e2, E3&& e3, E4&& e4) throw() -> XTL_RETURN
+(
+    match_ex(
+        view<T>(),
+        filter(std::forward<E1>(e1)), 
+        filter(std::forward<E2>(e2)), 
+        filter(std::forward<E3>(e3)), 
+        filter(std::forward<E4>(e4))
+    )
+)
 
+/// A 4-argument version of a tree-pattern constructor that takes layout in 
+/// addition to the target type.
+/// \note @view is not supposed to be passed as a target type to this version
+///       of the function because we will then have two potentially conflicting
+///       layouts. Any layout different from @default_layout passed here will 
+///       result in a compile time error.
 template <typename T, size_t layout, typename E1, typename E2, typename E3, typename E4>
-inline auto match(E1&& e1, E2&& e2, E3&& e3, E4&& e4) throw() -> decltype(match_ex<T,layout>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)), filter(std::forward<E3>(e3)), filter(std::forward<E4>(e4))))
-{
-    return match_ex<T,layout>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)), filter(std::forward<E3>(e3)), filter(std::forward<E4>(e4)));
-}
+inline auto match(E1&& e1, E2&& e2, E3&& e3, E4&& e4) throw() -> XTL_RETURN
+(
+    match_ex(
+        view<T,layout>(),
+        filter(std::forward<E1>(e1)), 
+        filter(std::forward<E2>(e2)), 
+        filter(std::forward<E3>(e3)), 
+        filter(std::forward<E4>(e4))
+    )
+)
 
 //------------------------------------------------------------------------------
-

@@ -100,6 +100,16 @@
 
 //------------------------------------------------------------------------------
 
+/// A macro we use in functions with auto as a return type. It helps us avoid 
+/// duplication of expression when both the expression in decltype() and in the
+/// only return statement are the same.
+/// \example auto foo(T1 t1, T2 t2) -> XTL_RETURN(t1 + t2)
+/// \note We use ... (__VA_ARGS__ parameters) to allow expressions 
+///       containing comma as argument. Essentially this is a one arg macro
+#define XTL_RETURN(...) decltype(__VA_ARGS__) { return (__VA_ARGS__); }
+
+//------------------------------------------------------------------------------
+
 /// The code that our macros generate may produce some variables that are not
 /// necessarily used by the user. This macro is to suppress unused variable warning
 #define XTL_UNUSED(x) (void)x;

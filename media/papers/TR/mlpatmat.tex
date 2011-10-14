@@ -925,6 +925,164 @@ effectively a pattern.
 %allow for combinatorial combinations of algebraic data types (e.g. for a pair of two SrchT
 %instances).
 
+\subsection{Expression Templates}
+
+Interestingly enough C++ has a pure functional sublanguage in it that has a 
+striking similarity to ML and Haskell. The sublanguage in question is template 
+facilities of C++ that has been shown to be Turing 
+complete\cite{veldhuizen:templates_turing_complete}. 
+
+Haskell definition of \code{factorial} we saw earlier can be rewritten in 
+template sublanguage of C++ as following:
+
+\begin{lstlisting}
+template <int N> 
+    struct factorial { enum { result = N*factorial<N-1>::result }; };
+template <>
+    struct factorial<0> { enum { result = 1 }; };
+\end{lstlisting}
+
+\noindent
+One can easily see similarity with equational definitions in Haskell, with the 
+exception that more specific cases (specialization for 0) have to follow the 
+general definition in C++. The main difference between Haskell definition and 
+its C++ counterpart is that the former describes computations on \emph{run-time 
+values}, while the latter can only work with \emph{compile-time values}.
+
+Turns out we can even express our $exp$ language using this functional 
+sublanguage:
+
+\begin{lstlisting}
+template <class T>
+struct value {
+    value(const T& t) : m_value(t) {}
+    T m_value;
+};
+
+template <class T>
+struct variable {
+    variable() : m_value() {}
+    T m_value;
+};
+
+template <typename E1, typename E2>
+struct plus {
+    plus(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
+    const E1 m_e1; const E2 m_e2;
+};
+
+// ... definitions of other expressions
+\end{lstlisting}
+
+\noindent The idea is that expressions can be composed out of subexpressions, 
+whose shape (type) is passed as arguments to above templates. Explicit 
+description of such expressions is very tedious however and is thus never 
+expressed directly, but as a result of corresponding operations: 
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+template <typename T>
+    value<T> val(const T& t) { return value<T>(t); }
+template <typename E1, typename E2>
+    plus<E1,E2> operator+(const E1& e1, const E2& e2)
+    { return plus<E1,E2>(e1,e2); }
+\end{lstlisting}
+
+\noindent With this, one can now capture various expressions as following:
+
+\begin{lstlisting}
+variable<int> v;
+auto x = v + val(3);
+\end{lstlisting}
+
+\noindent The type of variable \code{x} -- \code{plus<variable<int>,value<int>>}
+ -- captures the structure of the expression, while the values inside of it 
+represent various subexpressions the expression was created with. Such an 
+expression can be arbitrarily, but finitely nested. Note that value 3 is not 
+added to the value of variable \code{v} here, but the expression \code{v+3} is 
+recorded, while the meaning to such expression can be given differently in 
+different contexts. A general observation is that only the shape of the 
+expression becomes fixed at compile time, while the values of variables involved 
+in it can be changed arbitrarily at run time, allowing for \emph{lazy 
+evaluation} of the expression. Polymorphic function \code{eval} below implements 
+just that:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+template <typename T> 
+    T eval(const value<T>& e) { return e.m_value; }
+template <typename T> 
+    T eval(const variable<T>& e) { return e.m_value; }
+template <typename E1, typename E2> 
+    auto eval(const plus<E1,E2>& e) 
+         -> decltype(eval(e.m_e1) + eval(e.m_e2))
+            { return eval(e.m_e1) + eval(e.m_e2); }
+\end{lstlisting}
+
+\noindent One can now modify value of the variable \code{v} and re-evaluate 
+expression as following:
+
+\begin{lstlisting}
+v = 7;           // assumes overloading of assignment
+int r = eval(x); // returns 10
+\end{lstlisting}
+
+\noindent The above technique for lazy evaluation of expressions was originally 
+invented by Todd Veldhuizen and is generally known in C++ community by the name 
+\emph{Expression Templates} he coined\cite{Veldhuizen95expressiontemplates}. 
+
+Note again how implementation of \code{eval} resembles equations in Haskell that 
+decompose an algebraic data type. The similarities are so striking that there 
+were attempts to use Haskell as a pseudo code language for template 
+metaprogramming in C++\cite{Milewski11}. A key observation in this analogy is 
+that partial and explicit template specialization of C++ class templates is 
+similar to defining equations for Haskell functions. Variables introduced via 
+template clause of each equation serve as \emph{variable patterns}, while the 
+names of actual templates describing arguments serve as \emph{variant 
+constructors}. 
+
+Patterns expressed this way can be arbitrarily nested as long as they can be 
+expressed in terms of the types involved and not the values they store. Using 
+the above example, for instance, it is very easy to specialize \code{eval} for 
+an expression of form $c_1*x+c_2$ where $c_i$ are some (not known) constant 
+values and $x$ is any variable. Specializing for a concrete instance of that 
+expression $2*x+3$ will be much harder, because in the representation we chose 
+values 2 and 3 become run-time values and thus cannot participate in 
+compile-time computations anymore. In this case we could have devised a template 
+that allocates a dedicated type for each constant making such value part of the 
+type:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+template <class T, T t> struct constant {};
+
+template <typename T, T t>
+    T eval(const constant<T,t>& e) { return t; }
+template <typename E>
+    auto eval(const times<constant<int,0>,E>& e) 
+        -> decltype(eval(e.m_e2)) 
+            { return (decltype(eval(e.m_e2)))(0); }
+template <typename E>
+    auto eval(const times<E,constant<int,0>>& e) 
+        -> decltype(eval(e.m_e1)) 
+            { return (decltype(eval(e.m_e1)))(0); }
+\end{lstlisting}
+
+\noindent Here the first equation for \code{eval} describes the necessary general 
+case for handling expressions of type \code{constant<T,t>}, while the other two 
+are redundant cases that can be seen as an optimization detecting expressions of 
+the form $e*0$ and $0*e$ for any arbitrary expression $e$ and returning 0 
+without actually computing $e$.
+
+Unfortunately, a similar pattern to detect expressions of the form $x-x$ for any 
+variable $x$ cannot be expressed because expression templates are blind to 
+object identity and can only see their types. This means that expression 
+templates of the form $x-y$ are indisthinguishable at compile time from 
+expressions of the form $x-x$ because their types are identical.
+
+Nevertheless, with all the limitations, expression templates provide an 
+extremely powerful abstraction mechanism, which we use to express a 
+pattern-language for our SELL. Coincidentally, we employ the compile-time 
+pattern-matching facility already supported by C++ as a meta-language to 
+implement its run-time counterpart.
+
 \section{Pattern Matching for C++} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:pm}
 
@@ -1178,26 +1336,6 @@ exist\cite{ExtensibleDatatypes,LohHinze2006}
 %
 % Algebraic data types like SrchT are defined inductively as the least set 
 % closed under their constructor functions.
-
-Interestingly enough C++ has a pure functional sublanguage in it that has a 
-striking similarity to ML and Haskell. The sublanguage in question is template 
-facilities of C++ that has been shown to be Turing 
-complete\cite{veldhuizen:templates_turing_complete}. In fact, there were 
-attempts to use Haskell as a pseudo code language for template metaprogramming in 
-C++\cite{Milewski11}. A key observation in this analogy is that partial and 
-explicit template specialization of C++ class templates is similar to defining 
-equations for Haskell functions. Consider as an example the above factorial 
-function expressed in terms of compile-time pattern-matching facilities of C++:
-
-\begin{lstlisting}
-template <int N> 
-struct factorial { enum { result = N*factorial<N-1>::result }; };
-template <>
-struct factorial<0> { enum { result = 1 }; };
-\end{lstlisting}
-
-Coincidentally, we use this compile-time pattern-matching facility as a 
-meta-language to implement its run-time counterpart.
 
 A place where C++ does have a primitive run-time pattern matching is the catch 
 clause of exception handling. The order of clauses matters, which is similar to 
