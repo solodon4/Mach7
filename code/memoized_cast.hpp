@@ -17,9 +17,17 @@
 #include "config.hpp"    // Various compiler/platform dependent macros
 
     // TODO: 
-    // 1. vtbl with pointers directly to table instead of indecies
+    // 1. vtbl with pointers directly to table instead of indecies - slows
     // 2. store type index inside match_members
     // 3. try smaller type int instead of size_t or ptrdiff_t
+    // 4. Problem: different amounts of virtual functions in the base class 
+    //             change the irrelevant bits. 
+    //    - This shouldn't be a problem in compiler implementation of pattern
+    //      matching as compiler will know this value
+    //    - For now we can make it a parameter of switch as well
+    //    - Try using Pearson hash to avoid dependence on irrelevant bits
+    // 5. Preallocate vtbl map - improves sequential but slows down random, 
+    //    probably because of locality.
 
 //------------------------------------------------------------------------------
 
@@ -28,8 +36,8 @@ static const std::ptrdiff_t no_cast_exists = 0x0FF1C1A1; // A dedicated constant
 
 //------------------------------------------------------------------------------
 
-template <typename T> inline const T* adjust_ptr(const void* p, ptrdiff_t offset) { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
-template <typename T> inline       T* adjust_ptr(      void* p, ptrdiff_t offset) { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)+offset); }
+template <typename T> inline const T* adjust_ptr(const void* p, int offset) { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
+template <typename T> inline       T* adjust_ptr(      void* p, int offset) { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)+offset); }
 
 //------------------------------------------------------------------------------
 
@@ -137,13 +145,13 @@ inline T memoized_cast_non_null(U* u)
 
 //------------------------------------------------------------------------------
 
-template <typename T, typename U>
-inline T memoized_cast(const U* u)
-{
-    return  u
-            ? memoized_cast_non_null<T>(u) 
-            : 0;
-}
+//template <typename T, typename U>
+//inline T memoized_cast(const U* u)
+//{
+//    return  u
+//            ? memoized_cast_non_null<T>(u) 
+//            : 0;
+//}
 
 //------------------------------------------------------------------------------
 

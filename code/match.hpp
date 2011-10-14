@@ -58,7 +58,8 @@ template <>      struct requires_bits<1> { enum { value = 0 }; };
 
 //------------------------------------------------------------------------------
 
-#define dynamic_cast memoized_cast
+//#define dynamic_cast memoized_cast
+#define memoized_cast dynamic_cast
 
 /// Macro to define member's position within decomposition of a given data type
 /// Example: CM(0,MyClass::member) or CM(1,external_func)
@@ -68,41 +69,81 @@ template <>      struct requires_bits<1> { enum { value = 0 }; };
 ///       would be sufficient.
 #define CM(Index,...) static inline decltype(&__VA_ARGS__) member##Index() { return &__VA_ARGS__; }
 
+/// 1 here (preallocated vtbl map) is better for sequential case, but for some
+/// reason 0 (static member of a function vtbl map) is better for random case.
+#if 0
 /// For some reason MSVC gets unresolved external error if we use auto here, so we workaround it with decltype
 #ifdef _MSC_VER
 
 /// Macro that starts the switch on pattern
 #define SWITCH(s)\
-        static vtbl2lines<> __vtbl2lines_map;\
-        decltype(s)& __selector_var = s;\
+        auto const   __selector_ptr = addr(s);\
         const void*  __casted_ptr;\
-        line_offset& __switch_info = __vtbl2lines_map.get(addr(__selector_var));\
+        type_switch_info& __switch_info = preallocated<vtblmap<type_switch_info&>,__LINE__>::value.get(__selector_ptr);\
         switch (__switch_info.line)
 /// Extended version of the macro that starts the switch on pattern, that takes an expected number of cases in
 #define SWITCH_N(s,N)\
-        static vtbl2lines<requires_bits<N>::value> __vtbl2lines_map;\
-        decltype(s)& __selector_var = s;\
+        auto const   __selector_ptr = addr(s);\
         const void*  __casted_ptr;\
-        line_offset& __switch_info = __vtbl2lines_map.get(addr(__selector_var));\
+        type_switch_info& __switch_info = preallocated<vtblmap<type_switch_info&,requires_bits<N>::value>,__LINE__>::value.get(__selector_ptr);\
         switch (__switch_info.line)
 
 #else
 
 /// Macro that starts the switch on pattern
 #define SWITCH(s)\
-        static vtbl2lines<> __vtbl2lines_map;\
-        auto& __selector_var = s;\
+        auto const   __selector_ptr = addr(s);\
         const void*  __casted_ptr;\
-        line_offset& __switch_info = __vtbl2lines_map.get(addr(__selector_var));\
+        type_switch_info& __switch_info = preallocated<vtblmap<type_switch_info&>,__LINE__>::value.get(__selector_ptr);\
         switch (__switch_info.line)
 /// Extended version of the macro that starts the switch on pattern, that takes an expected number of cases in
 #define SWITCH_N(s,N)\
-        static vtbl2lines<requires_bits<N>::value> __vtbl2lines_map;\
-        auto& __selector_var = s;\
+        auto const   __selector_ptr = addr(s);\
         const void*  __casted_ptr;\
-        line_offset& __switch_info = __vtbl2lines_map.get(addr(__selector_var));\
+        type_switch_info& __switch_info = preallocated<vtblmap<type_switch_info&,requires_bits<N>::value>,__LINE__>::value.get(__selector_ptr);\
         switch (__switch_info.line)
 
+#endif
+#else
+
+/// These are with static function member
+
+/// For some reason MSVC gets unresolved external error if we use auto here, so we workaround it with decltype
+#ifdef _MSC_VER
+
+/// Macro that starts the switch on pattern
+#define SWITCH(s)\
+        static vtblmap<type_switch_info&> __vtbl2lines_map;\
+        auto const   __selector_ptr = addr(s);\
+        const void*  __casted_ptr;\
+        type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
+        switch (__switch_info.line)
+/// Extended version of the macro that starts the switch on pattern, that takes an expected number of cases in
+#define SWITCH_N(s,N)\
+        static vtblmap<type_switch_info&,requires_bits<N>::value> __vtbl2lines_map;\
+        auto const   __selector_ptr = addr(s);\
+        const void*  __casted_ptr;\
+        type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
+        switch (__switch_info.line)
+
+#else
+
+/// Macro that starts the switch on pattern
+#define SWITCH(s)\
+        static vtblmap<type_switch_info&> __vtbl2lines_map;\
+        auto const   __selector_ptr = addr(s);\
+        const void*  __casted_ptr;\
+        type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
+        switch (__switch_info.line)
+/// Extended version of the macro that starts the switch on pattern, that takes an expected number of cases in
+#define SWITCH_N(s,N)\
+        static vtblmap<type_switch_info&,requires_bits<N>::value> __vtbl2lines_map;\
+        auto const   __selector_ptr = addr(s);\
+        const void*  __casted_ptr;\
+        type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
+        switch (__switch_info.line)
+
+#endif
 #endif
 
 /// Macro that defines the case statement for the above switch
@@ -113,9 +154,9 @@ template <>      struct requires_bits<1> { enum { value = 0 }; };
 ///       to   "Program Database (/Zi)", which is the default in Release builds,
 ///       but not in Debug. This is a known bug of Visual C++ described here:
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#define CASE(C,...) } if (UNLIKELY_BRANCH(__casted_ptr = dynamic_cast<const C*>(addr(__selector_var)))) { __vtbl2lines_map.update(__LINE__, addr(__selector_var), __casted_ptr); case __LINE__: auto matched_object = adjust_ptr<C>(addr(__selector_var),__switch_info.offset); if (LIKELY_BRANCH(match<C>(__VA_ARGS__)(matched_object))) 
+#define CASE(C,...) } if (UNLIKELY_BRANCH(__casted_ptr = dynamic_cast<const C*>(__selector_ptr))) { if (__switch_info.line == 0) { __switch_info.line = __LINE__; __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); } case __LINE__: auto const matched_object = adjust_ptr<C>(__selector_ptr,__switch_info.offset); if (LIKELY_BRANCH(match<C>(__VA_ARGS__)(matched_object))) 
 #define CASES_BEGIN default: {
-#define CASES_END } __vtbl2lines_map.update(__LINE__, addr(__selector_var), 0); case __LINE__: ;
+#define CASES_END } if (__switch_info.line == 0) { __switch_info.line = __LINE__; } case __LINE__: ;
 
 //------------------------------------------------------------------------------
 

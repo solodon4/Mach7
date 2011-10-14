@@ -19,6 +19,49 @@
 
 //------------------------------------------------------------------------------
 
+#ifdef TRACE_PERFORMANCE
+#include <bitset> // For print out purposes only
+int cache_hits   = 0;
+int cache_misses = 0;
+intptr_t common  =~0;
+intptr_t differ  = 0;
+// FIX: Wrap into parametrized by cached_bits template and count cell usage
+
+void update_vtbl_performance(intptr_t vtbl, intptr_t cached_vtbl)
+{
+    if (vtbl == cached_vtbl)
+        ++cache_hits;
+    else
+    {
+        //std::cout << "Differ: " << std::bitset<8*sizeof(intptr_t)>(differ) << std::endl;
+        //std::cout << "Common: " << std::bitset<8*sizeof(intptr_t)>(common) << std::endl;
+        //std::cout << "Vtbl  : " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << std::endl;
+        //std::cout << " Cm^Vt: " << std::bitset<8*sizeof(intptr_t)>(common ^ vtbl) << std::endl;
+        //std::cout << "~Cm^Vt: " << std::bitset<8*sizeof(intptr_t)>(~(common ^ vtbl)) << std::endl;
+        ++cache_misses;
+
+        if (common == ~0)
+        {
+            common = vtbl;
+            differ = 0;
+        }
+        else
+        {
+            intptr_t cmvt = common ^ vtbl;
+            common &= ~cmvt;
+            differ |=  cmvt;
+        }
+    }
+}
+#define UPDATE_VTBL_PERFORMANCE(vtbl, cached_vtbl) update_vtbl_performance(vtbl, cached_vtbl)
+#define TRACE_PERFORMANCE_ONLY(x) x
+#else
+#define UPDATE_VTBL_PERFORMANCE(vtbl, cached_vtbl)
+#define TRACE_PERFORMANCE_ONLY(x)
+#endif
+
+//------------------------------------------------------------------------------
+
 /// Global counter of allocated type indecies
 size_t global_index = 1;
 
@@ -93,6 +136,7 @@ public:
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
         XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
+        UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When TRACE_PERFORMANCE is enabled, this will update our performance counters
 
         if (ce.vtbl != vtbl)
         {
@@ -117,6 +161,7 @@ public:
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
         XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
+        UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When TRACE_PERFORMANCE is enabled, this will update our performance counters
 
         bool result = false;
 
@@ -218,6 +263,7 @@ public:
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
         XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
+        UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When TRACE_PERFORMANCE is enabled, this will update our performance counters
 
         if (ce.vtbl != vtbl)
         {
@@ -242,6 +288,7 @@ public:
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
         XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
+        UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When TRACE_PERFORMANCE is enabled, this will update our performance counters
 
         bool result = false;
 
@@ -273,17 +320,17 @@ private:
 
 //------------------------------------------------------------------------------
 
-struct line_offset
+struct type_switch_info
 {
     int line;   // We can choose smaller type for line to give more space to offset
     int offset; // FIX: We assume here offsets within object can only be ints
 };
 
 template <int N = VTBL_DEFAULT_CACHE_BITS>
-class vtbl2lines : public vtblmap<line_offset&,N>
+class vtbl2lines : public vtblmap<type_switch_info&,N>
 {
 private:
-    typedef vtblmap<line_offset,N> base_type;
+    typedef vtblmap<type_switch_info,N> base_type;
 public:
     inline void update(int ln, const void* base, const void* derived) throw()
     {
@@ -439,5 +486,16 @@ private:
     ::table<std::ptrdiff_t> offsets;
 
 };
+
+//------------------------------------------------------------------------------
+
+template <typename T, int N>
+struct preallocated
+{
+    static T value;
+};
+
+template <typename T, int N>
+T preallocated<T,N>::value;
 
 //------------------------------------------------------------------------------
