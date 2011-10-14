@@ -20,7 +20,6 @@
 #include <boost/type_traits/remove_const.hpp>
 #include "exprtmpl.hpp"
 #include "vtblmap2.hpp"
-//#include "memoized_cast.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -94,18 +93,46 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
 /// class. Used in the decomposition of a derived class.
 #define KV(kind)      static const size_t kind_value = kind;
 
+//------------------------------------------------------------------------------
+
+/// A macro to declare implicitly a reference variable with name V bound to 
+/// a value in position P of the target type.
+#define BOUND_VAR_DECL(P,V) auto& V = apply_member(matched, match_members<target_type,default_layout>::XTL_CONCAT(member,P)())
+
+/// A set of macros handling various amount of arguments passed to case statement.
+#define DECL_BOUND_VAR_0(Dummy)                         ;
+#define DECL_BOUND_VAR_1(Dummy,x0)                      BOUND_VAR_DECL(0,x0);
+#define DECL_BOUND_VAR_2(Dummy,x0,x1)                   BOUND_VAR_DECL(0,x0); BOUND_VAR_DECL(1,x1);
+#define DECL_BOUND_VAR_3(Dummy,x0,x1,x2)                BOUND_VAR_DECL(0,x0); BOUND_VAR_DECL(1,x1); BOUND_VAR_DECL(2,x2);
+#define DECL_BOUND_VAR_4(Dummy,x0,x1,x2,x3)             BOUND_VAR_DECL(0,x0); BOUND_VAR_DECL(1,x1); BOUND_VAR_DECL(2,x2); BOUND_VAR_DECL(3,x3);
+#define DECL_BOUND_VAR_5(Dummy,x0,x1,x2,x3,x4)          BOUND_VAR_DECL(0,x0); BOUND_VAR_DECL(1,x1); BOUND_VAR_DECL(2,x2); BOUND_VAR_DECL(3,x3); BOUND_VAR_DECL(4,x4);
+#define DECL_BOUND_VAR_6(Dummy,x0,x1,x2,x3,x4,x5)       BOUND_VAR_DECL(0,x0); BOUND_VAR_DECL(1,x1); BOUND_VAR_DECL(2,x2); BOUND_VAR_DECL(3,x3); BOUND_VAR_DECL(4,x4); BOUND_VAR_DECL(5,x5);
+#define DECL_BOUND_VAR_7(Dummy,x0,x1,x2,x3,x4,x5,x6)    BOUND_VAR_DECL(0,x0); BOUND_VAR_DECL(1,x1); BOUND_VAR_DECL(2,x2); BOUND_VAR_DECL(3,x3); BOUND_VAR_DECL(4,x4); BOUND_VAR_DECL(5,x5); BOUND_VAR_DECL(6,x6);
+#define DECL_BOUND_VAR_8(Dummy,x0,x1,x2,x3,x4,x5,x6,x7) BOUND_VAR_DECL(0,x0); BOUND_VAR_DECL(1,x1); BOUND_VAR_DECL(2,x2); BOUND_VAR_DECL(3,x3); BOUND_VAR_DECL(4,x4); BOUND_VAR_DECL(5,x5); BOUND_VAR_DECL(6,x6); BOUND_VAR_DECL(7,x7);
+
+/// Helper macro for the one below
+#define DECL_BOUND_VAR_(N, ...) XTL_CONCAT(DECL_BOUND_VAR_, N)(__VA_ARGS__)
+/// A macro that will be passed arguments to case statement. This should include
+/// the first type parameter that will be used as a dummy. This is required to
+/// be able to handle 0 non-type parameters.
+#define DECL_BOUND_VARS(...) DECL_BOUND_VAR_(XTL_NARG_EX(__VA_ARGS__), __VA_ARGS__)
+
+//------------------------------------------------------------------------------
+
 /// 1 here (preallocated vtbl map) is better for sequential case, but for some
 /// reason 0 (static member of a function vtbl map) is better for random case.
 #if 0
 /// Macro that starts the switch on pattern
 #define SWITCH(s)\
         auto const   __selector_ptr = addr(s);\
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = preallocated<vtblmap<type_switch_info&>,__LINE__>::value.get(__selector_ptr);\
         switch (__switch_info.line)
 /// Extended version of the macro that starts the switch on pattern, that takes an expected number of cases in
 #define SWITCH_N(s,N)\
         auto const   __selector_ptr = addr(s);\
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = preallocated<vtblmap<type_switch_info&,requires_bits<N>::value>,__LINE__>::value.get(__selector_ptr);\
         switch (__switch_info.line)
@@ -116,6 +143,7 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
 #define SWITCH(s)\
         static vtblmap<type_switch_info&> __vtbl2lines_map;\
         auto const   __selector_ptr = addr(s);\
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
         switch (__switch_info.line)
@@ -123,11 +151,27 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
 #define SWITCH_N(s,N)\
         static vtblmap<type_switch_info&,requires_bits<N>::value> __vtbl2lines_map;\
         auto const   __selector_ptr = addr(s);\
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
         switch (__switch_info.line)
 
 #endif
+
+/// NOTE: We need this extra indirection to properly handle 0 arguments as it
+///       seems to be impossible to introduce dummy argument inside the Case 
+///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
+#define CASE_(C,...) }} \
+        if (UNLIKELY_BRANCH(__casted_ptr = dynamic_cast<const C*>(__selector_ptr))) \
+        { \
+            if (LIKELY_BRANCH((__switch_info.line == 0))) \
+            { \
+                __switch_info.line = __LINE__; \
+                __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); \
+            } \
+        case __LINE__: \
+            typedef C target_type; \
+            auto matched = adjust_ptr<C>(__selector_ptr,__switch_info.offset);
 
 /// Macro that defines the case statement for the above switch
 /// NOTE: If Visual C++ gives you error C2051: case expression not constant
@@ -137,7 +181,12 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
 ///       to   "Program Database (/Zi)", which is the default in Release builds,
 ///       but not in Debug. This is a known bug of Visual C++ described here:
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#define CASE(C,...) }} if (UNLIKELY_BRANCH(__casted_ptr = dynamic_cast<const C*>(__selector_ptr))) { if (LIKELY_BRANCH((__switch_info.line == 0))) { __switch_info.line = __LINE__; __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); } case __LINE__: auto matched = adjust_ptr<C>(__selector_ptr,__switch_info.offset); if (LIKELY_BRANCH(match<C>(__VA_ARGS__)(matched))) {
+#ifdef _MSC_VER
+    #define CASE(...) XTL_APPLY_VARIADIC_MACRO(CASE_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
+#else
+    #define CASE(...) CASE_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
+#endif
+
 #define CASES_BEGIN default: {{
 #define CASES_END }} if (LIKELY_BRANCH((__switch_info.line == 0))) { __switch_info.line = __LINE__; } case __LINE__: ;
 
@@ -148,6 +197,7 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
 #define TYPE_SWITCH(s)\
         static vtblmap<type_switch_info&> __vtbl2lines_map;\
         auto const   __selector_ptr = addr(s);\
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
         switch (__switch_info.line)
@@ -178,11 +228,27 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
 /// a distinct integral value in one of their members.
 #define KIND_SWITCH(s)\
         auto const __selector_ptr  = addr(s);\
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         auto const __kind_selector = apply_member(__selector_ptr, match_members<remove_ref<decltype(*__selector_ptr)>::type>::kind_selector());\
         switch (__kind_selector)
 
+/// NOTE: We need this extra indirection to properly handle 0 arguments as it
+///       seems to be impossible to introduce dummy argument inside the Case 
+///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
+#define KIND_CASE_(C,...) }} \
+        if (UNLIKELY_BRANCH((__kind_selector == match_members<C>::kind_value))) \
+        { \
+        case match_members<C>::kind_value: \
+            typedef C target_type; \
+            auto matched = stat_cast<C>(__selector_ptr);
+
 /// Macro that defines the case statement for the above switch
-#define KIND_CASE(C,...) }} if (UNLIKELY_BRANCH((__kind_selector == match_members<C>::kind_value))) { case match_members<C>::kind_value: auto matched = stat_cast<C>(__selector_ptr); if (LIKELY_BRANCH((match<C>(__VA_ARGS__)(matched)))) {
+#ifdef _MSC_VER
+    #define KIND_CASE(...) XTL_APPLY_VARIADIC_MACRO(KIND_CASE_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
+#else
+    #define KIND_CASE(...) KIND_CASE_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
+#endif
+
 #define KIND_CASES_BEGIN {{
 #define KIND_CASES_END   }} default: ;
 
@@ -192,11 +258,27 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
 /// a distinct integral value in one of their members.
 #define UNION_SWITCH(s)\
         auto const __selector_ptr  = addr(s);\
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         auto const __kind_selector = apply_member(__selector_ptr, match_members<remove_ref<decltype(*__selector_ptr)>::type>::kind_selector());\
+        typedef remove_ref<decltype(*__selector_ptr)>::type selector_type; \
         switch (__kind_selector)
 
 /// Macro that defines the case statement for the above switch
-#define UNION_CASE(C,L,...) }} if (UNLIKELY_BRANCH((__kind_selector == match_members<C,L>::kind_value))) { case match_members<C,L>::kind_value: auto matched = stat_cast<C>(__selector_ptr); if (LIKELY_BRANCH((match<C,L>(__VA_ARGS__)(matched)))) {
+#define UNION_CASE_(L,...) }} \
+        if (UNLIKELY_BRANCH((__kind_selector == match_members<selector_type,L>::kind_value))) \
+        { \
+        case match_members<selector_type,L>::kind_value: \
+            typedef selector_type target_type; \
+            enum { default_layout = L }; \
+            auto matched = __selector_ptr; 
+
+/// Macro that defines the case statement for the above switch
+#ifdef _MSC_VER
+    #define UNION_CASE(...) XTL_APPLY_VARIADIC_MACRO(UNION_CASE_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
+#else
+    #define UNION_CASE(...) UNION_CASE_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
+#endif
+
 #define UNION_CASES_BEGIN {{
 #define UNION_CASES_END   }} default: ;
 
@@ -310,6 +392,9 @@ public:
     };
 };
 
+/// This is a specialization for the closed case. It becomes enabled when user 
+/// used KS macro inside match_members to define which member will be used as
+/// kind selector.
 template <typename SelectorType>
 class generic_switch<
     SelectorType, 
@@ -364,7 +449,7 @@ public:
     static void foo() { std::cout << "Special" << std::endl; }
 
     static inline auto choose(const selector_type* selector_ptr, static_data_type& static_data, local_data_type& local_data) 
-                    -> typename remove_ref<decltype(apply_member(selector_ptr, match_members<selector_type>::kind_selector()))>::type
+             -> typename remove_ref<decltype(apply_member(selector_ptr, match_members<selector_type>::kind_selector()))>::type
     {
         typedef typename remove_ref<decltype(apply_member(selector_ptr, match_members<selector_type>::kind_selector()))>::type result_type; // Can be enum
         return result_type(apply_member(selector_ptr, match_members<selector_type>::kind_selector()) + kind_selector_shift);
@@ -461,6 +546,21 @@ public:
         switch (switch_traits::choose(__selector_ptr,static_data,local_data))\
         {\
             case switch_traits::CaseLabel<__LINE__-__base_line>::entry: {{{
+
+/// NOTE: We need this extra indirection to properly handle 0 arguments as it
+///       seems to be impossible to introduce dummy argument inside the Case 
+///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
+#define Case_(C,...) }}} \
+{ \
+    typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; \
+    typedef target_specific::target_type target_type; \
+    enum { default_layout = target_specific::layout }; \
+    if (target_specific::main_condition(__selector_ptr, local_data)) \
+    { \
+        switch_traits::on_first_pass(__selector_ptr, local_data, __LINE__-__base_line); \
+    case target_specific::CaseLabel<__LINE__-__base_line>::value: \
+        auto matched = target_specific::get_matched(__selector_ptr,local_data); \
+
 /// Macro that defines the case statement for the above switch
 /// NOTE: If Visual C++ gives you error C2051: case expression not constant
 ///       on this CASE label, just change the Debug Format in project setting 
@@ -469,39 +569,15 @@ public:
 ///       to   "Program Database (/Zi)", which is the default in Release builds,
 ///       but not in Debug. This is a known bug of Visual C++ described here:
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#define   Case_(C,...) }}} { typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; if (target_specific::main_condition(__selector_ptr, local_data)) { switch_traits::on_first_pass(__selector_ptr, local_data, __LINE__-__base_line); case target_specific::CaseLabel<__LINE__-__base_line>::value: auto matched = target_specific::get_matched(__selector_ptr,local_data); 
 #ifdef _MSC_VER
-/// NOTE: We need this extra indirection to properly handle 0 arguments as it
-///       seems to be impossible to introduce dummy argument inside the Case 
-///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
-#define    Case(...) XTL_APPLY_VARIADIC_MACRO(Case_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
+    #define Case(...) XTL_APPLY_VARIADIC_MACRO(Case_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
 #else
-/// NOTE: We need this extra indirection to properly handle 0 arguments as it
-///       seems to be impossible to introduce dummy argument inside the Case 
-///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
-#define    Case(...) Case_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
+    #define Case(...) Case_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
 #endif
 #define CaseOld(C,...) }}} { typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; if (target_specific::main_condition(__selector_ptr, local_data)) { switch_traits::on_first_pass(__selector_ptr, local_data, __LINE__-__base_line); case target_specific::CaseLabel<__LINE__-__base_line>::value: auto matched = target_specific::get_matched(__selector_ptr,local_data); if (LIKELY_BRANCH(match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
 #define Or(...) } else if (match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
 #define Otherwise() }}} {{ default: auto matched = __selector_ptr; {
 #define EndMatch    }}} switch_traits::on_end(__selector_ptr, local_data, __LINE__-__base_line); case switch_traits::CaseLabel<__LINE__-__base_line>::exit: ; }}
-
-//------------------------------------------------------------------------------
-
-#define BOUND_VAR_DECL(position,var) auto& var = apply_member(matched, match_members<target_specific::target_type,target_specific::layout>::XTL_CONCAT(member, position)())
-
-#define DECL_BOUND_VAR_0(Dummy)                         ;
-#define DECL_BOUND_VAR_1(Dummy,x0)                      BOUND_VAR_DECL(0,x0);
-#define DECL_BOUND_VAR_2(Dummy,x0,x1)                   BOUND_VAR_DECL(0,x0); BOUND_VAR_DECL(1,x1);
-#define DECL_BOUND_VAR_3(Dummy,x0,x1,x2)                BOUND_VAR_DECL(0,x0); BOUND_VAR_DECL(1,x1); BOUND_VAR_DECL(2,x2);
-#define DECL_BOUND_VAR_4(Dummy,x0,x1,x2,x3)             BOUND_VAR_DECL(0,x0); BOUND_VAR_DECL(1,x1); BOUND_VAR_DECL(2,x2); BOUND_VAR_DECL(3,x3);
-#define DECL_BOUND_VAR_5(Dummy,x0,x1,x2,x3,x4)          BOUND_VAR_DECL(0,x0); BOUND_VAR_DECL(1,x1); BOUND_VAR_DECL(2,x2); BOUND_VAR_DECL(3,x3); BOUND_VAR_DECL(4,x4);
-#define DECL_BOUND_VAR_6(Dummy,x0,x1,x2,x3,x4,x5)       BOUND_VAR_DECL(0,x0); BOUND_VAR_DECL(1,x1); BOUND_VAR_DECL(2,x2); BOUND_VAR_DECL(3,x3); BOUND_VAR_DECL(4,x4); BOUND_VAR_DECL(5,x5);
-#define DECL_BOUND_VAR_7(Dummy,x0,x1,x2,x3,x4,x5,x6)    BOUND_VAR_DECL(0,x0); BOUND_VAR_DECL(1,x1); BOUND_VAR_DECL(2,x2); BOUND_VAR_DECL(3,x3); BOUND_VAR_DECL(4,x4); BOUND_VAR_DECL(5,x5); BOUND_VAR_DECL(6,x6);
-#define DECL_BOUND_VAR_8(Dummy,x0,x1,x2,x3,x4,x5,x6,x7) BOUND_VAR_DECL(0,x0); BOUND_VAR_DECL(1,x1); BOUND_VAR_DECL(2,x2); BOUND_VAR_DECL(3,x3); BOUND_VAR_DECL(4,x4); BOUND_VAR_DECL(5,x5); BOUND_VAR_DECL(6,x6); BOUND_VAR_DECL(7,x7);
-
-#define DECL_BOUND_VAR_(N, ...) XTL_CONCAT(DECL_BOUND_VAR_, N)(__VA_ARGS__)
-#define DECL_BOUND_VARS(...) DECL_BOUND_VAR_(XTL_NARG_EX(__VA_ARGS__), __VA_ARGS__)
 
 //------------------------------------------------------------------------------
 
@@ -915,10 +991,23 @@ template <typename F, typename E1, typename E2> struct is_const_expr<expr<F,E1,E
 
 //------------------------------------------------------------------------------
 
+#define DEBUG_APPLY_MEMBER(what, c, f) DEBUG_ONLY(std::clog << "\nApplying " what << c << " of type " << typeid(*c).name() << std::endl)
+
+//------------------------------------------------------------------------------
+
 template <class C, class T, typename R>
 inline R apply_member(const C* c, R (T::*method)() const)
 {
-    DEBUG_ONLY(std::clog << "\nApplying const member function to instance " << c << " of type " << typeid(*c).name() << std::endl);
+    DEBUG_APPLY_MEMBER("const member function to const instance ", c, method);
+    return (c->*method)();
+}
+
+//------------------------------------------------------------------------------
+
+template <class C, class T, typename R>
+inline R apply_member(      C* c, R (T::*method)() const)
+{
+    DEBUG_APPLY_MEMBER("const member function to non-const instance ", c, method);
     return (c->*method)();
 }
 
@@ -927,7 +1016,7 @@ inline R apply_member(const C* c, R (T::*method)() const)
 template <class C, class T, typename R>
 inline R apply_member(      C* c, R (T::*method)()      )
 {
-    DEBUG_ONLY(std::clog << "\nApplying non-const member function to instance " << c << " of type " << typeid(*c).name() << std::endl);
+    DEBUG_APPLY_MEMBER("non-const member function to non-const instance ", c, method);
     return (c->*method)();
 }
 
@@ -936,7 +1025,7 @@ inline R apply_member(      C* c, R (T::*method)()      )
 template <class C, class T, typename R>
 inline const R& apply_member(const C* c, R T::*field) throw()
 {
-    DEBUG_ONLY(std::clog << "\nApplying data member to const instance " << c << " of type " << typeid(*c).name() << std::endl);
+    DEBUG_APPLY_MEMBER("data member to const instance ", c, method);
     return c->*field;
 }
 
@@ -945,7 +1034,7 @@ inline const R& apply_member(const C* c, R T::*field) throw()
 template <class C, class T, typename R>
 inline       R& apply_member(      C* c, R T::*field) throw()
 {
-    DEBUG_ONLY(std::clog << "\nApplying data member to non-const instance " << c << " of type " << typeid(*c).name() << std::endl);
+    DEBUG_APPLY_MEMBER("data member to non-const instance ", c, method);
     return c->*field;
 }
 
@@ -954,7 +1043,7 @@ inline       R& apply_member(      C* c, R T::*field) throw()
 template <class C, class T, typename R>
 inline R apply_member(const C* c, R (*func)(const T*))
 {
-    DEBUG_ONLY(std::clog << "\nApplying external function to const instance " << c << " of type " << typeid(*c).name() << std::endl);
+    DEBUG_APPLY_MEMBER("external function to const instance ", c, method);
     return (*func)(c);
 }
 
@@ -963,7 +1052,7 @@ inline R apply_member(const C* c, R (*func)(const T*))
 template <class C, class T, typename R>
 inline R apply_member(      C* c, R (*func)(      T*))
 {
-    DEBUG_ONLY(std::clog << "\nApplying external function to non-const instance " << c << " of type " << typeid(*c).name() << std::endl);
+    DEBUG_APPLY_MEMBER("external function to non-const instance ", c, method);
     return (*func)(c);
 }
 

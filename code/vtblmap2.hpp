@@ -558,11 +558,11 @@ public:
                 opt_shift   = i;
             }
 
-            std::cout << "Shift: " << i << " -> " << entropy << std::endl; 
+            //std::cout << "Shift: " << i << " -> " << entropy << std::endl; 
         }
 
-        std::cout << "Optimal Shift: " << opt_shift << " -> " << opt_entropy << " after " << int(total) << " vtbls" << std::endl;
-        std::cout << *this << std::endl;
+        //std::cout << "Optimal Shift: " << opt_shift << " -> " << opt_entropy << " after " << int(total) << " vtbls" << std::endl;
+        //std::cout << *this << std::endl;
         return opt_shift;
     }
 #if defined(DUMP_PERFORMANCE)

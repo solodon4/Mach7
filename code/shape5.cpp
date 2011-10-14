@@ -143,6 +143,25 @@ int main()
 
     std::cout << m << std::endl;
 
+    std::cout << "CASES" << std::endl;
+
+    m = 0.0;
+
+    for (size_t i = 0; i < 3; ++i)
+    {
+        SWITCH(shapes[i])
+        {
+        CASES_BEGIN 
+        CASE(Circle,_,r)    std::cout << "Circle"   << std::endl; m += r;       break;
+        CASE(Square,_,r)    std::cout << "Square"   << std::endl; m += r;       break;
+        CASE(Triangle,p)    std::cout << "Triangle" << std::endl; m += p.first; break;
+        CASE(Triangle,p)    std::cout << "Triangle" << std::endl; m += p.first; break; // NOTE: Possible to have another regular match
+        CASES_END
+        }
+    }
+
+    std::cout << m << std::endl;
+
     // Open/Closed case with bound variables explicitly declared
 
     m = 0.0;

@@ -7,7 +7,7 @@
 #include <numeric>
 #include <string>
 #include <vector>
-#include "match.hpp"
+#include "match_generic.hpp"
 #include "timing.hpp"
 
 #if !defined(NUMBER_OF_VFUNCS)
