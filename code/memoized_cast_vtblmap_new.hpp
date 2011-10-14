@@ -31,65 +31,62 @@ template <typename T> struct cast_target<const T*> { typedef T type; };
 
 //------------------------------------------------------------------------------
 
+typedef const void* dyn_cast_offset_function(const void* p, std::ptrdiff_t& offset);
+
 /*extern */vtbl2offsets<> global_offset_map(just_allocated);
 
+template <typename T>
+inline T memoized_cast_ex(const void* p, dyn_cast_offset_function* dyn_off_getter)
+{
+    XTL_ASSERT(p); // All checks for null should have been done before
+
+    std::ptrdiff_t& offset = global_offset_map.get<T>(p);
+
+    switch (offset)
+    {
+    case just_allocated:
+        return reinterpret_cast<T>(dyn_off_getter(p,offset));
+    case no_cast_exists:
+        return 0;
+    default:
+        return reinterpret_cast<T>(reinterpret_cast<std::intptr_t>(p)+offset);
+    }
+}
+
 //------------------------------------------------------------------------------
 
+/// A generic wrapper to obtain an offset of dynamic_cast from type U* to type T*.
+/// We pass this function by address as it is the slowest part anyways, so one 
+/// extra function call is not going make it slower, but will save on generated code.
 template <typename T, typename U>
-inline T memoized_cast_non_null(const U* p)
+inline const void* dyn_cast_offset(const void* p, std::ptrdiff_t& offset)
 {
-    XTL_ASSERT(p);
-
-    // TODO: 
-    // 1. vtbl with pointers directly to table instead of indecies
-    // 2. store type index inside match_members
-    // 3. try smaller type int instead of size_t or ptrdiff_t
-    std::ptrdiff_t& offset = global_offset_map.get(p,type_index<T>());
-
-    if (offset == just_allocated)
+    if (T k = dynamic_cast<T>(static_cast<const U*>(p)))
     {
-        T k = dynamic_cast<T>(p);
-        offset = k ? reinterpret_cast<const char*>(k)-reinterpret_cast<const char*>(p) : no_cast_exists;
+        offset = reinterpret_cast<const char*>(k)-reinterpret_cast<const char*>(p);
         return k;
     }
-
-    return 
-        offset == no_cast_exists 
-            ? 0 
-            : reinterpret_cast<T>(reinterpret_cast<const char*>(p)+offset);
+    else
+    {
+        offset = no_cast_exists;
+        return 0;
+    }
 }
 
 //------------------------------------------------------------------------------
 
 template <typename T, typename U>
-inline T memoized_cast_non_null(U* u)
+inline T memoized_cast(const U* u)
 {
-    return 
-        const_cast<T>(
-            memoized_cast_non_null<typename cast_target<T >::type const*>(
-                       static_cast<typename cast_target<U*>::type const*>(u)
-            )
-        );
+    return u ? memoized_cast_ex<T>(u,&dyn_cast_offset<T,U>) : 0;
 }
-
-//------------------------------------------------------------------------------
-
-//template <typename T, typename U>
-//inline T memoized_cast(const U* u)
-//{
-//    return  u
-//            ? memoized_cast_non_null<T>(u) 
-//            : 0;
-//}
 
 //------------------------------------------------------------------------------
 
 template <typename T, typename U>
 inline T memoized_cast(U* u)
 {
-    return  u
-            ? memoized_cast_non_null<T>(u) 
-            : 0;
+    return const_cast<T>(memoized_cast<typename cast_target<T>::type const*>(static_cast<typename cast_target<U*>::type const*>(u)));
 }
 
 //------------------------------------------------------------------------------

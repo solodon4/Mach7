@@ -908,7 +908,7 @@ void test_sequential()
 
             time_stamp liFinish2 = get_time_stamp();
 
-            XTL_VERIFY(a1==a2);
+            XTL_ASSERT(a1==a2);
 
             timingsV[m] = liFinish1-liStart1;
             timingsM[m] = liFinish2-liStart2;
@@ -1000,7 +1000,7 @@ void test_randomized()
 
         time_stamp liFinish2 = get_time_stamp();
 
-        XTL_VERIFY(a1==a2);
+        XTL_ASSERT(a1==a2);
         timingsV[m] = liFinish1-liStart1;
         timingsM[m] = liFinish2-liStart2;
     }

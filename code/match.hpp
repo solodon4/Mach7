@@ -58,7 +58,7 @@ template <>      struct requires_bits<1> { enum { value = 0 }; };
 template <int N> struct switch_on_line {}; // dummy class
 //------------------------------------------------------------------------------
 
-#define dynamic_cast memoized_cast
+#define dynamic_cast memoized_cast_non_null
 
 /// Macro to define member's position within decomposition of a given data type
 /// Example: CM(0,MyClass::member) or CM(1,external_func)
@@ -68,6 +68,7 @@ template <int N> struct switch_on_line {}; // dummy class
 ///       would be sufficient.
 #define CM(Index,...) static inline decltype(&__VA_ARGS__) member##Index() { return &__VA_ARGS__; }
 
+#define this_switch_index 0
 /// For some reason MSVC gets unresolved external error if we use auto here, so we workaround it with decltype
 #ifdef _MSC_VER
 
@@ -75,14 +76,14 @@ template <int N> struct switch_on_line {}; // dummy class
 #define SWITCH(s)\
         /*static vtbl2lines<> __vtbl2lines_map;*/\
         decltype(s)& __selector_var = s;\
-        typedef switch_on_line<__LINE__> this_switch_type;\
-        switch (global_offset_map.get<this_switch_type>(addr(__selector_var)))
+        /*static size_t this_switch_index = type_index<switch_on_line<__LINE__>>();*/\
+        switch (global_offset_map.get(addr(__selector_var), this_switch_index))
 /// Extended version of the macro that starts the switch on pattern, that takes an expected number of cases in
 #define SWITCH_N(s,N)\
         /*static vtbl2lines<requires_bits<N>::value> __vtbl2lines_map;*/\
         decltype(s)& __selector_var = s;\
-        typedef switch_on_line<__LINE__> this_switch_type;\
-        switch (global_offset_map.get<this_switch_type>(addr(__selector_var)))
+        /*static size_t this_switch_index = type_index<switch_on_line<__LINE__>>();*/\
+        switch (global_offset_map.get(addr(__selector_var), this_switch_index))
 
 #else
 
@@ -90,14 +91,14 @@ template <int N> struct switch_on_line {}; // dummy class
 #define SWITCH(s)\
         /*static vtbl2lines<> __vtbl2lines_map;*/\
         auto& __selector_var = s;\
-        typedef switch_on_line<__LINE__> this_switch_type;\
-        switch (global_offset_map.get<this_switch_type>(addr(__selector_var)))
+        /*static size_t this_switch_index = type_index<switch_on_line<__LINE__>>();*/\
+        switch (global_offset_map.get(addr(__selector_var), this_switch_index))
 /// Extended version of the macro that starts the switch on pattern, that takes an expected number of cases in
 #define SWITCH_N(s,N)\
         /*static vtbl2lines<requires_bits<N>::value> __vtbl2lines_map;*/\
         auto& __selector_var = s;\
-        typedef switch_on_line<__LINE__> this_switch_type;\
-        switch (global_offset_map.get<this_switch_type>(addr(__selector_var)))
+        /*static size_t this_switch_index = type_index<switch_on_line<__LINE__>>();*/\
+        switch (global_offset_map.get(addr(__selector_var), this_switch_index))
 
 #endif
 
@@ -109,9 +110,9 @@ template <int N> struct switch_on_line {}; // dummy class
 ///       to   "Program Database (/Zi)", which is the default in Release builds,
 ///       but not in Debug. This is a known bug of Visual C++ described here:
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#define CASE(C,...) } if (UNLIKELY_BRANCH(dynamic_cast<const C*>(addr(__selector_var)))) { global_offset_map.update<this_switch_type>(__LINE__, addr(__selector_var)); case __LINE__: if (LIKELY_BRANCH(match<C>(__VA_ARGS__)(__selector_var))) 
+#define CASE(C,...) } if (UNLIKELY_BRANCH(dynamic_cast<const C*>(addr(__selector_var)))) { global_offset_map.update(__LINE__, addr(__selector_var), this_switch_index); case __LINE__: if (LIKELY_BRANCH(match<C>(__VA_ARGS__)(__selector_var))) 
 #define CASES_BEGIN default: {
-#define CASES_END } global_offset_map.update<this_switch_type>(__LINE__, addr(__selector_var)); case __LINE__: ;
+#define CASES_END } global_offset_map.update(__LINE__, addr(__selector_var), this_switch_index); case __LINE__: ;
 
 //------------------------------------------------------------------------------
 
