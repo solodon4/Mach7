@@ -37,15 +37,6 @@ using boost::remove_const;
 
 //------------------------------------------------------------------------------
 
-enum { default_layout = size_t(~0) };
-
-/// Traits like structure that will define which members should be matched at 
-/// which positions. It is intentionally left undefined as user will have to
-/// provide specializations for his hierarchy.
-template <typename type_being_matched, size_t layout = default_layout> struct match_members;
-
-//------------------------------------------------------------------------------
-
 template <typename T> inline const T* addr(const T* t) { return  t; }
 template <typename T> inline       T* addr(      T* t) { return  t; }
 template <typename T> inline const T* addr(const T& t) { return &t; }
@@ -75,25 +66,73 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
 
 //------------------------------------------------------------------------------
 
+/// Helper function to help disambiguate a unary version of a given function when 
+/// overloads with different arity are available.
+/// All of the members we work with so far through @match_members are unary:
+/// they are either unary function, nullary member function (implicit argument 
+/// this makes them unary effectively) or a data member (which can be treated
+/// in the same way as nullary member function).
+template<typename R, typename A1> R (    * unary(R (    *f)(A1)      ))(A1)     { return f; }
+template<typename R, typename A1> R (A1::* unary(R  A1::*f           ))         { return f; }
+template<typename R, typename A1> R (A1::* unary(R (A1::*f)(  )      ))()       { return f; }
+template<typename R, typename A1> R (A1::* unary(R (A1::*f)(  ) const))() const { return f; }
+
+//------------------------------------------------------------------------------
+
 //#define dynamic_cast memoized_cast
 #define memoized_cast dynamic_cast
 
+//------------------------------------------------------------------------------
+
+enum { default_layout = size_t(~0) };
+
+/// Traits like structure that will define which members should be matched at 
+/// which positions. It is intentionally left undefined as user will have to
+/// provide specializations for his hierarchy.
+template <typename type_being_matched, size_t layout = default_layout> struct match_members;
+
 /// Macro to define member's position within decomposition of a given data type
 /// Example: CM(0,MyClass::member) or CM(1,external_func)
-/// \note Use this macro only inside specializations of the above two templates
+/// \note Use this macro only inside specializations of match_members
 /// \note We use variadic macro parameter here in order to be able to handle 
 ///       templates, which might have commas, otherwise juse a second argument
 ///       would be sufficient.
-#define CM(Index,...) static inline decltype(&__VA_ARGS__) member##Index() { return &__VA_ARGS__; }
+/// \note @unary is used here as an identity to disambiguate the necessary
+///       [member-]function when multiple exist. For example: complex<T> has
+///       two member functions imag() - one with no arugment and one with one
+///       argument. We are only interested with the one without argument and
+///       putting @unary here around taking the address of it saves the user
+///       from having to disambiguate explicitly.
+#define CM(Index,...) static inline decltype(unary(&__VA_ARGS__)) member##Index() { return unary(&__VA_ARGS__); }
 
 /// Macro to define a kind selector - a member of the common base class that 
 /// carries a distinct integral value that uniquely identifies the derived 
 /// type.  Used in the decomposition of the base class.
-#define KS(...)       static inline decltype(&__VA_ARGS__) kind_selector() { return &__VA_ARGS__; } bool kind_selector_dummy() const;
+/// \note Use this macro only inside specializations of match_members
+/// \note We use variadic macro parameter here in order to be able to handle 
+///       templates, which might have commas, otherwise juse a second argument
+///       would be sufficient.
+#define KS(...)       static inline decltype(unary(&__VA_ARGS__)) kind_selector() { return unary(&__VA_ARGS__); } bool kind_selector_dummy() const;
 
 /// Macro to define an integral constant that uniquely identifies the derived 
 /// class. Used in the decomposition of a derived class.
+/// \note Use this macro only inside specializations of match_members
+/// \note We use variadic macro parameter here in order to be able to handle 
+///       templates, which might have commas, otherwise juse a second argument
+///       would be sufficient.
 #define KV(kind)      static const size_t kind_value = kind;
+
+/// Macro to define a raise selector - a virtual member function of the common
+/// base class that implements a polymorphic exception idiom (\see 
+/// http://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Polymorphic_Exception). 
+/// Essentially it's a virtual member function (e.g. virtual void raise() const = 0;)
+/// that will be overriden in all subclasses in the following way:
+/// void SubClass::raise() const { throw *this; }
+/// \note Use this macro only inside specializations of match_members
+/// \note We use variadic macro parameter here in order to be able to handle 
+///       templates, which might have commas, otherwise juse a second argument
+///       would be sufficient.
+#define RS(...)       static inline decltype(unary(&__VA_ARGS__)) raise_selector() { return unary(&__VA_ARGS__); } bool raise_selector_dummy() const;
 
 //------------------------------------------------------------------------------
 
@@ -303,6 +342,32 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
 #endif
 
 #define END_UNION_SWITCH   }} }}
+
+//------------------------------------------------------------------------------
+
+/// Macro that starts the switch on types that carry their own dynamic type as
+/// a distinct integral value in one of their members.
+#define EXCEPTION_SWITCH(s) {\
+        auto const __selector_ptr  = addr(s);\
+        typedef remove_ref<decltype(*__selector_ptr)>::type selector_type; \
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
+        try { apply_member(__selector_ptr, match_members<selector_type>::raise_selector());
+
+/// Macro that defines the case statement for the above switch
+#define EXCEPTION_CASE_(L,...) } \
+        catch (L& matched_ref) \
+        { \
+            typedef L target_type; \
+            auto matched = &matched_ref; 
+
+/// Macro that defines the case statement for the above switch
+#ifdef _MSC_VER
+    #define EXCEPTION_CASE(...) XTL_APPLY_VARIADIC_MACRO(EXCEPTION_CASE_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) /*{*/
+#else
+    #define EXCEPTION_CASE(...) EXCEPTION_CASE_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) /*{*/
+#endif
+
+#define END_EXCEPTION_SWITCH } catch (...) {} }
 
 #include "has_member.hpp"
 
@@ -1123,7 +1188,7 @@ inline R apply_member(      C* c, R (T::*method)()      )
 template <class C, class T, typename R>
 inline const R& apply_member(const C* c, R T::*field) throw()
 {
-    DEBUG_APPLY_MEMBER("data member to const instance ", c, method);
+    DEBUG_APPLY_MEMBER("data member to const instance ", c, field);
     return c->*field;
 }
 
@@ -1132,7 +1197,7 @@ inline const R& apply_member(const C* c, R T::*field) throw()
 template <class C, class T, typename R>
 inline       R& apply_member(      C* c, R T::*field) throw()
 {
-    DEBUG_APPLY_MEMBER("data member to non-const instance ", c, method);
+    DEBUG_APPLY_MEMBER("data member to non-const instance ", c, field);
     return c->*field;
 }
 
@@ -1141,7 +1206,16 @@ inline       R& apply_member(      C* c, R T::*field) throw()
 template <class C, class T, typename R>
 inline R apply_member(const C* c, R (*func)(const T*))
 {
-    DEBUG_APPLY_MEMBER("external function to const instance ", c, method);
+    DEBUG_APPLY_MEMBER("external function taking const pointer to const instance ", c, func);
+    return (*func)(c);
+}
+
+//------------------------------------------------------------------------------
+
+template <class C, class T, typename R>
+inline R apply_member(      C* c, R (*func)(const T*))
+{
+    DEBUG_APPLY_MEMBER("external function taking const pointer to non-const instance ", c, func);
     return (*func)(c);
 }
 
@@ -1150,8 +1224,35 @@ inline R apply_member(const C* c, R (*func)(const T*))
 template <class C, class T, typename R>
 inline R apply_member(      C* c, R (*func)(      T*))
 {
-    DEBUG_APPLY_MEMBER("external function to non-const instance ", c, method);
+    DEBUG_APPLY_MEMBER("external function taking non-const pointer to non-const instance ", c, func);
     return (*func)(c);
+}
+
+//------------------------------------------------------------------------------
+
+template <class C, class T, typename R>
+inline R apply_member(const C* c, R (*func)(const T&))
+{
+    DEBUG_APPLY_MEMBER("external function taking const reference to const instance ", c, func);
+    return (*func)(*c);
+}
+
+//------------------------------------------------------------------------------
+
+template <class C, class T, typename R>
+inline R apply_member(      C* c, R (*func)(const T&))
+{
+    DEBUG_APPLY_MEMBER("external function taking const reference to non-const instance ", c, func);
+    return (*func)(*c);
+}
+
+//------------------------------------------------------------------------------
+
+template <class C, class T, typename R>
+inline R apply_member(      C* c, R (*func)(      T&))
+{
+    DEBUG_APPLY_MEMBER("external function taking non-const reference to non-const instance ", c, func);
+    return (*func)(*c);
 }
 
 //------------------------------------------------------------------------------
