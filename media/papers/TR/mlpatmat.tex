@@ -10,7 +10,8 @@ showstringspaces=false,
   basicstyle=\sffamily,
 %  commentstyle=\rmfamily\itshape,
   moredelim=**[is][\color{white}]{~}{~},
-  literate={<}{{$\langle$}}1        {>}{{$\rangle$}}1 %
+  literate={[<]}{{\textless}}1      {[>]}{{\textgreater}}1 %
+           {<}{{$\langle$}}1        {>}{{$\rangle$}}1 %
            {<=}{{$\leq$}}1          {>=}{{$\geq$}}1          {!=}{{$\neq$}}1 %
            {=>}{{$\Rightarrow\;$}}1 {->}{{$\rightarrow{}$}}1 %
            {<:}{{$\subtype{}\ $}}1  {<-}{{$\leftarrow$}}1 %
@@ -21,6 +22,8 @@ showstringspaces=false,
 }
 \lstset{style=C++}
 \DeclareRobustCommand{\code}[1]{{\lstinline[breaklines=false]{#1}}}
+\DeclareRobustCommand{\codehaskell}[1]{{\lstinline[breaklines=false,language=Haskell]{#1}}}
+\DeclareRobustCommand{\codeocaml}[1]{{\lstinline[breaklines=false,language=Caml]{#1}}}
 
 \begin{document}
 
@@ -83,9 +86,9 @@ equivalent predicate spelled out directly.
 Popularized by functional programming community, most notably ML\cite{ML90} and 
 Haskell\cite{Haskell98Book}, for providing syntax very close to mathematical 
 notations, pattern matching has since been making its way into many imperative 
-programming languages like Scala\cite{Scala2nd}, 
-Java\cite{Liu03jmatch:iterable,HydroJ2003}, C++\cite{Prop96}, 
-C\cite{Moreau:2003} and others. While this is relatively  
+programming languages like Pizza\cite{Odersky97pizzainto}, Scala\cite{Scala2nd}, 
+Fortress\cite{}, Java\cite{Liu03jmatch:iterable,HydroJ2003}, C++\cite{Prop96}, 
+C\cite{Moreau:2003} and others. While this is relatively 
 easy to do a-priori when designing a new language, the introduction of pattern 
 matching into an industry strengths language a-posteriori might become a 
 challenge. The obvious utility of the feature may be overshadowed by the 
@@ -189,7 +192,7 @@ template <> struct bindings<Divide> { CM(0,Divide::exp1);
 
 The above syntax is enabled without any external tool support through the use
 of new C++0x features\cite{C++0x}, template meta-programming and macros. As we 
-show in section~\ref{       }, it runs up to 80\% faster (depending on the usage 
+show in section~\ref{sec:eval}, it runs up to 80\% faster (depending on the usage 
 scenario, compiler and underlain hardware) than a similar code crafted with the 
 \emph{Visitor Design Pattern}.
 
@@ -416,7 +419,7 @@ eitherLift f g (Left  x) = Left  (f x)
 eitherLift f g (Right y) = Right (g y)
 \end{lstlisting}
 
-In simple words, the function \code{eitherLift} above takes two functions and an 
+In simple words, the function \codehaskell{eitherLift} above takes two functions and an 
 object and depending on the actual type constructor the object was created with, 
 calls first or second function on the embedded value, encoding the result 
 corresondingly.
@@ -461,7 +464,7 @@ The code above defines the necessary parameterized data structures as well as a
 correspondingly parameterized visitor class capable of introspecting it at 
 run-time. The authors agree with us that \emph{``The code has a fair amount of 
 boilerplate to simulate pattern matching...''} The actual implementation of 
-\code{lift} in C++ now amounts to declaring and invoking a visitor:
+\codehaskell{lift} in C++ now amounts to declaring and invoking a visitor:
 
 \begin{lstlisting}
 template <class X, class Y, class S, class T>
@@ -608,34 +611,37 @@ convenient way of creating a value of its variant type as well as a way of
 discriminating its variant type from the algebraic data type through pattern 
 matching.
 
-Algebraic data type \code{expr} from Section~\ref{sec:intro} consists of 5 
-variants, marked with constructors \code{Value}, \code{Plus}, \code{Minus}, 
-\code{Times} and \code{Divide} respectively. Constructor \code{Value} expects a 
-value of type \code{int} during construction, as well as any pattern that admits 
-values of type \code{int} during decomposition through pattern matching. 
-Similarly, the other four constructors expect a value of a carthesian product of 
-two \code{expr} types during construction, as well as any pattern that would 
-admit a value of such type during decomposition.
+Algebraic data type \codeocaml{expr} from Section~\ref{sec:intro} consists of 5 
+variants, marked with constructors \codeocaml{Value}, \codeocaml{Plus}, 
+\codeocaml{Minus}, \codeocaml{Times} and \codeocaml{Divide} respectively. 
+Constructor \codeocaml{Value} expects a value of type \codeocaml{int} during 
+construction, as well as any pattern that admits values of type \codeocaml{int} 
+during decomposition through pattern matching. Similarly, the other four 
+constructors expect a value of a carthesian product of two \codeocaml{expr} 
+types during construction, as well as any pattern that would admit a value of 
+such type during decomposition.
 
 Algebraic data types can be parameterized and recursive, as demonstrated by the 
-following Haskell code that defines a binary tree parameterized on type \code{k} 
-of keys and type \code{d} of data stored in the nodes:
+following Haskell code that defines a binary tree parameterized on type 
+\codehaskell{k} of keys and type \codehaskell{d} of data stored in the nodes:
 
 \begin{lstlisting}[language=Haskell]
-data Tree k d = Node k d (Tree k d) (Tree k d) 
-              | Leaf
+data Tree k d = Node k d (Tree k d) (Tree k d) | Leaf
 \end{lstlisting}
 
-They can also be decomposed in a generic algorithm like the function \code{find} 
-below, defined through case analysis on the tree's structure:
+Naturally, they can be decomposed in a generic algorithm like the function 
+\code{find} below, defined through case analysis on the tree's structure:
 
 \begin{lstlisting}[language=Haskell]
-find :: Int -> Tree Int d -> Maybe d
-find i t = case t of
-    Leaf -> Nothing
-    Node key item left right ->
-        if i = key then Just item else
-            if i < key then find i left else find i right
+find :: (Ord k) => k -> Tree k d -> Maybe d
+find i Leaf = Nothing
+find i (Node key item left right) = 
+    if i == key 
+    then Just item 
+    else 
+        if i [<] key 
+        then find i left 
+        else find i right
 \end{lstlisting}
 
 The set of values described by a given algebraic data type is defined 
@@ -644,12 +650,34 @@ Algebraic data types draw their name from the practice of using case distinction
 in mathematical function definitions and proofs that involve \emph{algebraic 
 terms}.
 
-One of the main differences of algebraic data types from object-oriented data 
-structures is that an algebraic data type definition fixes the structure of its 
-instances once and for all. Once we have listed all the variants a given 
-algebraic data type may have we cannot extend it with new variants without 
-modifying its defintion. This is not the case in object-oriented languages, 
-where classes can be extended arbitrarily.
+One of the main differences of algebraic data types from classes in 
+object-oriented languages is that an algebraic data type definition is 
+\emph{closed} because it fixes the structure of its instances once and for all. 
+Once we have listed all the variants a given algebraic data type may have we 
+cannot extend it with new variants without modifying its defintion. This is not 
+the case in object-oriented languages, where classes are \emph{open} to 
+extension through subclassing. 
+
+Closeness of algebraic data types is particularly useful in reasoning about 
+programs by case analysis and alows the compiler to perform an automatic 
+\emph{incompleteness} check -- test of whether a given match expression covers all 
+possible cases. A related notion of \emph{redundancy} checking arises from the 
+tradition of using \emph{first-fit} strategy in pattern matching. It warns the 
+user of any \emph{case clause} inside a \emph{matching expression} that will 
+never be entered because of preceeding one being more general. Object-oriented 
+languages, especially C++, typically prefer \emph{best-fit} strategy (e.g. for 
+overload resolution and class template specialization) because it is not prone 
+to errors where semantics of a statement might change depending on the ordering 
+of preceeding definitions. The notable exception in C++ semantics that prefers 
+the \emph{first-fit} strategy is ordering of \code{catch} handlers of a 
+try-block. Similarly to functional languages the compiler will perform 
+\emph{redundancy} checking on catch handlers and issue a warning that lists the 
+redundant cases.
+
+%[From Emir PhD 1.4.2]
+%Incompleteness describes a match expression that does not cover all cases, 
+%whereas redundancy indicates a case that can never be entered because of a 
+%preceding one being more general. 
 
 %The constructor tags are special cases of T, which provides a relationship between the set
 %of instances tagged with a particular constructor and the set of instances of T that is akin
@@ -667,7 +695,6 @@ where classes can be extended arbitrarily.
 %allow for combinatorial combinations of algebraic data types (e.g. for a pair of two SrchT
 %instances).
 
-
 %[From Emir PhD 2.1.1]
 %In typed functional programming languages like HOPE [14], MIRANDA [90], HASKELL [47]
 %and ML [64], users can define concrete data types as disjoint sums of primitive types, tuples
@@ -681,24 +708,11 @@ where classes can be extended arbitrarily.
 %Algebraic data types like SrchT are defined inductively as the least set closed under their
 %constructor functions.
 
-Functional programming community 
-algebraic data type (sometimes also called a variant type[1]) is a datatype each 
-of whose values is data from other datatypes wrapped in one of the constructors 
-of the datatype. Any wrapped datum is an argument to the constructor. In 
-contrast to other datatypes, the constructor is not executed and the only way to 
-operate on the data is to unwrap the constructor using pattern matching.
-
-
-
-
-In programming languages like ML\cite{ML90} and Haskell\cite{Haskell98Book}, a 
-function can be defined by a sequence of pattern-expression pairs. Evaluating 
-such a function is equivalent to evaluation of the expression corresponding to 
-the first pattern that matches the arguments. Most of the languages distinguish 
-\emph{primitive patterns} (described by a given value or a variable) and 
-\emph{tree patterns} (arise from decomposing algebraic data types through the 
-use of constructors). Consider the following Haskell code defining factorial 
-function:
+The patterns that work with algebraic data type we have seen so far are 
+generally called \emph{tree patterns}. Pattern matching however is not used 
+solely with algebraic data types and can equally well be applied to built-in 
+types. The following Haskell code defines factorial function in the form of 
+equations:
 
 \begin{lstlisting}[language=Haskell]
 factorial 0 = 1
@@ -707,17 +721,66 @@ factorial n = n * factorial (n-1)
 
 Here 0 in the left hand side of the first \emph{equation} is an example of a 
 \emph{value pattern} that will only match when the actual argument passed to the 
-function factorial is 0. The \emph{variable pattern} \code{n} in the left hand 
+function factorial is 0. The \emph{variable pattern} \codehaskell{n} in the left hand 
 side of the second equation will match any value, \emph{binding} variable 
-\code{n} to that value in the right hand side of equation. 
+\codehaskell{n} to that value in the right hand side of equation. Similarly to variable 
+pattern, \emph{wildcard pattern} \codehaskell{_} will match any value with the 
+exception that the matched value will not be bound to any variable. Value 
+patterns, variable patterns and wildcard patterns are generally called 
+\emph{primitive patterns}. Patterns like variable and wildcard patterns that 
+never fail to match are called \emph{irrefutable}, in contrast to 
+\emph{refutable} patterns like value patterns, which may fail to match.
 
-Tree patterns arise in many different contexts: description of tree-like 
-structures, algebraic data types, class hierarchies etc.
+In Haskell 98\cite{Haskell98Book} the above definition of factorial could also 
+be written as:
 
-Veldhuizen discovered a very powerful technique called Expression 
-templates\cite{Veldhuizen95expressiontemplates}.
+\begin{lstlisting}[language=Haskell]
+factorial 0 = 1
+factorial (n+1) = (n+1) * factorial n
+\end{lstlisting}
 
-Other languages that use pattern matching include: ...
+The \codehaskell{(n+1)} pattern in the left hand side of equation is an example of 
+\emph{n+k pattern}. Accordingly to its informal semantics ``Matching an $n+k$ 
+pattern (where $n$ is a variable and $k$ is a positive integer literal) against 
+a value $v$ succeeds if $v \ge k$, resulting in the binding of $n$ to $v-k$, and 
+fails otherwise''\cite{haskell98}. n+k patterns were introduced into Haskel to 
+let users express inductive functions on natural numbers in much the same way as 
+functions defined through case analysis on algebraic data types. Besides 
+conscies notation such language feature could facilitate automatic proof of 
+termination of such functions by compiler. Peano numbers, used as an algebraic 
+data type representation of natural numbers, however, are not always the best 
+abstraction for representing other mathematical operations. This, together with 
+numerous ways of defining semantics of generalized n+k patterns were some of the 
+reasons why feature was actually never generalized. Moreover, numerous debates 
+over semantics and usefullness of the feature resulted in n+k patterns being 
+removed from the language in Haskell 2010 standard\cite{haskell2010}.
+
+While n+k patterns were something only Haskell had, another common feature of 
+many programming languages that have pattern matching are guards. A \emph{guard} 
+is a predicate attached to a pattern that may make use of the variables bound in 
+it. The result of its evaluation will determine whether the case clause and the 
+body associated with it will be \emph{accepted} or \emph{rejected}. The 
+following OCaml code for $exp$ language from Section~\ref{sec:intro} defines the 
+rules for factorizing expressions $e_1e_2+e_1e_3$ into $e_1(e_2+e_3)$ and 
+$e_1e_2+e_3e_2$ into $(e_1+e_3)e_2$ with the help of guards spelled out after 
+keyword \codeocaml{when}:
+
+\begin{lstlisting}[language=Caml,keepspaces,columns=flexible]
+let factorize e =
+    match e with
+      Plus (Times (e1, e2), Times (e3, e4)) when e1 = e3 
+          -> Times (e1, Plus (e2, e4))
+    | Plus (Times (e1, e2), Times (e3, e4)) when e2 = e4 
+          -> Times (Plus (e1, e3), e4)
+    |   e -> e
+    ;;
+\end{lstlisting}
+
+Pattern matching in Haskell is different from that found in logic programming 
+languages like Prolog. In particular, it can be viewed as "one-way" matching, 
+whereas Prolog allows "two-way" matching (via unification).
+
+
 
 Interestingly enough C++ has a pure functional sublanguage in it that has a 
 striking similarity to ML and Haskell. The sublanguage in question is template 
@@ -730,8 +793,10 @@ equations for Haskell functions. Consider as an example the above factorial
 function expressed in terms of compile-time pattern matching facilities of C++:
 
 \begin{lstlisting}
-template <int N> struct factorial    { enum { result = N*factorial<N-1>::result }; };
-template <>      struct factorial<0> { enum { result = 1 }; };
+template <int N> 
+struct factorial { enum { result = N*factorial<N-1>::result }; };
+template <>
+struct factorial<0> { enum { result = 1 }; };
 \end{lstlisting}
 
 Coincidentaly, we use this compile-time pattern matching facility as a 
@@ -748,16 +813,6 @@ kinds of irrefutable patterns:
 
 * As-patterns
 * Wild-cards 
-
-Pattern matching in Haskell is different from that found in logic programming 
-languages such as Prolog; in particular, it can be viewed as "one-way" matching, 
-whereas Prolog allows "two-way" matching (via unification), along with implicit 
-backtracking in its evaluation mechanism.) 
-
-We note that our approach is not limited to handling only these specific 
-representations of algebraic datatypes in C++, but can be applied to any class 
-hierarchy, viewing patternm matching as a generalization of 
-dynamic\_cast.
 
 %[From Emir 2.1.2]
 %Apart from testing for constructors, patterns can also test whether a data item is equal to
@@ -819,6 +874,23 @@ dynamic\_cast.
 %with the strengths and the weaknesses of the other; neither
 %encoding gains simultaneous extensibility of both data and
 %operations.
+
+In programming languages like ML\cite{ML90} and Haskell\cite{Haskell98Book}, a 
+function can be defined by a sequence of pattern-expression pairs. Evaluating 
+such a function is equivalent to evaluation of the expression corresponding to 
+the first pattern that matches the arguments. Most of the languages distinguish 
+\emph{primitive patterns} (described by a given value or a variable) and 
+\emph{tree patterns} (arise from decomposing algebraic data types through the 
+use of constructors). Consider the following Haskell code defining factorial 
+function:
+
+Tree patterns arise in many different contexts: description of tree-like 
+structures, algebraic data types, class hierarchies etc.
+
+Veldhuizen discovered a very powerful technique called Expression 
+templates\cite{Veldhuizen95expressiontemplates}.
+
+Other languages that use pattern matching include: ...
 
 \section{Pattern Matching for C++} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:pm}
@@ -965,6 +1037,11 @@ just wanted to mention here that the name of the meta variable may be arbitrary,
 it is its type that triggers the proper matching behavior.
 
 TODO: Discuss exceptions while accessing members
+
+We note that our approach is not limited to handling only these specific 
+representations of algebraic datatypes in C++, but can be applied to any class 
+hierarchy, viewing patternm matching as a generalization of 
+dynamic\_cast.
 
 \subsection{Guards}
 
