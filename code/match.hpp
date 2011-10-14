@@ -50,7 +50,22 @@ template <typename type_being_matched, int kind_being_matched> struct match_memb
 
 //------------------------------------------------------------------------------
 
-typedef vtblmap<int,7> vtbl2lines;
+class vtbl2lines : public vtblmap<int,7>
+{
+public:
+    inline void update(int ln, const void* t, const void* success) throw()
+    {
+        mapped_type& line = this->get(t);
+
+        if (success)
+            if (line%2 == 1)
+                line = 2*ln;
+            else
+                ;
+        else
+            line = 2*ln+1;
+    }
+};
 
 //------------------------------------------------------------------------------
 
@@ -86,8 +101,7 @@ template <typename T> inline       T* addr(      T& t) { return &t; }
 ///       to   "Program Database (/Zi)", which is the default in Release builds,
 ///       but not in Debug. This is a known bug of Visual C++ described here:
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-//#define CASE(C,...) case __LINE__: if (match<C>(__VA_ARGS__)(__selector_var,__vtbl2lines_map,__LINE__))
-#define CASE(C,...) update(__vtbl2lines_map, __LINE__, addr(__selector_var), dynamic_cast<const C*>(addr(__selector_var))); case 2*__LINE__: if (!match<C>(__VA_ARGS__)(__selector_var)) { case 2*__LINE__+1:; } else 
+#define CASE(C,...) __vtbl2lines_map.update(__LINE__, addr(__selector_var), dynamic_cast<const C*>(addr(__selector_var))); case 2*__LINE__: if (!match<C>(__VA_ARGS__)(__selector_var)) { case 2*__LINE__+1:; } else 
 
 //------------------------------------------------------------------------------
 
@@ -573,21 +587,6 @@ template <typename C, typename M>
 inline bool apply_expression(const var_ref<wildcard>&,       C*, M) throw()
 {
     return true;
-}
-
-//------------------------------------------------------------------------------
-
-inline void update(vtbl2lines& v2l, int ln, const void* t, const void* success) throw()
-{
-    int& line = v2l.get(t);
-
-    if (success)
-        if (line%2 == 1)
-            line = 2*ln;
-        else
-            ;
-    else
-        line = 2*ln+1;
 }
 
 //------------------------------------------------------------------------------

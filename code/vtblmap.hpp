@@ -16,6 +16,16 @@
 #include <functional>
 #include <unordered_map>
 
+#define TRACE_PERFORMANCE
+
+#ifdef TRACE_PERFORMANCE
+#include <bitset> // For print out purposes only
+int cache_hits   = 0;
+int cache_misses = 0;
+intptr_t common  =~0;
+intptr_t differ  = 0;
+#endif
+
 template <typename T, size_t cache_bits = 3>
 class vtblmap
 {
@@ -26,6 +36,8 @@ private:
     typedef typename base_type::value_type  value_type;
 
 public:
+    
+    typedef typename base_type::mapped_type mapped_type;
 
     /// A few useful constants
     enum
@@ -75,7 +87,30 @@ public:
             const iterator q = table.find(key);
             ce.ptr  = q != table.end() ? &q->second : &table.insert(value_type(key,dflt)).first->second;
             ce.vtbl = vtbl;
+#ifdef TRACE_PERFORMANCE
+            //std::cout << "Differ: " << std::bitset<32>(differ) << std::endl;
+            //std::cout << "Common: " << std::bitset<32>(common) << std::endl;
+            //std::cout << "Vtbl  : " << std::bitset<32>(vtbl) << std::endl;
+            //std::cout << " Cm^Vt: " << std::bitset<32>(common ^ vtbl) << std::endl;
+            //std::cout << "~Cm^Vt: " << std::bitset<32>(~(common ^ vtbl)) << std::endl;
+            ++cache_misses;
+            if (common == ~0)
+            {
+                common = vtbl;
+                differ = 0;
+            }
+            else
+            {
+                intptr_t cmvt = common ^ vtbl;
+                common &= ~cmvt;
+                differ |=  cmvt;
+            }
         }
+        else
+            ++cache_hits;
+#else
+        }
+#endif
 
         return *ce.ptr;
     }

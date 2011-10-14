@@ -6,7 +6,7 @@
 #include <windows.h>
 #include "match.hpp"
 
-#define FOR_EACH_MAX 3
+#define FOR_EACH_MAX 99
 
 struct ShapeVisitor;
 
@@ -62,7 +62,7 @@ int do_match(Shape& s)
     switch (choice)
     {
     default:
-        update(__vtbl2lines_map, 10, &__selector_var, memoized_cast<shape_kind<0>*>(&__selector_var));
+        __vtbl2lines_map.update(10, &__selector_var, memoized_cast<shape_kind<0>*>(&__selector_var));
     case 2*10:
         if (!match<shape_kind<0>>()(__selector_var))
         {
@@ -70,7 +70,7 @@ int do_match(Shape& s)
         }
         else
             return 0;
-        update(__vtbl2lines_map, 13, &__selector_var, memoized_cast<shape_kind<1>*>(&__selector_var));
+        __vtbl2lines_map.update(13, &__selector_var, memoized_cast<shape_kind<1>*>(&__selector_var));
     case 2*13:
         if (!match<shape_kind<1>>()(__selector_var))
         {
@@ -78,7 +78,7 @@ int do_match(Shape& s)
         }
         else
             return 1;
-        update(__vtbl2lines_map, 16, &__selector_var, memoized_cast<shape_kind<2>*>(&__selector_var));
+        __vtbl2lines_map.update(16, &__selector_var, memoized_cast<shape_kind<2>*>(&__selector_var));
     case 2*16:
         if (!match<shape_kind<2>>()(__selector_var))
         {
@@ -86,7 +86,7 @@ int do_match(Shape& s)
         }
         else
             return 2;
-        update(__vtbl2lines_map, 19, &__selector_var, memoized_cast<shape_kind<3>*>(&__selector_var));
+        __vtbl2lines_map.update(19, &__selector_var, memoized_cast<shape_kind<3>*>(&__selector_var));
     case 2*19:
         if (!match<shape_kind<3>>()(__selector_var))
         {
@@ -94,7 +94,7 @@ int do_match(Shape& s)
         }
         else
             return 3;
-        update(__vtbl2lines_map, 22, &__selector_var, memoized_cast<shape_kind<4>*>(&__selector_var));
+        __vtbl2lines_map.update(22, &__selector_var, memoized_cast<shape_kind<4>*>(&__selector_var));
     case 2*22:
         if (!match<shape_kind<4>>()(__selector_var))
         {
@@ -102,7 +102,7 @@ int do_match(Shape& s)
         }
         else
             return 4;
-        update(__vtbl2lines_map, 25, &__selector_var, memoized_cast<shape_kind<5>*>(&__selector_var));
+        __vtbl2lines_map.update(25, &__selector_var, memoized_cast<shape_kind<5>*>(&__selector_var));
     case 2*25:
         if (!match<shape_kind<5>>()(__selector_var))
         {
@@ -110,7 +110,7 @@ int do_match(Shape& s)
         }
         else
             return 5;
-        update(__vtbl2lines_map, 28, &__selector_var, memoized_cast<shape_kind<6>*>(&__selector_var));
+        __vtbl2lines_map.update(28, &__selector_var, memoized_cast<shape_kind<6>*>(&__selector_var));
     case 2*28:
         if (!match<shape_kind<6>>()(__selector_var))
         {
@@ -118,7 +118,7 @@ int do_match(Shape& s)
         }
         else
             return 6;
-        update(__vtbl2lines_map, 31, &__selector_var, memoized_cast<shape_kind<7>*>(&__selector_var));
+        __vtbl2lines_map.update(31, &__selector_var, memoized_cast<shape_kind<7>*>(&__selector_var));
     case 2*31:
         if (!match<shape_kind<7>>()(__selector_var))
         {
@@ -126,7 +126,7 @@ int do_match(Shape& s)
         }
         else
             return 7;
-        update(__vtbl2lines_map, 34, &__selector_var, memoized_cast<shape_kind<8>*>(&__selector_var));
+        __vtbl2lines_map.update(34, &__selector_var, memoized_cast<shape_kind<8>*>(&__selector_var));
     case 2*34:
         if (!match<shape_kind<8>>()(__selector_var))
         {
@@ -134,7 +134,7 @@ int do_match(Shape& s)
         }
         else
             return 8;
-        update(__vtbl2lines_map, 37, &__selector_var, memoized_cast<shape_kind<9>*>(&__selector_var));
+        __vtbl2lines_map.update(37, &__selector_var, memoized_cast<shape_kind<9>*>(&__selector_var));
     case 2*37:
         if (!match<shape_kind<9>>()(__selector_var))
         {
@@ -142,7 +142,7 @@ int do_match(Shape& s)
         }
         else
             return 9;
-        update(__vtbl2lines_map, 41, &__selector_var, memoized_cast<shape_kind<10>*>(&__selector_var));
+        __vtbl2lines_map.update(41, &__selector_var, memoized_cast<shape_kind<10>*>(&__selector_var));
     case 2*41:
         if (!match<shape_kind<10>>()(__selector_var))
         {
@@ -150,7 +150,7 @@ int do_match(Shape& s)
         }
         else
             return 10;
-        update(__vtbl2lines_map, 44, &__selector_var, memoized_cast<shape_kind<11>*>(&__selector_var));
+        __vtbl2lines_map.update(44, &__selector_var, memoized_cast<shape_kind<11>*>(&__selector_var));
     case 2*44:
         if (!match<shape_kind<11>>()(__selector_var))
         {
@@ -158,7 +158,7 @@ int do_match(Shape& s)
         }
         else
             return 11;
-        update(__vtbl2lines_map, 47, &__selector_var, memoized_cast<shape_kind<12>*>(&__selector_var));
+        __vtbl2lines_map.update(47, &__selector_var, memoized_cast<shape_kind<12>*>(&__selector_var));
     case 2*47:
         if (!match<shape_kind<12>>()(__selector_var))
         {
@@ -166,7 +166,7 @@ int do_match(Shape& s)
         }
         else
             return 12;
-        update(__vtbl2lines_map, 50, &__selector_var, memoized_cast<shape_kind<13>*>(&__selector_var));
+        __vtbl2lines_map.update(50, &__selector_var, memoized_cast<shape_kind<13>*>(&__selector_var));
     case 2*50:
         if (!match<shape_kind<13>>()(__selector_var))
         {
@@ -174,7 +174,7 @@ int do_match(Shape& s)
         }
         else
             return 13;
-        update(__vtbl2lines_map, 53, &__selector_var, memoized_cast<shape_kind<14>*>(&__selector_var));
+        __vtbl2lines_map.update(53, &__selector_var, memoized_cast<shape_kind<14>*>(&__selector_var));
     case 2*53:
         if (!match<shape_kind<14>>()(__selector_var))
         {
@@ -182,7 +182,7 @@ int do_match(Shape& s)
         }
         else
             return 14;
-        update(__vtbl2lines_map, 56, &__selector_var, memoized_cast<shape_kind<15>*>(&__selector_var));
+        __vtbl2lines_map.update(56, &__selector_var, memoized_cast<shape_kind<15>*>(&__selector_var));
     case 2*56:
         if (!match<shape_kind<15>>()(__selector_var))
         {
@@ -190,7 +190,7 @@ int do_match(Shape& s)
         }
         else
             return 15;
-        update(__vtbl2lines_map, 59, &__selector_var, memoized_cast<shape_kind<16>*>(&__selector_var));
+        __vtbl2lines_map.update(59, &__selector_var, memoized_cast<shape_kind<16>*>(&__selector_var));
     case 2*59:
         if (!match<shape_kind<16>>()(__selector_var))
         {
@@ -198,7 +198,7 @@ int do_match(Shape& s)
         }
         else
             return 16;
-        update(__vtbl2lines_map, 62, &__selector_var, memoized_cast<shape_kind<17>*>(&__selector_var));
+        __vtbl2lines_map.update(62, &__selector_var, memoized_cast<shape_kind<17>*>(&__selector_var));
     case 2*62:
         if (!match<shape_kind<17>>()(__selector_var))
         {
@@ -206,7 +206,7 @@ int do_match(Shape& s)
         }
         else
             return 17;
-        update(__vtbl2lines_map, 65, &__selector_var, memoized_cast<shape_kind<18>*>(&__selector_var));
+        __vtbl2lines_map.update(65, &__selector_var, memoized_cast<shape_kind<18>*>(&__selector_var));
     case 2*65:
         if (!match<shape_kind<18>>()(__selector_var))
         {
@@ -214,7 +214,7 @@ int do_match(Shape& s)
         }
         else
             return 18;
-        update(__vtbl2lines_map, 68, &__selector_var, memoized_cast<shape_kind<19>*>(&__selector_var));
+        __vtbl2lines_map.update(68, &__selector_var, memoized_cast<shape_kind<19>*>(&__selector_var));
     case 2*68:
         if (!match<shape_kind<19>>()(__selector_var))
         {
@@ -222,7 +222,7 @@ int do_match(Shape& s)
         }
         else
             return 19;
-        update(__vtbl2lines_map, 72, &__selector_var, memoized_cast<shape_kind<20>*>(&__selector_var));
+        __vtbl2lines_map.update(72, &__selector_var, memoized_cast<shape_kind<20>*>(&__selector_var));
     case 2*72:
         if (!match<shape_kind<20>>()(__selector_var))
         {
@@ -230,7 +230,7 @@ int do_match(Shape& s)
         }
         else
             return 20;
-        update(__vtbl2lines_map, 75, &__selector_var, memoized_cast<shape_kind<21>*>(&__selector_var));
+        __vtbl2lines_map.update(75, &__selector_var, memoized_cast<shape_kind<21>*>(&__selector_var));
     case 2*75:
         if (!match<shape_kind<21>>()(__selector_var))
         {
@@ -238,7 +238,7 @@ int do_match(Shape& s)
         }
         else
             return 21;
-        update(__vtbl2lines_map, 78, &__selector_var, memoized_cast<shape_kind<22>*>(&__selector_var));
+        __vtbl2lines_map.update(78, &__selector_var, memoized_cast<shape_kind<22>*>(&__selector_var));
     case 2*78:
         if (!match<shape_kind<22>>()(__selector_var))
         {
@@ -246,7 +246,7 @@ int do_match(Shape& s)
         }
         else
             return 22;
-        update(__vtbl2lines_map, 81, &__selector_var, memoized_cast<shape_kind<23>*>(&__selector_var));
+        __vtbl2lines_map.update(81, &__selector_var, memoized_cast<shape_kind<23>*>(&__selector_var));
     case 2*81:
         if (!match<shape_kind<23>>()(__selector_var))
         {
@@ -254,7 +254,7 @@ int do_match(Shape& s)
         }
         else
             return 23;
-        update(__vtbl2lines_map, 84, &__selector_var, memoized_cast<shape_kind<24>*>(&__selector_var));
+        __vtbl2lines_map.update(84, &__selector_var, memoized_cast<shape_kind<24>*>(&__selector_var));
     case 2*84:
         if (!match<shape_kind<24>>()(__selector_var))
         {
@@ -262,7 +262,7 @@ int do_match(Shape& s)
         }
         else
             return 24;
-        update(__vtbl2lines_map, 87, &__selector_var, memoized_cast<shape_kind<25>*>(&__selector_var));
+        __vtbl2lines_map.update(87, &__selector_var, memoized_cast<shape_kind<25>*>(&__selector_var));
     case 2*87:
         if (!match<shape_kind<25>>()(__selector_var))
         {
@@ -270,7 +270,7 @@ int do_match(Shape& s)
         }
         else
             return 25;
-        update(__vtbl2lines_map, 90, &__selector_var, memoized_cast<shape_kind<26>*>(&__selector_var));
+        __vtbl2lines_map.update(90, &__selector_var, memoized_cast<shape_kind<26>*>(&__selector_var));
     case 2*90:
         if (!match<shape_kind<26>>()(__selector_var))
         {
@@ -278,7 +278,7 @@ int do_match(Shape& s)
         }
         else
             return 26;
-        update(__vtbl2lines_map, 93, &__selector_var, memoized_cast<shape_kind<27>*>(&__selector_var));
+        __vtbl2lines_map.update(93, &__selector_var, memoized_cast<shape_kind<27>*>(&__selector_var));
     case 2*93:
         if (!match<shape_kind<27>>()(__selector_var))
         {
@@ -286,7 +286,7 @@ int do_match(Shape& s)
         }
         else
             return 27;
-        update(__vtbl2lines_map, 96, &__selector_var, memoized_cast<shape_kind<28>*>(&__selector_var));
+        __vtbl2lines_map.update(96, &__selector_var, memoized_cast<shape_kind<28>*>(&__selector_var));
     case 2*96:
         if (!match<shape_kind<28>>()(__selector_var))
         {
@@ -294,7 +294,7 @@ int do_match(Shape& s)
         }
         else
             return 28;
-        update(__vtbl2lines_map, 99, &__selector_var, memoized_cast<shape_kind<29>*>(&__selector_var));
+        __vtbl2lines_map.update(99, &__selector_var, memoized_cast<shape_kind<29>*>(&__selector_var));
     case 2*99:
         if (!match<shape_kind<29>>()(__selector_var))
         {
@@ -302,7 +302,7 @@ int do_match(Shape& s)
         }
         else
             return 29;
-        update(__vtbl2lines_map, 103, &__selector_var, memoized_cast<shape_kind<30>*>(&__selector_var));
+        __vtbl2lines_map.update(103, &__selector_var, memoized_cast<shape_kind<30>*>(&__selector_var));
     case 2*103:
         if (!match<shape_kind<30>>()(__selector_var))
         {
@@ -310,7 +310,7 @@ int do_match(Shape& s)
         }
         else
             return 30;
-        update(__vtbl2lines_map, 106, &__selector_var, memoized_cast<shape_kind<31>*>(&__selector_var));
+        __vtbl2lines_map.update(106, &__selector_var, memoized_cast<shape_kind<31>*>(&__selector_var));
     case 2*106:
         if (!match<shape_kind<31>>()(__selector_var))
         {
@@ -318,7 +318,7 @@ int do_match(Shape& s)
         }
         else
             return 31;
-        update(__vtbl2lines_map, 109, &__selector_var, memoized_cast<shape_kind<32>*>(&__selector_var));
+        __vtbl2lines_map.update(109, &__selector_var, memoized_cast<shape_kind<32>*>(&__selector_var));
     case 2*109:
         if (!match<shape_kind<32>>()(__selector_var))
         {
@@ -326,7 +326,7 @@ int do_match(Shape& s)
         }
         else
             return 32;
-        update(__vtbl2lines_map, 112, &__selector_var, memoized_cast<shape_kind<33>*>(&__selector_var));
+        __vtbl2lines_map.update(112, &__selector_var, memoized_cast<shape_kind<33>*>(&__selector_var));
     case 2*112:
         if (!match<shape_kind<33>>()(__selector_var))
         {
@@ -334,7 +334,7 @@ int do_match(Shape& s)
         }
         else
             return 33;
-        update(__vtbl2lines_map, 115, &__selector_var, memoized_cast<shape_kind<34>*>(&__selector_var));
+        __vtbl2lines_map.update(115, &__selector_var, memoized_cast<shape_kind<34>*>(&__selector_var));
     case 2*115:
         if (!match<shape_kind<34>>()(__selector_var))
         {
@@ -342,7 +342,7 @@ int do_match(Shape& s)
         }
         else
             return 34;
-        update(__vtbl2lines_map, 118, &__selector_var, memoized_cast<shape_kind<35>*>(&__selector_var));
+        __vtbl2lines_map.update(118, &__selector_var, memoized_cast<shape_kind<35>*>(&__selector_var));
     case 2*118:
         if (!match<shape_kind<35>>()(__selector_var))
         {
@@ -350,7 +350,7 @@ int do_match(Shape& s)
         }
         else
             return 35;
-        update(__vtbl2lines_map, 121, &__selector_var, memoized_cast<shape_kind<36>*>(&__selector_var));
+        __vtbl2lines_map.update(121, &__selector_var, memoized_cast<shape_kind<36>*>(&__selector_var));
     case 2*121:
         if (!match<shape_kind<36>>()(__selector_var))
         {
@@ -358,7 +358,7 @@ int do_match(Shape& s)
         }
         else
             return 36;
-        update(__vtbl2lines_map, 124, &__selector_var, memoized_cast<shape_kind<37>*>(&__selector_var));
+        __vtbl2lines_map.update(124, &__selector_var, memoized_cast<shape_kind<37>*>(&__selector_var));
     case 2*124:
         if (!match<shape_kind<37>>()(__selector_var))
         {
@@ -366,7 +366,7 @@ int do_match(Shape& s)
         }
         else
             return 37;
-        update(__vtbl2lines_map, 127, &__selector_var, memoized_cast<shape_kind<38>*>(&__selector_var));
+        __vtbl2lines_map.update(127, &__selector_var, memoized_cast<shape_kind<38>*>(&__selector_var));
     case 2*127:
         if (!match<shape_kind<38>>()(__selector_var))
         {
@@ -374,7 +374,7 @@ int do_match(Shape& s)
         }
         else
             return 38;
-        update(__vtbl2lines_map, 130, &__selector_var, memoized_cast<shape_kind<39>*>(&__selector_var));
+        __vtbl2lines_map.update(130, &__selector_var, memoized_cast<shape_kind<39>*>(&__selector_var));
     case 2*130:
         if (!match<shape_kind<39>>()(__selector_var))
         {
@@ -382,7 +382,7 @@ int do_match(Shape& s)
         }
         else
             return 39;
-        update(__vtbl2lines_map, 134, &__selector_var, memoized_cast<shape_kind<40>*>(&__selector_var));
+        __vtbl2lines_map.update(134, &__selector_var, memoized_cast<shape_kind<40>*>(&__selector_var));
     case 2*134:
         if (!match<shape_kind<40>>()(__selector_var))
         {
@@ -390,7 +390,7 @@ int do_match(Shape& s)
         }
         else
             return 40;
-        update(__vtbl2lines_map, 137, &__selector_var, memoized_cast<shape_kind<41>*>(&__selector_var));
+        __vtbl2lines_map.update(137, &__selector_var, memoized_cast<shape_kind<41>*>(&__selector_var));
     case 2*137:
         if (!match<shape_kind<41>>()(__selector_var))
         {
@@ -398,7 +398,7 @@ int do_match(Shape& s)
         }
         else
             return 41;
-        update(__vtbl2lines_map, 140, &__selector_var, memoized_cast<shape_kind<42>*>(&__selector_var));
+        __vtbl2lines_map.update(140, &__selector_var, memoized_cast<shape_kind<42>*>(&__selector_var));
     case 2*140:
         if (!match<shape_kind<42>>()(__selector_var))
         {
@@ -406,7 +406,7 @@ int do_match(Shape& s)
         }
         else
             return 42;
-        update(__vtbl2lines_map, 143, &__selector_var, memoized_cast<shape_kind<43>*>(&__selector_var));
+        __vtbl2lines_map.update(143, &__selector_var, memoized_cast<shape_kind<43>*>(&__selector_var));
     case 2*143:
         if (!match<shape_kind<43>>()(__selector_var))
         {
@@ -414,7 +414,7 @@ int do_match(Shape& s)
         }
         else
             return 43;
-        update(__vtbl2lines_map, 146, &__selector_var, memoized_cast<shape_kind<44>*>(&__selector_var));
+        __vtbl2lines_map.update(146, &__selector_var, memoized_cast<shape_kind<44>*>(&__selector_var));
     case 2*146:
         if (!match<shape_kind<44>>()(__selector_var))
         {
@@ -422,7 +422,7 @@ int do_match(Shape& s)
         }
         else
             return 44;
-        update(__vtbl2lines_map, 149, &__selector_var, memoized_cast<shape_kind<45>*>(&__selector_var));
+        __vtbl2lines_map.update(149, &__selector_var, memoized_cast<shape_kind<45>*>(&__selector_var));
     case 2*149:
         if (!match<shape_kind<45>>()(__selector_var))
         {
@@ -430,7 +430,7 @@ int do_match(Shape& s)
         }
         else
             return 45;
-        update(__vtbl2lines_map, 152, &__selector_var, memoized_cast<shape_kind<46>*>(&__selector_var));
+        __vtbl2lines_map.update(152, &__selector_var, memoized_cast<shape_kind<46>*>(&__selector_var));
     case 2*152:
         if (!match<shape_kind<46>>()(__selector_var))
         {
@@ -438,7 +438,7 @@ int do_match(Shape& s)
         }
         else
             return 46;
-        update(__vtbl2lines_map, 155, &__selector_var, memoized_cast<shape_kind<47>*>(&__selector_var));
+        __vtbl2lines_map.update(155, &__selector_var, memoized_cast<shape_kind<47>*>(&__selector_var));
     case 2*155:
         if (!match<shape_kind<47>>()(__selector_var))
         {
@@ -446,7 +446,7 @@ int do_match(Shape& s)
         }
         else
             return 47;
-        update(__vtbl2lines_map, 158, &__selector_var, memoized_cast<shape_kind<48>*>(&__selector_var));
+        __vtbl2lines_map.update(158, &__selector_var, memoized_cast<shape_kind<48>*>(&__selector_var));
     case 2*158:
         if (!match<shape_kind<48>>()(__selector_var))
         {
@@ -454,7 +454,7 @@ int do_match(Shape& s)
         }
         else
             return 48;
-        update(__vtbl2lines_map, 161, &__selector_var, memoized_cast<shape_kind<49>*>(&__selector_var));
+        __vtbl2lines_map.update(161, &__selector_var, memoized_cast<shape_kind<49>*>(&__selector_var));
     case 2*161:
         if (!match<shape_kind<49>>()(__selector_var))
         {
@@ -462,7 +462,7 @@ int do_match(Shape& s)
         }
         else
             return 49;
-        update(__vtbl2lines_map, 165, &__selector_var, memoized_cast<shape_kind<50>*>(&__selector_var));
+        __vtbl2lines_map.update(165, &__selector_var, memoized_cast<shape_kind<50>*>(&__selector_var));
     case 2*165:
         if (!match<shape_kind<50>>()(__selector_var))
         {
@@ -470,7 +470,7 @@ int do_match(Shape& s)
         }
         else
             return 50;
-        update(__vtbl2lines_map, 168, &__selector_var, memoized_cast<shape_kind<51>*>(&__selector_var));
+        __vtbl2lines_map.update(168, &__selector_var, memoized_cast<shape_kind<51>*>(&__selector_var));
     case 2*168:
         if (!match<shape_kind<51>>()(__selector_var))
         {
@@ -478,7 +478,7 @@ int do_match(Shape& s)
         }
         else
             return 51;
-        update(__vtbl2lines_map, 171, &__selector_var, memoized_cast<shape_kind<52>*>(&__selector_var));
+        __vtbl2lines_map.update(171, &__selector_var, memoized_cast<shape_kind<52>*>(&__selector_var));
     case 2*171:
         if (!match<shape_kind<52>>()(__selector_var))
         {
@@ -486,7 +486,7 @@ int do_match(Shape& s)
         }
         else
             return 52;
-        update(__vtbl2lines_map, 174, &__selector_var, memoized_cast<shape_kind<53>*>(&__selector_var));
+        __vtbl2lines_map.update(174, &__selector_var, memoized_cast<shape_kind<53>*>(&__selector_var));
     case 2*174:
         if (!match<shape_kind<53>>()(__selector_var))
         {
@@ -494,7 +494,7 @@ int do_match(Shape& s)
         }
         else
             return 53;
-        update(__vtbl2lines_map, 177, &__selector_var, memoized_cast<shape_kind<54>*>(&__selector_var));
+        __vtbl2lines_map.update(177, &__selector_var, memoized_cast<shape_kind<54>*>(&__selector_var));
     case 2*177:
         if (!match<shape_kind<54>>()(__selector_var))
         {
@@ -502,7 +502,7 @@ int do_match(Shape& s)
         }
         else
             return 54;
-        update(__vtbl2lines_map, 180, &__selector_var, memoized_cast<shape_kind<55>*>(&__selector_var));
+        __vtbl2lines_map.update(180, &__selector_var, memoized_cast<shape_kind<55>*>(&__selector_var));
     case 2*180:
         if (!match<shape_kind<55>>()(__selector_var))
         {
@@ -510,7 +510,7 @@ int do_match(Shape& s)
         }
         else
             return 55;
-        update(__vtbl2lines_map, 183, &__selector_var, memoized_cast<shape_kind<56>*>(&__selector_var));
+        __vtbl2lines_map.update(183, &__selector_var, memoized_cast<shape_kind<56>*>(&__selector_var));
     case 2*183:
         if (!match<shape_kind<56>>()(__selector_var))
         {
@@ -518,7 +518,7 @@ int do_match(Shape& s)
         }
         else
             return 56;
-        update(__vtbl2lines_map, 186, &__selector_var, memoized_cast<shape_kind<57>*>(&__selector_var));
+        __vtbl2lines_map.update(186, &__selector_var, memoized_cast<shape_kind<57>*>(&__selector_var));
     case 2*186:
         if (!match<shape_kind<57>>()(__selector_var))
         {
@@ -526,7 +526,7 @@ int do_match(Shape& s)
         }
         else
             return 57;
-        update(__vtbl2lines_map, 189, &__selector_var, memoized_cast<shape_kind<58>*>(&__selector_var));
+        __vtbl2lines_map.update(189, &__selector_var, memoized_cast<shape_kind<58>*>(&__selector_var));
     case 2*189:
         if (!match<shape_kind<58>>()(__selector_var))
         {
@@ -534,7 +534,7 @@ int do_match(Shape& s)
         }
         else
             return 58;
-        update(__vtbl2lines_map, 192, &__selector_var, memoized_cast<shape_kind<59>*>(&__selector_var));
+        __vtbl2lines_map.update(192, &__selector_var, memoized_cast<shape_kind<59>*>(&__selector_var));
     case 2*192:
         if (!match<shape_kind<59>>()(__selector_var))
         {
@@ -542,7 +542,7 @@ int do_match(Shape& s)
         }
         else
             return 59;
-        update(__vtbl2lines_map, 196, &__selector_var, memoized_cast<shape_kind<60>*>(&__selector_var));
+        __vtbl2lines_map.update(196, &__selector_var, memoized_cast<shape_kind<60>*>(&__selector_var));
     case 2*196:
         if (!match<shape_kind<60>>()(__selector_var))
         {
@@ -550,7 +550,7 @@ int do_match(Shape& s)
         }
         else
             return 60;
-        update(__vtbl2lines_map, 199, &__selector_var, memoized_cast<shape_kind<61>*>(&__selector_var));
+        __vtbl2lines_map.update(199, &__selector_var, memoized_cast<shape_kind<61>*>(&__selector_var));
     case 2*199:
         if (!match<shape_kind<61>>()(__selector_var))
         {
@@ -558,7 +558,7 @@ int do_match(Shape& s)
         }
         else
             return 61;
-        update(__vtbl2lines_map, 202, &__selector_var, memoized_cast<shape_kind<62>*>(&__selector_var));
+        __vtbl2lines_map.update(202, &__selector_var, memoized_cast<shape_kind<62>*>(&__selector_var));
     case 2*202:
         if (!match<shape_kind<62>>()(__selector_var))
         {
@@ -566,7 +566,7 @@ int do_match(Shape& s)
         }
         else
             return 62;
-        update(__vtbl2lines_map, 205, &__selector_var, memoized_cast<shape_kind<63>*>(&__selector_var));
+        __vtbl2lines_map.update(205, &__selector_var, memoized_cast<shape_kind<63>*>(&__selector_var));
     case 2*205:
         if (!match<shape_kind<63>>()(__selector_var))
         {
@@ -574,7 +574,7 @@ int do_match(Shape& s)
         }
         else
             return 63;
-        update(__vtbl2lines_map, 208, &__selector_var, memoized_cast<shape_kind<64>*>(&__selector_var));
+        __vtbl2lines_map.update(208, &__selector_var, memoized_cast<shape_kind<64>*>(&__selector_var));
     case 2*208:
         if (!match<shape_kind<64>>()(__selector_var))
         {
@@ -582,7 +582,7 @@ int do_match(Shape& s)
         }
         else
             return 64;
-        update(__vtbl2lines_map, 211, &__selector_var, memoized_cast<shape_kind<65>*>(&__selector_var));
+        __vtbl2lines_map.update(211, &__selector_var, memoized_cast<shape_kind<65>*>(&__selector_var));
     case 2*211:
         if (!match<shape_kind<65>>()(__selector_var))
         {
@@ -590,7 +590,7 @@ int do_match(Shape& s)
         }
         else
             return 65;
-        update(__vtbl2lines_map, 214, &__selector_var, memoized_cast<shape_kind<66>*>(&__selector_var));
+        __vtbl2lines_map.update(214, &__selector_var, memoized_cast<shape_kind<66>*>(&__selector_var));
     case 2*214:
         if (!match<shape_kind<66>>()(__selector_var))
         {
@@ -598,7 +598,7 @@ int do_match(Shape& s)
         }
         else
             return 66;
-        update(__vtbl2lines_map, 217, &__selector_var, memoized_cast<shape_kind<67>*>(&__selector_var));
+        __vtbl2lines_map.update(217, &__selector_var, memoized_cast<shape_kind<67>*>(&__selector_var));
     case 2*217:
         if (!match<shape_kind<67>>()(__selector_var))
         {
@@ -606,7 +606,7 @@ int do_match(Shape& s)
         }
         else
             return 67;
-        update(__vtbl2lines_map, 220, &__selector_var, memoized_cast<shape_kind<68>*>(&__selector_var));
+        __vtbl2lines_map.update(220, &__selector_var, memoized_cast<shape_kind<68>*>(&__selector_var));
     case 2*220:
         if (!match<shape_kind<68>>()(__selector_var))
         {
@@ -614,7 +614,7 @@ int do_match(Shape& s)
         }
         else
             return 68;
-        update(__vtbl2lines_map, 223, &__selector_var, memoized_cast<shape_kind<69>*>(&__selector_var));
+        __vtbl2lines_map.update(223, &__selector_var, memoized_cast<shape_kind<69>*>(&__selector_var));
     case 2*223:
         if (!match<shape_kind<69>>()(__selector_var))
         {
@@ -622,7 +622,7 @@ int do_match(Shape& s)
         }
         else
             return 69;
-        update(__vtbl2lines_map, 227, &__selector_var, memoized_cast<shape_kind<70>*>(&__selector_var));
+        __vtbl2lines_map.update(227, &__selector_var, memoized_cast<shape_kind<70>*>(&__selector_var));
     case 2*227:
         if (!match<shape_kind<70>>()(__selector_var))
         {
@@ -630,7 +630,7 @@ int do_match(Shape& s)
         }
         else
             return 70;
-        update(__vtbl2lines_map, 230, &__selector_var, memoized_cast<shape_kind<71>*>(&__selector_var));
+        __vtbl2lines_map.update(230, &__selector_var, memoized_cast<shape_kind<71>*>(&__selector_var));
     case 2*230:
         if (!match<shape_kind<71>>()(__selector_var))
         {
@@ -638,7 +638,7 @@ int do_match(Shape& s)
         }
         else
             return 71;
-        update(__vtbl2lines_map, 233, &__selector_var, memoized_cast<shape_kind<72>*>(&__selector_var));
+        __vtbl2lines_map.update(233, &__selector_var, memoized_cast<shape_kind<72>*>(&__selector_var));
     case 2*233:
         if (!match<shape_kind<72>>()(__selector_var))
         {
@@ -646,7 +646,7 @@ int do_match(Shape& s)
         }
         else
             return 72;
-        update(__vtbl2lines_map, 236, &__selector_var, memoized_cast<shape_kind<73>*>(&__selector_var));
+        __vtbl2lines_map.update(236, &__selector_var, memoized_cast<shape_kind<73>*>(&__selector_var));
     case 2*236:
         if (!match<shape_kind<73>>()(__selector_var))
         {
@@ -654,7 +654,7 @@ int do_match(Shape& s)
         }
         else
             return 73;
-        update(__vtbl2lines_map, 239, &__selector_var, memoized_cast<shape_kind<74>*>(&__selector_var));
+        __vtbl2lines_map.update(239, &__selector_var, memoized_cast<shape_kind<74>*>(&__selector_var));
     case 2*239:
         if (!match<shape_kind<74>>()(__selector_var))
         {
@@ -662,7 +662,7 @@ int do_match(Shape& s)
         }
         else
             return 74;
-        update(__vtbl2lines_map, 242, &__selector_var, memoized_cast<shape_kind<75>*>(&__selector_var));
+        __vtbl2lines_map.update(242, &__selector_var, memoized_cast<shape_kind<75>*>(&__selector_var));
     case 2*242:
         if (!match<shape_kind<75>>()(__selector_var))
         {
@@ -670,7 +670,7 @@ int do_match(Shape& s)
         }
         else
             return 75;
-        update(__vtbl2lines_map, 245, &__selector_var, memoized_cast<shape_kind<76>*>(&__selector_var));
+        __vtbl2lines_map.update(245, &__selector_var, memoized_cast<shape_kind<76>*>(&__selector_var));
     case 2*245:
         if (!match<shape_kind<76>>()(__selector_var))
         {
@@ -678,7 +678,7 @@ int do_match(Shape& s)
         }
         else
             return 76;
-        update(__vtbl2lines_map, 248, &__selector_var, memoized_cast<shape_kind<77>*>(&__selector_var));
+        __vtbl2lines_map.update(248, &__selector_var, memoized_cast<shape_kind<77>*>(&__selector_var));
     case 2*248:
         if (!match<shape_kind<77>>()(__selector_var))
         {
@@ -686,7 +686,7 @@ int do_match(Shape& s)
         }
         else
             return 77;
-        update(__vtbl2lines_map, 251, &__selector_var, memoized_cast<shape_kind<78>*>(&__selector_var));
+        __vtbl2lines_map.update(251, &__selector_var, memoized_cast<shape_kind<78>*>(&__selector_var));
     case 2*251:
         if (!match<shape_kind<78>>()(__selector_var))
         {
@@ -694,7 +694,7 @@ int do_match(Shape& s)
         }
         else
             return 78;
-        update(__vtbl2lines_map, 254, &__selector_var, memoized_cast<shape_kind<79>*>(&__selector_var));
+        __vtbl2lines_map.update(254, &__selector_var, memoized_cast<shape_kind<79>*>(&__selector_var));
     case 2*254:
         if (!match<shape_kind<79>>()(__selector_var))
         {
@@ -702,7 +702,7 @@ int do_match(Shape& s)
         }
         else
             return 79;
-        update(__vtbl2lines_map, 258, &__selector_var, memoized_cast<shape_kind<80>*>(&__selector_var));
+        __vtbl2lines_map.update(258, &__selector_var, memoized_cast<shape_kind<80>*>(&__selector_var));
     case 2*258:
         if (!match<shape_kind<80>>()(__selector_var))
         {
@@ -710,7 +710,7 @@ int do_match(Shape& s)
         }
         else
             return 80;
-        update(__vtbl2lines_map, 261, &__selector_var, memoized_cast<shape_kind<81>*>(&__selector_var));
+        __vtbl2lines_map.update(261, &__selector_var, memoized_cast<shape_kind<81>*>(&__selector_var));
     case 2*261:
         if (!match<shape_kind<81>>()(__selector_var))
         {
@@ -718,7 +718,7 @@ int do_match(Shape& s)
         }
         else
             return 81;
-        update(__vtbl2lines_map, 264, &__selector_var, memoized_cast<shape_kind<82>*>(&__selector_var));
+        __vtbl2lines_map.update(264, &__selector_var, memoized_cast<shape_kind<82>*>(&__selector_var));
     case 2*264:
         if (!match<shape_kind<82>>()(__selector_var))
         {
@@ -726,7 +726,7 @@ int do_match(Shape& s)
         }
         else
             return 82;
-        update(__vtbl2lines_map, 267, &__selector_var, memoized_cast<shape_kind<83>*>(&__selector_var));
+        __vtbl2lines_map.update(267, &__selector_var, memoized_cast<shape_kind<83>*>(&__selector_var));
     case 2*267:
         if (!match<shape_kind<83>>()(__selector_var))
         {
@@ -734,7 +734,7 @@ int do_match(Shape& s)
         }
         else
             return 83;
-        update(__vtbl2lines_map, 270, &__selector_var, memoized_cast<shape_kind<84>*>(&__selector_var));
+        __vtbl2lines_map.update(270, &__selector_var, memoized_cast<shape_kind<84>*>(&__selector_var));
     case 2*270:
         if (!match<shape_kind<84>>()(__selector_var))
         {
@@ -742,7 +742,7 @@ int do_match(Shape& s)
         }
         else
             return 84;
-        update(__vtbl2lines_map, 273, &__selector_var, memoized_cast<shape_kind<85>*>(&__selector_var));
+        __vtbl2lines_map.update(273, &__selector_var, memoized_cast<shape_kind<85>*>(&__selector_var));
     case 2*273:
         if (!match<shape_kind<85>>()(__selector_var))
         {
@@ -750,7 +750,7 @@ int do_match(Shape& s)
         }
         else
             return 85;
-        update(__vtbl2lines_map, 276, &__selector_var, memoized_cast<shape_kind<86>*>(&__selector_var));
+        __vtbl2lines_map.update(276, &__selector_var, memoized_cast<shape_kind<86>*>(&__selector_var));
     case 2*276:
         if (!match<shape_kind<86>>()(__selector_var))
         {
@@ -758,7 +758,7 @@ int do_match(Shape& s)
         }
         else
             return 86;
-        update(__vtbl2lines_map, 279, &__selector_var, memoized_cast<shape_kind<87>*>(&__selector_var));
+        __vtbl2lines_map.update(279, &__selector_var, memoized_cast<shape_kind<87>*>(&__selector_var));
     case 2*279:
         if (!match<shape_kind<87>>()(__selector_var))
         {
@@ -766,7 +766,7 @@ int do_match(Shape& s)
         }
         else
             return 87;
-        update(__vtbl2lines_map, 282, &__selector_var, memoized_cast<shape_kind<88>*>(&__selector_var));
+        __vtbl2lines_map.update(282, &__selector_var, memoized_cast<shape_kind<88>*>(&__selector_var));
     case 2*282:
         if (!match<shape_kind<88>>()(__selector_var))
         {
@@ -774,7 +774,7 @@ int do_match(Shape& s)
         }
         else
             return 88;
-        update(__vtbl2lines_map, 285, &__selector_var, memoized_cast<shape_kind<89>*>(&__selector_var));
+        __vtbl2lines_map.update(285, &__selector_var, memoized_cast<shape_kind<89>*>(&__selector_var));
     case 2*285:
         if (!match<shape_kind<89>>()(__selector_var))
         {
@@ -782,7 +782,7 @@ int do_match(Shape& s)
         }
         else
             return 89;
-        update(__vtbl2lines_map, 289, &__selector_var, memoized_cast<shape_kind<90>*>(&__selector_var));
+        __vtbl2lines_map.update(289, &__selector_var, memoized_cast<shape_kind<90>*>(&__selector_var));
     case 2*289:
         if (!match<shape_kind<90>>()(__selector_var))
         {
@@ -790,7 +790,7 @@ int do_match(Shape& s)
         }
         else
             return 90;
-        update(__vtbl2lines_map, 292, &__selector_var, memoized_cast<shape_kind<91>*>(&__selector_var));
+        __vtbl2lines_map.update(292, &__selector_var, memoized_cast<shape_kind<91>*>(&__selector_var));
     case 2*292:
         if (!match<shape_kind<91>>()(__selector_var))
         {
@@ -798,7 +798,7 @@ int do_match(Shape& s)
         }
         else
             return 91;
-        update(__vtbl2lines_map, 295, &__selector_var, memoized_cast<shape_kind<92>*>(&__selector_var));
+        __vtbl2lines_map.update(295, &__selector_var, memoized_cast<shape_kind<92>*>(&__selector_var));
     case 2*295:
         if (!match<shape_kind<92>>()(__selector_var))
         {
@@ -806,7 +806,7 @@ int do_match(Shape& s)
         }
         else
             return 92;
-        update(__vtbl2lines_map, 298, &__selector_var, memoized_cast<shape_kind<93>*>(&__selector_var));
+        __vtbl2lines_map.update(298, &__selector_var, memoized_cast<shape_kind<93>*>(&__selector_var));
     case 2*298:
         if (!match<shape_kind<93>>()(__selector_var))
         {
@@ -814,7 +814,7 @@ int do_match(Shape& s)
         }
         else
             return 93;
-        update(__vtbl2lines_map, 301, &__selector_var, memoized_cast<shape_kind<94>*>(&__selector_var));
+        __vtbl2lines_map.update(301, &__selector_var, memoized_cast<shape_kind<94>*>(&__selector_var));
     case 2*301:
         if (!match<shape_kind<94>>()(__selector_var))
         {
@@ -822,7 +822,7 @@ int do_match(Shape& s)
         }
         else
             return 94;
-        update(__vtbl2lines_map, 304, &__selector_var, memoized_cast<shape_kind<95>*>(&__selector_var));
+        __vtbl2lines_map.update(304, &__selector_var, memoized_cast<shape_kind<95>*>(&__selector_var));
     case 2*304:
         if (!match<shape_kind<95>>()(__selector_var))
         {
@@ -830,7 +830,7 @@ int do_match(Shape& s)
         }
         else
             return 95;
-        update(__vtbl2lines_map, 307, &__selector_var, memoized_cast<shape_kind<96>*>(&__selector_var));
+        __vtbl2lines_map.update(307, &__selector_var, memoized_cast<shape_kind<96>*>(&__selector_var));
     case 2*307:
         if (!match<shape_kind<96>>()(__selector_var))
         {
@@ -838,7 +838,7 @@ int do_match(Shape& s)
         }
         else
             return 96;
-        update(__vtbl2lines_map, 310, &__selector_var, memoized_cast<shape_kind<97>*>(&__selector_var));
+        __vtbl2lines_map.update(310, &__selector_var, memoized_cast<shape_kind<97>*>(&__selector_var));
     case 2*310:
         if (!match<shape_kind<97>>()(__selector_var))
         {
@@ -846,7 +846,7 @@ int do_match(Shape& s)
         }
         else
             return 97;
-        update(__vtbl2lines_map, 313, &__selector_var, memoized_cast<shape_kind<98>*>(&__selector_var));
+        __vtbl2lines_map.update(313, &__selector_var, memoized_cast<shape_kind<98>*>(&__selector_var));
     case 2*313:
         if (!match<shape_kind<98>>()(__selector_var))
         {
@@ -854,7 +854,7 @@ int do_match(Shape& s)
         }
         else
             return 98;
-        update(__vtbl2lines_map, 316, &__selector_var, memoized_cast<shape_kind<99>*>(&__selector_var));
+        __vtbl2lines_map.update(316, &__selector_var, memoized_cast<shape_kind<99>*>(&__selector_var));
     case 2*316:
         if (!match<shape_kind<99>>()(__selector_var))
         {
@@ -930,8 +930,14 @@ long long display(const char* name, std::vector<long long>& timings, const LARGE
     return avg;
 }
 
+#include <bitset> // For print out purposes only
+
 void test_sequential()
 {
+#ifdef TRACE_PERFORMANCE
+    cache_hits   = 0;
+    cache_misses = 0;
+#endif
     std::cout << "=================== Sequential Test ===================" << std::endl;
     LARGE_INTEGER Freq;
 
@@ -971,6 +977,11 @@ void test_sequential()
         long long avgV = display("AreaVis", timingsV, Freq);
         long long avgM = display("AreaMat", timingsM, Freq);
         std::cout << avgM*100/avgV-100 << "% slower" << std::endl;
+#ifdef TRACE_PERFORMANCE
+        std::cout << "Cache hits: " << cache_hits << "\tCache misses: " << cache_misses << std::endl;
+        std::cout << "Common: " << std::bitset<32>(common) << std::endl
+                  << "Differ: " << std::bitset<32>(differ) << std::endl;
+#endif
 
         delete s;
     }
@@ -978,6 +989,10 @@ void test_sequential()
 
 void test_randomized()
 {
+#ifdef TRACE_PERFORMANCE
+    cache_hits   = 0;
+    cache_misses = 0;
+#endif
     std::cout << "=================== Randomized Test ===================" << std::endl;
     LARGE_INTEGER Freq;
 
@@ -1021,6 +1036,11 @@ void test_randomized()
     long long avgV = display("AreaVis", timingsV, Freq);
     long long avgM = display("AreaMat", timingsM, Freq);
     std::cout << avgM*100/avgV-100 << "% slower" << std::endl;
+#ifdef TRACE_PERFORMANCE
+    std::cout << "Cache hits: " << cache_hits << "\tCache misses: " << cache_misses << std::endl;
+    std::cout << "Common: " << std::bitset<32>(common) << std::endl
+              << "Differ: " << std::bitset<32>(differ) << std::endl;
+#endif
 }
 
 int main()
