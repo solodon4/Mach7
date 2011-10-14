@@ -552,7 +552,7 @@ public:
             }
 
             // We have >= here instead of just > to favor large shifts when multiple optimal exist (happens often)
-            if (entropy > opt_entropy)
+            if (entropy >= opt_entropy)
             {
                 opt_entropy = entropy;
                 opt_shift   = i;

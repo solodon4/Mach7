@@ -364,9 +364,9 @@ public:
     static void foo() { std::cout << "Special" << std::endl; }
 
     static inline auto choose(const selector_type* selector_ptr, static_data_type& static_data, local_data_type& local_data) 
-                    -> decltype(apply_member(selector_ptr, match_members<selector_type>::kind_selector()))
+                    -> typename remove_ref<decltype(apply_member(selector_ptr, match_members<selector_type>::kind_selector()))>::type
     {
-        typedef decltype(apply_member(selector_ptr, match_members<selector_type>::kind_selector())) result_type; // Can be enum
+        typedef typename remove_ref<decltype(apply_member(selector_ptr, match_members<selector_type>::kind_selector()))>::type result_type; // Can be enum
         return result_type(apply_member(selector_ptr, match_members<selector_type>::kind_selector()) + kind_selector_shift);
     }
     static inline void on_first_pass(const selector_type* selector_ptr, local_data_type& local_data, size_t line) {}
@@ -470,9 +470,45 @@ public:
 ///       but not in Debug. This is a known bug of Visual C++ described here:
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
 #define Case(C,...) }}} { typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; if (target_specific::main_condition(__selector_ptr, local_data)) { switch_traits::on_first_pass(__selector_ptr, local_data, __LINE__-__base_line); case target_specific::CaseLabel<__LINE__-__base_line>::value: auto matched = target_specific::get_matched(__selector_ptr,local_data); if (LIKELY_BRANCH(match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
+#define CaseX(C,...) }}} { typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; if (target_specific::main_condition(__selector_ptr, local_data)) { switch_traits::on_first_pass(__selector_ptr, local_data, __LINE__-__base_line); case target_specific::CaseLabel<__LINE__-__base_line>::value: auto matched = target_specific::get_matched(__selector_ptr,local_data); DECL_BOUND_VARS(__VA_ARGS__) if (LIKELY_BRANCH(match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
 #define Or(...) } else if (match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
 #define Otherwise() }}} {{ default: auto matched = __selector_ptr; {
 #define EndMatch    }}} switch_traits::on_end(__selector_ptr, local_data, __LINE__-__base_line); case switch_traits::CaseLabel<__LINE__-__base_line>::exit: ; }}
+
+//------------------------------------------------------------------------------
+
+#ifdef _MSC_VER
+    // MS Visual C++ 2005 (in which variadic macros became supported) till at 
+    // least MS Visual C++ 2010 has a bug in passing __VA_ARGS__ to subsequent
+    // macros as a single token, which results in:
+    //     warning C4003: not enough actual parameters for macro 'PP_ARG_N'
+    // and incorrect behavior. The workaround used here is described at:
+    // https://connect.microsoft.com/VisualStudio/feedback/details/380090/variadic-macro-replacement
+    #define APPLY_VARIADIC_MACRO(macro,tuple) macro tuple
+    #define PP_NARG(...)  APPLY_VARIADIC_MACRO(PP_NARG_,(__VA_ARGS__,PP_RSEQ_N()))
+    #define PP_NARG_(...) APPLY_VARIADIC_MACRO(PP_ARG_N,(__VA_ARGS__))
+    #define PP_ARG_N( _1, _2, _3, _4, _5, _6, _7, _8, _9,_10, _11,_12,_13,_14,_15,_16,_17,_18,_19,_20, _21,_22,_23,_24,_25,_26,_27,_28,_29,_30, _31,_32,_33,_34,_35,_36,_37,_38,_39,_40, _41,_42,_43,_44,_45,_46,_47,_48,_49,_50, _51,_52,_53,_54,_55,_56,_57,_58,_59,_60, _61,_62,_63,N,...) N 
+    #define PP_RSEQ_N() 63,62,61,60,59,58,57,56,55,54,53,52,51,50,49,48,47,46,45,44,43,42,41,40,39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0
+#else
+    #define PP_NARG(...)  PP_NARG_(__VA_ARGS__,PP_RSEQ_N()) 
+    #define PP_NARG_(...) PP_ARG_N(__VA_ARGS__) 
+    #define PP_ARG_N( _1, _2, _3, _4, _5, _6, _7, _8, _9,_10, _11,_12,_13,_14,_15,_16,_17,_18,_19,_20, _21,_22,_23,_24,_25,_26,_27,_28,_29,_30, _31,_32,_33,_34,_35,_36,_37,_38,_39,_40, _41,_42,_43,_44,_45,_46,_47,_48,_49,_50, _51,_52,_53,_54,_55,_56,_57,_58,_59,_60, _61,_62,_63,N,...) N 
+    #define PP_RSEQ_N() 63,62,61,60,59,58,57,56,55,54,53,52,51,50,49,48,47,46,45,44,43,42,41,40,39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0
+#endif
+
+#define BOUND_VAR_TYPE(position) remove_ref<decltype(apply_member(matched, match_members<target_specific::target_type,target_specific::layout>::XTL_CONCAT(member, position)()))>::type
+
+#define DECL_BOUND_VAR_1(x0)                      BOUND_VAR_TYPE(0) x0;
+#define DECL_BOUND_VAR_2(x0,x1)                   BOUND_VAR_TYPE(0) x0; BOUND_VAR_TYPE(1) x1;
+#define DECL_BOUND_VAR_3(x0,x1,x2)                BOUND_VAR_TYPE(0) x0; BOUND_VAR_TYPE(1) x1; BOUND_VAR_TYPE(2) x2;
+#define DECL_BOUND_VAR_4(x0,x1,x2,x3)             BOUND_VAR_TYPE(0) x0; BOUND_VAR_TYPE(1) x1; BOUND_VAR_TYPE(2) x2; BOUND_VAR_TYPE(3) x3;
+#define DECL_BOUND_VAR_5(x0,x1,x2,x3,x4)          BOUND_VAR_TYPE(0) x0; BOUND_VAR_TYPE(1) x1; BOUND_VAR_TYPE(2) x2; BOUND_VAR_TYPE(3) x3; BOUND_VAR_TYPE(4) x4;
+#define DECL_BOUND_VAR_6(x0,x1,x2,x3,x4,x5)       BOUND_VAR_TYPE(0) x0; BOUND_VAR_TYPE(1) x1; BOUND_VAR_TYPE(2) x2; BOUND_VAR_TYPE(3) x3; BOUND_VAR_TYPE(4) x4; BOUND_VAR_TYPE(5) x5;
+#define DECL_BOUND_VAR_7(x0,x1,x2,x3,x4,x5,x6)    BOUND_VAR_TYPE(0) x0; BOUND_VAR_TYPE(1) x1; BOUND_VAR_TYPE(2) x2; BOUND_VAR_TYPE(3) x3; BOUND_VAR_TYPE(4) x4; BOUND_VAR_TYPE(5) x5; BOUND_VAR_TYPE(6) x6;
+#define DECL_BOUND_VAR_8(x0,x1,x2,x3,x4,x5,x6,x7) BOUND_VAR_TYPE(0) x0; BOUND_VAR_TYPE(1) x1; BOUND_VAR_TYPE(2) x2; BOUND_VAR_TYPE(3) x3; BOUND_VAR_TYPE(4) x4; BOUND_VAR_TYPE(5) x5; BOUND_VAR_TYPE(6) x6; BOUND_VAR_TYPE(7) x7;
+
+#define DECL_BOUND_VAR_(N, ...) XTL_CONCAT(DECL_BOUND_VAR_, N)(__VA_ARGS__)
+#define DECL_BOUND_VARS(...) DECL_BOUND_VAR_(PP_NARG(__VA_ARGS__), __VA_ARGS__)
 
 //------------------------------------------------------------------------------
 
@@ -905,9 +941,18 @@ inline R apply_member(      C* c, R (T::*method)()      )
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline R apply_member(const C* c, R T::*field) throw()
+inline const R& apply_member(const C* c, R T::*field) throw()
 {
-    //DEBUG_ONLY(std::clog << "\nApplying data member to instance " << c << " of type " << typeid(*c).name() << std::endl);
+    DEBUG_ONLY(std::clog << "\nApplying data member to const instance " << c << " of type " << typeid(*c).name() << std::endl);
+    return c->*field;
+}
+
+//------------------------------------------------------------------------------
+
+template <class C, class T, typename R>
+inline       R& apply_member(      C* c, R T::*field) throw()
+{
+    DEBUG_ONLY(std::clog << "\nApplying data member to non-const instance " << c << " of type " << typeid(*c).name() << std::endl);
     return c->*field;
 }
 

@@ -45,6 +45,9 @@ rem ----------------------------------------------------------------------------
 echo Running Win32/Synthetic.exe
 echo [ Win32/Synthetic.exe ] ============================ | tee -a %logfile% >> %results%
 rem Release\Synthetic.exe                  | tee -a %logfile% | grep "L.:" >> %results%
+echo Running Win32/GenericSelectRandom.exe
+echo [ Win32/GenericSelectRandom.exe ] ================== | tee -a %logfile% >> %results%
+Release\GenericSelectRandom.exe        | tee -a %logfile% | grep "L.:" >> %results%
 echo Running Win32/SyntheticSelectRandom.exe
 echo [ Win32/SyntheticSelectRandom.exe ] ================ | tee -a %logfile% >> %results%
 Release\SyntheticSelectRandom.exe      | tee -a %logfile% | grep "L.:" >> %results%
@@ -54,6 +57,9 @@ Release\SyntheticSelect.exe            | tee -a %logfile% | grep "L.:" >> %resul
 echo Running Win32/Hierarchy.exe
 echo [ Win32/Hierarchy.exe ] ============================ | tee -a %logfile% >> %results%
 Release\Hierarchy.exe                  | tee -a %logfile% | grep "L.:" >> %results%
+echo Running Win32/GenericSelectKind.exe
+echo [ Win32/GenericSelectKind.exe ] ================== | tee -a %logfile% >> %results%
+Release\GenericSelectKind.exe          | tee -a %logfile% | grep "L.:" >> %results%
 echo Running Win32/SyntheticSelectKind.exe
 echo [ Win32/SyntheticSelectKind.exe ] ================== | tee -a %logfile% >> %results%
 Release\SyntheticSelectKind.exe        | tee -a %logfile% | grep "L.:" >> %results%
@@ -77,6 +83,10 @@ MSBuild.exe PatternMatching.2010.sln /property:Configuration=Release /property:P
 
 echo Profiling Win32/Category.exe
 Release\Category.exe              > nul
+echo Profiling Win32/GenericSelectKind.exe
+Release\GenericSelectKind.exe     > nul
+echo Profiling Win32/GenericSelectRandom.exe
+Release\GenericSelectRandom.exe   > nul
 echo Profiling Win32/Hierarchy.exe
 Release\Hierarchy.exe             > nul
 echo Profiling Win32/MemoizedCast.exe
@@ -115,6 +125,9 @@ rem ----------------------------------------------------------------------------
 echo Running Win32/Synthetic.exe
 echo [ Win32/Synthetic.exe ] ============================ | tee -a %logfile% >> %results%
 rem Release\Synthetic.exe                  | tee -a %logfile% | grep "L.:" >> %results%
+echo Running Win32/GenericSelectRandom.exe
+echo [ Win32/GenericSelectRandom.exe ] ================== | tee -a %logfile% >> %results%
+Release\GenericSelectRandom.exe        | tee -a %logfile% | grep "L.:" >> %results%
 echo Running Win32/SyntheticSelectRandom.exe
 echo [ Win32/SyntheticSelectRandom.exe ] ================ | tee -a %logfile% >> %results%
 Release\SyntheticSelectRandom.exe      | tee -a %logfile% | grep "L.:" >> %results%
@@ -124,6 +137,9 @@ Release\SyntheticSelect.exe            | tee -a %logfile% | grep "L.:" >> %resul
 echo Running Win32/Hierarchy.exe
 echo [ Win32/Hierarchy.exe ] ============================ | tee -a %logfile% >> %results%
 Release\Hierarchy.exe                  | tee -a %logfile% | grep "L.:" >> %results%
+echo Running Win32/GenericSelectKind.exe
+echo [ Win32/GenericSelectKind.exe ] ==================== | tee -a %logfile% >> %results%
+Release\GenericSelectKind.exe          | tee -a %logfile% | grep "L.:" >> %results%
 echo Running Win32/SyntheticSelectKind.exe
 echo [ Win32/SyntheticSelectKind.exe ] ================== | tee -a %logfile% >> %results%
 Release\SyntheticSelectKind.exe        | tee -a %logfile% | grep "L.:" >> %results%
@@ -154,6 +170,9 @@ rem ----------------------------------------------------------------------------
 echo Running x64/Synthetic.exe
 echo [ x64/Synthetic.exe ] ============================== | tee -a %logfile% >> %results%
 rem x64\Release\Synthetic.exe              | tee -a %logfile% | grep "L.:" >> %results%
+echo Running x64/GenericSelectRandom.exe
+echo [ x64/GenericSelectRandom.exe ] ==================== | tee -a %logfile% >> %results%
+x64\Release\GenericSelectRandom.exe    | tee -a %logfile% | grep "L.:" >> %results%
 echo Running x64/SyntheticSelectRandom.exe
 echo [ x64/SyntheticSelectRandom.exe ] ================== | tee -a %logfile% >> %results%
 x64\Release\SyntheticSelectRandom.exe  | tee -a %logfile% | grep "L.:" >> %results%
@@ -163,6 +182,9 @@ x64\Release\SyntheticSelect.exe        | tee -a %logfile% | grep "L.:" >> %resul
 echo Running x64/Hierarchy.exe
 echo [ x64/Hierarchy.exe ] ============================== | tee -a %logfile% >> %results%
 x64\Release\Hierarchy.exe              | tee -a %logfile% | grep "L.:" >> %results%
+echo Running x64/GenericSelectKind.exe
+echo [ x64/GenericSelectKind.exe ] ====================== | tee -a %logfile% >> %results%
+x64\Release\GenericSelectKind.exe      | tee -a %logfile% | grep "L.:" >> %results%
 echo Running x64/SyntheticSelectKind.exe
 echo [ x64/SyntheticSelectKind.exe ] ==================== | tee -a %logfile% >> %results%
 x64\Release\SyntheticSelectKind.exe    | tee -a %logfile% | grep "L.:" >> %results%
@@ -187,6 +209,10 @@ MSBuild.exe PatternMatching.2010.sln /property:Configuration=Release /property:P
 rem Run instrumented programs to collect data
 echo Profiling x64/Category.exe
 x64\Release\Category.exe              > nul
+echo Profiling x64/GenericSelectKind.exe
+x64\Release\GenericSelectKind.exe     > nul
+echo Profiling x64/GenericSelectRandom.exe
+x64\Release\GenericSelectRandom.exe   > nul
 echo Profiling x64/Hierarchy.exe
 x64\Release\Hierarchy.exe             > nul
 echo Profiling x64/MemoizedCast.exe
@@ -223,6 +249,9 @@ MSBuild.exe PatternMatching.2010.sln /property:Configuration=Release /property:P
 echo Running x64/Synthetic.exe
 echo [ x64/Synthetic.exe ] ============================== | tee -a %logfile% >> %results%
 rem x64\Release\Synthetic.exe              | tee -a %logfile% | grep "L.:" >> %results%
+echo Running x64/GenericSelectRandom.exe
+echo [ x64/GenericSelectRandom.exe ] ==================== | tee -a %logfile% >> %results%
+x64\Release\GenericSelectRandom.exe    | tee -a %logfile% | grep "L.:" >> %results%
 echo Running x64/SyntheticSelectRandom.exe
 echo [ x64/SyntheticSelectRandom.exe ] ================== | tee -a %logfile% >> %results%
 x64\Release\SyntheticSelectRandom.exe  | tee -a %logfile% | grep "L.:" >> %results%
@@ -232,6 +261,9 @@ x64\Release\SyntheticSelect.exe        | tee -a %logfile% | grep "L.:" >> %resul
 echo Running x64/Hierarchy.exe
 echo [ x64/Hierarchy.exe ] ============================== | tee -a %logfile% >> %results%
 x64\Release\Hierarchy.exe              | tee -a %logfile% | grep "L.:" >> %results%
+echo Running x64/GenericSelectKind.exe
+echo [ x64/GenericSelectKind.exe ] ====================== | tee -a %logfile% >> %results%
+x64\Release\GenericSelectKind.exe      | tee -a %logfile% | grep "L.:" >> %results%
 echo Running x64/SyntheticSelectKind.exe
 echo [ x64/SyntheticSelectKind.exe ] ==================== | tee -a %logfile% >> %results%
 x64\Release\SyntheticSelectKind.exe    | tee -a %logfile% | grep "L.:" >> %results%

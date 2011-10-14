@@ -85,7 +85,7 @@ struct ADTShape
 #endif
 };
 
-template <> struct match_members<Shape>    { KS(Shape::kind); };
+template <> struct match_members<Shape>    { /*KS(Shape::kind);*/ };
 
 template <> struct match_members<Circle>   { KV(Shape::SK_Circle);  CM(0,Circle::get_center); CM(1,Circle::radius); };
 template <> struct match_members<Square>   { KV(Shape::SK_Square);  CM(0,Square::upper_left); CM(1,Square::side);   };
@@ -143,6 +143,8 @@ int main()
 
     std::cout << m << std::endl;
 
+    // Open/Closed case with bound variables explicitly declared
+
     m = 0.0;
 
     for (size_t i = 0; i < 3; ++i)
@@ -162,6 +164,25 @@ int main()
     }
 
     std::cout << m << std::endl;
+
+    // Open/Closed case with bound variables automatically declared
+
+    m = 0.0;
+
+    for (size_t i = 0; i < 3; ++i)
+    {
+        Match(shapes[i])
+        {
+            CaseX(Circle,c,r)  std::cout << "Circle"   << std::endl; m += r;       break;
+            CaseX(Square,c,s)  std::cout << "Square"   << std::endl; m += s;       break;
+            CaseX(Triangle,p)  std::cout << "Triangle" << std::endl; m += p.first; break;
+            Otherwise()        std::cout << "Other"    << std::endl; m += 2;       break;
+        }
+        EndMatch
+    }
+
+    std::cout << m << std::endl;
+
     std::cout << "PREPROCESSSED" << std::endl;
 
     m = 0.0;
@@ -271,7 +292,10 @@ int main()
             }
         }
     }
+
     std::cout << m << std::endl;
+
+    // Union case with bound variables explicitly declared
 
     m = 0.0;
 
@@ -288,6 +312,24 @@ int main()
               Or(                 _,v |= v > 0) std::cout << "ADTSquare>0" << std::endl; m += v;       break;
               Or(                 _,x)          std::cout << "ADTSquare"   << std::endl; m += x;       break;
             Case(ADTShape::triangle,cl)         std::cout << "ADTTriangle" << std::endl; m += cl.first;break;
+        }
+        EndMatch
+    }
+
+    std::cout << m << std::endl;
+
+    // Union case with bound variables automatically declared
+
+    m = 0.0;
+
+    for (size_t i = 0; i < 3; ++i)
+    {
+        Match(adtshapes[i])
+        {
+            CaseX(ADTShape::circle,c,r)  std::cout << "ADTCircle"   << std::endl; m += r;       break;
+            CaseX(ADTShape::square,c,s)  std::cout << "ADTSquare"   << std::endl; m += s;       break;
+            CaseX(ADTShape::triangle,p)  std::cout << "ADTTriangle" << std::endl; m += p.first; break;
+            Otherwise()                  std::cout << "Other"       << std::endl; m += 2;       break;
         }
         EndMatch
     }
@@ -364,4 +406,21 @@ void test_write(Shape* shape)
         Otherwise()          Shape*    s = matched; break;
     }
     EndMatch
+}
+
+void test_autodecl(const Shape* shape)
+{
+    double m = 0.0;
+
+    for (size_t i = 0; i < 3; ++i)
+    {
+        Match(shape)
+        {
+            CaseX(Circle,c,r)  std::cout << "Circle"   << std::endl; m += r;       break;
+            CaseX(Square,c,s)  std::cout << "Square"   << std::endl; m += s;       break;
+            CaseX(Triangle,p)  std::cout << "Triangle" << std::endl; m += p.first; break;
+            Otherwise()        std::cout << "Other"    << std::endl; m += 2;       break;
+        }
+        EndMatch
+    }
 }

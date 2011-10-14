@@ -113,6 +113,25 @@
 
 //------------------------------------------------------------------------------
 
+#ifdef _MSC_VER
+    #define XTL_CONCATENATE(A,B) A ## B
+#else
+    // Somehow operator ## == (or any other) results in error in GCC, so we use 
+    // a trick to let users build operator name when they need.
+    #define XTL_IDENTITY(A) A
+    #define XTL_CONCATENATE(A,B) XTL_IDENTITY(A)XTL_IDENTITY(B)
+#endif
+
+//------------------------------------------------------------------------------
+
+// FIX: Yet another version that works in different case, but hasn't been merged
+//      with the above yet.
+#define XTL_CONCAT(arg1, arg2)  XTL_CONCAT1(arg1, arg2)
+#define XTL_CONCAT1(arg1, arg2) XTL_CONCAT2(arg1, arg2)
+#define XTL_CONCAT2(arg1, arg2) arg1##arg2
+
+//------------------------------------------------------------------------------
+
 #if !defined(ARR_SIZE)
 #define ARR_SIZE(a) (sizeof(a)/sizeof((a)[0]))
 #endif

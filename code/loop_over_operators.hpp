@@ -27,16 +27,6 @@
 #define FOR_EACH_BINARY_OPERATOR_DEFINED
 #endif
 
-// Somehow operator ## == (or any other) results in error in GCC, so we use 
-// a trick to let users build operator name when they need.
-// NOTE: These macros are only available for the duration of iteration
-#ifdef _MSC_VER
-#define XTL_CONCATENATE(A,B) A ## B
-#else
-#define XTL_IDENTITY(A) A
-#define XTL_CONCATENATE(A,B) XTL_IDENTITY(A)XTL_IDENTITY(B)
-#endif
-
 FOR_EACH_UNARY_OPERATOR(negation         ,- )
 FOR_EACH_UNARY_OPERATOR(bit_complement   ,~ )
 FOR_EACH_UNARY_OPERATOR(bool_complement  ,! )
@@ -59,14 +49,6 @@ FOR_EACH_BINARY_OPERATOR(greater         ,> )
 FOR_EACH_BINARY_OPERATOR(greater_equal   ,>=)
 FOR_EACH_BINARY_OPERATOR(less            ,< )
 FOR_EACH_BINARY_OPERATOR(less_equal      ,<=)
-
-#if defined(XTL_CONCATENATE)
-#undef XTL_CONCATENATE
-#endif
-
-#if defined(XTL_IDENTITY)
-#undef XTL_IDENTITY
-#endif
 
 #if defined(FOR_EACH_UNARY_OPERATOR_DEFINED)
 #undef FOR_EACH_UNARY_OPERATOR
