@@ -103,8 +103,8 @@ const Either<S, T>* lift_ex2(const Either<X, Y>& e, S f(X), T g(Y))
 {
     TMatch(e)
     {
-	TCase(TTypeArg( Left<X,Y>), x) return  left<S, T>(f(x));
-	TCase(TTypeArg(Right<X,Y>), y) return right<S, T>(g(y));
+        TCase(TTypeArg( Left<X,Y>), x) return  left<S, T>(f(x));
+        TCase(TTypeArg(Right<X,Y>), y) return right<S, T>(g(y));
     }
     TEndMatch
 }

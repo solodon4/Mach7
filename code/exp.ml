@@ -14,4 +14,15 @@ let rec eval e =
   | Value v              -> v
   ;;
 
+     	
+type card = Card of regular | Joker
+and regular = { suit : card_suit; name : card_name; }
+and card_suit = Heart | Club | Spade | Diamond
+and card_name =  Ace | King | Queen | Jack | Simple of int;;
+
+type entry = { name:string; spouse:string option; };;
+
+datatype DT = C1 of {L11:int, L1m:int} 
+            | Cr of {Lr1:int, Lrn:int}
+
 Printf.printf "%d\n" (eval (Plus (Times (Value 1, Value 2), Times (Value 3, Value 4))));;

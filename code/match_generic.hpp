@@ -93,7 +93,7 @@ template <typename type_being_matched, size_t layout = default_layout> struct ma
 
 /// Macro to define member's position within decomposition of a given data type
 /// Example: CM(0,MyClass::member) or CM(1,external_func)
-/// \note Use this macro only inside specializations of match_members
+/// \note Use this macro only inside specializations of @match_members
 /// \note We use variadic macro parameter here in order to be able to handle 
 ///       templates, which might have commas, otherwise juse a second argument
 ///       would be sufficient.
@@ -108,7 +108,7 @@ template <typename type_being_matched, size_t layout = default_layout> struct ma
 /// Macro to define a kind selector - a member of the common base class that 
 /// carries a distinct integral value that uniquely identifies the derived 
 /// type.  Used in the decomposition of the base class.
-/// \note Use this macro only inside specializations of match_members
+/// \note Use this macro only inside specializations of @match_members
 /// \note We use variadic macro parameter here in order to be able to handle 
 ///       templates, which might have commas, otherwise juse a second argument
 ///       would be sufficient.
@@ -116,7 +116,7 @@ template <typename type_being_matched, size_t layout = default_layout> struct ma
 
 /// Macro to define an integral constant that uniquely identifies the derived 
 /// class. Used in the decomposition of a derived class.
-/// \note Use this macro only inside specializations of match_members
+/// \note Use this macro only inside specializations of @match_members
 /// \note We use variadic macro parameter here in order to be able to handle 
 ///       templates, which might have commas, otherwise juse a second argument
 ///       would be sufficient.
@@ -128,7 +128,7 @@ template <typename type_being_matched, size_t layout = default_layout> struct ma
 /// Essentially it's a virtual member function (e.g. virtual void raise() const = 0;)
 /// that will be overriden in all subclasses in the following way:
 /// void SubClass::raise() const { throw *this; }
-/// \note Use this macro only inside specializations of match_members
+/// \note Use this macro only inside specializations of @match_members
 /// \note We use variadic macro parameter here in order to be able to handle 
 ///       templates, which might have commas, otherwise juse a second argument
 ///       would be sufficient.
@@ -385,7 +385,7 @@ public:
     // Open case only works for polymorphic types (types with virtual funcs)
     // If your base type is not polymorphic, but you'd still like to have 
     // type switching/pattern matching functionality on it, use KS macro in 
-    // corresponding match_members<your_base_type> to identify which field
+    // corresponding @match_members<your_base_type> to identify which field
     // behaves as a selector and thus uniquely identifies derived type.
     static_assert(
         std::is_polymorphic<selector_type>::value,
@@ -480,7 +480,7 @@ public:
 };
 
 /// This is a specialization for the closed case. It becomes enabled when user 
-/// used KS macro inside match_members to define which member will be used as
+/// used KS macro inside @match_members to define which member will be used as
 /// kind selector.
 template <typename SelectorType>
 class generic_switch<
@@ -507,7 +507,7 @@ public:
     enum 
     {
         /// The value that should be equal to the smalles kind used by selector_type
-        /// FIX: Let user override this inside match_members in case his minimum is not 0
+        /// FIX: Let user override this inside @match_members in case his minimum is not 0
         user_kind_minimum_value = 0,
         /// Just a mnemonic name to the amount of cases we add on top of user kinds.
         /// We effectively shift user kinds by this number in order to maintain all
@@ -621,7 +621,7 @@ public:
 
 //------------------------------------------------------------------------------
 
-template<typename T> struct get_first_param;
+template<typename T>              struct get_first_param;
 template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 type; };
 
 /// This is a helper macro to be able to pass template instantiations as an
