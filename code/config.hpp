@@ -23,6 +23,12 @@
 
 //------------------------------------------------------------------------------
 
+#if !defined(USE_PEARSON_HASH)
+//#define USE_PEARSON_HASH
+#endif
+
+//------------------------------------------------------------------------------
+
 #if !defined(VTBL_DEFAULT_CACHE_BITS)
 #define VTBL_DEFAULT_CACHE_BITS 7
 #endif
@@ -57,9 +63,9 @@
     #endif
 #else
     /// vtbl in G++ seem to be alligned by 16 bytes
-    //#define VTBL_IRRELEVANT_BITS 4
+    #define VTBL_IRRELEVANT_BITS 6
     // When i defined more virtual functions it became 3 for some reason
-    #define VTBL_IRRELEVANT_BITS 3
+    //#define VTBL_IRRELEVANT_BITS 3
 #endif
 #endif
 
@@ -97,6 +103,12 @@
 #define _STRING_LITERAL(x)  #x
 /// Macro to stringize some expression.
 #define STRING_LITERAL(x)   _STRING_LITERAL(x)
+
+//------------------------------------------------------------------------------
+
+#if !defined(ARR_SIZE)
+#define ARR_SIZE(a) (sizeof(a)/sizeof((a)[0]))
+#endif
 
 //------------------------------------------------------------------------------
 

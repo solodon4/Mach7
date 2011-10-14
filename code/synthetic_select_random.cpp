@@ -10,7 +10,7 @@
 #include "match.hpp"
 #include "timing.hpp"
 
-#define NUMBER_OF_VFUNCS  2
+#define NUMBER_OF_VFUNCS  1
 #define NUMBER_OF_DERIVED 100
 
 struct ShapeVisitor;
@@ -25,7 +25,7 @@ struct OtherBase
 
 struct Shape
 {
-    //virtual ~Shape() {}
+    virtual ~Shape() {}
     virtual void accept(ShapeVisitor&) const = 0;
     #define FOR_EACH_MAX NUMBER_OF_VFUNCS-1
     #define FOR_EACH_N(N) virtual void foo ## N() {}
@@ -35,7 +35,7 @@ struct Shape
 };
 
 template <int N>
-struct shape_kind : /*OtherBase,*/ Shape
+struct shape_kind : OtherBase, Shape
 {
     void accept(ShapeVisitor& v) const;
     int m_member0;
@@ -993,11 +993,13 @@ long long display(const char* name, std::vector<long long>& timings)
 
 void test_sequential()
 {
-#ifdef TRACE_PERFORMANCE
+#ifdef TRACE_PERFORMANCE_XXX
     cache_hits   = 0;
     cache_misses = 0;
 #endif
     std::cout << "=================== Sequential Test ===================" << std::endl;
+
+    int a1 = 0,a2 = 0;
 
     for (int n = 0; n < K; ++n)
     {
@@ -1014,8 +1016,6 @@ void test_sequential()
 
         for (int m = 0; m < M; ++m)
         {
-            int a1 = 0,a2 = 0;
-
             time_stamp liStart1 = get_time_stamp();
 
             for (int i = 0; i < N; ++i)
@@ -1042,7 +1042,7 @@ void test_sequential()
             std::cout << "\t\t" << avgM*100/avgV-100 << "% slower" << std::endl;
         //else
         //    std::cout << "Insufficient timer resolution" << std::endl;
-
+        std::cout << "\t\tThe following 2 numbers should be the same " << a1 << "==" << a2 << " ? " << std::boolalpha << (a1==a2) << std::endl;
         for (int i = 0; i < N; ++i)
         {
             delete shapes[i];
@@ -1050,7 +1050,7 @@ void test_sequential()
         }
     }
 
-#ifdef TRACE_PERFORMANCE
+#ifdef TRACE_PERFORMANCE_XXX
     std::cout << "Vtbl cache hits: " << cache_hits << "\tVtbl cache misses: " << cache_misses << std::endl;
 
     int i = 0;
@@ -1072,7 +1072,7 @@ void test_randomized()
 {
     srand (get_time_stamp()/get_frequency()); // Randomize pseudo random number generator
 
-#ifdef TRACE_PERFORMANCE
+#ifdef TRACE_PERFORMANCE_XXX
     cache_hits   = 0;
     cache_misses = 0;
 #endif
@@ -1100,13 +1100,14 @@ void test_randomized()
                   << std::setw(4) << max << "] Dev = " 
                   << std::setw(4) << dev << std::endl;
 #endif
+
         std::vector<long long> timingsV(M);
         std::vector<long long> timingsM(M);
 
+        int a1 = 0,a2 = 0;
+
         for (int m = 0; m < M; ++m)
         {
-            int a1 = 0,a2 = 0;
-
             time_stamp liStart1 = get_time_stamp();
 
             for (int i = 0; i < N; ++i)
@@ -1132,6 +1133,7 @@ void test_randomized()
             std::cout << "\t\t" << avgM*100/avgV-100 << "% slower" << std::endl;
         //else
             //std::cout << "Insufficient timer resolution" << std::endl;
+        std::cout << "\t\tThe following 2 numbers should be the same " << a1 << "==" << a2 << " ? " << std::boolalpha << (a1==a2) << std::endl;
 
         for (int i = 0; i < N; ++i)
         {
@@ -1140,7 +1142,7 @@ void test_randomized()
         }
     }
 
-#ifdef TRACE_PERFORMANCE
+#ifdef TRACE_PERFORMANCE_XXX
     std::cout << "Vtbl cache hits: " << cache_hits << "\tVtbl cache misses: " << cache_misses << std::endl;
 
     int i = 0;

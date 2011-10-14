@@ -19,41 +19,149 @@
 
 //------------------------------------------------------------------------------
 
-#ifdef TRACE_PERFORMANCE
-#include <bitset> // For print out purposes only
-int cache_hits   = 0;
-int cache_misses = 0;
-intptr_t common  =~0;
-intptr_t differ  = 0;
-// FIX: Wrap into parametrized by cached_bits template and count cell usage
-
-void update_vtbl_performance(intptr_t vtbl, intptr_t cached_vtbl)
+#if defined(USE_PEARSON_HASH)
+static const unsigned char H[256] = 
 {
-    if (vtbl == cached_vtbl)
-        ++cache_hits;
-    else
-    {
-        //std::cout << "Differ: " << std::bitset<8*sizeof(intptr_t)>(differ) << std::endl;
-        //std::cout << "Common: " << std::bitset<8*sizeof(intptr_t)>(common) << std::endl;
-        //std::cout << "Vtbl  : " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << std::endl;
-        //std::cout << " Cm^Vt: " << std::bitset<8*sizeof(intptr_t)>(common ^ vtbl) << std::endl;
-        //std::cout << "~Cm^Vt: " << std::bitset<8*sizeof(intptr_t)>(~(common ^ vtbl)) << std::endl;
-        ++cache_misses;
+      1,  87,  49,  12, 176, 178, 102, 166, 121, 193,   6,  84, 249, 230,  44, 163,
+     14, 197, 213, 181, 161,  85, 218,  80,  64, 239,  24, 226, 236, 142,  38, 200,
+    110, 177, 104, 103, 141, 253, 255,  50,  77, 101,  81,  18,  45,  96,  31, 222,
+     25, 107, 190,  70,  86, 237, 240,  34,  72, 242,  20, 214, 244, 227, 149, 235,
+     97, 234,  57,  22,  60, 250,  82, 175, 208,   5, 127, 199, 111,  62, 135, 248,
+    174, 169, 211,  58,  66, 154, 106, 195, 245, 171,  17, 187, 182, 179,   0, 243,
+    132,  56, 148,  75, 128, 133, 158, 100, 130, 126,  91,  13, 153, 246, 216, 219,
+    119,  68, 223,  78,  83,  88, 201,  99, 122,  11,  92,  32, 136, 114,  52, 10 ,
+    138,  30,  48, 183, 156,  35,  61,  26, 143,  74, 251,  94, 129, 162,  63, 152,
+    170,   7, 115, 167, 241, 206,   3, 150,  55,  59, 151, 220,  90,  53,  23, 131,
+    125, 173,  15, 238,  79,  95,  89,  16, 105, 137, 225, 224, 217, 160,  37, 123,
+    118,  73,   2, 157,  46, 116,   9, 145, 134, 228, 207, 212, 202, 215,  69, 229,
+     27, 188,  67, 124, 168, 252,  42,   4,  29, 108,  21, 247,  19, 205,  39, 203,
+    233,  40, 186, 147, 198, 192, 155,  33, 164, 191,  98, 204, 165, 180, 117, 76 ,
+    140,  36, 210, 172,  41,  54, 159,   8, 185, 232, 113, 196, 231,  47, 146, 120,
+     51,  65,  28, 144, 254, 221,  93, 189, 194, 139, 112,  43,  71, 109, 184, 209
+};
 
-        if (common == ~0)
+inline unsigned char pearson_hash(intptr_t key)
+{
+    unsigned char h = H[(unsigned char)key];
+    h = H[h ^ (unsigned char)(key>> 8)];
+    h = H[h ^ (unsigned char)(key>>16)];
+    //h = H[h ^ (unsigned char)(key>>24)];
+    return h;
+}
+#endif
+
+//------------------------------------------------------------------------------
+
+#ifdef TRACE_PERFORMANCE
+#include <algorithm>
+#include <bitset> // For print out purposes only
+#include <set>
+
+template <size_t N>
+class vtblmap_performance
+{
+public:
+    vtblmap_performance() : cache_hits(0), cache_misses(0), common(~0), differ(0), prev(0) {}
+   ~vtblmap_performance() { std:: cout << *this << std::endl; }
+
+    /// A few useful constants
+    enum
+    {
+        cache_bits = N,
+        cache_mask = (1<<cache_bits)-1,
+        /// Irrelevant lowest bits in vtbl pointers that are always the same for given 
+        /// compiler/platform configuration.
+        irrelevant_bits = VTBL_IRRELEVANT_BITS
+    };
+
+    void update(intptr_t vtbl, intptr_t cached_vtbl)
+    {
+        if (vtbl != cached_vtbl)
         {
-            common = vtbl;
-            differ = 0;
+            vtbls.insert(vtbl);
+
+            //std::cout << "Differ: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)differ) << std::endl;
+            //std::cout << "Common: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)common) << std::endl;
+            //std::cout << "Prev  : " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)prev)   << std::endl;
+            //std::cout << "Vtbl  : " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl)   << std::endl;
+            //std::cout << " Pr^Vt: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)  prev ^ vtbl)  << std::endl;
+            //std::cout << "~Pr^Vt: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)~(prev ^ vtbl)) << std::endl;
+
+            ++cache_misses;
+
+            if (prev)
+            {
+                intptr_t prvt = prev ^ vtbl;
+                common &= ~prvt;
+                differ |=  prvt;
+            }
+
+            prev = vtbl;
         }
         else
-        {
-            intptr_t cmvt = common ^ vtbl;
-            common &= ~cmvt;
-            differ |=  cmvt;
-        }
+            ++cache_hits;
     }
-}
-#define UPDATE_VTBL_PERFORMANCE(vtbl, cached_vtbl) update_vtbl_performance(vtbl, cached_vtbl)
+
+    std::ostream& operator>>(std::ostream& os) const
+    {
+        std::cout << "Vtbl cache hits: "   << cache_hits << '\t'
+                  << "Vtbl cache misses: " << cache_misses 
+                  << std::endl;
+
+        int uses[1<<N] = {};
+
+        for (std::set<intptr_t>::const_iterator p = vtbls.begin(); p != vtbls.end(); ++p)
+        {
+            intptr_t vtbl = *p;
+            const intptr_t key  = vtbl >> irrelevant_bits; // We do this as we rely that hash function is identity
+        #if defined(USE_PEARSON_HASH)
+            unsigned char h = pearson_hash(key);
+            os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << (int(h) & cache_mask) << " -> " << (key & cache_mask) << std::endl;
+            uses[h & cache_mask]++;
+        #else
+            os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << (key & cache_mask) << std::endl;
+            uses[key & cache_mask]++;
+        #endif
+        }
+
+        bool show = false;
+
+        for (int i = vtbls.size(); i >= 0; --i)
+        {
+            int n = std::count(uses,uses+ARR_SIZE(uses),i);
+
+            if (show = show || n > 0)
+                std::cout << i << " -> " << n << std::endl;
+        }
+
+        int i = 0;
+
+        for (; (differ >> i) << i == differ; ++i);
+
+        if (i-1 != VTBL_IRRELEVANT_BITS)
+        {
+            os << "WARNING: Empirically computed irrelevant_bits " << i-1 
+               << " differs from the predefined one " STRING_LITERAL(VTBL_IRRELEVANT_BITS) 
+               << ". See vtbl patterns below: " << std::endl;
+        }
+
+        os << "Common: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)common) << std::endl
+           << "Differ: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)differ) << std::endl;
+
+        return os;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const vtblmap_performance& p) { return p >> os; }
+
+    intptr_t cache_hits;
+    intptr_t cache_misses;
+    intptr_t common;
+    intptr_t differ;
+    intptr_t prev;
+    std::set<intptr_t> vtbls;
+};
+
+#define UPDATE_VTBL_PERFORMANCE(vtbl, cached_vtbl) this->update(vtbl, cached_vtbl)
 #define TRACE_PERFORMANCE_ONLY(x) x
 #else
 #define UPDATE_VTBL_PERFORMANCE(vtbl, cached_vtbl)
@@ -76,11 +184,28 @@ inline size_t type_index()
 //------------------------------------------------------------------------------
 
 template <typename T, size_t N = VTBL_DEFAULT_CACHE_BITS>
-class vtblmap
+class vtblmap TRACE_PERFORMANCE_ONLY(: vtblmap_performance<N>)
 {
 private:
 
-#ifdef _MSC_VER
+#if defined(USE_PEARSON_HASH_XXX)
+    struct vtbl_hasher
+    {
+	    typedef intptr_t argument_type;
+	    typedef size_t   result_type;
+
+        /// hash key to size_t value by pseudorandomizing transform
+        size_t operator()(const intptr_t key) const 
+        {
+            return pearson_hash(key);
+        }
+    };
+
+    /// A map from vtbl to T
+    typedef std::unordered_map<intptr_t, T, vtbl_hasher> vtbl_to_t_map;
+
+#else
+    #ifdef _MSC_VER
    	/// Hash functor for vtbl.
     /// MSVC uses by default a complicated hash function on all integral types,
     /// but for our application to v-tables identity works best.
@@ -95,11 +220,11 @@ private:
 
     /// A map from vtbl to T
     typedef std::unordered_map<intptr_t, T, vtbl_hasher> vtbl_to_t_map;
-#else
+    #else
     /// A map from vtbl to T
     typedef std::unordered_map<intptr_t, T>              vtbl_to_t_map;
+    #endif
 #endif
-
     typedef typename vtbl_to_t_map::iterator    iterator;
     typedef typename vtbl_to_t_map::value_type  value_type;
 
@@ -132,7 +257,11 @@ public:
     {
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
         const intptr_t key  = vtbl>>irrelevant_bits;     // We do this as we rely that hash function is identity
+    #if defined(USE_PEARSON_HASH)
+        cache_entry&   ce   = cache[pearson_hash(key) & cache_mask];
+    #else
         cache_entry&   ce   = cache[key & cache_mask];
+    #endif
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
         XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
@@ -157,7 +286,11 @@ public:
     {
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
         const intptr_t key  = vtbl>>irrelevant_bits;     // We do this as we rely that hash function is identity
+    #if defined(USE_PEARSON_HASH)
+        cache_entry&   ce   = cache[pearson_hash(key) & cache_mask];
+    #else
         cache_entry&   ce   = cache[key & cache_mask];
+    #endif
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
         XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
@@ -194,7 +327,7 @@ private:
 //------------------------------------------------------------------------------
 
 template <typename T, size_t N>
-class vtblmap<T&,N>
+class vtblmap<T&,N> TRACE_PERFORMANCE_ONLY(: vtblmap_performance<N>)
 {
 private:
 
@@ -259,7 +392,11 @@ public:
     {
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
         const intptr_t key  = vtbl>>irrelevant_bits;     // We do this as we rely that hash function is identity
+    #if defined(USE_PEARSON_HASH)
+        cache_entry&   ce   = cache[pearson_hash(key) & cache_mask];
+    #else
         cache_entry&   ce   = cache[key & cache_mask];
+    #endif
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
         XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
@@ -284,7 +421,11 @@ public:
     {
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
         const intptr_t key  = vtbl>>irrelevant_bits;     // We do this as we rely that hash function is identity
+    #if defined(USE_PEARSON_HASH)
+        cache_entry&   ce   = cache[pearson_hash(key) & cache_mask];
+    #else
         cache_entry&   ce   = cache[key & cache_mask];
+    #endif
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
         XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
@@ -322,8 +463,8 @@ private:
 
 struct type_switch_info
 {
-    int line;   // We can choose smaller type for line to give more space to offset
-    int offset; // FIX: We assume here offsets within object can only be ints
+    int line;   ///< We can choose smaller type for line to give more space to offset
+    int offset; ///< FIX: We assume here offsets within object can only be ints
 };
 
 template <int N = VTBL_DEFAULT_CACHE_BITS>
@@ -489,6 +630,12 @@ private:
 
 //------------------------------------------------------------------------------
 
+/// This class is an alternative to static variables inside functions, allowing 
+/// it to be preallocated and thus avoid if in the function body. Parameter N is
+/// differentiating parameter that can be set to e.g. __LINE__ to make it "unique".
+/// The disadvantage of using this class might be worse locality as the static 
+/// variable inside this class, even though preallocated will most likely be 
+/// elsewhere.
 template <typename T, int N>
 struct preallocated
 {
