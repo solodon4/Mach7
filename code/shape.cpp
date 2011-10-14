@@ -12,13 +12,13 @@ std::ostream& operator<<(std::ostream& os, const cloc& l)
     return os << '(' << l.first << ',' << l.second << ')';
 }
 
-real heron(const loc& a, const loc& b, const loc& c) { return 1.0/2; }
+double heron(const loc& a, const loc& b, const loc& c) { return 1.0/2; }
 
-real area(const Shape& shape)
+double area(const Shape& shape)
 {
     wildcard       _; // Meta variable
     variable<loc>  x,y,z;
-    variable<real> r,s;
+    variable<double> r,s;
 
     if (match<Circle>(_,r)(shape))
         return 3.14 * r * r;
@@ -32,19 +32,6 @@ real area(const Shape& shape)
     assert(!"Inexhaustive search");
 }
 
-//variable<loc> a,b,c;
-//
-//if (match<Triangle>(a,b,c)(shape))
-//    return loc(
-//        (a.m_value.first +b.m_value.first +c.m_value.first) /3,
-//        (a.m_value.second+b.m_value.second+c.m_value.second)/3);
-//
-//if (const Triangle* p = match<Triangle>()(shape))
-//    return loc(
-//        (p->first.first +p->second.first +p->third.first) /3,
-//        (p->first.second+p->second.second+p->third.second)/3);
-
-
 loc center(/*const*/ Shape& shape)
 {
     variable<loc> c;
@@ -52,13 +39,13 @@ loc center(/*const*/ Shape& shape)
     if (match<Circle>(c/*,_*/)(shape))
         return c;
 
-    variable<real> x,y,s;
+    variable<double> x,y,s;
 
     if (match<Square>(
             match<loc>(x,y),s)(shape))
         return loc(x+s/2,y+s/2);
 
-    variable<real> x1,y1,x2,y2,x3,y3;
+    variable<double> x1,y1,x2,y2,x3,y3;
 
     if (match<Triangle>(
             match<loc>(x1,y1),
@@ -73,7 +60,7 @@ loc center(/*const*/ Shape& shape)
 void foo(Shape* s)
 {
     variable<loc>  x,y,z;
-    variable<real> a,b,c;
+    variable<double> a,b,c;
     wildcard       _;
 
     auto pattern = match<Circle>(x, -a*2+1);
@@ -109,7 +96,7 @@ void foo(Shape* s)
 void bar(ADTShape& s)
 {
     variable<cloc>  x,y,z;
-    variable<real> a;
+    variable<double> a;
 
 #ifndef POD_ONLY
     if (matchex<ADTShapeEx,ADTShape::circle>(x,a)(s))

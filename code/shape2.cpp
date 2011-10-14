@@ -1,7 +1,11 @@
 //#define POD_ONLY
-#include <windows.h>
+
+#include <cmath>
 #include <iostream>
+#include <windows.h>
 #include "match_shape.hpp"
+
+wildcard _; // Meta variable
 
 std::ostream& operator<<(std::ostream& os, const loc& l)
 {
@@ -13,13 +17,18 @@ std::ostream& operator<<(std::ostream& os, const cloc& l)
     return os << '(' << l.first << ',' << l.second << ')';
 }
 
-real heron(const loc& a, const loc& b, const loc& c) { return 1.0/2; }
-
-real area(const Shape& shape)
+double heron(const loc& l1, const loc& l2, const loc& l3) 
 {
-    wildcard _; // Meta variable
+    double a2 = (l1.first-l2.first)*(l1.first-l2.first) + (l1.second-l2.second)*(l1.second-l2.second);
+    double b2 = (l2.first-l3.first)*(l2.first-l3.first) + (l2.second-l3.second)*(l2.second-l3.second);
+    double c2 = (l3.first-l1.first)*(l3.first-l1.first) + (l3.second-l1.second)*(l3.second-l1.second);
+    return std::sqrt((a2+b2+c2)*(a2+b2+c2) - 2.0*(a2*a2+b2*b2+c2*c2))/4.0;
+}
+
+double area(const Shape& shape)
+{
     loc  x,y,z;
-    real r,s;
+    double r,s;
 
     if (match<Circle>(_,r)(shape))
         return 3.14 * r * r;
@@ -31,21 +40,27 @@ real area(const Shape& shape)
         return heron(x,y,z);
 
     assert(!"Inexhaustive search");
+    return 0.0;
 }
+/*
+double area_ptr(const Shape& shape)
+{
+    loc    *x,*y,*z;
+    double *r,*s;
 
-//variable<loc> a,b,c;
-//
-//if (match<Triangle>(a,b,c)(shape))
-//    return loc(
-//        (a.m_value.first +b.m_value.first +c.m_value.first) /3,
-//        (a.m_value.second+b.m_value.second+c.m_value.second)/3);
-//
-//if (const Triangle* p = match<Triangle>()(shape))
-//    return loc(
-//        (p->first.first +p->second.first +p->third.first) /3,
-//        (p->first.second+p->second.second+p->third.second)/3);
+    if (match<Circle>(_,r)(shape))
+        return 3.14 * *r * *r;
 
+    if (match<Square>(_,s)(shape))
+        return *s * *s;
 
+    if (match<Triangle>(x,y,z)(shape))
+        return heron(*x,*y,*z);
+
+    assert(!"Inexhaustive search");
+    return 0.0;
+}
+*/
 loc center(/*const*/ Shape& shape)
 {
     loc c;
@@ -53,13 +68,13 @@ loc center(/*const*/ Shape& shape)
     if (match<Circle>(c/*,_*/)(shape))
         return c;
 
-    real x,y,s;
+    double x,y,s;
 
     if (match<Square>(
             match<loc>(x,y),s)(shape))
         return loc(x+s/2,y+s/2);
 
-    real x1,y1,x2,y2,x3,y3;
+    double x1,y1,x2,y2,x3,y3;
 
     if (match<Triangle>(
             match<loc>(x1,y1),
@@ -69,6 +84,7 @@ loc center(/*const*/ Shape& shape)
         return loc((x1+x2+x3)/3,(y1+y2+y3)/3);
 
     assert(!"Inexhaustive search");
+    return loc();
 }
 
 int dummy(Shape* s)
@@ -77,6 +93,7 @@ int dummy(Shape* s)
     if (match<Square>()(s))   return 2;
     if (match<Triangle>()(s)) return 3;
     assert(!"Inexhaustive search");
+    return 0;
 }
 
 int dummy_dyn(Shape* s)
@@ -85,12 +102,13 @@ int dummy_dyn(Shape* s)
     if (dynamic_cast<Square*>(s))   return 2;
     if (dynamic_cast<Triangle*>(s)) return 3;
     assert(!"Inexhaustive search");
+    return 0;
 }
 
 void foo(Shape* s)
 {
     loc  x,y,z;
-    real a;
+    double a;
 
     //if (match<Circle>(x |= x == val(loc(1,1)), a)(s))
     //    std::cout << "Matched against guard" << a << std::endl;
@@ -111,7 +129,7 @@ void foo(Shape* s)
 void bar(ADTShape& s)
 {
     variable<cloc>  x,y,z;
-    variable<real> a;
+    variable<double> a;
 
 #ifndef POD_ONLY
     if (matchex<ADTShapeEx,ADTShape::circle>(x,a)(s))
@@ -133,34 +151,75 @@ void bar(ADTShape& s)
         std::cout << "ADTTriangle with corners " << x << ',' << y << ',' << z << std::endl;
 }
 
-loc center_vis(/*const*/ Shape& shape)
+double area_vis(Shape& shape)
 {
-    struct CenterVisitor : ShapeVisitor
+    struct Visitor : ShapeVisitor
     {
-	    virtual void visit(const Circle& s)   { c = s.center; }
-	    virtual void visit(const Square& s)   { c = loc(s.upper_left.first+s.side/2,s.upper_left.second+s.side/2); }
-	    virtual void visit(const Triangle& s) { c = loc((s.first.first+s.second.first+s.third.first)/3,(s.first.second+s.second.second+s.third.second)/3); }
-        loc c;
+	    virtual void visit(const Circle& s)   { result = 3.14 * s.radius * s.radius; }
+	    virtual void visit(const Square& s)   { result = s.side * s.side; }
+	    virtual void visit(const Triangle& s) { result = heron(s.first,s.second,s.third); }
+        double result;
     };
 
-    CenterVisitor v;
+    Visitor v;
     shape.accept(v);
-    return v.c;
+    return v.result;
+}
+
+loc center_vis(/*const*/ Shape& shape)
+{
+    struct Visitor : ShapeVisitor
+    {
+	    virtual void visit(const Circle& s)   { result = s.center; }
+	    virtual void visit(const Square& s)   { result = loc(s.upper_left.first+s.side/2,s.upper_left.second+s.side/2); }
+	    virtual void visit(const Triangle& s) { result = loc((s.first.first+s.second.first+s.third.first)/3,(s.first.second+s.second.second+s.third.second)/3); }
+        loc result;
+    };
+
+    Visitor v;
+    shape.accept(v);
+    return v.result;
 }
 
 int dummy_vis(Shape* s)
 {
     struct Visitor : ShapeVisitor
     {
-	    virtual void visit(const Circle& s)   { result = 1; }
-	    virtual void visit(const Square& s)   { result = 2; }
-	    virtual void visit(const Triangle& s) { result = 3; }
+	    virtual void visit(const Circle&)   { result = 1; }
+	    virtual void visit(const Square&)   { result = 2; }
+	    virtual void visit(const Triangle&) { result = 3; }
         int result;
     };
 
     Visitor v;
     s->accept(v);
     return v.result;
+}
+
+void time_area(Shape& s)
+{
+    LARGE_INTEGER Freq;
+
+    QueryPerformanceFrequency(&Freq);
+
+    const int N = 10000;
+    LARGE_INTEGER liStart1, liFinish1, liStart2, liFinish2;
+    double a1,a2;
+    QueryPerformanceCounter(&liStart1);
+    for (int i = 0; i < N; ++i)
+        a1 = area_vis(s);
+    QueryPerformanceCounter(&liFinish1);
+
+    QueryPerformanceCounter(&liStart2);
+    for (int i = 0; i < N; ++i)
+        a2 = area(s);
+    QueryPerformanceCounter(&liFinish2);
+
+    assert(a1==a2);
+
+    std::cout << "AreaV Time:" << (liFinish1.QuadPart-liStart1.QuadPart)*1000000/Freq.QuadPart << std::endl;
+    std::cout << "AreaM Time:" << (liFinish2.QuadPart-liStart2.QuadPart)*1000000/Freq.QuadPart << std::endl;
+    std::cout << (liFinish2.QuadPart-liStart2.QuadPart)*100/(liFinish1.QuadPart-liStart1.QuadPart)-100 << "% slower" << std::endl;
 }
 
 void time_center(Shape& s)
@@ -216,10 +275,11 @@ void time_dummy(Shape& s)
     assert(c1==c2);
 
     std::cout << "DummyV Time:" << (liFinish1.QuadPart-liStart1.QuadPart)*1000000/Freq.QuadPart << std::endl;
-    std::cout << "DummyM Time:" << (liFinish2.QuadPart-liStart2.QuadPart)*1000000/Freq.QuadPart << std::endl;
     std::cout << "DummyD Time:" << (liFinish3.QuadPart-liStart3.QuadPart)*1000000/Freq.QuadPart << std::endl;
-    std::cout << (liFinish2.QuadPart-liStart2.QuadPart)*100/(liFinish1.QuadPart-liStart1.QuadPart)-100 << "% slower" << std::endl;
+    std::cout << "DummyM Time:" << (liFinish2.QuadPart-liStart2.QuadPart)*1000000/Freq.QuadPart << std::endl;
+    
     std::cout << (liFinish3.QuadPart-liStart3.QuadPart)*100/(liFinish1.QuadPart-liStart1.QuadPart)-100 << "% slower" << std::endl;
+    std::cout << (liFinish2.QuadPart-liStart2.QuadPart)*100/(liFinish1.QuadPart-liStart1.QuadPart)-100 << "% slower" << std::endl;
 }
 
 
@@ -257,10 +317,27 @@ int main()
     bar(xs);
     bar(xt);
 
+    std::cout << std::endl;
+    std::cout << "Timing Circle Only" << std::endl;
+    time_area(*c);
+    std::cout << "Timing Square Only" << std::endl;
+    time_area(*s);
+    std::cout << "Timing Triangle Only" << std::endl;
+    time_area(*t);
+
+    std::cout << std::endl;
+    std::cout << "Timing Circle Only" << std::endl;
     time_center(*c);
+    std::cout << "Timing Square Only" << std::endl;
     time_center(*s);
+    std::cout << "Timing Triangle Only" << std::endl;
     time_center(*t);
+
+    std::cout << std::endl;
+    std::cout << "Timing Circle Only" << std::endl;
     time_dummy(*c);
+    std::cout << "Timing Square Only" << std::endl;
     time_dummy(*s);
+    std::cout << "Timing Triangle Only" << std::endl;
     time_dummy(*t);
 }

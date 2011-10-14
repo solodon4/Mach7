@@ -536,7 +536,7 @@ inline bool apply_expression(const E& e,       C* c, M m)
 /// This is the specialization that makes the member not to be invoked when we
 /// are matching against the meta variable _ that matches everything.
 template <typename C, typename M>
-inline bool apply_expression(const var_ref<wildcard>& e, const C* c, M m)
+inline bool apply_expression(const var_ref<wildcard>&, const C*, M)
 {
     return true;
 }
