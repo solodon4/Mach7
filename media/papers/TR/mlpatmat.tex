@@ -1,5 +1,6 @@
 \documentclass[preprint]{sigplanconf}
 
+\usepackage{amssymb}
 \usepackage{breakurl}             % Not needed if you use pdflatex only.
 \usepackage{listings}
 \usepackage{mathpartir}
@@ -25,9 +26,10 @@ showstringspaces=false,
            {E1}{{$E_1$}}2 {E2}{{$E_2$}}2 {E3}{{$E_3$}}2 {E4}{{$E_4$}}2%
            {m_e1}{{$m\_e_1$}}4 {m_e2}{{$m\_e_2$}}4 {m_e3}{{$m\_e_3$}}4 {m_e4}{{$m\_e_4$}}4%
            {Match}{{\emph{Match}}}5 %
-           {EndMatch}{{\emph{EndMatch}}}8 %
            {Case}{{\emph{Case}}}4 %
            {Que}{{\emph{Que}}}3 %
+           {Otherwise}{{\emph{Otherwise}}}9 %
+           {EndMatch}{{\emph{EndMatch}}}8 %
            {CM}{{\emph{CM}}}2 {KS}{{\emph{KS}}}2 {KV}{{\emph{KV}}}2 
 }
 \lstset{style=C++}
@@ -1157,7 +1159,8 @@ datatype DT = @$C_1$@ of {@$L_{11}:T_{11},...,L_{1m}:T_{1m}$@}
               | @$C_k$@ of {@$L_{k1}:T_{k1},...,L_{kn}:T_{kn}$@}
 \end{lstlisting}
 
-\noindent We are aware of at least 3 different ways to encode them in C++:
+\noindent We are aware of at least 3 different ways to encode them in C++ to 
+which, following Emir, we will refer as \emph{encodings}:
 
 \begin{itemize}
 \item Polymorphic Base Class
@@ -1274,21 +1277,24 @@ standard\cite{C++0x}.
 
 \begin{center}
 \begin{tabular}{rp{0em}cl}
-\Rule{match statement}     & $M$       & \is{}  & \code{Match(}$e$\code{)} $\left[C s^*\right]^*$ \code{EndMatch} \\
+\Rule{match statement}     & $M$       & \is{}  & \code{Match(}$e$\code{)} $\left[C s^*\right]^*\left[O s^*\right]$ \code{EndMatch} \\
 \Rule{case clause}         & $C$       & \is{}  & \code{Case(}$T\left[,x\right]^*$\code{)} \\
-                           &           & \Alt{} & \code{Que(} $T\left[,c|x|\pi\right]^*$\code{)} \\
-\Rule{target expression}   & $T$       & \is{}  & $\tau$ \Alt{} $l$ \\
+                           &           & \Alt{} & \code{Que(} $T\left[,\omega\right]^*$\code{)} \\
+\Rule{default clause}      & $O$       & \is{}  & \code{Otherwise(}$\left[,x\right]^*$\code{)} \\
+\Rule{target expression}   & $T$       & \is{}  & $\tau$ \Alt{} $l$ \Alt{} $\nu$ \\
+\Rule{view}                & $\nu$     & \is{}  & \code{view<}$\tau,l$\code{>} \\
 \Rule{match expression}    & $m$       & \is{}  & $\pi(e)$ \\
 \Rule{pattern}             & $\pi$     & \is{}  & $\_$ \Alt{} $\eta$ \Alt{} $\varrho$ \Alt{} $\mu$ \Alt{} $\varsigma$ \Alt{} $\chi$ \\
-\Rule{tree pattern}        & $\mu$     & \is{}  & \code{match<}$\tau\left[,l\right]$\code{>(}$\left[c|x|\pi\right]^*$\code{)} \\
-\Rule{guard pattern}       & $\varrho$ & \is{}  & $\eta \models \varepsilon$ \Alt{} $\mu \models \varepsilon$ \\
+\Rule{extended pattern}    & $\omega$  & \is{}  & $\pi$ \Alt{} $c$ \Alt{} $x$ \\
+\Rule{tree pattern}        & $\mu$     & \is{}  & \code{match<}$\nu|\tau\left[,l\right]$\code{>(}$\omega^*$\code{)} \\
+\Rule{guard pattern}       & $\varrho$ & \is{}  & $\eta \models \xi$ \Alt{} $\mu \models \xi$ \\
 \Rule{n+k pattern}         & $\eta$    & \is{}  & $\chi$ \Alt{} $\eta \oplus c$ \Alt{} $c \oplus \eta$ \Alt{} $\ominus \eta$ \Alt{} $(\eta)$ \Alt{} $\_$ \\
 \Rule{wildcard pattern}    & $\_^{wildcard}$ \\
 \Rule{variable pattern}    & $\chi$    & \is{}  & $\kappa$ \Alt{} $\iota$ \\
 \Rule{value pattern}       & $\varsigma^{value\langle\tau\rangle}$ \\
 \Rule{xt variable}         & $\kappa^{variable\langle\tau\rangle}$ \\
 \Rule{xt reference}        & $\iota^{var\_ref\langle\tau\rangle}$  \\
-\Rule{xt expression}       & $\varepsilon$   & \is{}  & $\chi$ \Alt{} $\varepsilon \oplus c$ \Alt{} $c \oplus \varepsilon$ \Alt{} $\ominus \varepsilon$ \Alt{} $(\varepsilon)$ \Alt{} $\varepsilon \oplus \varepsilon$ \\
+\Rule{xt expression}       & $\xi$     & \is{}  & $\chi$ \Alt{} $\xi \oplus c$ \Alt{} $c \oplus \xi$ \Alt{} $\ominus \xi$ \Alt{} $(\xi)$ \Alt{} $\xi \oplus \xi$ \\
 \Rule{layout}              & $l$       & \is{}  & $c^{int}$ \\
 \Rule{unary operator}      & $\ominus$ & $\in$  & $\lbrace*,\&,+,-,!,\sim\rbrace$ \\
 \Rule{binary operator}     & $\oplus$  & $\in$  & $\lbrace*,/,\%,+,-,\ll,\gg,\&,\wedge,|,$ \\
@@ -1305,9 +1311,9 @@ standard\cite{C++0x}.
 {\bf Match statement} is an analog of a switch statement that allows case 
 clauses to be used as its case statements. We require it to be terminated with a 
 dedicate \code{EndMatch} macro, to properly close the syntactic structure 
-introduced with \code{Match} and followed by \code{Case} and \code{Que} macros.
-Examples of match statement has already been presented in 
-\textsection\ref{sec:intro} and \textsection\ref{sec:xmpl}.
+introduced with \code{Match} and followed by \code{Case},\code{Que} and 
+\code{Otherwise} macros. Examples of match statement has already been presented 
+in \textsection\ref{sec:intro} and \textsection\ref{sec:xmpl}.
 
 We support two kinds of {\bf case clauses}, both of which take a target 
 expression as their first argument. \code{Case} clause can only be used for 
@@ -1316,13 +1322,30 @@ variables into the clause's scope, bound to corresponding members. \code{Que}
 clause permits nested patterns as its arguments, but naturally requires all the 
 variables used in the patterns to be explicitly pre-declared.
 
-{\bf Target expression} used by the case clauses can either be a target type or 
-a constant value, representing a layout. The latter is only allowed for 
-discriminated union encoding of algebraic data types, in which case the library 
-assumes the target type to be selector type.
+An optional {\bf default clause} provides handling for cases that were rejected 
+by case clauses. The clause is not required to be the last clause of the match 
+statement and will have the same semantics elsewhere when used with \emph{tagged  
+class} and \emph{discriminated union} encodings. With \emph{polymorphic base 
+class}, however, it will effectively hide all subsequent case clauses, which is 
+why we suggest it to always be placed last (hence the choice of name -- 
+otherwise). Default clause may take optional variable patterns, in which case it 
+behaves in exactly the same way as \code{Case} clause whose target type is 
+selector type.
 
-{\bf Match expression} can be seen as a short version of match statement with 
-only one Que clause. Once a pattern is created, it can be applied to an 
+{\bf Target expression} used by the case clauses can either be a target type, 
+a constant value, representing \emph{layout}~\textsection\ref{sec:bnd} or a 
+\emph{view} type combining the two~\textsection\ref{sec:view}. Constant value 
+is only allowed for discriminated union encoding of algebraic data types, in 
+which case the library assumes the target type to be the selector type.
+
+{\bf Views} in our library are represented by instantiations of a template class 
+\code{view<T,l>} that takes a target type and a layout, combining the two into a 
+new type. Our library takes care of transparent handling this new type as the 
+original combination of target type and layout. Views are discussed in greater 
+details in~\textsection\ref{sec:view}.
+
+{\bf Match expression} can be seen as an inline version of match statement with 
+a single \code{Que} clause. Once a pattern is created, it can be applied to an 
 expression in order to check whether that expression matches the pattern, 
 possibly binding some variables in it. The result of application is always of 
 type \code{bool} except for the tree pattern, where it is a value convertible to 
@@ -1331,8 +1354,17 @@ type \code{T} in case of a successful match and a \code{nullptr} otherwise.
 Match expressions will most commonly be seen to quickly decompose a possibly 
 nested expression with a tree pattern as seen in the example in the paragraph 
 below. They are the most used expressions under the hood however that let our 
-library be composable. The metavariable $\pi$ representing {\bf pattern} simply 
-summarizes different kinds of \emph{applicative patterns} we support.
+library be composable. 
+
+{\bf Pattern} summarizes \emph{applicative patterns} -- patterns that can be 
+used in a match expression described above. For convenience reasons this 
+category is extended with $c$ and $x$ to form an {\bf extended pattern} -- a
+pattern that can be used as an argument of \emph{tree pattern} and \code{Que} 
+clause. Extended pattern lets us use constants as a \emph{value pattern} and 
+regular C++ variables as a \emph{variable pattern} inside these constructs. The 
+library implicitly recognizes them and transforms into $\varsigma$ and $\iota$ 
+respectively. This transformation is further explained in~\textsection\ref{sec:sem} 
+with $\stackrel{flt}{\vdash}$ rule set.
 
 {\bf Tree pattern} takes a target type and an optional layout as its template 
 arguments, which uniquely determines a concrete decomposition scheme for the 
@@ -1494,6 +1526,7 @@ meta-variable in the superscript to other meta-variables in order to indicate a
 C++ type of the entity they represent.
 
 \subsection{Semantics}
+\label{sec:sem}
 
 We use natural semantics\cite{Kahn87} (big-step operational semantics) to 
 describe our pattern-matching semantics. As with syntax, we do not formalize the 
@@ -1552,38 +1585,38 @@ not from our rules.
 
 \begin{mathpar}
 \inferrule[Guard]
-{\Gamma\vdash e \evalspp v_1,\Gamma_1 \\ \Gamma_1\vdash \pi(v_1) \evals b_2,\Gamma_2 \\ \Gamma_2\stackrel{eval}{\vdash} \varepsilon \evals b_3,\Gamma_3}
-{\Gamma\vdash (\pi \models \varepsilon)(e) \evals (b_2 \wedge b_3),\Gamma_3}
+{\Gamma\vdash e \evalspp v_1,\Gamma_1 \\ \Gamma_1\vdash \pi(v_1) \evals b_2,\Gamma_2 \\ \Gamma_2\stackrel{eval}{\vdash} \xi \evals b_3,\Gamma_3}
+{\Gamma\vdash (\pi \models \xi)(e) \evals (b_2 \wedge b_3),\Gamma_3}
 \end{mathpar}
 
 \begin{mathpar}
 \inferrule[Tree-Nullptr]
 {\Gamma \vdash e \evalspp v,\Gamma_0 \\ \Gamma_0 \vdash \DynCast{\tau}{v} \evalspp \nullptr{},\Gamma_1}
-{\Gamma\vdash ($match$\langle\tau\rangle(\pi_1,...,\pi_k))(e) \evals \nullptr{},\Gamma_1}
+{\Gamma\vdash ($match$\langle\tau\left[,l\right]\rangle(\omega_1,...,\omega_k))(e) \evals \nullptr{},\Gamma_1}
 \end{mathpar}
 
 \begin{mathpar}
 \inferrule[Tree-False]
 {\Gamma \vdash e \evalspp v,\Gamma_0 \\ \Gamma_0 \vdash \DynCast{\tau}{v} \evalspp u^{\tau},\Gamma_1 \\\\
- \Gamma_1    \vdash \Delta_1    ^\tau(v) \evalspp v_1,    \Gamma_1'     \\ \Gamma_1'    \vdash \pi(v_1    ) \evals true, \Gamma_2     \\\\
- \Gamma_2    \vdash \Delta_2    ^\tau(v) \evalspp v_2,    \Gamma_2'     \\ \Gamma_2'    \vdash \pi(v_2    ) \evals true, \Gamma_3     \\\\
+ \Gamma_1    \vdash \Delta_1    ^{\tau,l}(u) \evalspp v_1,    \Gamma_1'     \\ \Gamma_1'    \stackrel{flt}{\vdash} \omega_1     \evals \pi_1,     \Gamma_1''     \\ \Gamma_1''    \vdash \pi_1(v_1)         \evals true, \Gamma_2     \\\\
+ \Gamma_2    \vdash \Delta_2    ^{\tau,l}(u) \evalspp v_2,    \Gamma_2'     \\ \Gamma_2'    \stackrel{flt}{\vdash} \omega_2     \evals \pi_2,     \Gamma_2''     \\ \Gamma_2''    \vdash \pi_2(v_2)         \evals true, \Gamma_3     \\\\
  \cdots \\\\
- \Gamma_{i-1}\vdash \Delta_{i-1}^\tau(v) \evalspp v_{i-1},\Gamma_{i-1}' \\ \Gamma_{i-1}'\vdash \pi(v_{i-1}) \evals true, \Gamma_i     \\\\
- \Gamma_i    \vdash \Delta_i    ^\tau(v) \evalspp v_i,    \Gamma_i'     \\ \Gamma_i'    \vdash \pi(v_i    ) \evals false,\Gamma_{i+1} \\\\
+ \Gamma_{i-1}\vdash \Delta_{i-1}^{\tau,l}(u) \evalspp v_{i-1},\Gamma_{i-1}' \\ \Gamma_{i-1}'\stackrel{flt}{\vdash} \omega_{i-1} \evals \pi_{i-1}, \Gamma_{i-1}'' \\ \Gamma_{i-1}''\vdash \pi_{i-1}(v_{i-1}) \evals true, \Gamma_i     \\\\
+ \Gamma_i    \vdash \Delta_i    ^{\tau,l}(u) \evalspp v_i,    \Gamma_i'     \\ \Gamma_i'    \stackrel{flt}{\vdash} \omega_i     \evals \pi_i,     \Gamma_i''     \\ \Gamma_i''    \vdash \pi_i(v_i)         \evals false,\Gamma_{i+1} \\\\
 }
-{\Gamma\vdash ($match$\langle\tau\rangle(\pi_1,...,\pi_k))(e) \evals \nullptr{},\Gamma_{i+1}}
+{\Gamma\vdash ($match$\langle\tau\left[,l\right]\rangle(\omega_1,...,\omega_k))(e) \evals \nullptr{},\Gamma_{i+1}}
 \end{mathpar}
 
 \begin{mathpar}
 \inferrule[Tree-True]
 {\Gamma \vdash e \evalspp v,\Gamma_0 \\ \Gamma_0 \vdash \DynCast{\tau}{v} \evalspp u^{\tau},\Gamma_1 \\\\
- \Gamma_1    \vdash \Delta_1    ^\tau(v) \evalspp v_1,    \Gamma_1'     \\ \Gamma_1'    \vdash \pi(v_1    ) \evals true, \Gamma_2     \\\\
- \Gamma_2    \vdash \Delta_2    ^\tau(v) \evalspp v_2,    \Gamma_2'     \\ \Gamma_2'    \vdash \pi(v_2    ) \evals true, \Gamma_3     \\\\
+ \Gamma_1    \vdash \Delta_1    ^{\tau,l}(u) \evalspp v_1,    \Gamma_1'     \\ \Gamma_1'    \stackrel{flt}{\vdash} \omega_1     \evals \pi_1,     \Gamma_1''     \\ \Gamma_1''    \vdash \pi_1(v_1)         \evals true, \Gamma_2     \\\\
+ \Gamma_2    \vdash \Delta_2    ^{\tau,l}(u) \evalspp v_2,    \Gamma_2'     \\ \Gamma_2'    \stackrel{flt}{\vdash} \omega_2     \evals \pi_2,     \Gamma_2''     \\ \Gamma_2''    \vdash \pi_2(v_2)         \evals true, \Gamma_3     \\\\
  \cdots \\\\
- \Gamma_{k-1}\vdash \Delta_{k-1}^\tau(v) \evalspp v_{k-1},\Gamma_{k-1}' \\ \Gamma_{k-1}'\vdash \pi(v_{k-1}) \evals true, \Gamma_k     \\\\
- \Gamma_k    \vdash \Delta_k    ^\tau(v) \evalspp v_k,    \Gamma_k'     \\ \Gamma_k'    \vdash \pi(v_k    ) \evals true, \Gamma_{k+1} \\\\
+%\Gamma_{k-1}\vdash \Delta_{k-1}^{\tau,l}(u) \evalspp v_{k-1},\Gamma_{k-1}' \\ \Gamma_{k-1}'\stackrel{flt}{\vdash} \omega_{k-1} \evals \pi_{k-1}, \Gamma_{k-1}'' \\ \Gamma_{k-1}''\vdash \pi_{k-1}(v_{k-1}) \evals true, \Gamma_k     \\\\
+ \Gamma_k    \vdash \Delta_k    ^{\tau,l}(u) \evalspp v_k,    \Gamma_k'     \\ \Gamma_k'    \stackrel{flt}{\vdash} \omega_k     \evals \pi_k,     \Gamma_k''     \\ \Gamma_k''    \vdash \pi_k(v_k)         \evals true, \Gamma_{k+1} \\\\
 }
-{\Gamma\vdash ($match$\langle\tau\rangle(\pi_1,...,\pi_k))(e) \evals u^{\tau},\Gamma_{i+1}[$matched$^{\tau}\leftarrow u]}
+{\Gamma\vdash ($match$\langle\tau\left[,l\right]\rangle(\omega_1,...,\omega_k))(e) \evals u^{\tau},\Gamma_{i+1}}
 \end{mathpar}
 
 Matching a wildcard pattern against expression always succeeds without changes 
@@ -1599,8 +1632,8 @@ result of \code{dynamic_cast}. If it doesn't, matching fails
 
 Our semantics for generalized n+k patterns draws on the notion of 
 \emph{backward collecting semantics} used in \emph{abstract 
-interpretation}\cite{CousotCousot92-1}. In general, \emph{backward collecting 
-semantics} $Baexp\Sem{A}(E)R$ of an expression $A$ defines the subset of 
+interpretation}\cite{CousotCousot92-1}. In general, backward collecting 
+semantics $Baexp\Sem{A}(E)R$ of an expression $A$ defines the subset of 
 possible environments $E$ such that the expression may evaluate, without 
 producing a runtime error, to a value belonging to given set $R$:
 
@@ -1617,10 +1650,11 @@ Intuitively n+k patterns like $f(x,y)=v$ relate a known result of a given
 function application to its arguments (hence analogy with backward collecting 
 semantics). The case where multiple unknown arguments are matched against a 
 single result should not be immediately discarded as there are known n-ary 
-functions whose inverse is unique. An example of such function is Peano curve 
-that uniquely maps $(0,1)$ onto $(0,1)^2$. Even when such mappings are 
-not one-to-one, their restriction to a given argument often is. Most 
-generalizations of n+k patterns seem to agree on the following rules:
+functions whose inverse is unique. An example of such function is Cantor pairing 
+function that defines bijection between $\mathbb{N}\times\mathbb{N}$ and $\mathbb{N}$.
+Even when such mappings are not one-to-one, their restriction to a given 
+argument often is. Most generalizations of n+k patterns seem to agree on the 
+following rules:
 
 \begin{itemize}
 \item Absence of solution that would result in a given value should be indicated 
@@ -1674,10 +1708,70 @@ to match corresponding sub-expression. Note that when user did not provide
 $\Psi_f^\tau$ for the argument in which solution is sought, the rule is 
 rejected.
 
+Evaluation of a guard pattern first tries to match the left hand side of a guard 
+expression, usually binding a variable in it, and then if the match was 
+successful, lazily evaluates its right hand side to make sure the new value of 
+the bound variable is used. The result of evaluation the right hand side 
+converted to \code{bool} is reported as the result of matching the entire 
+pattern (\RefTirName{Guard}).
+
+Matching of a tree patterns begins with evaluating selector expression and 
+casting it dynamically to target type $\tau$ when selector type is not $\tau$. 
+When \code{dynamic_cast} fails returning \code{nullptr}, the pattern is rejected 
+(\RefTirName{Tree-Nullptr}). Once a value of a target type has been uncovered, 
+we proceed with matching arguments left-to-right. For each argument we first 
+translate \emph{extended pattern} $\omega$ accepted by tree pattern into an 
+\emph{application pattern} $\pi$ to get rid of the syntactic convenience we 
+allow on arguments of tree patterns. Using the target type and optional layout 
+that was provided by the user, we obtain a value that should be bound in the 
+$i^{th}$ position of decomposition. Again we rely on family of user provided 
+functions $\Delta_i^{\tau,l}(u)$ that take an object instance and returns a 
+value bound in the $i^{th}$ position of its $l^{th}$ layout. Specification of 
+function $\Delta$ by the user is discussed in~\textsection\ref{sec:bnd}. Here we 
+would like to point out however that the number of argument patterns passed over 
+to the tree pattern can be smaller than the number of binding positions defined 
+by specific layout. Remaining argument positions are implicitly assumed to be 
+filled with the wildcard pattern.
+
+When we have the value for the $i^{th}$ position of object's decomposition, we 
+match it against the pattern specified in the $i^{th}$ position and if the value 
+gets accepted we move on to matching the next argument (\RefTirName{Tree-False}). 
+Only in case when all the argument patterns have been successfully matched the 
+matching succeeds by returning a pointer to the target type, which in C++ can be 
+used everywhere a boolean expression is expected. Returning pointer instead of 
+just boolean value gives us functionality similar to that of \emph{as 
+patterns}(\RefTirName{Tree-True}) while maintaining the composibility with the 
+rest of the library.
+
+Our second rule set deals with semantics of a \emph{match statement}.
+
+\begin{mathpar}
+\inferrule[Match]
+{\Gamma \vdash e \evalspp v,\Gamma_1 \\
+ \Gamma_1    \vdash_v ‘_1    \evals false,\Gamma_2 \\
+ \Gamma_2    \vdash_v ‘_2    \evals false,\Gamma_3 \\
+ \cdots \\
+ \Gamma_{i-1}\vdash_v ‘_{i-1}\evals false,\Gamma_i \\
+ \Gamma_i    \vdash_v ‘_i    \evals true, \Gamma_{i+1} \\
+ \Gamma_{i+1}\vdash_v s_{ij}^* \evalspp u,\Gamma'
+}
+{\Gamma\vdash Match(e) \left[C_i s_{ij}^*\right]^*_{i=1..n}\left[O s_j^*\right] EndMatch \evals u,\Gamma'}
+\end{mathpar}
+
+\begin{mathpar}
+\inferrule[Que-Type]
+{\Gamma \vdash $match$\langle\tau\rangle(\vec{\omega})(v) \evals b,\Gamma'}
+{\Gamma \vdash_v Que(\tau,\vec{\omega}) \evals b,\Gamma'}
+
+\inferrule[Que-Layout]
+{\Gamma \vdash $match$\langle\tau,l\rangle(\vec{\omega})(v) \evals b,\Gamma'}
+{\Gamma \vdash_{v^\tau} Que(l,\vec{\omega}) \evals b,\Gamma'}
+\end{mathpar}
+
 Our second rule set deals with evaluation of expression templates reffered to 
 from the previous rule set via $\stackrel{eval}{\vdash}$. The judgements are of 
-the form $\Gamma\vdash \varepsilon \evals v,\Gamma'$ that can be interpreted as given an 
-environment $\Gamma$, evaluation of an expression template $\varepsilon$ results in value 
+the form $\Gamma\vdash \xi \evals v,\Gamma'$ that can be interpreted as given an 
+environment $\Gamma$, evaluation of an expression template $\xi$ results in value 
 $v$ and environment $\Gamma'$.
 
 \begin{mathpar}
@@ -1686,20 +1780,20 @@ $v$ and environment $\Gamma'$.
 {\Gamma\vdash \chi \evals \Gamma(\chi),\Gamma}
 
 \inferrule[Unary]
-{\Gamma\vdash \varepsilon \evals v,\Gamma_1}
-{\Gamma\vdash \ominus \varepsilon \evals \Sem{\ominus} v,\Gamma_1}
+{\Gamma\vdash \xi \evals v,\Gamma_1}
+{\Gamma\vdash \ominus \xi \evals \Sem{\ominus} v,\Gamma_1}
 
 \inferrule[Binary]
-{\Gamma\vdash \varepsilon_1 \evals v_1,\Gamma_1 \\ \Gamma_1\vdash \varepsilon_2 \evals v_2,\Gamma_2}
-{\Gamma\vdash \varepsilon_1 \oplus \varepsilon_2 \evals v_1\Sem{\oplus}v_2,\Gamma_2}
+{\Gamma\vdash \xi_1 \evals v_1,\Gamma_1 \\ \Gamma_1\vdash \xi_2 \evals v_2,\Gamma_2}
+{\Gamma\vdash \xi_1 \oplus \xi_2 \evals v_1\Sem{\oplus}v_2,\Gamma_2}
 
 \inferrule[Binary]
-{\Gamma\vdash \varepsilon \evals v,\Gamma_1}
-{\Gamma\vdash \varepsilon \oplus c \evals v\Sem{\oplus}c,\Gamma_1}
+{\Gamma\vdash \xi \evals v,\Gamma_1}
+{\Gamma\vdash \xi \oplus c \evals v\Sem{\oplus}c,\Gamma_1}
 
 \inferrule[Binary]
-{\Gamma\vdash \varepsilon \evals v,\Gamma_1}
-{\Gamma\vdash c \oplus \varepsilon \evals c\Sem{\oplus}v,\Gamma_1}
+{\Gamma\vdash \xi \evals v,\Gamma_1}
+{\Gamma\vdash c \oplus \xi \evals c\Sem{\oplus}v,\Gamma_1}
 \end{mathpar}
 
 \subsection{Bindings Syntax}
