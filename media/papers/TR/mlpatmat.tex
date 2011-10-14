@@ -2327,7 +2327,94 @@ To the best of our knowledge we are unaware of any tag allocation scheme capable
 of dealing with all of the above isues that can be incorporated efficiently into  
 a switch statement to form a type switch.
 
-Interestingly enough the straightforward solution 
+\subsection{Type Switch}
+
+Consider a class \code{B} and a set of classes \code{Di} directly or indirectly 
+inherited from it. An object is said to be of the \emph{most derived type} 
+\code{D} if it was created by explicitly calling a constructor of that type.
+Inheritance relation on classes induces subtyping relation on them, which in 
+turn allows objects of derived class to be used in places where an object of a 
+base class is expected. The type of variable or parameter referencing such 
+object is called \emph{static type} of the object. When object is passed by 
+reference or by pointer we might end up in situation where static type of an 
+object is different from its most derived type, with the later necessarily 
+being a subtype of the former. Most derived type along with all its subtypes 
+that are not subtypes of the static type are typically refered to as 
+\emph{dynamic types} of an object. At each program point we know the static type 
+of an object, but not its dynamic types.
+
+By a \emph{type switch} we will call a programming language construct capable of 
+uncovering a reference or a pointer to a dynamic type of an object present in a 
+given list of types.
+
+Consider an object of (most derived) type \code{D}, pointed to by a variable of 
+static type \code{B*}: e.g. \code{B* base = new D;}. A hypotetical type switch 
+statement, not currently supported by C++, can look as following:
+
+\begin{lstlisting}
+switch (base)
+{
+case D1: s1;
+...
+case Dn: sn;
+}
+\end{lstlisting}
+
+\noindent and can be given numerous plausible semantics:
+
+\begin{itemize}
+\item \emph{First-fit} semantics will evaluate the first statement $s_i$ such 
+      that $D_i$ is a base class of $D$
+\item \emph{Best-fit} semantics will evaluate the statement corresponding to the 
+      most derived base class $D_i$ of $D$ if it is unique
+\item \emph{The-only-fit} semantics will only evaluate statement $s_i$ if $D_i=D$.
+\item \emph{All-fit} semantics will evaluate all statements $s_i$ whose guard 
+      type $D_i$ is a subtype of $D$
+\item \emph{Any-fit} semantics might choose non-deterministically one of the 
+      statements enabled by all-fit
+\end{itemize}
+
+\noindent
+We chose to give it a first-fit semantics in our library as it was resembling 
+pattern matching facilities of other languages and was the most intuitive. The 
+following code can be generated to implement it:
+
+\begin{lstlisting}
+if (D1* derived = dynamic_cast<D1*>(base)) { s1; } else
+if (D2* derived = dynamic_cast<D2*>(base)) { s2; } else
+...
+if (Dn* derived = dynamic_cast<Dn*>(base)) { sn; }
+\end{lstlisting}
+
+\noindent
+Note that leaving \code{else} out will effectively turn it into an all-fit 
+statement with enabled statements executed in lexicographical order.
+
+The above code is easy to understand but is extremely inefficient as for an 
+object of dynamic type $D_i$ we will have to perform $i-1$ dynamic casts that 
+fail first. The diagram below compares the times spent by visitors and the above 
+type switch statement to uncover the $i^{th}$ case.
+
+\begin{figure}[htbp]
+  \centering
+    \includegraphics[width=0.47\textwidth]{DCast-vs-Visitors.png}
+  \caption{Time to uncover i\textsuperscript{th} case. The average for Visitors 
+  is 28. X-axis - case i; Y-axis - cycles per iteration}
+  \label{fig:DCastVis}
+\end{figure}
+
+\subsection{Virtual Table Address Point}
+
+Before we discuss our solution we would like to talk about certain properties of 
+the C++ run-time system that we rely on. Strictly speaking C++ standard does not 
+require implementations to use any given technique, however interoperability 
+requirements have forced compiler vendors to design a set of rules called 
+Application Binary Interface (ABI)\cite{C++ABI}. Most of the C++ compilers today 
+follow these rules, with notable exception of Microsoft Visual C++.
+
+We copy several definitions from C++ ABI.
+
+\subsection{Memoization Device}
 
 \subsection{Open Case}
 
@@ -2336,6 +2423,27 @@ better we present some timing measurements of straightforward, but rather naive
 implementation of a match statement outlined in \textsection\ref{sec:semms}.
 
 \subsection{Closed Case}
+
+%[FROM ABI: 2.4 I 2.c] If C has no primary base class, allocate the virtual 
+%table pointer for C at offset zero, and set sizeof(C), align(C), and dsize(C) to 
+%the appropriate values for a pointer (all 8 bytes for Itanium 64-bit ABI).
+
+%[FROM ABI: 2.5.2]
+%The offset to top holds the displacement to the top of the object from the 
+%location within the object of the virtual table pointer that addresses this 
+%virtual table, as a  ptrdiff_t. It is always present. The offset provides a way 
+%to find the top of the object from any base subobject with a virtual table 
+%pointer. This is necessary for dynamic_cast<void*> in particular.
+
+%The typeinfo pointer points to the typeinfo object used for RTTI. It is always 
+%present. All entries in each of the virtual tables for a given class must point 
+%to the same typeinfo object. A correct implementation of typeinfo equality is to 
+%check pointer equality, except for pointers (directly or indirectly) to 
+%incomplete types. The typeinfo pointer is a valid pointer for polymorphic 
+%classes, i.e. those with virtual functions, and is zero for non-polymorphic 
+%classes.
+
+
 
 \section{Evaluation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:eval}
