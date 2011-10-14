@@ -68,6 +68,7 @@ Languages, Design
 Pattern Matching, Visitor Design Pattern, Expression Problem, C++
 
 \section{Introduction} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:intro}
 
 %Motivate the problem
 %Give a summary of the paper: what you did and how
@@ -144,11 +145,11 @@ reason we have not parameterized them was to keep the example simple.
 
 \begin{lstlisting}[keepspaces,columns=flexible]
 struct Expr { virtual @$\sim$@Expr() {} };
-struct Value : Expr { int value; };
-struct Plus  : Expr { Expr* exp1; Expr* exp2; };
-struct Minus : Expr { Expr* exp1; Expr* exp2; };
-struct Mult  : Expr { Expr* exp1; Expr* exp2; };
-struct Div   : Expr { Expr* exp1; Expr* exp2; };
+struct Value  : Expr { int value; };
+struct Plus   : Expr { Expr* exp1; Expr* exp2; };
+struct Minus  : Expr { Expr* exp1; Expr* exp2; };
+struct Times  : Expr { Expr* exp1; Expr* exp2; };
+struct Divide : Expr { Expr* exp1; Expr* exp2; };
 \end{lstlisting}
 
 Together with evaluator they form an instance of the \emph{Interpreter Design 
@@ -161,11 +162,11 @@ int eval(const Expr* e)
 {
     Match(e)@\footnote{We use alternative formatting on symbols representing preprocessor macros}@
     {
-    Case(Value, n)    return n;
-    Case(Plus,  a, b) return eval(a) + eval(b);
-    Case(Minus, a, b) return eval(a) - eval(b);
-    Case(Mult,  a, b) return eval(a) * eval(b);
-    Case(Div,   a, b) return eval(a) / eval(b);
+    Case(Value,  n)    return n;
+    Case(Plus,   a, b) return eval(a) + eval(b);
+    Case(Minus,  a, b) return eval(a) - eval(b);
+    Case(Times,  a, b) return eval(a) * eval(b);
+    Case(Divide, a, b) return eval(a) / eval(b);
     }
     EndMatch
 }
@@ -179,11 +180,11 @@ needed to support the variables binding and not the type switching functionality
 of the \code{Match}.
 
 \begin{lstlisting}[keepspaces,columns=flexible]
-template <> struct bindings<Value> { CM(0,Value::value); };
-template <> struct bindings<Plus>  { CM(0,Plus::exp1); 
-  ...                                CM(1,Plus::exp2); };
-template <> struct bindings<Div>   { CM(0,Div::exp1); 
-                                     CM(1,Div::exp2); };
+template <> struct bindings<Value>  { CM(0,Value::value); };
+template <> struct bindings<Plus>   { CM(0,Plus::exp1); 
+  ...                                 CM(1,Plus::exp2);   };
+template <> struct bindings<Divide> { CM(0,Divide::exp1); 
+                                      CM(1,Divide::exp2); };
 \end{lstlisting}
 
 The above syntax is enabled without any external tool support through the use
@@ -192,7 +193,7 @@ show in section~\ref{       }, it runs up to 80\% faster (depending on the usage
 scenario, compiler and underlain hardware) than a similar code crafted with the 
 \emph{Visitor Design Pattern}.
 
-\section{Motivation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Motivation}
 
 %\subsection{Excursus}
 
@@ -200,7 +201,7 @@ The ideas and the library presented here originated from our rather
 unsatisfactory expirience in working with various C++ front-ends and program 
 analysis frameworks developed in C++\cite{Pivot09,Phoenix,Clang,Lise}. The 
 problem was not in the frameworks per se, but in the fact that we had to use 
-emph{Visitor Design Pattern}\cite{DesignPatterns1993} to inspect, traverse and 
+\emph{Visitor Design Pattern}\cite{DesignPatterns1993} to inspect, traverse and 
 elaborate abstract syntax trees of their target languages. Having written enough 
 visitors to realize how unsuitable they were for the job, we started looking for 
 other mechanisms to work with abstract syntax trees, even if they would have 
@@ -271,14 +272,14 @@ protocol for our Expr example might look as following:
 
 \begin{lstlisting}
 // Forward declaration of known derived classes
-struct Value; struct Plus; ... struct Div;
+struct Value; struct Plus; ... struct Divide;
 // Visitation interface
 struct ExprVisitor
 {
-    virtual void visit(const Value&) = 0;
-    virtual void visit(const Plus&)  = 0;
+    virtual void visit(const Value&)  = 0;
+    virtual void visit(const Plus&)   = 0;
     ...  // One virtual function per each known derived class
-    virtual void visit(const Div&)   = 0;
+    virtual void visit(const Divide&) = 0;
 };
 // Abstract base and known derived classes
 struct Expr { 
@@ -310,7 +311,7 @@ struct ToStrVisitor : ExprVisitor
 {
     void visit(const Value& e) { result = std::to_string(e.value); }
     ...
-    void visit(const Div&   e) { 
+    void visit(const Divide& e) { 
         result = to_str(e.exp1) + '/' + to_str(e.exp2); 
     }
     std::string result;
@@ -339,8 +340,8 @@ There are quite a few disadvantages however.
 The {\bf increased amount of boilerplate code} that has to be added to support 
 the above solution cannot go unnoticed. Several entities had to be forward 
 declared because of the mutual recursivity of their definitions. The solution is 
-also {\bf specific to hierarchy} as we had to declare a visitation interface 
-specific to the base class, as well as {\bf intrusive} since we had to inject 
+{\bf specific to hierarchy} as we had to declare a visitation interface 
+specific to the base class. It is also {\bf intrusive} since we had to inject 
 syntactically the same definition of \code{accept} method into every class 
 participating in visitation. The amount of the necessary support increases as 
 additional arguments have to be passed into the visitor to be available during 
@@ -358,7 +359,7 @@ the original hierarchy each time), but independent extensions by different
 authorities require developer's intervention to unify them all, before they can 
 be used together. This may not be feasible in environments that use dynamic 
 linking. To avoid writing even more boilerplate code in new visitors, the 
-solution would require usege of virtual inheritance\cite{}, which typically has 
+solution would require usage of virtual inheritance\cite{}, which typically has 
 an overhead of extra memory dereferencing. On top of the double dispatch already 
 present in the visitor pattern, the solution will incure two additional virtual 
 calls and a dynamic cast for each level of visitor extension. Additional double 
@@ -458,8 +459,8 @@ struct Right : Either<X,Y> {
 
 The code above defines the necessary parameterized data structures as well as a 
 correspondingly parameterized visitor class capable of introspecting it at 
-run-time. The authors agree with us that ``The code has a fair amount of 
-boilerplate to simulate pattern matching...'' The actual implementation of 
+run-time. The authors agree with us that \emph{``The code has a fair amount of 
+boilerplate to simulate pattern matching...''} The actual implementation of 
 \code{lift} in C++ now amounts to declaring and invoking a visitor:
 
 \begin{lstlisting}
@@ -500,11 +501,13 @@ const Either<S,T>* lift(const Either<X,Y>& e, S f(X), T g(Y))
 }
 \end{lstlisting}
 
-The above solution neither requires \code{EitherVisitor} class anymore (together 
-with forward declarations it used), nor any of the \code{accept} 
-member-functions in all three classes. Definitions of obvious functions 
-\code{left} and \code{right} have been ommitted in both cases. We do require 
-binding definitions though to be able to bind variables \code{x} and \code{y}:
+It is also as fast as the visitor solution, but unlike the visitors based 
+approach neither requires \code{EitherVisitor} class anymore (together with 
+forward declarations it needed), nor any of the \code{accept} member-functions 
+injected in all three classes. We do require binding definitions though to be 
+able to bind variables \code{x} and \code{y}:
+\footnote{Definitions of obvious functions \code{left} and \code{right} have 
+been ommitted in both cases.}
 
 \begin{lstlisting}[keepspaces,columns=flexible]
 template <class X, class Y> 
@@ -513,32 +516,157 @@ template <class X, class Y>
     struct bindings<Right<X,Y>> { CM(0,Right<X,Y>::y); };
 \end{lstlisting}
 
-Note that our binding definitons can be made once for all possible 
-instantiations with the use of partial template specialization in C++. 
+Note that these binding definitons are made once for all possible instantiations 
+with the use of partial template specialization in C++.
 
 \subsection{Summary}
 
 The contributions of the paper can be summarized as following:
 
 \begin{itemize}
-\item We bring in an ML-like pattern matching into C++ as a library without 
-      requiring any changes to the compiler.
-\item The solution is non-intrusive and can be applied to any class hierarchy retroactively
-\item It allows one to avoid the control inversion typical for visitors.
-\item We provide performance and ease of use comparison based on a real code
-\item The solution is comparable in terms of performance to visitors
+\item We present a technique that can be used to implement type switching 
+      effectively based on the run-time type of the argument. 
+  \begin{itemize}
+  \item The technique outperforms its de facto contender -- visitor design 
+        pattern without sacrifying extensibility.
+  \item It works in the presense of multiple inheritance, including virtual 
+        inheritance.
+  \item The technique generalizes to other object-oriented languages that use 
+        virtual tables to implement dynamic dispatch.
+  \end{itemize}
+\item We present a functional style pattern matching for C++ built as a library 
+      employing the above technique.
+  \begin{itemize}
+  \item The solution is open, non-intrusive and can be applied to any class 
+        hierarchy retroactively.
+  \item It allows one to avoid the control inversion typical for visitors.
+  \item We provide performance and ease of use comparison based on a real code
+  \end{itemize}
 \end{itemize}
 
-The novelty of the paper lays in generalizing Haskell's n+k patterns to any 
-invertable operations. This usually is accompanied by questions about semantics, 
-which in our case is handled transparently by forwarding the problem into the 
-concepts domain.
+The novelty of the paper lays in a new method that can be used by compilers of 
+object-oriented languages as well as libraries written in them to implement 
+\emph{type switching}, \emph{type testing}, \emph{pattern matching} and 
+\emph{multiple dispatch} efficiently. We look at different approaches that are 
+taken in implementing algebraic data types in C++ today and present a unified 
+pattern matching syntax that works uniformly with all of them. We also 
+generalize Haskell's n+k patterns to any invertable operations. Semantics issues 
+that typically accompany n+k pattern are handled transparently by forwarding the 
+problem into the concepts domain, thanks to the fact that we work in a library 
+setting.
 
-The rest of this paper is structured as following. In Section~\ref{bg} we 
+The rest of this paper is structured as following. In Section~\ref{sec:bg} we 
 present evolution of pattern matching in different languages, presenting 
-informally semantics of various pattern matching facilities by example.
+informally semantics of various pattern matching facilities by example. 
+Section~\ref{sec:pm} presents various approaches that are taken in C++ to 
+implementing algebraic data types as well as demonstrates uniform handling of 
+them in our pattern matching library. Section~\ref{sec:impl} discusses the 
+\emph{v-table caching} technique that made the efficient implementation of 
+pattern matching possible, while Section~\ref{sec:eval} provides performance 
+evaluation of this technique against common alternatives. Section~\ref{sec:rw} 
+discusses some related work, while Section~\ref{sec:cc} concludes by discussing 
+some future directions and possible improvements.
 
-\subsection{Algebraic Datatypes in C++}
+\section{Background} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:bg}
+
+%[From Emir PhD 1.1]
+%In functional programming languages, pattern matching has been closely related to algebraic
+%data types since its beginning - Burstall\cite{Burstall69provingproperties} is the first to define a pattern matching
+%construct that resembles the one found in statically typed functional languages today.
+
+Pattern matching in the context of a programming language was first introduced 
+in a string manipulation language SNOBOL\cite{SNOBOL64}. It's fourth 
+reincarnation SNOBOL4 had patterns as first-class data types providing 
+operations of concatenation and alternation on them\cite{SNOBOL71}. The first 
+reference to a pattern matching construct that resembles the one found in 
+statically typed functional languages today is usually attributed to Burstall 
+and his work on structural induction\cite{Burstall69provingproperties}.
+
+%[From Emir PhD thesis 1.6]
+%The SCALA compiler is the effort of several researchers, and combining pattern matching
+%and object-oriented programming has been approached before\cite{Odersky97pizzainto,Zenger:2001}.
+
+In the context of object-oriented programming, pattern matching has been first 
+explored in Pizza programming language\cite{Odersky97pizzainto}. These efforts 
+have been continued in Scala\cite{Scala2nd} and together with notable work of 
+Burak Emir on \emph{Object-Oriented Pattern Matching}\cite{EmirThesis} have 
+resulted in incorporation of pattern matching into the language.
+
+%The first tree based pattern matching methods were found in Fred McBride's 
+%extension of LISP in 1970.
+
+%ML and Haskell further popularized pattern matching ...
+
+Pattern matching has been closely related to \emph{algebraic data types} and 
+\emph{equational reasoning} since the early days of functional programming.
+In languages like ML and Haskel an \emph{Algebraic Data Type} is a data type 
+each of whose values is picked from a disjoint sum of (possibly recursive) data 
+types, called \emph{variants}. Each of the variants is marked with a unique 
+symbolic constant called \emph{constructor}. Constructors provide a 
+convenient way of creating a value of its variant type as well as a way of 
+discriminating its variant type from the algebraic data type through pattern 
+matching.
+
+Algebraic data type \code{expr} from Section~\ref{sec:intro} consists of 5 
+variants, marked with constructors \code{Value}, \code{Plus}, \code{Minus}, 
+\code{Times} and \code{Divide} respectively. Constructor \code{Value} expects a 
+value of type \code{int} during construction, as well as any pattern that admits 
+values of type \code{int} during decomposition through pattern matching. 
+Similarly, the other four constructors expect a value of a carthesian product of 
+two \code{expr} types during construction, as well as any pattern that would 
+admit a value of such type during decomposition.
+
+Algebraic data types can be parameterized and recursive, as demonstrated by the 
+following Haskell code that defines a binary tree parameterized on type \code{k} 
+of keys and type \code{d} of data stored in the nodes:
+
+\begin{lstlisting}[language=Haskell]
+data Tree k d = Node k d (Tree k d) (Tree k d) 
+              | Leaf
+\end{lstlisting}
+
+They can also be decomposed in a generic algorithm like the function \code{find} 
+below, defined through case analysis on the tree's structure:
+
+\begin{lstlisting}[language=Haskell]
+find :: Int -> Tree Int d -> Maybe d
+find i t = case t of
+    Leaf -> Nothing
+    Node key item left right ->
+        if i = key then Just item else
+            if i < key then find i left else find i right
+\end{lstlisting}
+
+The set of values described by a given algebraic data type is defined 
+inductively as the least set closed under constructor functions of its variants.
+Algebraic data types draw their name from the practice of using case distinction 
+in mathematical function definitions and proofs that involve \emph{algebraic 
+terms}.
+
+One of the main differences of algebraic data types from object-oriented data 
+structures is that an algebraic data type definition fixes the structure of its 
+instances once and for all. Once we have listed all the variants a given 
+algebraic data type may have we cannot extend it with new variants without 
+modifying its defintion. This is not the case in object-oriented languages, 
+where classes can be extended arbitrarily.
+
+%The constructor tags are special cases of T, which provides a relationship between the set
+%of instances tagged with a particular constructor and the set of instances of T that is akin
+%to nominal (explicitly declared) subtyping. One major difference is that an algebraic data
+%type forms a "closed world": the set of constructors and their signature cannot be changed.
+%The reason for this restriction ist that an algebraic data types defines a sum type and allows
+%straightforward reasoning on its fixed structure. A welcome consequence of this restriction
+%is that algebraic data types can be represented efficiently by replacing constructor tags with
+%an integer constant.
+
+%Since the set of constructors forms a closed world, an automatic check for incompleteness
+%can be performed on match expressions: The compiler can thus warn programmers who by
+%mistake omit a case from their match expressions, which would leave the match expression
+%incomplete. This check is very helpful if there are many constructors or when nested patterns
+%allow for combinatorial combinations of algebraic data types (e.g. for a pair of two SrchT
+%instances).
+
 
 %[From Emir PhD 2.1.1]
 %In typed functional programming languages like HOPE [14], MIRANDA [90], HASKELL [47]
@@ -560,82 +688,34 @@ of the datatype. Any wrapped datum is an argument to the constructor. In
 contrast to other datatypes, the constructor is not executed and the only way to 
 operate on the data is to unwrap the constructor using pattern matching.
 
-There are at least 3 different ways to represent them in C++
-We unify syntax 
 
-An ML datatype of the form 
 
-\begin{lstlisting}[language=ML]
-datatype DT = C1 of {L11:T11,...,L1m:T1m} |...| Cr of {Lr1:Tr1,..., Lrn:Trn}
-\end{lstlisting}
-
-Can be encoded in C++ in at least the 4 following ways:
-
-The important difference between algebraic data types and classes in C++ is that
-algebraic data types are closed and once constructors have been defined, no new
-constructors can be added. C++ classes on the other hand are always open: user 
-may extend any class with a new constructor. Work on extensible data types 
-exist\cite{ExtensibleDatatypes,LohHinze2006}
-
-%Emir gives the following terminology in 2.1.1:
-%The \emph{match expression} Match(...) contains \emph{case clauses} Case(T,...), 
-%each with a pattern to match instances tagged with corresponding constructor.
-%
-% Algebraic data types like SrchT are defined inductively as the least set 
-% closed under their constructor functions.
-
-The result of invoking \code{match<T>(a,b,c)} is a \emph{pattern} that can be applied 
-to a given instance of any type U, that is related by inheritance to T (i.e. is 
-a base of, derived from or a sibling of). Applying given pattern to an instance 
-returns a pointer to type T if matching succeeds along with binding all the 
-variables and subexpressions the pattern was created with.
-
-\section{Background} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label{sec:bg}
-
-Pattern matching in the context of a programming language was first introduced 
-in a string manipulation language SNOBOL\cite{SNOBOL64}. It's fourth 
-reincarnation SNOBOL4 had patterns as first-class data types providing 
-operations of concatenation and alternation on them\cite{SNOBOL71}.
-
-%[From Emir PhD 1.1]
-%In functional programming languages, pattern matching has been closely related to algebraic
-%data types since its beginning - Burstall\cite{Burstall69provingproperties} is the first to define a pattern matching
-%construct that resembles the one found in statically typed functional languages today.
-
-The first tree based pattern matching methods were found in Fred McBride's 
-extension of LISP in 1970.
-
-ML and Haskell further popularized pattern matching ...
 
 In programming languages like ML\cite{ML90} and Haskell\cite{Haskell98Book}, a 
 function can be defined by a sequence of pattern-expression pairs. Evaluating 
 such a function is equivalent to evaluation of the expression corresponding to 
 the first pattern that matches the arguments. Most of the languages distinguish 
-\emph{primitve} patterns and \emph{tree patterns}. A primitive pattern is a 
-pattern described by a given value or a variable. Consider the following Haskell 
-code defining factorial function: 
+\emph{primitive patterns} (described by a given value or a variable) and 
+\emph{tree patterns} (arise from decomposing algebraic data types through the 
+use of constructors). Consider the following Haskell code defining factorial 
+function:
 
 \begin{lstlisting}[language=Haskell]
 factorial 0 = 1
 factorial n = n * factorial (n-1)
 \end{lstlisting}
 
-Here 0 in the left hand side of the first \emph{rule} is an example of a 
+Here 0 in the left hand side of the first \emph{equation} is an example of a 
 \emph{value pattern} that will only match when the actual argument passed to the 
-function factorial is 0. The \emph{variable pattern} n in the left hand side of 
-the second rule will match any value, \emph{binding} variable n to that value in 
-the right hand side of the rule.
+function factorial is 0. The \emph{variable pattern} \code{n} in the left hand 
+side of the second equation will match any value, \emph{binding} variable 
+\code{n} to that value in the right hand side of equation. 
 
 Tree patterns arise in many different contexts: description of tree-like 
 structures, algebraic data types, class hierarchies etc.
 
 Veldhuizen discovered a very powerful technique called Expression 
 templates\cite{Veldhuizen95expressiontemplates}.
-
-%[From Emir PhD thesis 1.6]
-%The SCALA compiler is the effort of several researchers, and combining pattern matching
-%and object-oriented programming has been approached before\cite{Odersky97pizzainto,Zenger:2001}.
 
 Other languages that use pattern matching include: ...
 
@@ -654,8 +734,8 @@ template <int N> struct factorial    { enum { result = N*factorial<N-1>::result 
 template <>      struct factorial<0> { enum { result = 1 }; };
 \end{lstlisting}
 
-Coincidentaly, we use this compile-time pattern matching facility to implement 
-its run-time counterpart.
+Coincidentaly, we use this compile-time pattern matching facility as a 
+meta-language to implement its run-time counterpart.
 
 A place where C++ does have a primitive run-time pattern matching is the catch 
 clause of exception handling. The order of clauses matters, which is similar to 
@@ -742,6 +822,60 @@ dynamic\_cast.
 
 \section{Pattern Matching for C++} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:pm}
+
+\subsection{Algebraic Datatypes in C++}
+
+%[From Emir PhD 2.1.1]
+%In typed functional programming languages like HOPE [14], MIRANDA [90], HASKELL [47]
+%and ML [64], users can define concrete data types as disjoint sums of primitive types, tuples
+%and function types. Each variant, or constructor, is identified with a symbolic constant.
+%Such data types can then be discriminated using patterns, which mention the constructor
+%label along with a collection of sub-patterns or variables to bind the constituents of a matching
+%instance. This data definition mechanism should be considered as a building block for
+%the wider goal of functional programming, which is give clear semantics to data and enable
+%equational reasoning about programs.
+%
+%Algebraic data types like SrchT are defined inductively as the least set closed under their
+%constructor functions.
+
+Functional programming community 
+algebraic data type (sometimes also called a variant type[1]) is a datatype each 
+of whose values is data from other datatypes wrapped in one of the constructors 
+of the datatype. Any wrapped datum is an argument to the constructor. In 
+contrast to other datatypes, the constructor is not executed and the only way to 
+operate on the data is to unwrap the constructor using pattern matching.
+
+There are at least 3 different ways to represent them in C++
+We unify syntax 
+
+An ML datatype of the form 
+
+\begin{lstlisting}[language=ML]
+datatype DT = C1 of {L11:T11,...,L1m:T1m} |...| Cr of {Lr1:Tr1,..., Lrn:Trn}
+\end{lstlisting}
+
+Can be encoded in C++ in at least the 4 following ways:
+
+The important difference between algebraic data types and classes in C++ is that
+algebraic data types are closed and once constructors have been defined, no new
+constructors can be added. C++ classes on the other hand are always open: user 
+may extend any class with a new constructor. Work on extensible data types 
+exist\cite{ExtensibleDatatypes,LohHinze2006}
+
+%Emir gives the following terminology in 2.1.1:
+%The \emph{match expression} Match(...) contains \emph{case clauses} Case(T,...), 
+%each with a pattern to match instances tagged with corresponding constructor.
+%
+% Algebraic data types like SrchT are defined inductively as the least set 
+% closed under their constructor functions.
+
+The result of invoking \code{match<T>(a,b,c)} is a \emph{pattern} that can be applied 
+to a given instance of any type U, that is related by inheritance to T (i.e. is 
+a base of, derived from or a sibling of). Applying given pattern to an instance 
+returns a pointer to type T if matching succeeds along with binding all the 
+variables and subexpressions the pattern was created with.
+
+---------------
 
 Similarly to Haskell, we employ \emph{first-fit} pattern matching under which the 
 equations are matched linearly from top to bottom. This is why putting 
@@ -1001,7 +1135,7 @@ inheritance.
 %the interface that contains all the operations it has to support.
 
 \section{Evaluation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\label{sec:ev}
+\label{sec:eval}
 
 In this section we evaluate the performance of our solution in comparison to the 
 de facto standard -- visitor design pattern.
@@ -1021,6 +1155,7 @@ sequential order of tests, the overhead for classes tested later becomes
 significant, effectively requiring the user to prioritize the order of tests.
 
 \section{Discussion} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:dsc}
 
 We considered using smaller types for storing line numbers based on our 
 observation that we haven't found many C++ source files that had more than 65535 
@@ -1110,8 +1245,6 @@ demonstrating how to do it generically in a library setting. Backward semantics
 of expression templates used to implement this feature is also to the best of 
 our knowledge first application of backward semantics to expression templates.
 
-%\section{Acknowledgements} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \section{ToDo} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{itemize}
 %\item + Profile Guided Optimizations on Visual C++ code
@@ -1160,7 +1293,7 @@ GCC 4.5.2
 SEQ |   215    |   189        SEQ |          |          
 RND |   222    |   208        RND |          |          
 
-\section{Acknowledgements} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Acknowledgements} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Gregory Berkolaiko for entropy idea. Jaakko Jarvi for Haskell help. Andrew Sutton 
 for suggestions. Jasson Cassey for branch hinting. Mani Zandifar for PAPI help.
