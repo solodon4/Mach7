@@ -482,7 +482,7 @@ template <typename F, typename E1, typename E2> struct is_const_expr<expr<F,E1,E
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline R apply_member(const C* c, R (T::*method)() const) throw()
+inline R apply_member(const C* c, R (T::*method)() const)
 {
     DEBUG_ONLY(std::clog << "\nApplying const member function to instance " << c << " of type " << typeid(*c).name() << std::endl);
     return (c->*method)();
@@ -491,7 +491,7 @@ inline R apply_member(const C* c, R (T::*method)() const) throw()
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline R apply_member(      C* c, R (T::*method)()      ) throw()
+inline R apply_member(      C* c, R (T::*method)()      )
 {
     DEBUG_ONLY(std::clog << "\nApplying non-const member function to instance " << c << " of type " << typeid(*c).name() << std::endl);
     return (c->*method)();
@@ -509,7 +509,7 @@ inline R apply_member(const C* c, R T::*field) throw()
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline R apply_member(const C* c, R (*func)(const T*)) throw()
+inline R apply_member(const C* c, R (*func)(const T*))
 {
     DEBUG_ONLY(std::clog << "\nApplying external function to const instance " << c << " of type " << typeid(*c).name() << std::endl);
     return (*func)(c);
@@ -518,7 +518,7 @@ inline R apply_member(const C* c, R (*func)(const T*)) throw()
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline R apply_member(      C* c, R (*func)(      T*)) throw()
+inline R apply_member(      C* c, R (*func)(      T*))
 {
     DEBUG_ONLY(std::clog << "\nApplying external function to non-const instance " << c << " of type " << typeid(*c).name() << std::endl);
     return (*func)(c);
@@ -530,7 +530,7 @@ inline R apply_member(      C* c, R (*func)(      T*)) throw()
 /// match a meta variable _ of type wildcard, that matches everything of
 /// any type. In this case we don't even want to invoke the underlain member!
 template <typename E, typename C, typename M>
-inline bool apply_expression(const E& e, const C* c, M m) throw()
+inline bool apply_expression(const E& e, const C* c, M m)
 {
     #ifdef _MSC_VER
     #pragma warning( disable : 4800 )
@@ -540,7 +540,7 @@ inline bool apply_expression(const E& e, const C* c, M m) throw()
 }
 
 template <typename E, typename C, typename M>
-inline bool apply_expression(const E& e,       C* c, M m) throw()
+inline bool apply_expression(const E& e,       C* c, M m)
 {
     #ifdef _MSC_VER
     #pragma warning( disable : 4800 )
@@ -552,7 +552,7 @@ inline bool apply_expression(const E& e,       C* c, M m) throw()
 /// This is the specialization that makes the member not to be invoked when we
 /// are matching against the meta variable _ that matches everything.
 template <typename C, typename M>
-inline bool apply_expression(const var_ref<wildcard>&, const C*, M) throw()
+inline bool apply_expression(const var_ref<wildcard>&, const C*, M)
 {
     return true;
 }
@@ -595,7 +595,6 @@ inline void update(vtbl2lines& v2l, int ln, const T& t, const void* success) thr
 template <typename T>
 struct matcher0
 {
-    matcher0() {}
     const T* operator()(const T* t) const throw() { return t; }
           T* operator()(      T* t) const throw() { return t; }
     template <typename U> const T* operator()(const U* u, vtbl2lines& v2l, int line) const throw() { const T* t = dynamic_cast<const T*>(u); update(v2l, line, *u, t); return t ? operator()(t) : 0; }

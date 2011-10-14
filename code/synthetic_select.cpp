@@ -4,7 +4,7 @@
 #include <numeric>
 #include <vector>
 #include <windows.h>
-#include "match_select.hpp"
+#include "match.hpp"
 
 #define FOR_EACH_MAX 3
 
@@ -40,8 +40,8 @@ struct ShapeVisitor
 
 template <int N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(*this); }
 
-#if 1
-int do_match(const Shape& s)
+#if 0
+int do_match(Shape& s)
 {
     SWITCH(s)
     {
@@ -56,114 +56,814 @@ int do_match(const Shape& s)
 #else
 int do_match(Shape& s)
 {
-    static vtbl2lines __vtbl2lines_map;
-    decltype(s)& __selector_var = s;
-    int n = on(__vtbl2lines_map,__selector_var);
-    switch (n)
+    static vtbl2lines __vtbl2lines_map; 
+    decltype(s)& __selector_var = s; 
+    int choice = __vtbl2lines_map.get(&__selector_var);
+    switch (choice)
     {
     default:
-    case  0: if (match<shape_kind< 0>>()(__selector_var,__vtbl2lines_map, 0)) return  0;
-    case  1: if (match<shape_kind< 1>>()(__selector_var,__vtbl2lines_map, 1)) return  1;
-    case  2: if (match<shape_kind< 2>>()(__selector_var,__vtbl2lines_map, 2)) return  2;
-    case  3: if (match<shape_kind< 3>>()(__selector_var,__vtbl2lines_map, 3)) return  3;
-    case  4: if (match<shape_kind< 4>>()(__selector_var,__vtbl2lines_map, 4)) return  4;
-    case  5: if (match<shape_kind< 5>>()(__selector_var,__vtbl2lines_map, 5)) return  5;
-    case  6: if (match<shape_kind< 6>>()(__selector_var,__vtbl2lines_map, 6)) return  6;
-    case  7: if (match<shape_kind< 7>>()(__selector_var,__vtbl2lines_map, 7)) return  7;
-    case  8: if (match<shape_kind< 8>>()(__selector_var,__vtbl2lines_map, 8)) return  8;
-    case  9: if (match<shape_kind< 9>>()(__selector_var,__vtbl2lines_map, 9)) return  9;
-    case 10: if (match<shape_kind<10>>()(__selector_var,__vtbl2lines_map,10)) return 10;
-    case 11: if (match<shape_kind<11>>()(__selector_var,__vtbl2lines_map,11)) return 11;
-    case 12: if (match<shape_kind<12>>()(__selector_var,__vtbl2lines_map,12)) return 12;
-    case 13: if (match<shape_kind<13>>()(__selector_var,__vtbl2lines_map,13)) return 13;
-    case 14: if (match<shape_kind<14>>()(__selector_var,__vtbl2lines_map,14)) return 14;
-    case 15: if (match<shape_kind<15>>()(__selector_var,__vtbl2lines_map,15)) return 15;
-    case 16: if (match<shape_kind<16>>()(__selector_var,__vtbl2lines_map,16)) return 16;
-    case 17: if (match<shape_kind<17>>()(__selector_var,__vtbl2lines_map,17)) return 17;
-    case 18: if (match<shape_kind<18>>()(__selector_var,__vtbl2lines_map,18)) return 18;
-    case 19: if (match<shape_kind<19>>()(__selector_var,__vtbl2lines_map,19)) return 19;
-    case 20: if (match<shape_kind<20>>()(__selector_var,__vtbl2lines_map,20)) return 20;
-    case 21: if (match<shape_kind<21>>()(__selector_var,__vtbl2lines_map,21)) return 21;
-    case 22: if (match<shape_kind<22>>()(__selector_var,__vtbl2lines_map,22)) return 22;
-    case 23: if (match<shape_kind<23>>()(__selector_var,__vtbl2lines_map,23)) return 23;
-    case 24: if (match<shape_kind<24>>()(__selector_var,__vtbl2lines_map,24)) return 24;
-    case 25: if (match<shape_kind<25>>()(__selector_var,__vtbl2lines_map,25)) return 25;
-    case 26: if (match<shape_kind<26>>()(__selector_var,__vtbl2lines_map,26)) return 26;
-    case 27: if (match<shape_kind<27>>()(__selector_var,__vtbl2lines_map,27)) return 27;
-    case 28: if (match<shape_kind<28>>()(__selector_var,__vtbl2lines_map,28)) return 28;
-    case 29: if (match<shape_kind<29>>()(__selector_var,__vtbl2lines_map,29)) return 29;
-    case 30: if (match<shape_kind<30>>()(__selector_var,__vtbl2lines_map,30)) return 30;
-    case 31: if (match<shape_kind<31>>()(__selector_var,__vtbl2lines_map,31)) return 31;
-    case 32: if (match<shape_kind<32>>()(__selector_var,__vtbl2lines_map,32)) return 32;
-    case 33: if (match<shape_kind<33>>()(__selector_var,__vtbl2lines_map,33)) return 33;
-    case 34: if (match<shape_kind<34>>()(__selector_var,__vtbl2lines_map,34)) return 34;
-    case 35: if (match<shape_kind<35>>()(__selector_var,__vtbl2lines_map,35)) return 35;
-    case 36: if (match<shape_kind<36>>()(__selector_var,__vtbl2lines_map,36)) return 36;
-    case 37: if (match<shape_kind<37>>()(__selector_var,__vtbl2lines_map,37)) return 37;
-    case 38: if (match<shape_kind<38>>()(__selector_var,__vtbl2lines_map,38)) return 38;
-    case 39: if (match<shape_kind<39>>()(__selector_var,__vtbl2lines_map,39)) return 39;
-    case 40: if (match<shape_kind<40>>()(__selector_var,__vtbl2lines_map,40)) return 40;
-    case 41: if (match<shape_kind<41>>()(__selector_var,__vtbl2lines_map,41)) return 41;
-    case 42: if (match<shape_kind<42>>()(__selector_var,__vtbl2lines_map,42)) return 42;
-    case 43: if (match<shape_kind<43>>()(__selector_var,__vtbl2lines_map,43)) return 43;
-    case 44: if (match<shape_kind<44>>()(__selector_var,__vtbl2lines_map,44)) return 44;
-    case 45: if (match<shape_kind<45>>()(__selector_var,__vtbl2lines_map,45)) return 45;
-    case 46: if (match<shape_kind<46>>()(__selector_var,__vtbl2lines_map,46)) return 46;
-    case 47: if (match<shape_kind<47>>()(__selector_var,__vtbl2lines_map,47)) return 47;
-    case 48: if (match<shape_kind<48>>()(__selector_var,__vtbl2lines_map,48)) return 48;
-    case 49: if (match<shape_kind<49>>()(__selector_var,__vtbl2lines_map,49)) return 49;
-    case 50: if (match<shape_kind<50>>()(__selector_var,__vtbl2lines_map,50)) return 50;
-    case 51: if (match<shape_kind<51>>()(__selector_var,__vtbl2lines_map,51)) return 51;
-    case 52: if (match<shape_kind<52>>()(__selector_var,__vtbl2lines_map,52)) return 52;
-    case 53: if (match<shape_kind<53>>()(__selector_var,__vtbl2lines_map,53)) return 53;
-    case 54: if (match<shape_kind<54>>()(__selector_var,__vtbl2lines_map,54)) return 54;
-    case 55: if (match<shape_kind<55>>()(__selector_var,__vtbl2lines_map,55)) return 55;
-    case 56: if (match<shape_kind<56>>()(__selector_var,__vtbl2lines_map,56)) return 56;
-    case 57: if (match<shape_kind<57>>()(__selector_var,__vtbl2lines_map,57)) return 57;
-    case 58: if (match<shape_kind<58>>()(__selector_var,__vtbl2lines_map,58)) return 58;
-    case 59: if (match<shape_kind<59>>()(__selector_var,__vtbl2lines_map,59)) return 59;
-    case 60: if (match<shape_kind<60>>()(__selector_var,__vtbl2lines_map,60)) return 60;
-    case 61: if (match<shape_kind<61>>()(__selector_var,__vtbl2lines_map,61)) return 61;
-    case 62: if (match<shape_kind<62>>()(__selector_var,__vtbl2lines_map,62)) return 62;
-    case 63: if (match<shape_kind<63>>()(__selector_var,__vtbl2lines_map,63)) return 63;
-    case 64: if (match<shape_kind<64>>()(__selector_var,__vtbl2lines_map,64)) return 64;
-    case 65: if (match<shape_kind<65>>()(__selector_var,__vtbl2lines_map,65)) return 65;
-    case 66: if (match<shape_kind<66>>()(__selector_var,__vtbl2lines_map,66)) return 66;
-    case 67: if (match<shape_kind<67>>()(__selector_var,__vtbl2lines_map,67)) return 67;
-    case 68: if (match<shape_kind<68>>()(__selector_var,__vtbl2lines_map,68)) return 68;
-    case 69: if (match<shape_kind<69>>()(__selector_var,__vtbl2lines_map,69)) return 69;
-    case 70: if (match<shape_kind<70>>()(__selector_var,__vtbl2lines_map,70)) return 70;
-    case 71: if (match<shape_kind<71>>()(__selector_var,__vtbl2lines_map,71)) return 71;
-    case 72: if (match<shape_kind<72>>()(__selector_var,__vtbl2lines_map,72)) return 72;
-    case 73: if (match<shape_kind<73>>()(__selector_var,__vtbl2lines_map,73)) return 73;
-    case 74: if (match<shape_kind<74>>()(__selector_var,__vtbl2lines_map,74)) return 74;
-    case 75: if (match<shape_kind<75>>()(__selector_var,__vtbl2lines_map,75)) return 75;
-    case 76: if (match<shape_kind<76>>()(__selector_var,__vtbl2lines_map,76)) return 76;
-    case 77: if (match<shape_kind<77>>()(__selector_var,__vtbl2lines_map,77)) return 77;
-    case 78: if (match<shape_kind<78>>()(__selector_var,__vtbl2lines_map,78)) return 78;
-    case 79: if (match<shape_kind<79>>()(__selector_var,__vtbl2lines_map,79)) return 79;
-    case 80: if (match<shape_kind<80>>()(__selector_var,__vtbl2lines_map,80)) return 80;
-    case 81: if (match<shape_kind<81>>()(__selector_var,__vtbl2lines_map,81)) return 81;
-    case 82: if (match<shape_kind<82>>()(__selector_var,__vtbl2lines_map,82)) return 82;
-    case 83: if (match<shape_kind<83>>()(__selector_var,__vtbl2lines_map,83)) return 83;
-    case 84: if (match<shape_kind<84>>()(__selector_var,__vtbl2lines_map,84)) return 84;
-    case 85: if (match<shape_kind<85>>()(__selector_var,__vtbl2lines_map,85)) return 85;
-    case 86: if (match<shape_kind<86>>()(__selector_var,__vtbl2lines_map,86)) return 86;
-    case 87: if (match<shape_kind<87>>()(__selector_var,__vtbl2lines_map,87)) return 87;
-    case 88: if (match<shape_kind<88>>()(__selector_var,__vtbl2lines_map,88)) return 88;
-    case 89: if (match<shape_kind<89>>()(__selector_var,__vtbl2lines_map,89)) return 89;
-    case 90: if (match<shape_kind<90>>()(__selector_var,__vtbl2lines_map,90)) return 90;
-    case 91: if (match<shape_kind<91>>()(__selector_var,__vtbl2lines_map,91)) return 91;
-    case 92: if (match<shape_kind<92>>()(__selector_var,__vtbl2lines_map,92)) return 92;
-    case 93: if (match<shape_kind<93>>()(__selector_var,__vtbl2lines_map,93)) return 93;
-    case 94: if (match<shape_kind<94>>()(__selector_var,__vtbl2lines_map,94)) return 94;
-    case 95: if (match<shape_kind<95>>()(__selector_var,__vtbl2lines_map,95)) return 95;
-    case 96: if (match<shape_kind<96>>()(__selector_var,__vtbl2lines_map,96)) return 96;
-    case 97: if (match<shape_kind<97>>()(__selector_var,__vtbl2lines_map,97)) return 97;
-    case 98: if (match<shape_kind<98>>()(__selector_var,__vtbl2lines_map,98)) return 98;
-    case 99: if (match<shape_kind<99>>()(__selector_var,__vtbl2lines_map,99)) return 99;
+        update(__vtbl2lines_map, 10, &__selector_var, memoized_cast<shape_kind<0>*>(&__selector_var));
+    case 2*10:
+        if (!match<shape_kind<0>>()(__selector_var))
+        {
+    case 2*10+1: ;
+        }
+        else
+            return 0;
+        update(__vtbl2lines_map, 13, &__selector_var, memoized_cast<shape_kind<1>*>(&__selector_var));
+    case 2*13:
+        if (!match<shape_kind<1>>()(__selector_var))
+        {
+    case 2*13+1: ;
+        }
+        else
+            return 1;
+        update(__vtbl2lines_map, 16, &__selector_var, memoized_cast<shape_kind<2>*>(&__selector_var));
+    case 2*16:
+        if (!match<shape_kind<2>>()(__selector_var))
+        {
+    case 2*16+1: ;
+        }
+        else
+            return 2;
+        update(__vtbl2lines_map, 19, &__selector_var, memoized_cast<shape_kind<3>*>(&__selector_var));
+    case 2*19:
+        if (!match<shape_kind<3>>()(__selector_var))
+        {
+    case 2*19+1: ;
+        }
+        else
+            return 3;
+        update(__vtbl2lines_map, 22, &__selector_var, memoized_cast<shape_kind<4>*>(&__selector_var));
+    case 2*22:
+        if (!match<shape_kind<4>>()(__selector_var))
+        {
+    case 2*22+1: ;
+        }
+        else
+            return 4;
+        update(__vtbl2lines_map, 25, &__selector_var, memoized_cast<shape_kind<5>*>(&__selector_var));
+    case 2*25:
+        if (!match<shape_kind<5>>()(__selector_var))
+        {
+    case 2*25+1: ;
+        }
+        else
+            return 5;
+        update(__vtbl2lines_map, 28, &__selector_var, memoized_cast<shape_kind<6>*>(&__selector_var));
+    case 2*28:
+        if (!match<shape_kind<6>>()(__selector_var))
+        {
+    case 2*28+1: ;
+        }
+        else
+            return 6;
+        update(__vtbl2lines_map, 31, &__selector_var, memoized_cast<shape_kind<7>*>(&__selector_var));
+    case 2*31:
+        if (!match<shape_kind<7>>()(__selector_var))
+        {
+    case 2*31+1: ;
+        }
+        else
+            return 7;
+        update(__vtbl2lines_map, 34, &__selector_var, memoized_cast<shape_kind<8>*>(&__selector_var));
+    case 2*34:
+        if (!match<shape_kind<8>>()(__selector_var))
+        {
+    case 2*34+1: ;
+        }
+        else
+            return 8;
+        update(__vtbl2lines_map, 37, &__selector_var, memoized_cast<shape_kind<9>*>(&__selector_var));
+    case 2*37:
+        if (!match<shape_kind<9>>()(__selector_var))
+        {
+    case 2*37+1: ;
+        }
+        else
+            return 9;
+        update(__vtbl2lines_map, 41, &__selector_var, memoized_cast<shape_kind<10>*>(&__selector_var));
+    case 2*41:
+        if (!match<shape_kind<10>>()(__selector_var))
+        {
+    case 2*41+1: ;
+        }
+        else
+            return 10;
+        update(__vtbl2lines_map, 44, &__selector_var, memoized_cast<shape_kind<11>*>(&__selector_var));
+    case 2*44:
+        if (!match<shape_kind<11>>()(__selector_var))
+        {
+    case 2*44+1: ;
+        }
+        else
+            return 11;
+        update(__vtbl2lines_map, 47, &__selector_var, memoized_cast<shape_kind<12>*>(&__selector_var));
+    case 2*47:
+        if (!match<shape_kind<12>>()(__selector_var))
+        {
+    case 2*47+1: ;
+        }
+        else
+            return 12;
+        update(__vtbl2lines_map, 50, &__selector_var, memoized_cast<shape_kind<13>*>(&__selector_var));
+    case 2*50:
+        if (!match<shape_kind<13>>()(__selector_var))
+        {
+    case 2*50+1: ;
+        }
+        else
+            return 13;
+        update(__vtbl2lines_map, 53, &__selector_var, memoized_cast<shape_kind<14>*>(&__selector_var));
+    case 2*53:
+        if (!match<shape_kind<14>>()(__selector_var))
+        {
+    case 2*53+1: ;
+        }
+        else
+            return 14;
+        update(__vtbl2lines_map, 56, &__selector_var, memoized_cast<shape_kind<15>*>(&__selector_var));
+    case 2*56:
+        if (!match<shape_kind<15>>()(__selector_var))
+        {
+    case 2*56+1: ;
+        }
+        else
+            return 15;
+        update(__vtbl2lines_map, 59, &__selector_var, memoized_cast<shape_kind<16>*>(&__selector_var));
+    case 2*59:
+        if (!match<shape_kind<16>>()(__selector_var))
+        {
+    case 2*59+1: ;
+        }
+        else
+            return 16;
+        update(__vtbl2lines_map, 62, &__selector_var, memoized_cast<shape_kind<17>*>(&__selector_var));
+    case 2*62:
+        if (!match<shape_kind<17>>()(__selector_var))
+        {
+    case 2*62+1: ;
+        }
+        else
+            return 17;
+        update(__vtbl2lines_map, 65, &__selector_var, memoized_cast<shape_kind<18>*>(&__selector_var));
+    case 2*65:
+        if (!match<shape_kind<18>>()(__selector_var))
+        {
+    case 2*65+1: ;
+        }
+        else
+            return 18;
+        update(__vtbl2lines_map, 68, &__selector_var, memoized_cast<shape_kind<19>*>(&__selector_var));
+    case 2*68:
+        if (!match<shape_kind<19>>()(__selector_var))
+        {
+    case 2*68+1: ;
+        }
+        else
+            return 19;
+        update(__vtbl2lines_map, 72, &__selector_var, memoized_cast<shape_kind<20>*>(&__selector_var));
+    case 2*72:
+        if (!match<shape_kind<20>>()(__selector_var))
+        {
+    case 2*72+1: ;
+        }
+        else
+            return 20;
+        update(__vtbl2lines_map, 75, &__selector_var, memoized_cast<shape_kind<21>*>(&__selector_var));
+    case 2*75:
+        if (!match<shape_kind<21>>()(__selector_var))
+        {
+    case 2*75+1: ;
+        }
+        else
+            return 21;
+        update(__vtbl2lines_map, 78, &__selector_var, memoized_cast<shape_kind<22>*>(&__selector_var));
+    case 2*78:
+        if (!match<shape_kind<22>>()(__selector_var))
+        {
+    case 2*78+1: ;
+        }
+        else
+            return 22;
+        update(__vtbl2lines_map, 81, &__selector_var, memoized_cast<shape_kind<23>*>(&__selector_var));
+    case 2*81:
+        if (!match<shape_kind<23>>()(__selector_var))
+        {
+    case 2*81+1: ;
+        }
+        else
+            return 23;
+        update(__vtbl2lines_map, 84, &__selector_var, memoized_cast<shape_kind<24>*>(&__selector_var));
+    case 2*84:
+        if (!match<shape_kind<24>>()(__selector_var))
+        {
+    case 2*84+1: ;
+        }
+        else
+            return 24;
+        update(__vtbl2lines_map, 87, &__selector_var, memoized_cast<shape_kind<25>*>(&__selector_var));
+    case 2*87:
+        if (!match<shape_kind<25>>()(__selector_var))
+        {
+    case 2*87+1: ;
+        }
+        else
+            return 25;
+        update(__vtbl2lines_map, 90, &__selector_var, memoized_cast<shape_kind<26>*>(&__selector_var));
+    case 2*90:
+        if (!match<shape_kind<26>>()(__selector_var))
+        {
+    case 2*90+1: ;
+        }
+        else
+            return 26;
+        update(__vtbl2lines_map, 93, &__selector_var, memoized_cast<shape_kind<27>*>(&__selector_var));
+    case 2*93:
+        if (!match<shape_kind<27>>()(__selector_var))
+        {
+    case 2*93+1: ;
+        }
+        else
+            return 27;
+        update(__vtbl2lines_map, 96, &__selector_var, memoized_cast<shape_kind<28>*>(&__selector_var));
+    case 2*96:
+        if (!match<shape_kind<28>>()(__selector_var))
+        {
+    case 2*96+1: ;
+        }
+        else
+            return 28;
+        update(__vtbl2lines_map, 99, &__selector_var, memoized_cast<shape_kind<29>*>(&__selector_var));
+    case 2*99:
+        if (!match<shape_kind<29>>()(__selector_var))
+        {
+    case 2*99+1: ;
+        }
+        else
+            return 29;
+        update(__vtbl2lines_map, 103, &__selector_var, memoized_cast<shape_kind<30>*>(&__selector_var));
+    case 2*103:
+        if (!match<shape_kind<30>>()(__selector_var))
+        {
+    case 2*103+1: ;
+        }
+        else
+            return 30;
+        update(__vtbl2lines_map, 106, &__selector_var, memoized_cast<shape_kind<31>*>(&__selector_var));
+    case 2*106:
+        if (!match<shape_kind<31>>()(__selector_var))
+        {
+    case 2*106+1: ;
+        }
+        else
+            return 31;
+        update(__vtbl2lines_map, 109, &__selector_var, memoized_cast<shape_kind<32>*>(&__selector_var));
+    case 2*109:
+        if (!match<shape_kind<32>>()(__selector_var))
+        {
+    case 2*109+1: ;
+        }
+        else
+            return 32;
+        update(__vtbl2lines_map, 112, &__selector_var, memoized_cast<shape_kind<33>*>(&__selector_var));
+    case 2*112:
+        if (!match<shape_kind<33>>()(__selector_var))
+        {
+    case 2*112+1: ;
+        }
+        else
+            return 33;
+        update(__vtbl2lines_map, 115, &__selector_var, memoized_cast<shape_kind<34>*>(&__selector_var));
+    case 2*115:
+        if (!match<shape_kind<34>>()(__selector_var))
+        {
+    case 2*115+1: ;
+        }
+        else
+            return 34;
+        update(__vtbl2lines_map, 118, &__selector_var, memoized_cast<shape_kind<35>*>(&__selector_var));
+    case 2*118:
+        if (!match<shape_kind<35>>()(__selector_var))
+        {
+    case 2*118+1: ;
+        }
+        else
+            return 35;
+        update(__vtbl2lines_map, 121, &__selector_var, memoized_cast<shape_kind<36>*>(&__selector_var));
+    case 2*121:
+        if (!match<shape_kind<36>>()(__selector_var))
+        {
+    case 2*121+1: ;
+        }
+        else
+            return 36;
+        update(__vtbl2lines_map, 124, &__selector_var, memoized_cast<shape_kind<37>*>(&__selector_var));
+    case 2*124:
+        if (!match<shape_kind<37>>()(__selector_var))
+        {
+    case 2*124+1: ;
+        }
+        else
+            return 37;
+        update(__vtbl2lines_map, 127, &__selector_var, memoized_cast<shape_kind<38>*>(&__selector_var));
+    case 2*127:
+        if (!match<shape_kind<38>>()(__selector_var))
+        {
+    case 2*127+1: ;
+        }
+        else
+            return 38;
+        update(__vtbl2lines_map, 130, &__selector_var, memoized_cast<shape_kind<39>*>(&__selector_var));
+    case 2*130:
+        if (!match<shape_kind<39>>()(__selector_var))
+        {
+    case 2*130+1: ;
+        }
+        else
+            return 39;
+        update(__vtbl2lines_map, 134, &__selector_var, memoized_cast<shape_kind<40>*>(&__selector_var));
+    case 2*134:
+        if (!match<shape_kind<40>>()(__selector_var))
+        {
+    case 2*134+1: ;
+        }
+        else
+            return 40;
+        update(__vtbl2lines_map, 137, &__selector_var, memoized_cast<shape_kind<41>*>(&__selector_var));
+    case 2*137:
+        if (!match<shape_kind<41>>()(__selector_var))
+        {
+    case 2*137+1: ;
+        }
+        else
+            return 41;
+        update(__vtbl2lines_map, 140, &__selector_var, memoized_cast<shape_kind<42>*>(&__selector_var));
+    case 2*140:
+        if (!match<shape_kind<42>>()(__selector_var))
+        {
+    case 2*140+1: ;
+        }
+        else
+            return 42;
+        update(__vtbl2lines_map, 143, &__selector_var, memoized_cast<shape_kind<43>*>(&__selector_var));
+    case 2*143:
+        if (!match<shape_kind<43>>()(__selector_var))
+        {
+    case 2*143+1: ;
+        }
+        else
+            return 43;
+        update(__vtbl2lines_map, 146, &__selector_var, memoized_cast<shape_kind<44>*>(&__selector_var));
+    case 2*146:
+        if (!match<shape_kind<44>>()(__selector_var))
+        {
+    case 2*146+1: ;
+        }
+        else
+            return 44;
+        update(__vtbl2lines_map, 149, &__selector_var, memoized_cast<shape_kind<45>*>(&__selector_var));
+    case 2*149:
+        if (!match<shape_kind<45>>()(__selector_var))
+        {
+    case 2*149+1: ;
+        }
+        else
+            return 45;
+        update(__vtbl2lines_map, 152, &__selector_var, memoized_cast<shape_kind<46>*>(&__selector_var));
+    case 2*152:
+        if (!match<shape_kind<46>>()(__selector_var))
+        {
+    case 2*152+1: ;
+        }
+        else
+            return 46;
+        update(__vtbl2lines_map, 155, &__selector_var, memoized_cast<shape_kind<47>*>(&__selector_var));
+    case 2*155:
+        if (!match<shape_kind<47>>()(__selector_var))
+        {
+    case 2*155+1: ;
+        }
+        else
+            return 47;
+        update(__vtbl2lines_map, 158, &__selector_var, memoized_cast<shape_kind<48>*>(&__selector_var));
+    case 2*158:
+        if (!match<shape_kind<48>>()(__selector_var))
+        {
+    case 2*158+1: ;
+        }
+        else
+            return 48;
+        update(__vtbl2lines_map, 161, &__selector_var, memoized_cast<shape_kind<49>*>(&__selector_var));
+    case 2*161:
+        if (!match<shape_kind<49>>()(__selector_var))
+        {
+    case 2*161+1: ;
+        }
+        else
+            return 49;
+        update(__vtbl2lines_map, 165, &__selector_var, memoized_cast<shape_kind<50>*>(&__selector_var));
+    case 2*165:
+        if (!match<shape_kind<50>>()(__selector_var))
+        {
+    case 2*165+1: ;
+        }
+        else
+            return 50;
+        update(__vtbl2lines_map, 168, &__selector_var, memoized_cast<shape_kind<51>*>(&__selector_var));
+    case 2*168:
+        if (!match<shape_kind<51>>()(__selector_var))
+        {
+    case 2*168+1: ;
+        }
+        else
+            return 51;
+        update(__vtbl2lines_map, 171, &__selector_var, memoized_cast<shape_kind<52>*>(&__selector_var));
+    case 2*171:
+        if (!match<shape_kind<52>>()(__selector_var))
+        {
+    case 2*171+1: ;
+        }
+        else
+            return 52;
+        update(__vtbl2lines_map, 174, &__selector_var, memoized_cast<shape_kind<53>*>(&__selector_var));
+    case 2*174:
+        if (!match<shape_kind<53>>()(__selector_var))
+        {
+    case 2*174+1: ;
+        }
+        else
+            return 53;
+        update(__vtbl2lines_map, 177, &__selector_var, memoized_cast<shape_kind<54>*>(&__selector_var));
+    case 2*177:
+        if (!match<shape_kind<54>>()(__selector_var))
+        {
+    case 2*177+1: ;
+        }
+        else
+            return 54;
+        update(__vtbl2lines_map, 180, &__selector_var, memoized_cast<shape_kind<55>*>(&__selector_var));
+    case 2*180:
+        if (!match<shape_kind<55>>()(__selector_var))
+        {
+    case 2*180+1: ;
+        }
+        else
+            return 55;
+        update(__vtbl2lines_map, 183, &__selector_var, memoized_cast<shape_kind<56>*>(&__selector_var));
+    case 2*183:
+        if (!match<shape_kind<56>>()(__selector_var))
+        {
+    case 2*183+1: ;
+        }
+        else
+            return 56;
+        update(__vtbl2lines_map, 186, &__selector_var, memoized_cast<shape_kind<57>*>(&__selector_var));
+    case 2*186:
+        if (!match<shape_kind<57>>()(__selector_var))
+        {
+    case 2*186+1: ;
+        }
+        else
+            return 57;
+        update(__vtbl2lines_map, 189, &__selector_var, memoized_cast<shape_kind<58>*>(&__selector_var));
+    case 2*189:
+        if (!match<shape_kind<58>>()(__selector_var))
+        {
+    case 2*189+1: ;
+        }
+        else
+            return 58;
+        update(__vtbl2lines_map, 192, &__selector_var, memoized_cast<shape_kind<59>*>(&__selector_var));
+    case 2*192:
+        if (!match<shape_kind<59>>()(__selector_var))
+        {
+    case 2*192+1: ;
+        }
+        else
+            return 59;
+        update(__vtbl2lines_map, 196, &__selector_var, memoized_cast<shape_kind<60>*>(&__selector_var));
+    case 2*196:
+        if (!match<shape_kind<60>>()(__selector_var))
+        {
+    case 2*196+1: ;
+        }
+        else
+            return 60;
+        update(__vtbl2lines_map, 199, &__selector_var, memoized_cast<shape_kind<61>*>(&__selector_var));
+    case 2*199:
+        if (!match<shape_kind<61>>()(__selector_var))
+        {
+    case 2*199+1: ;
+        }
+        else
+            return 61;
+        update(__vtbl2lines_map, 202, &__selector_var, memoized_cast<shape_kind<62>*>(&__selector_var));
+    case 2*202:
+        if (!match<shape_kind<62>>()(__selector_var))
+        {
+    case 2*202+1: ;
+        }
+        else
+            return 62;
+        update(__vtbl2lines_map, 205, &__selector_var, memoized_cast<shape_kind<63>*>(&__selector_var));
+    case 2*205:
+        if (!match<shape_kind<63>>()(__selector_var))
+        {
+    case 2*205+1: ;
+        }
+        else
+            return 63;
+        update(__vtbl2lines_map, 208, &__selector_var, memoized_cast<shape_kind<64>*>(&__selector_var));
+    case 2*208:
+        if (!match<shape_kind<64>>()(__selector_var))
+        {
+    case 2*208+1: ;
+        }
+        else
+            return 64;
+        update(__vtbl2lines_map, 211, &__selector_var, memoized_cast<shape_kind<65>*>(&__selector_var));
+    case 2*211:
+        if (!match<shape_kind<65>>()(__selector_var))
+        {
+    case 2*211+1: ;
+        }
+        else
+            return 65;
+        update(__vtbl2lines_map, 214, &__selector_var, memoized_cast<shape_kind<66>*>(&__selector_var));
+    case 2*214:
+        if (!match<shape_kind<66>>()(__selector_var))
+        {
+    case 2*214+1: ;
+        }
+        else
+            return 66;
+        update(__vtbl2lines_map, 217, &__selector_var, memoized_cast<shape_kind<67>*>(&__selector_var));
+    case 2*217:
+        if (!match<shape_kind<67>>()(__selector_var))
+        {
+    case 2*217+1: ;
+        }
+        else
+            return 67;
+        update(__vtbl2lines_map, 220, &__selector_var, memoized_cast<shape_kind<68>*>(&__selector_var));
+    case 2*220:
+        if (!match<shape_kind<68>>()(__selector_var))
+        {
+    case 2*220+1: ;
+        }
+        else
+            return 68;
+        update(__vtbl2lines_map, 223, &__selector_var, memoized_cast<shape_kind<69>*>(&__selector_var));
+    case 2*223:
+        if (!match<shape_kind<69>>()(__selector_var))
+        {
+    case 2*223+1: ;
+        }
+        else
+            return 69;
+        update(__vtbl2lines_map, 227, &__selector_var, memoized_cast<shape_kind<70>*>(&__selector_var));
+    case 2*227:
+        if (!match<shape_kind<70>>()(__selector_var))
+        {
+    case 2*227+1: ;
+        }
+        else
+            return 70;
+        update(__vtbl2lines_map, 230, &__selector_var, memoized_cast<shape_kind<71>*>(&__selector_var));
+    case 2*230:
+        if (!match<shape_kind<71>>()(__selector_var))
+        {
+    case 2*230+1: ;
+        }
+        else
+            return 71;
+        update(__vtbl2lines_map, 233, &__selector_var, memoized_cast<shape_kind<72>*>(&__selector_var));
+    case 2*233:
+        if (!match<shape_kind<72>>()(__selector_var))
+        {
+    case 2*233+1: ;
+        }
+        else
+            return 72;
+        update(__vtbl2lines_map, 236, &__selector_var, memoized_cast<shape_kind<73>*>(&__selector_var));
+    case 2*236:
+        if (!match<shape_kind<73>>()(__selector_var))
+        {
+    case 2*236+1: ;
+        }
+        else
+            return 73;
+        update(__vtbl2lines_map, 239, &__selector_var, memoized_cast<shape_kind<74>*>(&__selector_var));
+    case 2*239:
+        if (!match<shape_kind<74>>()(__selector_var))
+        {
+    case 2*239+1: ;
+        }
+        else
+            return 74;
+        update(__vtbl2lines_map, 242, &__selector_var, memoized_cast<shape_kind<75>*>(&__selector_var));
+    case 2*242:
+        if (!match<shape_kind<75>>()(__selector_var))
+        {
+    case 2*242+1: ;
+        }
+        else
+            return 75;
+        update(__vtbl2lines_map, 245, &__selector_var, memoized_cast<shape_kind<76>*>(&__selector_var));
+    case 2*245:
+        if (!match<shape_kind<76>>()(__selector_var))
+        {
+    case 2*245+1: ;
+        }
+        else
+            return 76;
+        update(__vtbl2lines_map, 248, &__selector_var, memoized_cast<shape_kind<77>*>(&__selector_var));
+    case 2*248:
+        if (!match<shape_kind<77>>()(__selector_var))
+        {
+    case 2*248+1: ;
+        }
+        else
+            return 77;
+        update(__vtbl2lines_map, 251, &__selector_var, memoized_cast<shape_kind<78>*>(&__selector_var));
+    case 2*251:
+        if (!match<shape_kind<78>>()(__selector_var))
+        {
+    case 2*251+1: ;
+        }
+        else
+            return 78;
+        update(__vtbl2lines_map, 254, &__selector_var, memoized_cast<shape_kind<79>*>(&__selector_var));
+    case 2*254:
+        if (!match<shape_kind<79>>()(__selector_var))
+        {
+    case 2*254+1: ;
+        }
+        else
+            return 79;
+        update(__vtbl2lines_map, 258, &__selector_var, memoized_cast<shape_kind<80>*>(&__selector_var));
+    case 2*258:
+        if (!match<shape_kind<80>>()(__selector_var))
+        {
+    case 2*258+1: ;
+        }
+        else
+            return 80;
+        update(__vtbl2lines_map, 261, &__selector_var, memoized_cast<shape_kind<81>*>(&__selector_var));
+    case 2*261:
+        if (!match<shape_kind<81>>()(__selector_var))
+        {
+    case 2*261+1: ;
+        }
+        else
+            return 81;
+        update(__vtbl2lines_map, 264, &__selector_var, memoized_cast<shape_kind<82>*>(&__selector_var));
+    case 2*264:
+        if (!match<shape_kind<82>>()(__selector_var))
+        {
+    case 2*264+1: ;
+        }
+        else
+            return 82;
+        update(__vtbl2lines_map, 267, &__selector_var, memoized_cast<shape_kind<83>*>(&__selector_var));
+    case 2*267:
+        if (!match<shape_kind<83>>()(__selector_var))
+        {
+    case 2*267+1: ;
+        }
+        else
+            return 83;
+        update(__vtbl2lines_map, 270, &__selector_var, memoized_cast<shape_kind<84>*>(&__selector_var));
+    case 2*270:
+        if (!match<shape_kind<84>>()(__selector_var))
+        {
+    case 2*270+1: ;
+        }
+        else
+            return 84;
+        update(__vtbl2lines_map, 273, &__selector_var, memoized_cast<shape_kind<85>*>(&__selector_var));
+    case 2*273:
+        if (!match<shape_kind<85>>()(__selector_var))
+        {
+    case 2*273+1: ;
+        }
+        else
+            return 85;
+        update(__vtbl2lines_map, 276, &__selector_var, memoized_cast<shape_kind<86>*>(&__selector_var));
+    case 2*276:
+        if (!match<shape_kind<86>>()(__selector_var))
+        {
+    case 2*276+1: ;
+        }
+        else
+            return 86;
+        update(__vtbl2lines_map, 279, &__selector_var, memoized_cast<shape_kind<87>*>(&__selector_var));
+    case 2*279:
+        if (!match<shape_kind<87>>()(__selector_var))
+        {
+    case 2*279+1: ;
+        }
+        else
+            return 87;
+        update(__vtbl2lines_map, 282, &__selector_var, memoized_cast<shape_kind<88>*>(&__selector_var));
+    case 2*282:
+        if (!match<shape_kind<88>>()(__selector_var))
+        {
+    case 2*282+1: ;
+        }
+        else
+            return 88;
+        update(__vtbl2lines_map, 285, &__selector_var, memoized_cast<shape_kind<89>*>(&__selector_var));
+    case 2*285:
+        if (!match<shape_kind<89>>()(__selector_var))
+        {
+    case 2*285+1: ;
+        }
+        else
+            return 89;
+        update(__vtbl2lines_map, 289, &__selector_var, memoized_cast<shape_kind<90>*>(&__selector_var));
+    case 2*289:
+        if (!match<shape_kind<90>>()(__selector_var))
+        {
+    case 2*289+1: ;
+        }
+        else
+            return 90;
+        update(__vtbl2lines_map, 292, &__selector_var, memoized_cast<shape_kind<91>*>(&__selector_var));
+    case 2*292:
+        if (!match<shape_kind<91>>()(__selector_var))
+        {
+    case 2*292+1: ;
+        }
+        else
+            return 91;
+        update(__vtbl2lines_map, 295, &__selector_var, memoized_cast<shape_kind<92>*>(&__selector_var));
+    case 2*295:
+        if (!match<shape_kind<92>>()(__selector_var))
+        {
+    case 2*295+1: ;
+        }
+        else
+            return 92;
+        update(__vtbl2lines_map, 298, &__selector_var, memoized_cast<shape_kind<93>*>(&__selector_var));
+    case 2*298:
+        if (!match<shape_kind<93>>()(__selector_var))
+        {
+    case 2*298+1: ;
+        }
+        else
+            return 93;
+        update(__vtbl2lines_map, 301, &__selector_var, memoized_cast<shape_kind<94>*>(&__selector_var));
+    case 2*301:
+        if (!match<shape_kind<94>>()(__selector_var))
+        {
+    case 2*301+1: ;
+        }
+        else
+            return 94;
+        update(__vtbl2lines_map, 304, &__selector_var, memoized_cast<shape_kind<95>*>(&__selector_var));
+    case 2*304:
+        if (!match<shape_kind<95>>()(__selector_var))
+        {
+    case 2*304+1: ;
+        }
+        else
+            return 95;
+        update(__vtbl2lines_map, 307, &__selector_var, memoized_cast<shape_kind<96>*>(&__selector_var));
+    case 2*307:
+        if (!match<shape_kind<96>>()(__selector_var))
+        {
+    case 2*307+1: ;
+        }
+        else
+            return 96;
+        update(__vtbl2lines_map, 310, &__selector_var, memoized_cast<shape_kind<97>*>(&__selector_var));
+    case 2*310:
+        if (!match<shape_kind<97>>()(__selector_var))
+        {
+    case 2*310+1: ;
+        }
+        else
+            return 97;
+        update(__vtbl2lines_map, 313, &__selector_var, memoized_cast<shape_kind<98>*>(&__selector_var));
+    case 2*313:
+        if (!match<shape_kind<98>>()(__selector_var))
+        {
+    case 2*313+1: ;
+        }
+        else
+            return 98;
+        update(__vtbl2lines_map, 316, &__selector_var, memoized_cast<shape_kind<99>*>(&__selector_var));
+    case 2*316:
+        if (!match<shape_kind<99>>()(__selector_var))
+        {
+    case 2*316+1: ;
+        }
+        else
+            return 99;
     }
-    //assert(!"Inexhaustive search");
+
     return -1;
 }
 #endif
