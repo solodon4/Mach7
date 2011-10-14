@@ -209,8 +209,9 @@ template <typename SelectorType, class condition = void>
 class generic_switch
 {
 public:
+
+    /// Type of the argument on which extended switch is done
     typedef typename remove_ref<SelectorType>::type selector_type;
-    typedef vtblmap<type_switch_info&>              static_data_type;
 
     // Open case only works for polymorphic types (types with virtual funcs)
     // If your base type is not polymorphic, but you'd still like to have 
@@ -222,21 +223,38 @@ public:
         "Type of selector should either be polymorphic or you should provide kind selector for the type"
     );
 
+    /// Type of data that has to be statically allocated inside the block 
+    /// containg extended switch
+    typedef vtblmap<type_switch_info&> static_data_type;
+
+    /// Type of data that has to be automatically allocated inside the block 
+    /// containg extended switch
     struct local_data_type
     {
         const void*       casted_ptr;
         type_switch_info* switch_info_ptr;
     };
 
+    /// Meta function that defines some case labels required to support extended switch
+    template <size_t LineNumber>
+    struct CaseLabel
+    {
+        enum
+        {
+            entry = 0,         ///< Case label that will be used to enter beginning of the switch
+            exit  = LineNumber ///< Case label that will be used to jump to the end of the switch
+        };
+    };
+
     static void foo() { std::cout << "General" << std::endl; }
 
-    static size_t choose(const selector_type* selector_ptr, static_data_type& static_data, local_data_type& local_data)
+    static inline size_t choose(const selector_type* selector_ptr, static_data_type& static_data, local_data_type& local_data)
     {
         local_data.switch_info_ptr = &static_data.get(selector_ptr);
         return local_data.switch_info_ptr->line;
     }
 
-    static void on_first_pass(const selector_type* selector_ptr, local_data_type& local_data, size_t line)
+    static inline void on_first_pass(const selector_type* selector_ptr, local_data_type& local_data, size_t line)
     {
         if (LIKELY_BRANCH(local_data.switch_info_ptr->line == 0)) 
         {
@@ -245,7 +263,7 @@ public:
         } 
     }
     
-    static void on_end(const selector_type* selector_ptr, local_data_type& local_data, size_t line)
+    static inline void on_end(const selector_type* selector_ptr, local_data_type& local_data, size_t line)
     {
         if (LIKELY_BRANCH(local_data.switch_info_ptr->line == 0)) 
         { 
@@ -264,19 +282,28 @@ public:
             template <size_t LineNumber>
             struct CaseLabel
             {
-                enum { value = LineNumber };
+                enum 
+                {
+                    value = LineNumber ///< Case label that will be used for case at line offset LineNumber
+                };
             };
 
             enum { layout = default_layout };
 
-            static bool main_condition(const selector_type* selector_ptr, local_data_type& local_data)
+            static inline bool main_condition(const selector_type* selector_ptr, local_data_type& local_data)
             {
                 return local_data.casted_ptr = dynamic_cast<const target_type*>(selector_ptr);
             }
             
-            static const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data)
+            static inline const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data)
             {
-                std::cout << "Open case" << std::endl;
+                //std::cout << "Open case (const)" << std::endl;
+                return adjust_ptr<target_type>(selector_ptr,local_data.switch_info_ptr->offset);
+            }
+
+            static inline       target_type* get_matched(      selector_type* selector_ptr, local_data_type& local_data)
+            {
+                //std::cout << "Open case (non-const)" << std::endl;
                 return adjust_ptr<target_type>(selector_ptr,local_data.switch_info_ptr->offset);
             }
         };
@@ -286,21 +313,64 @@ public:
 template <typename SelectorType>
 class generic_switch<
     SelectorType, 
-    typename std::enable_if<has_member_kind_selector<match_members<typename remove_ref<SelectorType>::type>>::value,void>::type
+    typename std::enable_if<
+                has_member_kind_selector<match_members<typename remove_ref<SelectorType>::type>>::value,
+                void
+             >::type
 >
 {
 public:
+
+    /// Type of the argument on which extended switch is done
     typedef typename remove_ref<SelectorType>::type selector_type;
+
+    /// Type of data that has to be statically allocated inside the block 
+    /// containg extended switch
     typedef bool static_data_type;
+
+    /// Type of data that has to be automatically allocated inside the block 
+    /// containg extended switch
     typedef bool local_data_type;
+
+    enum 
+    {
+        /// The value that should be equal to the smalles kind used by selector_type
+        /// FIX: Let user override this inside match_members in case his minimum is not 0
+        user_kind_minimum_value = 0,
+        /// Just a mnemonic name to the amount of cases we add on top of user kinds.
+        /// We effectively shift user kinds by this number in order to maintain all
+        /// case labels sequentials to assure that jump table is generated for the 
+        /// switch.
+        kind_selector_shift     = 2
+    };
+
+    /// Meta function that defines some case labels required to support extended switch
+    template <size_t LineNumber>
+    struct CaseLabel
+    {
+        // We effectively prepend two new case labels to the user's range of 
+        // labels to assure that all the labels are close to each other.
+        // From our experiments we saw that putting just these two labels 
+        // elsewhere was often triggering both gcc and msvc to generate a
+        // binary search and then jump table based on subranges, which was
+        // killing the performance.
+        enum
+        {
+            entry = user_kind_minimum_value, ///< Case label that will be used to enter beginning of the switch
+            exit                             ///< Case label that will be used to jump to the end of the switch
+        };
+    };
+
     static void foo() { std::cout << "Special" << std::endl; }
 
-    static size_t choose(const selector_type* selector_ptr, static_data_type& static_data, local_data_type& local_data)
+    static inline auto choose(const selector_type* selector_ptr, static_data_type& static_data, local_data_type& local_data) 
+                    -> decltype(apply_member(selector_ptr, match_members<selector_type>::kind_selector()))
     {
-        return apply_member(selector_ptr, match_members<selector_type>::kind_selector());
+        typedef decltype(apply_member(selector_ptr, match_members<selector_type>::kind_selector())) result_type; // Can be enum
+        return result_type(apply_member(selector_ptr, match_members<selector_type>::kind_selector()) + kind_selector_shift);
     }
-    static void on_first_pass(const selector_type* selector_ptr, local_data_type& local_data, size_t line) {}
-    static void        on_end(const selector_type* selector_ptr, local_data_type& local_data, size_t line) {}
+    static inline void on_first_pass(const selector_type* selector_ptr, local_data_type& local_data, size_t line) {}
+    static inline void        on_end(const selector_type* selector_ptr, local_data_type& local_data, size_t line) {}
 
     // C++ standard (14.7.3.2) would not allow us to explicitly specialize 
     // disambiguate later here, but will accept a partial specialization so we
@@ -317,15 +387,25 @@ public:
             template <size_t LineNumber>
             struct CaseLabel
             {
-                enum { value = N };
+                enum 
+                {
+                    value = N + kind_selector_shift          ///< Case label that will be used for case at line offset LineNumber
+                };
             };
 
             enum { layout = N };
 
-            static bool main_condition(const selector_type* selector_ptr, local_data_type& local_data) { return true; }
-            static const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data)
+            static inline bool main_condition(const selector_type* selector_ptr, local_data_type& local_data) { return true; }
+
+            static inline const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data)
             {
-                std::cout << "Union case" << std::endl;
+                //std::cout << "Union case (const)" << std::endl;
+                return selector_ptr;
+            }
+
+            static inline       target_type* get_matched(      selector_type* selector_ptr, local_data_type& local_data)
+            {
+                //std::cout << "Union case (non-const)" << std::endl;
                 return selector_ptr;
             }
         };
@@ -342,15 +422,25 @@ public:
             template <size_t LineNumber>
             struct CaseLabel
             {
-                enum { value = match_members<target_type>::kind_value };
+                enum 
+                {
+                    value = match_members<target_type>::kind_value + kind_selector_shift ///< Case label that will be used for case at line offset LineNumber
+                };
             };
 
             enum { layout = default_layout };
 
-            static bool main_condition(const selector_type* selector_ptr, local_data_type& local_data) { return true; }
-            static const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data)
+            static inline bool main_condition(const selector_type* selector_ptr, local_data_type& local_data) { return true; }
+
+            static inline const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data)
             {
-                std::cout << "Closed case" << std::endl;
+                //std::cout << "Closed case (const)" << std::endl;
+                return stat_cast<target_type>(selector_ptr);
+            }
+
+            static inline       target_type* get_matched(      selector_type* selector_ptr, local_data_type& local_data)
+            {
+                //std::cout << "Closed case (non-const)" << std::endl;
                 return stat_cast<target_type>(selector_ptr);
             }
         };
@@ -361,14 +451,16 @@ public:
 
 /// Macro that starts the switch on types that carry their own dynamic type as
 /// a distinct integral value in one of their members.
-#define GENERIC_SWITCH(s)\
+#define Match(s) {\
         auto const __selector_ptr = addr(s);\
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         enum { __base_line = __LINE__ };\
         typedef generic_switch<decltype(*__selector_ptr)> switch_traits;\
         static switch_traits::static_data_type static_data;\
                switch_traits::local_data_type  local_data;\
-        switch (switch_traits::choose(__selector_ptr,static_data,local_data))
-
+        switch (switch_traits::choose(__selector_ptr,static_data,local_data))\
+        {\
+            case switch_traits::CaseLabel<__LINE__-__base_line>::entry: {{{
 /// Macro that defines the case statement for the above switch
 /// NOTE: If Visual C++ gives you error C2051: case expression not constant
 ///       on this CASE label, just change the Debug Format in project setting 
@@ -377,9 +469,10 @@ public:
 ///       to   "Program Database (/Zi)", which is the default in Release builds,
 ///       but not in Debug. This is a known bug of Visual C++ described here:
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#define GENERIC_CASE(C,...) }}} { typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; if (target_specific::main_condition(__selector_ptr, local_data)) { switch_traits::on_first_pass(__selector_ptr, local_data, __LINE__-__base_line); case target_specific::CaseLabel<__LINE__-__base_line>::value: auto matched = target_specific::get_matched(__selector_ptr,local_data); if (LIKELY_BRANCH(match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
-#define GENERIC_CASES_BEGIN default: {{{
-#define GENERIC_CASES_END }}} switch_traits::on_end(__selector_ptr, local_data, __LINE__-__base_line); case __LINE__-__base_line: ;
+#define Case(C,...) }}} { typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; if (target_specific::main_condition(__selector_ptr, local_data)) { switch_traits::on_first_pass(__selector_ptr, local_data, __LINE__-__base_line); case target_specific::CaseLabel<__LINE__-__base_line>::value: auto matched = target_specific::get_matched(__selector_ptr,local_data); if (LIKELY_BRANCH(match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
+#define Or(...) } else if (match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
+#define Otherwise() }}} {{ default: auto matched = __selector_ptr; {
+#define EndMatch    }}} switch_traits::on_end(__selector_ptr, local_data, __LINE__-__base_line); case switch_traits::CaseLabel<__LINE__-__base_line>::exit: ; }}
 
 //------------------------------------------------------------------------------
 
