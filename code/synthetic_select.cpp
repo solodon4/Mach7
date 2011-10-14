@@ -872,28 +872,6 @@ void statistics(std::vector<T>& measurements, T& min, T& max, T& avg, T& med, T&
     dev = deviation(measurements);
 }
 
-int relative_performance(long long v, long long m)
-{
-    if (UNLIKELY_BRANCH(v <= 0 || m <= 0))
-    {
-        std::cout << "ERROR: Insufficient timer resolution. Increase number of iterations N" << std::endl;
-        exit(42);
-    }
-    else
-    if (UNLIKELY_BRANCH(v <= m))
-    {
-        int percent = m*100/v-100;
-        std::cout << "\t\t" << percent << "% slower" << std::endl;
-        return +percent; // Positive number indicates how many percents slower we are 
-    }
-    else
-    {
-        int percent = v*100/m-100;
-        std::cout << "\t\t" << percent << "% faster" << std::endl;
-        return -percent; // Negative number indicates how many percents faster we are 
-    }
-}
-
 long long display(const char* name, std::vector<long long>& timings)
 {
     long long min, max, avg, med, dev;
@@ -958,14 +936,13 @@ int test_repetitive()
 
         long long avgV = display("AreaVisSeq", timingsV);
         long long avgM = display("AreaMatSeq", timingsM);
-        percentages[n] = relative_performance(avgV, avgM);
+        //if (avgV)
+            int percent = percentages[n] = avgV*100/avgM-100;
+            std::cout << "\t\t" << percent << "% faster" << std::endl;
+        //else
+        //    std::cout << "Insufficient timer resolution" << std::endl;
+        //std::cout << "\t\tThe following 2 numbers should be the same " << a1 << "==" << a2 << " ? " << std::boolalpha << (a1==a2) << std::endl;
         delete s;
-    }
-
-    if (a1 != a2)
-    {
-        std::cout << "ERROR: Invariant " << a1 << "==" << a2 << " doesn't hold." << std::endl;
-        exit(42);
     }
 
     std::sort(percentages.begin(), percentages.end());
@@ -1028,21 +1005,18 @@ int test_randomized()
 
     long long avgV = display("AreaVisRnd", timingsV);
     long long avgM = display("AreaMatRnd", timingsM);
-
-    if (a1 != a2)
-    {
-        std::cout << "ERROR: Invariant " << a1 << "==" << a2 << " doesn't hold." << std::endl;
-        exit(42);
-    }
-
-    return relative_performance(avgV, avgM);
+    //if (avgV)
+            int percent = avgV*100/avgM-100;
+            std::cout << "\t\t" << percent << "% faster" << std::endl;
+    //else
+    //    std::cout << "Insufficient timer resolution" << std::endl;
+    //std::cout << "\t\tThe following 2 numbers should be the same " << a1 << "==" << a2 << " ? " << std::boolalpha << (a1==a2) << std::endl;
+    return percent;
 }
 
 int main()
 {
     int ps = test_repetitive();
     int pr = test_randomized();
-    std::cout << "OVERALL: Repetitive: " 
-              << abs(ps) << (ps >= 0 ? "% slower" : "% faster") << "; Random: " 
-              << abs(pr) << (pr >= 0 ? "% slower" : "% faster") << std::endl; 
+    std::cout << "OVERALL: Repetitive: " << ps << "% faster; Random: " << pr << "% faster;" << std::endl; 
 }

@@ -64,8 +64,6 @@ goto END
 
 :PROCEED
 
-rem Build OCaml sources
-
 set PATH=%PATH%C:\Program Files (x86)\flexdll;
 ocamlopt.opt unix.cmxa -oocaml_cmp_ml.exe ocaml_cmp.ml
 
