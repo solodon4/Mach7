@@ -50,25 +50,6 @@ template <typename type_being_matched, int kind_being_matched> struct match_memb
 
 //------------------------------------------------------------------------------
 
-class vtbl2lines : public vtblmap<int,7>
-{
-public:
-    inline void update(int ln, const void* t, const void* success) throw()
-    {
-        mapped_type& line = this->get(t);
-
-        if (success)
-            if (line%2 == 1)
-                line = 2*ln;
-            else
-                ;
-        else
-            line = 2*ln+1;
-    }
-};
-
-//------------------------------------------------------------------------------
-
 template <typename T> inline const T* addr(const T* t) { return  t; }
 template <typename T> inline       T* addr(      T* t) { return  t; }
 template <typename T> inline const T* addr(const T& t) { return &t; }
@@ -101,7 +82,9 @@ template <typename T> inline       T* addr(      T& t) { return &t; }
 ///       to   "Program Database (/Zi)", which is the default in Release builds,
 ///       but not in Debug. This is a known bug of Visual C++ described here:
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#define CASE(C,...) __vtbl2lines_map.update(__LINE__, addr(__selector_var), dynamic_cast<const C*>(addr(__selector_var))); case 2*__LINE__: if (!match<C>(__VA_ARGS__)(__selector_var)) { case 2*__LINE__+1:; } else 
+#define CASE(C,...) } if (dynamic_cast<const C*>(addr(__selector_var))) { __vtbl2lines_map.update(__LINE__, addr(__selector_var)); case __LINE__: if (match<C>(__VA_ARGS__)(__selector_var)) 
+#define CASES_BEGIN case 0: {
+#define CASES_END } __vtbl2lines_map.update(__LINE__, addr(__selector_var)); case __LINE__: ;
 
 //------------------------------------------------------------------------------
 
@@ -115,6 +98,7 @@ struct guard
 {
     guard(const variable<T>& v, const E& e) : m_v(v), m_e(e) {}
     guard(const variable<T>& v, E&& e) : m_v(v), m_e(e) {}
+    guard(guard&& g) : m_v(g.m_v), m_e(std::move(g.m_e)) {}
     template <typename U>
     bool operator()(const U& u) const { return m_v(u) && eval(m_e); }
     const variable<T>& m_v;
@@ -128,7 +112,7 @@ template <class T>
 struct var_ref
 {
     var_ref(T& var) : m_var(&var) {}
-   ~var_ref() {}
+    var_ref(var_ref&& v) : m_var(v.m_var) {}
 
     typedef T result_type;
     operator result_type() const throw() { return *m_var; }
@@ -149,7 +133,7 @@ template <class T>
 struct var_ref<variable<T> >
 {
     var_ref(variable<T>& var) : m_var(&var) {}
-   ~var_ref() {}
+    var_ref(var_ref&& v) : m_var(v.m_var) {}
 
     typedef T result_type;
     operator result_type() const throw() { return *m_var; }
@@ -174,11 +158,12 @@ struct variable
     variable() : m_value() {}
     variable(const T& t) : m_value(t) {}
     variable(T&& t) : m_value(std::move(t)) {}
+    variable(variable&& v) : m_value(std::move(v.m_value)) {}
 
     typedef T result_type;
 
     /// We report that matching succeeded and bind the value
-    bool operator()(const T& t) const 
+    bool operator()(const T& t) const
     {
         m_value = t;
         return true;
@@ -207,6 +192,7 @@ template <class T>
 struct variable<const T*>
 {
     variable() : m_value() {}
+    variable(variable&& v) : m_value(std::move(v.m_value)) {}
 
     typedef const T* result_type;
 
@@ -260,6 +246,7 @@ template <class T>
 struct variable<const T&>
 {
     variable() : m_value() {}
+    variable(variable&& v) : m_value(std::move(v.m_value)) {}
 
     typedef const T& result_type;
 
@@ -332,6 +319,7 @@ struct value
     typedef T result_type;
     value(const T& t) : m_value(t) {}
     value(T&& t) : m_value(std::move(t)) {}
+    value(value&& v) : m_value(std::move(v.m_value)) {}
     bool operator()(const T& t) const throw() { return m_value == t; }
     operator result_type() const throw() { return m_value; }
     T m_value;
@@ -349,6 +337,7 @@ struct expr<F,E1>
 {
     expr(const E1& e1) : m_e1(e1) {}
     expr(E1&& e1) : m_e1(std::move(e1)) {}
+    expr(expr&& e) : m_e1(std::move(e.m_e1)) {}
     typedef typename boost::remove_const<decltype(F()(*static_cast<typename E1::result_type*>(0)))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
     operator result_type() const { return eval(*this); }
     bool operator()(const result_type& t) const 
@@ -364,6 +353,7 @@ struct expr
 {
     expr(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
     expr(E1&& e1, E2&& e2) : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
+    expr(expr&& e) : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {}
     typedef typename boost::remove_const<decltype(F()(*static_cast<typename E1::result_type*>(0),*static_cast<typename E2::result_type*>(0)))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
     operator result_type() const { return eval(*this); }
     bool operator()(const result_type& t) const 
@@ -382,6 +372,7 @@ struct expr_or
 {
     expr_or(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
     expr_or(E1&& e1, E2&& e2) : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
+    expr_or(expr_or&& e) : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {}
     template <typename U> bool operator()(const U* u) const { return m_e1(u) || m_e2(u); }
     template <typename U> bool operator()(      U* u) const { return m_e1(u) || m_e2(u); }
     template <typename U> bool operator()(const U& u) const { return operator()(&u); }
@@ -562,7 +553,7 @@ inline bool apply_expression(const E& e, const C* c, M m)
     #pragma warning( disable : 4800 )
     #endif
 
-    return c && e(apply_member(c, m));
+    return e(apply_member(c, m));
 }
 
 template <typename E, typename C, typename M>
@@ -572,7 +563,7 @@ inline bool apply_expression(const E& e,       C* c, M m)
     #pragma warning( disable : 4800 )
     #endif
 
-    return c && e(apply_member(c, m));
+    return e(apply_member(c, m));
 }
 
 /// This is the specialization that makes the member not to be invoked when we
@@ -596,10 +587,10 @@ struct matcher0
 {
     const T* operator()(const T* t) const throw() { return t; }
           T* operator()(      T* t) const throw() { return t; }
-    template <typename U> const T* operator()(const U* u) const { return operator()(dynamic_cast<const T*>(u)); }
-    template <typename U>       T* operator()(      U* u) const { return operator()(dynamic_cast<      T*>(u)); }
-    template <typename U> const T* operator()(const U& u) const { return operator()(&u); }
-    template <typename U>       T* operator()(      U& u) const { return operator()(&u); }
+    template <typename U> const T* operator()(const U* u) const throw() { return dynamic_cast<const T*>(u); }
+    template <typename U>       T* operator()(      U* u) const throw() { return dynamic_cast<      T*>(u); }
+    template <typename U> const T* operator()(const U& u) const throw() { return operator()(&u); }
+    template <typename U>       T* operator()(      U& u) const throw() { return operator()(&u); }
 
     template <typename E> expr_or<matcher0,E> operator|(const E& e) const throw() { return expr_or<matcher0,E>(*this,e); }
 };
@@ -611,30 +602,24 @@ struct matcher1
 {
     matcher1(const E1& e1) : m_e1(e1) {}
     matcher1(E1&& e1) : m_e1(std::move(e1)) {}
-    /*
-    T* apply(T* t) const 
-    {
-        if ( !apply_expression(m_e1, t, match_members<T>::member0()) )
-            t = 0;
-
-        return t;
-    }
-    const T* operator()(const T* t) const { return apply(t); }
-          T* operator()(      T* t) const { return apply(t); } 
-    */
+    matcher1(matcher1&& src) : m_e1(std::move(src.m_e1)) {}
     const T* operator()(const T* t) const 
     {
-        if ( !apply_expression(m_e1, t, match_members<T>::member0()) )
-            t = 0;
-
-        return t;
+        return 
+            (t                                                      &&
+             apply_expression(m_e1, t, match_members<T>::member0())
+            )
+            ? t
+            : 0;
     }
           T* operator()(      T* t) const 
     {
-        if ( !apply_expression(m_e1, t, match_members<T>::member0()) )
-            t = 0;
-
-        return t;
+        return 
+            (t                                                      &&
+             apply_expression(m_e1, t, match_members<T>::member0())
+            )
+            ? t
+            : 0;
     }
 
     template <typename U> const T* operator()(const U* u) const { return operator()(dynamic_cast<const T*>(u)); }
@@ -653,36 +638,27 @@ struct matcher2
 {
     matcher2(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
     matcher2(E1&& e1, E2&& e2) : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
-    /*
-    T* apply(T* t) const 
-    {
-        if ( !apply_expression(m_e1, t, match_members<T>::member0()) ||
-             !apply_expression(m_e2, t, match_members<T>::member1())
-            )
-            t = 0;
+    matcher2(matcher2&& src) : m_e1(std::move(src.m_e1)), m_e2(std::move(src.m_e2)) {}
 
-        return t;
-    }
-    const T* operator()(const T* t) const { return apply(t); }
-          T* operator()(      T* t) const { return apply(t); } 
-    */
     const T* operator()(const T* t) const 
     {
-        if ( !apply_expression(m_e1, t, match_members<T>::member0()) ||
-             !apply_expression(m_e2, t, match_members<T>::member1())
+        return 
+            (t                                                      &&
+             apply_expression(m_e1, t, match_members<T>::member0()) &&
+             apply_expression(m_e2, t, match_members<T>::member1())
             )
-            t = 0;
-
-        return t;
+            ? t
+            : 0;
     }
           T* operator()(      T* t) const 
     {
-        if ( !apply_expression(m_e1, t, match_members<T>::member0()) ||
-             !apply_expression(m_e2, t, match_members<T>::member1())
+        return 
+            (t                                                      &&
+             apply_expression(m_e1, t, match_members<T>::member0()) &&
+             apply_expression(m_e2, t, match_members<T>::member1())
             )
-            t = 0;
-
-        return t;
+            ? t
+            : 0;
     }
 
     template <typename U> const T* operator()(const U* u) const { return operator()(dynamic_cast<const T*>(u)); }
@@ -702,40 +678,29 @@ struct matcher3
 {
     matcher3(const E1& e1, const E2& e2, const E3& e3) : m_e1(e1), m_e2(e2), m_e3(e3) {}
     matcher3(E1&& e1, E2&& e2, E3&& e3) : m_e1(std::move(e1)), m_e2(std::move(e2)), m_e3(std::move(e3)) {}
-    /*
-    T* apply(T* t) const
-    {
-        if ( !apply_expression(m_e1, t, match_members<T>::member0()) ||
-             !apply_expression(m_e2, t, match_members<T>::member1()) ||
-             !apply_expression(m_e3, t, match_members<T>::member2())
-            )
-            t = 0;
-
-        return t;
-    }
-    const T* operator()(const T* t) const { return apply(t); }
-          T* operator()(      T* t) const { return apply(t); } 
-    */
+    matcher3(matcher3&& src) : m_e1(std::move(src.m_e1)), m_e2(std::move(src.m_e2)), m_e3(std::move(src.m_e3)) {}
 
     const T* operator()(const T* t) const 
     {
-        if ( !apply_expression(m_e1, t, match_members<T>::member0()) ||
-             !apply_expression(m_e2, t, match_members<T>::member1()) ||
-             !apply_expression(m_e3, t, match_members<T>::member2())
+        return 
+            (t                                                      &&
+             apply_expression(m_e1, t, match_members<T>::member0()) &&
+             apply_expression(m_e2, t, match_members<T>::member1()) &&
+             apply_expression(m_e3, t, match_members<T>::member2())
             )
-            t = 0;
-
-        return t;
+            ? t
+            : 0;
     }
           T* operator()(      T* t) const 
     {
-        if ( !apply_expression(m_e1, t, match_members<T>::member0()) ||
-             !apply_expression(m_e2, t, match_members<T>::member1()) ||
-             !apply_expression(m_e3, t, match_members<T>::member2())
+        return 
+            (t                                                      &&
+             apply_expression(m_e1, t, match_members<T>::member0()) &&
+             apply_expression(m_e2, t, match_members<T>::member1()) &&
+             apply_expression(m_e3, t, match_members<T>::member2())
             )
-            t = 0;
-
-        return t;
+            ? t
+            : 0;
     }
 
     template <typename U> const T* operator()(const U* u) const { return operator()(dynamic_cast<const T*>(u)); }
@@ -756,44 +721,31 @@ struct matcher4
 {
     matcher4(const E1& e1, const E2& e2, const E3& e3, const E4& e4) : m_e1(e1), m_e2(e2), m_e3(e3), m_e4(e4) {}
     matcher4(E1&& e1, E2&& e2, E3&& e3, E4&& e4) : m_e1(std::move(e1)), m_e2(std::move(e2)), m_e3(std::move(e3)), m_e4(std::move(e4)) {}
-    /*
-    T* apply(T* t) const 
-    {
-        if ( !apply_expression(m_e1, t, match_members<T>::member0()) ||
-             !apply_expression(m_e2, t, match_members<T>::member1()) ||
-             !apply_expression(m_e3, t, match_members<T>::member2()) ||
-             !apply_expression(m_e4, t, match_members<T>::member3())
-            )
-            t = 0;
-
-        return t;
-    }
-
-    const T* operator()(const T* t) const { return apply(t); }
-          T* operator()(      T* t) const { return apply(t); } 
-    */
+    matcher4(matcher4&& src) : m_e1(std::move(src.m_e1)), m_e2(std::move(src.m_e2)), m_e3(std::move(src.m_e3)), m_e4(std::move(src.m_e4)) {}
 
     const T* operator()(const T* t) const 
     {
-        if ( !apply_expression(m_e1, t, match_members<T>::member0()) ||
-             !apply_expression(m_e2, t, match_members<T>::member1()) ||
-             !apply_expression(m_e3, t, match_members<T>::member2()) ||
-             !apply_expression(m_e4, t, match_members<T>::member3())
+        return 
+            (t                                                      &&
+             apply_expression(m_e1, t, match_members<T>::member0()) &&
+             apply_expression(m_e2, t, match_members<T>::member1()) &&
+             apply_expression(m_e3, t, match_members<T>::member2()) &&
+             apply_expression(m_e4, t, match_members<T>::member3())
             )
-            t = 0;
-
-        return t;
+            ? t
+            : 0;
     }
           T* operator()(      T* t) const 
     {
-        if ( !apply_expression(m_e1, t, match_members<T>::member0()) ||
-             !apply_expression(m_e2, t, match_members<T>::member1()) ||
-             !apply_expression(m_e3, t, match_members<T>::member2()) ||
-             !apply_expression(m_e4, t, match_members<T>::member3())
+        return 
+            (t                                                      &&
+             apply_expression(m_e1, t, match_members<T>::member0()) &&
+             apply_expression(m_e2, t, match_members<T>::member1()) &&
+             apply_expression(m_e3, t, match_members<T>::member2()) &&
+             apply_expression(m_e4, t, match_members<T>::member3())
             )
-            t = 0;
-
-        return t;
+            ? t
+            : 0;
     }
 
     template <typename U> const T* operator()(const U* u) const { return operator()(dynamic_cast<const T*>(u)); }

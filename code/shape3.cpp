@@ -33,27 +33,29 @@ double area_select(Shape* shape)
 
     SWITCH(shape)
     {
-    default:
+    //default:
     //matching(Circle,_,r)(shape)     return 3.14 * r * r;
     //matching(Square,_,s)(shape)     return s * s;
     //matching(Triangle,x,y,z)(shape) return heron(x,y,z);
+    CASES_BEGIN
     CASE(Circle,_,r)     return 3.14 * r * r;
     CASE(Square,_,s)     return s * s;
     CASE(Triangle,x,y,z) return heron(x,y,z);
+    CASES_END
 
-    //    update(__vtbl2lines_map, 111, __selector_var, dynamic_cast<Circle*>(&__selector_var));   
+    //    __vtbl2lines_map.update(111, __selector_var, dynamic_cast<Circle*>(__selector_var));   
     //case 2*111: 
     //    if (!match<Circle>(_,r)(__selector_var))     
     //        { case 2*111+1:; } 
     //    else 
     //        return 3.14 * r * r;
-    //    update(__vtbl2lines_map, 112, __selector_var, dynamic_cast<Square*>(&__selector_var));   
+    //    __vtbl2lines_map.update(112, __selector_var, dynamic_cast<Square*>(__selector_var));   
     //case 2*112: 
     //    if (!match<Square>(_,s)(__selector_var))     
     //        { case 2*112+1:; } 
     //    else 
     //        return s * s;       
-    //    update(__vtbl2lines_map, 113, __selector_var, dynamic_cast<Triangle*>(&__selector_var)); 
+    //    __vtbl2lines_map.update(113, __selector_var, dynamic_cast<Triangle*>(__selector_var)); 
     //case 2*113: 
     //    if (!match<Triangle>(x,y,z)(__selector_var)) 
     //        { case 2*113+1:; } 
