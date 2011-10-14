@@ -923,55 +923,63 @@ void test_randomized()
 
     QueryPerformanceFrequency(&Freq);
 
-    std::vector<Shape*> shapes(N);
-
-    for (int i = 0; i < N; ++i)
+    for (int n = 0; n <= FOR_EACH_MAX; ++n)
     {
-        int n = rand()%FOR_EACH_MAX;
-        shapes[i] = make_shape(n);
-    }
-
-    std::vector<long long> timingsV(M);
-    std::vector<long long> timingsM(M);
-
-    for (int m = 0; m < M; ++m)
-    {
-        LARGE_INTEGER liStart1, liFinish1, liStart2, liFinish2;
-        int a1 = 0,a2 = 0;
-
-        QueryPerformanceCounter(&liStart1);
+        std::vector<Shape*> shapes(N);
 
         for (int i = 0; i < N; ++i)
-            a1 += do_visit(*shapes[i]);
+        {
+            int n = rand()%FOR_EACH_MAX;
+            shapes[i] = make_shape(n);
+        }
 
-        QueryPerformanceCounter(&liFinish1);
+        std::vector<long long> timingsV(M);
+        std::vector<long long> timingsM(M);
 
-        QueryPerformanceCounter(&liStart2);
+        for (int m = 0; m < M; ++m)
+        {
+            LARGE_INTEGER liStart1, liFinish1, liStart2, liFinish2;
+            int a1 = 0,a2 = 0;
 
-        for (int i = 0; i < N; ++i)
-            a2 += do_match(*shapes[i]);
+            QueryPerformanceCounter(&liStart1);
 
-        QueryPerformanceCounter(&liFinish2);
+            for (int i = 0; i < N; ++i)
+                a1 += do_visit(*shapes[i]);
 
-        assert(a1==a2);
-        timingsV[m] = liFinish1.QuadPart-liStart1.QuadPart;
-        timingsM[m] = liFinish2.QuadPart-liStart2.QuadPart;
-    }
+            QueryPerformanceCounter(&liFinish1);
 
-    long long avgV = display("AreaVisRnd", timingsV, Freq);
-    long long avgM = display("AreaMatRnd", timingsM, Freq);
-    std::cout << avgM*100/avgV-100 << "% slower" << std::endl;
-    //std::cout << "//----------------------------------------------------------------------" << std::endl;
+            QueryPerformanceCounter(&liStart2);
+
+            for (int i = 0; i < N; ++i)
+                a2 += do_match(*shapes[i]);
+
+            QueryPerformanceCounter(&liFinish2);
+
+            assert(a1==a2);
+            timingsV[m] = liFinish1.QuadPart-liStart1.QuadPart;
+            timingsM[m] = liFinish2.QuadPart-liStart2.QuadPart;
+        }
+
+        long long avgV = display("AreaVisRnd", timingsV, Freq);
+        long long avgM = display("AreaMatRnd", timingsM, Freq);
+        std::cout << avgM*100/avgV-100 << "% slower" << std::endl;
+        //std::cout << "//----------------------------------------------------------------------" << std::endl;
 #ifdef TRACE_PERFORMANCE
-    std::cout << "Cache hits: " << cache_hits << "\tCache misses: " << cache_misses << std::endl;
-    std::cout << "Common: " << std::bitset<32>(common) << std::endl
-              << "Differ: " << std::bitset<32>(differ) << std::endl;
+        std::cout << "Cache hits: " << cache_hits << "\tCache misses: " << cache_misses << std::endl;
+        std::cout << "Common: " << std::bitset<32>(common) << std::endl
+            << "Differ: " << std::bitset<32>(differ) << std::endl;
 #endif
+        for (int i = 0; i < N; ++i)
+        {
+            delete shapes[i];
+            shapes[i] = 0;
+        }
+    }
 }
 
 int main()
 {
-    test_sequential();
+    //test_sequential();
     test_randomized();
 }
 

@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <iostream>
+#define NOMINMAX
 #include <windows.h>
 #include "match_shape.hpp"
 

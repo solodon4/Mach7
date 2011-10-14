@@ -10,7 +10,7 @@ fib 2       = 1
 fib (2*n)   = (fib(n+1))^2 - (fib(n-1))^2
 fib (2*n+1) = (fib(n+1))^2 + (fib n   )^2
 */
-
+#define NOMINMAX
 #include <windows.h>
 #include <math.h>
 #include <iostream>

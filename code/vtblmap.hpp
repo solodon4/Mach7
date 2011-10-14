@@ -127,12 +127,15 @@ public:
 
 //------------------------------------------------------------------------------
 
-class vtbl2lines : public vtblmap<int,7>
+template <int N = 5>
+class vtbl2lines : public vtblmap<int,N>
 {
+private:
+    typedef vtblmap<int,N> base_type;
 public:
     inline void update(int ln, const void* t) throw()
     {
-        mapped_type& line = this->get(t);
+        typename base_type::mapped_type& line = this->get(t);
 
         if (line == 0)
             line = ln;

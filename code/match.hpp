@@ -17,13 +17,9 @@
 
 #include <cassert>
 #include <ostream>
-//#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits/remove_const.hpp>
 #include "exprtmpl.hpp"
 #include "vtblmap.hpp"
 #include "memoized_cast.hpp"
-
-#define dynamic_cast memoized_cast
 
 #ifdef _DEBUG
 #include <typeinfo>
@@ -57,6 +53,18 @@ template <typename T> inline       T* addr(      T& t) { return &t; }
 
 //------------------------------------------------------------------------------
 
+template <int N> struct requires_bits    { enum { value = requires_bits<(N+1)/2>::value+1 }; };
+template <>      struct requires_bits<1> { enum { value = 0 }; };
+
+//------------------------------------------------------------------------------
+
+template <typename T> struct remove_const          { typedef T type; };
+template <typename T> struct remove_const<const T> { typedef T type; };
+
+//------------------------------------------------------------------------------
+
+#define dynamic_cast memoized_cast
+
 /// Macro to define member's position within decomposition of a given data type
 /// Example: CM(0,MyClass::member) or CM(1,external_func)
 /// \note Use this macro only inside specializations of the above two templates
@@ -68,10 +76,36 @@ template <typename T> inline       T* addr(      T& t) { return &t; }
 /// For some reason MSVC gets unresolved external error if we use auto here, so we workaround it with decltype
 #ifdef _MSC_VER
 /// Macro that starts the switch on pattern
-#define SWITCH(s) static vtbl2lines __vtbl2lines_map; decltype(s)& __selector_var = s; switch (__vtbl2lines_map.get(addr(__selector_var)))
+#define SWITCH(s)\
+        static vtbl2lines<> __vtbl2lines_map;\
+        decltype(s)& __selector_var = s;\
+        switch (__vtbl2lines_map.get(addr(__selector_var)))
+/// Extended version of the macro that starts the switch on pattern, that takes an expected number of cases in
+#define SWITCH_N(s,N)\
+        static vtbl2lines<requires_bits<N>::value> __vtbl2lines_map;\
+        decltype(s)& __selector_var = s;\
+        switch (__vtbl2lines_map.get(addr(__selector_var)))
+/// Macros to use compiler's branch hinting. 
+/// \note These macros are only to be used in CASE macro expansion, not in 
+///       user's code since they explicitly expect a pointer argument
+#define   LIKELY_BRANCH(ptr) (ptr)
+#define UNLIKELY_BRANCH(ptr) (ptr)
 #else
 /// Macro that starts the switch on pattern
-#define SWITCH(s) static vtbl2lines __vtbl2lines_map;        auto& __selector_var = s; switch (__vtbl2lines_map.get(addr(__selector_var)))
+#define SWITCH(s)\
+        static vtbl2lines<> __vtbl2lines_map;\
+        auto& __selector_var = s;\
+        switch (__vtbl2lines_map.get(addr(__selector_var)))
+/// Extended version of the macro that starts the switch on pattern, that takes an expected number of cases in
+#define SWITCH_N(s,N)\
+        static vtbl2lines<requires_bits<N>::value> __vtbl2lines_map;\
+        auto& __selector_var = s;\
+        switch (__vtbl2lines_map.get(addr(__selector_var)))
+/// Macros to use compiler's branch hinting. 
+/// \note These macros are only to be used in CASE macro expansion, not in 
+///       user's code since they explicitly expect a pointer argument
+#define   LIKELY_BRANCH(ptr) (__builtin_expect(ptr != 0, 1))
+#define UNLIKELY_BRANCH(ptr) (__builtin_expect(ptr != 0, 0))
 #endif
 
 /// Macro that defines the case statement for the above switch
@@ -82,8 +116,8 @@ template <typename T> inline       T* addr(      T& t) { return &t; }
 ///       to   "Program Database (/Zi)", which is the default in Release builds,
 ///       but not in Debug. This is a known bug of Visual C++ described here:
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#define CASE(C,...) } if (dynamic_cast<const C*>(addr(__selector_var))) { __vtbl2lines_map.update(__LINE__, addr(__selector_var)); case __LINE__: if (match<C>(__VA_ARGS__)(__selector_var)) 
-#define CASES_BEGIN case 0: {
+#define CASE(C,...) } if (UNLIKELY_BRANCH(dynamic_cast<const C*>(addr(__selector_var)))) { __vtbl2lines_map.update(__LINE__, addr(__selector_var)); case __LINE__: if (LIKELY_BRANCH(match<C>(__VA_ARGS__)(__selector_var))) 
+#define CASES_BEGIN default: {
 #define CASES_END } __vtbl2lines_map.update(__LINE__, addr(__selector_var)); case __LINE__: ;
 
 //------------------------------------------------------------------------------
@@ -338,7 +372,7 @@ struct expr<F,E1>
     expr(const E1& e1) : m_e1(e1) {}
     expr(E1&& e1) : m_e1(std::move(e1)) {}
     expr(expr&& e) : m_e1(std::move(e.m_e1)) {}
-    typedef typename boost::remove_const<decltype(F()(*static_cast<typename E1::result_type*>(0)))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
+    typedef typename remove_const<decltype(F()(*static_cast<typename E1::result_type*>(0)))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
     operator result_type() const { return eval(*this); }
     bool operator()(const result_type& t) const 
     {
@@ -354,7 +388,7 @@ struct expr
     expr(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
     expr(E1&& e1, E2&& e2) : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
     expr(expr&& e) : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {}
-    typedef typename boost::remove_const<decltype(F()(*static_cast<typename E1::result_type*>(0),*static_cast<typename E2::result_type*>(0)))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
+    typedef typename remove_const<decltype(F()(*static_cast<typename E1::result_type*>(0),*static_cast<typename E2::result_type*>(0)))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
     operator result_type() const { return eval(*this); }
     bool operator()(const result_type& t) const 
     {

@@ -1,5 +1,12 @@
+#include <algorithm>
+#include <fstream>
+#include <iterator>
 #include <iostream>
+#include <iomanip>
+#include <numeric>
+#include <string>
 #include <vector>
+#define NOMINMAX
 #include <windows.h>
 #include "match.hpp"
 
@@ -42,7 +49,7 @@ int do_match(const Shape& s)
     #define FOR_EACH_N(N) if (match<shape_kind<N>>()(s)) return N;
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_N
-    assert(!"Inexhaustive search");
+    //assert(!"Inexhaustive search");
     return -1;
 }
 
@@ -73,6 +80,58 @@ Shape* make_shape(int i)
     return 0;
 }
 
+const int N = 10000; // The amount of times visitor and matching procedure is invoked in one time measuring
+const int M = 101;   // The amount of times time measuring is done
+
+template <typename Container>
+typename Container::value_type mean(const Container& c)
+{
+    return std::accumulate(c.begin(),c.end(),typename Container::value_type())/c.size();
+}
+
+template <typename Container>
+typename Container::value_type deviation(const Container& c)
+{
+    typename Container::value_type m = mean(c);
+    typename Container::value_type d = 0;
+
+    for (typename Container::const_iterator p = c.begin(); p != c.end(); ++p)
+        d += (*p-m)*(*p-m);
+
+    return std::sqrt(double(d)/c.size());
+}
+
+long long display(const char* name, std::vector<long long>& timings, const LARGE_INTEGER& Freq)
+{
+    std::sort(timings.begin(), timings.end());
+    std::fstream file;
+   
+    file.open(std::string(name)+".csv", std::fstream::out | std::fstream::app);
+
+    if (file)
+    {
+        std::copy(timings.begin(), timings.end(), std::ostream_iterator<long long>(file, ", "));
+        file << "End" << std::endl;
+    }
+
+    file.close();
+
+    long long min = timings.front();
+    long long max = timings.back();
+    long long avg = mean(timings);
+    long long med = timings[timings.size()/2];
+    long long dev = deviation(timings);
+    std::cout << name << " Time: ["
+              << std::setw(4) << min*1000000/Freq.QuadPart << " -- " 
+              << std::setw(4) << avg*1000000/Freq.QuadPart << "/" 
+              << std::setw(4) << med*1000000/Freq.QuadPart << " -- "
+              << std::setw(4) << max*1000000/Freq.QuadPart << "] Dev = " 
+              << std::setw(4) << dev << std::endl;
+    return med;
+}
+
+#include <bitset> // For print out purposes only
+
 void test_sequential()
 {
     std::cout << "=================== Sequential Test ===================" << std::endl;
@@ -80,34 +139,41 @@ void test_sequential()
 
     QueryPerformanceFrequency(&Freq);
 
-    const int N = 10000;
-
     for (int n = 0; n <= FOR_EACH_MAX; ++n)
     {
         Shape* s = make_shape(n);
+        std::vector<long long> timingsV(M);
+        std::vector<long long> timingsM(M);
 
-        LARGE_INTEGER liStart1, liFinish1, liStart2, liFinish2;
-        int a1 = 0,a2 = 0;
+        for (int m = 0; m < M; ++m)
+        {
+            LARGE_INTEGER liStart1, liFinish1, liStart2, liFinish2;
+            int a1 = 0,a2 = 0;
 
-        QueryPerformanceCounter(&liStart1);
+            QueryPerformanceCounter(&liStart1);
 
-        for (int i = 0; i < N; ++i)
-            a1 += do_visit(*s);
+            for (int i = 0; i < N; ++i)
+                a1 += do_visit(*s);
 
-        QueryPerformanceCounter(&liFinish1);
+            QueryPerformanceCounter(&liFinish1);
 
-        QueryPerformanceCounter(&liStart2);
+            QueryPerformanceCounter(&liStart2);
 
-        for (int i = 0; i < N; ++i)
-            a2 += do_match(*s);
+            for (int i = 0; i < N; ++i)
+                a2 += do_match(*s);
 
-        QueryPerformanceCounter(&liFinish2);
+            QueryPerformanceCounter(&liFinish2);
 
-        assert(a1==a2);
+            assert(a1==a2);
 
-        std::cout << "AreaV Time:" << (liFinish1.QuadPart-liStart1.QuadPart)*1000000/Freq.QuadPart << std::endl;
-        std::cout << "AreaM Time:" << (liFinish2.QuadPart-liStart2.QuadPart)*1000000/Freq.QuadPart << std::endl;
-        std::cout << (liFinish2.QuadPart-liStart2.QuadPart)*100/(liFinish1.QuadPart-liStart1.QuadPart)-100 << "% slower" << std::endl;
+            timingsV[m] = liFinish1.QuadPart-liStart1.QuadPart;
+            timingsM[m] = liFinish2.QuadPart-liStart2.QuadPart;
+        }
+
+        long long avgV = display("AreaVis", timingsV, Freq);
+        long long avgM = display("AreaMat", timingsM, Freq);
+        std::cout << avgM*100/avgV-100 << "% slower" << std::endl;
+        //std::cout << "//----------------------------------------------------------------------" << std::endl;
 
         delete s;
     }
@@ -120,7 +186,6 @@ void test_randomized()
 
     QueryPerformanceFrequency(&Freq);
 
-    const int N = 10000;
     std::vector<Shape*> shapes(N);
 
     for (int i = 0; i < N; ++i)
@@ -129,28 +194,37 @@ void test_randomized()
         shapes[i] = make_shape(n);
     }
 
-    LARGE_INTEGER liStart1, liFinish1, liStart2, liFinish2;
-    int a1 = 0,a2 = 0;
+    std::vector<long long> timingsV(M);
+    std::vector<long long> timingsM(M);
 
-    QueryPerformanceCounter(&liStart1);
+    for (int m = 0; m < M; ++m)
+    {
+        LARGE_INTEGER liStart1, liFinish1, liStart2, liFinish2;
+        int a1 = 0,a2 = 0;
 
-    for (int i = 0; i < N; ++i)
-        a1 += do_visit(*shapes[i]);
+        QueryPerformanceCounter(&liStart1);
 
-    QueryPerformanceCounter(&liFinish1);
+        for (int i = 0; i < N; ++i)
+            a1 += do_visit(*shapes[i]);
 
-    QueryPerformanceCounter(&liStart2);
+        QueryPerformanceCounter(&liFinish1);
 
-    for (int i = 0; i < N; ++i)
-        a2 += do_match(*shapes[i]);
+        QueryPerformanceCounter(&liStart2);
 
-    QueryPerformanceCounter(&liFinish2);
+        for (int i = 0; i < N; ++i)
+            a2 += do_match(*shapes[i]);
 
-    assert(a1==a2);
+        QueryPerformanceCounter(&liFinish2);
 
-    std::cout << "AreaV Time:" << (liFinish1.QuadPart-liStart1.QuadPart)*1000000/Freq.QuadPart << std::endl;
-    std::cout << "AreaM Time:" << (liFinish2.QuadPart-liStart2.QuadPart)*1000000/Freq.QuadPart << std::endl;
-    std::cout << (liFinish2.QuadPart-liStart2.QuadPart)*100/(liFinish1.QuadPart-liStart1.QuadPart)-100 << "% slower" << std::endl;
+        assert(a1==a2);
+        timingsV[m] = liFinish1.QuadPart-liStart1.QuadPart;
+        timingsM[m] = liFinish2.QuadPart-liStart2.QuadPart;
+    }
+
+    long long avgV = display("AreaVis", timingsV, Freq);
+    long long avgM = display("AreaMat", timingsM, Freq);
+    std::cout << avgM*100/avgV-100 << "% slower" << std::endl;
+    //std::cout << "//----------------------------------------------------------------------" << std::endl;
 }
 
 int main()
