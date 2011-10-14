@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <windows.h>
-#include "match.hpp"
+#include "match_select.hpp"
 
 #define FOR_EACH_MAX 99
 
@@ -39,9 +39,13 @@ template <int N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(*th
 
 int do_match(const Shape& s)
 {
-    #define FOR_EACH_N(N) if (match<shape_kind<N>>()(s)) return N;
+    switch (on(__LINE__,s))
+    {
+    default:
+    #define FOR_EACH_N(N) case __LINE__: if (match<shape_kind<N>>(__LINE__)(s)) return N;
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_N
+    }
     assert(!"Inexhaustive search");
     return -1;
 }

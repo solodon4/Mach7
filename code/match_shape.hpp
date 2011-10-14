@@ -1,6 +1,10 @@
 #pragma once
 
+#ifdef SELECT
+#include "match_select.hpp"
+#else
 #include "match.hpp"
+#endif
 #include "Shape.hpp"
 
 template <> struct match_members<Shape>    {};

@@ -1,6 +1,5 @@
 #include <iostream>
 #include <unordered_map>
-#include <typeinfo> // Debugging purposes. Remove
 
 typedef std::unordered_map<intptr_t, ptrdiff_t> vtbl2offset;
 static const ptrdiff_t no_cast_exists = 0x0FF1C1A1; // A dedicated constant marking impossible offset
@@ -30,9 +29,6 @@ inline ptrdiff_t get_offset(const U* p)
         T k = dynamic_cast<T>(p);
         const ptrdiff_t offset = k ? reinterpret_cast<const char*>(k)-reinterpret_cast<const char*>(p) : no_cast_exists;
         ofsmap.insert(vtbl2offset::value_type(vtbl,offset));
-
-        //std::cout << "Type=" << typeid(T).name() << " Vtbl=" << std::hex << vtbl << " Offset=" << offset << std::dec << std::endl;
-
         return offset;
     }
 }
@@ -58,10 +54,10 @@ struct cache_entry
 template <typename T, typename U>
 inline T memoized_cast(const U* p)
 {
+    static cache_entry cache[1<<cache_bits] = {};
+
     if (p)
     {
-#ifndef DYN_CAST_CACHING
-        static cache_entry cache[1<<cache_bits] = {};
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
         cache_entry& ce = cache[(vtbl>>irrelevant_bits) & cache_mask];
         ptrdiff_t offset;
@@ -73,9 +69,7 @@ inline T memoized_cast(const U* p)
             ce.vtbl = vtbl;
             ce.offset = offset = get_offset<T>(p);
         }
-#else
-        ptrdiff_t offset = get_offset<T>(p);
-#endif
+
         return 
             offset == no_cast_exists 
                 ? 0 
