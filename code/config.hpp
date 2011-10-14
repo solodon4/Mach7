@@ -124,8 +124,8 @@
     /// Macros to use compiler's branch hinting. 
     /// \note These macros are only to be used in CASE macro expansion, not in 
     ///       user's code since they explicitly expect a pointer argument
-    #define   LIKELY_BRANCH(ptr) (ptr)
-    #define UNLIKELY_BRANCH(ptr) (ptr)
+    #define   LIKELY_BRANCH(condition) (condition)
+    #define UNLIKELY_BRANCH(condition) (condition)
 
     /// A macro that is supposed to be put before the function definition whose inlining should be disabled
     #define DO_NOT_INLINE_BEGIN __pragma(auto_inline (off))
@@ -137,10 +137,10 @@
     /// Macros to use compiler's branch hinting. 
     /// \note These macros are only to be used in CASE macro expansion, not in 
     ///       user's code since they explicitly expect a pointer argument
-    #define   LIKELY_BRANCH(ptr) (__builtin_expect((long int)(ptr), 1))
-    #define UNLIKELY_BRANCH(ptr) (__builtin_expect((long int)(ptr), 0))
-    //#define   LIKELY_BRANCH(ptr) (__builtin_expect((ptr) != 0, 1))
-    //#define UNLIKELY_BRANCH(ptr) (__builtin_expect((ptr) != 0, 0))
+    #define   LIKELY_BRANCH(condition) (__builtin_expect((long int)(condition), 1))
+    #define UNLIKELY_BRANCH(condition) (__builtin_expect((long int)(condition), 0))
+    //#define   LIKELY_BRANCH(condition) (condition)
+    //#define UNLIKELY_BRANCH(condition) (condition)
 
     /// A macro that is supposed to be put before the function definition whose inlining should be disabled
     #define DO_NOT_INLINE_BEGIN __attribute__ ((noinline))
