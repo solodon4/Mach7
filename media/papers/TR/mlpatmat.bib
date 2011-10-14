@@ -977,24 +977,6 @@
   url          = {http://www.michaelrueegg.name/doc/papers/pattern\_matching\_in\_scala.pdf},
 }
 
-
-
-@inproceedings{Moreau:2003:PMC:1765931.1765938,
- author = {Moreau, Pierre-Etienne and Ringeissen, Christophe and Vittek, Marian},
- title = {A pattern matching compiler for multiple target languages},
- booktitle = {Proceedings of the 12th international conference on Compiler construction},
- series = {CC'03},
- year = {2003},
- isbn = {3-540-00904-3},
- location = {Warsaw, Poland},
- pages = {61--76},
- numpages = {16},
- url = {http://portal.acm.org/citation.cfm?id=1765931.1765938},
- acmid = {1765938},
- publisher = {Springer-Verlag},
- address = {Berlin, Heidelberg},
-} 
-
 @PhDThesis{EmirThesis,
    abstract    = {Pattern matching is a programming language construct
                  considered essential in functional programming. Its
@@ -1143,7 +1125,7 @@
   location  = {Aspen, Colorado, USA}
 }
 
-@inproceedings{Moreau:2003
+@inproceedings{Moreau:2003,
  author = {Moreau, Pierre-Etienne and Ringeissen, Christophe and Vittek, Marian},
  title = {A pattern matching compiler for multiple target languages},
  booktitle = {Proceedings of the 12th international conference on Compiler construction},
@@ -1217,4 +1199,107 @@
    url = {http://dx.doi.org/10.1007/BFb0054088},
    note = {10.1007/BFb0054088},
    year = {1998}
+}
+
+@inproceedings{BMS80,
+ author = {Burstall, R. M. and MacQueen, D. B. and Sannella, D. T.},
+ title = {HOPE: An experimental applicative language},
+ booktitle = {Proceedings of the 1980 ACM conference on LISP and functional programming},
+ series = {LFP '80},
+ year = {1980},
+ location = {Stanford University, California, United States},
+ pages = {136--143},
+ numpages = {8},
+ url = {http://doi.acm.org/10.1145/800087.802799},
+ doi = {http://doi.acm.org/10.1145/800087.802799},
+ acmid = {802799},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+}
+
+@inproceedings{Miranda85,
+ author = {Turner, D. A.},
+ title = {Miranda: a non-strict functional language with polymorphic types},
+ booktitle = {Proc. of a conference on Functional programming languages and computer architecture},
+ year = {1985},
+ isbn = {3-387-15975-4},
+ location = {Nancy, France},
+ pages = {1--16},
+ numpages = {16},
+ url = {http://portal.acm.org/citation.cfm?id=5280.5281},
+ acmid = {5281},
+ publisher = {Springer-Verlag New York, Inc.},
+ address = {New York, NY, USA},
+}
+
+@inproceedings{Wadler87,
+ author = {Wadler, P.},
+ title = {Views: a way for pattern matching to cohabit with data abstraction},
+ booktitle = {Proceedings of the 14th ACM SIGACT-SIGPLAN symposium on Principles of programming languages},
+ series = {POPL '87},
+ year = {1987},
+ isbn = {0-89791-215-2},
+ location = {Munich, West Germany},
+ pages = {307--313},
+ numpages = {7},
+ url = {http://doi.acm.org/10.1145/41625.41653},
+ doi = {http://doi.acm.org/10.1145/41625.41653},
+ acmid = {41653},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+}
+
+@inproceedings{Syme07,
+ author = {Sy Don and Neverov, Gregory and Margetson, James},
+ title = {Extensible pattern matching via a lightweight language extension},
+ booktitle = {Proceedings of the 12th ACM SIGPLAN international conference on Functional programming},
+ series = {ICFP '07},
+ year = {2007},
+ isbn = {978-1-59593-815-2},
+ location = {Freiburg, Germany},
+ pages = {29--40},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/1291151.1291159},
+ doi = {http://doi.acm.org/10.1145/1291151.1291159},
+ acmid = {1291159},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {F\#, ML, functional programming, pattern matching},
+}
+
+@article{views96,
+  author = {W. Burton and E. Meijer and P. Sansom and S. Thompson and P. Wadler},
+  title = {Views: an extension to haskell pattern matching},
+  year = {1996},
+  masid = {1918401}
+}
+
+@inproceedings{views98,
+  author = {Chris Okasaki},
+  title = {Views for Standard ML},
+  booktitle = {Workshop on ML},
+  year = {1998},
+  masid = {371713}
+}
+
+@inproceedings{RPS10,
+  author    = {Ryu, Sukyoung and Park, Changhee and Jr, Guy L Steele}, 
+  title     = {Adding Pattern Matching to Existing Object-Oriented Languages}, 
+  booktitle = {2010 International Workshop on Foundations of Object-Oriented Languages},
+  url       = {http://ecee.colorado.edu/~siek/FOOL2010/ryu.pdf}, 
+  year      = 2010,
+  month     = October,
+  day       = 17,
+  location  = {Reno, Nevada, USA}
+}
+
+@misc{OosterhofThesis,
+           title = {Application patterns in functional languages},
+          author = {N.N. {Oosterhof}},
+            year = {2005},
+             url = {http://essay.utwente.nl/57656/},
+        abstract = {Most contemporary pure functional languages provide support for patterns in function definitions. Examples of common patterns are the identifier, constant, tuple, list algebraic, n+k and as-pattern.
+This thesis introduces a new kind of patterns, called application patterns. Such patterns consist of a function applied to arguments: they are of the form (f x1 ... xn). When such a pattern is matched against an actual argument, inverse functions are used to find the binding of variables to values. A theoretical framework is provided that accomodates for defining multiple generalized inverse functions (for returning different sets of arguments) for one function. These
+inverse functions can be available in the system, derived by the system or defined by the programmer. A notation is introduced so that in a definition?s left hand side identifiers can be used that are bound in the context. It is established that application patterns are universal in the sense that they include constant, tuple, list, algebraic, n+k and as-patterns.
+This thesis describes an algoritm that translates functional program code with application patterns to program code without application patterns that can be run on an interpreter. It also provides a proof-of-concept implementation of this algoritm in a functional language.}
 }
