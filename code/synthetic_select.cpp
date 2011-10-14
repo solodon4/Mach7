@@ -777,7 +777,7 @@ int do_match(Shape& s)
 
 }
 #endif
-int do_visit(const Shape& s)
+__attribute__ ((noinline)) int do_visit(const Shape& s)
 {
     struct Visitor : ShapeVisitor
     {

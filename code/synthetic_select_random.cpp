@@ -777,7 +777,7 @@ int do_match(Shape& s)
 
 }
 #endif
-int do_visit(const Shape& s)
+__attribute__ ((noinline)) int do_visit(const Shape& s)
 {
     struct Visitor : ShapeVisitor
     {
@@ -869,7 +869,14 @@ void test_sequential()
 
     for (int n = 0; n <= FOR_EACH_MAX; ++n)
     {
-        Shape* s = make_shape(n);
+        std::vector<Shape*> shapes(N);
+
+        for (int i = 0; i < N; ++i)
+        {
+            int n = i%FOR_EACH_MAX;
+            shapes[i] = make_shape(n);
+        }
+
         std::vector<long long> timingsV(M);
         std::vector<long long> timingsM(M);
 
@@ -881,19 +888,18 @@ void test_sequential()
             QueryPerformanceCounter(&liStart1);
 
             for (int i = 0; i < N; ++i)
-                a1 += do_visit(*s);
+                a1 += do_visit(*shapes[i]);
 
             QueryPerformanceCounter(&liFinish1);
 
             QueryPerformanceCounter(&liStart2);
 
             for (int i = 0; i < N; ++i)
-                a2 += do_match(*s);
+                a2 += do_match(*shapes[i]);
 
             QueryPerformanceCounter(&liFinish2);
 
             assert(a1==a2);
-
             timingsV[m] = liFinish1.QuadPart-liStart1.QuadPart;
             timingsM[m] = liFinish2.QuadPart-liStart2.QuadPart;
         }
@@ -905,10 +911,13 @@ void test_sequential()
 #ifdef TRACE_PERFORMANCE
         std::cout << "Cache hits: " << cache_hits << "\tCache misses: " << cache_misses << std::endl;
         std::cout << "Common: " << std::bitset<32>(common) << std::endl
-                  << "Differ: " << std::bitset<32>(differ) << std::endl;
+            << "Differ: " << std::bitset<32>(differ) << std::endl;
 #endif
-
-        delete s;
+        for (int i = 0; i < N; ++i)
+        {
+            delete shapes[i];
+            shapes[i] = 0;
+        }
     }
 }
 

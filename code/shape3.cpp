@@ -31,7 +31,7 @@ double area_select(Shape* shape)
     loc  x,y,z;
     double r,s;
 
-    SWITCH_N(shape,3)
+    SWITCH(shape)
     {
     CASES_BEGIN
     CASE(Circle,_,r)     return 3.14 * r * r;
