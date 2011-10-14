@@ -50,7 +50,7 @@ template <typename type_being_matched, int kind_being_matched> struct match_memb
 /// \note We use variadic macro parameter here in order to be able to handle 
 ///       templates, which might have commas, otherwise juse a second argument
 ///       would be sufficient.
-#define CM(Index,...) static decltype(&__VA_ARGS__) member##Index() { return &__VA_ARGS__; }
+#define CM(Index,...) static inline decltype(&__VA_ARGS__) member##Index() { return &__VA_ARGS__; }
 
 //------------------------------------------------------------------------------
 
@@ -286,7 +286,7 @@ struct value
     T m_value;
 };
 
-template <class T> value<T> val(const T& t) { return value<T>(t); }
+template <class T> inline value<T> val(const T& t) { return value<T>(t); }
 
 //------------------------------------------------------------------------------
 
@@ -355,41 +355,41 @@ template <typename T> struct matcher0;
 
 //------------------------------------------------------------------------------
 
-template <typename T>       var_ref<T>   filter(T& t)        { return var_ref<T>(t); }
-template <typename T>       value<T>     filter(const T& t)  { return value<T>(t); }
+template <typename T> inline var_ref<T> filter(T& t)        { return var_ref<T>(t); }
+template <typename T> inline value<T>   filter(const T& t)  { return value<T>(t); }
 
 template <typename T, typename E1, typename E2, typename E3, typename E4>
-matcher4<T,E1,E2,E3,E4> filter(const matcher4<T,E1,E2,E3,E4>& t) { return t; }
+matcher4<T,E1,E2,E3,E4> inline filter(const matcher4<T,E1,E2,E3,E4>& t) { return t; }
 template <typename T, typename E1, typename E2, typename E3>
-matcher3<T,E1,E2,E3> filter(const matcher3<T,E1,E2,E3>& t) { return t; }
+matcher3<T,E1,E2,E3> inline filter(const matcher3<T,E1,E2,E3>& t) { return t; }
 template <typename T, typename E1, typename E2>
-matcher2<T,E1,E2> filter(const matcher2<T,E1,E2>& t) { return t; }
+matcher2<T,E1,E2> inline filter(const matcher2<T,E1,E2>& t) { return t; }
 template <typename T, typename E1>
-matcher1<T,E1> filter(const matcher1<T,E1>& t) { return t; }
+matcher1<T,E1> inline filter(const matcher1<T,E1>& t) { return t; }
 template <typename T>
-matcher0<T> filter(const matcher0<T>& t) { return t; }
+matcher0<T> inline filter(const matcher0<T>& t) { return t; }
 
 template <typename F, typename E1, typename E2>
-expr<F,E1,E2> filter(const expr<F,E1,E2>& t) { return t; }
+expr<F,E1,E2> inline filter(const expr<F,E1,E2>& t) { return t; }
 template <typename F, typename E1>
-expr<F,E1> filter(const expr<F,E1>& t) { return t; }
+expr<F,E1> inline filter(const expr<F,E1>& t) { return t; }
 template <typename F>
-expr<F> filter(const expr<F>& t) { return t; }
+expr<F> inline filter(const expr<F>& t) { return t; }
 template <typename T, typename E>
-guard<T,E> filter(const guard<T,E>& t) { return t; }
+guard<T,E> inline filter(const guard<T,E>& t) { return t; }
 
 //------------------------------------------------------------------------------
 
 // Define all unary operators on variable
 #define FOR_EACH_UNARY_OPERATOR(F,S) \
     template <typename T> \
-    auto XTL_CONCATENATE(operator,S)(variable<T>& v)\
+    inline auto XTL_CONCATENATE(operator,S)(variable<T>& v)\
           -> expr<F,var_ref<variable<T> > >\
     { return expr<F,var_ref<variable<T> > >(var_ref<variable<T> >(v)); }
 // Define all binary operators with first argument being variable and second whatever
 #define FOR_EACH_BINARY_OPERATOR(F,S) \
     template <typename T, typename E> \
-    auto XTL_CONCATENATE(operator,S)(variable<T>& v, E&& e)\
+    inline auto XTL_CONCATENATE(operator,S)(variable<T>& v, E&& e)\
           -> expr<F,var_ref<variable<T> >,decltype(filter(std::forward<E>(e)))>\
     { return expr<F,var_ref<variable<T> >,decltype(filter(std::forward<E>(e)))>(var_ref<variable<T> >(v),filter(std::forward<E>(e))); }
 #include "loop_over_operators.hpp"
@@ -399,13 +399,13 @@ guard<T,E> filter(const guard<T,E>& t) { return t; }
 // Define all unary operators on value
 #define FOR_EACH_UNARY_OPERATOR(F,S) \
     template <typename T> \
-    auto XTL_CONCATENATE(operator,S)(const value<T>& v)\
+    inline auto XTL_CONCATENATE(operator,S)(const value<T>& v)\
           -> expr<F,value<T> >\
     { return expr<F,value<T> >(v); }
 // Define all binary operators with first argument being value and second whatever
 #define FOR_EACH_BINARY_OPERATOR(F,S) \
     template <typename T, typename E> \
-    auto XTL_CONCATENATE(operator,S)(const value<T>& v, E&& e)\
+    inline auto XTL_CONCATENATE(operator,S)(const value<T>& v, E&& e)\
           -> expr<F,value<T>,decltype(filter(std::forward<E>(e)))>\
     { return expr<F,value<T>,decltype(filter(std::forward<E>(e)))>(v,filter(std::forward<E>(e))); }
 #include "loop_over_operators.hpp"
@@ -415,13 +415,13 @@ guard<T,E> filter(const guard<T,E>& t) { return t; }
 // Define all unary operators on unary expressions
 #define FOR_EACH_UNARY_OPERATOR(F,S) \
     template <typename F1, typename E1> \
-    auto XTL_CONCATENATE(operator,S)(const expr<F1,E1>& v)\
+    inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1>& v)\
           -> expr<F,expr<F1,E1> >\
     { return expr<F,expr<F1,E1> >(v); }
 // Define all binary operators with first argument being unary expression and second whatever
 #define FOR_EACH_BINARY_OPERATOR(F,S) \
     template <typename F1, typename E1, typename E> \
-    auto XTL_CONCATENATE(operator,S)(const expr<F1,E1>& v, E&& e)\
+    inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1>& v, E&& e)\
           -> expr<F,expr<F1,E1>,decltype(filter(std::forward<E>(e)))>\
     { return expr<F,expr<F1,E1>,decltype(filter(std::forward<E>(e)))>(v,filter(std::forward<E>(e))); }
 #include "loop_over_operators.hpp"
@@ -431,13 +431,13 @@ guard<T,E> filter(const guard<T,E>& t) { return t; }
 // Define all unary operators on binary expressions
 #define FOR_EACH_UNARY_OPERATOR(F,S) \
     template <typename F1, typename E1, typename E2> \
-    auto XTL_CONCATENATE(operator,S)(const expr<F1,E1,E2>& v)\
+    inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1,E2>& v)\
           -> expr<F,expr<F1,E1,E2> >\
     { return expr<F,expr<F1,E1,E2> >(v); }
 // Define all binary operators with first argument being binary expression and second whatever
 #define FOR_EACH_BINARY_OPERATOR(F,S) \
     template <typename F1, typename E1, typename E2, typename E> \
-    auto XTL_CONCATENATE(operator,S)(const expr<F1,E1,E2>& v, E&& e)\
+    inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1,E2>& v, E&& e)\
           -> expr<F,expr<F1,E1,E2>,decltype(filter(std::forward<E>(e)))>\
     { return expr<F,expr<F1,E1,E2>,decltype(filter(std::forward<E>(e)))>(v,filter(std::forward<E>(e))); }
 #include "loop_over_operators.hpp"
@@ -446,12 +446,12 @@ guard<T,E> filter(const guard<T,E>& t) { return t; }
 
 //------------------------------------------------------------------------------
 
-template <typename T> T eval(const value<T>& e)    { return e.m_value; }
-template <typename T> T eval(const variable<T>& e) { return e.m_value; }
-template <typename T> T eval(const var_ref<T>& e)  { return *e.m_var; }
-template <typename T> T eval(const var_ref<variable<T> >& e) { return e.m_var->m_value; }
-template <typename F, typename E1>              typename expr<F,E1>::result_type    eval(const expr<F,E1>&    e) { return F()(eval(e.m_e1)); }
-template <typename F, typename E1, typename E2> typename expr<F,E1,E2>::result_type eval(const expr<F,E1,E2>& e) { return F()(eval(e.m_e1),eval(e.m_e2)); }
+template <typename T> T inline eval(const value<T>& e)    { return e.m_value; }
+template <typename T> T inline eval(const variable<T>& e) { return e.m_value; }
+template <typename T> T inline eval(const var_ref<T>& e)  { return *e.m_var; }
+template <typename T> T inline eval(const var_ref<variable<T> >& e) { return e.m_var->m_value; }
+template <typename F, typename E1>              typename expr<F,E1>::result_type    inline eval(const expr<F,E1>&    e) { return F()(eval(e.m_e1)); }
+template <typename F, typename E1, typename E2> typename expr<F,E1,E2>::result_type inline eval(const expr<F,E1,E2>& e) { return F()(eval(e.m_e1),eval(e.m_e2)); }
 
 //------------------------------------------------------------------------------
 
@@ -463,7 +463,7 @@ template <typename F, typename E1, typename E2> struct is_const_expr<expr<F,E1,E
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-R apply_member(const C* c, R (T::*method)() const)
+inline R apply_member(const C* c, R (T::*method)() const)
 {
     DEBUG_ONLY(std::clog << "\nApplying const member function to instance " << c << " of type " << typeid(*c).name() << std::endl);
     return (c->*method)();
@@ -472,7 +472,7 @@ R apply_member(const C* c, R (T::*method)() const)
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-R apply_member(      C* c, R (T::*method)()      )
+inline R apply_member(      C* c, R (T::*method)()      )
 {
     DEBUG_ONLY(std::clog << "\nApplying non-const member function to instance " << c << " of type " << typeid(*c).name() << std::endl);
     return (c->*method)();
@@ -481,7 +481,7 @@ R apply_member(      C* c, R (T::*method)()      )
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-R apply_member(const C* c, R T::*field)
+inline R apply_member(const C* c, R T::*field)
 {
     DEBUG_ONLY(std::clog << "\nApplying data member to instance " << c << " of type " << typeid(*c).name() << std::endl);
     return c->*field;
@@ -490,7 +490,7 @@ R apply_member(const C* c, R T::*field)
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-R apply_member(const C* c, R (*func)(const T*))
+inline R apply_member(const C* c, R (*func)(const T*))
 {
     DEBUG_ONLY(std::clog << "\nApplying external function to const instance " << c << " of type " << typeid(*c).name() << std::endl);
     return (*func)(c);
@@ -499,7 +499,7 @@ R apply_member(const C* c, R (*func)(const T*))
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-R apply_member(      C* c, R (*func)(      T*))
+inline R apply_member(      C* c, R (*func)(      T*))
 {
     DEBUG_ONLY(std::clog << "\nApplying external function to non-const instance " << c << " of type " << typeid(*c).name() << std::endl);
     return (*func)(c);
@@ -511,7 +511,7 @@ R apply_member(      C* c, R (*func)(      T*))
 /// match a meta variable _ of type wildcard, that matches everything of
 /// any type. In this case we don't even want to invoke the underlain member!
 template <typename E, typename C, typename M>
-bool apply_expression(const E& e, const C* c, M m)
+inline bool apply_expression(const E& e, const C* c, M m)
 {
     #ifdef _MSC_VER
     #pragma warning( disable : 4800 )
@@ -521,7 +521,7 @@ bool apply_expression(const E& e, const C* c, M m)
 }
 
 template <typename E, typename C, typename M>
-bool apply_expression(const E& e,       C* c, M m)
+inline bool apply_expression(const E& e,       C* c, M m)
 {
     #ifdef _MSC_VER
     #pragma warning( disable : 4800 )
@@ -533,7 +533,7 @@ bool apply_expression(const E& e,       C* c, M m)
 /// This is the specialization that makes the member not to be invoked when we
 /// are matching against the meta variable _ that matches everything.
 template <typename C, typename M>
-bool apply_expression(const var_ref<wildcard>& e, const C* c, M m)
+inline bool apply_expression(const var_ref<wildcard>& e, const C* c, M m)
 {
     return true;
 }
@@ -760,7 +760,7 @@ struct matcher4
 //------------------------------------------------------------------------------
 
 template <typename T>
-matcher0<T> match()
+inline matcher0<T> match()
 {
     return matcher0<T>();
 }
@@ -768,13 +768,13 @@ matcher0<T> match()
 //------------------------------------------------------------------------------
 
 template <typename T, typename E1>
-matcher1<T,E1> match_ex(E1&& e1)
+inline matcher1<T,E1> match_ex(E1&& e1)
 {
     return matcher1<T,E1>(std::forward<E1>(e1));
 }
 
 template <typename T, typename E1>
-auto match(E1&& e1) -> decltype(match_ex<T>(filter(std::forward<E1>(e1))))
+inline auto match(E1&& e1) -> decltype(match_ex<T>(filter(std::forward<E1>(e1))))
 {
     return match_ex<T>(filter(std::forward<E1>(e1)));
 }
@@ -782,13 +782,13 @@ auto match(E1&& e1) -> decltype(match_ex<T>(filter(std::forward<E1>(e1))))
 //------------------------------------------------------------------------------
 
 template <typename T, typename E1, typename E2>
-matcher2<T,E1,E2> match_ex(E1&& e1, E2&& e2)
+inline matcher2<T,E1,E2> match_ex(E1&& e1, E2&& e2)
 {
     return matcher2<T,E1,E2>(std::forward<E1>(e1),std::forward<E2>(e2));
 }
 
 template <typename T, typename E1, typename E2>
-auto match(E1&& e1, E2&& e2) -> decltype(match_ex<T>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2))))
+inline auto match(E1&& e1, E2&& e2) -> decltype(match_ex<T>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2))))
 {
     return match_ex<T>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)));
 }
@@ -796,13 +796,13 @@ auto match(E1&& e1, E2&& e2) -> decltype(match_ex<T>(filter(std::forward<E1>(e1)
 //------------------------------------------------------------------------------
 
 template <typename T, typename E1, typename E2, typename E3>
-matcher3<T,E1,E2,E3> match_ex(E1&& e1, E2&& e2, E3&& e3)
+inline matcher3<T,E1,E2,E3> match_ex(E1&& e1, E2&& e2, E3&& e3)
 {
     return matcher3<T,E1,E2,E3>(std::forward<E1>(e1),std::forward<E2>(e2),std::forward<E3>(e3));
 }
 
 template <typename T, typename E1, typename E2, typename E3>
-auto match(E1&& e1, E2&& e2, E3&& e3) -> decltype(match_ex<T>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)), filter(std::forward<E3>(e3))))
+inline auto match(E1&& e1, E2&& e2, E3&& e3) -> decltype(match_ex<T>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)), filter(std::forward<E3>(e3))))
 {
     return match_ex<T>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)), filter(std::forward<E3>(e3)));
 }
@@ -810,13 +810,13 @@ auto match(E1&& e1, E2&& e2, E3&& e3) -> decltype(match_ex<T>(filter(std::forwar
 //------------------------------------------------------------------------------
 
 template <typename T, typename E1, typename E2, typename E3, typename E4>
-matcher4<T,E1,E2,E3,E4> match_ex(E1&& e1, E2&& e2, E3&& e3, E4&& e4)
+inline matcher4<T,E1,E2,E3,E4> match_ex(E1&& e1, E2&& e2, E3&& e3, E4&& e4)
 {
     return matcher4<T,E1,E2,E3,E4>(std::forward<E1>(e1),std::forward<E2>(e2),std::forward<E3>(e3),std::forward<E4>(e4));
 }
 
 template <typename T, typename E1, typename E2, typename E3, typename E4>
-auto match(E1&& e1, E2&& e2, E3&& e3, E4&& e4) -> decltype(match_ex<T>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)), filter(std::forward<E3>(e3)), filter(std::forward<E4>(e4))))
+inline auto match(E1&& e1, E2&& e2, E3&& e3, E4&& e4) -> decltype(match_ex<T>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)), filter(std::forward<E3>(e3)), filter(std::forward<E4>(e4))))
 {
     return match_ex<T>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)), filter(std::forward<E3>(e3)), filter(std::forward<E4>(e4)));
 }

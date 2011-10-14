@@ -33,6 +33,12 @@
     <ClCompile Include="expr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="numbers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="perf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="match.hpp">
@@ -48,6 +54,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="shape.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="memoized_cast.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

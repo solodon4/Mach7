@@ -4,18 +4,32 @@ typedef double               real;
 typedef std::pair<real,real> loc;
 struct cloc { real first; real second; };
 
+struct Shape;
+struct Circle;
+struct Square;
+struct Triangle;
+
+struct ShapeVisitor
+{
+	virtual void visit(const Circle&)   {}
+	virtual void visit(const Square&)   {}
+	virtual void visit(const Triangle&) {}
+};
+
 // An Algebraic Data Type implemented through inheritance
 
 struct Shape
 {
-    virtual ~Shape() {} // enable RTTI
+    virtual void accept(ShapeVisitor& v) = 0;
 };
 
 struct Circle : Shape
 {
     Circle(const loc& c, const real& r) : center(c), radius(r) {}
 
-    loc get_center() { return center; }
+    void accept(ShapeVisitor& v) { v.visit(*this); }
+
+    const loc& get_center() const { return center; }
 
     loc  center;
     real radius;
@@ -26,6 +40,8 @@ struct Square : Shape
 {
     Square(const loc& c, const real& s) : upper_left(c), side(s) {}
 
+    void accept(ShapeVisitor& v) { v.visit(*this); }
+
     loc  upper_left;
     real side;
 };
@@ -33,6 +49,8 @@ struct Square : Shape
 struct Triangle : Shape
 {
     Triangle(const loc& a, const loc& b, const loc& c) : first(a), second(b), third(c) {}
+
+    void accept(ShapeVisitor& v) { v.visit(*this); }
 
     loc first;
     loc second;

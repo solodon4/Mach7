@@ -1,4 +1,5 @@
 //#define POD_ONLY
+#include <windows.h>
 #include <iostream>
 #include "match_shape.hpp"
 
@@ -70,11 +71,26 @@ loc center(/*const*/ Shape& shape)
     assert(!"Inexhaustive search");
 }
 
-void foo(Shape* s) // FIX: doesn't work without const
+int dummy(Shape* s)
+{
+    if (match<Circle>()(s))   return 1;
+    if (match<Square>()(s))   return 2;
+    if (match<Triangle>()(s)) return 3;
+    assert(!"Inexhaustive search");
+}
+
+int dummy_dyn(Shape* s)
+{
+    if (dynamic_cast<Circle*>(s))   return 1;
+    if (dynamic_cast<Square*>(s))   return 2;
+    if (dynamic_cast<Triangle*>(s)) return 3;
+    assert(!"Inexhaustive search");
+}
+
+void foo(Shape* s)
 {
     loc  x,y,z;
     real a;
-    wildcard _;
 
     //if (match<Circle>(x |= x == val(loc(1,1)), a)(s))
     //    std::cout << "Matched against guard" << a << std::endl;
@@ -117,9 +133,99 @@ void bar(ADTShape& s)
         std::cout << "ADTTriangle with corners " << x << ',' << y << ',' << z << std::endl;
 }
 
+loc center_vis(/*const*/ Shape& shape)
+{
+    struct CenterVisitor : ShapeVisitor
+    {
+	    virtual void visit(const Circle& s)   { c = s.center; }
+	    virtual void visit(const Square& s)   { c = loc(s.upper_left.first+s.side/2,s.upper_left.second+s.side/2); }
+	    virtual void visit(const Triangle& s) { c = loc((s.first.first+s.second.first+s.third.first)/3,(s.first.second+s.second.second+s.third.second)/3); }
+        loc c;
+    };
+
+    CenterVisitor v;
+    shape.accept(v);
+    return v.c;
+}
+
+int dummy_vis(Shape* s)
+{
+    struct Visitor : ShapeVisitor
+    {
+	    virtual void visit(const Circle& s)   { result = 1; }
+	    virtual void visit(const Square& s)   { result = 2; }
+	    virtual void visit(const Triangle& s) { result = 3; }
+        int result;
+    };
+
+    Visitor v;
+    s->accept(v);
+    return v.result;
+}
+
+void time_center(Shape& s)
+{
+    LARGE_INTEGER Freq;
+
+    QueryPerformanceFrequency(&Freq);
+
+    const int N = 10000;
+    LARGE_INTEGER liStart1, liFinish1, liStart2, liFinish2;
+    loc c1,c2;
+    QueryPerformanceCounter(&liStart1);
+    for (int i = 0; i < N; ++i)
+        c1 = center_vis(s);
+    QueryPerformanceCounter(&liFinish1);
+
+    QueryPerformanceCounter(&liStart2);
+    for (int i = 0; i < N; ++i)
+        c2 = center(s);
+    QueryPerformanceCounter(&liFinish2);
+
+    assert(c1==c2);
+
+    std::cout << "CenterV Time:" << (liFinish1.QuadPart-liStart1.QuadPart)*1000000/Freq.QuadPart << std::endl;
+    std::cout << "CenterM Time:" << (liFinish2.QuadPart-liStart2.QuadPart)*1000000/Freq.QuadPart << std::endl;
+    std::cout << (liFinish2.QuadPart-liStart2.QuadPart)*100/(liFinish1.QuadPart-liStart1.QuadPart)-100 << "% slower" << std::endl;
+}
+
+void time_dummy(Shape& s)
+{
+    LARGE_INTEGER Freq;
+
+    QueryPerformanceFrequency(&Freq);
+
+    const int N = 10000;
+    LARGE_INTEGER liStart1, liFinish1, liStart2, liFinish2, liStart3, liFinish3;
+    int c1,c2;
+    QueryPerformanceCounter(&liStart1);
+    for (int i = 0; i < N; ++i)
+        c1 = dummy_vis(&s);
+    QueryPerformanceCounter(&liFinish1);
+
+    QueryPerformanceCounter(&liStart2);
+    for (int i = 0; i < N; ++i)
+        c2 = dummy(&s);
+    QueryPerformanceCounter(&liFinish2);
+
+    QueryPerformanceCounter(&liStart3);
+    for (int i = 0; i < N; ++i)
+        c2 = dummy_dyn(&s);
+    QueryPerformanceCounter(&liFinish3);
+
+    assert(c1==c2);
+
+    std::cout << "DummyV Time:" << (liFinish1.QuadPart-liStart1.QuadPart)*1000000/Freq.QuadPart << std::endl;
+    std::cout << "DummyM Time:" << (liFinish2.QuadPart-liStart2.QuadPart)*1000000/Freq.QuadPart << std::endl;
+    std::cout << "DummyD Time:" << (liFinish3.QuadPart-liStart3.QuadPart)*1000000/Freq.QuadPart << std::endl;
+    std::cout << (liFinish2.QuadPart-liStart2.QuadPart)*100/(liFinish1.QuadPart-liStart1.QuadPart)-100 << "% slower" << std::endl;
+    std::cout << (liFinish3.QuadPart-liStart3.QuadPart)*100/(liFinish1.QuadPart-liStart1.QuadPart)-100 << "% slower" << std::endl;
+}
+
+
 int main()
 {
-    Shape* c = new Circle(loc(1,1),4);
+    Shape* c = new Circle(loc(1,1),7);
     Shape* s = new Square(loc(2,2),2);
     Shape* t = new Triangle(loc(0,0),loc(0,1),loc(1,0));
 
@@ -150,4 +256,11 @@ int main()
     bar(xc);
     bar(xs);
     bar(xt);
+
+    time_center(*c);
+    time_center(*s);
+    time_center(*t);
+    time_dummy(*c);
+    time_dummy(*s);
+    time_dummy(*t);
 }

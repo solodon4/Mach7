@@ -60,8 +60,6 @@ loc center(/*const*/ Shape& shape)
 
     variable<real> x1,y1,x2,y2,x3,y3;
 
-    real r = 3*x1*x2*x3;
-
     if (match<Triangle>(
             match<loc>(x1,y1),
             match<loc>(x2,y2),
@@ -108,15 +106,6 @@ void foo(Shape* s)
         std::cout << "Triangle with corners " << x << ',' << y << ',' << z << std::endl;
 }
 
-/* Make this work as well
-void numeric(int n)
-{
-	variable<int> a,b,c;
-
-	if (match<int>(a))
-		std::cout << "Matched against int " << a << std::endl;
-}
-*/
 void bar(ADTShape& s)
 {
     variable<cloc>  x,y,z;
