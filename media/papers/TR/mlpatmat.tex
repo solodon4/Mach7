@@ -2,6 +2,7 @@
 
 \usepackage{breakurl}             % Not needed if you use pdflatex only.
 \usepackage{listings}
+\usepackage{mathpartir}
 
 \lstdefinestyle{Caml}{language=Caml,%
   literate={when}{{{\bf when}}}4
@@ -38,6 +39,22 @@ showstringspaces=false,
 \newcommand{\Rule}[1]{{\rmfamily\itshape{#1}}}
 \newcommand{\Alt}{\ensuremath{|}}
 \newcommand{\is}{$::=$}
+\newcommand{\evals}{\Rightarrow}
+
+\newsavebox{\sembox}
+\newlength{\semwidth}
+\newlength{\boxwidth}
+
+\newcommand{\Sem}[1]{%
+\sbox{\sembox}{\ensuremath{#1}}%
+\settowidth{\semwidth}{\usebox{\sembox}}%
+\sbox{\sembox}{\ensuremath{\left[\usebox{\sembox}\right]}}%
+\settowidth{\boxwidth}{\usebox{\sembox}}%
+\addtolength{\boxwidth}{-\semwidth}%
+\left[\hspace{-0.3\boxwidth}%
+\usebox{\sembox}%
+\hspace{-0.3\boxwidth}\right]%
+}
 
 \begin{document}
 
@@ -1450,6 +1467,114 @@ should it have been defined in the grammar directly. {\bf Type-id} represents a
 type expression that designates any valid C++ type. We are using this 
 meta-variable in the superscript to other meta-variables in order to indicate a 
 C++ type of the entity they represent.
+
+\subsection{Semantics}
+
+We use natural semantics\cite{Kahn} (big-step operational semantics) to describe 
+our pattern-matching semantics. As with syntax, we do not formalize our 
+semantics to the entire language, but concentrate only on presenting relevant 
+parts of our extension. We assume the entire state of the program is modeled by 
+an environment $\Gamma$, which we can query as $\Gamma(v)$ to get a value of a 
+variable $v$. We describe our semantics with several rule sets that deal with 
+different parts of our syntax.
+
+Our first rule set deals with pattern application $\pi(e)$, which essentially 
+performs matching of pattern $\pi$ against expression $e$. The judgements are of 
+the form $\Gamma\vdash \pi(e) \evals v,\Gamma'$ that can be interpreted as given 
+an environment $\Gamma$, pattern application $\pi{e}$ results in value $v$ and 
+environment $\Gamma'$.
+
+\begin{mathpar}
+\inferrule[Wildcard]
+{}
+{\Gamma\vdash \_(e) \evals true,\Gamma}
+
+\inferrule[Variable]
+{\Gamma\vdash e \evals v,\Gamma'}
+{\Gamma\vdash w(e) \evals true,\Gamma'[w\leftarrow v]}
+\end{mathpar}
+
+\begin{mathpar}
+\inferrule[n+k]
+{\Gamma\vdash e \evals v_1,\Gamma_1 \\ \Gamma_1\vdash \Psi_1^\oplus(v_1,c) \evals v_2,\Gamma_2 \\ \Gamma_2\vdash n(v_2) \evals b_3,\Gamma_3}
+{\Gamma\vdash (n \oplus c)(e) \evals b_3,\Gamma_3}
+\end{mathpar}
+
+\begin{mathpar}
+\inferrule[n+k]
+{\Gamma\vdash e \evals v_1,\Gamma_1 \\ \Gamma_1\vdash \Psi_2^\oplus(c,v_1) \evals v_2,\Gamma_2 \\ \Gamma_2\vdash n(v_2) \evals b_3,\Gamma_3}
+{\Gamma\vdash (c \oplus n)(e) \evals b_3,\Gamma_3}
+\end{mathpar}
+
+\begin{mathpar}
+\inferrule[n+k]
+{\Gamma\vdash e \evals v_1,\Gamma_1 \\ \Gamma_1\vdash \Psi_1^\ominus(v_1) \evals v_2,\Gamma_2 \\ \Gamma_2\vdash n(v_2) \evals b_3,\Gamma_3}
+{\Gamma\vdash (\ominus n)(e) \evals b_3,\Gamma_3}
+\end{mathpar}
+
+\begin{mathpar}
+\inferrule[Guard]
+{\Gamma\vdash e \evals v_1,\Gamma_1 \\ \Gamma_1\vdash \pi(v_1) \evals b_2,\Gamma_2 \\ \Gamma_2\stackrel{eval}{\vdash} x \evals b_3,\Gamma_3}
+{\Gamma\vdash (\pi \models x)(e) \evals b_2 \wedge b_3,\Gamma_3}
+\end{mathpar}
+
+\begin{mathpar}
+\inferrule[Tree-Nullptr]
+{\Gamma \vdash e \evals v,\Gamma_0 \\ \Gamma_0 \vdash $dynamic\_cast$\langle\tau*\rangle(v) \evals nullptr,\Gamma_1}
+{\Gamma\vdash ($match$\langle\tau\rangle(\pi_1,...,\pi_k))(e) \evals nullptr,\Gamma_1}
+\end{mathpar}
+
+\begin{mathpar}
+\inferrule[Tree-False]
+{\Gamma \vdash e \evals v,\Gamma_0 \\ \Gamma_0 \vdash $dynamic\_cast$\langle\tau*\rangle(v) \evals u^{\tau*},\Gamma_1 \\\\
+ \Gamma_1    \vdash \Delta_1    ^\tau(v) \evals v_1,    \Gamma_1'     \\ \Gamma_1'    \vdash \pi(v_1    ) \evals true, \Gamma_2     \\\\
+ \Gamma_2    \vdash \Delta_2    ^\tau(v) \evals v_2,    \Gamma_2'     \\ \Gamma_2'    \vdash \pi(v_2    ) \evals true, \Gamma_3     \\\\
+ \cdots \\\\
+ \Gamma_{i-1}\vdash \Delta_{i-1}^\tau(v) \evals v_{i-1},\Gamma_{i-1}' \\ \Gamma_{i-1}'\vdash \pi(v_{i-1}) \evals true, \Gamma_i     \\\\
+ \Gamma_i    \vdash \Delta_i    ^\tau(v) \evals v_i,    \Gamma_i'     \\ \Gamma_i'    \vdash \pi(v_i    ) \evals false,\Gamma_{i+1} \\\\
+}
+{\Gamma\vdash ($match$\langle\tau\rangle(\pi_1,...,\pi_k))(e) \evals nullptr,\Gamma_{i+1}}
+\end{mathpar}
+
+\begin{mathpar}
+\inferrule[Tree-True]
+{\Gamma \vdash e \evals v,\Gamma_0 \\ \Gamma_0 \vdash $dynamic\_cast$\langle\tau*\rangle(v) \evals u^{\tau*},\Gamma_1 \\\\
+ \Gamma_1    \vdash \Delta_1    ^\tau(v) \evals v_1,    \Gamma_1'     \\ \Gamma_1'    \vdash \pi(v_1    ) \evals true, \Gamma_2     \\\\
+ \Gamma_2    \vdash \Delta_2    ^\tau(v) \evals v_2,    \Gamma_2'     \\ \Gamma_2'    \vdash \pi(v_2    ) \evals true, \Gamma_3     \\\\
+ \cdots \\\\
+ \Gamma_{k-1}\vdash \Delta_{k-1}^\tau(v) \evals v_{k-1},\Gamma_{k-1}' \\ \Gamma_{k-1}'\vdash \pi(v_{k-1}) \evals true, \Gamma_k     \\\\
+ \Gamma_k    \vdash \Delta_k    ^\tau(v) \evals v_k,    \Gamma_k'     \\ \Gamma_k'    \vdash \pi(v_k    ) \evals true, \Gamma_{k+1} \\\\
+}
+{\Gamma\vdash ($match$\langle\tau\rangle(\pi_1,...,\pi_k))(e) \evals u^{\tau*},\Gamma_{i+1}[$matched$^{\tau\&}\leftarrow*u]}
+\end{mathpar}
+
+Our second rule set deals with evaluation of expression templates reffered to 
+from the previous rule set via $stackrel{eval}{\vdash}$. The judgements are of 
+the form $\Gamma\vdash x \evals v,\Gamma'$ that can be interpreted as given an 
+environment $\Gamma$, evaluation of an expression template $x$ results in value 
+$v$ and environment $\Gamma'$.
+
+\begin{mathpar}
+\inferrule[Var]
+{}
+{\Gamma\vdash w \evals \Gamma(w),\Gamma}
+
+\inferrule[Unary]
+{\Gamma\vdash x \evals v,\Gamma_1}
+{\Gamma\vdash \ominus x \evals \Sem{\ominus} v,\Gamma_1}
+
+\inferrule[Binary]
+{\Gamma\vdash x_1 \evals v_1,\Gamma_1 \\ \Gamma_1\vdash x_2 \evals v_2,\Gamma_2}
+{\Gamma\vdash x_1 \oplus x_2 \evals v_1\Sem{\oplus}v_2,\Gamma_2}
+
+\inferrule[Binary]
+{\Gamma\vdash x \evals v,\Gamma_1}
+{\Gamma\vdash x \oplus c \evals v\Sem{\oplus}c,\Gamma_1}
+
+\inferrule[Binary]
+{\Gamma\vdash x \evals v,\Gamma_1}
+{\Gamma\vdash c \oplus x \evals c\Sem{\oplus}v,\Gamma_1}
+\end{mathpar}
 
 \subsection{Bindings Syntax}
 \label{sec:bnd}

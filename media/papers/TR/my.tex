@@ -1,0 +1,176 @@
+\documentclass{article}
+
+\usepackage{listings}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathpartir}
+%\usepackage{stmaryrd}
+\usepackage{fullpage} % this is useful if you have wide derivations etc.
+
+% Some commands
+\newcommand{\evals}{\Rightarrow}
+\newcommand{\reduces}{\to}
+
+\newsavebox{\sembox}
+\newlength{\semwidth}
+\newlength{\boxwidth}
+
+\newcommand{\Sem}[1]{%
+\sbox{\sembox}{\ensuremath{#1}}%
+\settowidth{\semwidth}{\usebox{\sembox}}%
+\sbox{\sembox}{\ensuremath{\left[\usebox{\sembox}\right]}}%
+\settowidth{\boxwidth}{\usebox{\sembox}}%
+\addtolength{\boxwidth}{-\semwidth}%
+\left[\hspace{-0.3\boxwidth}%
+\usebox{\sembox}%
+\hspace{-0.3\boxwidth}\right]%
+}
+
+\lstdefinestyle{Caml}{language=Caml,%
+  literate={when}{{{\bf when}}}4
+}
+
+\lstdefinestyle{C++}{language=C++,%
+showstringspaces=false,
+  columns=fullflexible,
+  escapechar=@,
+  basicstyle=\sffamily,
+%  commentstyle=\rmfamily\itshape,
+  moredelim=**[is][\color{white}]{~}{~},
+  literate={[<]}{{\textless}}1      {[>]}{{\textgreater}}1 %
+           {<}{{$\langle$}}1        {>}{{$\rangle$}}1 %
+           {<=}{{$\leq$}}1          {>=}{{$\geq$}}1          
+           {==}{{$==$}}2            {!=}{{$\neq$}}1 %
+           {=>}{{$\Rightarrow\;$}}1 {->}{{$\rightarrow{}$}}1 %
+           {<:}{{$\subtype{}\ $}}1  {<-}{{$\leftarrow$}}1 %
+           {e1}{{$e_1$}}2 {e2}{{$e_2$}}2 {e3}{{$e_3$}}2 {e4}{{$e_4$}}2%
+           {E1}{{$E_1$}}2 {E2}{{$E_2$}}2 {E3}{{$E_3$}}2 {E4}{{$E_4$}}2%
+           {m_e1}{{$m\_e_1$}}4 {m_e2}{{$m\_e_2$}}4 {m_e3}{{$m\_e_3$}}4 {m_e4}{{$m\_e_4$}}4%
+           {Match}{{\emph{Match}}}5 %
+           {EndMatch}{{\emph{EndMatch}}}8 %
+           {Case}{{\emph{Case}}}4 %
+           {Que}{{\emph{Que}}}3 %
+           {CM}{{\emph{CM}}}2 {KS}{{\emph{KS}}}2 {KV}{{\emph{KV}}}2 
+}
+\lstset{style=C++}
+\DeclareRobustCommand{\code}[1]{{\lstinline[breaklines=false,escapechar=@]{#1}}}
+\DeclareRobustCommand{\codehaskell}[1]{{\lstinline[breaklines=false,language=Haskell]{#1}}}
+\DeclareRobustCommand{\codeocaml}[1]{{\lstinline[breaklines=false,language=Caml]{#1}}}
+
+%% grammar commands
+\newcommand{\Rule}[1]{{\rmfamily\itshape{#1}}}
+\newcommand{\Alt}{\ensuremath{|}}
+\newcommand{\is}{$::=$}
+
+\title{Example of evaluation and typing derivations in \LaTeX}
+
+\begin{document}
+
+\maketitle
+
+\section{Inference rules}
+
+\begin{mathpar}
+\inferrule[Wildcard]
+{}
+{\Gamma\vdash \_(e) \evals true,\Gamma}
+
+\inferrule[Variable]
+{\Gamma\vdash e \evals v,\Gamma'}
+{\Gamma\vdash w(e) \evals true,\Gamma'[w\leftarrow v]}
+
+\inferrule[n+k]
+{\Gamma\vdash e \evals v_1,\Gamma_1 \\ \Gamma_1\vdash \Psi_1^\oplus(v_1,c) \evals v_2,\Gamma_2 \\ \Gamma_2\vdash n(v_2) \evals b_3,\Gamma_3}
+{\Gamma\vdash (n \oplus c)(e) \evals b_3,\Gamma_3}
+
+\inferrule[n+k]
+{\Gamma\vdash e \evals v_1,\Gamma_1 \\ \Gamma_1\vdash \Psi_2^\oplus(c,v_1) \evals v_2,\Gamma_2 \\ \Gamma_2\vdash n(v_2) \evals b_3,\Gamma_3}
+{\Gamma\vdash (c \oplus n)(e) \evals b_3,\Gamma_3}
+
+\inferrule[n+k]
+{\Gamma\vdash e \evals v_1,\Gamma_1 \\ \Gamma_1\vdash \Psi_1^\ominus(v_1) \evals v_2,\Gamma_2 \\ \Gamma_2\vdash n(v_2) \evals b_3,\Gamma_3}
+{\Gamma\vdash (\ominus n)(e) \evals b_3,\Gamma_3}
+
+\inferrule[Guard]
+{\Gamma\vdash e \evals v_1,\Gamma_1 \\ \Gamma_1\vdash \pi(v_1) \evals b_2,\Gamma_2 \\ \Gamma_2\stackrel{eval}{\vdash} x \evals b_3,\Gamma_3}
+{\Gamma\vdash (\pi \models x)(e) \evals b_2 \wedge b_3,\Gamma_3}
+
+\inferrule[Tree-Nullptr]
+{\Gamma \vdash e \evals v,\Gamma_0 \\ \Gamma_0 \vdash $dynamic\_cast$\langle\tau*\rangle(v) \evals nullptr,\Gamma_1}
+{\Gamma\vdash ($match$\langle\tau\rangle(\pi_1,...,\pi_k))(e) \evals nullptr,\Gamma_1}
+
+\inferrule[Tree-False]
+{\Gamma \vdash e \evals v,\Gamma_0 \\ \Gamma_0 \vdash $dynamic\_cast$\langle\tau*\rangle(v) \evals u^{\tau*},\Gamma_1 \\\\
+ \Gamma_1    \vdash \Delta_1    ^\tau(v) \evals v_1,    \Gamma_1'     \\ \Gamma_1'    \vdash \pi(v_1    ) \evals true, \Gamma_2     \\\\
+ \Gamma_2    \vdash \Delta_2    ^\tau(v) \evals v_2,    \Gamma_2'     \\ \Gamma_2'    \vdash \pi(v_2    ) \evals true, \Gamma_3     \\\\
+ \cdots \\\\
+ \Gamma_{i-1}\vdash \Delta_{i-1}^\tau(v) \evals v_{i-1},\Gamma_{i-1}' \\ \Gamma_{i-1}'\vdash \pi(v_{i-1}) \evals true, \Gamma_i     \\\\
+ \Gamma_i    \vdash \Delta_i    ^\tau(v) \evals v_i,    \Gamma_i'     \\ \Gamma_i'    \vdash \pi(v_i    ) \evals false,\Gamma_{i+1} \\\\
+}
+{\Gamma\vdash ($match$\langle\tau\rangle(\pi_1,...,\pi_k))(e) \evals nullptr,\Gamma_{i+1}}
+
+\inferrule[Tree-True]
+{\Gamma \vdash e \evals v,\Gamma_0 \\ \Gamma_0 \vdash $dynamic\_cast$\langle\tau*\rangle(v) \evals u^{\tau*},\Gamma_1 \\\\
+ \Gamma_1    \vdash \Delta_1    ^\tau(v) \evals v_1,    \Gamma_1'     \\ \Gamma_1'    \vdash \pi(v_1    ) \evals true, \Gamma_2     \\\\
+ \Gamma_2    \vdash \Delta_2    ^\tau(v) \evals v_2,    \Gamma_2'     \\ \Gamma_2'    \vdash \pi(v_2    ) \evals true, \Gamma_3     \\\\
+ \cdots \\\\
+ \Gamma_{k-1}\vdash \Delta_{k-1}^\tau(v) \evals v_{k-1},\Gamma_{k-1}' \\ \Gamma_{k-1}'\vdash \pi(v_{k-1}) \evals true, \Gamma_k     \\\\
+ \Gamma_k    \vdash \Delta_k    ^\tau(v) \evals v_k,    \Gamma_k'     \\ \Gamma_k'    \vdash \pi(v_k    ) \evals true, \Gamma_{k+1} \\\\
+}
+{\Gamma\vdash ($match$\langle\tau\rangle(\pi_1,...,\pi_k))(e) \evals u^{\tau*},\Gamma_{i+1}[$matched$^{\tau\&}\leftarrow*u]}
+\end{mathpar}
+
+Evaluation rules for expression templates looks as following:
+
+\begin{mathpar}
+\inferrule[Var]
+{}
+{\Gamma\vdash w \evals \Gamma(w),\Gamma}
+
+\inferrule[Unary]
+{\Gamma\vdash x \evals v,\Gamma_1}
+{\Gamma\vdash \ominus x \evals \Sem{\ominus} v,\Gamma_1}
+
+\inferrule[Binary]
+{\Gamma\vdash x_1 \evals v_1,\Gamma_1 \\ \Gamma_1\vdash x_2 \evals v_2,\Gamma_2}
+{\Gamma\vdash x_1 \oplus x_2 \evals v_1\Sem{\oplus}v_2,\Gamma_2}
+
+\inferrule[Binary]
+{\Gamma\vdash x \evals v,\Gamma_1}
+{\Gamma\vdash x \oplus c \evals v\Sem{\oplus}c,\Gamma_1}
+
+\inferrule[Binary]
+{\Gamma\vdash x \evals v,\Gamma_1}
+{\Gamma\vdash c \oplus x \evals c\Sem{\oplus}v,\Gamma_1}
+\end{mathpar}
+
+\section{Syntax}
+
+\begin{center}
+\begin{tabular}{rp{0em}cl}
+\Rule{match statement}     & $M$     & \is{}  & \code{Match(}$e$\code{)} $\left[C s^*\right]^*$ \code{EndMatch} \\
+\Rule{case clause}         & $C$     & \is{}  & \code{Case(}$T\left[,v\right]^*$\code{)} \\
+                           &         & \Alt{} & \code{Que(} $T\left[,c|v|\pi\right]^*$\code{)} \\
+\Rule{target expression}   & $T$     & \is{}  & $\tau$ \Alt{} $l$ \\
+\Rule{match expression}    & $m$     & \is{}  & $\pi(e)$ \\
+\Rule{pattern}             & $\pi$   & \is{}  & $\_$\Alt{} $n$ \Alt{} $g$ \Alt{} $t$ \\
+\Rule{tree pattern}        & $t$     & \is{}  & \code{match<}$\tau\left[,l\right]$\code{>(}$\left[c|v|\pi\right]^*$\code{)} \\
+\Rule{guard pattern}       & $g$     & \is{}  & $n \models x$ \Alt{} $t \models x$ \\
+\Rule{n+k pattern}         & $n$     & \is{}  & $w$ \Alt{} $n \oplus c$ \Alt{} $c \oplus n$ \Alt{} $\ominus n$ \Alt{} $(n)$ \Alt{} $\_$ \\
+\Rule{wildcard pattern}    & $\_^{wildcard}$& & \\
+\Rule{xt expression}       & $x$     & \is{}  & $w$ \Alt{} $x \oplus c$ \Alt{} $c \oplus x$ \Alt{} $\ominus x$ \Alt{} $(x)$ \Alt{} $x \oplus x$ \\
+\Rule{xt variable}         & $w^{variable\langle\tau\rangle}$ & & \ \\
+\Rule{layout}              & $l$     & \is{}  & $c^{int}$ \\
+\Rule{unary operator}      &$\ominus$& $\in$  & $\lbrace*,\&,+,-,!,\sim\rbrace$ \\
+\Rule{binary operator}     & $\oplus$& $\in$  & $\lbrace*,/,\%,+,-,\ll,\gg,\&,\wedge,|,$ \\
+                           &         &        & $<,\leq,>,\geq,=,\neq,\&\&,||\rbrace$ \\
+\Rule{type-id}             & $\tau$  &        & C++\cite[\textsection A.7]{C++0x} \\
+\Rule{statement}           & $s$     &        & C++\cite[\textsection A.5]{C++0x} \\
+\Rule{expression}          & $e^\tau$&        & C++\cite[\textsection A.4]{C++0x} \\
+\Rule{constant-expression} & $c^\tau$&        & C++\cite[\textsection A.4]{C++0x} \\
+\Rule{identifier}          & $v^\tau$&        & C++\cite[\textsection A.2]{C++0x} \\
+\end{tabular}
+\end{center}
+
+\end{document}
