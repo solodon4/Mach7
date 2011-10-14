@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iterator>
 #include <iostream>
@@ -6,9 +7,8 @@
 #include <numeric>
 #include <string>
 #include <vector>
-#define NOMINMAX
-#include <windows.h>
 #include "match.hpp"
+#include "timing.hpp"
 
 #define FOR_EACH_MAX 99
 
@@ -45,6 +45,7 @@ struct ShapeVisitor
 template <int N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(*this); }
 
 #if 0
+DO_NOT_INLINE_BEGIN
 int do_match(Shape& s)
 {
     SWITCH_N(s,FOR_EACH_MAX)
@@ -58,7 +59,9 @@ int do_match(Shape& s)
     //assert(!"Inexhaustive search");
     return -1;
 }
+DO_NOT_INLINE_END
 #else
+DO_NOT_INLINE_BEGIN
 int do_match(Shape& s)
 {
     static vtbl2lines<7> __vtbl2lines_map; 
@@ -776,8 +779,11 @@ int do_match(Shape& s)
     return -1;
 
 }
+DO_NOT_INLINE_END
 #endif
-__attribute__ ((noinline)) int do_visit(const Shape& s)
+
+DO_NOT_INLINE_BEGIN
+int do_visit(const Shape& s)
 {
     struct Visitor : ShapeVisitor
     {
@@ -792,6 +798,7 @@ __attribute__ ((noinline)) int do_visit(const Shape& s)
     s.accept(v);
     return v.result;
 }
+DO_NOT_INLINE_END
 
 Shape* make_shape(int i)
 {
@@ -825,7 +832,7 @@ typename Container::value_type deviation(const Container& c)
     return std::sqrt(double(d)/c.size());
 }
 
-long long display(const char* name, std::vector<long long>& timings, const LARGE_INTEGER& Freq)
+long long display(const char* name, std::vector<long long>& timings)
 {
     std::sort(timings.begin(), timings.end());
     std::fstream file;
@@ -846,15 +853,17 @@ long long display(const char* name, std::vector<long long>& timings, const LARGE
     long long med = timings[timings.size()/2];
     long long dev = deviation(timings);
     std::cout << name << " Time: ["
-              << std::setw(4) << min*1000000/Freq.QuadPart << " -- " 
-              << std::setw(4) << avg*1000000/Freq.QuadPart << "/" 
-              << std::setw(4) << med*1000000/Freq.QuadPart << " -- "
-              << std::setw(4) << max*1000000/Freq.QuadPart << "] Dev = " 
+              << std::setw(4) << microseconds(min) << " -- " 
+              << std::setw(4) << microseconds(avg) << "/" 
+              << std::setw(4) << microseconds(med) << " -- "
+              << std::setw(4) << microseconds(max) << "] Dev = " 
               << std::setw(4) << dev << std::endl;
     return med;
 }
 
+#ifdef TRACE_PERFORMANCE
 #include <bitset> // For print out purposes only
+#endif
 
 void test_sequential()
 {
@@ -863,9 +872,6 @@ void test_sequential()
     cache_misses = 0;
 #endif
     std::cout << "=================== Sequential Test ===================" << std::endl;
-    LARGE_INTEGER Freq;
-
-    QueryPerformanceFrequency(&Freq);
 
     for (int n = 0; n <= FOR_EACH_MAX; ++n)
     {
@@ -882,36 +888,39 @@ void test_sequential()
 
         for (int m = 0; m < M; ++m)
         {
-            LARGE_INTEGER liStart1, liFinish1, liStart2, liFinish2;
             int a1 = 0,a2 = 0;
 
-            QueryPerformanceCounter(&liStart1);
+            time_stamp liStart1 = get_time_stamp();
 
             for (int i = 0; i < N; ++i)
                 a1 += do_visit(*shapes[i]);
 
-            QueryPerformanceCounter(&liFinish1);
+            time_stamp liFinish1 = get_time_stamp();
 
-            QueryPerformanceCounter(&liStart2);
+            time_stamp liStart2 = get_time_stamp();
 
             for (int i = 0; i < N; ++i)
                 a2 += do_match(*shapes[i]);
 
-            QueryPerformanceCounter(&liFinish2);
+            time_stamp liFinish2 = get_time_stamp();
 
             assert(a1==a2);
-            timingsV[m] = liFinish1.QuadPart-liStart1.QuadPart;
-            timingsM[m] = liFinish2.QuadPart-liStart2.QuadPart;
+
+            timingsV[m] = liFinish1-liStart1;
+            timingsM[m] = liFinish2-liStart2;
         }
 
-        long long avgV = display("AreaVisSeq", timingsV, Freq);
-        long long avgM = display("AreaMatSeq", timingsM, Freq);
-        std::cout << avgM*100/avgV-100 << "% slower" << std::endl;
+        long long avgV = display("AreaVisSeq", timingsV);
+        long long avgM = display("AreaMatSeq", timingsM);
+        //if (avgV)
+            std::cout << avgM*100/avgV-100 << "% slower" << std::endl;
+        //else
+        //    std::cout << "Insufficient timer resolution" << std::endl;
         //std::cout << "//----------------------------------------------------------------------" << std::endl;
 #ifdef TRACE_PERFORMANCE
         std::cout << "Cache hits: " << cache_hits << "\tCache misses: " << cache_misses << std::endl;
         std::cout << "Common: " << std::bitset<32>(common) << std::endl
-            << "Differ: " << std::bitset<32>(differ) << std::endl;
+                  << "Differ: " << std::bitset<32>(differ) << std::endl;
 #endif
         for (int i = 0; i < N; ++i)
         {
@@ -923,14 +932,13 @@ void test_sequential()
 
 void test_randomized()
 {
+    //srand (get_time_stamp()/get_frequency()); // Randomize pseudo random number generator
+
 #ifdef TRACE_PERFORMANCE
     cache_hits   = 0;
     cache_misses = 0;
 #endif
     std::cout << "=================== Randomized Test ===================" << std::endl;
-    LARGE_INTEGER Freq;
-
-    QueryPerformanceFrequency(&Freq);
 
     for (int n = 0; n <= FOR_EACH_MAX; ++n)
     {
@@ -947,36 +955,38 @@ void test_randomized()
 
         for (int m = 0; m < M; ++m)
         {
-            LARGE_INTEGER liStart1, liFinish1, liStart2, liFinish2;
             int a1 = 0,a2 = 0;
 
-            QueryPerformanceCounter(&liStart1);
+            time_stamp liStart1 = get_time_stamp();
 
             for (int i = 0; i < N; ++i)
                 a1 += do_visit(*shapes[i]);
 
-            QueryPerformanceCounter(&liFinish1);
+            time_stamp liFinish1 = get_time_stamp();
 
-            QueryPerformanceCounter(&liStart2);
+            time_stamp liStart2 = get_time_stamp();
 
             for (int i = 0; i < N; ++i)
                 a2 += do_match(*shapes[i]);
 
-            QueryPerformanceCounter(&liFinish2);
+            time_stamp liFinish2 = get_time_stamp();
 
             assert(a1==a2);
-            timingsV[m] = liFinish1.QuadPart-liStart1.QuadPart;
-            timingsM[m] = liFinish2.QuadPart-liStart2.QuadPart;
+            timingsV[m] = liFinish1-liStart1;
+            timingsM[m] = liFinish2-liStart2;
         }
 
-        long long avgV = display("AreaVisRnd", timingsV, Freq);
-        long long avgM = display("AreaMatRnd", timingsM, Freq);
-        std::cout << avgM*100/avgV-100 << "% slower" << std::endl;
+        long long avgV = display("AreaVisRnd", timingsV);
+        long long avgM = display("AreaMatRnd", timingsM);
+        //if (avgV)
+            std::cout << avgM*100/avgV-100 << "% slower" << std::endl;
+        //else
+            //std::cout << "Insufficient timer resolution" << std::endl;
         //std::cout << "//----------------------------------------------------------------------" << std::endl;
 #ifdef TRACE_PERFORMANCE
         std::cout << "Cache hits: " << cache_hits << "\tCache misses: " << cache_misses << std::endl;
         std::cout << "Common: " << std::bitset<32>(common) << std::endl
-            << "Differ: " << std::bitset<32>(differ) << std::endl;
+                  << "Differ: " << std::bitset<32>(differ) << std::endl;
 #endif
         for (int i = 0; i < N; ++i)
         {

@@ -10,11 +10,10 @@ fib 2       = 1
 fib (2*n)   = (fib(n+1))^2 - (fib(n-1))^2
 fib (2*n+1) = (fib(n+1))^2 + (fib n   )^2
 */
-#define NOMINMAX
-#include <windows.h>
 #include <math.h>
 #include <iostream>
 #include "match.hpp"
+#include "timing.hpp"
 
 template <typename T> T& identity(T& t) { return t; }
 
@@ -80,10 +79,6 @@ int fib1(int n)
 
 int main()
 {
-    LARGE_INTEGER Freq;
-
-    QueryPerformanceFrequency(&Freq);
-
 	double x = 2.0;
 
 	for (int i = 0; i < 10; ++i)
@@ -98,39 +93,39 @@ int main()
     {
         const int N = 10000;
         double sum1 = 0;
-        LARGE_INTEGER liStart1, liFinish1, liStart2, liFinish2;
-        QueryPerformanceCounter(&liStart1);
+
+        time_stamp liStart1 = get_time_stamp();
         for (int i = 0; i < N; ++i)
             sum1 += power(x,i);
-        QueryPerformanceCounter(&liFinish1);
+        time_stamp liFinish1 = get_time_stamp();
 
         double sum2 = 0;
-        QueryPerformanceCounter(&liStart2);
+        time_stamp liStart2 = get_time_stamp();
         for (int i = 0; i < N; ++i)
             sum2 += power1(x,i);
-        QueryPerformanceCounter(&liFinish2);
+        time_stamp liFinish2 = get_time_stamp();
 
-        std::cout << "PowerM Time:" << (liFinish1.QuadPart-liStart1.QuadPart)*1000000/Freq.QuadPart << "mks\t Sum:" << sum1 << std::endl;
-        std::cout << "PowerN Time:" << (liFinish2.QuadPart-liStart2.QuadPart)*1000000/Freq.QuadPart << "mks\t Sum:" << sum2 << std::endl;
-        std::cout << (liFinish1.QuadPart-liStart1.QuadPart)*100/(liFinish2.QuadPart-liStart2.QuadPart)-100 << "% slower" << std::endl;
+        std::cout << "PowerM Time:" << microseconds(liFinish1-liStart1) << "mks\t Sum:" << sum1 << std::endl;
+        std::cout << "PowerN Time:" << microseconds(liFinish2-liStart2) << "mks\t Sum:" << sum2 << std::endl;
+        std::cout << (liFinish1-liStart1)*100/(liFinish2-liStart2)-100 << "% slower" << std::endl;
     }
     {
         const int N = 1000;
         int sum1 = 0;
-        LARGE_INTEGER liStart1, liFinish1, liStart2, liFinish2;
-        QueryPerformanceCounter(&liStart1);
+
+        time_stamp liStart1 = get_time_stamp();
         for (int i = 1; i < N; ++i)
             sum1 += fib(i);
-        QueryPerformanceCounter(&liFinish1);
+        time_stamp liFinish1 = get_time_stamp();
 
         int sum2 = 0;
-        QueryPerformanceCounter(&liStart2);
+        time_stamp liStart2 = get_time_stamp();
         for (int i = 1; i < N; ++i)
             sum2 += fib1(i);
-        QueryPerformanceCounter(&liFinish2);
+        time_stamp liFinish2 = get_time_stamp();
 
-        std::cout << "FibM Time:" << (liFinish1.QuadPart-liStart1.QuadPart)*1000000/Freq.QuadPart << "mks\t Sum:" << sum1 << std::endl;
-        std::cout << "FibN Time:" << (liFinish2.QuadPart-liStart2.QuadPart)*1000000/Freq.QuadPart << "mks\t Sum:" << sum2 << std::endl;
-        std::cout << (liFinish1.QuadPart-liStart1.QuadPart)*100/(liFinish2.QuadPart-liStart2.QuadPart)-100 << "% slower" << std::endl;
+        std::cout << "FibM Time:" << microseconds(liFinish1-liStart1) << "mks\t Sum:" << sum1 << std::endl;
+        std::cout << "FibN Time:" << microseconds(liFinish2-liStart2) << "mks\t Sum:" << sum2 << std::endl;
+        std::cout << (liFinish1-liStart1)*100/(liFinish2-liStart2)-100 << "% slower" << std::endl;
     }
 }

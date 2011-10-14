@@ -2,9 +2,8 @@
 
 #include <cmath>
 #include <iostream>
-#define NOMINMAX
-#include <windows.h>
 #include "match_shape.hpp"
+#include "timing.hpp"
 
 wildcard _; // Meta variable
 
@@ -199,88 +198,73 @@ int dummy_vis(Shape* s)
 
 void time_area(Shape& s)
 {
-    LARGE_INTEGER Freq;
-
-    QueryPerformanceFrequency(&Freq);
-
     const int N = 10000;
-    LARGE_INTEGER liStart1, liFinish1, liStart2, liFinish2;
     double a1,a2;
-    QueryPerformanceCounter(&liStart1);
+    time_stamp liStart1 = get_time_stamp();
     for (int i = 0; i < N; ++i)
         a1 = area_vis(s);
-    QueryPerformanceCounter(&liFinish1);
+    time_stamp liFinish1 = get_time_stamp();
 
-    QueryPerformanceCounter(&liStart2);
+    time_stamp liStart2 = get_time_stamp();
     for (int i = 0; i < N; ++i)
         a2 = area(s);
-    QueryPerformanceCounter(&liFinish2);
+    time_stamp liFinish2 = get_time_stamp();
 
     assert(a1==a2);
 
-    std::cout << "AreaV Time:" << (liFinish1.QuadPart-liStart1.QuadPart)*1000000/Freq.QuadPart << std::endl;
-    std::cout << "AreaM Time:" << (liFinish2.QuadPart-liStart2.QuadPart)*1000000/Freq.QuadPart << std::endl;
-    std::cout << (liFinish2.QuadPart-liStart2.QuadPart)*100/(liFinish1.QuadPart-liStart1.QuadPart)-100 << "% slower" << std::endl;
+    std::cout << "AreaV Time:" << microseconds(liFinish1-liStart1) << std::endl;
+    std::cout << "AreaM Time:" << microseconds(liFinish2-liStart2) << std::endl;
+    std::cout << (liFinish2-liStart2)*100/(liFinish1-liStart1)-100 << "% slower" << std::endl;
 }
 
 void time_center(Shape& s)
 {
-    LARGE_INTEGER Freq;
-
-    QueryPerformanceFrequency(&Freq);
-
     const int N = 10000;
-    LARGE_INTEGER liStart1, liFinish1, liStart2, liFinish2;
     loc c1,c2;
-    QueryPerformanceCounter(&liStart1);
+    time_stamp liStart1 = get_time_stamp();
     for (int i = 0; i < N; ++i)
         c1 = center_vis(s);
-    QueryPerformanceCounter(&liFinish1);
+    time_stamp liFinish1 = get_time_stamp();
 
-    QueryPerformanceCounter(&liStart2);
+    time_stamp liStart2 = get_time_stamp();
     for (int i = 0; i < N; ++i)
         c2 = center(s);
-    QueryPerformanceCounter(&liFinish2);
+    time_stamp liFinish2 = get_time_stamp();
 
     assert(c1==c2);
 
-    std::cout << "CenterV Time:" << (liFinish1.QuadPart-liStart1.QuadPart)*1000000/Freq.QuadPart << std::endl;
-    std::cout << "CenterM Time:" << (liFinish2.QuadPart-liStart2.QuadPart)*1000000/Freq.QuadPart << std::endl;
-    std::cout << (liFinish2.QuadPart-liStart2.QuadPart)*100/(liFinish1.QuadPart-liStart1.QuadPart)-100 << "% slower" << std::endl;
+    std::cout << "CenterV Time:" << microseconds(liFinish1-liStart1) << std::endl;
+    std::cout << "CenterM Time:" << microseconds(liFinish2-liStart2) << std::endl;
+    std::cout << (liFinish2-liStart2)*100/(liFinish1-liStart1)-100 << "% slower" << std::endl;
 }
 
 void time_dummy(Shape& s)
 {
-    LARGE_INTEGER Freq;
-
-    QueryPerformanceFrequency(&Freq);
-
     const int N = 10000;
-    LARGE_INTEGER liStart1, liFinish1, liStart2, liFinish2, liStart3, liFinish3;
     int c1,c2;
-    QueryPerformanceCounter(&liStart1);
+    time_stamp liStart1 = get_time_stamp();
     for (int i = 0; i < N; ++i)
         c1 = dummy_vis(&s);
-    QueryPerformanceCounter(&liFinish1);
+    time_stamp liFinish1 = get_time_stamp();
 
-    QueryPerformanceCounter(&liStart2);
+    time_stamp liStart2 = get_time_stamp();
     for (int i = 0; i < N; ++i)
         c2 = dummy(&s);
-    QueryPerformanceCounter(&liFinish2);
+    time_stamp liFinish2 = get_time_stamp();
 
-    QueryPerformanceCounter(&liStart3);
+    time_stamp liStart3 = get_time_stamp();
     for (int i = 0; i < N; ++i)
         c2 = dummy_dyn(&s);
-    QueryPerformanceCounter(&liFinish3);
+    time_stamp liFinish3 = get_time_stamp();
 
     assert(c1==c2);
 
-    std::cout << "DummyV Time:" << (liFinish1.QuadPart-liStart1.QuadPart)*1000000/Freq.QuadPart << std::endl;
-    std::cout << "DummyD Time:" << (liFinish3.QuadPart-liStart3.QuadPart)*1000000/Freq.QuadPart << std::endl;
-    std::cout << "DummyM Time:" << (liFinish2.QuadPart-liStart2.QuadPart)*1000000/Freq.QuadPart << std::endl;
+    std::cout << "DummyV Time:" << microseconds(liFinish1-liStart1) << std::endl;
+    std::cout << "DummyD Time:" << microseconds(liFinish3-liStart3) << std::endl;
+    std::cout << "DummyM Time:" << microseconds(liFinish2-liStart2) << std::endl;
     
-    std::cout << (liFinish3.QuadPart-liStart3.QuadPart)*100/(liFinish1.QuadPart-liStart1.QuadPart)-100 << "% slower" << std::endl;
-    std::cout << (liFinish2.QuadPart-liStart2.QuadPart)*100/(liFinish1.QuadPart-liStart1.QuadPart)-100 << "% slower" << std::endl;
+    std::cout << (liFinish3-liStart3)*100/(liFinish1-liStart1)-100 << "% slower" << std::endl;
+    std::cout << (liFinish2-liStart2)*100/(liFinish1-liStart1)-100 << "% slower" << std::endl;
 }
 
 

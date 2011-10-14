@@ -90,7 +90,13 @@ template <typename T> struct remove_const<const T> { typedef T type; };
 ///       user's code since they explicitly expect a pointer argument
 #define   LIKELY_BRANCH(ptr) (ptr)
 #define UNLIKELY_BRANCH(ptr) (ptr)
+/// A macro that is supposed to be put before the function definition whose inlining should be disabled
+#define DO_NOT_INLINE_BEGIN __pragma(auto_inline (off))
+/// A macro that is supposed to be put after  the function definition whose inlining should be disabled
+#define DO_NOT_INLINE_END   __pragma(auto_inline (on))
+
 #else
+
 /// Macro that starts the switch on pattern
 #define SWITCH(s)\
         static vtbl2lines<> __vtbl2lines_map;\
@@ -106,6 +112,11 @@ template <typename T> struct remove_const<const T> { typedef T type; };
 ///       user's code since they explicitly expect a pointer argument
 #define   LIKELY_BRANCH(ptr) (__builtin_expect(ptr != 0, 1))
 #define UNLIKELY_BRANCH(ptr) (__builtin_expect(ptr != 0, 0))
+/// A macro that is supposed to be put before the function definition whose inlining should be disabled
+#define DO_NOT_INLINE_BEGIN __attribute__ ((noinline))
+/// A macro that is supposed to be put after  the function definition whose inlining should be disabled
+#define DO_NOT_INLINE_END
+
 #endif
 
 /// Macro that defines the case statement for the above switch
