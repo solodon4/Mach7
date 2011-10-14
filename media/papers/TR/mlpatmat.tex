@@ -28,11 +28,11 @@ showstringspaces=false,
 \copyrightyear{2011} 
 \copyrightdata{[to be supplied]} 
 
-\titlebanner{Working Draft}        % These are ignored unless
+\titlebanner{Technical Report}        % These are ignored unless
 \preprintfooter{Y.Solodkyy, G.Dos Reis, B.Stroustrup: Pattern Matching for C++}   % 'preprint' option specified.
 
 \title{Pattern Matching for C++}
-\subtitle{an attempt to retire Visitor Design Pattern}
+\subtitle{An attempt to retire Visitor Design Pattern}
 
 \authorinfo{Yuriy Solodkyy\and Gabriel Dos Reis\and Bjarne Stroustrup}
            {Texas A\&M University\\ Texas, USA}
@@ -151,8 +151,8 @@ struct Mult  : Expr { Expr* exp1; Expr* exp2; };
 struct Div   : Expr { Expr* exp1; Expr* exp2; };
 \end{lstlisting}
 
-Together with evaluator they form an instance of the Interpreter Design 
-Pattern\cite{DesignPatterns1993}. Unlike the type definitions, the evaluator 
+Together with evaluator they form an instance of the \emph{Interpreter Design 
+Pattern}\cite{DesignPatterns1993}. Unlike the type definitions, the evaluator 
 for the language, implemented on top of our pattern matching library is almost 
 as breve as its version in OCaml:
 
@@ -181,8 +181,7 @@ of the \code{Match}.
 \begin{lstlisting}[keepspaces,columns=flexible]
 template <> struct bindings<Value> { CM(0,Value::value); };
 template <> struct bindings<Plus>  { CM(0,Plus::exp1); 
-                                     CM(1,Plus::exp2); };
-...
+  ...                                CM(1,Plus::exp2); };
 template <> struct bindings<Div>   { CM(0,Div::exp1); 
                                      CM(1,Div::exp2); };
 \end{lstlisting}
@@ -191,7 +190,7 @@ The above syntax is enabled without any external tool support through the use
 of new C++0x features\cite{C++0x}, template meta-programming and macros. As we 
 show in section~\ref{       }, it runs up to 80\% faster (depending on the usage 
 scenario, compiler and underlain hardware) than a similar code crafted with the 
-Visitor Design Pattern.
+\emph{Visitor Design Pattern}.
 
 \section{Motivation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -201,7 +200,7 @@ The ideas and the library presented here originated from our rather
 unsatisfactory expirience in working with various C++ front-ends and program 
 analysis frameworks developed in C++\cite{Pivot09,Phoenix,Clang,Lise}. The 
 problem was not in the frameworks per se, but in the fact that we had to use 
-Visitor Design Pattern\cite{DesignPatterns1993} to inspect, traverse and 
+emph{Visitor Design Pattern}\cite{DesignPatterns1993} to inspect, traverse and 
 elaborate abstract syntax trees of their target languages. Having written enough 
 visitors to realize how unsuitable they were for the job, we started looking for 
 other mechanisms to work with abstract syntax trees, even if they would have 
@@ -227,22 +226,171 @@ predicates on tree-like structures with the brevity of functional languages.
 
 \subsection{Visitor Design Pattern}
 
+%Discuss visitor design pattern and its problems.
+%\begin{itemize}
+%\item Intrusive - requires changes to the hierarchy
+%\item Not open  - addition of new classes changes visitor interface
+%\item Doesn't provide by default relation between visitors of base and derived classes
+%\item Control inversion
+%\item Cannot be generically extended to handling n arguments
+%\end{itemize}
+
+%[From Extensible Algebraic Datatypes with Defaults]
+%In the object-oriented approach, data is modelled by a set of classes, sharing 
+%a common interface. Each subclass defines its own implementation of eval. Whereas
+%extending the datatype with new variants is simply done by
+%creating new classes, adding new operations involves modifications
+%of the abstract base class.
+
+\emph{Visitor Design Pattern}\cite{DesignPatterns1993} was devised to solve a problem 
+of extending existing classes with new functions in object-oriented languages. 
+Consider the above Expr example and imagine we would like to provide a pretty 
+printing of expressions. A typical object-oriented approach would be to 
+introduce a virtual function \code{virtual void print() const = 0;} inside the 
+abstract base class \code{Expr}, which will be implemented correspondingly in all derived 
+classes. This works well as long as we know all the required operations on the 
+abstract class in advance. Unfortunately this is very difficult to achieve in 
+reality as the code evolves, especially in production environment. To put this 
+in context, imagine that after the above interface with pretty printing 
+functionality has been deployed, we decided that we need a similar functionality 
+that persists the expression in XML format. Adding new virtual function implies 
+modifying the base class and creating a versioning problem with the code that 
+has been deployed already using the old interface.
+
+To alleviate this problem, Visitor Design Pattern separates the 
+\emph{commonality} of all such future member-functions from their 
+\emph{specifics}. The former deals with identifying the most specific derived 
+class of the reciever object, known to the system at the time the base class was 
+designed. The latter provides implementation of the required functionality once 
+the most specific derived class has been identified. The interaction between the 
+two is encoded in the protocol that fixes \emph{visitation interface} 
+enumerating all known derived classes on one side and a dispatching mechanism 
+that guarantees to select the most specific case with respect to the dynamic 
+type of the reciever in the visitation interface. An implementation of this 
+protocol for our Expr example might look as following:
+
+\begin{lstlisting}
+// Forward declaration of known derived classes
+struct Value; struct Plus; ... struct Div;
+// Visitation interface
+struct ExprVisitor
+{
+    virtual void visit(const Value&) = 0;
+    virtual void visit(const Plus&)  = 0;
+    ...  // One virtual function per each known derived class
+    virtual void visit(const Div&)   = 0;
+};
+// Abstract base and known derived classes
+struct Expr { 
+    virtual void accept(ExprVisitor&) const = 0; };
+struct Value : Expr { ...
+    void accept(ExprVisitor& v) const { v.visit(*this); } };
+struct Plus  : Expr { ...
+    void accept(ExprVisitor& v) const { v.visit(*this); } };
+\end{lstlisting}
+
+Note that even though implementations of \code{accept} member-functions are 
+syntactically identical, a different \code{visit} is called. We rely here on the 
+overload resolution mechanism of C++ to pick the most specialized \code{visit} 
+member-function applicable to the static type of \code{*this}. This is a mere 
+code maintenance convenience that, unfortunately, often confuses novices on what 
+is going on. We thus would like to point out that member-functions in the 
+visitation interface are not required to be called with the same name, -- we 
+could have equally well called them \code{visit_value}, \code{visit_plus} etc. 
+making the corresponding changes to calls inside \code{Value::accept}, 
+\code{Plus::accept} etc.
+
+A user can now implement his new functions similarly to the following function 
+to convert expressions to string:
+
+\begin{lstlisting}
+std::string to_str(const Expr* e); // Forward declaration
+
+struct ToStrVisitor : ExprVisitor
+{
+    void visit(const Value& e) { result = std::to_string(e.value); }
+    ...
+    void visit(const Div&   e) { 
+        result = to_str(e.exp1) + '/' + to_str(e.exp2); 
+    }
+    std::string result;
+};
+// Actual implementation based on visitor
+std::string to_str(const Expr* e)
+{
+    ToStrVisitor v;
+    e->accept(v);
+    return v.result;
+}
+\end{lstlisting}
+
+Function \code{eval} we presented above as well as any new function that we 
+would like to add to \code{Expr} can now be implemented in much the same way, 
+witihout the need to change base interface. This flexibility does not come for 
+free thought and we would like to point out some pros and cons of this solution.
+
+The most important advantage of the visitor design pattern is possibility to add 
+new operations to the class hierarchy without the necessity to change the 
+interface each time. It's second most quoted advantage is typically speed -- the 
+overhead of two virtual function calls incurred by the double dispatch present 
+in the visitor design pattern is often negligable on the modern architectures. 
+There are quite a few disadvantages however.
+
+The {\bf increased amount of boilerplate code} that has to be added to support 
+the above solution cannot go unnoticed. Several entities had to be forward 
+declared because of the mutual recursivity of their definitions. The solution is 
+also {\bf specific to hierarchy} as we had to declare a visitation interface 
+specific to the base class, as well as {\bf intrusive} since we had to inject 
+syntactically the same definition of \code{accept} method into every class 
+participating in visitation. The amount of the necessary support increases as 
+additional arguments have to be passed into the visitor to be available during 
+the visitation. This aspect can be seen in the example~\ref{} where we have to 
+store both functors inside the visitor.
+
+More importantly, visitors {\bf hinder extensibility} of the class hierarchy: 
+new classes added to the hierarchy after the visitation interface has been 
+fixed, will be treated as their most derived base class present in the interface.
+A solution to this problem has been proposed in the form of \emph{Extensible 
+Visitors with Default Cases}\cite[\textsection 4.2]{Zenger:2001}, however the solution, after 
+remapping it onto C++, has problems of its own. The visitation interface 
+hierarchy can easily be grown linearly (adding new cases for the new classes in 
+the original hierarchy each time), but independent extensions by different  
+authorities require developer's intervention to unify them all, before they can 
+be used together. This may not be feasible in environments that use dynamic 
+linking. To avoid writing even more boilerplate code in new visitors, the 
+solution would require usege of virtual inheritance\cite{}, which typically has 
+an overhead of extra memory dereferencing. On top of the double dispatch already 
+present in the visitor pattern, the solution will incure two additional virtual 
+calls and a dynamic cast for each level of visitor extension. Additional double 
+dispatch is incurred by forwarding of default handling from base visitor to a 
+derived one, while the dynamic cast is required for safety and can be replaced 
+with a static case when visitation interface is guaranteed to be grown linearly 
+(extended by one authority only). Yet another virtual call is required to be 
+able to forward computations to subcomponents on tree-like structures to the 
+most derived visitor. This last function lets one avoid the necessesity of using 
+heap to allocate a temporary visitor through the \emph{Factory Design 
+Pattern}\cite{DesignPatterns1993} used in \emph{Extensible Visitor} solution 
+originally proposed by by Krishnamurti, Felleisen and 
+Friedman\cite{Krishnamurthi98}.
+
+Once all the boilerplate related to visitors has been written and the visitation 
+interface has been fixed we are still left with some annoyances incurred by the 
+pattern. One of them is the necessity to work with the {\bf control inversion} 
+that visitors put in place. Because of it we have to save any local state and 
+any arguments that some of the \code{visit} call-backs might need from the 
+calling environment. Similarly, we have to save the result of the visitation 
+as we cannot assume that all the visitors that will potenitally be implemented 
+on a given hierarchy will use the same result type. Using visitors in a generic 
+algorithm requires even more precautions. We summarize these visitor-related 
+issues in the following motivating example, followed by an illustration of a 
+pattern matching solution to the same problem enabled with our library.
+
 %[From The Essence of the Visitor Pattern]
 %For object-oriented programming, the Visitor pattern en-
 %ables the denition of a new operation on an object structure without
 %changing the classes of the objects. The price has been that the set of
 %classes must be xed in advance, and they must each have a so-called
 %accept method.
-
-Discuss visitor design pattern and its problems.
-
-\begin{itemize}
-\item Intrusive - requires changes to the hierarchy
-\item Not open  - addition of new classes changes visitor interface
-\item Doesn't provide by default relation between visitors of base and derived classes
-\item Control inversion
-\item Cannot be generically extended to handling n arguments
-\end{itemize}
 
 %[From Emir PhD Thesis 1.4.2]
 %Apart from readability and safety, a high-level construct for pattern matching provides opportunities
@@ -256,7 +404,7 @@ Discuss visitor design pattern and its problems.
 \subsection{Motivating Example}
 
 While comparing generic programming facilities available to functional and 
-imperative languages (mainly Haskell and C++), Dos Reis et al. present the 
+imperative languages (mainly Haskell and C++), Dos Reis and Jarvi present the 
 following example in Haskell describing a sum functor\cite{DRJ05}:
 
 \begin{lstlisting}[language=Haskell]
@@ -267,14 +415,14 @@ eitherLift f g (Left  x) = Left  (f x)
 eitherLift f g (Right y) = Right (g y)
 \end{lstlisting}
 
-In simple words, the function eitherLift above takes two functions and an 
+In simple words, the function \code{eitherLift} above takes two functions and an 
 object and depending on the actual type constructor the object was created with, 
 calls first or second function on the embedded value, encoding the result 
 corresondingly.
 
 Its equivalent in C++ is not as straightforward. The idiomatic handling of 
-discriminated unions in C++ typically assumes use of the Visitor Design 
-Pattern\cite{GHJV94}.
+discriminated unions in C++ typically assumes use of the \emph{Visitor Design 
+Pattern}\cite{DesignPatterns1993}.
 
 \begin{lstlisting}
 template <class X, class Y> class Either;
@@ -283,7 +431,7 @@ template <class X, class Y> class Right;
 
 template <class X, class Y>
 struct EitherVisitor {
-    virtual void visit(const Left<X,Y>&) = 0;
+    virtual void visit(const  Left<X,Y>&) = 0;
     virtual void visit(const Right<X,Y>&) = 0;
 };
 
@@ -297,22 +445,22 @@ template <class X, class Y>
 struct Left : Either<X,Y> {
     const X& x;
     Left(const X& x) : x(x) {}
-    void accept(EitherVisitor<X,Y>& v) const
-    { v.visit(*this); }
+    void accept(EitherVisitor<X,Y>& v) const { v.visit(*this); }
 };
 
 template <class X, class Y>
 struct Right : Either<X,Y> {
     const Y& y;
     Right(const Y& y) : y(y) {}
-    void accept(EitherVisitor<X,Y>& v) const
-    { v.visit(*this); }
+    void accept(EitherVisitor<X,Y>& v) const { v.visit(*this); }
 };
 \end{lstlisting}
 
-The code above defines the necessary data structures as well as visitor class 
-capable of introspecting the data structure at run-time. Citing the authors: 
-``The code has a fair amount of boilerplate to simulate pattern matching. Now, the lift mapping itself can be defined as''
+The code above defines the necessary parameterized data structures as well as a 
+correspondingly parameterized visitor class capable of introspecting it at 
+run-time. The authors agree with us that ``The code has a fair amount of 
+boilerplate to simulate pattern matching...'' The actual implementation of 
+\code{lift} in C++ now amounts to declaring and invoking a visitor:
 
 \begin{lstlisting}
 template <class X, class Y, class S, class T>
@@ -325,12 +473,10 @@ const Either<S,T>& lift(const Either<X,Y>& e, S f(X), T g(Y))
         G g;
         const Either<S,T>* value;
         Impl(F f, G g) : f(f), g(g), value() {}
-        void visit(const Left<X,Y>& e)
-        {
+        void visit(const Left<X,Y>& e) {
             value = left<S,T>(f(e.x));
         }
-        void visit(const Right<X,Y>& e)
-        {
+        void visit(const Right<X,Y>& e) {
             value = right<S,T>(g(e.y));
         }
     };
@@ -340,31 +486,35 @@ const Either<S,T>& lift(const Either<X,Y>& e, S f(X), T g(Y))
 }
 \end{lstlisting}
 
-Our pattern matching solution allows one to shorten the definition of lift to the 
-following, which we believe is much closer to the original definition with 
-implicitly inferred types in Haskell made explicit in C++: 
+The same function expressed with our pattern matching facility seems to be much 
+closer to the original Haskell definition:
 
-\begin{lstlisting}
+\begin{lstlisting}[keepspaces,columns=flexible]
 template <class X, class Y, class S, class T>
 const Either<S,T>* lift(const Either<X,Y>& e, S f(X), T g(Y))
 {
-    X x;
-    Y y;
-    
-    if (match<Left<X,Y>>(x)(e))
-        return left<S,T>(f(x));
-    else
-    if (match<Right<X,Y>>(y)(e))
-        return right<S,T>(g(y));
-
-    return 0;
+    Match@$^T$@(e)@\footnote{T indicates that the user will have to use TMatch, TCase and TEndMatch versions of the macros respectively since the substituted code has to be correct in the template environment}@
+      Case(( Left<X,Y>), x)  return  left<S,T>(f(x));@\footnote{We need to take the first argument in parentheses to avoid interpretation of comma in template argument list by the preprocessor}@
+      Case((Right<X,Y>), y)  return right<S,T>(g(y));
+    EndMatch
 }
 \end{lstlisting}
 
-From the necessary type definitions we don't need EitherVisitor class anymore 
-as well as forward declarations and accept method in all three classes required 
-by it. Definitions of obvious functions left and right are ommitted in both 
-cases.
+The above solution neither requires \code{EitherVisitor} class anymore (together 
+with forward declarations it used), nor any of the \code{accept} 
+member-functions in all three classes. Definitions of obvious functions 
+\code{left} and \code{right} have been ommitted in both cases. We do require 
+binding definitions though to be able to bind variables \code{x} and \code{y}:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+template <class X, class Y> 
+    struct bindings<Left<X,Y>>  { CM(0, Left<X,Y>::x); };
+template <class X, class Y> 
+    struct bindings<Right<X,Y>> { CM(0,Right<X,Y>::y); };
+\end{lstlisting}
+
+Note that our binding definitons can be made once for all possible 
+instantiations with the use of partial template specialization in C++. 
 
 \subsection{Summary}
 
@@ -434,7 +584,7 @@ exist\cite{ExtensibleDatatypes,LohHinze2006}
 % Algebraic data types like SrchT are defined inductively as the least set 
 % closed under their constructor functions.
 
-The result of invoking match<T>(a,b,c) is a \emph{pattern} that can be applied 
+The result of invoking \code{match<T>(a,b,c)} is a \emph{pattern} that can be applied 
 to a given instance of any type U, that is related by inheritance to T (i.e. is 
 a base of, derived from or a sibling of). Applying given pattern to an instance 
 returns a pointer to type T if matching succeeds along with binding all the 
@@ -793,11 +943,10 @@ can use the C++0x forthcoming concept mechanism to deal with relevant issues. In
 particular when having a generalized n+k pattern on \code{variable<T>} we try to make 
 sure that 
 
-
 Scala uses a very stylistic approach to disambiguating variables that need to be 
 bound from named constants. In particular they require that named constants 
 start with capital letter while variables start with lowercase 
-letter\cite[2.8]{EmirPhd}. While such a requirement is inline with similar 
+letter\cite[\textsection 2.8]{EmirPhd}. While such a requirement is inline with similar 
 requirements for naming a constructor in various functional languages, this will 
 raise eyebrowse in C++. We thus form our distinction between variables to be 
 bound and values to be matched based on type of the expression: expressions that 
