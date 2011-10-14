@@ -1,0 +1,90 @@
+%-----------------------------------------------------------------------------
+%
+%               Template for sigplanconf LaTeX Class
+%
+% Name:         sigplanconf-template.tex
+%
+% Purpose:      A template for sigplanconf.cls, which is a LaTeX 2e class
+%               file for SIGPLAN conference proceedings.
+%
+% Author:       Paul C. Anagnostopoulos
+%               Windfall Software
+%               978 371-2316
+%               paul@windfall.com
+%
+% Created:      15 February 2005
+%
+%-----------------------------------------------------------------------------
+
+
+\documentclass[preprint]{sigplanconf}
+
+% The following \documentclass options may be useful:
+%
+% 10pt          To set in 10-point type instead of 9-point.
+% 11pt          To set in 11-point type instead of 9-point.
+% authoryear    To obtain author/year citation style instead of numeric.
+
+\usepackage{amsmath}
+
+\begin{document}
+
+\conferenceinfo{WXYZ '05}{date, City.} 
+\copyrightyear{2005} 
+\copyrightdata{[to be supplied]} 
+
+\titlebanner{banner above paper title}        % These are ignored unless
+\preprintfooter{short description of paper}   % 'preprint' option specified.
+
+\title{Title Text}
+\subtitle{Subtitle Text, if any}
+
+\authorinfo{Name1}
+           {Affiliation1}
+           {Email1}
+\authorinfo{Name2\and Name3}
+           {Affiliation2/3}
+           {Email2/3}
+
+\maketitle
+
+\begin{abstract}
+This is the text of the abstract.
+\end{abstract}
+
+\category{CR-number}{subcategory}{third-level}
+
+\terms
+term1, term2
+
+\keywords
+keyword1, keyword2
+
+\section{Introduction}
+
+The text of the paper begins here.
+
+\appendix
+\section{Appendix Title}
+
+This is the text of the appendix, if you need one.
+
+\acks
+
+Acknowledgments, if needed.
+
+% We recommend abbrvnat bibliography style.
+
+\bibliographystyle{abbrvnat}
+
+% The bibliography should be embedded for final submission.
+
+\begin{thebibliography}{}
+\softraggedright
+
+\bibitem[Smith et~al.(2009)Smith, Jones]{smith02}
+P. Q. Smith, and X. Y. Jones. ...reference text...
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,883 @@
+\documentclass[submission,copyright]{eptcs}
+\providecommand{\event}{DSL 2011} % Name of the event you are submitting to
+\usepackage{breakurl}             % Not needed if you use pdflatex only.
+\usepackage{listings}
+
+\lstdefinestyle{C++}{language=C++,%
+showstringspaces=false,
+  columns=fullflexible,
+  escapechar=@,
+  basicstyle=\sffamily,
+%  commentstyle=\rmfamily\itshape,
+  moredelim=**[is][\color{white}]{~}{~},
+  literate={=>}{{$\Rightarrow\;$}}1 {->}{{$\rightarrow{}$}}1 %
+  {<-}{{$\leftarrow$}}1 {<:}{{$\subtype{}\ $}}1,
+}
+\lstset{style=C++}
+\DeclareRobustCommand{\code}[1]{{\lstinline[breaklines=false]{#1}}}
+
+\title{Pattern matching for C++}
+\author{Yuriy Solodkyy
+\institute{Texas A\&M University\\ Texas, USA}
+\email{yuriys@cse.tamu.edu}
+\and
+Gabriel Dos Reis
+\institute{Texas A\&M University\\ Texas, USA}
+\email{gdr@cse.tamu.edu}
+\and
+Bjarne Stroustrup
+\institute{Texas A\&M University\\ Texas, USA}
+\email{bs@cse.tamu.edu}
+}
+\def\titlerunning{Pattern matching for C++}
+\def\authorrunning{Y. Solodkyy, G. Dos Reis, B. Stroustrup}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Pattern matching has been known in functional programming community as an
+abstraction mechanism that greatly simplifies the code. Following the success of 
+functional languages, several imperative programming languages had introduced 
+pattern matching into them. While this is relatively easy to do a-priori, when 
+designing a new language, this might become quite a challenge to do a-posteriori 
+when trying to introduce it into an industry strength language like C++. 
+We present ML-like pattern matching for C++ implemented as a pure library in a 
+form of Domain Specific Language built on top of standard C++. Our solution 
+comes very close in terms of performance to its de facto contender -- the visitor 
+design pattern, traditionally used in pattern matching scenarios in C++. Unlike 
+the visitor pattern our solution is non intrusive, open to new classes, avoids 
+the control inversion and is much more conscise, easier to read, maintain and 
+comprehend. It also mimics many of the pattern matching facilities (e.g. guards 
+and n+k patterns) available in other languages on the first class basis, letting 
+us experiment with them without any changes to the compiler, while offsetting 
+the semantic discussions that typically go along into the domain of concepts.
+\end{abstract}
+
+\section{Introduction} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Motivate the problem
+%Give a summary of the paper: what you did and how
+%Explicitly state your contribution
+
+\subsection{Excursus}
+
+The ideas and the library presented here originated from our rather 
+unsatisfactory expirience in working with various program analysis frameworks 
+developed in C++~\cite{Pivot09,Phoenix,Clang,Lise}. The problem was not in the 
+frameworks per se, but in the fact that we had to use Visitor Design Pattern~\cite{DesignPatterns1993} 
+to inspect, traverse and elaborate abstract syntax trees of their target 
+languages. Having written enough visitors to realize how unsuitable they were 
+for the job, we started looking for other mechanisms to work with abstract 
+syntaxt trees, even if they would have turned out to be significantly slower. 
+Presense of dynamic\_casts in many places, often nested, to answer simple 
+structural questions without having to resort to visitors, was a strong 
+indicator that even though visitors were fast, in many non-critical cases 
+users were prefering a shorter and a more clear code rather than performance.
+The usage of dynamic\_cast in those cases was resembling the use of pattern 
+matching in functional languages to unpack an algebraic data type. 
+Functional languages have been long known to be very suitable for developing 
+program analysis tools because of the brevity with which the necessary 
+algorithms can be expressed. This is why our initial goal was to develop a 
+domain-specific library within C++ that would enable us expressing various 
+predicates on tree-like structures with the brevity of functional languages.
+
+\subsection{Motivation}
+
+Pattern matching is an abstraction supported by many programming languages, which 
+allows the user to describe in a breve manner a (possibly infinite) set of 
+values accepted by the pattern. Pattern represents effectively a predicate on 
+values, and is usually expected to be much more consciese and readable than the 
+equivalent predicate spelled out directly.
+
+Popularized by functional programming community, most notably ML~\cite{ML90} and 
+Haskel~\cite{Haskell98Book}, for providing syntax very close to mathematical 
+notations, pattern matching has since been incorporated into many imperative 
+programming languages like Scala~\cite{Scala2nd}, ???. While this is relatively 
+easy to do a-priori when designing a new language, the introduction of pattern 
+matching into an industry strengths language like C++ a-posteriori might become 
+a challenge. The obvious utility of the feature may be overshadowed by the 
+complications in the language semantics necessary to make pattern matching work 
+with other features of the language. A prototype implementation will likely 
+require a lot of effort, but will be hard to publish due to lack of novelty.
+
+To balance the utility and effort we follow the approach of Semantically 
+Enhanced Library Languages~\cite{SELL}, under which one should rather consider 
+subsetting a general-purpose programming language (C++ in our case), extended 
+with a tool support (which would be convenient, but not necessary here). Such 
+approach will typically not give you 100\% of functionality, but instead would 
+rather give you 80\% of it at 20\% of the time. This was exactly the case with 
+our solution as instead of typical half a year to get any major feature 
+implemented on a scale of C++ language, it took us less than a month to 
+implement it as a SELL and under a week to rewrite an existing application using 
+it.
+
+Naturally, a library only solution might have limitations that can be overcome in 
+a language solution, which is why we do not propose our current approach as the 
+ultimate library solution, but instead as a transition facility that lets users 
+experiment with pattern matching in C++ while letting us experiment with and 
+eventually shape the the language solution. The library only solution exposes 
+all the functionality that will eventually be available through compiler.
+
+\subsection{An Appetizer}
+
+To give a quick taste of what our library enables, let's imagine a simple 
+language of expressions:
+
+\begin{lstlisting}
+exp ::= val | exp + exp | exp - exp | exp * exp | exp / exp
+\end{lstlisting}
+
+ML datatype describing this grammar as well as simple evaluator of expressions 
+in it can be declared as following:
+
+\begin{lstlisting}[language=ML,keepspaces,columns=flexible]
+type expr = Value  of int
+          | Plus   of expr * expr
+          | Minus  of expr * expr
+          | Times  of expr * expr
+          | Divide of expr * expr
+          ;;
+
+let rec eval e =
+  match e with
+            Value  v      -> v
+          | Plus   (a, b) -> (eval a) + (eval b)
+          | Minus  (a, b) -> (eval a) - (eval b)
+          | Times  (a, b) -> (eval a) * (eval b)
+          | Divide (a, b) -> (eval a) / (eval b)
+          ;;
+\end{lstlisting}
+
+The corresponding C++ data types are slightly more verbose, though the only 
+reason we have not parameterized them was to keep the example simple. Together
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+struct Expr { virtual Expr() {} }; // FIX: ADD DESTRUCTOR SYMBOL IN LATEX
+struct Value : Expr { /*...*/ int value; };
+struct Plus  : Expr { /*...*/ const Expr* exp1; const Expr* exp2; };
+struct Minus : Expr { /*...*/ const Expr* exp1; const Expr* exp2; };
+struct Mult  : Expr { /*...*/ const Expr* exp1; const Expr* exp2; };
+struct Div   : Expr { /*...*/ const Expr* exp1; const Expr* exp2; };
+\end{lstlisting}
+
+Together with evaluator they form an instance of the Interpreter Design 
+Pattern~\cite{DesignPatterns1993}. Unlike the type definitions, the evaluator 
+for the language, implemented on top of our pattern matching library is almost 
+as breve as its version in ML:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+int eval(const Expr* e)
+{
+    Match(e)
+    {
+    Case(Value,n)   return n;
+    Case(Plus, a,b) return eval(a) + eval(b);
+    Case(Minus,a,b) return eval(a) - eval(b);
+    Case(Mult, a,b) return eval(a) * eval(b);
+    Case(Div,  a,b) return eval(a) / eval(b);
+    }
+    EndMatch
+}
+\end{lstlisting}
+
+The only definitions we omited here that prevent the example from being fully 
+functional are the mappings of class members to corresponding positions. We list 
+them here for completeness, while their meaning will be explained later in 
+section~\ref{}.
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+template <> struct match_members<Value> { CM(0,Value::value); };
+template <> struct match_members<Plus>  { CM(0,Plus::exp1);   CM(1,Plus::exp2);  };
+template <> struct match_members<Minus> { CM(0,Minus::exp1);  CM(1,Minus::exp2); };
+template <> struct match_members<Mult>  { CM(0,Mult::exp1);   CM(1,Mult::exp2);  };
+template <> struct match_members<Div>   { CM(0,Div::exp1);    CM(1,Div::exp2);   };
+\end{lstlisting}
+
+\subsection{Algebraic Datatypes in C++}
+
+Functional programming community 
+algebraic data type (sometimes also called a variant type[1]) is a datatype each 
+of whose values is data from other datatypes wrapped in one of the constructors 
+of the datatype. Any wrapped datum is an argument to the constructor. In 
+contrast to other datatypes, the constructor is not executed and the only way to 
+operate on the data is to unwrap the constructor using pattern matching.
+
+There are at least 3 different ways to represent them in C++
+We unify syntax 
+
+An ML datatype of the form 
+
+\begin{lstlisting}
+datatype DT = C1 of {L11:T11,...,L1m:T1m} |...| Cr of {Lr1:Tr1,..., Lrn:Trn}
+\end{lstlisting}
+
+Can be encoded in C++ in at least the 3 following ways:
+
+The important difference between algebraic data types and classes in C++ is that
+algebraic data types are closed and once constructors have been defined, no new
+constructors can be added. C++ classes on the other hand are always open: user 
+may extend any class with a new constructor. Work on extensible data types 
+exist~\cite{ExtensibleDatatypes,LohHinze2006}
+
+\subsection{Visitor Design Pattern}
+
+Discuss visitor design pattern and its problems.
+
+\begin{itemize}
+\item Intrusive - requires changes to the hierarchy
+\item Not open  - addition of new classes changes visitor interface
+\item Doesn't provide by default relation between visitors of base and derived classes
+\item Control inversion
+\item Cannot be generically extended to handling n arguments
+\end{itemize}
+
+\subsection{Motivating Example}
+
+While comparing generic programming facilities available to functional and 
+imperative languages (mainly Haskel and C++), Dos Reis et al. present the 
+following example in Haskel describing a sum functor~\cite{DRJ05}:
+
+\begin{lstlisting}
+data Either a b = Left a | Right b
+
+eitherLift :: (a -> c) -> (b -> d) -> Either a b -> Either c d
+eitherLift f g (Left x) = Left (f x)
+eitherLift f g (Right y) = Right (g y)
+\end{lstlisting}
+
+In simple words, the function eitherLift above takes two functions and an 
+object and depending on the actual type constructor the object was created with, 
+calls first or second function on the embedded value, encoding the result 
+corresondingly.
+
+Its equivalent in C++ is not as straightforward. The idiomatic handling of 
+discriminated unions in C++ typically assumes use of the Visitor Design 
+Pattern~\cite{GHJV94}.
+
+\begin{lstlisting}
+template<class X, class Y> class Either;
+template<class X, class Y> class Left;
+template<class X, class Y> class Right;
+
+template<class X, class Y>
+struct EitherVisitor {
+    virtual void visit(const Left<X, Y>&) = 0;
+    virtual void visit(const Right<X, Y>&) = 0;
+};
+
+template<class X, class Y>
+struct Either {
+    virtual Either() { } /// FIX: PUT DESTRUCTOR SYMBOL HERE IN LATEX
+    virtual void accept(EitherVisitor<X, Y>& v) const = 0;
+};
+
+template<class X, class Y>
+struct Left : Either<X, Y> {
+    const X& x;
+    Left(const X& x) : x(x) { }
+    void accept(EitherVisitor<X, Y>& v) const
+    { v.visit(*this); }
+};
+
+template<class X, class Y>
+struct Right : Either<X, Y> {
+    const Y& y;
+    Right(const Y& y) : y(y) { }
+    void accept(EitherVisitor<X, Y>& v) const
+    { v.visit(*this); }
+};
+\end{lstlisting}
+
+The code above defines the necessary data structures as well as visitor class 
+capable of introspecting the data structure at run-time. Citing the authors: 
+``The code has a fair amount of boilerplate to simulate pattern matching. Now, the lift mapping itself can be defined as''
+
+\begin{lstlisting}
+template<class X, class Y, class S, class T>
+const Either<S, T>& lift(const Either<X, Y>& e, S f(X), T g(Y))
+{
+    typedef S (*F)(X);
+    typedef T (*G)(Y);
+    struct Impl : EitherVisitor<X, Y> {
+        F f;
+        G g;
+        const Either<S, T>* value;
+        Impl(F f, G g) : f(f), g(g), value() { }
+        void visit(const Left<X, Y>& e)
+        {
+            value = left<S, T>(f(e.x));
+        }
+        void visit(const Right<X, Y>& e)
+        {
+            value = right<S, T>(g(e.y));
+        }
+    };
+    Impl vis(f, g);
+    e.accept(vis);
+    return *vis.value;
+}
+\end{lstlisting}
+
+Our pattern matching solution allows one to shorten the definition of lift to the 
+following, which we believe is much closer to the original definition with 
+implicitly inferred types in Haskel made explicit in C++: 
+
+\begin{lstlisting}
+template<class X, class Y, class S, class T>
+const Either<S, T>* lift(const Either<X, Y>& e, S f(X), T g(Y))
+{
+    X x;
+    Y y;
+    
+    if (match<Left<X, Y> >(x)(e))
+        return left<S, T>(f(x));
+    else
+    if (match<Right<X, Y> >(y)(e))
+        return right<S, T>(g(y));
+
+    return 0;
+}
+\end{lstlisting}
+
+From the necessary type definitions we don't need EitherVisitor class anymore 
+as well as forward declarations and accept method in all three classes required 
+by it. Definitions of obvious functions left and right are ommitted in both 
+cases.
+
+\subsection{Summary}
+
+The contributions of the paper can be summarized as following:
+
+\begin{itemize}
+\item We bring in an ML-like pattern matching into C++ as a library without 
+      requiring any changes to the compiler.
+\item The solution is non-intrusive and can be applied to any class hierarchy retroactively
+\item It allows one to avoid the control inversion typical for visitors.
+\item We provide performance and ease of use comparison based on a real code
+\item The solution is comparable in terms of performance to visitors
+\end{itemize}
+
+The novelty of the paper lays in generalizing Haskel's n+k patterns to any 
+invertable operations. This usually is accompanied by questions about semantics, 
+which in our case is handled transparently by forwarding the problem into the 
+concepts domain.
+
+The rest of this paper is structured as following. In Section~\ref{bg} we 
+present evolution of pattern matching in different languages, presenting 
+informally semantics of various pattern matching facilities by example.
+
+\section{Background} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:bg}
+
+Pattern matching in the context of a programming language was first introduced 
+in a string manipulation language SNOBOL~\cite{SNOBOL64}. It's fourth 
+reincarnation SNOBOL4 had patterns as first-class data types providing 
+operations of concatenation and alternation on them~\cite{SNOBOL71}.
+
+The first tree based pattern matching methods were found in Fred McBride's 
+extension of LISP in 1970.
+
+ML and Haskel further popularized pattern matching ...
+
+In programming languages like ML~\cite{ML90} and Haskel~\cite{Haskell98Book}, a 
+function can be defined by a sequence of pattern-expression pairs. Evaluating 
+such a function is equivalent to evaluation of the expression corresponding to 
+the first pattern that matches the arguments. Most of the languages distinguish 
+\emph{primitve} patterns and \emph{tree patterns}. A primitive pattern is a 
+pattern described by a given value or a variable. Consider the following Haskel 
+code defining factorial function: 
+
+\begin{lstlisting}
+factorial 0 = 1
+factorial n = n * factorial (n-1)
+\end{lstlisting}
+
+Here 0 in the left hand side of the first \emph{rule} is an example of a 
+\emph{value pattern} that will only match when the actual argument passed to the 
+function factorial is 0. The \emph{variable pattern} n in the left hand side of 
+the second rule will match any value, \emph{binding} variable n to that value in 
+the right hand side of the rule.
+
+Tree patterns arise in many different contexts: description of tree-like 
+structures, algebraic data types, class hierarchies etc.
+
+Veldhuizen discovered a very powerful technique called Expression 
+templates~\cite{Veldhuizen95expressiontemplates}.
+
+Other languages that use pattern matching include: ...
+
+Interestingly enought C++ has some pattern matching capabilities very similar to 
+those present in functional languages. These capabilities only work at compile 
+time in application to types and compile-time values. Here is an example of the 
+same factorial function expressed in compile-time pattern matching facilities of 
+C++:
+
+\begin{lstlisting}
+template <int N> struct factorial    { enum { result = N*factorial<N-1>::result }; };
+template <>      struct factorial<0> { enum { result = 1 }; };
+\end{lstlisting}
+
+Coincidentaly, we use this compile-time pattern matching facility to implement 
+its run-time counterpart.
+
+A place where C++ does have a primitive run-time pattern matching is the catch 
+clause of exception handling. The order of clauses matters, which is similar to 
+the order of patterns. 
+
+Patterns such as formal parameters that never fail to match are said to be 
+irrefutable, in contrast to refutable patterns which may fail to match. The 
+pattern used in the contrived example above is refutable. There are three other 
+kinds of irrefutable patterns:
+
+* As-patterns
+* Wild-cards 
+
+Pattern matching in Haskell is different from that found in logic programming 
+languages such as Prolog; in particular, it can be viewed as "one-way" matching, 
+whereas Prolog allows "two-way" matching (via unification), along with implicit 
+backtracking in its evaluation mechanism.) 
+
+We note that our approach is not limited to handling only these specific 
+representations of algebraic datatypes in C++, but can be applied to any class 
+hierarchy, viewing patternm matching as a generalization of 
+dynamic\_cast.
+
+\section{Pattern Matching for C++} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:pm}
+
+Similarly to Haskel, we employ \emph{first-fit} pattern matching under which the 
+equations are matched linearly from top to bottom. This is why putting 
+Otherwise() not at the end of the switch statement will effectively close all 
+subsequent equations.
+
+We first present informally the pattern matching facilities our library exposes.
+
+Let's assume we have a simple class hierarchy of shapes:
+
+\begin{lstlisting}
+typedef std::pair<double,double> loc;
+
+struct Shape
+{
+    virtual Shape() {} // to enable RTTI FIX DESTRUCTOR SYMBOL FOR LATEX
+};
+
+struct Circle : Shape
+{
+    Circle(const loc& c, const double& r) : center(c), radius(r) {}
+    const loc& get_center() const { return center; }
+    loc    center;
+    double radius;
+};
+
+
+struct Square : Shape
+{
+    Square(const loc& c, const double& s) : upper_left(c), side(s) {}
+    loc    upper_left;
+    double side;
+};
+
+struct Triangle : Shape
+{
+    Triangle(const loc& a, const loc& b, const loc& c) : first(a), second(b), third(c) {}
+    loc first, second, third;
+};
+\end{lstlisting}
+
+Before the library can be used, the user has to provide decomposition into a 
+tuple of all the data structures against which pattern matching will be 
+performed. This is done through specializing traits-like class match\_members:
+
+\begin{lstlisting}
+template <> struct match_members<Shape>    {};
+template <> struct match_members<Circle>   { CM(0,Circle::get_center); CM(1,Circle::radius); };
+template <> struct match_members<Square>   { CM(0,Square::upper_left); CM(1,Square::side);   };
+template <> struct match_members<Triangle> { CM(0,Triangle::first);    
+                                             CM(1,Triangle::second); 
+                                             CM(2,Triangle::third); };
+\end{lstlisting}
+
+The first argument of CM represent a position, while the second argument 
+represents the member of the class that will be matched against in that position. 
+Members don't have to be data members only, but can also be nullary member 
+functions providing access to given subcomponent (as Circle::get\_center above).
+With these definition we can write our first function using pattern matching.
+
+\begin{lstlisting}
+double area(const Shape& shape)
+{
+    wildcard _; // Meta variable
+    loc      x,y,z;
+    double   r,s;
+
+    if (match<Circle>(_,r)(shape))
+        return 3.14 * r * r;
+
+    if (match<Square>(_,s)(shape))
+        return s * s;
+
+    if (match<Triangle>(x,y,z)(shape))
+        return heron(x,y,z);
+
+    assert(!"Inexhaustive search");
+}
+\end{lstlisting}
+
+Unfortunately we have to predeclare variables as we are in a library setting and 
+cannot change the compiler, while C++ requires all the variables to be forward 
+declared. The binding of variables though works exactly as in other languages. 
+One may have noticed that the wildcard has to be predeclared as well. This is 
+not required as the library may provide a global variable with such name, we 
+just wanted to mention here that the name of the meta variable may be arbitrary, 
+it is its type that triggers the proper matching behavior.
+
+TODO: Discuss exceptions while accessing members
+
+\subsection{Guards}
+
+The following pattern will match circles with any center but only those whose 
+radius is greater than 3 and smaller than 5. The value of the radius of such 
+matching Circle will be bound to r.
+
+\begin{lstlisting}
+    variable<double> r;
+    if (match<Circle>(_, r |= r > 3 && r < 5)(shape)) ...
+\end{lstlisting}
+
+The expression in the guard can be arbitrarily complicated and unlike the 
+pattern itself, the variables might be mentioned several times as by the time 
+the guard is going to be evaluated, the variable will be bound. The |= operator 
+that defines the guard was chosen arbitrarily from those that have pretty low 
+precedence in C++ in order to allow most of the other operators be used in the 
+condition part (right hand side) without parenthesis. The variable in the left 
+hand side of the guard operator is the one that will be bound by the pattern. 
+The condition part of the guard may include only this variable and the variables 
+bound in preceeding positions. For example:
+
+\begin{lstlisting}
+    variable<double> x,y;
+    if (match<Circle>(match<loc>(x, y |= y == x))(shape)) ...
+\end{lstlisting}
+
+This code will effectively match circles with the center on the line $y=x$. Note 
+that the more straitforward notation:
+
+\begin{lstlisting}
+    if (match<Circle>(match<loc>(x, x))(shape)) ...
+\end{lstlisting}
+
+is invalid in most of the languages as it uses the same variable twice in the 
+binding position. This can be given a semantics that the first use is the 
+binding use, while the second one is the use as a bound value, but one would 
+have to argue it won't lead to confusion and mistakes in more complicated 
+expressions.
+
+The important bit about our implementation of guards is that variables used in 
+guards have to be explicitly wrapped into \code{variable<>} template in order to let 
+the library build the corresponding expression template. The convenient notion 
+that allowed us to use normal variables inside matches seen before will not work 
+for guards as the expression would simply be evaluated using the C++ semantics 
+and the resulting value will be passed to the match function as the value (and 
+not the expression) we would like to match against.
+
+We chose to provide syntax for guards directly in binding expressions in order 
+to make sure we can determine certain pattern doesn't match as soon as possible 
+and thus not have to compute matching for subsequent arguments. An alternative 
+syntax for guards used in other languages is after the entire match expression, 
+using traditional predicates.
+
+\subsection{The (in)famous n+k patterns}
+
+Similarly to Haskel (until 2010), we provide support for the n+k patterns. With 
+them one can define factorial in the following way:
+
+\begin{lstlisting}
+int factorial(int n)
+{
+    variable<int> m;
+
+    if (match<int>(0)(n))   return 1;
+    if (match<int>(m+1)(n)) return (m+1)*factorial(m);
+    return 0; // Should never happen
+}
+\end{lstlisting}
+
+Unlike Haskel however, our patterns are not limited n+k form only and are 
+generalized to any invertible operations. The definition of fast algorithm that 
+computes x to the power of n can be written as following in the library:
+
+\begin{lstlisting}
+double power(double x, int n)
+{
+    variable<int> m;
+
+    if (match<int>(0)(n))     return 1.0;
+    if (match<int>(1)(n))     return x;
+    if (match<int>(m*2)(n))   return sqr(power(x,m));
+    if (match<int>(m*2+1)(n)) return x*power(x,2*m);
+    return 0.0; // Should never happen
+}
+\end{lstlisting}
+
+Another typical example that appears in the context of discussions about 
+generalizing n+k patterns in Haskel is fast fibbonaci algorithm given below:
+
+\begin{lstlisting}
+int fib(int n)
+{
+    variable<int> m;
+
+    if (match<int>(1)(n))     return 1;
+    if (match<int>(2)(n))     return 1;
+    if (match<int>(m*2)(n))   return sqr(fib(m+1)) - sqr(fib(m-1));
+    if (match<int>(m*2+1)(n)) return sqr(fib(m+1)) + sqr(fib(m));
+    return 0.0; // Should never happen
+}
+\end{lstlisting}
+
+Interestingly enought instead of generalization, the n+k patterns were made 
+obsolete in Haskel as of 2010~\cite{HaskelDocMakingThis}. This was result of 
+many discussions trying to provide semantics to them in the context of user 
+defined types. Here, we are not claiming to solve the relevant discussions, but 
+instead are making sure that our solution is transparent in such a way that we 
+can use the C++0x forthcoming concept mechanism to deal with relevant issues. In 
+particular when having a generalized n+k pattern on \code{variable<T>} we try to make 
+sure that 
+
+\subsection{Views}
+
+Our extractors are similar to extractors in Scala, which in turn resemble Views 
+proposed for Haskel.
+
+\section{Evaluation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:ev}
+
+In this section we evaluate the performance of our solution in comparison to the 
+de facto standard -- visitor design pattern.
+
+To evaluate the performance of our solution we've taken a working piece of code 
+that operates visitor pattern on a fairly large class hierarchy and 
+reimplemented it using pattern matching.
+
+Preliminary evaluation results obtained on synthetic examples are as following:
+
+As long as dynamic cast doesn't have to be invoked (e.g. we do n+k patterns or 
+guards, the overhead is reasonable and is between 15 and 30 persent.
+
+As soon as dynamic cast has to be used inside the match, the overhead easily 
+becomes 10 times slower than visitor's single virtual function call. Because of 
+sequential order of tests, the overhead for classes tested later becomes 
+significant, effectively requiring the user to prioritize the order of tests.
+
+\section{Discussion} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We considered using smaller types for storing line numbers based on our 
+observation that we haven't found many C++ source files that had more than 65535 
+lines. This was saving us space for hash tables but resulted in worse 
+performance due to access of smaller words from memory.
+
+We also looked into storing differences between switch'es head line number and 
+case's line number, following the observation that very occasionaly we saw more 
+than 256 cases in a pattern matching switch. This also degraded performance so 
+we did not use it.
+
+We would like to note that in presence of deeper hierarchy, visitors often 
+implement members by forwarding call to their base, which may incure additional 
+overhead.
+
+\section{Related Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:rw}
+
+A good survey of work on general pattern matching can be found in in a term 
+project paper by Miller~\cite{Miller10}.
+
+Great overview of pattern matching in Scala compared to several other languages 
+is presented in~\cite{ScalaPM}.
+
+Prop was an attempt to add pattern matching together with algebraic datatypes 
+and other functional features into C++~\cite{Prop96}.
+
+JMatch was a similar incentive to add pattern matching to Java.
+
+Sankel provides a good educational overview of how algebraic datatypes can be 
+implemented in C++~\cite{SankelFP10,Sankel10}. 
+
+Emir's PhD thesis provides an extensive analysis of pattern matching in the 
+context of object-oriented languages~\cite{EmirThesis}.
+
+Cook et al used expression templates to implement a query language to Pivot's 
+IPR~\cite{iql04}. The principal difference of their work from this work is that 
+authors were essentially creating a pattern matcher for a given class hierarchy 
+and thus could take the semantics of the entities represented by classes in the 
+hierarchy into account. Our approach is parametrized over class hierarchy and 
+thus provides a rather lower level pattern matching functionality that lets one 
+simplify work with that hierarchy.  One can think of it as a generalized 
+dynamic\_cast.
+
+In his dissertation, Pirkelbauer provides a different pattern matcher against 
+Pivot's IPR~\cite{PirkelbauerThesis}.
+
+Dos Reis et al compares functional and imperative approaches to generic 
+programming and discusses the role of pattern matching in expressing generic 
+algorithms in the functional approach~\cite{dos_reis:05:what_is_gp}. They also 
+demonstrate with an elegant example the amount of boilerplate code necessary to 
+write in C++ in order to describe a sum-functor.k
+
+Boost::proto is a library for creating DSL using expression templates.
+
+\section{Future Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:fw}
+
+Describe formally concepts used in our expression templates.
+
+Find better recursive patterns for sequences.
+
+Make patterns more reusable by eliminating variables from those, saved into 
+auto.
+
+Multi-threaded environment support.
+
+\section{Conclusions} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:cc}
+
+In this work we describe design and implementation of a library that brings 
+pattern matching facilities similar to those of functional programming languages 
+into C++. Our solution does not requre any changes to the compiler and in its 
+main part can be implemented in the standard C++98. Several extensions might 
+require use of C++0x features, readily available in todays mainstream compilers.
+The solution is non-intrusive and can be applied to any given class taxonomy 
+retroactively. Its main utility lays in avoiding the control inversion problem 
+typical to Visitor Design Pattern, which results in more clear, direct and much 
+more consciece code. Our evaluation demonstrates that the solution scales to 
+real-sized projects, while the performance results show that it comes close to 
+its hand-crafted visitor alternative. The main novelty of the paper is in 
+generalizing Haskel's n+k patterns to any invertible operations and 
+demonstrating how to do it generically in a library setting. Backward semantics 
+of expression templates used to implement this feature is also to the best of 
+our knowledge first application of backward semantics to expression templates.
+
+%\section{Acknowledgements} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{ToDo} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{itemize}
+%\item + Profile Guided Optimizations on Visual C++ code
+\item Separate sequential, random, repetitive into separate test programs
+      and make one that combines them all. This is to test PGO effectiveness.
+%\item Computation of irrelevant that minimizes amount of collisions
+\item Proof that recomputations of irrelevant won't be done forever and will 
+      stabilize
+\item Instrument existing apps to see VTBL behavior
+\item Finish experimenting with congruence hierarchy
+%\item + Take difference of line numbers to have case labels small.
+\item Justification/proof from Itanium ABI for our approach
+%\item + Rethink switch for unions
+%\item + Unify syntax of all the switches
+\item Multiple dispatch switch
+\item Different values of the same dynamic type
+\item FIX: Value that would match type but wouldn't match condition may slow 
+      down execution significantly. We need exit from switch instead of fall 
+      through
+\item Lock-free version to be used in multi-threaded environments.
+\end{itemize}
+
+Discuss: Separating matching arguments from selector prevents us from optimizing
+for some obvious but typical cases when type 
+
+Discuss:
+Visual C++ seems to generate better visitors code: 185 vs 222 units for GCC.
+GCC seems to generate better matching code: 208 vs 209 units for Visual C++.
+64 bit code in Visual C++ actually becomes faster: 143(x64) vs 185(w32) for 
+visitors and 196(x64) vs 209(w32) for pattern matching. We can't at the moment 
+generate 64bit GCC code.
+Unlike GCC, we could not find a way to do branch hinting for Visual C++.
+
+MS Visual C++ 10
+
+ 32 | Visitors | Matching      64 | Visitors | Matching 
+--------------------------    --------------------------
+SEQ |   185    |   209        SEQ |   145    |   190    
+RND |   186    |   208        RND |   143    |   196    
+
+GCC 4.5.2
+
+ 32 | Visitors | Matching      64 | Visitors | Matching 
+--------------------------    --------------------------
+SEQ |   215    |   189        SEQ |          |          
+RND |   222    |   208        RND |          |          
+
+\section{Acknowledgements} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Gregory Berkolaiko for entropy idea. Jaakko Jarvi for Haskel help. Andrew Sutton 
+for suggestions. Jasson Cassey for branch hinting. Mani Zandifar for PAPI help.
+
+\section{Scratch}
+
+[From LohHinze2006]
+The problem of supporting the modular extensibility of both data
+and functions in one programming language at the same time is
+known as the expression problem. Functional languages traditionally
+make it easy to add new functions, but extending data
+(adding new data constructors) requires modifying existing code.
+
+[From Modular Typechecking of Hierarchically Extensible Datatypes and Functions]
+Many researchers have noted a difference in the extensibility bene?ts offered
+by the functional and object-oriented (OO) styles [Reynolds 1978; Cook 1991;
+Odersky and Wadler 1997; Krishnamurthi et al. 1998; Findler and Flatt 1998;
+Garrigue 2000; Zenger and Odersky 2001]. Functional languages like ML allow new operations to be easily added to existing datatypes (by adding new
+fun declarations), without requiring access to existing code. However, new data
+variants cannot be added without a potentially whole-program modi?cation
+(since existing functions must be modi?ed in place to handle the new variants). On the other hand, traditional OO approaches allow new data variants
+to be easily added to existing class hierarchies (by declaring subclasses with
+overriding methods), without modifying existing code. However, adding new operations to existing classes requires access to the source code for those classes
+(since methods cannot be added to existing classes without modifying them in
+place).
+...
+However, such simplicity comes at a cost to programmers, who are forced to choose
+up front whether to represent an abstraction with datatypes or with classes. As
+described above, this decision impacts the kind of extensibility allowable for the
+abstraction. It may be dif?cult to determine a priori which kind of extensibility
+will be required, and it is dif?cult to change the decision after the fact. Further, it is not possible for the abstraction to enjoy both kinds of extensibility at
+once.
+...
+An alternative approach is to generalize existing ML constructs to support
+the OO style. OML [Reppy and Riecke 1996], for example, introduces an objtype
+construct for modeling class hierarchies. This construct can be seen as a generalization of ML datatypes to be hierarchical and extensible. Therefore, programmers need not decide between datatypes and classes up front; both are
+embodied in the objtype construct. However, OML still maintains a distinction
+between methods and functions, which have different bene?ts. New methods
+may not be added to existing objtypes without modifying existing code, while
+ordinary ML functions may be. Methods dynamically dispatch on their associated objtype, while functions support ML-style pattern matching.
+...
+ML? [Bourdoncle and Merz 1997] integrates the OO style further with existing ML constructs. Like OML, ML? generalizes ML datatypes to be hierarchical and extensible. Further, methods are simulated via function cases that use
+OO-style dynamic dispatch semantics. In this approach, programmers need
+not choose between two forms of extensibility; a single language mechanism
+supports the easy addition of both new operations and new variants to existing
+datatypes.
+...
+Classes additionally generalize ML-style datatypes to be extensible, whereby
+new variants can be written in modules other than the one declaring the
+datatype, and hierarchical, whereby variants can have their own "subvariants."
+In addition to
+being extensible and hierarchical, classes are also full-?edged types while ML
+variants are not. For example, classes can appear in a function's argument or
+return type.
+Single inheritance of classes is compatible with the ML style, in which each 
+data variant conceptually singly inherits from the corresponding datatype, as 
+shown in the above encoding of datatypes into classes. However, EML can support 
+multiple interface inheritance, like Java.
+...
+Intuitively, case c1
+is more speci?c than case c2 if the set of values matching c1's pattern is a
+subset of the set of values matching c2's pattern.
+...
+Unlike (both concrete and abstract) classes, interfaces may not appear in
+patterns. This restriction is the EML analogue of Java's restriction that an interface have no concrete methods. Both restrictions remove the potential for
+dynamic-dispatch ambiguities caused by multiple inheritance. Because of EML's
+restriction, interfaces do not impact ITC any differently from abstract classes.
+Therefore we ignore interfaces in the remainder of the paper.
+
+Interpreter design pattern [GangOf4DesignPatterns].
+
+\bibliographystyle{eptcs}
+\bibliography{mlpatmat}
+\end{document}
