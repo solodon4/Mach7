@@ -19,7 +19,7 @@
 #include <ostream>
 #include <boost/type_traits/remove_const.hpp>
 #include "exprtmpl.hpp"
-#include "vtblmap.hpp"
+#include "vtblmap2.hpp"
 #include "memoized_cast.hpp"
 
 using boost::remove_const;
@@ -55,7 +55,7 @@ template <>      struct requires_bits<1> { enum { value = 0 }; };
 
 //template <typename T> struct remove_const          { typedef T type; };
 //template <typename T> struct remove_const<const T> { typedef T type; };
-
+template <int N> struct switch_on_line {}; // dummy class
 //------------------------------------------------------------------------------
 
 #define dynamic_cast memoized_cast
@@ -73,27 +73,31 @@ template <>      struct requires_bits<1> { enum { value = 0 }; };
 
 /// Macro that starts the switch on pattern
 #define SWITCH(s)\
-        static vtbl2lines<> __vtbl2lines_map;\
+        /*static vtbl2lines<> __vtbl2lines_map;*/\
         decltype(s)& __selector_var = s;\
-        switch (__vtbl2lines_map.get(addr(__selector_var)))
+        typedef switch_on_line<__LINE__> this_switch_type;\
+        switch (global_offset_map.get<this_switch_type>(addr(__selector_var)))
 /// Extended version of the macro that starts the switch on pattern, that takes an expected number of cases in
 #define SWITCH_N(s,N)\
-        static vtbl2lines<requires_bits<N>::value> __vtbl2lines_map;\
+        /*static vtbl2lines<requires_bits<N>::value> __vtbl2lines_map;*/\
         decltype(s)& __selector_var = s;\
-        switch (__vtbl2lines_map.get(addr(__selector_var)))
+        typedef switch_on_line<__LINE__> this_switch_type;\
+        switch (global_offset_map.get<this_switch_type>(addr(__selector_var)))
 
 #else
 
 /// Macro that starts the switch on pattern
 #define SWITCH(s)\
-        static vtbl2lines<> __vtbl2lines_map;\
+        /*static vtbl2lines<> __vtbl2lines_map;*/\
         auto& __selector_var = s;\
-        switch (__vtbl2lines_map.get(addr(__selector_var)))
+        typedef switch_on_line<__LINE__> this_switch_type;\
+        switch (global_offset_map.get<this_switch_type>(addr(__selector_var)))
 /// Extended version of the macro that starts the switch on pattern, that takes an expected number of cases in
 #define SWITCH_N(s,N)\
-        static vtbl2lines<requires_bits<N>::value> __vtbl2lines_map;\
+        /*static vtbl2lines<requires_bits<N>::value> __vtbl2lines_map;*/\
         auto& __selector_var = s;\
-        switch (__vtbl2lines_map.get(addr(__selector_var)))
+        typedef switch_on_line<__LINE__> this_switch_type;\
+        switch (global_offset_map.get<this_switch_type>(addr(__selector_var)))
 
 #endif
 
@@ -105,9 +109,9 @@ template <>      struct requires_bits<1> { enum { value = 0 }; };
 ///       to   "Program Database (/Zi)", which is the default in Release builds,
 ///       but not in Debug. This is a known bug of Visual C++ described here:
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#define CASE(C,...) } if (UNLIKELY_BRANCH(dynamic_cast<const C*>(addr(__selector_var)))) { __vtbl2lines_map.update(__LINE__, addr(__selector_var)); case __LINE__: if (LIKELY_BRANCH(match<C>(__VA_ARGS__)(__selector_var))) 
+#define CASE(C,...) } if (UNLIKELY_BRANCH(dynamic_cast<const C*>(addr(__selector_var)))) { global_offset_map.update<this_switch_type>(__LINE__, addr(__selector_var)); case __LINE__: if (LIKELY_BRANCH(match<C>(__VA_ARGS__)(__selector_var))) 
 #define CASES_BEGIN default: {
-#define CASES_END } __vtbl2lines_map.update(__LINE__, addr(__selector_var)); case __LINE__: ;
+#define CASES_END } global_offset_map.update<this_switch_type>(__LINE__, addr(__selector_var)); case __LINE__: ;
 
 //------------------------------------------------------------------------------
 

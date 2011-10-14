@@ -35,14 +35,30 @@ class vtblmap
 {
 private:
 
-    typedef std::unordered_map<intptr_t, T> base_type;
-    typedef typename base_type::iterator    iterator;
-    typedef typename base_type::value_type  value_type;
+#ifdef _MSC_VER
+   	/// Hash functor for vtbl
+    struct vtbl_hasher
+    {
+	    typedef intptr_t argument_type;
+	    typedef size_t   result_type;
 
+        /// hash key to size_t value by pseudorandomizing transform
+        size_t operator()(const intptr_t key) const { return key; }
+    };
+
+    /// MSVC uses by default a complicated hash function on all integral types,
+    /// but for our application to vtables identity works best
+    typedef std::unordered_map<intptr_t, T, vtbl_hasher> vtbl_to_t_map;
+#else
+    typedef std::unordered_map<intptr_t, T>              vtbl_to_t_map;
+#endif
+
+    typedef typename vtbl_to_t_map::iterator    iterator;
+    typedef typename vtbl_to_t_map::value_type  value_type;
 
 public:
     
-    typedef typename base_type::mapped_type mapped_type;
+    typedef typename vtbl_to_t_map::mapped_type mapped_type;
 
     /// A few useful constants
     enum
@@ -59,22 +75,6 @@ public:
         intptr_t  vtbl; ///< vtbl for which value has been computed
         T*        ptr;  ///< pointer to value associated with given vtbl
     };
-
-   	/// Hash functor for vtbl
-    struct vtbl_hasher
-    {
-	    typedef intptr_t argument_type;
-	    typedef size_t   result_type;
-
-        /// hash key to size_t value by pseudorandomizing transform
-        size_t operator()(const intptr_t key) const { return key; }
-    };
-
-#ifdef _MSC_VER
-    typedef std::unordered_map<intptr_t, T, vtbl_hasher> vtbl_to_t_map;
-#else
-    typedef std::unordered_map<intptr_t, T> vtbl_to_t_map;
-#endif
 
     /// This is the main function to get hold of a value associated with the vtbl of a given pointer
     inline T& get(const void* p, const T& dflt = T()) throw()

@@ -14,106 +14,71 @@
 #include <cstdint>
 #include <iostream>
 #include <unordered_map>
+#include "vtblmap2.hpp"
 
 //------------------------------------------------------------------------------
 
-typedef std::unordered_map<std::intptr_t, std::ptrdiff_t> vtbl2offset;
-static const std::ptrdiff_t no_cast_exists = 0x0FF1C1A1; // A dedicated constant marking impossible offset
+// A dedicated constant marking that table entry was just allocated
+#define just_allocated 0x0FF1C1A0
+// A dedicated constant marking impossible offset
+#define no_cast_exists 0x0FF1C1A1
 
 //------------------------------------------------------------------------------
 
 template <typename T> struct cast_target;
-template <typename T> struct cast_target<T*> { typedef T type; };
+template <typename T> struct cast_target<      T*> { typedef T type; };
 template <typename T> struct cast_target<const T*> { typedef T type; };
 
 //------------------------------------------------------------------------------
 
-template <typename T> inline const T* cns(const T* t); // No implementation on purpose. Can only be called on non-const pointers to add const to type
-template <typename T> inline const T* cns(T* t) { return t; }
+typedef const void* dyn_cast_offset_function(const void* p, std::ptrdiff_t& offset);
 
-//------------------------------------------------------------------------------
+/*extern */vtbl2offsets<> global_offset_map(just_allocated);
 
 template <typename T>
-inline vtbl2offset& offset_map()
+inline T memoized_cast_ex(const void* p, dyn_cast_offset_function* dyn_off_getter)
 {
-    static vtbl2offset ofsmap;
-    return ofsmap;
+    XTL_ASSERT(p); // All checks for null should have been done before
+
+    std::ptrdiff_t& offset = global_offset_map.get<T>(p);
+
+    switch (offset)
+    {
+    case just_allocated:
+        return reinterpret_cast<T>(dyn_off_getter(p,offset));
+    case no_cast_exists:
+        return 0;
+    default:
+        return reinterpret_cast<T>(reinterpret_cast<std::intptr_t>(p)+offset);
+    }
 }
 
 //------------------------------------------------------------------------------
 
+/// A generic wrapper to obtain an offset of dynamic_cast from type U* to type T*.
+/// We pass this function by address as it is the slowest part anyways, so one 
+/// extra function call is not going make it slower, but will save on generated code.
 template <typename T, typename U>
-inline std::ptrdiff_t get_offset(const U* p)
+inline const void* dyn_cast_offset(const void* p, std::ptrdiff_t& offset)
 {
-    const std::intptr_t vtbl = *reinterpret_cast<const std::intptr_t*>(p);
-    vtbl2offset& ofsmap = offset_map<T>();
-    const vtbl2offset::iterator q = ofsmap.find(vtbl);
-
-    if (q != ofsmap.end())
-        return q->second;
+    if (T k = dynamic_cast<T>(static_cast<const U*>(p)))
+    {
+        offset = reinterpret_cast<const char*>(k)-reinterpret_cast<const char*>(p);
+        return k;
+    }
     else
     {
-        T k = dynamic_cast<T>(p);
-        const std::ptrdiff_t offset = k ? reinterpret_cast<const char*>(k)-reinterpret_cast<const char*>(p) : no_cast_exists;
-        ofsmap.insert(vtbl2offset::value_type(vtbl,offset));
-        return offset;
+        offset = no_cast_exists;
+        return 0;
     }
 }
 
 //------------------------------------------------------------------------------
 
-// Number of bits based on which the caching will be made. The cache will have
-// 2^cache_bits entries.
-const int cache_bits = 7;
-const int cache_mask = (1<<cache_bits)-1;
-
-//------------------------------------------------------------------------------
-
-#ifdef _MSC_VER
-const int irrelevant_bits = 3;  // vtbl in MSVC seem to be alligned by 4 bytes
-#else
-const int irrelevant_bits = 4;  // vtbl in G++ seem to be alligned by 8 bytes
-#endif
-
-//------------------------------------------------------------------------------
-
-/// Structure describing entry in the cache
-struct cache_entry
-{
-    std::intptr_t  vtbl;   ///< vtbl for which offset has been computed
-    std::ptrdiff_t offset; ///< offset that has to be added for ptr with given vtbl
-};
-
-//------------------------------------------------------------------------------
-
 template <typename T, typename U>
-inline T memoized_cast(const U* p)
+inline T memoized_cast(const U* u)
 {
-    if (p)
-    {
-#ifndef DYN_CAST_CACHING
-        static cache_entry cache[1<<cache_bits] = {};
-        const std::intptr_t vtbl = *reinterpret_cast<const std::intptr_t*>(p);
-        cache_entry& ce = cache[(vtbl>>irrelevant_bits) & cache_mask];
-        std::ptrdiff_t offset;
-
-        if (ce.vtbl == vtbl)
-            offset = ce.offset;
-        else
-        {
-            ce.vtbl = vtbl;
-            ce.offset = offset = get_offset<T>(p);
-        }
-#else
-        std::ptrdiff_t offset = get_offset<T>(p);
-#endif
-        return 
-            offset == no_cast_exists 
-                ? 0 
-                : reinterpret_cast<T>(reinterpret_cast<const char*>(p)+offset);
-    }
-
-    return 0;
+    return u ? memoized_cast_ex<T>(u,&dyn_cast_offset<T,U>) : 0;
 }
 
 //------------------------------------------------------------------------------
