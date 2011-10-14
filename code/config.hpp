@@ -23,6 +23,13 @@
 
 //------------------------------------------------------------------------------
 
+// Uncomment this macro definition if you'd like to do some performance tracing
+#if !defined(DUMP_PERFORMANCE)
+#define DUMP_PERFORMANCE
+#endif
+
+//------------------------------------------------------------------------------
+
 #if !defined(USE_PEARSON_HASH)
 //#define USE_PEARSON_HASH
 #endif

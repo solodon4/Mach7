@@ -18,6 +18,21 @@
 #include <unordered_map>
 #include "config.hpp"    // Various compiler/platform dependent macros
 
+#if defined(DUMP_PERFORMANCE)
+#include <algorithm>
+#include <bitset> // For print out purposes only
+#include <iostream>
+#include <string>
+#endif
+/// Finds the number of trailing zeros in v.
+/// The following code to count trailing zeros was taken from:
+/// http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightFloatCast
+inline unsigned int trailing_zeros(unsigned int v)
+{
+    float  f = (float)(v & -v); // cast the least significant bit in v to a float
+    return (*(uint32_t *)&f >> 23) - 0x7f; // the result goes here
+}
+
 //------------------------------------------------------------------------------
 
 #if defined(USE_PEARSON_HASH)
@@ -135,13 +150,11 @@ public:
                 std::cout << i << " -> " << n << std::endl;
         }
 
-        size_t i = 0;
+        size_t i = trailing_zeros(static_cast<unsigned int>(m_differ));
 
-        for (; (differ >> i) << i == differ; ++i);
-
-        if (i-1 != VTBL_IRRELEVANT_BITS)
+        if (i != VTBL_IRRELEVANT_BITS)
         {
-            os << "WARNING: Empirically computed irrelevant_bits " << i-1 
+            os << "WARNING: Empirically computed irrelevant_bits " << i 
                << " differs from the predefined one " STRING_LITERAL(VTBL_IRRELEVANT_BITS) 
                << ". See vtbl patterns below: " << std::endl;
         }
@@ -358,7 +371,9 @@ private:
 public:
 
     vtblmap() : m_differ(0), m_prev(0), irrelevant_bits(VTBL_IRRELEVANT_BITS) {}
-
+#if defined(DUMP_PERFORMANCE)
+   ~vtblmap() { std::cout << *this << std::endl; }
+#endif
     typedef typename vtbl_to_t_map::mapped_type mapped_type;
 
     /// A few useful constants
@@ -423,16 +438,14 @@ public:
                 // If this is an actual collision, we recompute irrelevant_bits
                 if (ce.vtbl)
                 {
-                    // The following code to count trailing zeros was taken from:
-                    // http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightFloatCast
-                    unsigned int v = static_cast<unsigned int>(m_differ); // find the number of trailing zeros in v
-                    float  f = (float)(v & -v); // cast the least significant bit in v to a float
-                    size_t r = (*(uint32_t *)&f >> 23) - 0x7f; // the result goes here
+                    size_t r = trailing_zeros(static_cast<unsigned int>(m_differ));
 
                     if (irrelevant_bits != r)
                     {
                         irrelevant_bits = r;
-                        std::memset(cache,0,sizeof(ce)); // Reset cache
+                        auto saved_ptr = ce.ptr; // Since we've alread written it. Putting the whole insertion later degrades performance
+                        std::memset(cache,0,sizeof(cache)); // Reset cache
+                        ce.ptr = saved_ptr;
                     }
                 }
             }
@@ -474,8 +487,50 @@ public:
         val = ce.value;
         return result;
     }
+#if defined(DUMP_PERFORMANCE)
+    std::ostream& operator>>(std::ostream& os) const
+    {
+        // FIX: G++ crashes when we use std::stringstream here, so we have to workaround it manually
+        std::string str(8*sizeof(m_prev),'0');
 
-private:
+        for(size_t j = 1, i = 8*sizeof(m_prev); i; --i, j<<=1)
+            if (m_differ & j)
+                str[i-1] = 'X';
+            else
+            if (m_prev & j)
+                str[i-1] = '1';
+
+        os << "VTBLS: " << str << " irrelevant=" << irrelevant_bits << " width=" << str.find_last_of("X")-str.find_first_of("X")+1 << " \t";
+        size_t uses[1<<N] = {};
+
+        for (typename vtbl_to_t_map::const_iterator p =  table.begin(); p !=  table.end(); ++p)
+        {
+            intptr_t vtbl = p->first;
+        #if defined(USE_PEARSON_HASH)
+            unsigned char h = pearson_hash(vtbl >> irrelevant_bits);
+            //os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << (size_t(h) & cache_mask) << std::endl;
+            uses[size_t(h) & cache_mask]++;
+        #else
+            //os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << ((vtbl >> irrelevant_bits) & cache_mask) << std::endl;
+            uses[(vtbl >> irrelevant_bits) & cache_mask]++;
+        #endif
+        }
+
+        bool show = false;
+
+        for (size_t i = table.size(); i != ~0; --i)
+        {
+            size_t n = std::count(uses,uses+ARR_SIZE(uses),i);
+
+            if (show = show || n > 0)
+                os << i << "->" << n << "; ";
+        }
+
+        return os << std::count(uses,uses+ARR_SIZE(uses),0)*100/(1<<N) << "% unused" << std::endl;
+    }
+    friend std::ostream& operator<<(std::ostream& os, const vtblmap& m) { return m >> os; }
+#endif
+//private:
 
     /// Cached mappings of vtbl to some indecies
     cache_entry   cache[1<<cache_bits];
