@@ -987,16 +987,30 @@ long long display(const char* name, std::vector<long long>& timings)
     return med;
 }
 
-int test_sequential()
+#ifdef TRACE_PERFORMANCE
+#include <bitset> // For print out purposes only
+#endif
+
+void test_sequential()
 {
+#ifdef TRACE_PERFORMANCE_XXX
+    cache_hits   = 0;
+    cache_misses = 0;
+#endif
     std::cout << "=================== Sequential Test ===================" << std::endl;
 
     size_t a1 = 0,a2 = 0;
-    std::vector<int> percentages(K); // Final verdict of medians for each of the K experiments
 
     for (size_t n = 0; n < K; ++n)
     {
-        Shape* s = make_shape(n);
+        std::vector<Shape*> shapes(N);
+
+        for (size_t i = 0; i < N; ++i)
+        {
+            size_t n = i%K;
+            shapes[i] = make_shape(n);
+        }
+
         std::vector<long long> timingsV(M);
         std::vector<long long> timingsM(M);
 
@@ -1005,14 +1019,14 @@ int test_sequential()
             time_stamp liStart1 = get_time_stamp();
 
             for (size_t i = 0; i < N; ++i)
-                a1 += do_visit(*s);
+                a1 += do_visit(*shapes[i]);
 
             time_stamp liFinish1 = get_time_stamp();
 
             time_stamp liStart2 = get_time_stamp();
 
             for (size_t i = 0; i < N; ++i)
-                a2 += do_match(*s);
+                a2 += do_match(*shapes[i]);
 
             time_stamp liFinish2 = get_time_stamp();
 
@@ -1025,87 +1039,132 @@ int test_sequential()
         long long avgV = display("AreaVisSeq", timingsV);
         long long avgM = display("AreaMatSeq", timingsM);
         //if (avgV)
-            int percent = percentages[n] = avgM*100/avgV-100;
-            std::cout << "\t\t" << percent << "% slower" << std::endl;
+            std::cout << "\t\t" << avgM*100/avgV-100 << "% slower" << std::endl;
         //else
         //    std::cout << "Insufficient timer resolution" << std::endl;
         //std::cout << "\t\tThe following 2 numbers should be the same " << a1 << "==" << a2 << " ? " << std::boolalpha << (a1==a2) << std::endl;
-        delete s;
+
+        for (size_t i = 0; i < N; ++i)
+        {
+            delete shapes[i];
+            shapes[i] = 0;
+        }
     }
 
-    std::sort(percentages.begin(), percentages.end());
-    return percentages[percentages.size()/2];
+#ifdef TRACE_PERFORMANCE_XXX
+    std::cout << "Vtbl cache hits: " << cache_hits << "\tVtbl cache misses: " << cache_misses << std::endl;
+
+    size_t i = 0;
+
+    for (; (differ >> i) << i == differ; ++i);
+
+    if (i-1 != VTBL_IRRELEVANT_BITS)
+    {
+        std::cout << "WARNING: Empirically computed irrelevant_bits " << i-1 
+                  << " differs from the predefined one " STRING_LITERAL(VTBL_IRRELEVANT_BITS) 
+                  << ". See vtbl patterns below: " << std::endl;
+        std::cout << "Common: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)common) << std::endl
+                  << "Differ: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)differ) << std::endl;
+    }
+#endif
 }
 
-int test_randomized()
+void test_randomized()
 {
     srand (get_time_stamp()/get_frequency()); // Randomize pseudo random number generator
 
+#ifdef TRACE_PERFORMANCE_XXX
+    cache_hits   = 0;
+    cache_misses = 0;
+#endif
     std::cout << "=================== Randomized Test ===================" << std::endl;
 
-    size_t a1 = 0,a2 = 0;
-
-    std::vector<Shape*> shapes(N);
-    TRACE_PERFORMANCE_ONLY(std::vector<size_t> distribution(K));
-
-    for (size_t i = 0; i < N; ++i)
+    for (size_t n = 0; n < K; ++n)
     {
-        size_t n = rand()%K;
-        TRACE_PERFORMANCE_ONLY(distribution[n]++);
-        shapes[i] = make_shape(n);
-    }
+        std::vector<Shape*> shapes(N);
+        TRACE_PERFORMANCE_ONLY(std::vector<size_t> distribution(K));
+
+        for (size_t i = 0; i < N; ++i)
+        {
+            size_t n = rand()%K;
+            TRACE_PERFORMANCE_ONLY(distribution[n]++);
+            shapes[i] = make_shape(n);
+        }
 #if defined(TRACE_PERFORMANCE)
-    size_t min, max, avg, med, dev;
-    statistics(distribution, min, max, avg, med, dev);
-    //std::copy(distribution.begin(), distribution.end(), std::ostream_iterator<size_t>(std::cout, ":"));
-    std::cout << "Shape kind distribution: ["
-              << std::setw(4) << min << " -- " 
-              << std::setw(4) << avg << "/" 
-              << std::setw(4) << med << " -- "
-              << std::setw(4) << max << "] Dev = " 
-              << std::setw(4) << dev << std::endl;
+        size_t min, max, avg, med, dev;
+        statistics(distribution, min, max, avg, med, dev);
+        //std::copy(distribution.begin(), distribution.end(), std::ostream_iterator<size_t>(std::cout, ":"));
+        std::cout << "Shape kind distribution: ["
+                  << std::setw(4) << min << " -- " 
+                  << std::setw(4) << avg << "/" 
+                  << std::setw(4) << med << " -- "
+                  << std::setw(4) << max << "] Dev = " 
+                  << std::setw(4) << dev << std::endl;
 #endif
 
-    std::vector<long long> timingsV(M);
-    std::vector<long long> timingsM(M);
+        std::vector<long long> timingsV(M);
+        std::vector<long long> timingsM(M);
 
-    for (size_t m = 0; m < M; ++m)
-    {
-        time_stamp liStart1 = get_time_stamp();
+        size_t a1 = 0,a2 = 0;
+
+        for (size_t m = 0; m < M; ++m)
+        {
+            time_stamp liStart1 = get_time_stamp();
+
+            for (size_t i = 0; i < N; ++i)
+                a1 += do_visit(*shapes[i]);
+
+            time_stamp liFinish1 = get_time_stamp();
+
+            time_stamp liStart2 = get_time_stamp();
+
+            for (size_t i = 0; i < N; ++i)
+                a2 += do_match(*shapes[i]);
+
+            time_stamp liFinish2 = get_time_stamp();
+
+            XTL_ASSERT(a1==a2);
+            timingsV[m] = liFinish1-liStart1;
+            timingsM[m] = liFinish2-liStart2;
+        }
+
+        long long avgV = display("AreaVisRnd", timingsV);
+        long long avgM = display("AreaMatRnd", timingsM);
+        //if (avgV)
+            std::cout << "\t\t" << avgM*100/avgV-100 << "% slower" << std::endl;
+        //else
+        //    std::cout << "Insufficient timer resolution" << std::endl;
+        //std::cout << "\t\tThe following 2 numbers should be the same " << a1 << "==" << a2 << " ? " << std::boolalpha << (a1==a2) << std::endl;
 
         for (size_t i = 0; i < N; ++i)
-            a1 += do_visit(*shapes[i]);
-
-        time_stamp liFinish1 = get_time_stamp();
-
-        time_stamp liStart2 = get_time_stamp();
-
-        for (size_t i = 0; i < N; ++i)
-            a2 += do_match(*shapes[i]);
-
-        time_stamp liFinish2 = get_time_stamp();
-
-        XTL_ASSERT(a1==a2);
-        timingsV[m] = liFinish1-liStart1;
-        timingsM[m] = liFinish2-liStart2;
+        {
+            delete shapes[i];
+            shapes[i] = 0;
+        }
     }
 
-    long long avgV = display("AreaVisRnd", timingsV);
-    long long avgM = display("AreaMatRnd", timingsM);
-    //if (avgV)
-            int percent = avgM*100/avgV-100;
-            std::cout << "\t\t" << percent << "% slower" << std::endl;
-    //else
-    //    std::cout << "Insufficient timer resolution" << std::endl;
-    //std::cout << "\t\tThe following 2 numbers should be the same " << a1 << "==" << a2 << " ? " << std::boolalpha << (a1==a2) << std::endl;
-    return percent;
+#ifdef TRACE_PERFORMANCE_XXX
+    std::cout << "Vtbl cache hits: " << cache_hits << "\tVtbl cache misses: " << cache_misses << std::endl;
+
+    size_t i = 0;
+
+    for (; (differ >> i) << i == differ; ++i);
+
+    if (i-1 != VTBL_IRRELEVANT_BITS)
+    {
+        std::cout << "WARNING: Empirically computed irrelevant_bits " << i-1 
+                  << " differs from the predefined one " STRING_LITERAL(VTBL_IRRELEVANT_BITS) 
+                  << ". See vtbl patterns below: " << std::endl;
+        std::cout << "Common: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)common) << std::endl
+                  << "Differ: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)differ) << std::endl;
+    }
+#endif
 }
 
 int main()
 {
-    int ps = test_sequential();
-    int pr = test_randomized();
-    std::cout << "OVERALL: Sequential: " << ps << "% slower; Random: " << pr << "% slower;" << std::endl; 
+    test_sequential();
+    test_randomized();
 }
 
 #undef  FOR_EACH_MAX

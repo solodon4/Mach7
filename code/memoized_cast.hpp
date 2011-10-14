@@ -36,8 +36,8 @@ static const std::ptrdiff_t no_cast_exists = 0x0FF1C1A1; // A dedicated constant
 
 //------------------------------------------------------------------------------
 
-template <typename T> inline const T* adjust_ptr(const void* p, int offset) { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
-template <typename T> inline       T* adjust_ptr(      void* p, int offset) { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)+offset); }
+template <typename T> inline const T* adjust_ptr(const void* p, ptrdiff_t offset) { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
+template <typename T> inline       T* adjust_ptr(      void* p, ptrdiff_t offset) { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)+offset); }
 
 //------------------------------------------------------------------------------
 

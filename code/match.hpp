@@ -20,7 +20,12 @@
 #include <boost/type_traits/remove_const.hpp>
 #include "exprtmpl.hpp"
 #include "vtblmap2.hpp"
-#include "memoized_cast.hpp"
+//#include "memoized_cast.hpp"
+
+//------------------------------------------------------------------------------
+
+template <typename T> inline const T* adjust_ptr(const void* p, ptrdiff_t offset) { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
+template <typename T> inline       T* adjust_ptr(      void* p, ptrdiff_t offset) { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)+offset); }
 
 using boost::remove_const;
 
@@ -154,7 +159,7 @@ template <>      struct requires_bits<1> { enum { value = 0 }; };
 ///       to   "Program Database (/Zi)", which is the default in Release builds,
 ///       but not in Debug. This is a known bug of Visual C++ described here:
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#define CASE(C,...) } if (UNLIKELY_BRANCH(__casted_ptr = dynamic_cast<const C*>(__selector_ptr))) { if (__switch_info.line == 0) { __switch_info.line = __LINE__; __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); } case __LINE__: auto const matched_object = adjust_ptr<C>(__selector_ptr,__switch_info.offset); if (LIKELY_BRANCH(match<C>(__VA_ARGS__)(matched_object))) 
+#define CASE(C,...) } if (UNLIKELY_BRANCH(__casted_ptr = dynamic_cast<const C*>(__selector_ptr))) { if (__switch_info.line == 0) { __switch_info.line = __LINE__; __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); } case __LINE__: if (LIKELY_BRANCH(match<C>(__VA_ARGS__)(adjust_ptr<C>(__selector_ptr,__switch_info.offset)))) 
 #define CASES_BEGIN default: {
 #define CASES_END } if (__switch_info.line == 0) { __switch_info.line = __LINE__; } case __LINE__: ;
 

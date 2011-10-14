@@ -63,7 +63,7 @@
     #endif
 #else
     /// vtbl in G++ seem to be alligned by 16 bytes
-    #define VTBL_IRRELEVANT_BITS 6
+    #define VTBL_IRRELEVANT_BITS 4
     // When i defined more virtual functions it became 3 for some reason
     //#define VTBL_IRRELEVANT_BITS 3
 #endif

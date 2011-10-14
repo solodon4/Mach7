@@ -109,7 +109,7 @@ public:
                   << "Vtbl cache misses: " << cache_misses 
                   << std::endl;
 
-        size_t uses[1<<N] = {};
+        int uses[1<<N] = {};
 
         for (std::set<intptr_t>::const_iterator p = vtbls.begin(); p != vtbls.end(); ++p)
         {
@@ -117,7 +117,7 @@ public:
             const intptr_t key  = vtbl >> irrelevant_bits; // We do this as we rely that hash function is identity
         #if defined(USE_PEARSON_HASH)
             unsigned char h = pearson_hash(key);
-            os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << (size_t(h) & cache_mask) << " -> " << (key & cache_mask) << std::endl;
+            os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << (int(h) & cache_mask) << " -> " << (key & cache_mask) << std::endl;
             uses[h & cache_mask]++;
         #else
             os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << (key & cache_mask) << std::endl;
@@ -127,15 +127,15 @@ public:
 
         bool show = false;
 
-        for (size_t i = vtbls.size(); i != ~0; --i)
+        for (int i = vtbls.size(); i >= 0; --i)
         {
-            size_t n = std::count(uses,uses+ARR_SIZE(uses),i);
+            int n = std::count(uses,uses+ARR_SIZE(uses),i);
 
             if (show = show || n > 0)
                 std::cout << i << " -> " << n << std::endl;
         }
 
-        size_t i = 0;
+        int i = 0;
 
         for (; (differ >> i) << i == differ; ++i);
 
@@ -394,10 +394,11 @@ public:
     inline T& get(const void* p, const T& dflt = T()) throw()
     {
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
+        const intptr_t key  = vtbl>>irrelevant_bits;     // We do this as we rely that hash function is identity
     #if defined(USE_PEARSON_HASH)
-        cache_entry&   ce   = cache[pearson_hash(vtbl>>irrelevant_bits) & cache_mask];
+        cache_entry&   ce   = cache[pearson_hash(key) & cache_mask];
     #else
-        cache_entry&   ce   = cache[(vtbl>>irrelevant_bits) & cache_mask];
+        cache_entry&   ce   = cache[key & cache_mask];
     #endif
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
@@ -425,9 +426,9 @@ public:
                 {
                     // The following code to count trailing zeros was taken from:
                     // http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightFloatCast
-                    unsigned int v = static_cast<unsigned int>(m_differ); // find the number of trailing zeros in v
-                    float  f = (float)(v & -v); // cast the least significant bit in v to a float
-                    size_t r = (*(uint32_t *)&f >> 23) - 0x7f; // the result goes here
+                    unsigned int v = m_differ; // find the number of trailing zeros in v
+                    float f = (float)(v & -v); // cast the least significant bit in v to a float
+                    int   r = (*(uint32_t *)&f >> 23) - 0x7f; // the result goes here
 
                     if (irrelevant_bits != r)
                     {
@@ -435,6 +436,8 @@ public:
                         std::memset(cache,0,sizeof(ce)); // Reset cache
                     }
                 }
+
+                
             }
 
             ce.vtbl  = vtbl;
@@ -490,7 +493,7 @@ private:
 
     /// Irrelevant lowest bits in vtbl pointers that are always the same for given 
     /// compiler/platform configuration.
-    size_t irrelevant_bits;
+    int irrelevant_bits;
 
     /// Actual mapping of vtbl pointers (in reality keys obtained from them) 
     /// to values of type T. Values in this table are cached in @cache.
@@ -502,19 +505,17 @@ private:
 
 struct type_switch_info
 {
-    std::ptrdiff_t offset; ///< FIX: We assume here offsets within object can only be ints
-    std::size_t    line;   ///< We can choose smaller type for line to give more space to offset
-    //int offset; ///< FIX: We assume here offsets within object can only be ints
-    //int    line;   ///< We can choose smaller type for line to give more space to offset
+    int line;   ///< We can choose smaller type for line to give more space to offset
+    int offset; ///< FIX: We assume here offsets within object can only be ints
 };
 
-template <size_t N = VTBL_DEFAULT_CACHE_BITS>
+template <int N = VTBL_DEFAULT_CACHE_BITS>
 class vtbl2lines : public vtblmap<type_switch_info&,N>
 {
 private:
     typedef vtblmap<type_switch_info,N> base_type;
 public:
-    inline void update(size_t ln, const void* base, const void* derived) throw()
+    inline void update(int ln, const void* base, const void* derived) throw()
     {
         typename base_type::mapped_type& x = this->get(base);
 
@@ -530,7 +531,7 @@ public:
 
 //------------------------------------------------------------------------------
 
-template <size_t N = VTBL_DEFAULT_CACHE_BITS>
+template <int N = VTBL_DEFAULT_CACHE_BITS>
 class vtbl2indecies : private vtblmap<size_t,N>
 {
 public:
@@ -639,7 +640,7 @@ public:
 
 //------------------------------------------------------------------------------
 
-template <size_t N = VTBL_DEFAULT_CACHE_BITS>
+template <int N = VTBL_DEFAULT_CACHE_BITS>
 class vtbl2offsets : private vtbl2indecies<N>
 {
     typedef vtbl2indecies<N> base;
@@ -654,7 +655,7 @@ public:
         return offsets(i,j);
     }
 
-    inline void update(size_t ln, const void* t, size_t j) throw()
+    inline void update(int ln, const void* t, size_t j) throw()
     {
         std::ptrdiff_t& line = get(t,j);
 
@@ -677,13 +678,13 @@ private:
 /// The disadvantage of using this class might be worse locality as the static 
 /// variable inside this class, even though preallocated will most likely be 
 /// elsewhere.
-template <typename T, size_t N>
+template <typename T, int N>
 struct preallocated
 {
     static T value;
 };
 
-template <typename T, size_t N>
+template <typename T, int N>
 T preallocated<T,N>::value;
 
 //------------------------------------------------------------------------------
