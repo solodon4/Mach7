@@ -99,22 +99,22 @@ void bar(ADTShape& s)
     variable<double> a;
 
 #ifndef POD_ONLY
-    if (matchex<ADTShapeEx,ADTShape::circle>(x,a)(s))
+    if (match<ADTShapeEx,ADTShape::circle>(x,a)(s))
         std::cout << "ADTCircleEx with center " << x << " and radius " << a << std::endl;
     else
-    if (matchex<ADTShapeEx,ADTShape::square>(x,a)(s))
+    if (match<ADTShapeEx,ADTShape::square>(x,a)(s))
         std::cout << "ADTSquareEx with top left " << x << " and side " << a << std::endl;
     else
-    if (matchex<ADTShapeEx,ADTShape::triangle>(x,y,z)(s))
+    if (match<ADTShapeEx,ADTShape::triangle>(x,y,z)(s))
         std::cout << "ADTTriangleEx with corners " << x << ',' << y << ',' << z << std::endl;
 #endif
-    if (matchex<ADTShape,ADTShape::circle>(x,a)(s))
+    if (match<ADTShape,ADTShape::circle>(x,a)(s))
         std::cout << "ADTCircle with center " << x << " and radius " << a << std::endl;
     else
-    if (matchex<ADTShape,ADTShape::square>(x,a)(s))
+    if (match<ADTShape,ADTShape::square>(x,a)(s))
         std::cout << "ADTSquare with top left " << x << " and side " << a << std::endl;
     else
-    if (matchex<ADTShape,ADTShape::triangle>(x,y,z)(s))
+    if (match<ADTShape,ADTShape::triangle>(x,y,z)(s))
         std::cout << "ADTTriangle with corners " << x << ',' << y << ',' << z << std::endl;
 }
 

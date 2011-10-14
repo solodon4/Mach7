@@ -19,15 +19,16 @@ template <> struct match_members<cloc>     { CM(0,cloc::first); CM(1,cloc::secon
 
 // Members binding for discriminated union (ADT) case of Shape hierarchy
 
-template <> struct match_members<ADTShape> { CM(0,ADTShape::kind); };
+template <> struct match_members<ADTShape>   { KS(ADTShape::kind); };
 
-template <> struct match_members_ex<ADTShape,ADTShape::circle>   { CM(0,ADTShape::center);     CM(1,ADTShape::radius); };
-template <> struct match_members_ex<ADTShape,ADTShape::square>   { CM(0,ADTShape::upper_left); CM(1,ADTShape::size); };
-template <> struct match_members_ex<ADTShape,ADTShape::triangle> { CM(0,ADTShape::first);      CM(1,ADTShape::second); CM(2,ADTShape::third); };
+template <> struct match_members<ADTShape,ADTShape::circle>     { KV(ADTShape::circle);   CM(0,ADTShape::center);     CM(1,ADTShape::radius); };
+template <> struct match_members<ADTShape,ADTShape::square>     { KV(ADTShape::square);   CM(0,ADTShape::upper_left); CM(1,ADTShape::size);   };
+template <> struct match_members<ADTShape,ADTShape::triangle>   { KV(ADTShape::triangle); CM(0,ADTShape::first);      CM(1,ADTShape::second); CM(2,ADTShape::third); };
 
 // Members binding for inherited class from the above ADT
 
-template <> struct match_members<ADTShapeEx> { CM(0,ADTShape::kind); };
-template <> struct match_members_ex<ADTShapeEx,ADTShape::circle>   { CM(0,ADTShape::center);     CM(1,ADTShape::radius); CM(2,ADTShapeEx::extra_field); };
-template <> struct match_members_ex<ADTShapeEx,ADTShape::square>   { CM(0,ADTShape::upper_left); CM(1,ADTShape::size);   CM(2,ADTShapeEx::extra_field); };
-template <> struct match_members_ex<ADTShapeEx,ADTShape::triangle> { CM(0,ADTShape::first);      CM(1,ADTShape::second); CM(2,ADTShape::third); CM(3,ADTShapeEx::extra_field); };
+template <> struct match_members<ADTShapeEx> { KS(ADTShape::kind); };
+
+template <> struct match_members<ADTShapeEx,ADTShape::circle>   { KV(ADTShape::circle);   CM(0,ADTShape::center);     CM(1,ADTShape::radius); CM(2,ADTShapeEx::extra_field); };
+template <> struct match_members<ADTShapeEx,ADTShape::square>   { KV(ADTShape::square);   CM(0,ADTShape::upper_left); CM(1,ADTShape::size);   CM(2,ADTShapeEx::extra_field); };
+template <> struct match_members<ADTShapeEx,ADTShape::triangle> { KV(ADTShape::triangle); CM(0,ADTShape::first);      CM(1,ADTShape::second); CM(2,ADTShape::third); CM(3,ADTShapeEx::extra_field); };

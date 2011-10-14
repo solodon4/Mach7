@@ -29,8 +29,11 @@
 /// http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightFloatCast
 inline unsigned int trailing_zeros(unsigned int v)
 {
+#pragma warning( push )
+#pragma warning( disable : 4146 ) // warning C4146: unary minus operator applied to unsigned type, result still unsigned
     float  f = (float)(v & -v); // cast the least significant bit in v to a float
     return (*(uint32_t *)&f >> 23) - 0x7f; // the result goes here
+#pragma warning( pop )
 }
 
 //------------------------------------------------------------------------------

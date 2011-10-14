@@ -1,11 +1,21 @@
 #if FOR_EACH_MAX==99
     #if !defined (FOR_EACH_PRELUDE)
         #define FOR_EACH_PRELUDE
+        #define FOR_EACH_PRELUDE_DEFINED
     #endif
     #if !defined (FOR_EACH_POSTLUDE)
         #define FOR_EACH_POSTLUDE
+        #define FOR_EACH_POSTLUDE_DEFINED
     #endif
     #include "loop_over_numbers_99.hpp"
+    #if defined (FOR_EACH_PRELUDE_DEFINED)
+        #undef FOR_EACH_PRELUDE
+        #undef FOR_EACH_PRELUDE_DEFINED
+    #endif
+    #if defined (FOR_EACH_POSTLUDE_DEFINED)
+        #undef FOR_EACH_POSTLUDE
+        #undef FOR_EACH_POSTLUDE_DEFINED
+    #endif
 #else
 #if !defined (FOR_EACH_N)
 #error You have to define macro FOR_EACH_N(N)

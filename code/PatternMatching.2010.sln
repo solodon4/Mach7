@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OCamlCmp", "msvc\OCamlCmp\O
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OCamlCmpKind", "msvc\OCamlCmpKind\OCamlCmpKind.vcxproj", "{2F4D6180-1B94-478F-8A3A-B82A44A88D4F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape5", "msvc\Shape5\Shape5.vcxproj", "{76575FB6-26EB-47E5-8657-C82248593934}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -149,6 +151,14 @@ Global
 		{2F4D6180-1B94-478F-8A3A-B82A44A88D4F}.Release|Win32.Build.0 = Release|Win32
 		{2F4D6180-1B94-478F-8A3A-B82A44A88D4F}.Release|x64.ActiveCfg = Release|x64
 		{2F4D6180-1B94-478F-8A3A-B82A44A88D4F}.Release|x64.Build.0 = Release|x64
+		{76575FB6-26EB-47E5-8657-C82248593934}.Debug|Win32.ActiveCfg = Debug|Win32
+		{76575FB6-26EB-47E5-8657-C82248593934}.Debug|Win32.Build.0 = Debug|Win32
+		{76575FB6-26EB-47E5-8657-C82248593934}.Debug|x64.ActiveCfg = Debug|x64
+		{76575FB6-26EB-47E5-8657-C82248593934}.Debug|x64.Build.0 = Debug|x64
+		{76575FB6-26EB-47E5-8657-C82248593934}.Release|Win32.ActiveCfg = Release|Win32
+		{76575FB6-26EB-47E5-8657-C82248593934}.Release|Win32.Build.0 = Release|Win32
+		{76575FB6-26EB-47E5-8657-C82248593934}.Release|x64.ActiveCfg = Release|x64
+		{76575FB6-26EB-47E5-8657-C82248593934}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -177,7 +177,7 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
 /// Macro that starts the switch on types that carry their own dynamic type as
 /// a distinct integral value in one of their members.
 #define KIND_SWITCH(s)\
-        auto const   __selector_ptr = addr(s);\
+        auto const __selector_ptr  = addr(s);\
         auto const __kind_selector = apply_member(__selector_ptr, match_members<remove_ref<decltype(*__selector_ptr)>::type>::kind_selector());\
         switch (__kind_selector)
 
@@ -199,6 +199,188 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
 #define UNION_CASE(C,L,...) }} if (UNLIKELY_BRANCH((__kind_selector == match_members<C,L>::kind_value))) { case match_members<C,L>::kind_value: auto matched = stat_cast<C>(__selector_ptr); if (LIKELY_BRANCH((match<C,L>(__VA_ARGS__)(matched)))) {
 #define UNION_CASES_BEGIN {{
 #define UNION_CASES_END   }} default: ;
+
+#include "has_member.hpp"
+
+//------------------------------------------------------------------------------
+
+/// This is the general case that essentially assumes open case
+template <typename SelectorType, class condition = void>
+class generic_switch
+{
+public:
+    typedef typename remove_ref<SelectorType>::type selector_type;
+    typedef vtblmap<type_switch_info&>              static_data_type;
+
+    // Open case only works for polymorphic types (types with virtual funcs)
+    // If your base type is not polymorphic, but you'd still like to have 
+    // type switching/pattern matching functionality on it, use KS macro in 
+    // corresponding match_members<your_base_type> to identify which field
+    // behaves as a selector and thus uniquely identifies derived type.
+    static_assert(
+        std::is_polymorphic<selector_type>::value,
+        "Type of selector should either be polymorphic or you should provide kind selector for the type"
+    );
+
+    struct local_data_type
+    {
+        const void*       casted_ptr;
+        type_switch_info* switch_info_ptr;
+    };
+
+    static void foo() { std::cout << "General" << std::endl; }
+
+    static size_t choose(const selector_type* selector_ptr, static_data_type& static_data, local_data_type& local_data)
+    {
+        local_data.switch_info_ptr = &static_data.get(selector_ptr);
+        return local_data.switch_info_ptr->line;
+    }
+
+    static void on_first_pass(const selector_type* selector_ptr, local_data_type& local_data, size_t line)
+    {
+        if (LIKELY_BRANCH(local_data.switch_info_ptr->line == 0)) 
+        {
+            local_data.switch_info_ptr->line   = line; 
+            local_data.switch_info_ptr->offset = intptr_t(local_data.casted_ptr)-intptr_t(selector_ptr);
+        } 
+    }
+    
+    static void on_end(const selector_type* selector_ptr, local_data_type& local_data, size_t line)
+    {
+        if (LIKELY_BRANCH(local_data.switch_info_ptr->line == 0)) 
+        { 
+            local_data.switch_info_ptr->line   = line;
+        }
+    }
+
+    template <bool FirstParamIsValue>
+    struct disambiguate
+    {
+        template <typename T>
+        struct parameter
+        {
+            typedef T target_type;
+
+            template <size_t LineNumber>
+            struct CaseLabel
+            {
+                enum { value = LineNumber };
+            };
+
+            enum { layout = default_layout };
+
+            static bool main_condition(const selector_type* selector_ptr, local_data_type& local_data)
+            {
+                return local_data.casted_ptr = dynamic_cast<const target_type*>(selector_ptr);
+            }
+            
+            static const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data)
+            {
+                std::cout << "Open case" << std::endl;
+                return adjust_ptr<target_type>(selector_ptr,local_data.switch_info_ptr->offset);
+            }
+        };
+    };
+};
+
+template <typename SelectorType>
+class generic_switch<
+    SelectorType, 
+    typename std::enable_if<has_member_kind_selector<match_members<typename remove_ref<SelectorType>::type>>::value,void>::type
+>
+{
+public:
+    typedef typename remove_ref<SelectorType>::type selector_type;
+    typedef bool static_data_type;
+    typedef bool local_data_type;
+    static void foo() { std::cout << "Special" << std::endl; }
+
+    static size_t choose(const selector_type* selector_ptr, static_data_type& static_data, local_data_type& local_data)
+    {
+        return apply_member(selector_ptr, match_members<selector_type>::kind_selector());
+    }
+    static void on_first_pass(const selector_type* selector_ptr, local_data_type& local_data, size_t line) {}
+    static void        on_end(const selector_type* selector_ptr, local_data_type& local_data, size_t line) {}
+
+    // C++ standard (14.7.3.2) would not allow us to explicitly specialize 
+    // disambiguate later here, but will accept a partial specialization so we
+    // add a bogus template parameter to turn explicit specialization into 
+    // partial.
+    template <bool FirstParamIsValue, typename bogus_parameter = void>
+    struct disambiguate
+    {
+        template <size_t N>
+        struct parameter
+        {
+            typedef selector_type target_type;
+
+            template <size_t LineNumber>
+            struct CaseLabel
+            {
+                enum { value = N };
+            };
+
+            enum { layout = N };
+
+            static bool main_condition(const selector_type* selector_ptr, local_data_type& local_data) { return true; }
+            static const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data)
+            {
+                std::cout << "Union case" << std::endl;
+                return selector_ptr;
+            }
+        };
+    };
+
+    template <typename bogus_parameter>
+    struct disambiguate<false,bogus_parameter>
+    {
+        template <typename T>
+        struct parameter
+        {
+            typedef T target_type;
+
+            template <size_t LineNumber>
+            struct CaseLabel
+            {
+                enum { value = match_members<target_type>::kind_value };
+            };
+
+            enum { layout = default_layout };
+
+            static bool main_condition(const selector_type* selector_ptr, local_data_type& local_data) { return true; }
+            static const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data)
+            {
+                std::cout << "Closed case" << std::endl;
+                return stat_cast<target_type>(selector_ptr);
+            }
+        };
+    };
+};
+
+//------------------------------------------------------------------------------
+
+/// Macro that starts the switch on types that carry their own dynamic type as
+/// a distinct integral value in one of their members.
+#define GENERIC_SWITCH(s)\
+        auto const __selector_ptr = addr(s);\
+        enum { __base_line = __LINE__ };\
+        typedef generic_switch<decltype(*__selector_ptr)> switch_traits;\
+        static switch_traits::static_data_type static_data;\
+               switch_traits::local_data_type  local_data;\
+        switch (switch_traits::choose(__selector_ptr,static_data,local_data))
+
+/// Macro that defines the case statement for the above switch
+/// NOTE: If Visual C++ gives you error C2051: case expression not constant
+///       on this CASE label, just change the Debug Format in project setting 
+///       Project -> Properties -> C/C++ -> General -> Debug Information Format 
+///       from "Program Database for Edit And Continue (/ZI)" 
+///       to   "Program Database (/Zi)", which is the default in Release builds,
+///       but not in Debug. This is a known bug of Visual C++ described here:
+///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
+#define GENERIC_CASE(C,...) }}} { typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; if (target_specific::main_condition(__selector_ptr, local_data)) { switch_traits::on_first_pass(__selector_ptr, local_data, __LINE__-__base_line); case target_specific::CaseLabel<__LINE__-__base_line>::value: auto matched = target_specific::get_matched(__selector_ptr,local_data); if (LIKELY_BRANCH(match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
+#define GENERIC_CASES_BEGIN default: {{{
+#define GENERIC_CASES_END }}} switch_traits::on_end(__selector_ptr, local_data, __LINE__-__base_line); case __LINE__-__base_line: ;
+
 //------------------------------------------------------------------------------
 
 template <class T>
@@ -719,7 +901,7 @@ struct matcher1
     const T* operator()(const T* t) const 
     {
         return 
-            (t                                                      &&
+            (t                                                             &&
              apply_expression(m_e1, t, match_members<T,layout>::member0())
             )
             ? t
@@ -728,7 +910,7 @@ struct matcher1
           T* operator()(      T* t) const 
     {
         return 
-            (t                                                      &&
+            (t                                                             &&
              apply_expression(m_e1, t, match_members<T,layout>::member0())
             )
             ? t
@@ -756,7 +938,7 @@ struct matcher2
     const T* operator()(const T* t) const 
     {
         return 
-            (t                                                      &&
+            (t                                                             &&
              apply_expression(m_e1, t, match_members<T,layout>::member0()) &&
              apply_expression(m_e2, t, match_members<T,layout>::member1())
             )
@@ -766,7 +948,7 @@ struct matcher2
           T* operator()(      T* t) const 
     {
         return 
-            (t                                                      &&
+            (t                                                             &&
              apply_expression(m_e1, t, match_members<T,layout>::member0()) &&
              apply_expression(m_e2, t, match_members<T,layout>::member1())
             )
@@ -796,7 +978,7 @@ struct matcher3
     const T* operator()(const T* t) const 
     {
         return 
-            (t                                                      &&
+            (t                                                             &&
              apply_expression(m_e1, t, match_members<T,layout>::member0()) &&
              apply_expression(m_e2, t, match_members<T,layout>::member1()) &&
              apply_expression(m_e3, t, match_members<T,layout>::member2())
@@ -807,7 +989,7 @@ struct matcher3
           T* operator()(      T* t) const 
     {
         return 
-            (t                                                      &&
+            (t                                                             &&
              apply_expression(m_e1, t, match_members<T,layout>::member0()) &&
              apply_expression(m_e2, t, match_members<T,layout>::member1()) &&
              apply_expression(m_e3, t, match_members<T,layout>::member2())
@@ -839,7 +1021,7 @@ struct matcher4
     const T* operator()(const T* t) const 
     {
         return 
-            (t                                                      &&
+            (t                                                             &&
              apply_expression(m_e1, t, match_members<T,layout>::member0()) &&
              apply_expression(m_e2, t, match_members<T,layout>::member1()) &&
              apply_expression(m_e3, t, match_members<T,layout>::member2()) &&
@@ -851,7 +1033,7 @@ struct matcher4
           T* operator()(      T* t) const 
     {
         return 
-            (t                                                      &&
+            (t                                                             &&
              apply_expression(m_e1, t, match_members<T,layout>::member0()) &&
              apply_expression(m_e2, t, match_members<T,layout>::member1()) &&
              apply_expression(m_e3, t, match_members<T,layout>::member2()) &&

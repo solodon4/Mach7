@@ -34,9 +34,15 @@ double area_select(Shape* shape)
     SWITCH(shape)
     {
     CASES_BEGIN
-    CASE(Circle,_,r)     return 3.14 * r * r;
-    CASE(Square,_,s)     return s * s;
-    CASE(Triangle,x,y,z) return heron(x,y,z);
+    CASE(Circle,_,r)     
+        std::cout << "Circle" << std::endl; 
+        return 3.14 * r * r;
+    CASE(Square,_,s)     
+        std::cout << "Square" << std::endl; 
+        return s * s;
+    CASE(Triangle,x,y,z) 
+        std::cout << "Triangle" << std::endl; 
+        return heron(x,y,z);
     CASES_END
     }
 
