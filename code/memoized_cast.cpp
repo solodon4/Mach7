@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <iomanip>
 #include "memoized_cast.hpp"
 
@@ -9,47 +8,55 @@
 #define NON_MSVC(...) __VA_ARGS__
 #endif
 
+template <typename T>
+T byte_pattern(unsigned char c)
+{
+    T t;
+    std::fill(reinterpret_cast<unsigned char*>(&t), reinterpret_cast<unsigned char*>(&t)+sizeof(t), c);
+    return t;
+}
+
 struct A
 {
-    A(int a = 0xAAAAAAAA) : m_a(a) {}
+    A(intptr_t a = byte_pattern<intptr_t>(0xAA)) : m_a(a) {}
     virtual ~A() {}
-    int m_a;
+    intptr_t m_a;
 };
 
 struct B : A
 {
-    B(int b = 0xBBBBBBBB) : m_b(b) {}
-    int m_b;
+    B(intptr_t b = byte_pattern<intptr_t>(0xBB)) : m_b(b) {}
+    intptr_t m_b;
 };
 
 struct C : NON_MSVC(A,) B
 {
-    C(int c = 0xCCCCCCCC) : m_c(c) {}
-    int m_c;
+    C(intptr_t c = byte_pattern<intptr_t>(0xCC)) : m_c(c) {}
+    intptr_t m_c;
 };
 
 struct D : NON_MSVC(A,) B
 {
-    D(int d = 0xDDDDDDDD) : m_d(d) {}
-    int m_d;
+    D(intptr_t d = byte_pattern<intptr_t>(0xDD)) : m_d(d) {}
+    intptr_t m_d;
 };
 
 struct E : C, D
 {
-    E(int e = 0xEEEEEEEE) : m_e(e) {}
-    int m_e;
+    E(intptr_t e = byte_pattern<intptr_t>(0xEE)) : m_e(e) {}
+    intptr_t m_e;
 };
 
 struct F
 {
-    F(int f = 0xFFFFFFFF) : m_f(f) {}
-    int m_f;
+    F(intptr_t f = byte_pattern<intptr_t>(0xFF)) : m_f(f) {}
+    intptr_t m_f;
 };
 
 struct G : F, B
 {
-    G(int g = 0x77777777) : m_g(g) {}
-    int m_g;
+    G(intptr_t g = byte_pattern<intptr_t>(0x77)) : m_g(g) {}
+    intptr_t m_g;
 };
 
 void dump_bytes(const void* p, size_t n)
@@ -106,5 +113,5 @@ int main()
     const A* a1 = (const B*)(const C*)e;
     const E* e1 = memoized_cast<const E*>(a1);
     const E* e2 = memoized_cast<const E*>(a1);
-    assert(e1 == e && e2 == e);
+    XTL_ASSERT(e1 == e && e2 == e);
 }

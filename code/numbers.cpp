@@ -27,7 +27,7 @@ int factorial(int n)
 
 	if (match<int>(0)(n))   return 1;
 	if (match<int>(m+1)(n)) return (m+1)*factorial(m);
-	assert(!"Should never happen");	
+	XTL_ASSERT(!"Should never happen");	
     return 0;
 }
 
@@ -42,7 +42,7 @@ double power(double x, int n)
     if (match<int>(1)(n))     return x;
 	if (match<int>(m*2)(n))   return sqr(power(x,m));
 	if (match<int>(m*2+1)(n)) return x*power(x,2*m);
-	assert(!"Should never happen");	
+	XTL_ASSERT(!"Should never happen");	
     return 0.0;
 }
 
@@ -54,7 +54,7 @@ int fib(int n)
     if (match<int>(2)(n))     return 1;
 	if (match<int>(m*2)(n))   return sqr(fib(m+1)) - sqr(fib(m-1));
 	if (match<int>(m*2+1)(n)) return sqr(fib(m+1)) + sqr(fib(m));
-	assert(!"Should never happen");	
+	XTL_ASSERT(!"Should never happen");	
     return 0;
 }
 
@@ -64,7 +64,7 @@ double power1(double x, int n)
 	if (n == 1) return x;
 	if (n % 2 == 0) return sqr(power1(x,n/2));
 	if (n % 2 == 1) return x*power1(x,n-1);
-	assert(!"Should never happen");	
+	XTL_ASSERT(!"Should never happen");	
     return 0.0;
 }
 
@@ -73,7 +73,7 @@ int fib1(int n)
 	if (n == 1 || n == 2) return 1;
 	if (n % 2 == 0) return sqr(fib1(n/2+1)) - sqr(fib1(n/2-1));
 	if (n % 2 == 1) return sqr(fib1(n/2+1)) + sqr(fib1(n/2));
-	assert(!"Should never happen");	
+	XTL_ASSERT(!"Should never happen");	
     return 0;
 }
 

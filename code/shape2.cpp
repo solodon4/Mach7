@@ -39,7 +39,7 @@ double area(const Shape& shape)
     if (match<Triangle>(x,y,z)(shape))
         return heron(x,y,z);
 
-    assert(!"Inexhaustive search");
+    XTL_ASSERT(!"Inexhaustive search");
     return 0.0;
 }
 /*
@@ -57,7 +57,7 @@ double area_ptr(const Shape& shape)
     if (match<Triangle>(x,y,z)(shape))
         return heron(*x,*y,*z);
 
-    assert(!"Inexhaustive search");
+    XTL_ASSERT(!"Inexhaustive search");
     return 0.0;
 }
 */
@@ -83,7 +83,7 @@ loc center(/*const*/ Shape& shape)
                        )(shape))
         return loc((x1+x2+x3)/3,(y1+y2+y3)/3);
 
-    assert(!"Inexhaustive search");
+    XTL_ASSERT(!"Inexhaustive search");
     return loc();
 }
 
@@ -92,7 +92,7 @@ int dummy(Shape* s)
     if (match<Circle>()(s))   return 1;
     if (match<Square>()(s))   return 2;
     if (match<Triangle>()(s)) return 3;
-    assert(!"Inexhaustive search");
+    XTL_ASSERT(!"Inexhaustive search");
     return 0;
 }
 
@@ -101,7 +101,7 @@ int dummy_dyn(Shape* s)
     if (dynamic_cast<Circle*>(s))   return 1;
     if (dynamic_cast<Square*>(s))   return 2;
     if (dynamic_cast<Triangle*>(s)) return 3;
-    assert(!"Inexhaustive search");
+    XTL_ASSERT(!"Inexhaustive search");
     return 0;
 }
 
@@ -210,7 +210,7 @@ void time_area(Shape& s)
         a2 = area(s);
     time_stamp liFinish2 = get_time_stamp();
 
-    assert(a1==a2);
+    XTL_ASSERT(a1==a2);
 
     std::cout << "AreaV Time:" << microseconds(liFinish1-liStart1) << std::endl;
     std::cout << "AreaM Time:" << microseconds(liFinish2-liStart2) << std::endl;
@@ -231,7 +231,7 @@ void time_center(Shape& s)
         c2 = center(s);
     time_stamp liFinish2 = get_time_stamp();
 
-    assert(c1==c2);
+    XTL_ASSERT(c1==c2);
 
     std::cout << "CenterV Time:" << microseconds(liFinish1-liStart1) << std::endl;
     std::cout << "CenterM Time:" << microseconds(liFinish2-liStart2) << std::endl;
@@ -257,7 +257,7 @@ void time_dummy(Shape& s)
         c2 = dummy_dyn(&s);
     time_stamp liFinish3 = get_time_stamp();
 
-    assert(c1==c2);
+    XTL_ASSERT(c1==c2);
 
     std::cout << "DummyV Time:" << microseconds(liFinish1-liStart1) << std::endl;
     std::cout << "DummyD Time:" << microseconds(liFinish3-liStart3) << std::endl;

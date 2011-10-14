@@ -48,7 +48,7 @@ template <int N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(*th
 DO_NOT_INLINE_BEGIN
 int do_match(Shape& s)
 {
-    SWITCH_N(s,FOR_EACH_MAX)
+    SWITCH_N(s,FOR_EACH_MAX+1)
     {
     CASES_BEGIN
     #define FOR_EACH_N(N) CASE(shape_kind<N>) return N;
@@ -56,7 +56,7 @@ int do_match(Shape& s)
     #undef  FOR_EACH_N
     CASES_END
     }
-    //assert(!"Inexhaustive search");
+    //XTL_ASSERT(!"Inexhaustive search");
     return -1;
 }
 DO_NOT_INLINE_END
@@ -813,6 +813,7 @@ Shape* make_shape(int i)
 
 const int N = 10000; // The amount of times visitor and matching procedure is invoked in one time measuring
 const int M = 101;   // The amount of times time measuring is done
+const int K = FOR_EACH_MAX+1; // The amount of cases we have in hierarchy
 
 template <typename Container>
 typename Container::value_type mean(const Container& c)
@@ -823,18 +824,33 @@ typename Container::value_type mean(const Container& c)
 template <typename Container>
 typename Container::value_type deviation(const Container& c)
 {
-    typename Container::value_type m = mean(c);
-    typename Container::value_type d = 0;
+    typedef typename Container::value_type value_type;
+    value_type m = mean(c);
+    value_type d = 0;
 
     for (typename Container::const_iterator p = c.begin(); p != c.end(); ++p)
         d += (*p-m)*(*p-m);
 
-    return std::sqrt(double(d)/c.size());
+    return value_type(std::sqrt(double(d)/c.size()));
+}
+
+template <typename T>
+void statistics(std::vector<T>& measurements, T& min, T& max, T& avg, T& med, T& dev)
+{
+    std::sort(measurements.begin(), measurements.end());
+    min = measurements.front();
+    max = measurements.back();
+    avg = mean(measurements);
+    med = measurements[measurements.size()/2];
+    dev = deviation(measurements);
 }
 
 long long display(const char* name, std::vector<long long>& timings)
 {
-    std::sort(timings.begin(), timings.end());
+    long long min, max, avg, med, dev;
+
+    statistics(timings, min, max, avg, med, dev); // Get statistics from timings
+
     std::fstream file;
    
     file.open(std::string(name)+".csv", std::fstream::out | std::fstream::app);
@@ -847,11 +863,6 @@ long long display(const char* name, std::vector<long long>& timings)
 
     file.close();
 
-    long long min = timings.front();
-    long long max = timings.back();
-    long long avg = mean(timings);
-    long long med = timings[timings.size()/2];
-    long long dev = deviation(timings);
     std::cout << name << " Time: ["
               << std::setw(4) << microseconds(min) << " -- " 
               << std::setw(4) << microseconds(avg) << "/" 
@@ -873,7 +884,7 @@ void test_sequential()
 #endif
     std::cout << "=================== Sequential Test ===================" << std::endl;
 
-    for (int n = 0; n <= FOR_EACH_MAX; ++n)
+    for (int n = 0; n < K; ++n)
     {
         Shape* s = make_shape(n);
         std::vector<long long> timingsV(M);
@@ -897,7 +908,7 @@ void test_sequential()
 
             time_stamp liFinish2 = get_time_stamp();
 
-            assert(a1==a2);
+            XTL_ASSERT(a1==a2);
 
             timingsV[m] = liFinish1-liStart1;
             timingsM[m] = liFinish2-liStart2;
@@ -906,18 +917,29 @@ void test_sequential()
         long long avgV = display("AreaVisSeq", timingsV);
         long long avgM = display("AreaMatSeq", timingsM);
         //if (avgV)
-            std::cout << avgM*100/avgV-100 << "% slower" << std::endl;
+            std::cout << "\t\t" << avgM*100/avgV-100 << "% slower" << std::endl;
         //else
         //    std::cout << "Insufficient timer resolution" << std::endl;
-        //std::cout << "//----------------------------------------------------------------------" << std::endl;
-#ifdef TRACE_PERFORMANCE
-        std::cout << "Cache hits: " << cache_hits << "\tCache misses: " << cache_misses << std::endl;
-        std::cout << "Common: " << std::bitset<32>(common) << std::endl
-                  << "Differ: " << std::bitset<32>(differ) << std::endl;
-#endif
 
         delete s;
     }
+
+#ifdef TRACE_PERFORMANCE
+    std::cout << "Vtbl cache hits: " << cache_hits << "\tVtbl cache misses: " << cache_misses << std::endl;
+
+    int i = 0;
+
+    for (; (differ >> i) << i == differ; ++i);
+
+    if (i-1 != VTBL_IRRELEVANT_BITS)
+    {
+        std::cout << "WARNING: Empirically computed irrelevant_bits " << i-1 
+                  << " differs from the predefined one " STRING_LITERAL(VTBL_IRRELEVANT_BITS) 
+                  << ". See vtbl patterns below: " << std::endl;
+        std::cout << "Common: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)common) << std::endl
+                  << "Differ: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)differ) << std::endl;
+    }
+#endif
 }
 
 void test_randomized()
@@ -932,11 +954,30 @@ void test_randomized()
 
     std::vector<Shape*> shapes(N);
 
+#ifdef TRACE_PERFORMANCE
+    std::vector<int> distribution(K);
+#endif
+
     for (int i = 0; i < N; ++i)
     {
-        int n = rand()%FOR_EACH_MAX;
+        int n = rand()%K;
         shapes[i] = make_shape(n);
+#ifdef TRACE_PERFORMANCE
+        distribution[n]++;
+#endif
     }
+
+#ifdef TRACE_PERFORMANCE
+    int min, max, avg, med, dev;
+    statistics(distribution, min, max, avg, med, dev);
+    //std::copy(distribution.begin(), distribution.end(), std::ostream_iterator<int>(std::cout, ":"));
+    std::cout << "Shape kind distribution: ["
+              << std::setw(4) << min << " -- " 
+              << std::setw(4) << avg << "/" 
+              << std::setw(4) << med << " -- "
+              << std::setw(4) << max << "] Dev = " 
+              << std::setw(4) << dev << std::endl;
+#endif
 
     std::vector<long long> timingsV(M);
     std::vector<long long> timingsM(M);
@@ -959,7 +1000,7 @@ void test_randomized()
 
         time_stamp liFinish2 = get_time_stamp();
 
-        assert(a1==a2);
+        XTL_ASSERT(a1==a2);
         timingsV[m] = liFinish1-liStart1;
         timingsM[m] = liFinish2-liStart2;
     }
@@ -967,14 +1008,25 @@ void test_randomized()
     long long avgV = display("AreaVisRnd", timingsV);
     long long avgM = display("AreaMatRnd", timingsM);
     //if (avgV)
-        std::cout << avgM*100/avgV-100 << "% slower" << std::endl;
+        std::cout << "\t\t" << avgM*100/avgV-100 << "% slower" << std::endl;
     //else
     //    std::cout << "Insufficient timer resolution" << std::endl;
-    //std::cout << "//----------------------------------------------------------------------" << std::endl;
+
 #ifdef TRACE_PERFORMANCE
-    std::cout << "Cache hits: " << cache_hits << "\tCache misses: " << cache_misses << std::endl;
-    std::cout << "Common: " << std::bitset<32>(common) << std::endl
-              << "Differ: " << std::bitset<32>(differ) << std::endl;
+    std::cout << "Vtbl cache hits: " << cache_hits << "\tVtbl cache misses: " << cache_misses << std::endl;
+
+    int i = 0;
+
+    for (; (differ >> i) << i == differ; ++i);
+
+    if (i-1 != VTBL_IRRELEVANT_BITS)
+    {
+        std::cout << "WARNING: Empirically computed irrelevant_bits " << i-1 
+                  << " differs from the predefined one " STRING_LITERAL(VTBL_IRRELEVANT_BITS) 
+                  << ". See vtbl patterns below: " << std::endl;
+        std::cout << "Common: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)common) << std::endl
+                  << "Differ: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)differ) << std::endl;
+    }
 #endif
 }
 

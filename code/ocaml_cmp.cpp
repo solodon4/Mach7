@@ -28,7 +28,7 @@ int do_match(Shape& s)
     #undef  FOR_EACH_N
     CASES_END
     }
-    //assert(!"Inexhaustive search");
+    //XTL_ASSERT(!"Inexhaustive search");
     return -1;
 }
 

@@ -40,7 +40,7 @@ double area_select(Shape* shape)
     CASES_END
     }
 
-    assert(!"Inexhaustive search"); 
+    XTL_ASSERT(!"Inexhaustive search"); 
     return 0.0;
 }
 

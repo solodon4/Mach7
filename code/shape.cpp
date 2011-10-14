@@ -29,7 +29,7 @@ double area(const Shape& shape)
     if (match<Triangle>(x,y,z)(shape))
         return heron(x,y,z);
 
-    assert(!"Inexhaustive search");
+    XTL_ASSERT(!"Inexhaustive search");
 }
 
 loc center(/*const*/ Shape& shape)
@@ -54,7 +54,7 @@ loc center(/*const*/ Shape& shape)
                        )(shape))
         return loc((x1+x2+x3)/3,(y1+y2+y3)/3);
 
-    assert(!"Inexhaustive search");
+    XTL_ASSERT(!"Inexhaustive search");
 }
 
 void foo(Shape* s)

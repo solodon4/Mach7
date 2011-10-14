@@ -31,14 +31,6 @@ using boost::remove_const;
 
 //------------------------------------------------------------------------------
 
-#ifdef _DEBUG
-#define DEBUG_ONLY(s) s
-#else
-#define DEBUG_ONLY(s)
-#endif
-
-//------------------------------------------------------------------------------
-
 /// Traits like structure that will define which members should be matched at 
 /// which positions. It is intentionally left undefined as user will have to
 /// provide specializations for his hierarchy.
@@ -78,6 +70,7 @@ template <>      struct requires_bits<1> { enum { value = 0 }; };
 
 /// For some reason MSVC gets unresolved external error if we use auto here, so we workaround it with decltype
 #ifdef _MSC_VER
+
 /// Macro that starts the switch on pattern
 #define SWITCH(s)\
         static vtbl2lines<> __vtbl2lines_map;\
@@ -88,15 +81,6 @@ template <>      struct requires_bits<1> { enum { value = 0 }; };
         static vtbl2lines<requires_bits<N>::value> __vtbl2lines_map;\
         decltype(s)& __selector_var = s;\
         switch (__vtbl2lines_map.get(addr(__selector_var)))
-/// Macros to use compiler's branch hinting. 
-/// \note These macros are only to be used in CASE macro expansion, not in 
-///       user's code since they explicitly expect a pointer argument
-#define   LIKELY_BRANCH(ptr) (ptr)
-#define UNLIKELY_BRANCH(ptr) (ptr)
-/// A macro that is supposed to be put before the function definition whose inlining should be disabled
-#define DO_NOT_INLINE_BEGIN __pragma(auto_inline (off))
-/// A macro that is supposed to be put after  the function definition whose inlining should be disabled
-#define DO_NOT_INLINE_END   __pragma(auto_inline (on))
 
 #else
 
@@ -110,15 +94,6 @@ template <>      struct requires_bits<1> { enum { value = 0 }; };
         static vtbl2lines<requires_bits<N>::value> __vtbl2lines_map;\
         auto& __selector_var = s;\
         switch (__vtbl2lines_map.get(addr(__selector_var)))
-/// Macros to use compiler's branch hinting. 
-/// \note These macros are only to be used in CASE macro expansion, not in 
-///       user's code since they explicitly expect a pointer argument
-#define   LIKELY_BRANCH(ptr) (__builtin_expect(ptr != 0, 1))
-#define UNLIKELY_BRANCH(ptr) (__builtin_expect(ptr != 0, 0))
-/// A macro that is supposed to be put before the function definition whose inlining should be disabled
-#define DO_NOT_INLINE_BEGIN __attribute__ ((noinline))
-/// A macro that is supposed to be put after  the function definition whose inlining should be disabled
-#define DO_NOT_INLINE_END
 
 #endif
 
@@ -328,7 +303,7 @@ struct variable<const T&>
 
     /// Helper conversion operator to let the variable be used in some places
     /// where T was allowed
-    operator const T&() const throw() { assert(m_value); return *m_value; }
+    operator const T&() const throw() { XTL_ASSERT(m_value); return *m_value; }
 
     /// Member that will hold matching value in case of successful matching
     mutable const T* m_value;

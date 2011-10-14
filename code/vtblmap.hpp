@@ -16,10 +16,9 @@
 #include <functional>
 #include <unordered_map>
 #include <limits>
+#include "config.hpp"    // Various compiler/platform dependent macros
 
 //------------------------------------------------------------------------------
-
-//#define TRACE_PERFORMANCE
 
 #ifdef TRACE_PERFORMANCE
 #include <bitset> // For print out purposes only
@@ -31,7 +30,7 @@ intptr_t differ  = 0;
 
 //------------------------------------------------------------------------------
 
-template <typename T, size_t cache_bits = 3>
+template <typename T, size_t cache_bits = 7>
 class vtblmap
 {
 private:
@@ -49,13 +48,9 @@ public:
     enum
     {
         cache_mask = (1<<cache_bits)-1,
-
-        // FIX: Make this less empirical
-    #ifdef _MSC_VER
-        irrelevant_bits = 3  // vtbl in MSVC seem to be alligned by 4 bytes
-    #else
-        irrelevant_bits = 4  // vtbl in G++ seem to be alligned by 8 bytes
-    #endif
+        /// Irrelevant lowest bits in vtbl pointers that are always the same for given 
+        /// compiler/platform configuration.
+        irrelevant_bits = VTBL_IRRELEVANT_BITS
     };
 
     /// Structure describing entry in the cache
@@ -85,6 +80,8 @@ public:
     inline T& get(const void* p, const T& dflt = T()) throw()
     {
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
+        //XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
+        //XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
         const intptr_t key  = vtbl>>irrelevant_bits; // We do this as we rely that hash function is identity
         cache_entry& ce = cache[key & cache_mask];
 
@@ -94,11 +91,11 @@ public:
             ce.ptr  = q != table.end() ? &q->second : &table.insert(value_type(key,dflt)).first->second;
             ce.vtbl = vtbl;
 #ifdef TRACE_PERFORMANCE
-            //std::cout << "Differ: " << std::bitset<32>(differ) << std::endl;
-            //std::cout << "Common: " << std::bitset<32>(common) << std::endl;
-            //std::cout << "Vtbl  : " << std::bitset<32>(vtbl) << std::endl;
-            //std::cout << " Cm^Vt: " << std::bitset<32>(common ^ vtbl) << std::endl;
-            //std::cout << "~Cm^Vt: " << std::bitset<32>(~(common ^ vtbl)) << std::endl;
+            //std::cout << "Differ: " << std::bitset<8*sizeof(intptr_t)>(differ) << std::endl;
+            //std::cout << "Common: " << std::bitset<8*sizeof(intptr_t)>(common) << std::endl;
+            //std::cout << "Vtbl  : " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << std::endl;
+            //std::cout << " Cm^Vt: " << std::bitset<8*sizeof(intptr_t)>(common ^ vtbl) << std::endl;
+            //std::cout << "~Cm^Vt: " << std::bitset<8*sizeof(intptr_t)>(~(common ^ vtbl)) << std::endl;
             ++cache_misses;
             if (common == ~0)
             {
