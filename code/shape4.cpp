@@ -1,31 +1,6 @@
 #include <utility>
 #include "match.hpp"
 
-template <typename T> struct remove_ref     { typedef T type; };
-template <typename T> struct remove_ref<T&> { typedef T type; };
-
-
-#define KS(...)  static inline decltype(&__VA_ARGS__) kind_selector() { return &__VA_ARGS__; }
-#define KV(kind) static const size_t kind_value = kind;
-/// Macro that starts the switch on dynamic type of a variable s that can be 
-/// either pointer or reference to a polymorphic type.
-#define KIND_SWITCH(s)\
-        auto const   __selector_ptr = addr(s);\
-        const void*  __casted_ptr;\
-        switch (apply_member(__selector_ptr, match_members<remove_ref<decltype(*__selector_ptr)>::type>::kind_selector()))
-
-/// Macro that defines the case statement for the above switch
-/// NOTE: If Visual C++ gives you error C2051: case expression not constant
-///       on this CASE label, just change the Debug Format in project setting 
-///       Project -> Properties -> C/C++ -> General -> Debug Information Format 
-///       from "Program Database for Edit And Continue (/ZI)" 
-///       to   "Program Database (/Zi)", which is the default in Release builds,
-///       but not in Debug. This is a known bug of Visual C++ described here:
-///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#define KIND_CASE(C,...) } case match_members<C>::kind_value: { auto result_of_dynamic_cast = static_cast<C*>(__selector_ptr);
-#define KIND_CASES_BEGIN {
-#define KIND_CASES_END   } default: ;
-
 typedef std::pair<double,double> loc;
 struct cloc { double first; double second; };
 

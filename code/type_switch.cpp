@@ -873,6 +873,28 @@ void statistics(std::vector<T>& measurements, T& min, T& max, T& avg, T& med, T&
     dev = deviation(measurements);
 }
 
+int relative_performance(long long v, long long m)
+{
+    if (v <= 0 || m <= 0)
+    {
+        std::cout << "ERROR: Insufficient timer resolution. Increase number of iterations N" << std::endl;
+        exit(42);
+    }
+    else
+    if (v <= m)
+    {
+        int percent = m*100/v-100;
+        std::cout << "\t\t" << percent << "% slower" << std::endl;
+        return +percent; // Positive number indicates how many percents slower we are 
+    }
+    else
+    {
+        int percent = v*100/m-100;
+        std::cout << "\t\t" << percent << "% faster" << std::endl;
+        return -percent; // Negative number indicates how many percents faster we are 
+    }
+}
+
 long long display(const char* name, std::vector<long long>& timings)
 {
     long long min, max, avg, med, dev;
@@ -944,18 +966,19 @@ int test_sequential()
 
         long long avgV = display("AreaVisSeq", timingsV);
         long long avgM = display("AreaMatSeq", timingsM);
-        //if (avgV)
-            int percent = percentages[n] = avgM*100/avgV-100;
-            std::cout << "\t\t" << percent << "% slower" << std::endl;
-        //else
-        //    std::cout << "Insufficient timer resolution" << std::endl;
-        //std::cout << "\t\tThe following 2 numbers should be the same " << a1 << "==" << a2 << " ? " << std::boolalpha << (a1==a2) << std::endl;
+        percentages[n] = relative_performance(avgV, avgM);
 
         for (size_t i = 0; i < N; ++i)
         {
             delete shapes[i];
             shapes[i] = 0;
         }
+    }
+
+    if (a1 != a2)
+    {
+        std::cout << "ERROR: Invariant " << a1 << "==" << a2 << " doesn't hold." << std::endl;
+        exit(42);
     }
 
     std::sort(percentages.begin(), percentages.end());
@@ -1021,18 +1044,19 @@ int test_randomized()
 
         long long avgV = display("AreaVisRnd", timingsV);
         long long avgM = display("AreaMatRnd", timingsM);
-        //if (avgV)
-            int percent = percentages[n] = avgM*100/avgV-100;
-            std::cout << "\t\t" << percent << "% slower" << std::endl;
-        //else
-        //    std::cout << "Insufficient timer resolution" << std::endl;
-        //std::cout << "\t\tThe following 2 numbers should be the same " << a1 << "==" << a2 << " ? " << std::boolalpha << (a1==a2) << std::endl;
+        percentages[n] = relative_performance(avgV, avgM);
 
         for (size_t i = 0; i < N; ++i)
         {
             delete shapes[i];
             shapes[i] = 0;
         }
+    }
+
+    if (a1 != a2)
+    {
+        std::cout << "ERROR: Invariant " << a1 << "==" << a2 << " doesn't hold." << std::endl;
+        exit(42);
     }
 
     std::sort(percentages.begin(), percentages.end());
@@ -1043,5 +1067,7 @@ int main()
 {
     int ps = test_sequential();
     int pr = test_randomized();
-    std::cout << "OVERALL: Sequential: " << ps << "% slower; Random: " << pr << "% slower;" << std::endl; 
+    std::cout << "OVERALL: Sequential: " 
+              << abs(ps) << (ps >= 0 ? "% slower" : "% faster") << "; Random: " 
+              << abs(pr) << (pr >= 0 ? "% slower" : "% faster") << std::endl; 
 }
