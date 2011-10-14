@@ -93,8 +93,8 @@
     /// Macros to use compiler's branch hinting. 
     /// \note These macros are only to be used in CASE macro expansion, not in 
     ///       user's code since they explicitly expect a pointer argument
-    #define   LIKELY_BRANCH(ptr) (__builtin_expect(ptr != 0, 1))
-    #define UNLIKELY_BRANCH(ptr) (__builtin_expect(ptr != 0, 0))
+    #define   LIKELY_BRANCH(ptr) (__builtin_expect((ptr) != 0, 1))
+    #define UNLIKELY_BRANCH(ptr) (__builtin_expect((ptr) != 0, 0))
 
     /// A macro that is supposed to be put before the function definition whose inlining should be disabled
     #define DO_NOT_INLINE_BEGIN __attribute__ ((noinline))

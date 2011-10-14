@@ -64,720 +64,817 @@ DO_NOT_INLINE_END
 DO_NOT_INLINE_BEGIN
 int do_match(Shape& s)
 {
-    static vtbl2lines<7> __vtbl2lines_map; 
+    static vtbl2lines<requires_bits<99+1>::value> __vtbl2lines_map; 
     decltype(s)& __selector_var = s; 
-    int choice = __vtbl2lines_map.get(addr(__selector_var));
-    switch (choice)
+    const void* __casted_ptr; 
+    line_offset& __switch_info = __vtbl2lines_map.get(addr(__selector_var)); 
+    switch (__switch_info.line)
     {
-    default:{
-            }
-            if (memoized_cast<const shape_kind<0>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(10, addr(__selector_var));
+    default: {
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<0>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(10, addr(__selector_var), __casted_ptr);
     case 10:
-                if (match<shape_kind<0>>()(__selector_var))
-                    return 0;
-            } 
-            if (memoized_cast<const shape_kind<1>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(13, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<0>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<0>>()(matched_object)))
+                     return 0;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<1>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(13, addr(__selector_var), __casted_ptr);
     case 13:
-                if (match<shape_kind<1>>()(__selector_var))
-                    return 1;
-            } 
-            if (memoized_cast<const shape_kind<2>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(16, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<1>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<1>>()(matched_object)))
+                     return 1;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<2>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(16, addr(__selector_var), __casted_ptr);
     case 16:
-                if (match<shape_kind<2>>()(__selector_var))
-                    return 2;
-            } 
-            if (memoized_cast<const shape_kind<3>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(19, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<2>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<2>>()(matched_object)))
+                     return 2;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<3>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(19, addr(__selector_var), __casted_ptr);
     case 19:
-                if (match<shape_kind<3>>()(__selector_var))
-                    return 3;
-            } 
-            if (memoized_cast<const shape_kind<4>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(22, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<3>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<3>>()(matched_object)))
+                     return 3;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<4>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(22, addr(__selector_var), __casted_ptr);
     case 22:
-                if (match<shape_kind<4>>()(__selector_var))
-                    return 4;
-            } 
-            if (memoized_cast<const shape_kind<5>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(25, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<4>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<4>>()(matched_object)))
+                     return 4;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<5>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(25, addr(__selector_var), __casted_ptr);
     case 25:
-                if (match<shape_kind<5>>()(__selector_var))
-                    return 5;
-            } 
-            if (memoized_cast<const shape_kind<6>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(28, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<5>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<5>>()(matched_object)))
+                     return 5;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<6>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(28, addr(__selector_var), __casted_ptr);
     case 28:
-                if (match<shape_kind<6>>()(__selector_var))
-                    return 6;
-            } 
-            if (memoized_cast<const shape_kind<7>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(31, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<6>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<6>>()(matched_object)))
+                     return 6;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<7>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(31, addr(__selector_var), __casted_ptr);
     case 31:
-                if (match<shape_kind<7>>()(__selector_var))
-                    return 7;
-            } 
-            if (memoized_cast<const shape_kind<8>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(34, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<7>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<7>>()(matched_object)))
+                     return 7;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<8>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(34, addr(__selector_var), __casted_ptr);
     case 34:
-                if (match<shape_kind<8>>()(__selector_var))
-                    return 8;
-            } 
-            if (memoized_cast<const shape_kind<9>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(37, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<8>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<8>>()(matched_object)))
+                     return 8;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<9>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(37, addr(__selector_var), __casted_ptr);
     case 37:
-                if (match<shape_kind<9>>()(__selector_var))
-                    return 9;
-            } 
-            if (memoized_cast<const shape_kind<10>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(41, addr(__selector_var));
-    case 41:
-                if (match<shape_kind<10>>()(__selector_var))
-                    return 10;
-            } 
-            if (memoized_cast<const shape_kind<11>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(44, addr(__selector_var));
-    case 44:
-                if (match<shape_kind<11>>()(__selector_var))
-                    return 11;
-            } 
-            if (memoized_cast<const shape_kind<12>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(47, addr(__selector_var));
-    case 47:
-                if (match<shape_kind<12>>()(__selector_var))
-                    return 12;
-            } 
-            if (memoized_cast<const shape_kind<13>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(50, addr(__selector_var));
-    case 50:
-                if (match<shape_kind<13>>()(__selector_var))
-                    return 13;
-            } 
-            if (memoized_cast<const shape_kind<14>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(53, addr(__selector_var));
-    case 53:
-                if (match<shape_kind<14>>()(__selector_var))
-                    return 14;
-            } 
-            if (memoized_cast<const shape_kind<15>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(56, addr(__selector_var));
-    case 56:
-                if (match<shape_kind<15>>()(__selector_var))
-                    return 15;
-            } 
-            if (memoized_cast<const shape_kind<16>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(59, addr(__selector_var));
-    case 59:
-                if (match<shape_kind<16>>()(__selector_var))
-                    return 16;
-            } 
-            if (memoized_cast<const shape_kind<17>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(62, addr(__selector_var));
-    case 62:
-                if (match<shape_kind<17>>()(__selector_var))
-                    return 17;
-            } 
-            if (memoized_cast<const shape_kind<18>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(65, addr(__selector_var));
-    case 65:
-                if (match<shape_kind<18>>()(__selector_var))
-                    return 18;
-            } 
-            if (memoized_cast<const shape_kind<19>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(68, addr(__selector_var));
-    case 68:
-                if (match<shape_kind<19>>()(__selector_var))
-                    return 19;
-            } 
-            if (memoized_cast<const shape_kind<20>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(72, addr(__selector_var));
-    case 72:
-                if (match<shape_kind<20>>()(__selector_var))
-                    return 20;
-            } 
-            if (memoized_cast<const shape_kind<21>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(75, addr(__selector_var));
-    case 75:
-                if (match<shape_kind<21>>()(__selector_var))
-                    return 21;
-            } 
-            if (memoized_cast<const shape_kind<22>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(78, addr(__selector_var));
-    case 78:
-                if (match<shape_kind<22>>()(__selector_var))
-                    return 22;
-            } 
-            if (memoized_cast<const shape_kind<23>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(81, addr(__selector_var));
-    case 81:
-                if (match<shape_kind<23>>()(__selector_var))
-                    return 23;
-            } 
-            if (memoized_cast<const shape_kind<24>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(84, addr(__selector_var));
-    case 84:
-                if (match<shape_kind<24>>()(__selector_var))
-                    return 24;
-            } 
-            if (memoized_cast<const shape_kind<25>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(87, addr(__selector_var));
-    case 87:
-                if (match<shape_kind<25>>()(__selector_var))
-                    return 25;
-            } 
-            if (memoized_cast<const shape_kind<26>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(90, addr(__selector_var));
-    case 90:
-                if (match<shape_kind<26>>()(__selector_var))
-                    return 26;
-            } 
-            if (memoized_cast<const shape_kind<27>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(93, addr(__selector_var));
-    case 93:
-                if (match<shape_kind<27>>()(__selector_var))
-                    return 27;
-            } 
-            if (memoized_cast<const shape_kind<28>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(96, addr(__selector_var));
-    case 96:
-                if (match<shape_kind<28>>()(__selector_var))
-                    return 28;
-            } 
-            if (memoized_cast<const shape_kind<29>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(99, addr(__selector_var));
-    case 99:
-                if (match<shape_kind<29>>()(__selector_var))
-                    return 29;
-            } 
-            if (memoized_cast<const shape_kind<30>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(103, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<9>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<9>>()(matched_object)))
+                     return 9;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<10>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(40, addr(__selector_var), __casted_ptr);
+    case 40:
+                 auto matched_object = adjust_ptr<shape_kind<10>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<10>>()(matched_object)))
+                     return 10;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<11>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(43, addr(__selector_var), __casted_ptr);
+    case 43:
+                 auto matched_object = adjust_ptr<shape_kind<11>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<11>>()(matched_object)))
+                     return 11;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<12>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(46, addr(__selector_var), __casted_ptr);
+    case 46:
+                 auto matched_object = adjust_ptr<shape_kind<12>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<12>>()(matched_object)))
+                     return 12;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<13>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(49, addr(__selector_var), __casted_ptr);
+    case 49:
+                 auto matched_object = adjust_ptr<shape_kind<13>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<13>>()(matched_object)))
+                     return 13;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<14>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(52, addr(__selector_var), __casted_ptr);
+    case 52:
+                 auto matched_object = adjust_ptr<shape_kind<14>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<14>>()(matched_object)))
+                     return 14;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<15>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(55, addr(__selector_var), __casted_ptr);
+    case 55:
+                 auto matched_object = adjust_ptr<shape_kind<15>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<15>>()(matched_object)))
+                     return 15;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<16>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(58, addr(__selector_var), __casted_ptr);
+    case 58:
+                 auto matched_object = adjust_ptr<shape_kind<16>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<16>>()(matched_object)))
+                     return 16;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<17>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(61, addr(__selector_var), __casted_ptr);
+    case 61:
+                 auto matched_object = adjust_ptr<shape_kind<17>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<17>>()(matched_object)))
+                     return 17;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<18>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(64, addr(__selector_var), __casted_ptr);
+    case 64:
+                 auto matched_object = adjust_ptr<shape_kind<18>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<18>>()(matched_object)))
+                     return 18;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<19>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(67, addr(__selector_var), __casted_ptr);
+    case 67:
+                 auto matched_object = adjust_ptr<shape_kind<19>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<19>>()(matched_object)))
+                     return 19;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<20>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(70, addr(__selector_var), __casted_ptr);
+    case 70:
+                 auto matched_object = adjust_ptr<shape_kind<20>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<20>>()(matched_object)))
+                     return 20;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<21>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(73, addr(__selector_var), __casted_ptr);
+    case 73:
+                 auto matched_object = adjust_ptr<shape_kind<21>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<21>>()(matched_object)))
+                     return 21;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<22>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(76, addr(__selector_var), __casted_ptr);
+    case 76:
+                 auto matched_object = adjust_ptr<shape_kind<22>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<22>>()(matched_object)))
+                     return 22;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<23>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(79, addr(__selector_var), __casted_ptr);
+    case 79:
+                 auto matched_object = adjust_ptr<shape_kind<23>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<23>>()(matched_object)))
+                     return 23;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<24>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(82, addr(__selector_var), __casted_ptr);
+    case 82:
+                 auto matched_object = adjust_ptr<shape_kind<24>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<24>>()(matched_object)))
+                     return 24;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<25>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(85, addr(__selector_var), __casted_ptr);
+    case 85:
+                 auto matched_object = adjust_ptr<shape_kind<25>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<25>>()(matched_object)))
+                     return 25;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<26>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(88, addr(__selector_var), __casted_ptr);
+    case 88:
+                 auto matched_object = adjust_ptr<shape_kind<26>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<26>>()(matched_object)))
+                     return 26;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<27>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(91, addr(__selector_var), __casted_ptr);
+    case 91:
+                 auto matched_object = adjust_ptr<shape_kind<27>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<27>>()(matched_object)))
+                     return 27;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<28>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(94, addr(__selector_var), __casted_ptr);
+    case 94:
+                 auto matched_object = adjust_ptr<shape_kind<28>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<28>>()(matched_object)))
+                     return 28;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<29>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(97, addr(__selector_var), __casted_ptr);
+    case 97:
+                 auto matched_object = adjust_ptr<shape_kind<29>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<29>>()(matched_object)))
+                     return 29;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<30>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(100, addr(__selector_var), __casted_ptr);
+    case 100:
+                 auto matched_object = adjust_ptr<shape_kind<30>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<30>>()(matched_object)))
+                     return 30;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<31>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(103, addr(__selector_var), __casted_ptr);
     case 103:
-                if (match<shape_kind<30>>()(__selector_var))
-                    return 30;
-            } 
-            if (memoized_cast<const shape_kind<31>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(106, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<31>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<31>>()(matched_object)))
+                     return 31;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<32>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(106, addr(__selector_var), __casted_ptr);
     case 106:
-                if (match<shape_kind<31>>()(__selector_var))
-                    return 31;
-            } 
-            if (memoized_cast<const shape_kind<32>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(109, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<32>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<32>>()(matched_object)))
+                     return 32;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<33>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(109, addr(__selector_var), __casted_ptr);
     case 109:
-                if (match<shape_kind<32>>()(__selector_var))
-                    return 32;
-            } 
-            if (memoized_cast<const shape_kind<33>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(112, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<33>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<33>>()(matched_object)))
+                     return 33;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<34>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(112, addr(__selector_var), __casted_ptr);
     case 112:
-                if (match<shape_kind<33>>()(__selector_var))
-                    return 33;
-            } 
-            if (memoized_cast<const shape_kind<34>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(115, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<34>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<34>>()(matched_object)))
+                     return 34;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<35>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(115, addr(__selector_var), __casted_ptr);
     case 115:
-                if (match<shape_kind<34>>()(__selector_var))
-                    return 34;
-            } 
-            if (memoized_cast<const shape_kind<35>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(118, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<35>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<35>>()(matched_object)))
+                     return 35;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<36>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(118, addr(__selector_var), __casted_ptr);
     case 118:
-                if (match<shape_kind<35>>()(__selector_var))
-                    return 35;
-            } 
-            if (memoized_cast<const shape_kind<36>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(121, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<36>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<36>>()(matched_object)))
+                     return 36;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<37>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(121, addr(__selector_var), __casted_ptr);
     case 121:
-                if (match<shape_kind<36>>()(__selector_var))
-                    return 36;
-            } 
-            if (memoized_cast<const shape_kind<37>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(124, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<37>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<37>>()(matched_object)))
+                     return 37;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<38>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(124, addr(__selector_var), __casted_ptr);
     case 124:
-                if (match<shape_kind<37>>()(__selector_var))
-                    return 37;
-            } 
-            if (memoized_cast<const shape_kind<38>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(127, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<38>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<38>>()(matched_object)))
+                     return 38;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<39>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(127, addr(__selector_var), __casted_ptr);
     case 127:
-                if (match<shape_kind<38>>()(__selector_var))
-                    return 38;
-            } 
-            if (memoized_cast<const shape_kind<39>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(130, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<39>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<39>>()(matched_object)))
+                     return 39;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<40>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(130, addr(__selector_var), __casted_ptr);
     case 130:
-                if (match<shape_kind<39>>()(__selector_var))
-                    return 39;
-            } 
-            if (memoized_cast<const shape_kind<40>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(134, addr(__selector_var));
-    case 134:
-                if (match<shape_kind<40>>()(__selector_var))
-                    return 40;
-            } 
-            if (memoized_cast<const shape_kind<41>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(137, addr(__selector_var));
-    case 137:
-                if (match<shape_kind<41>>()(__selector_var))
-                    return 41;
-            } 
-            if (memoized_cast<const shape_kind<42>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(140, addr(__selector_var));
-    case 140:
-                if (match<shape_kind<42>>()(__selector_var))
-                    return 42;
-            } 
-            if (memoized_cast<const shape_kind<43>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(143, addr(__selector_var));
-    case 143:
-                if (match<shape_kind<43>>()(__selector_var))
-                    return 43;
-            } 
-            if (memoized_cast<const shape_kind<44>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(146, addr(__selector_var));
-    case 146:
-                if (match<shape_kind<44>>()(__selector_var))
-                    return 44;
-            } 
-            if (memoized_cast<const shape_kind<45>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(149, addr(__selector_var));
-    case 149:
-                if (match<shape_kind<45>>()(__selector_var))
-                    return 45;
-            } 
-            if (memoized_cast<const shape_kind<46>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(152, addr(__selector_var));
-    case 152:
-                if (match<shape_kind<46>>()(__selector_var))
-                    return 46;
-            } 
-            if (memoized_cast<const shape_kind<47>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(155, addr(__selector_var));
-    case 155:
-                if (match<shape_kind<47>>()(__selector_var))
-                    return 47;
-            } 
-            if (memoized_cast<const shape_kind<48>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(158, addr(__selector_var));
-    case 158:
-                if (match<shape_kind<48>>()(__selector_var))
-                    return 48;
-            } 
-            if (memoized_cast<const shape_kind<49>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(161, addr(__selector_var));
-    case 161:
-                if (match<shape_kind<49>>()(__selector_var))
-                    return 49;
-            } 
-            if (memoized_cast<const shape_kind<50>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(165, addr(__selector_var));
-    case 165:
-                if (match<shape_kind<50>>()(__selector_var))
-                    return 50;
-            } 
-            if (memoized_cast<const shape_kind<51>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(168, addr(__selector_var));
-    case 168:
-                if (match<shape_kind<51>>()(__selector_var))
-                    return 51;
-            } 
-            if (memoized_cast<const shape_kind<52>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(171, addr(__selector_var));
-    case 171:
-                if (match<shape_kind<52>>()(__selector_var))
-                    return 52;
-            } 
-            if (memoized_cast<const shape_kind<53>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(174, addr(__selector_var));
-    case 174:
-                if (match<shape_kind<53>>()(__selector_var))
-                    return 53;
-            } 
-            if (memoized_cast<const shape_kind<54>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(177, addr(__selector_var));
-    case 177:
-                if (match<shape_kind<54>>()(__selector_var))
-                    return 54;
-            } 
-            if (memoized_cast<const shape_kind<55>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(180, addr(__selector_var));
-    case 180:
-                if (match<shape_kind<55>>()(__selector_var))
-                    return 55;
-            } 
-            if (memoized_cast<const shape_kind<56>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(183, addr(__selector_var));
-    case 183:
-                if (match<shape_kind<56>>()(__selector_var))
-                    return 56;
-            } 
-            if (memoized_cast<const shape_kind<57>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(186, addr(__selector_var));
-    case 186:
-                if (match<shape_kind<57>>()(__selector_var))
-                    return 57;
-            } 
-            if (memoized_cast<const shape_kind<58>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(189, addr(__selector_var));
-    case 189:
-                if (match<shape_kind<58>>()(__selector_var))
-                    return 58;
-            } 
-            if (memoized_cast<const shape_kind<59>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(192, addr(__selector_var));
-    case 192:
-                if (match<shape_kind<59>>()(__selector_var))
-                    return 59;
-            } 
-            if (memoized_cast<const shape_kind<60>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(196, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<40>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<40>>()(matched_object)))
+                     return 40;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<41>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(133, addr(__selector_var), __casted_ptr);
+    case 133:
+                 auto matched_object = adjust_ptr<shape_kind<41>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<41>>()(matched_object)))
+                     return 41;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<42>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(136, addr(__selector_var), __casted_ptr);
+    case 136:
+                 auto matched_object = adjust_ptr<shape_kind<42>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<42>>()(matched_object)))
+                     return 42;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<43>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(139, addr(__selector_var), __casted_ptr);
+    case 139:
+                 auto matched_object = adjust_ptr<shape_kind<43>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<43>>()(matched_object)))
+                     return 43;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<44>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(142, addr(__selector_var), __casted_ptr);
+    case 142:
+                 auto matched_object = adjust_ptr<shape_kind<44>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<44>>()(matched_object)))
+                     return 44;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<45>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(145, addr(__selector_var), __casted_ptr);
+    case 145:
+                 auto matched_object = adjust_ptr<shape_kind<45>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<45>>()(matched_object)))
+                     return 45;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<46>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(148, addr(__selector_var), __casted_ptr);
+    case 148:
+                 auto matched_object = adjust_ptr<shape_kind<46>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<46>>()(matched_object)))
+                     return 46;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<47>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(151, addr(__selector_var), __casted_ptr);
+    case 151:
+                 auto matched_object = adjust_ptr<shape_kind<47>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<47>>()(matched_object)))
+                     return 47;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<48>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(154, addr(__selector_var), __casted_ptr);
+    case 154:
+                 auto matched_object = adjust_ptr<shape_kind<48>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<48>>()(matched_object)))
+                     return 48;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<49>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(157, addr(__selector_var), __casted_ptr);
+    case 157:
+                 auto matched_object = adjust_ptr<shape_kind<49>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<49>>()(matched_object)))
+                     return 49;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<50>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(160, addr(__selector_var), __casted_ptr);
+    case 160:
+                 auto matched_object = adjust_ptr<shape_kind<50>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<50>>()(matched_object)))
+                     return 50;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<51>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(163, addr(__selector_var), __casted_ptr);
+    case 163:
+                 auto matched_object = adjust_ptr<shape_kind<51>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<51>>()(matched_object)))
+                     return 51;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<52>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(166, addr(__selector_var), __casted_ptr);
+    case 166:
+                 auto matched_object = adjust_ptr<shape_kind<52>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<52>>()(matched_object)))
+                     return 52;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<53>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(169, addr(__selector_var), __casted_ptr);
+    case 169:
+                 auto matched_object = adjust_ptr<shape_kind<53>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<53>>()(matched_object)))
+                     return 53;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<54>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(172, addr(__selector_var), __casted_ptr);
+    case 172:
+                 auto matched_object = adjust_ptr<shape_kind<54>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<54>>()(matched_object)))
+                     return 54;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<55>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(175, addr(__selector_var), __casted_ptr);
+    case 175:
+                 auto matched_object = adjust_ptr<shape_kind<55>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<55>>()(matched_object)))
+                     return 55;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<56>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(178, addr(__selector_var), __casted_ptr);
+    case 178:
+                 auto matched_object = adjust_ptr<shape_kind<56>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<56>>()(matched_object)))
+                     return 56;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<57>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(181, addr(__selector_var), __casted_ptr);
+    case 181:
+                 auto matched_object = adjust_ptr<shape_kind<57>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<57>>()(matched_object)))
+                     return 57;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<58>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(184, addr(__selector_var), __casted_ptr);
+    case 184:
+                 auto matched_object = adjust_ptr<shape_kind<58>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<58>>()(matched_object)))
+                     return 58;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<59>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(187, addr(__selector_var), __casted_ptr);
+    case 187:
+                 auto matched_object = adjust_ptr<shape_kind<59>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<59>>()(matched_object)))
+                     return 59;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<60>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(190, addr(__selector_var), __casted_ptr);
+    case 190:
+                 auto matched_object = adjust_ptr<shape_kind<60>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<60>>()(matched_object)))
+                     return 60;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<61>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(193, addr(__selector_var), __casted_ptr);
+    case 193:
+                 auto matched_object = adjust_ptr<shape_kind<61>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<61>>()(matched_object)))
+                     return 61;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<62>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(196, addr(__selector_var), __casted_ptr);
     case 196:
-                if (match<shape_kind<60>>()(__selector_var))
-                    return 60;
-            } 
-            if (memoized_cast<const shape_kind<61>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(199, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<62>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<62>>()(matched_object)))
+                     return 62;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<63>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(199, addr(__selector_var), __casted_ptr);
     case 199:
-                if (match<shape_kind<61>>()(__selector_var))
-                    return 61;
-            } 
-            if (memoized_cast<const shape_kind<62>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(202, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<63>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<63>>()(matched_object)))
+                     return 63;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<64>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(202, addr(__selector_var), __casted_ptr);
     case 202:
-                if (match<shape_kind<62>>()(__selector_var))
-                    return 62;
-            } 
-            if (memoized_cast<const shape_kind<63>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(205, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<64>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<64>>()(matched_object)))
+                     return 64;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<65>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(205, addr(__selector_var), __casted_ptr);
     case 205:
-                if (match<shape_kind<63>>()(__selector_var))
-                    return 63;
-            } 
-            if (memoized_cast<const shape_kind<64>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(208, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<65>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<65>>()(matched_object)))
+                     return 65;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<66>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(208, addr(__selector_var), __casted_ptr);
     case 208:
-                if (match<shape_kind<64>>()(__selector_var))
-                    return 64;
-            } 
-            if (memoized_cast<const shape_kind<65>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(211, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<66>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<66>>()(matched_object)))
+                     return 66;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<67>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(211, addr(__selector_var), __casted_ptr);
     case 211:
-                if (match<shape_kind<65>>()(__selector_var))
-                    return 65;
-            } 
-            if (memoized_cast<const shape_kind<66>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(214, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<67>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<67>>()(matched_object)))
+                     return 67;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<68>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(214, addr(__selector_var), __casted_ptr);
     case 214:
-                if (match<shape_kind<66>>()(__selector_var))
-                    return 66;
-            } 
-            if (memoized_cast<const shape_kind<67>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(217, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<68>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<68>>()(matched_object)))
+                     return 68;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<69>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(217, addr(__selector_var), __casted_ptr);
     case 217:
-                if (match<shape_kind<67>>()(__selector_var))
-                    return 67;
-            } 
-            if (memoized_cast<const shape_kind<68>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(220, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<69>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<69>>()(matched_object)))
+                     return 69;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<70>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(220, addr(__selector_var), __casted_ptr);
     case 220:
-                if (match<shape_kind<68>>()(__selector_var))
-                    return 68;
-            } 
-            if (memoized_cast<const shape_kind<69>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(223, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<70>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<70>>()(matched_object)))
+                     return 70;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<71>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(223, addr(__selector_var), __casted_ptr);
     case 223:
-                if (match<shape_kind<69>>()(__selector_var))
-                    return 69;
-            } 
-            if (memoized_cast<const shape_kind<70>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(227, addr(__selector_var));
-    case 227:
-                if (match<shape_kind<70>>()(__selector_var))
-                    return 70;
-            } 
-            if (memoized_cast<const shape_kind<71>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(230, addr(__selector_var));
-    case 230:
-                if (match<shape_kind<71>>()(__selector_var))
-                    return 71;
-            } 
-            if (memoized_cast<const shape_kind<72>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(233, addr(__selector_var));
-    case 233:
-                if (match<shape_kind<72>>()(__selector_var))
-                    return 72;
-            } 
-            if (memoized_cast<const shape_kind<73>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(236, addr(__selector_var));
-    case 236:
-                if (match<shape_kind<73>>()(__selector_var))
-                    return 73;
-            } 
-            if (memoized_cast<const shape_kind<74>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(239, addr(__selector_var));
-    case 239:
-                if (match<shape_kind<74>>()(__selector_var))
-                    return 74;
-            } 
-            if (memoized_cast<const shape_kind<75>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(242, addr(__selector_var));
-    case 242:
-                if (match<shape_kind<75>>()(__selector_var))
-                    return 75;
-            } 
-            if (memoized_cast<const shape_kind<76>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(245, addr(__selector_var));
-    case 245:
-                if (match<shape_kind<76>>()(__selector_var))
-                    return 76;
-            } 
-            if (memoized_cast<const shape_kind<77>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(248, addr(__selector_var));
-    case 248:
-                if (match<shape_kind<77>>()(__selector_var))
-                    return 77;
-            } 
-            if (memoized_cast<const shape_kind<78>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(251, addr(__selector_var));
-    case 251:
-                if (match<shape_kind<78>>()(__selector_var))
-                    return 78;
-            } 
-            if (memoized_cast<const shape_kind<79>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(254, addr(__selector_var));
-    case 254:
-                if (match<shape_kind<79>>()(__selector_var))
-                    return 79;
-            } 
-            if (memoized_cast<const shape_kind<80>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(258, addr(__selector_var));
-    case 258:
-                if (match<shape_kind<80>>()(__selector_var))
-                    return 80;
-            } 
-            if (memoized_cast<const shape_kind<81>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(261, addr(__selector_var));
-    case 261:
-                if (match<shape_kind<81>>()(__selector_var))
-                    return 81;
-            } 
-            if (memoized_cast<const shape_kind<82>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(264, addr(__selector_var));
-    case 264:
-                if (match<shape_kind<82>>()(__selector_var))
-                    return 82;
-            } 
-            if (memoized_cast<const shape_kind<83>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(267, addr(__selector_var));
-    case 267:
-                if (match<shape_kind<83>>()(__selector_var))
-                    return 83;
-            } 
-            if (memoized_cast<const shape_kind<84>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(270, addr(__selector_var));
-    case 270:
-                if (match<shape_kind<84>>()(__selector_var))
-                    return 84;
-            } 
-            if (memoized_cast<const shape_kind<85>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(273, addr(__selector_var));
-    case 273:
-                if (match<shape_kind<85>>()(__selector_var))
-                    return 85;
-            } 
-            if (memoized_cast<const shape_kind<86>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(276, addr(__selector_var));
-    case 276:
-                if (match<shape_kind<86>>()(__selector_var))
-                    return 86;
-            } 
-            if (memoized_cast<const shape_kind<87>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(279, addr(__selector_var));
-    case 279:
-                if (match<shape_kind<87>>()(__selector_var))
-                    return 87;
-            } 
-            if (memoized_cast<const shape_kind<88>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(282, addr(__selector_var));
-    case 282:
-                if (match<shape_kind<88>>()(__selector_var))
-                    return 88;
-            } 
-            if (memoized_cast<const shape_kind<89>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(285, addr(__selector_var));
-    case 285:
-                if (match<shape_kind<89>>()(__selector_var))
-                    return 89;
-            } 
-            if (memoized_cast<const shape_kind<90>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(289, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<71>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<71>>()(matched_object)))
+                     return 71;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<72>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(226, addr(__selector_var), __casted_ptr);
+    case 226:
+                 auto matched_object = adjust_ptr<shape_kind<72>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<72>>()(matched_object)))
+                     return 72;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<73>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(229, addr(__selector_var), __casted_ptr);
+    case 229:
+                 auto matched_object = adjust_ptr<shape_kind<73>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<73>>()(matched_object)))
+                     return 73;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<74>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(232, addr(__selector_var), __casted_ptr);
+    case 232:
+                 auto matched_object = adjust_ptr<shape_kind<74>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<74>>()(matched_object)))
+                     return 74;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<75>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(235, addr(__selector_var), __casted_ptr);
+    case 235:
+                 auto matched_object = adjust_ptr<shape_kind<75>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<75>>()(matched_object)))
+                     return 75;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<76>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(238, addr(__selector_var), __casted_ptr);
+    case 238:
+                 auto matched_object = adjust_ptr<shape_kind<76>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<76>>()(matched_object)))
+                     return 76;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<77>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(241, addr(__selector_var), __casted_ptr);
+    case 241:
+                 auto matched_object = adjust_ptr<shape_kind<77>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<77>>()(matched_object)))
+                     return 77;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<78>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(244, addr(__selector_var), __casted_ptr);
+    case 244:
+                 auto matched_object = adjust_ptr<shape_kind<78>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<78>>()(matched_object)))
+                     return 78;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<79>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(247, addr(__selector_var), __casted_ptr);
+    case 247:
+                 auto matched_object = adjust_ptr<shape_kind<79>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<79>>()(matched_object)))
+                     return 79;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<80>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(250, addr(__selector_var), __casted_ptr);
+    case 250:
+                 auto matched_object = adjust_ptr<shape_kind<80>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<80>>()(matched_object)))
+                     return 80;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<81>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(253, addr(__selector_var), __casted_ptr);
+    case 253:
+                 auto matched_object = adjust_ptr<shape_kind<81>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<81>>()(matched_object)))
+                     return 81;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<82>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(256, addr(__selector_var), __casted_ptr);
+    case 256:
+                 auto matched_object = adjust_ptr<shape_kind<82>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<82>>()(matched_object)))
+                     return 82;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<83>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(259, addr(__selector_var), __casted_ptr);
+    case 259:
+                 auto matched_object = adjust_ptr<shape_kind<83>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<83>>()(matched_object)))
+                     return 83;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<84>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(262, addr(__selector_var), __casted_ptr);
+    case 262:
+                 auto matched_object = adjust_ptr<shape_kind<84>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<84>>()(matched_object)))
+                     return 84;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<85>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(265, addr(__selector_var), __casted_ptr);
+    case 265:
+                 auto matched_object = adjust_ptr<shape_kind<85>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<85>>()(matched_object)))
+                     return 85;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<86>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(268, addr(__selector_var), __casted_ptr);
+    case 268:
+                 auto matched_object = adjust_ptr<shape_kind<86>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<86>>()(matched_object)))
+                     return 86;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<87>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(271, addr(__selector_var), __casted_ptr);
+    case 271:
+                 auto matched_object = adjust_ptr<shape_kind<87>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<87>>()(matched_object)))
+                     return 87;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<88>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(274, addr(__selector_var), __casted_ptr);
+    case 274:
+                 auto matched_object = adjust_ptr<shape_kind<88>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<88>>()(matched_object)))
+                     return 88;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<89>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(277, addr(__selector_var), __casted_ptr);
+    case 277:
+                 auto matched_object = adjust_ptr<shape_kind<89>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<89>>()(matched_object)))
+                     return 89;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<90>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(280, addr(__selector_var), __casted_ptr);
+    case 280:
+                 auto matched_object = adjust_ptr<shape_kind<90>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<90>>()(matched_object)))
+                     return 90;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<91>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(283, addr(__selector_var), __casted_ptr);
+    case 283:
+                 auto matched_object = adjust_ptr<shape_kind<91>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<91>>()(matched_object)))
+                     return 91;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<92>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(286, addr(__selector_var), __casted_ptr);
+    case 286:
+                 auto matched_object = adjust_ptr<shape_kind<92>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<92>>()(matched_object)))
+                     return 92;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<93>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(289, addr(__selector_var), __casted_ptr);
     case 289:
-                if (match<shape_kind<90>>()(__selector_var))
-                    return 90;
-            } 
-            if (memoized_cast<const shape_kind<91>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(292, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<93>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<93>>()(matched_object)))
+                     return 93;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<94>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(292, addr(__selector_var), __casted_ptr);
     case 292:
-                if (match<shape_kind<91>>()(__selector_var))
-                    return 91;
-            } 
-            if (memoized_cast<const shape_kind<92>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(295, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<94>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<94>>()(matched_object)))
+                     return 94;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<95>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(295, addr(__selector_var), __casted_ptr);
     case 295:
-                if (match<shape_kind<92>>()(__selector_var))
-                    return 92;
-            } 
-            if (memoized_cast<const shape_kind<93>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(298, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<95>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<95>>()(matched_object)))
+                     return 95;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<96>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(298, addr(__selector_var), __casted_ptr);
     case 298:
-                if (match<shape_kind<93>>()(__selector_var))
-                    return 93;
-            } 
-            if (memoized_cast<const shape_kind<94>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(301, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<96>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<96>>()(matched_object)))
+                     return 96;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<97>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(301, addr(__selector_var), __casted_ptr);
     case 301:
-                if (match<shape_kind<94>>()(__selector_var))
-                    return 94;
-            } 
-            if (memoized_cast<const shape_kind<95>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(304, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<97>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<97>>()(matched_object)))
+                     return 97;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<98>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(304, addr(__selector_var), __casted_ptr);
     case 304:
-                if (match<shape_kind<95>>()(__selector_var))
-                    return 95;
-            } 
-            if (memoized_cast<const shape_kind<96>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(307, addr(__selector_var));
+                 auto matched_object = adjust_ptr<shape_kind<98>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<98>>()(matched_object)))
+                     return 98;
+             }
+             if ((__casted_ptr = memoized_cast<const shape_kind<99>*>(addr(__selector_var))))
+             {
+                 __vtbl2lines_map.update(307, addr(__selector_var), __casted_ptr);
     case 307:
-                if (match<shape_kind<96>>()(__selector_var))
-                    return 96;
-            } 
-            if (memoized_cast<const shape_kind<97>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(310, addr(__selector_var));
-    case 310:
-                if (match<shape_kind<97>>()(__selector_var))
-                    return 97;
-            } 
-            if (memoized_cast<const shape_kind<98>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(313, addr(__selector_var));
-    case 313:
-                if (match<shape_kind<98>>()(__selector_var))
-                    return 98;
-            } 
-            if (memoized_cast<const shape_kind<99>*>(addr(__selector_var)))
-            {
-                __vtbl2lines_map.update(316, addr(__selector_var));
-    case 316:
-                if (match<shape_kind<99>>()(__selector_var))
-                    return 99;
-            } 
-            __vtbl2lines_map.update(319, addr(__selector_var));
-    case 319: ;
-
+                 auto matched_object = adjust_ptr<shape_kind<99>>(addr(__selector_var),__switch_info.offset);
+                 if ((match<shape_kind<99>>()(matched_object)))
+                     return 99;
+             } __vtbl2lines_map.update(57, addr(__selector_var), 0);
+    case 57: ;
     }
-
     return -1;
-
 }
 DO_NOT_INLINE_END
 #endif

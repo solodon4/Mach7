@@ -14,14 +14,22 @@
 #include <cstdint>
 #include <iostream>
 #include <unordered_map>
-#include "vtblmap2.hpp"
+#include "config.hpp"    // Various compiler/platform dependent macros
+
+    // TODO: 
+    // 1. vtbl with pointers directly to table instead of indecies
+    // 2. store type index inside match_members
+    // 3. try smaller type int instead of size_t or ptrdiff_t
 
 //------------------------------------------------------------------------------
 
-// A dedicated constant marking that table entry was just allocated
-#define just_allocated 0x0FF1C1A0
-// A dedicated constant marking impossible offset
-#define no_cast_exists 0x0FF1C1A1
+typedef std::unordered_map<std::intptr_t, std::ptrdiff_t> vtbl2offset;
+static const std::ptrdiff_t no_cast_exists = 0x0FF1C1A1; // A dedicated constant marking impossible offset
+
+//------------------------------------------------------------------------------
+
+template <typename T> inline const T* adjust_ptr(const void* p, ptrdiff_t offset) { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
+template <typename T> inline       T* adjust_ptr(      void* p, ptrdiff_t offset) { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)+offset); }
 
 //------------------------------------------------------------------------------
 
@@ -31,32 +39,87 @@ template <typename T> struct cast_target<const T*> { typedef T type; };
 
 //------------------------------------------------------------------------------
 
-/*extern */vtbl2offsets<> global_offset_map(just_allocated);
+template <typename T>
+inline vtbl2offset& offset_map()
+{
+    static vtbl2offset ofsmap;
+    return ofsmap;
+}
+
+//------------------------------------------------------------------------------
+
+template <typename T, typename U>
+inline std::ptrdiff_t get_offset(const U* p)
+{
+    const std::intptr_t vtbl = *reinterpret_cast<const std::intptr_t*>(p);
+    vtbl2offset& ofsmap = offset_map<T>();
+    const vtbl2offset::iterator q = ofsmap.find(vtbl);
+
+    if (q != ofsmap.end())
+        return q->second;
+    else
+    {
+        T k = dynamic_cast<T>(p);
+        const std::ptrdiff_t offset = k ? reinterpret_cast<const char*>(k)-reinterpret_cast<const char*>(p) : no_cast_exists;
+        ofsmap.insert(vtbl2offset::value_type(vtbl,offset));
+        return offset;
+    }
+}
+
+//------------------------------------------------------------------------------
+
+// Number of bits based on which the caching will be made. The cache will have
+// 2^cache_bits entries.
+const int cache_bits = 7;
+const int cache_mask = (1<<cache_bits)-1;
+
+//------------------------------------------------------------------------------
+
+/// Irrelevant lowest bits in vtbl pointers that are always the same for given 
+/// compiler/platform configuration.
+const int irrelevant_bits = VTBL_IRRELEVANT_BITS;
+
+//------------------------------------------------------------------------------
+
+/// Structure describing entry in the cache
+struct cache_entry
+{
+    std::intptr_t  vtbl;   ///< vtbl for which offset has been computed
+    std::ptrdiff_t offset; ///< offset that has to be added for ptr with given vtbl
+};
 
 //------------------------------------------------------------------------------
 
 template <typename T, typename U>
 inline T memoized_cast_non_null(const U* p)
 {
-    XTL_ASSERT(p);
-
-    // TODO: 
-    // 1. vtbl with pointers directly to table instead of indecies
-    // 2. store type index inside match_members
-    // 3. try smaller type int instead of size_t or ptrdiff_t
-    std::ptrdiff_t& offset = global_offset_map.get(p,type_index<T>());
-
-    if (offset == just_allocated)
+    if (p)
     {
-        T k = dynamic_cast<T>(p);
-        offset = k ? reinterpret_cast<const char*>(k)-reinterpret_cast<const char*>(p) : no_cast_exists;
-        return k;
+#ifndef DYN_CAST_CACHING
+        static cache_entry cache[1<<cache_bits] = {};
+        const std::intptr_t vtbl = *reinterpret_cast<const std::intptr_t*>(p);
+        //XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
+        //XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
+        cache_entry& ce = cache[(vtbl>>irrelevant_bits) & cache_mask];
+        std::ptrdiff_t offset;
+
+        if (ce.vtbl == vtbl)
+            offset = ce.offset;
+        else
+        {
+            ce.vtbl = vtbl;
+            ce.offset = offset = get_offset<T>(p);
+        }
+#else
+        std::ptrdiff_t offset = get_offset<T>(p);
+#endif
+        return 
+            offset == no_cast_exists 
+                ? 0 
+                : reinterpret_cast<T>(reinterpret_cast<const char*>(p)+offset);
     }
 
-    return 
-        offset == no_cast_exists 
-            ? 0 
-            : reinterpret_cast<T>(reinterpret_cast<const char*>(p)+offset);
+    return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -74,13 +137,13 @@ inline T memoized_cast_non_null(U* u)
 
 //------------------------------------------------------------------------------
 
-//template <typename T, typename U>
-//inline T memoized_cast(const U* u)
-//{
-//    return  u
-//            ? memoized_cast_non_null<T>(u) 
-//            : 0;
-//}
+template <typename T, typename U>
+inline T memoized_cast(const U* u)
+{
+    return  u
+            ? memoized_cast_non_null<T>(u) 
+            : 0;
+}
 
 //------------------------------------------------------------------------------
 

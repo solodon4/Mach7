@@ -273,18 +273,29 @@ private:
 
 //------------------------------------------------------------------------------
 
+struct line_offset
+{
+    int line;   // We can choose smaller type for line to give more space to offset
+    int offset; // FIX: We assume here offsets within object can only be ints
+};
+
 template <int N = VTBL_DEFAULT_CACHE_BITS>
-class vtbl2lines : public vtblmap<int&,N>
+class vtbl2lines : public vtblmap<line_offset&,N>
 {
 private:
-    typedef vtblmap<int,N> base_type;
+    typedef vtblmap<line_offset,N> base_type;
 public:
-    inline void update(int ln, const void* t) throw()
+    inline void update(int ln, const void* base, const void* derived) throw()
     {
-        typename base_type::mapped_type& line = this->get(t);
+        typename base_type::mapped_type& x = this->get(base);
 
-        if (line == 0)
-            line = ln;
+        if (x.line == 0)
+        {
+            x.line   = ln;
+            x.offset = intptr_t(derived)-intptr_t(base);
+        }
+
+        XTL_ASSERT(x.offset == intptr_t(derived)-intptr_t(base));
     }
 };
 
