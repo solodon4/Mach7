@@ -68,14 +68,14 @@ template <>      struct requires_bits<1> { enum { value = 0 }; };
 
 /// Macro that defines the case statement for the above switch
 /// NOTE: If Visual C++ gives you error C2051: case expression not constant
-///       on this CASE label, just change the Debug Format in project setting 
+///       on this TypeCase label, just change the Debug Format in project setting 
 ///       Project -> Properties -> C/C++ -> General -> Debug Information Format 
 ///       from "Program Database for Edit And Continue (/ZI)" 
 ///       to   "Program Database (/Zi)", which is the default in Release builds,
 ///       but not in Debug. This is a known bug of Visual C++ described here:
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#define TYPE_CASE(C)   } if (UNLIKELY_BRANCH(__casted_ptr = dynamic_cast<const C*>(__selector_ptr))) { if (__switch_info.line == 0) { __switch_info.line = __LINE__; __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); } case __LINE__: auto matched = adjust_ptr<C>(__selector_ptr,__switch_info.offset);
-#define END_TYPE_SWITCH } if (__switch_info.line == 0) { __switch_info.line = __LINE__; } case __LINE__: ; }}
+#define TypeCase(C)   } if (XTL_UNLIKELY(__casted_ptr = dynamic_cast<const C*>(__selector_ptr))) { if (__switch_info.line == 0) { __switch_info.line = __LINE__; __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); } case __LINE__: auto matched = adjust_ptr<C>(__selector_ptr,__switch_info.offset);
+#define EndTypeMatch } if (__switch_info.line == 0) { __switch_info.line = __LINE__; } case __LINE__: ; }}
 
 //------------------------------------------------------------------------------
 

@@ -67,13 +67,13 @@ struct ShapeVisitor
 template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(*this); }
 
 #if 1
-DO_NOT_INLINE_BEGIN
+XTL_DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s)
 {
     #define FOR_EACH_MAX      NUMBER_OF_DERIVED-1
     #define FOR_EACH_PRELUDE  TYPE_SWITCH_N(s,NUMBER_OF_DERIVED)
-    #define FOR_EACH_N(N)     TYPE_CASE(shape_kind<N>) return N;
-    #define FOR_EACH_POSTLUDE END_TYPE_SWITCH
+    #define FOR_EACH_N(N)     TypeCase(shape_kind<N>) return N;
+    #define FOR_EACH_POSTLUDE EndTypeMatch
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_POSTLUDE
     #undef  FOR_EACH_N
@@ -81,12 +81,12 @@ size_t do_match(const Shape& s)
     #undef  FOR_EACH_MAX
     return -1;
 }
-DO_NOT_INLINE_END
+XTL_DO_NOT_INLINE_END
 #else
 #error No preprocessed code yet
 #endif
 
-DO_NOT_INLINE_BEGIN
+XTL_DO_NOT_INLINE_BEGIN
 size_t do_visit(const Shape& s)
 {
     struct Visitor : ShapeVisitor
@@ -104,7 +104,7 @@ size_t do_visit(const Shape& s)
     s.accept(v);
     return v.result;
 }
-DO_NOT_INLINE_END
+XTL_DO_NOT_INLINE_END
 
 Shape* make_shape(size_t i)
 {
@@ -286,7 +286,7 @@ int test_randomized()
             TRACE_PERFORMANCE_ONLY(distribution[n]++);
             shapes[i] = make_shape(n);
         }
-#if defined(TRACE_PERFORMANCE)
+#if defined(XTL_TRACE_PERFORMANCE)
         size_t min, max, avg, med, dev;
         statistics(distribution, min, max, avg, med, dev);
         //std::copy(distribution.begin(), distribution.end(), std::ostream_iterator<size_t>(std::cout, ":"));

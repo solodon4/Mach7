@@ -44,7 +44,7 @@ struct ShapeVisitor
 
 template <int N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(*this); }
 
-DO_NOT_INLINE_BEGIN
+XTL_DO_NOT_INLINE_BEGIN
 int do_match(const Shape& s)
 {
     #define FOR_EACH_N(N) if (match<shape_kind<N>>()(s)) return N;
@@ -53,9 +53,9 @@ int do_match(const Shape& s)
     //XTL_ASSERT(!"Inexhaustive search");
     return -1;
 }
-DO_NOT_INLINE_END
+XTL_DO_NOT_INLINE_END
 
-DO_NOT_INLINE_BEGIN
+XTL_DO_NOT_INLINE_BEGIN
 int do_visit(const Shape& s)
 {
     struct Visitor : ShapeVisitor
@@ -71,7 +71,7 @@ int do_visit(const Shape& s)
     s.accept(v);
     return v.result;
 }
-DO_NOT_INLINE_END
+XTL_DO_NOT_INLINE_END
 
 Shape* make_shape(int i)
 {

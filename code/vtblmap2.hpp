@@ -19,7 +19,7 @@
 #include <unordered_map>
 #include "config.hpp"    // Various compiler/platform dependent macros
 
-#if defined(DUMP_PERFORMANCE)
+#if defined(XTL_DUMP_PERFORMANCE)
 #include <algorithm>
 #include <bitset> // For print out purposes only
 #include <iostream>
@@ -33,11 +33,15 @@
 /// http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightFloatCast
 inline unsigned int trailing_zeros(unsigned int v)
 {
-#pragma warning( push )
-#pragma warning( disable : 4146 ) // warning C4146: unary minus operator applied to unsigned type, result still unsigned
+#ifdef _MSC_VER
+  #pragma warning( push )
+  #pragma warning( disable : 4146 ) // warning C4146: unary minus operator applied to unsigned type, result still unsigned
+#endif
     float  f = (float)(v & -v); // cast the least significant bit in v to a float
     return (*(uint32_t *)&f >> 23) - 0x7f; // the result goes here
-#pragma warning( pop )
+#ifdef _MSC_VER
+  #pragma warning( pop )
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -57,7 +61,7 @@ inline unsigned int bits_set(intptr_t v)
 
 //------------------------------------------------------------------------------
 
-#if defined(USE_PEARSON_HASH)
+#if defined(XTL_USE_PEARSON_HASH)
 static const unsigned char H[256] = 
 {
       1,  87,  49,  12, 176, 178, 102, 166, 121, 193,   6,  84, 249, 230,  44, 163,
@@ -90,7 +94,7 @@ inline unsigned char pearson_hash(intptr_t key)
 
 //------------------------------------------------------------------------------
 
-#ifdef TRACE_PERFORMANCE
+#ifdef XTL_TRACE_PERFORMANCE
 #include <algorithm>
 #include <bitset> // For print out purposes only
 #include <set>
@@ -152,7 +156,7 @@ public:
         {
             intptr_t vtbl = *p;
             const intptr_t key  = vtbl >> irrelevant_bits; // We do this as we rely that hash function is identity
-        #if defined(USE_PEARSON_HASH)
+        #if defined(XTL_USE_PEARSON_HASH)
             unsigned char h = pearson_hash(key);
             os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << (size_t(h) & cache_mask) << " -> " << (key & cache_mask) << std::endl;
             uses[h & cache_mask]++;
@@ -166,7 +170,7 @@ public:
 
         for (size_t i = vtbls.size(); i != ~0; --i)
         {
-            size_t n = std::count(uses,uses+ARR_SIZE(uses),i);
+            size_t n = std::count(uses,uses+XTL_ARR_SIZE(uses),i);
 
             if (show = show || n > 0)
                 std::cout << i << " -> " << n << std::endl;
@@ -177,7 +181,7 @@ public:
         if (i != VTBL_IRRELEVANT_BITS)
         {
             os << "WARNING: Empirically computed irrelevant_bits " << i 
-               << " differs from the predefined one " STRING_LITERAL(VTBL_IRRELEVANT_BITS) 
+               << " differs from the predefined one " XTL_STRING_LITERAL(VTBL_IRRELEVANT_BITS) 
                << ". See vtbl patterns below: " << std::endl;
         }
 
@@ -293,7 +297,7 @@ public:
     {
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
         const intptr_t key  = vtbl>>irrelevant_bits;     // We do this as we rely that hash function is identity
-    #if defined(USE_PEARSON_HASH)
+    #if defined(XTL_USE_PEARSON_HASH)
         cache_entry&   ce   = cache[pearson_hash(key) & cache_mask];
     #else
         cache_entry&   ce   = cache[key & cache_mask];
@@ -301,7 +305,7 @@ public:
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
         XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
-        UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When TRACE_PERFORMANCE is enabled, this will update our performance counters
+        UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When XTL_TRACE_PERFORMANCE is enabled, this will update our performance counters
 
         if (ce.vtbl != vtbl)
         {
@@ -322,7 +326,7 @@ public:
     {
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
         const intptr_t key  = vtbl>>irrelevant_bits;     // We do this as we rely that hash function is identity
-    #if defined(USE_PEARSON_HASH)
+    #if defined(XTL_USE_PEARSON_HASH)
         cache_entry&   ce   = cache[pearson_hash(key) & cache_mask];
     #else
         cache_entry&   ce   = cache[key & cache_mask];
@@ -330,7 +334,7 @@ public:
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
         XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
-        UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When TRACE_PERFORMANCE is enabled, this will update our performance counters
+        UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When XTL_TRACE_PERFORMANCE is enabled, this will update our performance counters
 
         bool result = false;
 
@@ -399,7 +403,7 @@ public:
         different_bits(0),
         optimal_shift(VTBL_IRRELEVANT_BITS)
     {}
-#if defined(DUMP_PERFORMANCE)
+#if defined(XTL_DUMP_PERFORMANCE)
    ~vtblmap() { std::cout << *this << std::endl; }
 #endif
     typedef typename vtbl_to_t_map::mapped_type mapped_type;
@@ -434,7 +438,7 @@ public:
     inline T& get(const void* p, const T& dflt = T()) throw()
     {
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
-    #if defined(USE_PEARSON_HASH)
+    #if defined(XTL_USE_PEARSON_HASH)
         cache_entry&   ce   = cache[pearson_hash(vtbl>>optimal_shift) & cache_mask];
     #else
         cache_entry&   ce   = cache[(vtbl>>optimal_shift) & cache_mask];
@@ -442,9 +446,9 @@ public:
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
         //XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
-        UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When TRACE_PERFORMANCE is enabled, this will update our performance counters
+        UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When XTL_TRACE_PERFORMANCE is enabled, this will update our performance counters
 
-        if (UNLIKELY_BRANCH(ce.vtbl != vtbl))
+        if (XTL_UNLIKELY(ce.vtbl != vtbl))
         {
             const iterator q = table.find(vtbl);
 
@@ -455,18 +459,18 @@ public:
                 ce.ptr = &table.insert(value_type(vtbl,dflt)).first->second;
 
                 // Update m_differ with information about which bits in all vtbls differ
-                if (LIKELY_BRANCH(m_prev))
+                if (XTL_LIKELY(m_prev))
                     m_differ |= m_prev ^ vtbl;
 
                 m_prev = vtbl;
 
                 // If this is an actual collision, we recompute irrelevant_bits and/ or optimal_shift
-                if (/*UNLIKELY_BRANCH*/(ce.vtbl))
+                if (/*XTL_UNLIKELY*/(ce.vtbl))
                 {
                     size_t r = trailing_zeros(static_cast<unsigned int>(m_differ));
                     size_t d = table.size(); //bits_set(m_differ);
 
-                    if (UNLIKELY_BRANCH(irrelevant_bits != r || different_bits != d))
+                    if (XTL_UNLIKELY(irrelevant_bits != r || different_bits != d))
                     {
                         optimal_shift   = get_optimal_shift();
                         irrelevant_bits = r;
@@ -488,7 +492,7 @@ public:
     {
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
         const intptr_t key  = vtbl>>optimal_shift;     // We do this as we rely that hash function is identity
-    #if defined(USE_PEARSON_HASH)
+    #if defined(XTL_USE_PEARSON_HASH)
         cache_entry&   ce   = cache[pearson_hash(key) & cache_mask];
     #else
         cache_entry&   ce   = cache[key & cache_mask];
@@ -496,7 +500,7 @@ public:
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
         //XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
-        UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When TRACE_PERFORMANCE is enabled, this will update our performance counters
+        UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When XTL_TRACE_PERFORMANCE is enabled, this will update our performance counters
 
         bool result = false;
 
@@ -530,7 +534,7 @@ public:
             for (typename vtbl_to_t_map::const_iterator p =  table.begin(); p !=  table.end(); ++p)
             {
                 intptr_t vtbl = p->first;
-            #if defined(USE_PEARSON_HASH)
+            #if defined(XTL_USE_PEARSON_HASH)
                 unsigned char h = pearson_hash(vtbl >> i);
                 //os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << (size_t(h) & cache_mask) << std::endl;
                 uses[size_t(h) & cache_mask]++;
@@ -565,7 +569,7 @@ public:
         //std::cout << *this << std::endl;
         return opt_shift;
     }
-#if defined(DUMP_PERFORMANCE)
+#if defined(XTL_DUMP_PERFORMANCE)
     std::ostream& operator>>(std::ostream& os) const
     {
         // FIX: G++ crashes when we use std::stringstream here, so we have to workaround it manually
@@ -583,7 +587,7 @@ public:
         for (typename vtbl_to_t_map::const_iterator p =  table.begin(); p !=  table.end(); ++p)
         {
             intptr_t vtbl = p->first;
-        #if defined(USE_PEARSON_HASH)
+        #if defined(XTL_USE_PEARSON_HASH)
             unsigned char h = pearson_hash(vtbl >> optimal_shift);
             //os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << (size_t(h) & cache_mask) << std::endl;
             uses[size_t(h) & cache_mask]++;
@@ -615,13 +619,13 @@ public:
 
         for (size_t i = table.size(); i != ~0; --i)
         {
-            size_t n = std::count(uses,uses+ARR_SIZE(uses),i);
+            size_t n = std::count(uses,uses+XTL_ARR_SIZE(uses),i);
 
             if (show = show || n > 0)
                 os << i << "->" << n << "; ";
         }
 
-        os << std::count(uses,uses+ARR_SIZE(uses),0)*100/(1<<N) << "% unused" << std::endl;
+        os << std::count(uses,uses+XTL_ARR_SIZE(uses),0)*100/(1<<N) << "% unused" << std::endl;
 
         //for (size_t i = 0; i < 1<<cache_bits; ++i)
         //{

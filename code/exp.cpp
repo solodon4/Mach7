@@ -6,18 +6,18 @@ struct Expr;
 struct Value;
 struct Plus;
 struct Minus;
-struct Mult;
-struct Div;
+struct Times;
+struct Divide;
 
 // Original visitation interface with default
 struct ExprVisitor
 {
     virtual void visit(const Expr&) { throw 5; } // Default handling of future classes
-    virtual void visit(const Value&) = 0;
-    virtual void visit(const Plus&)  = 0;
-    virtual void visit(const Minus&) = 0;
-    virtual void visit(const Mult&)  = 0;
-    virtual void visit(const Div&)   = 0;
+    virtual void visit(const Value&)  = 0;
+    virtual void visit(const Plus&)   = 0;
+    virtual void visit(const Minus&)  = 0;
+    virtual void visit(const Times&)  = 0;
+    virtual void visit(const Divide&) = 0;
 };
 
 // Root of the expression hierarchy
@@ -49,17 +49,17 @@ struct Minus : Expr
     const Expr* exp2;
 };
 
-struct Mult : Expr
+struct Times : Expr
 {
-    Mult(const Expr* e1, const Expr* e2) : exp1(e1), exp2(e2) {}
+    Times(const Expr* e1, const Expr* e2) : exp1(e1), exp2(e2) {}
     void accept(ExprVisitor& v) const { v.visit(*this); }
     const Expr* exp1;
     const Expr* exp2;
 };
 
-struct Div : Expr
+struct Divide : Expr
 {
-    Div(const Expr* e1, const Expr* e2) : exp1(e1), exp2(e2) {}
+    Divide(const Expr* e1, const Expr* e2) : exp1(e1), exp2(e2) {}
     void accept(ExprVisitor& v) const { v.visit(*this); }
     const Expr* exp1;
     const Expr* exp2;
@@ -76,11 +76,11 @@ struct ToStrVisitor : virtual ExprVisitor
 
     using ExprVisitor::visit; // Bring in those we do not override for overload resolution
 
-    void visit(const Value& e) { result = "X"/*std::to_string(e.value)*/; }
-    void visit(const Plus&  e) { result = '(' + evaluate(e.exp1) + '+' + evaluate(e.exp2) + ')'; }
-    void visit(const Minus& e) { result = '(' + evaluate(e.exp1) + '-' + evaluate(e.exp2) + ')'; }
-    void visit(const Mult&  e) { result = '(' + evaluate(e.exp1) + '*' + evaluate(e.exp2) + ')'; }
-    void visit(const Div&   e) { result = '(' + evaluate(e.exp1) + '/' + evaluate(e.exp2) + ')'; }
+    void visit(const Value&  e) { result = "X"/*std::to_string(e.value)*/; }
+    void visit(const Plus&   e) { result = '(' + evaluate(e.exp1) + '+' + evaluate(e.exp2) + ')'; }
+    void visit(const Minus&  e) { result = '(' + evaluate(e.exp1) + '-' + evaluate(e.exp2) + ')'; }
+    void visit(const Times&  e) { result = '(' + evaluate(e.exp1) + '*' + evaluate(e.exp2) + ')'; }
+    void visit(const Divide& e) { result = '(' + evaluate(e.exp1) + '/' + evaluate(e.exp2) + ')'; }
 
     std::string result;
 };
@@ -95,22 +95,40 @@ std::string to_str(const Expr* e)
 //------------------------------------------------------------------------------
 
 template <> struct match_members<Value>  { CM(0,Value::value); };
-template <> struct match_members<Plus>   { CM(0,Plus::exp1);  CM(1,Plus::exp2);  };
-template <> struct match_members<Minus>  { CM(0,Minus::exp1); CM(1,Minus::exp2); };
-template <> struct match_members<Mult>   { CM(0,Mult::exp1);  CM(1,Mult::exp2);  };
-template <> struct match_members<Div>    { CM(0,Div::exp1);   CM(1,Div::exp2);   };
+template <> struct match_members<Plus>   { CM(0,Plus::exp1);   CM(1,Plus::exp2);   };
+template <> struct match_members<Minus>  { CM(0,Minus::exp1);  CM(1,Minus::exp2);  };
+template <> struct match_members<Times>  { CM(0,Times::exp1);  CM(1,Times::exp2);  };
+template <> struct match_members<Divide> { CM(0,Divide::exp1); CM(1,Divide::exp2); };
 
 int eval(const Expr* e)
 {
     Match(e)
     {
-    Case(Value,n)   return n;
-    Case(Plus, a,b) return eval(a) + eval(b);
-    Case(Minus,a,b) return eval(a) - eval(b);
-    Case(Mult, a,b) return eval(a) * eval(b);
-    Case(Div,  a,b) return eval(a) / eval(b);
+    Case(Value, n)   return n;
+    Case(Plus,  a,b) return eval(a) + eval(b);
+    Case(Minus, a,b) return eval(a) - eval(b);
+    Case(Times, a,b) return eval(a) * eval(b);
+    Case(Divide,a,b) return eval(a) / eval(b);
     }
     EndMatch
+}
+
+const Expr* factorize(const Expr* e)
+{
+    const Expr *e1, *e2, *e3, *e4;
+
+    if (match<Plus>(
+            match<Times>(e1,e2),
+            match<Times>(e3,e4)
+        )(e))
+    {
+        if (e1 == e3)
+            return new Times(e1, new Plus(e2,e4));
+        if (e2 == e4)
+            return new Times(new Plus(e1,e3), e4);
+    }
+
+    return e;
 }
 
 //------------------------------------------------------------------------------
@@ -279,5 +297,11 @@ int main()
     // Mix of operations from first and second extension
     Expr* e = new Plus(d1,d2);
     std::cout << eval(e)       << std::endl;
-    std::cout << to_str_ex2(e) << std::endl; // WRONG!
+    //std::cout << to_str_ex2(e) << std::endl; // WRONG!
+
+    Expr* f = new Times(a,b);
+    Expr* g = new Plus(f,f);
+    const Expr* h = factorize(g);
+    std::cout << to_str_ex2(g) << std::endl;
+    std::cout << to_str_ex2(h) << std::endl;
 }

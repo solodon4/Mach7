@@ -74,9 +74,9 @@ DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s)
 {
     #define FOR_EACH_MAX      NUMBER_OF_DERIVED-1
-    #define FOR_EACH_PRELUDE  EXCEPTION_SWITCH(s)
-    #define FOR_EACH_N(N)     EXCEPTION_CASE(shape_kind<N>) return N;
-    #define FOR_EACH_POSTLUDE END_EXCEPTION_SWITCH
+    #define FOR_EACH_PRELUDE  MatchE(s)
+    #define FOR_EACH_N(N)     CaseE(shape_kind<N>) return N;
+    #define FOR_EACH_POSTLUDE EndMatchE
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_POSTLUDE
     #undef  FOR_EACH_N

@@ -31,15 +31,15 @@ template <size_t N> struct match_members<shape_kind<N>> { KV(N); };
 
 size_t do_match(const Shape& s)
 {
-    KIND_SWITCH(s)
+    MatchK(s)
     {
     #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
-    #define FOR_EACH_N(N) KIND_CASE(shape_kind<N>) return N;
+    #define FOR_EACH_N(N) CaseK(shape_kind<N>) return N;
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_N
     #undef  FOR_EACH_MAX
     }
-    END_KIND_SWITCH
+    EndMatchK
     return -1;
 }
 

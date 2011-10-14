@@ -26,9 +26,9 @@ struct shape_kind : Shape
 size_t do_match(const Shape& s)
 {
     #define FOR_EACH_MAX      NUMBER_OF_DERIVED-1
-    #define FOR_EACH_PRELUDE  SWITCH_N(s,NUMBER_OF_DERIVED)
-    #define FOR_EACH_N(N)     CASE(shape_kind<N>) return N;
-    #define FOR_EACH_POSTLUDE END_SWITCH
+    #define FOR_EACH_PRELUDE  MatchP_N(s,NUMBER_OF_DERIVED)
+    #define FOR_EACH_N(N)     CaseP(shape_kind<N>) return N;
+    #define FOR_EACH_POSTLUDE EndMatchP
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_POSTLUDE
     #undef  FOR_EACH_N

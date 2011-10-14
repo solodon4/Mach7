@@ -14,24 +14,65 @@
 
 #include <cassert>
 
-//------------------------------------------------------------------------------
+/// Several choices for configuring syntax:
+/// Default syntax Match,Case,Que,Or,Otherwise,EndMatch are resolved to
+/// - 'G' - Generic switch (default)
+/// - 'P' - Polymorphic switch
+/// - 'K' - Kind switch
+/// - 'U' - Union switch
+/// - 'E' - Exception switch
+#if !defined(XTL_DEFAULT_SYNTAX)
+  #define XTL_DEFAULT_SYNTAX 'G'
+#endif
 
-// Uncomment this macro definition if you'd like to do some performance tracing
-#if !defined(TRACE_PERFORMANCE)
-//#define TRACE_PERFORMANCE
+/// Another choice is whether user would like to have Otherwise statement, as if
+/// she doesn't, we can use default: to enter the cascading-if, which accordingly
+/// to our measurements gives about 5% performance benefit than entering via a
+/// dedicated constant.
+
+/// Choice of exception handling strategies:
+/// - Assume extractors won't throw and thus generate not exception wrappers
+/// - Assume extractors might throw, in which case:
+///    * Propagate throw further
+///    * Treat it as failed match
+/// Note that in any case exceptions inside statements associated with case 
+/// clauses are not intercepted in any way.
+#if !defined(XTL_EXTRACTORS_MIGHT_THROW)
+  /// By default we assume that for a given code using our library extractors 
+  /// won't throw and thus we do not generate the necessary exception handling code
+  #define XTL_EXTRACTORS_MIGHT_THROW 0
+#endif
+
+#if XTL_EXTRACTORS_MIGHT_THROW
+  #if !defined(EXTRACTORS_PROPAGATE_THROW)
+  #define EXTRACTORS_PROPAGATE_THROW 0
+  #endif
+#endif
+
+/// Another choice is whether library code should try to benefit from memoized_cast 
+/// or just use dynamic_cast 
+#if !defined(XTL_USE_MEMOIZED_CAST)
+  #define XTL_USE_MEMOIZED_CAST 0
 #endif
 
 //------------------------------------------------------------------------------
 
-// Uncomment this macro definition if you'd like to do some performance tracing
-#if !defined(DUMP_PERFORMANCE)
-#define DUMP_PERFORMANCE
+/// Uncomment this macro definition if you'd like to do some performance tracing
+#if !defined(XTL_TRACE_PERFORMANCE)
+//#define XTL_TRACE_PERFORMANCE
 #endif
 
 //------------------------------------------------------------------------------
 
-#if !defined(USE_PEARSON_HASH)
-//#define USE_PEARSON_HASH
+/// Uncomment this macro definition if you'd like to do some performance tracing
+#if !defined(XTL_DUMP_PERFORMANCE)
+//#define XTL_DUMP_PERFORMANCE
+#endif
+
+//------------------------------------------------------------------------------
+
+#if !defined(XTL_USE_PEARSON_HASH)
+//#define XTL_USE_PEARSON_HASH
 #endif
 
 //------------------------------------------------------------------------------
@@ -43,13 +84,13 @@
 //------------------------------------------------------------------------------
 
 #if !defined(VTBL_IRRELEVANT_BITS)
-// \note The following section is compiler and platform specific for 
-//       optimization purposes.
-// \note As subsequent experiments showed, this value may depend on the number
-//       of virtual functions in the class as well. Chosing this value smaller 
-//       or larger than necessary, increases the number of collisions and 
-//       necessarily degrades performance.
-// FIX: Make this less empirical!
+/// \note The following section is compiler and platform specific for 
+///       optimization purposes.
+/// \note As subsequent experiments showed, this value may depend on the number
+///       of virtual functions in the class as well. Chosing this value smaller 
+///       or larger than necessary, increases the number of collisions and 
+///       necessarily degrades performance.
+/// FIX: Make this less empirical!
 #if defined(_MSC_VER)
     #if defined(_WIN64)
         #if defined(_DEBUG)
@@ -71,7 +112,7 @@
 #else
     /// vtbl in G++ seem to be alligned by 16 bytes
     #define VTBL_IRRELEVANT_BITS 4
-    // When i defined more virtual functions it became 3 for some reason
+    /// When i defined more virtual functions it became 3 for some reason
     //#define VTBL_IRRELEVANT_BITS 3
 #endif
 #endif
@@ -79,16 +120,16 @@
 //------------------------------------------------------------------------------
 
 #if defined(_DEBUG)
-#define DEBUG_ONLY(s) s
-// Our own version of assert macro because of the fact that normal assert was 
-// not always removed in the release builds.
+#define XTL_DEBUG_ONLY(s) s
+/// Our own version of assert macro because of the fact that normal assert was 
+/// not always removed in the release builds.
 #define XTL_ASSERT(x) if (!(x)) { std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'; std::exit(42); }
-// Our own version of assert macro because of the fact that normal assert was 
-// not always removed in the release builds.
+/// Our own version of assert macro because of the fact that normal assert was 
+/// not always removed in the release builds.
 #define XTL_VERIFY(x) if (!(x)) std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'
 
 #else
-#define DEBUG_ONLY(s)
+#define XTL_DEBUG_ONLY(s)
 /// Our own version of assert macro because of the fact that normal assert was 
 /// not always removed in the release builds.
 #define XTL_ASSERT(x)
@@ -123,25 +164,25 @@
 //------------------------------------------------------------------------------
 
 /// Helper macro for the following one to resolve macros inside its arguments
-#define _STRING_LITERAL(x)  #x
+#define _XTL_STRING_LITERAL(x)  #x
 /// Macro to stringize some expression.
-#define STRING_LITERAL(x)   _STRING_LITERAL(x)
+#define XTL_STRING_LITERAL(x)   _XTL_STRING_LITERAL(x)
 
 //------------------------------------------------------------------------------
 
 #ifdef _MSC_VER
     #define XTL_CONCATENATE(A,B) A ## B
 #else
-    // Somehow operator ## == (or any other) results in error in GCC, so we use 
-    // a trick to let users build operator name when they need.
+    /// Somehow operator ## == (or any other) results in error in GCC, so we use 
+    /// a trick to let users build operator name when they need.
     #define XTL_IDENTITY(A) A
     #define XTL_CONCATENATE(A,B) XTL_IDENTITY(A)XTL_IDENTITY(B)
 #endif
 
 //------------------------------------------------------------------------------
 
-// FIX: Yet another version that works in different case, but hasn't been merged
-//      with the above yet.
+/// FIX: Yet another version that works in different case, but hasn't been merged
+///      with the above yet.
 #define XTL_CONCAT(arg1, arg2)  XTL_CONCAT1(arg1, arg2)
 #define XTL_CONCAT1(arg1, arg2) XTL_CONCAT2(arg1, arg2)
 #define XTL_CONCAT2(arg1, arg2) arg1##arg2
@@ -154,47 +195,47 @@
 
 #ifdef _MSC_VER
 
-    // MS Visual C++ 2005 (in which variadic macros became supported) till at 
-    // least MS Visual C++ 2010 has a bug in passing __VA_ARGS__ to subsequent
-    // macros as a single token, which results in:
-    //     warning C4003: not enough actual parameters for macro 'XTL_ARG_N'
-    // and incorrect behavior. The workaround used here is described at:
-    // https://connect.microsoft.com/VisualStudio/feedback/details/380090/variadic-macro-replacement
+    /// MS Visual C++ 2005 (in which variadic macros became supported) till at 
+    /// least MS Visual C++ 2010 has a bug in passing __VA_ARGS__ to subsequent
+    /// macros as a single token, which results in:
+    ///     warning C4003: not enough actual parameters for macro 'XTL_ARG_N'
+    /// and incorrect behavior. The workaround used here is described at:
+    /// https://connect.microsoft.com/VisualStudio/feedback/details/380090/variadic-macro-replacement
     #define XTL_APPLY_VARIADIC_MACRO(macro,tuple) macro tuple
 
-    // A macro used to count a number of variadic arguments.
-    // \note Using this macro without arguments violates 6.10.3p4 of ISO C99 
-    //       and thus it cannot be used to detect zero arguments. 
-    // \note This macro was invented by Laurent Deniau and can be found here:
-    // \see  http://groups.google.com/group/comp.std.c/browse_thread/thread/77ee8c8f92e4a3fb/346fc464319b1ee5
+    /// A macro used to count a number of variadic arguments.
+    /// \note Using this macro without arguments violates 6.10.3p4 of ISO C99 
+    ///       and thus it cannot be used to detect zero arguments. 
+    /// \note This macro was invented by Laurent Deniau and can be found here:
+    /// \see  http://groups.google.com/group/comp.std.c/browse_thread/thread/77ee8c8f92e4a3fb/346fc464319b1ee5
     #define XTL_NARG(...)  XTL_APPLY_VARIADIC_MACRO(XTL_NARG_,(__VA_ARGS__,XTL_RSEQ_N()))
     #define XTL_NARG_(...) XTL_APPLY_VARIADIC_MACRO(XTL_ARG_N,(__VA_ARGS__))
 
-    // The same as above but assumes a dummy first argument that is not counted
-    // in order to deal with the fact that regular @XTL_NARG cannot cope with 
-    // zero arguments.
-    // \note We need here 0 to be a real 0 and not something that evaluates to 0
-    //       as is done in some solutions to this problem of NARG, because we 
-    //       append this number to a name to form another macro!
+    /// The same as above but assumes a dummy first argument that is not counted
+    /// in order to deal with the fact that regular @XTL_NARG cannot cope with 
+    /// zero arguments.
+    /// \note We need here 0 to be a real 0 and not something that evaluates to 0
+    ///       as is done in some solutions to this problem of NARG, because we 
+    ///       append this number to a name to form another macro!
     #define XTL_NARG_EX(...)  XTL_APPLY_VARIADIC_MACRO(XTL_NARG_EX_,(__VA_ARGS__,XTL_RSEQ_N()))
     #define XTL_NARG_EX_(...) XTL_APPLY_VARIADIC_MACRO(XTL_ARG_N_EX,(__VA_ARGS__))
 
 #else
 
-    // A macro used to count a number of variadic arguments.
-    // \note Using this macro without arguments violates 6.10.3p4 of ISO C99 
-    //       and thus it cannot be used to detect zero arguments. 
-    // \note This macro was invented by Laurent Deniau and can be found here:
-    // \see  http://groups.google.com/group/comp.std.c/browse_thread/thread/77ee8c8f92e4a3fb/346fc464319b1ee5
+    /// A macro used to count a number of variadic arguments.
+    /// \note Using this macro without arguments violates 6.10.3p4 of ISO C99 
+    ///       and thus it cannot be used to detect zero arguments. 
+    /// \note This macro was invented by Laurent Deniau and can be found here:
+    /// \see  http://groups.google.com/group/comp.std.c/browse_thread/thread/77ee8c8f92e4a3fb/346fc464319b1ee5
     #define XTL_NARG(...)  XTL_NARG_(__VA_ARGS__,XTL_RSEQ_N()) 
     #define XTL_NARG_(...) XTL_ARG_N(__VA_ARGS__) 
 
-    // The same as above but assumes a dummy first argument that is not counted
-    // in order to deal with the fact that regular @XTL_NARG cannot cope with 
-    // zero arguments.
-    // \note We need here 0 to be a real 0 and not something that evaluates to 0
-    //       as is done in some solutions to this problem of NARG, because we 
-    //       append this number to a name to form another macro!
+    /// The same as above but assumes a dummy first argument that is not counted
+    /// in order to deal with the fact that regular @XTL_NARG cannot cope with 
+    /// zero arguments.
+    /// \note We need here 0 to be a real 0 and not something that evaluates to 0
+    ///       as is done in some solutions to this problem of NARG, because we 
+    ///       append this number to a name to form another macro!
     #define XTL_NARG_EX(...)  XTL_NARG_EX_(__VA_ARGS__,XTL_RSEQ_N()) 
     #define XTL_NARG_EX_(...) XTL_ARG_N_EX(__VA_ARGS__)
 
@@ -202,8 +243,8 @@
 
 //------------------------------------------------------------------------------
 
-#if !defined(ARR_SIZE)
-#define ARR_SIZE(a) (sizeof(a)/sizeof((a)[0]))
+#if !defined(XTL_ARR_SIZE)
+#define XTL_ARR_SIZE(a) (sizeof(a)/sizeof((a)[0]))
 #endif
 
 //------------------------------------------------------------------------------
@@ -211,32 +252,32 @@
 #if defined(_MSC_VER)
 
     /// Macros to use compiler's branch hinting. 
-    /// \note These macros are only to be used in CASE macro expansion, not in 
+    /// \note These macros are only to be used in Case macro expansion, not in 
     ///       user's code since they explicitly expect a pointer argument
     /// \note We use ... (__VA_ARGS__ parameters) to allow expressions 
     ///       containing comma as argument. Essentially this is a one arg macro
-    #define   LIKELY_BRANCH(...) (__VA_ARGS__)
-    #define UNLIKELY_BRANCH(...) (__VA_ARGS__)
+    #define   XTL_LIKELY(...) (__VA_ARGS__)
+    #define XTL_UNLIKELY(...) (__VA_ARGS__)
 
     /// A macro that is supposed to be put before the function definition whose inlining should be disabled
-    #define DO_NOT_INLINE_BEGIN __pragma(auto_inline (off))
+    #define XTL_DO_NOT_INLINE_BEGIN __pragma(auto_inline (off))
     /// A macro that is supposed to be put after  the function definition whose inlining should be disabled
-    #define DO_NOT_INLINE_END   __pragma(auto_inline (on))
+    #define XTL_DO_NOT_INLINE_END   __pragma(auto_inline (on))
         
 #else
     
     /// Macros to use compiler's branch hinting. 
-    /// \note These macros are only to be used in CASE macro expansion, not in 
+    /// \note These macros are only to be used in Case macro expansion, not in 
     ///       user's code since they explicitly expect a pointer argument
     /// \note We use ... (__VA_ARGS__ parameters) to allow expressions 
     ///       containing comma as argument. Essentially this is a one arg macro
-    #define   LIKELY_BRANCH(...) (__builtin_expect((long int)(__VA_ARGS__), 1))
-    #define UNLIKELY_BRANCH(...) (__builtin_expect((long int)(__VA_ARGS__), 0))
+    #define   XTL_LIKELY(...) (__builtin_expect((long int)(__VA_ARGS__), 1))
+    #define XTL_UNLIKELY(...) (__builtin_expect((long int)(__VA_ARGS__), 0))
 
     /// A macro that is supposed to be put before the function definition whose inlining should be disabled
-    #define DO_NOT_INLINE_BEGIN __attribute__ ((noinline))
+    #define XTL_DO_NOT_INLINE_BEGIN __attribute__ ((noinline))
     /// A macro that is supposed to be put after  the function definition whose inlining should be disabled
-    #define DO_NOT_INLINE_END
+    #define XTL_DO_NOT_INLINE_END
 
 #endif
 

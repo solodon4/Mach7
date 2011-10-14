@@ -1,3 +1,4 @@
+#include <iostream>
 #include <utility>
 #include "match_generic.hpp"
 
@@ -124,14 +125,14 @@ int main()
 
     for (size_t i = 0; i < 3; ++i)
     {
-        KIND_SWITCH(shapes[i])
+        MatchK(shapes[i])
         {
-        KIND_CASE(Circle,_,x) std::cout << "Circle"   << std::endl; m += x;       break;
-        KIND_CASE(Square,_,x) std::cout << "Square"   << std::endl; m += x;       break;
-        KIND_CASE(Triangle,l) std::cout << "Triangle" << std::endl; m += l.first; break;
-      //KIND_CASE(Triangle,l) std::cout << "Triangle" << std::endl; m += l.first; break; // NOTE: Not possible to have another kind match
+        CaseK(Circle,_,x) std::cout << "Circle"   << std::endl; m += x;       break;
+        CaseK(Square,_,x) std::cout << "Square"   << std::endl; m += x;       break;
+        CaseK(Triangle,l) std::cout << "Triangle" << std::endl; m += l.first; break;
+      //CaseK(Triangle,l) std::cout << "Triangle" << std::endl; m += l.first; break; // NOTE: Not possible to have another kind match
         }
-        END_KIND_SWITCH
+        EndMatchK
     }
 
     std::cout << m << std::endl;
@@ -140,14 +141,14 @@ int main()
 
     for (size_t i = 0; i < 3; ++i)
     {
-        TYPE_SWITCH(shapes[i])
+        TypeMatch(shapes[i])
         {
-        TYPE_CASE(Circle)   std::cout << "Circle"   << std::endl; m += matched->radius;      break;
-        TYPE_CASE(Square)   std::cout << "Square"   << std::endl; m += matched->side;        break;
-        TYPE_CASE(Triangle) std::cout << "Triangle" << std::endl; m += matched->first.first; break;
-        TYPE_CASE(Triangle) std::cout << "Triangle" << std::endl; m += matched->first.first; break; // NOTE: Possible to have another type case match
+        TypeCase(Circle)   std::cout << "Circle"   << std::endl; m += matched->radius;      break;
+        TypeCase(Square)   std::cout << "Square"   << std::endl; m += matched->side;        break;
+        TypeCase(Triangle) std::cout << "Triangle" << std::endl; m += matched->first.first; break;
+        TypeCase(Triangle) std::cout << "Triangle" << std::endl; m += matched->first.first; break; // NOTE: Possible to have another type case match
         }
-        END_TYPE_SWITCH
+        EndTypeMatch
     }
 
     std::cout << m << std::endl;
@@ -156,14 +157,14 @@ int main()
 
     for (size_t i = 0; i < 3; ++i)
     {
-        SWITCH(shapes[i])
+        MatchP(shapes[i])
         {
-        CASE(Circle,_,x)    std::cout << "Circle"   << std::endl; m += x;       break;
-        CASE(Square,_,x)    std::cout << "Square"   << std::endl; m += x;       break;
-        CASE(Triangle,l)    std::cout << "Triangle" << std::endl; m += l.first; break;
-        CASE(Triangle,l)    std::cout << "Triangle" << std::endl; m += l.first; break; // NOTE: Possible to have another regular match
+        CaseP(Circle,_,x)    std::cout << "Circle"   << std::endl; m += x;       break;
+        CaseP(Square,_,x)    std::cout << "Square"   << std::endl; m += x;       break;
+        CaseP(Triangle,l)    std::cout << "Triangle" << std::endl; m += l.first; break;
+        CaseP(Triangle,l)    std::cout << "Triangle" << std::endl; m += l.first; break; // NOTE: Possible to have another regular match
         }
-        END_SWITCH
+        EndMatchP
     }
 
     std::cout << m << std::endl;
@@ -172,14 +173,14 @@ int main()
 
     for (size_t i = 0; i < 3; ++i)
     {
-        UNION_SWITCH(adtshapes[i])
+        MatchU(adtshapes[i])
         {
-        UNION_CASE(ADTShape::circle,_,x)  std::cout << "ADTCircle"   << std::endl; m += x;       break;
-        UNION_CASE(ADTShape::square,_,x)  std::cout << "ADTSquare"   << std::endl; m += x;       break;
-        UNION_CASE(ADTShape::triangle,cl) std::cout << "ADTTriangle" << std::endl; m += cl.first;break;
-      //UNION_CASE(ADTShape::triangle,cl) std::cout << "ADTTriangle" << std::endl; m += cl.first;break; // NOTE: Not possible to have another union match
+        CaseU(ADTShape::circle,_,x)  std::cout << "ADTCircle"   << std::endl; m += x;       break;
+        CaseU(ADTShape::square,_,x)  std::cout << "ADTSquare"   << std::endl; m += x;       break;
+        CaseU(ADTShape::triangle,cl) std::cout << "ADTTriangle" << std::endl; m += cl.first;break;
+      //CaseU(ADTShape::triangle,cl) std::cout << "ADTTriangle" << std::endl; m += cl.first;break; // NOTE: Not possible to have another union match
         }
-        END_UNION_SWITCH
+        EndMatchU
     }
 
     std::cout << m << std::endl;

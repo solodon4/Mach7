@@ -20,7 +20,7 @@ call :SUB_PARSE_DATE
 set logfile=test-pm-%yy%-%mm%-%dd%-%hh%-%mn%.log
 echo. > %logfile%
 echo C++ Pattern Matching Test Script >> %logfile%
-echo Version 1.0 from 2010-11-18 >> %logfile%
+echo Version 1.0 from 2011-04-30 >> %logfile%
 echo. >> %logfile%
 echo Test from %date% at %time% >> %logfile%
 

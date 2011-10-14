@@ -24,6 +24,9 @@
 #if NUMBER_OF_BASES > NUMBER_OF_DERIVED
   #error Visitor Forwarding only makes sense when number of base classes is smaller than the number of all derived classes.
 #endif
+#if !defined(XTL_VISITOR_FORWARDING)
+  #define XTL_VISITOR_FORWARDING 0
+#endif
 
 //------------------------------------------------------------------------------
 
@@ -43,6 +46,23 @@ struct OtherBase
 
 struct Shape
 {
+#if XTL_DEFAULT_SYNTAX == 'K' || XTL_DEFAULT_SYNTAX == 'k'
+    size_t m_kind;
+    Shape(size_t kind) : m_kind(kind),
+#else
+    Shape(size_t kind = 0) :
+#endif
+        m_member0(kind+0),
+        m_member1(kind+1),
+        m_member2(kind+2),
+        m_member3(kind+3),
+        m_member4(kind+4),
+        m_member5(kind+5),
+        m_member6(kind+6),
+        m_member7(kind+7),
+        m_member8(kind+8),
+        m_member9(kind+9)
+    {}
     virtual ~Shape() {}
     virtual void accept(ShapeVisitor&) const = 0;
     #define FOR_EACH_MAX NUMBER_OF_VFUNCS-2
@@ -50,26 +70,7 @@ struct Shape
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_N
     #undef  FOR_EACH_MAX
-};
 
-//------------------------------------------------------------------------------
-
-template <size_t N>
-struct shape_kind;
-
-#define FOR_EACH_MAX NUMBER_OF_BASES-1
-#define FOR_EACH_N(N) template <> struct shape_kind<N> : OtherBase, Shape { typedef Shape base_type; void accept(ShapeVisitor&) const; };
-#include "loop_over_numbers.hpp"
-#undef  FOR_EACH_N
-#undef  FOR_EACH_MAX
-
-//------------------------------------------------------------------------------
-
-template <size_t N>
-struct shape_kind : shape_kind<N % NUMBER_OF_BASES>
-{
-    typedef shape_kind<N % NUMBER_OF_BASES> base_type;
-    void accept(ShapeVisitor&) const;
     int m_member0;
     int m_member1;
     int m_member2;
@@ -84,11 +85,57 @@ struct shape_kind : shape_kind<N % NUMBER_OF_BASES>
 
 //------------------------------------------------------------------------------
 
+#if XTL_VISITOR_FORWARDING
+
+template <size_t N>
+struct shape_kind;
+
+#define FOR_EACH_MAX NUMBER_OF_BASES-1
+#if XTL_DEFAULT_SYNTAX == 'K' || XTL_DEFAULT_SYNTAX == 'k'
+#define FOR_EACH_N(N) template <> struct shape_kind<N> : OtherBase, Shape { typedef Shape base_type; void accept(ShapeVisitor&) const; shape_kind(size_t k = N) : base_type(k) {} };
+#else
+#define FOR_EACH_N(N) template <> struct shape_kind<N> : OtherBase, Shape { typedef Shape base_type; void accept(ShapeVisitor&) const; };
+#endif
+#include "loop_over_numbers.hpp"
+#undef  FOR_EACH_N
+#undef  FOR_EACH_MAX
+
+//------------------------------------------------------------------------------
+
+template <size_t N>
+struct shape_kind : shape_kind<N % NUMBER_OF_BASES>
+{
+    typedef shape_kind<N % NUMBER_OF_BASES> base_type;
+#if XTL_DEFAULT_SYNTAX == 'K' || XTL_DEFAULT_SYNTAX == 'k'
+    shape_kind() : base_type(N) {}
+#endif
+    void accept(ShapeVisitor&) const;
+};
+
+#else // !XTL_VISITOR_FORWARDING
+
+template <size_t N>
+struct shape_kind : OtherBase, Shape
+{
+#if XTL_DEFAULT_SYNTAX == 'K' || XTL_DEFAULT_SYNTAX == 'k'
+    shape_kind() : Shape(N) {}
+#endif
+    void accept(ShapeVisitor& v) const;
+};
+
+#endif // XTL_VISITOR_FORWARDING
+
+//------------------------------------------------------------------------------
+
 struct ShapeVisitor
 {
     virtual void visit(const Shape&) {}
     #define FOR_EACH_MAX NUMBER_OF_DERIVED-1
+    #if XTL_VISITOR_FORWARDING
     #define FOR_EACH_N(N) virtual void visit(const shape_kind<N>& s) { visit(static_cast<const shape_kind<N>::base_type&>(s)); }
+    #else
+    #define FOR_EACH_N(N) virtual void visit(const shape_kind<N>&) {}
+    #endif
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_N
     #undef  FOR_EACH_MAX
@@ -96,11 +143,13 @@ struct ShapeVisitor
 
 //------------------------------------------------------------------------------
 
-#define FOR_EACH_MAX NUMBER_OF_BASES-1
-#define FOR_EACH_N(N) void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(*this); }
-#include "loop_over_numbers.hpp"
-#undef  FOR_EACH_N
-#undef  FOR_EACH_MAX
+#if XTL_VISITOR_FORWARDING
+  #define FOR_EACH_MAX NUMBER_OF_BASES-1
+  #define FOR_EACH_N(N) void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(*this); }
+  #include "loop_over_numbers.hpp"
+  #undef  FOR_EACH_N
+  #undef  FOR_EACH_MAX
+#endif // XTL_VISITOR_FORWARDING
 
 //------------------------------------------------------------------------------
 
@@ -108,14 +157,25 @@ template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(
 
 //------------------------------------------------------------------------------
 
-#if 1
+#if XTL_DEFAULT_SYNTAX == 'K' || XTL_DEFAULT_SYNTAX == 'k'
+template <>         struct match_members<Shape>         { KS(Shape::m_kind); };
+template <size_t N> struct match_members<shape_kind<N>> { KV(N); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
+#endif
+
+//------------------------------------------------------------------------------
+
 XTL_DO_NOT_INLINE_BEGIN
-size_t do_match(const Shape& s)
+size_t do_match(const Shape& s, size_t n)
 {
-    #define FOR_EACH_MAX      NUMBER_OF_BASES-1
-    #define FOR_EACH_PRELUDE  MatchP_N(s,NUMBER_OF_DERIVED)
-    #define FOR_EACH_N(N)     CaseP(shape_kind<N>) return N;
-    #define FOR_EACH_POSTLUDE EndMatchP
+    #if XTL_VISITOR_FORWARDING
+        #define FOR_EACH_MAX      NUMBER_OF_BASES-1
+        #define FOR_EACH_N(N)     Case(shape_kind<NUMBER_OF_BASES-1-N>)   return NUMBER_OF_BASES-1-N;
+    #else
+        #define FOR_EACH_MAX      NUMBER_OF_DERIVED-1
+        #define FOR_EACH_N(N)     Case(shape_kind<NUMBER_OF_DERIVED-1-N>) return NUMBER_OF_DERIVED-1-N;
+    #endif
+    #define FOR_EACH_PRELUDE  Match(s)
+    #define FOR_EACH_POSTLUDE EndMatch
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_POSTLUDE
     #undef  FOR_EACH_N
@@ -124,93 +184,19 @@ size_t do_match(const Shape& s)
     return -1;
 }
 XTL_DO_NOT_INLINE_END
-#else
-XTL_DO_NOT_INLINE_BEGIN
-size_t do_match(const Shape& s)
-{
-    static vtblmap<type_switch_info&,requires_bits<100>::value> __vtbl2lines_map; 
-    auto const        __selector_ptr = addr(s); 
-    const void*       __casted_ptr; 
-    type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr); 
-    switch (__switch_info.line)
-    {
-    default: {
-             } 
-             if ((__casted_ptr = dynamic_cast<const shape_kind<0>*>(__selector_ptr)))
-             { 
-                 if (__switch_info.line == 0) 
-                 {
-                     __switch_info.line = 1; 
-                     __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); 
-                 } 
-    case 1: 
-                 if ((match<shape_kind<0>>()(adjust_ptr<shape_kind<0>>(__selector_ptr,__switch_info.offset)))) 
-                     return 0;
-             }
-             if ((__casted_ptr = dynamic_cast<const shape_kind<1>*>(__selector_ptr)))
-             { 
-                 if (__switch_info.line == 0) 
-                 { 
-                     __switch_info.line = 2; 
-                     __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); 
-                 } 
-    case 2: 
-                 if ((match<shape_kind<1>>()(adjust_ptr<shape_kind<1>>(__selector_ptr,__switch_info.offset)))) 
-                     return 1;
-             } 
-             if ((__casted_ptr = dynamic_cast<const shape_kind<2>*>(__selector_ptr)))
-             { 
-                 if (__switch_info.line == 0) 
-                 { 
-                     __switch_info.line = 3; 
-                     __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); 
-                 } 
-    case 3: 
-                 if ((match<shape_kind<2>>()(adjust_ptr<shape_kind<2>>(__selector_ptr,__switch_info.offset)))) 
-                     return 2;
-             } 
-             if ((__casted_ptr = dynamic_cast<const shape_kind<3>*>(__selector_ptr)))
-             { 
-                 if (__switch_info.line == 0) 
-                 { 
-                     __switch_info.line = 4; 
-                     __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); 
-                 } 
-    case 4: 
-                 if ((match<shape_kind<3>>()(adjust_ptr<shape_kind<3>>(__selector_ptr,__switch_info.offset)))) 
-                     return 3;
-             } 
-             if ((__casted_ptr = dynamic_cast<const shape_kind<4>*>(__selector_ptr)))
-             { 
-                 if (__switch_info.line == 0)
-                 { 
-                     __switch_info.line = 5; 
-                     __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); 
-                 } 
-    case 5: 
-                 if ((match<shape_kind<4>>()(adjust_ptr<shape_kind<4>>(__selector_ptr,__switch_info.offset)))) 
-                     return 4;
-             } 
-             if (__switch_info.line == 0)
-             { 
-                 __switch_info.line = 6; 
-             } 
-    case 6: ;
-    }
-    return -1;
-}
-XTL_DO_NOT_INLINE_END
-#endif
 
 //------------------------------------------------------------------------------
 
-#if 0
 XTL_DO_NOT_INLINE_BEGIN
-size_t do_visit(const Shape& s)
+size_t do_visit(const Shape& s, size_t n)
 {
     struct Visitor : ShapeVisitor
     {
+        #if XTL_VISITOR_FORWARDING
         #define FOR_EACH_MAX  NUMBER_OF_BASES-1
+        #else
+        #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
+        #endif
         #define FOR_EACH_N(N) virtual void visit(const shape_kind<N>&) { result = N; }
         #include "loop_over_numbers.hpp"
         #undef  FOR_EACH_N
@@ -224,26 +210,6 @@ size_t do_visit(const Shape& s)
     return v.result;
 }
 XTL_DO_NOT_INLINE_END
-#else
-XTL_DO_NOT_INLINE_BEGIN
-size_t do_visit(const Shape& s)
-{
-    struct Visitor : ShapeVisitor
-    {
-        virtual void visit(const shape_kind<0>&) { result = 0; }
-        virtual void visit(const shape_kind<1>&) { result = 1; }
-        virtual void visit(const shape_kind<2>&) { result = 2; }
-        virtual void visit(const shape_kind<3>&) { result = 3; }
-        virtual void visit(const shape_kind<4>&) { result = 4; }
-        size_t result;
-    };
-    Visitor v;
-    v.result = -1;
-    s.accept(v);
-    return v.result;
-}
-XTL_DO_NOT_INLINE_END
-#endif
 
 //------------------------------------------------------------------------------
 
@@ -306,13 +272,13 @@ void statistics(std::vector<T>& measurements, T& min, T& max, T& avg, T& med, T&
 
 int relative_performance(long long v, long long m)
 {
-    if (v <= 0 || m <= 0)
+    if (XTL_UNLIKELY(v <= 0 || m <= 0))
     {
         std::cout << "ERROR: Insufficient timer resolution. Increase number of iterations N" << std::endl;
         exit(42);
     }
     else
-    if (v <= m)
+    if (XTL_UNLIKELY(v <= m))
     {
         int percent = int(m*100/v-100);
         std::cout << "\t\t" << percent << "% slower" << std::endl;
@@ -351,7 +317,23 @@ long long display(const char* name, std::vector<long long>& timings)
               << std::setw(4) << microseconds(avg) << "/" 
               << std::setw(4) << microseconds(med) << " -- "
               << std::setw(4) << microseconds(max) << "] Dev = " 
-              << std::setw(4) << dev << std::endl;
+              << std::setw(4) << microseconds(dev)
+#if   defined(XTL_TIMING_METHOD_1)
+              // FIX: 1000 is heuristic here for my laptop. QueryPerformanceCounter doesn't specify how it is related to cycles!
+              << " Cycles/iteration: ["
+              << std::setw(4) << min*1000/N << " -- " 
+              << std::setw(4) << avg*1000/N << "/" 
+              << std::setw(4) << med*1000/N << " -- "
+              << std::setw(4) << max*1000/N << "]"
+#elif defined(XTL_TIMING_METHOD_2)
+              << " Cycles/iteration: ["
+              << std::setw(4) << min/N << " -- " 
+              << std::setw(4) << avg/N << "/" 
+              << std::setw(4) << med/N << " -- "
+              << std::setw(4) << max/N << "]"
+#endif
+              << std::endl;
+
     return med;
 }
 
@@ -382,14 +364,14 @@ int test_sequential()
             time_stamp liStart1 = get_time_stamp();
 
             for (size_t i = 0; i < N; ++i)
-                a1 += do_visit(*shapes[i]);
+                a1 += do_visit(*shapes[i],i);
 
             time_stamp liFinish1 = get_time_stamp();
 
             time_stamp liStart2 = get_time_stamp();
 
             for (size_t i = 0; i < N; ++i)
-                a2 += do_match(*shapes[i]);
+                a2 += do_match(*shapes[i],i);
 
             time_stamp liFinish2 = get_time_stamp();
 
@@ -443,7 +425,7 @@ int test_randomized()
             TRACE_PERFORMANCE_ONLY(distribution[n]++);
             shapes[i] = make_shape(n);
         }
-#if defined(XTL_TRACE_PERFORMANCE)
+#if defined(TRACE_PERFORMANCE)
         size_t min, max, avg, med, dev;
         statistics(distribution, min, max, avg, med, dev);
         //std::copy(distribution.begin(), distribution.end(), std::ostream_iterator<size_t>(std::cout, ":"));
@@ -463,14 +445,14 @@ int test_randomized()
             time_stamp liStart1 = get_time_stamp();
 
             for (size_t i = 0; i < N; ++i)
-                a1 += do_visit(*shapes[i]);
+                a1 += do_visit(*shapes[i],i);
 
             time_stamp liFinish1 = get_time_stamp();
 
             time_stamp liStart2 = get_time_stamp();
 
             for (size_t i = 0; i < N; ++i)
-                a2 += do_match(*shapes[i]);
+                a2 += do_match(*shapes[i],i);
 
             time_stamp liFinish2 = get_time_stamp();
 
@@ -502,11 +484,105 @@ int test_randomized()
 
 //------------------------------------------------------------------------------
 
+int test_repetitive()
+{
+    std::cout << "=================== Repetitive Test ===================" << std::endl;
+
+    size_t a1 = 0,a2 = 0;
+    std::vector<int> percentages(K); // Final verdict of medians for each of the K experiments
+
+    for (size_t n = 0; n < K; ++n)
+    {
+        Shape* s = make_shape(n);
+        std::vector<long long> timingsV(M);
+        std::vector<long long> timingsM(M);
+
+        for (size_t m = 0; m < M; ++m)
+        {
+            time_stamp liStart1 = get_time_stamp();
+
+            for (size_t i = 0; i < N; ++i)
+                a1 += do_visit(*s,i);
+
+            time_stamp liFinish1 = get_time_stamp();
+
+            time_stamp liStart2 = get_time_stamp();
+
+            for (size_t i = 0; i < N; ++i)
+                a2 += do_match(*s,i);
+
+            time_stamp liFinish2 = get_time_stamp();
+
+            XTL_ASSERT(a1==a2);
+
+            timingsV[m] = liFinish1-liStart1;
+            timingsM[m] = liFinish2-liStart2;
+        }
+
+        long long avgV = display("AreaVisSeq", timingsV);
+        long long avgM = display("AreaMatSeq", timingsM);
+        percentages[n] = relative_performance(avgV, avgM);
+        delete s;
+    }
+
+    if (a1 != a2)
+    {
+        std::cout << "ERROR: Invariant " << a1 << "==" << a2 << " doesn't hold." << std::endl;
+        exit(42);
+    }
+
+    std::sort(percentages.begin(), percentages.end());
+    return percentages[percentages.size()/2];
+}
+
+//------------------------------------------------------------------------------
+
+#if XTL_VISITOR_FORWARDING
+    #define forwarding "Yes"
+#else
+    #define forwarding "No "
+#endif
+
+//------------------------------------------------------------------------------
+
+#if XTL_DEFAULT_SYNTAX == 'P' || XTL_DEFAULT_SYNTAX == 'K' || XTL_DEFAULT_SYNTAX == 'U' || XTL_DEFAULT_SYNTAX == 'E'
+    #define syntax "Special"
+#else
+    #define syntax "Generic"
+#endif
+
+//------------------------------------------------------------------------------
+
+#if   XTL_DEFAULT_SYNTAX == 'P' || XTL_DEFAULT_SYNTAX == 'p'
+    #define encoding "Polymorphic"
+#elif XTL_DEFAULT_SYNTAX == 'K' || XTL_DEFAULT_SYNTAX == 'k'
+    #define encoding "Kind       "
+#elif XTL_DEFAULT_SYNTAX == 'U' || XTL_DEFAULT_SYNTAX == 'u'
+    #define encoding "Union      "
+#elif XTL_DEFAULT_SYNTAX == 'E' || XTL_DEFAULT_SYNTAX == 'e'
+    #define encoding "Exception  "
+#else
+    #define encoding "Unknown    "
+#endif
+
+//------------------------------------------------------------------------------
+
+#define msg_prefix "SYNTAX: " syntax " ENCODING: " encoding " FORWARDING: " forwarding " TEST: "
+
+//------------------------------------------------------------------------------
+
 int main()
 {
+#if   defined(XTL_REP_TEST)
+    int pr = test_repetitive();
+    std::cout << msg_prefix "Repetitive: " << abs(pr) << (pr >= 0 ? "% slower" : "% faster") << std::endl; 
+#elif defined(XTL_SEQ_TEST)
     int ps = test_sequential();
-    int pr = test_randomized();
-    std::cout << "OVERALL: Sequential: " 
-              << abs(ps) << (ps >= 0 ? "% slower" : "% faster") << "; Random: " 
-              << abs(pr) << (pr >= 0 ? "% slower" : "% faster") << std::endl; 
+    std::cout << msg_prefix "Sequential: " << abs(ps) << (ps >= 0 ? "% slower" : "% faster") << std::endl; 
+#elif defined(XTL_RND_TEST)
+    int pn = test_randomized();
+    std::cout << msg_prefix "Randomized: " << abs(pn) << (pn >= 0 ? "% slower" : "% faster") << std::endl; 
+#else
+    #error Test scenario REP, SEQ or RND has not been chosen.
+#endif
 }

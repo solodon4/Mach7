@@ -17,7 +17,11 @@
 #define NUMBER_OF_DERIVED 100
 #endif
 
+//------------------------------------------------------------------------------
+
 struct ShapeVisitor;
+
+//------------------------------------------------------------------------------
 
 struct OtherBase
 {
@@ -26,6 +30,8 @@ struct OtherBase
 
     int m_foo;
 };
+
+//------------------------------------------------------------------------------
 
 struct Shape
 {
@@ -37,6 +43,8 @@ struct Shape
     #undef  FOR_EACH_N
     #undef  FOR_EACH_MAX
 };
+
+//------------------------------------------------------------------------------
 
 template <size_t N>
 struct shape_kind : OtherBase, Shape
@@ -54,6 +62,8 @@ struct shape_kind : OtherBase, Shape
     int m_member9;
 };
 
+//------------------------------------------------------------------------------
+
 struct ShapeVisitor
 {
     #define FOR_EACH_MAX NUMBER_OF_DERIVED-1
@@ -65,14 +75,16 @@ struct ShapeVisitor
 
 template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(*this); }
 
-#if 0
-DO_NOT_INLINE_BEGIN
+//------------------------------------------------------------------------------
+
+#if 1
+XTL_DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s)
 {
     #define FOR_EACH_MAX      NUMBER_OF_DERIVED-1
-    #define FOR_EACH_PRELUDE  SWITCH_N(s,NUMBER_OF_DERIVED)
-    #define FOR_EACH_N(N)     CASE(shape_kind<N>) return N;
-    #define FOR_EACH_POSTLUDE END_SWITCH
+    #define FOR_EACH_PRELUDE  MatchP_N(s,NUMBER_OF_DERIVED)
+    #define FOR_EACH_N(N)     CaseP(shape_kind<N>) return N;
+    #define FOR_EACH_POSTLUDE EndMatchP
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_POSTLUDE
     #undef  FOR_EACH_N
@@ -80,9 +92,9 @@ size_t do_match(const Shape& s)
     #undef  FOR_EACH_MAX
     return -1;
 }
-DO_NOT_INLINE_END
+XTL_DO_NOT_INLINE_END
 #else
-DO_NOT_INLINE_BEGIN
+XTL_DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s)
 {
     {
@@ -1708,10 +1720,12 @@ size_t do_match(const Shape& s)
     }
     return -1;
 }
-DO_NOT_INLINE_END
+XTL_DO_NOT_INLINE_END
 #endif
 
-DO_NOT_INLINE_BEGIN
+//------------------------------------------------------------------------------
+
+XTL_DO_NOT_INLINE_BEGIN
 size_t do_visit(const Shape& s)
 {
     struct Visitor : ShapeVisitor
@@ -1729,7 +1743,9 @@ size_t do_visit(const Shape& s)
     s.accept(v);
     return v.result;
 }
-DO_NOT_INLINE_END
+XTL_DO_NOT_INLINE_END
+
+//------------------------------------------------------------------------------
 
 Shape* make_shape(size_t i)
 {
@@ -1744,15 +1760,21 @@ Shape* make_shape(size_t i)
     return 0;
 }
 
+//------------------------------------------------------------------------------
+
 const size_t N = 10000; // The amount of times visitor and matching procedure is invoked in one time measuring
 const size_t M = 101;   // The amount of times time measuring is done
 const size_t K = NUMBER_OF_DERIVED; // The amount of cases we have in hierarchy
+
+//------------------------------------------------------------------------------
 
 template <typename Container>
 typename Container::value_type mean(const Container& c)
 {
     return std::accumulate(c.begin(),c.end(),typename Container::value_type())/c.size();
 }
+
+//------------------------------------------------------------------------------
 
 template <typename Container>
 typename Container::value_type deviation(const Container& c)
@@ -1767,6 +1789,8 @@ typename Container::value_type deviation(const Container& c)
     return value_type(std::sqrt(double(d)/c.size()));
 }
 
+//------------------------------------------------------------------------------
+
 template <typename T>
 void statistics(std::vector<T>& measurements, T& min, T& max, T& avg, T& med, T& dev)
 {
@@ -1778,15 +1802,17 @@ void statistics(std::vector<T>& measurements, T& min, T& max, T& avg, T& med, T&
     dev = deviation(measurements);
 }
 
+//------------------------------------------------------------------------------
+
 int relative_performance(long long v, long long m)
 {
-    if (UNLIKELY_BRANCH(v <= 0 || m <= 0))
+    if (XTL_UNLIKELY(v <= 0 || m <= 0))
     {
         std::cout << "ERROR: Insufficient timer resolution. Increase number of iterations N" << std::endl;
         exit(42);
     }
     else
-    if (UNLIKELY_BRANCH(v <= m))
+    if (XTL_UNLIKELY(v <= m))
     {
         int percent = int(m*100/v-100);
         std::cout << "\t\t" << percent << "% slower" << std::endl;
@@ -1799,6 +1825,8 @@ int relative_performance(long long v, long long m)
         return -percent; // Negative number indicates how many percents faster we are 
     }
 }
+
+//------------------------------------------------------------------------------
 
 long long display(const char* name, std::vector<long long>& timings)
 {
@@ -1823,9 +1851,27 @@ long long display(const char* name, std::vector<long long>& timings)
               << std::setw(4) << microseconds(avg) << "/" 
               << std::setw(4) << microseconds(med) << " -- "
               << std::setw(4) << microseconds(max) << "] Dev = " 
-              << std::setw(4) << dev << std::endl;
+              << std::setw(4) << microseconds(dev)
+#if   defined(XTL_TIMING_METHOD_1)
+              // FIX: 1000 is heuristic here for my laptop. QueryPerformanceCounter doesn't specify how it is related to cycles!
+              << " Cycles/iteration: ["
+              << std::setw(4) << min*1000/N << " -- " 
+              << std::setw(4) << avg*1000/N << "/" 
+              << std::setw(4) << med*1000/N << " -- "
+              << std::setw(4) << max*1000/N << "]"
+#elif defined(XTL_TIMING_METHOD_2)
+              << " Cycles/iteration: ["
+              << std::setw(4) << min/N << " -- " 
+              << std::setw(4) << avg/N << "/" 
+              << std::setw(4) << med/N << " -- "
+              << std::setw(4) << max/N << "]"
+#endif
+              << std::endl;
+
     return med;
 }
+
+//------------------------------------------------------------------------------
 
 int test_sequential()
 {
@@ -1890,6 +1936,8 @@ int test_sequential()
     return percentages[percentages.size()/2];
 }
 
+//------------------------------------------------------------------------------
+
 int test_randomized()
 {
 #if !defined(NO_RANDOMIZATION)
@@ -1911,7 +1959,7 @@ int test_randomized()
             TRACE_PERFORMANCE_ONLY(distribution[n]++);
             shapes[i] = make_shape(n);
         }
-#if defined(TRACE_PERFORMANCE)
+#if defined(XTL_TRACE_PERFORMANCE)
         size_t min, max, avg, med, dev;
         statistics(distribution, min, max, avg, med, dev);
         //std::copy(distribution.begin(), distribution.end(), std::ostream_iterator<size_t>(std::cout, ":"));
@@ -1967,6 +2015,8 @@ int test_randomized()
     std::sort(percentages.begin(), percentages.end());
     return percentages[percentages.size()/2];
 }
+
+//------------------------------------------------------------------------------
 
 int main()
 {
