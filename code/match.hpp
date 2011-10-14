@@ -20,6 +20,9 @@
 //#include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/remove_const.hpp>
 #include "exprtmpl.hpp"
+#include "memoized_cast.hpp"
+
+#define dynamic_cast memoized_cast
 
 #ifdef _DEBUG
 #include <typeinfo>

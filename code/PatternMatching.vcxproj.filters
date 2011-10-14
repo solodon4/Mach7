@@ -39,6 +39,9 @@
     <ClCompile Include="perf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="memoized_cast.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="match.hpp">

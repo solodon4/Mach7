@@ -1,5 +1,13 @@
+#include <assert.h>
 #include <iomanip>
 #include "memoized_cast.hpp"
+
+// NOTE: This doesn't compile only from MSVC IDE, if we compile it from command line, it is also accepted.
+#ifdef _MSC_VER
+#define NON_MSVC(...)
+#else
+#define NON_MSVC(...) __VA_ARGS__
+#endif
 
 struct A
 {
@@ -14,13 +22,13 @@ struct B : A
     int m_b;
 };
 
-struct C : A, B
+struct C : NON_MSVC(A,) B
 {
     C(int c = 0xCCCCCCCC) : m_c(c) {}
     int m_c;
 };
 
-struct D : A, B
+struct D : NON_MSVC(A,) B
 {
     D(int d = 0xDDDDDDDD) : m_d(d) {}
     int m_d;
@@ -94,4 +102,9 @@ int main()
     dump_hex(*e);
     dump_hex(*f);
     dump_hex(*g);
+
+    const A* a1 = (const B*)(const C*)e;
+    const E* e1 = memoized_cast<const E*>(a1);
+    const E* e2 = memoized_cast<const E*>(a1);
+    assert(e1 == e && e2 == e);
 }
