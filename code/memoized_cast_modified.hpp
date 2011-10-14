@@ -1,16 +1,16 @@
+#include "vtblmap.hpp"
+
 #include <iostream>
 #include <unordered_map>
 #include <typeinfo> // Debugging purposes. Remove
 
-typedef std::unordered_map<intptr_t, ptrdiff_t> vtbl2offset;
-static const ptrdiff_t no_cast_exists = 0x0FF1C1A1; // A dedicated constant marking impossible offset
+typedef vtblmap<ptrdiff_t> vtbl2offset;
+static const ptrdiff_t no_cast_exists = 0x0FF1C1A1; ///< A dedicated constant marking impossible offset
+static const ptrdiff_t no_such_value  = 0xFA11BABE; ///< A dedicated constant used to track when no value was previously in the map
 
 template <typename T> struct cast_target;
 template <typename T> struct cast_target<T*> { typedef T type; };
 template <typename T> struct cast_target<const T*> { typedef T type; };
-
-template <typename T> inline const T* cns(const T* t); // No implementation on purpose. Can only be called on non-const pointers to add const to type
-template <typename T> inline const T* cns(T* t) { return t; }
 
 template <typename T>
 inline vtbl2offset& offset_map()
@@ -22,27 +22,21 @@ inline vtbl2offset& offset_map()
 template <typename T, typename U>
 inline ptrdiff_t get_offset(const U* p)
 {
-    const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
     vtbl2offset& ofsmap = offset_map<T>();
-    const vtbl2offset::iterator q = ofsmap.find(vtbl);
+    ptrdiff_t& ofs = ofsmap.get(p, no_such_value);
 
-    if (q != ofsmap.end())
-        return q->second;
-    else
+    if (ofs == no_such_value)
     {
         T k = dynamic_cast<T>(p);
-        const ptrdiff_t offset = k ? reinterpret_cast<const char*>(k)-reinterpret_cast<const char*>(p) : no_cast_exists;
-        ofsmap.insert(vtbl2offset::value_type(vtbl,offset));
-
-        //std::cout << "Type=" << typeid(T).name() << " Vtbl=" << std::hex << vtbl << " Offset=" << offset << std::dec << std::endl;
-
-        return offset;
+        ofs = k ? reinterpret_cast<const char*>(k)-reinterpret_cast<const char*>(p) : no_cast_exists;
     }
+
+    return ofs;
 }
 
 // Number of bits based on which the caching will be made. The cache will have
 // 2^cache_bits entries.
-const int cache_bits = 7;
+const int cache_bits = 3;
 const int cache_mask = (1<<cache_bits)-1;
 
 #ifdef _MSC_VER

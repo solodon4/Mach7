@@ -26,16 +26,6 @@ double heron(const loc& l1, const loc& l2, const loc& l3)
     return std::sqrt((a2+b2+c2)*(a2+b2+c2) - 2.0*(a2*a2+b2*b2+c2*c2))/4.0;
 }
 
-#define SWITCH(s) switch (on(__LINE__,s))
-// NOTE: If Visual C++ gives you error C2051: case expression not constant
-//       on this CASE label, just change the Debug Format in project setting 
-//       Project -> Properties -> C/C++ -> General -> Debug Information Format 
-//       from "Program Database for Edit And Continue (/ZI)" 
-//       to   "Program Database (/Zi)", which is the default in Release builds,
-//       but not in Debug. This is a known bug of Visual C++ described here:
-//       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#define CASE(s,C,...) case __LINE__: if (match<C>(__LINE__,__VA_ARGS__)(s))
-
 double area_select(Shape& shape)
 {
     loc  x,y,z;
@@ -47,9 +37,9 @@ double area_select(Shape& shape)
     //matching(Circle,_,r)(shape)     return 3.14 * r * r;
     //matching(Square,_,s)(shape)     return s * s;
     //matching(Triangle,x,y,z)(shape) return heron(x,y,z);
-    CASE(shape,Circle,_,r)     return 3.14 * r * r;
-    CASE(shape,Square,_,s)     return s * s;
-    CASE(shape,Triangle,x,y,z) return heron(x,y,z);
+    CASE(Circle,_,r)     return 3.14 * r * r;
+    CASE(Square,_,s)     return s * s;
+    CASE(Triangle,x,y,z) return heron(x,y,z);
 
     //case __LINE__: if (match<Circle>(__LINE__,_,r)(shape))     return 3.14 * r * r;
     //case 2: if (match<Square>(2,_,s)(shape))     return s * s;
