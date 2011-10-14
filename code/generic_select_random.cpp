@@ -65,6 +65,8 @@ struct ShapeVisitor
 
 template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(*this); }
 
+template <size_t N> struct match_members<shape_kind<N>> { CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
+
 #if 1
 DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s)

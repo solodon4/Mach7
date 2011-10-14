@@ -151,14 +151,14 @@ int main()
     {
         Match(shapes[i])
         {
-            Case(Circle,_,x)          std::cout << "Circle"   << std::endl; m += x;       break;
-            Case(Square,_,v |= v > 5) std::cout << "Square>5" << std::endl; m += v;       break;
-              Or(       _,v |= v > 3) std::cout << "Square>3" << std::endl; m += v;       break;
-              Or(       _,v |= v > 1) std::cout << "Square>1" << std::endl; m += v;       break;
-              Or(       _,v |= v > 0) std::cout << "Square>0" << std::endl; m += v;       break;
-              Or(       _,x)          std::cout << "Square"   << std::endl; m += x;       break;
-            Case(Triangle,l)          std::cout << "Triangle" << std::endl; m += l.first; break;
-            Otherwise()               std::cout << "Other"    << std::endl; m += 2;       break;
+            CaseOld(Circle,_,x)          std::cout << "Circle"   << std::endl; m += x;       break;
+            CaseOld(Square,_,v |= v > 5) std::cout << "Square>5" << std::endl; m += v;       break;
+                 Or(       _,v |= v > 3) std::cout << "Square>3" << std::endl; m += v;       break;
+                 Or(       _,v |= v > 1) std::cout << "Square>1" << std::endl; m += v;       break;
+                 Or(       _,v |= v > 0) std::cout << "Square>0" << std::endl; m += v;       break;
+                 Or(       _,x)          std::cout << "Square"   << std::endl; m += x;       break;
+            CaseOld(Triangle,l)          std::cout << "Triangle" << std::endl; m += l.first; break;
+            Otherwise()                  std::cout << "Other"    << std::endl; m += 2;       break;
         }
         EndMatch
     }
@@ -173,10 +173,10 @@ int main()
     {
         Match(shapes[i])
         {
-            CaseX(Circle,c,r)  std::cout << "Circle"   << std::endl; m += r;       break;
-            CaseX(Square,c,s)  std::cout << "Square"   << std::endl; m += s;       break;
-            CaseX(Triangle,p)  std::cout << "Triangle" << std::endl; m += p.first; break;
-            Otherwise()        std::cout << "Other"    << std::endl; m += 2;       break;
+            Case(Circle,c,r)  std::cout << "Circle"   << std::endl; m += r;       break;
+            Case(Square,c,s)  std::cout << "Square"   << std::endl; m += s;       break;
+            Case(Triangle,p)  std::cout << "Triangle" << std::endl; m += p.first; break;
+            Otherwise()       std::cout << "Other"    << std::endl; m += 2;       break;
         }
         EndMatch
     }
@@ -304,14 +304,14 @@ int main()
         //std::cout << "Selector: " << adtshapes[i]->kind << std::endl;
         Match(adtshapes[i])
         {
-            Otherwise()                         std::cout << "Other"       << std::endl; m += 2;       break;
-            Case(ADTShape::circle,_,x)          std::cout << "ADTCircle"   << std::endl; m += x;       break;
-            Case(ADTShape::square,_,v |= v > 5) std::cout << "ADTSquare>5" << std::endl; m += v;       break;
-              Or(                 _,v |= v > 3) std::cout << "ADTSquare>3" << std::endl; m += v;       break;
-              Or(                 _,v |= v > 1) std::cout << "ADTSquare>1" << std::endl; m += v;       break;
-              Or(                 _,v |= v > 0) std::cout << "ADTSquare>0" << std::endl; m += v;       break;
-              Or(                 _,x)          std::cout << "ADTSquare"   << std::endl; m += x;       break;
-            Case(ADTShape::triangle,cl)         std::cout << "ADTTriangle" << std::endl; m += cl.first;break;
+            Otherwise()                            std::cout << "Other"       << std::endl; m += 2;       break;
+            CaseOld(ADTShape::circle,_,x)          std::cout << "ADTCircle"   << std::endl; m += x;       break;
+            CaseOld(ADTShape::square,_,v |= v > 5) std::cout << "ADTSquare>5" << std::endl; m += v;       break;
+                 Or(                 _,v |= v > 3) std::cout << "ADTSquare>3" << std::endl; m += v;       break;
+                 Or(                 _,v |= v > 1) std::cout << "ADTSquare>1" << std::endl; m += v;       break;
+                 Or(                 _,v |= v > 0) std::cout << "ADTSquare>0" << std::endl; m += v;       break;
+                 Or(                 _,x)          std::cout << "ADTSquare"   << std::endl; m += x;       break;
+            CaseOld(ADTShape::triangle,cl)         std::cout << "ADTTriangle" << std::endl; m += cl.first;break;
         }
         EndMatch
     }
@@ -326,10 +326,10 @@ int main()
     {
         Match(adtshapes[i])
         {
-            CaseX(ADTShape::circle,c,r)  std::cout << "ADTCircle"   << std::endl; m += r;       break;
-            CaseX(ADTShape::square,c,s)  std::cout << "ADTSquare"   << std::endl; m += s;       break;
-            CaseX(ADTShape::triangle,p)  std::cout << "ADTTriangle" << std::endl; m += p.first; break;
-            Otherwise()                  std::cout << "Other"       << std::endl; m += 2;       break;
+            Case(ADTShape::circle,c,r)  std::cout << "ADTCircle"   << std::endl; m += r;       break;
+            Case(ADTShape::square,c,s)  std::cout << "ADTSquare"   << std::endl; m += s;       break;
+            Case(ADTShape::triangle,p)  std::cout << "ADTTriangle" << std::endl; m += p.first; break;
+            Otherwise()                 std::cout << "Other"       << std::endl; m += 2;       break;
         }
         EndMatch
     }
@@ -342,11 +342,11 @@ int main()
     {
         Match(shapes[i])
         {
-            Case(Circle,_,x)
+            CaseOld(Circle,_,x)
                 std::cout << "Circle"   << std::endl;
                 m += x;
                 break;
-            Case(Square,_,v |= v > 5)
+            CaseOld(Square,_,v |= v > 5)
                 std::cout << "Square>5" << std::endl;
                 m += v;
                 break;
@@ -366,7 +366,7 @@ int main()
                 std::cout << "Square"   << std::endl;
                 m += x;
                 break;
-            Case(Triangle,l)
+            CaseOld(Triangle,l)
                 std::cout << "Triangle" << std::endl;
                 m += l.first;
                 break;
@@ -388,10 +388,10 @@ void test_read(const Shape* shape)
 {
     Match(shape)
     {
-        Case(Circle)   const Circle*   s = matched; break;
-        Case(Square)   const Square*   s = matched; break;
-        Case(Triangle) const Triangle* s = matched; break;
-        Otherwise()    const Shape*    s = matched; break;
+        CaseOld(Circle)   const Circle*   s = matched; break;
+        CaseOld(Square)   const Square*   s = matched; break;
+        CaseOld(Triangle) const Triangle* s = matched; break;
+        Otherwise()       const Shape*    s = matched; break;
     }
     EndMatch
 }
@@ -400,10 +400,10 @@ void test_write(Shape* shape)
 {
     Match(shape)
     {
-        Case(Circle)         Circle*   s = matched; break;
-        Case(Square)         Square*   s = matched; break;
-        Case(Triangle)       Triangle* s = matched; break;
-        Otherwise()          Shape*    s = matched; break;
+        CaseOld(Circle)         Circle*   s = matched; break;
+        CaseOld(Square)         Square*   s = matched; break;
+        CaseOld(Triangle)       Triangle* s = matched; break;
+        Otherwise()             Shape*    s = matched; break;
     }
     EndMatch
 }
@@ -416,10 +416,10 @@ void test_autodecl(const Shape* shape)
     {
         Match(shape)
         {
-            CaseX(Circle,c,r)  std::cout << "Circle"   << std::endl; m += r;       break;
-            CaseX(Square,c,s)  std::cout << "Square"   << std::endl; m += s;       break;
-            CaseX(Triangle,p)  std::cout << "Triangle" << std::endl; m += p.first; break;
-            Otherwise()        std::cout << "Other"    << std::endl; m += 2;       break;
+            Case(Circle,c,r)  std::cout << "Circle"   << std::endl; m += r;       break;
+            Case(Square,c,s)  std::cout << "Square"   << std::endl; m += s;       break;
+            Case(Triangle,p)  std::cout << "Triangle" << std::endl; m += p.first; break;
+            Otherwise()       std::cout << "Other"    << std::endl; m += 2;       break;
         }
         EndMatch
     }
