@@ -83,12 +83,15 @@ template <class T>
 struct variable
 {
     variable() : m_value() {}
+    variable(const T& t) : m_value(t) {}
+    variable(T&& t) : m_value(std::move(t)) {}
     /// We report that matching succeeded and bind the value
     bool operator()(const T& t) const 
     {
         m_value = t;
         return true;
     }
+    variable& operator=(const T& t) { m_value = t; return *this; }
     template <typename E> guard<T,E> operator|(const E& e) const { return guard<T,E>(*this,e); }
 
     /// Helper conversion operator to let the variable be used in some places
@@ -213,6 +216,7 @@ template <class T>
 struct value
 {
     value(const T& t) : m_value(t) {}
+    value(T&& t) : m_value(std::move(t)) {}
     bool operator()(const T& t) const { return m_value == t; }
     T m_value;
 };
@@ -304,7 +308,7 @@ bool apply_expression(const E& e,       C* c, M m)
 /// This is the specialization that makes the member not to be invoked when we
 /// are matching against the meta variable _ that matches everything.
 template <typename C, typename M>
-bool apply_expression(const variable<void>& e, const C* c, M m)
+bool apply_expression(const var_ref<variable<void> >& e, const C* c, M m)
 {
     return true;
 }
@@ -330,6 +334,7 @@ template <typename T, typename E1>
 struct matcher1
 {
     matcher1(const E1& e1) : m_e1(e1) {}
+    matcher1(E1&& e1) : m_e1(std::move(e1)) {}
     /*
     T* apply(T* t) const 
     {
@@ -362,7 +367,7 @@ struct matcher1
     template <typename U>       T* operator()(      U& u) const { return operator()(&u); }
 
     template <typename E> expr_or<matcher1,E> operator|(const E& e) const { return expr_or<matcher1,E>(*this,e); }
-    const E1& m_e1;
+    const E1 m_e1;
 };
 
 //------------------------------------------------------------------------------
@@ -371,6 +376,7 @@ template <typename T, typename E1, typename E2>
 struct matcher2
 {
     matcher2(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
+    matcher2(E1&& e1, E2&& e2) : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
     /*
     T* apply(T* t) const 
     {
@@ -409,8 +415,8 @@ struct matcher2
     template <typename U>       T* operator()(      U& u) const { return operator()(&u); }
 
     template <typename E> expr_or<matcher2,E> operator|(const E& e) const { return expr_or<matcher2,E>(*this,e); }
-    const E1& m_e1;
-    const E2& m_e2;
+    const E1 m_e1;
+    const E2 m_e2;
 };
 
 //------------------------------------------------------------------------------
@@ -419,6 +425,7 @@ template <typename T, typename E1, typename E2, typename E3>
 struct matcher3
 {
     matcher3(const E1& e1, const E2& e2, const E3& e3) : m_e1(e1), m_e2(e2), m_e3(e3) {}
+    matcher3(E1&& e1, E2&& e2, E3&& e3) : m_e1(std::move(e1)), m_e2(std::move(e2)), m_e3(std::move(e3)) {}
     /*
     T* apply(T* t) const
     {
@@ -461,9 +468,9 @@ struct matcher3
     template <typename U>       T* operator()(      U& u) const { return operator()(&u); }
 
     template <typename E> expr_or<matcher3,E> operator|(const E& e) const { return expr_or<matcher3,E>(*this,e); }
-    const E1& m_e1;
-    const E2& m_e2;
-    const E3& m_e3;
+    const E1 m_e1;
+    const E2 m_e2;
+    const E3 m_e3;
 };
 
 //------------------------------------------------------------------------------
@@ -472,6 +479,7 @@ template <typename T, typename E1, typename E2, typename E3, typename E4>
 struct matcher4
 {
     matcher4(const E1& e1, const E2& e2, const E3& e3, const E4& e4) : m_e1(e1), m_e2(e2), m_e3(e3), m_e4(e4) {}
+    matcher4(E1&& e1, E2&& e2, E3&& e3, E4&& e4) : m_e1(std::move(e1)), m_e2(std::move(e2)), m_e3(std::move(e3)), m_e4(std::move(e4)) {}
     /*
     T* apply(T* t) const 
     {
@@ -518,24 +526,45 @@ struct matcher4
     template <typename U>       T* operator()(      U& u) const { return operator()(&u); }
 
     template <typename E> expr_or<matcher4,E> operator|(const E& e) const { return expr_or<matcher4,E>(*this,e); }
-    const E1& m_e1;
-    const E2& m_e2;
-    const E3& m_e3;
-    const E4& m_e4;
+    const E1 m_e1;
+    const E2 m_e2;
+    const E3 m_e3;
+    const E4 m_e4;
 };
 
 //------------------------------------------------------------------------------
 
 template <typename T> struct flt           { typedef T type; };
 template <typename T> struct flt<const T>  { typedef T type; };
-template <typename T> struct flt<variable<T>&> { typedef variable<T> type; };
+//template <typename T> struct flt<variable<T>&> { typedef variable<T> type; };
 template <typename T> struct flt<      T&> { typedef var_ref<T> type; };
-template <typename T> struct flt<const T&> { typedef T type; };
+template <typename T> struct flt<const T&> { typedef value<T> type; };
+template <typename T, typename E1, typename E2, typename E3, typename E4>
+struct flt<const matcher4<T,E1,E2,E3,E4>&> { typedef matcher4<T,E1,E2,E3,E4> type; };
+template <typename T, typename E1, typename E2, typename E3>
+struct flt<const matcher3<T,E1,E2,E3>&> { typedef matcher3<T,E1,E2,E3> type; };
+template <typename T, typename E1, typename E2>
+struct flt<const matcher2<T,E1,E2>&> { typedef matcher2<T,E1,E2> type; };
+template <typename T, typename E1>
+struct flt<const matcher1<T,E1>&> { typedef matcher1<T,E1> type; };
+template <typename T>
+struct flt<const matcher0<T>&> { typedef matcher0<T> type; };
 
 template <typename T>       var_ref<T>   filter(T& t)        { return var_ref<T>(t); }
-template <typename T>       variable<T>& filter(variable<T>& t)        { return t; }
+//template <typename T>       variable<T>& filter(variable<T>& t)        { return t; }
+template <typename T>       value<T>     filter(const T& t)  { return value<T>(t); }
+template <typename T, typename E1, typename E2, typename E3, typename E4>
+matcher4<T,E1,E2,E3,E4> filter(const matcher4<T,E1,E2,E3,E4>& t) { return t; }
+template <typename T, typename E1, typename E2, typename E3>
+matcher3<T,E1,E2,E3> filter(const matcher3<T,E1,E2,E3>& t) { return t; }
+template <typename T, typename E1, typename E2>
+matcher2<T,E1,E2> filter(const matcher2<T,E1,E2>& t) { return t; }
+template <typename T, typename E1>
+matcher1<T,E1> filter(const matcher1<T,E1>& t) { return t; }
+template <typename T>
+matcher0<T> filter(const matcher0<T>& t) { return t; }
+
 //template <typename T> T&& filter(T&& t)       { return std::forward<T>(t); }
-template <typename T> const typename flt<T>::type& filter(const T& t)  { return t; }
 //template <typename T> const typename flt<T>::type& filter(const T&& t) { return t; }
 
 //------------------------------------------------------------------------------
@@ -557,17 +586,17 @@ matcher1<T
     return matcher1<T,typename flt<E1>::type>(std::forward<E1>(e1));
 }
 
-template <typename T, typename E1>
-matcher1<T,typename flt<E1>::type> match(E1&& e1)
-{
-    return match_ex<T>(filter(std::forward<E1>(e1)));
-}
-
 //template <typename T, typename E1>
-//auto match(E1&& e1) -> decltype(match_ex<T>(filter(std::forward<E1>(e1))))
+//matcher1<T,typename flt<E1>::type> match(E1&& e1)
 //{
 //    return match_ex<T>(filter(std::forward<E1>(e1)));
 //}
+
+template <typename T, typename E1>
+auto match(E1&& e1) -> decltype(match_ex<T>(filter(std::forward<E1>(e1))))
+{
+    return match_ex<T>(filter(std::forward<E1>(e1)));
+}
 
 //------------------------------------------------------------------------------
 
@@ -581,17 +610,17 @@ matcher2<T
     return matcher2<T,typename flt<E1>::type,typename flt<E2>::type>(std::forward<E1>(e1), std::forward<E2>(e2));
 }
 
-template <typename T, typename E1, typename E2>
-matcher2<T,typename flt<E1>::type,typename flt<E2>::type> match(E1&& e1, E2&& e2)
-{
-    return match_ex<T>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)));
-}
-
 //template <typename T, typename E1, typename E2>
-//auto match(E1&& e1, E2&& e2) -> decltype(match_ex<T>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2))))
+//matcher2<T,typename flt<E1>::type,typename flt<E2>::type> match(E1&& e1, E2&& e2)
 //{
 //    return match_ex<T>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)));
 //}
+
+template <typename T, typename E1, typename E2>
+auto match(E1&& e1, E2&& e2) -> decltype(match_ex<T>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2))))
+{
+    return match_ex<T>(filter(std::forward<E1>(e1)), filter(std::forward<E2>(e2)));
+}
 
 //------------------------------------------------------------------------------
 
@@ -677,8 +706,8 @@ matcher4<T,typename flt<E1>::type,typename flt<E2>::type,typename flt<E3>::type,
 template <typename T, int N>
 struct matcher0ex
 {
-    const T* operator()(const T* t) const { return match<T>(value<int>(N))(t); }
-          T* operator()(      T* t) const { return match<T>(value<int>(N))(t); }
+    const T* operator()(const T* t) const { return match<T>(N /*value<int>(N)*/)(t); }
+          T* operator()(      T* t) const { return match<T>(N /*value<int>(N)*/)(t); }
     template <typename U> const T* operator()(const U* u) const { return operator()(dynamic_cast<const T*>(u)); }
     template <typename U>       T* operator()(      U* u) const { return operator()(dynamic_cast<      T*>(u)); }
     template <typename U> const T* operator()(const U& u) const { return operator()(&u); }
@@ -694,7 +723,7 @@ struct matcher1ex
 
     const T* operator()(const T* t) const 
     {
-        if ( !match<T>(value<int>(N))(t) ||
+        if ( !match<T>(N /*value<int>(N)*/)(t) ||
              !apply_expression(m_e1, t, match_members_ex<T,N>::member0()) )
             t = 0;
 
@@ -702,7 +731,7 @@ struct matcher1ex
     }
           T* operator()(      T* t) const 
     {
-        if ( !match<T>(value<int>(N))(t) ||
+        if ( !match<T>(N /*value<int>(N)*/)(t) ||
              !apply_expression(m_e1, t, match_members_ex<T,N>::member0()) )
             t = 0;
 
@@ -725,7 +754,7 @@ struct matcher2ex
 
     const T* operator()(const T* t) const 
     {
-        if ( !match<T>(value<int>(N))(t) ||
+        if ( !match<T>(N /*value<int>(N)*/)(t) ||
              !apply_expression(m_e1, t, match_members_ex<T,N>::member0()) ||
              !apply_expression(m_e2, t, match_members_ex<T,N>::member1())
             )
@@ -735,7 +764,7 @@ struct matcher2ex
     }
           T* operator()(      T* t) const 
     {
-        if ( !match<T>(value<int>(N))(t) ||
+        if ( !match<T>(N /*value<int>(N)*/)(t) ||
              !apply_expression(m_e1, t, match_members_ex<T,N>::member0()) ||
              !apply_expression(m_e2, t, match_members_ex<T,N>::member1())
             )
@@ -761,7 +790,7 @@ struct matcher3ex
 
     const T* operator()(const T* t) const 
     {
-        if ( !match<T>(value<int>(N))(t) ||
+        if ( !match<T>(N /*value<int>(N)*/)(t) ||
              !apply_expression(m_e1, t, match_members_ex<T,N>::member0()) ||
              !apply_expression(m_e2, t, match_members_ex<T,N>::member1()) ||
              !apply_expression(m_e3, t, match_members_ex<T,N>::member2())
@@ -772,7 +801,7 @@ struct matcher3ex
     }
           T* operator()(      T* t) const 
     {
-        if ( !match<T>(value<int>(N))(t) ||
+        if ( !match<T>(N /*value<int>(N)*/)(t) ||
              !apply_expression(m_e1, t, match_members_ex<T,N>::member0()) ||
              !apply_expression(m_e2, t, match_members_ex<T,N>::member1()) ||
              !apply_expression(m_e3, t, match_members_ex<T,N>::member2())
@@ -800,7 +829,7 @@ struct matcher4ex
 
     const T* operator()(const T* t) const 
     {
-        if ( !match<T>(value<int>(N))(t) ||
+        if ( !match<T>(N /*value<int>(N)*/)(t) ||
              !apply_expression(m_e1, t, match_members_ex<T,N>::member0()) ||
              !apply_expression(m_e2, t, match_members_ex<T,N>::member1()) ||
              !apply_expression(m_e3, t, match_members_ex<T,N>::member2()) ||
@@ -812,7 +841,7 @@ struct matcher4ex
     }
           T* operator()(      T* t) const 
     {
-        if ( !match<T>(value<int>(N))(t) ||
+        if ( !match<T>(N /*value<int>(N)*/)(t) ||
              !apply_expression(m_e1, t, match_members_ex<T,N>::member0()) ||
              !apply_expression(m_e2, t, match_members_ex<T,N>::member1()) ||
              !apply_expression(m_e3, t, match_members_ex<T,N>::member2()) ||
