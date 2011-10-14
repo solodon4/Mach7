@@ -16,7 +16,7 @@ real heron(const loc& a, const loc& b, const loc& c) { return 1.0/2; }
 
 real area(const Shape& shape)
 {
-    variable<void> _; // Meta variable
+    wildcard _; // Meta variable
     loc  x,y,z;
     real r,s;
 
@@ -74,7 +74,7 @@ void foo(Shape* s) // FIX: doesn't work without const
 {
     loc  x,y,z;
     real a;
-    variable<void> _;
+    wildcard _;
 
     //if (match<Circle>(x | x == val(loc(1,1)), a)(s))
     //    std::cout << "Matched against guard" << a << std::endl;

@@ -16,7 +16,7 @@ real heron(const loc& a, const loc& b, const loc& c) { return 1.0/2; }
 
 real area(const Shape& shape)
 {
-    variable<void> _; // Meta variable
+    wildcard       _; // Meta variable
     variable<loc>  x,y,z;
     variable<real> r,s;
 
@@ -60,6 +60,8 @@ loc center(/*const*/ Shape& shape)
 
     variable<real> x1,y1,x2,y2,x3,y3;
 
+    real r = 3*x1*x2*x3;
+
     if (match<Triangle>(
             match<loc>(x1,y1),
             match<loc>(x2,y2),
@@ -70,14 +72,17 @@ loc center(/*const*/ Shape& shape)
     assert(!"Inexhaustive search");
 }
 
-void foo(Shape* s) // FIX: doesn't work without const
+void foo(Shape* s)
 {
     variable<loc>  x,y,z;
     variable<real> a;
-    variable<void> _;
+    wildcard       _;
 
-    //if (match<Circle>(x | x == val(loc(1,1)), a)(s))
-    //    std::cout << "Matched against guard" << a << std::endl;
+    if (match<Circle>(x | x == loc(1,1), a)(s))
+        std::cout << "Matched against guard" << a << std::endl;
+
+    if (match<Circle>(x, a | (a < 5 && a > 3))(s))
+        std::cout << "Matched radius against COMPLEX guard" << a << std::endl;
 
     if (match<Circle>(x,4.0)(s))
         std::cout << "Circle with center " << x << " and FIXED radius " << std::endl;
