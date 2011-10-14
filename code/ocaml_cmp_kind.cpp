@@ -15,22 +15,28 @@
 
 struct Shape
 {
+    size_t m_kind;
+    Shape(size_t kind) : m_kind(kind) {}
     virtual ~Shape() {}
 };
 
 template <size_t N>
 struct shape_kind : Shape
 {
+    shape_kind() : Shape(N) {}
 };
+
+template <>         struct match_members<Shape>         { KS(Shape::m_kind); };
+template <size_t N> struct match_members<shape_kind<N>> { KV(N); };
 
 size_t do_match(const Shape& s)
 {
-    SWITCH_N(s,NUMBER_OF_DERIVED)
+    KIND_SWITCH(s)
     {
     #define FOR_EACH_MAX      NUMBER_OF_DERIVED-1
-    #define FOR_EACH_PRELUDE  CASES_BEGIN
-    #define FOR_EACH_N(N)     CASE(shape_kind<N>) return N;
-    #define FOR_EACH_POSTLUDE CASES_END
+    #define FOR_EACH_PRELUDE  KIND_CASES_BEGIN
+    #define FOR_EACH_N(N)     KIND_CASE(shape_kind<N>) return N;
+    #define FOR_EACH_POSTLUDE KIND_CASES_END
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_POSTLUDE
     #undef  FOR_EACH_N

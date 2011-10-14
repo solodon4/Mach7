@@ -63,6 +63,18 @@ template <>      struct requires_bits<1> { enum { value = 0 }; };
 
 //------------------------------------------------------------------------------
 
+template <typename T> struct remove_ref           { typedef T type; };
+template <typename T> struct remove_ref<      T&> { typedef T type; };
+template <typename T> struct remove_ref<const T > { typedef T type; };
+template <typename T> struct remove_ref<const T&> { typedef T type; };
+
+//------------------------------------------------------------------------------
+
+template <typename T, typename U> inline const T* stat_cast(const U* p) { return static_cast<const T*>(p); }
+template <typename T, typename U> inline       T* stat_cast(      U* p) { return static_cast<      T*>(p); }
+
+//------------------------------------------------------------------------------
+
 //#define dynamic_cast memoized_cast
 #define memoized_cast dynamic_cast
 
@@ -73,6 +85,15 @@ template <>      struct requires_bits<1> { enum { value = 0 }; };
 ///       templates, which might have commas, otherwise juse a second argument
 ///       would be sufficient.
 #define CM(Index,...) static inline decltype(&__VA_ARGS__) member##Index() { return &__VA_ARGS__; }
+
+/// Macro to define a kind selector - a member of the common base class that 
+/// carries a distinct integral value that uniquely identifies the derived 
+/// type.  Used in the decomposition of the base class.
+#define KS(...)       static inline decltype(&__VA_ARGS__) kind_selector() { return &__VA_ARGS__; }
+
+/// Macro to define an integral constant that uniquely identifies the derived 
+/// class. Used in the decomposition of a derived class.
+#define KV(kind)      static const size_t kind_value = kind;
 
 /// 1 here (preallocated vtbl map) is better for sequential case, but for some
 /// reason 0 (static member of a function vtbl map) is better for random case.
@@ -162,6 +183,27 @@ template <>      struct requires_bits<1> { enum { value = 0 }; };
 #define CASE(C,...) } if (UNLIKELY_BRANCH(__casted_ptr = dynamic_cast<const C*>(__selector_ptr))) { if (__switch_info.line == 0) { __switch_info.line = __LINE__; __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); } case __LINE__: if (LIKELY_BRANCH(match<C>(__VA_ARGS__)(adjust_ptr<C>(__selector_ptr,__switch_info.offset)))) 
 #define CASES_BEGIN default: {
 #define CASES_END } if (__switch_info.line == 0) { __switch_info.line = __LINE__; } case __LINE__: ;
+
+//------------------------------------------------------------------------------
+
+/// Macro that starts the switch on types that carry their own dynamic type as
+/// a distinct integral value in one of their members.
+#define KIND_SWITCH(s)\
+        auto const   __selector_ptr = addr(s);\
+        const void*  __casted_ptr;\
+        switch (apply_member(__selector_ptr, match_members<remove_ref<decltype(*__selector_ptr)>::type>::kind_selector()))
+
+/// Macro that defines the case statement for the above switch
+/// NOTE: If Visual C++ gives you error C2051: case expression not constant
+///       on this CASE label, just change the Debug Format in project setting 
+///       Project -> Properties -> C/C++ -> General -> Debug Information Format 
+///       from "Program Database for Edit And Continue (/ZI)" 
+///       to   "Program Database (/Zi)", which is the default in Release builds,
+///       but not in Debug. This is a known bug of Visual C++ described here:
+///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
+#define KIND_CASE(C,...) } case match_members<C>::kind_value: { auto result_of_dynamic_cast = stat_cast<C>(__selector_ptr);
+#define KIND_CASES_BEGIN {
+#define KIND_CASES_END   } default: ;
 
 //------------------------------------------------------------------------------
 
@@ -596,7 +638,7 @@ inline R apply_member(      C* c, R (T::*method)()      )
 template <class C, class T, typename R>
 inline R apply_member(const C* c, R T::*field) throw()
 {
-    DEBUG_ONLY(std::clog << "\nApplying data member to instance " << c << " of type " << typeid(*c).name() << std::endl);
+    //DEBUG_ONLY(std::clog << "\nApplying data member to instance " << c << " of type " << typeid(*c).name() << std::endl);
     return c->*field;
 }
 

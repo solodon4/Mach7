@@ -1,6 +1,8 @@
 #include <iomanip>
 #include "memoized_cast.hpp"
 
+#define INHERIT_VIRTUALLY virtual
+
 // NOTE: This doesn't compile only from MSVC IDE, if we compile it from command line, it is also accepted.
 #ifdef _MSC_VER
 #define NON_MSVC(...)
@@ -23,19 +25,19 @@ struct A
     intptr_t m_a;
 };
 
-struct B : A
+struct B : INHERIT_VIRTUALLY A
 {
-    B(intptr_t b = byte_pattern<intptr_t>(0xBB)) : m_b(b) {}
-    intptr_t m_b;
+    //B(intptr_t b = byte_pattern<intptr_t>(0xBB)) : m_b(b) {}
+    //intptr_t m_b;
 };
 
-struct C : NON_MSVC(A,) B
+struct C : NON_MSVC(INHERIT_VIRTUALLY A,) B
 {
     C(intptr_t c = byte_pattern<intptr_t>(0xCC)) : m_c(c) {}
     intptr_t m_c;
 };
 
-struct D : NON_MSVC(A,) B
+struct D : NON_MSVC(INHERIT_VIRTUALLY A,) B
 {
     D(intptr_t d = byte_pattern<intptr_t>(0xDD)) : m_d(d) {}
     intptr_t m_d;
@@ -72,7 +74,7 @@ void dump_ints(const void* p, size_t n)
     size_t m = n/sizeof(int);
 
     for (const int* q = static_cast<const int*>(p); m; --m,++q)
-        std::cout << std::setw(8) << std::setfill('0') << std::hex << (int)*q;
+        std::cout << std::setw(8) << std::setfill('0') << std::hex << (int)*q << ' ';
 
     std::cout << std::endl;
 }

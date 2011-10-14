@@ -86,13 +86,8 @@ template <class X, class Y> struct match_members<Right<X,Y> >  { CM(0,Right<X,Y>
 template<class X, class Y, class S, class T>
 const Either<S, T>* lift_ex(const Either<X, Y>& e, S f(X), T g(Y))
 {
-	//variable<X> x;
-	//variable<Y> y;
 	X x;
 	Y y;
-
-	//if ((match<Left<X, Y> >(x) | match<Right<X, Y> >(y))(e)) // Just a test of |
-	//	return left<S, T>(S());
 
 	if (match<Left<X, Y> >(x)(e))
 		return left<S, T>(f(x));

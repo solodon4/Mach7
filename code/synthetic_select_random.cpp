@@ -73,7 +73,7 @@ size_t do_match(const Shape& s)
     {
     #define FOR_EACH_MAX      NUMBER_OF_DERIVED-1
     #define FOR_EACH_PRELUDE  CASES_BEGIN
-    #define FOR_EACH_N(N) CASE(shape_kind<N>) return N;
+    #define FOR_EACH_N(N)     CASE(shape_kind<N>) return N;
     #define FOR_EACH_POSTLUDE CASES_END
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_POSTLUDE
