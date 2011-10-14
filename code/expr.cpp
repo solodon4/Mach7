@@ -31,6 +31,18 @@ void dump(T&&)
 	std::cout << type_name<T>::value() << std::endl;
 }
 
+template <typename T>
+void dump_r(const T&)
+{
+	std::cout << type_name<typename T::result_type>::value() << std::endl;
+}
+
+template <typename T>
+void dump_r(T&)
+{
+	std::cout << type_name<typename T::result_type>::value() << std::endl;
+}
+
 template <typename T, typename E> 
 //expr<addition,variable<T>,typename flt<E>::type> 
 void foo(const variable<T>& v, E&& e) 
@@ -39,7 +51,6 @@ void foo(const variable<T>& v, E&& e)
 	dump(v);
 	dump(std::forward<E>(e));
 	std::cout << type_name<E>::value() << std::endl;
-	std::cout << type_name<typename flt<E>::type>::value() << std::endl;
 	dump(filter(std::forward<E>(e)));
 	//return expr<addition,variable<T>,typename flt<E>::type>(v,filter(std::forward<E>(e))); 
 }
@@ -63,4 +74,13 @@ int main()
 	dump(b*2);
 	dump(2*b);
 	dump(a | a == 1);
+	dump(b*2+1);
+	typedef decltype(b*2+1) Etype; 
+	std::cout << type_name<Etype::result_type>::value() << std::endl;
+	dump_r(b*2+1);
+	dump_r(b);
+	dump_r(val(2));
+	dump_r(b+1);
+	dump(-(a*2+1));
+	dump(2*b);
 }

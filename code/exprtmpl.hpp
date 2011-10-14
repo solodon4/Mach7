@@ -27,57 +27,140 @@ struct greater_equal   { template <class A, class B> auto operator()(const A& a,
 struct less            { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a <  b) { return a <  b; } };
 struct less_equal      { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a <= b) { return a <= b; } };
 
-//template <typename F, typename A, typename B>
-//struct result_type
-//{
-//    typedef 
-//};
+//------------------------------------------------------------------------------
+
+// There is intentionally no definition. If you get error here, it means there 
+// is no solver for operation F.
+template <typename F> struct solver;
 
 //------------------------------------------------------------------------------
 
-template <typename F, typename E1 = void, typename E2 = void>
-struct expr;
-
-//template <typename F>
-//struct expr<F>
-//{
-//    template <typename U> operator U() const { return eval(*this); }
-//};
-
-template <typename F, typename E1>
-struct expr<F,E1>
+// Solver for negation operation
+template <> struct solver<negation>
 {
-    expr(const E1& e1) : m_e1(e1) {}
-    expr(E1&& e1) : m_e1(std::move(e1)) {}
-    typedef decltype(F()(*static_cast<typename E1::result_type*>(0))) result_type;
-    operator result_type() const { return eval(*this); }
-    const E1 m_e1;
-};
-
-template <typename F, typename E1, typename E2>
-struct expr
-{
-    expr(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
-    expr(E1&& e1, E2&& e2) : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
-    typedef decltype(F()(*static_cast<typename E1::result_type*>(0),*static_cast<typename E2::result_type*>(0))) result_type;
-    operator result_type() const { return eval(*this); }
-    const E1 m_e1;
-    const E2 m_e2;
+    // Solver for the first argument: -a == r => a == -r
+    template <class A> 
+    bool operator()(A& a, const decltype(-a)& r)
+    {
+        a = -r;
+        return -a == r;
+    }
 };
 
 //------------------------------------------------------------------------------
 
-template <typename E1, typename E2>
-struct expr_or
+// Solver for bit_complement operation
+template <> struct solver<bit_complement>
 {
-    expr_or(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
-    expr_or(E1&& e1, E2&& e2) : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
-    template <typename U> bool operator()(const U* u) const { return m_e1(u) || m_e2(u); }
-    template <typename U> bool operator()(      U* u) const { return m_e1(u) || m_e2(u); }
-    template <typename U> bool operator()(const U& u) const { return operator()(&u); }
-    template <typename U> bool operator()(      U& u) const { return operator()(&u); }
-    const E1 m_e1;
-    const E2 m_e2;
+    // Solver for the first argument: ~a == r => a == ~r
+    template <class A> 
+    bool operator()(A& a, const decltype(~a)& r)
+    {
+        a = ~r;
+        return ~a == r;
+    }
+};
+
+//------------------------------------------------------------------------------
+
+// Solver for bool_complement operation
+template <> struct solver<bool_complement>
+{
+    // Solver for the first argument: !a == r => a == !r
+    template <class A> 
+    bool operator()(A& a, const decltype(!a)& r)
+    {
+        a = !r;
+        return !a == r;
+    }
+};
+
+//------------------------------------------------------------------------------
+
+// Solver for addition operation
+template <> struct solver<addition>
+{
+    // Solver for the first argument: a+b == r => a == r-b
+    template <class A, class B> 
+    bool operator()(      A& a, const B& b, const decltype(a+b)& r)
+    {
+        a = r - b;
+        return a + b == r; // Actually will always be true, even with overflows
+    }
+
+    // Solver for the second argument: a+b == r => b == r-a
+    template <class A, class B> 
+    bool operator()(const A& a,       B& b, const decltype(a+b)& r)
+    {
+        b = r - a;
+        return a + b == r; // Actually will always be true, even with overflows
+    }
+};
+
+//------------------------------------------------------------------------------
+
+// Solver for subtraction operation
+template <> struct solver<subtraction>
+{
+    // Solver for the first argument: a-b == r => a == r+b
+    template <class A, class B> 
+    bool operator()(      A& a, const B& b, const decltype(a-b)& r)
+    {
+        a = r + b;
+        return a - b == r; // Actually will always be true, even with overflows
+    }
+
+    // Solver for the second argument: a-b == r => b == a-r
+    template <class A, class B> 
+    bool operator()(const A& a,       B& b, const decltype(a-b)& r)
+    {
+        b = a - r;
+        return a - b == r; // Actually will always be true, even with overflows
+    }
+};
+
+//------------------------------------------------------------------------------
+
+// Solver for multiplication operation
+template <> struct solver<multiplication>
+{
+    // Solver for the first argument: a*b == r => a == r/b
+    template <class A, class B> 
+    bool operator()(      A& a, const B& b, const decltype(a*b)& r)
+    {
+        a = r/b;
+        return a*b == r; // We need this as for integer division several numbers divided by b will give same result
+    }
+
+    // Solver for the second argument: a*b == r => b == r/a
+    template <class A, class B> 
+    bool operator()(const A& a,       B& b, const decltype(a*b)& r)
+    {
+        b = r/a;
+        return a*b == r; // We need this as for integer division several numbers divided by b will give same result
+    }
+};
+
+//------------------------------------------------------------------------------
+
+// Solver for division operation
+template <> struct solver<division>
+{
+    // Solver for the first argument: a/b == r => a == r*b
+    template <class A, class B> 
+    bool operator()(      A& a, const B& b, const decltype(a/b)& r)
+    {
+        a = r*b;
+        return a/b == r; // We need this as for integer division several numbers divided by b will give same result
+    }
+
+    // Solver for the second argument: a/b == r => b == a/r
+    template <class A, class B> 
+    bool operator()(const A& a,       B& b, const decltype(a/b)& r)
+    {
+        b = a/r;
+        return a/b == r; // We need this as for integer division several numbers divided by b will give same result
+    }
 };
 
 //------------------------------------------------------------------------------

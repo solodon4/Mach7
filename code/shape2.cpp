@@ -76,7 +76,7 @@ void foo(Shape* s) // FIX: doesn't work without const
     real a;
     wildcard _;
 
-    //if (match<Circle>(x | x == val(loc(1,1)), a)(s))
+    //if (match<Circle>(x |= x == val(loc(1,1)), a)(s))
     //    std::cout << "Matched against guard" << a << std::endl;
 
     if (match<Circle>(x,4.0)(s))

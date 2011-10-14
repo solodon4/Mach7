@@ -75,14 +75,25 @@ loc center(/*const*/ Shape& shape)
 void foo(Shape* s)
 {
     variable<loc>  x,y,z;
-    variable<real> a;
+    variable<real> a,b,c;
     wildcard       _;
 
-    if (match<Circle>(x | x == loc(1,1), a)(s))
-        std::cout << "Matched against guard" << a << std::endl;
+    auto pattern = match<Circle>(x, -a*2+1);
 
-    if (match<Circle>(x, a | (a < 5 && a > 3))(s))
-        std::cout << "Matched radius against COMPLEX guard" << a << std::endl;
+    if (pattern(s))
+        std::cout << "Matched against pattern " << a << std::endl;
+
+    if (match<Circle>(x, -a*2+1)(s))
+        std::cout << "Matched against subexpression " << a << std::endl;
+
+    if (match<Circle>(x |= x == loc(1,1), a)(s))
+        std::cout << "Matched against guard " << a << std::endl;
+
+    if (match<Circle>(x, a |= a > 3 && a < 5)(s))
+        std::cout << "Matched radius against COMPLEX guard " << a << std::endl;
+
+    if (match<Circle>(match<loc>(b,1), a)(s))
+        std::cout << "Matched against subexpression " << b << std::endl;
 
     if (match<Circle>(x,4.0)(s))
         std::cout << "Circle with center " << x << " and FIXED radius " << std::endl;
@@ -97,6 +108,15 @@ void foo(Shape* s)
         std::cout << "Triangle with corners " << x << ',' << y << ',' << z << std::endl;
 }
 
+/* Make this work as well
+void numeric(int n)
+{
+	variable<int> a,b,c;
+
+	if (match<int>(a))
+		std::cout << "Matched against int " << a << std::endl;
+}
+*/
 void bar(ADTShape& s)
 {
     variable<cloc>  x,y,z;
@@ -124,7 +144,7 @@ void bar(ADTShape& s)
 
 int main()
 {
-    Shape* c = new Circle(loc(1,1),4);
+    Shape* c = new Circle(loc(1,1),7);
     Shape* s = new Square(loc(2,2),2);
     Shape* t = new Triangle(loc(0,0),loc(0,1),loc(1,0));
 
