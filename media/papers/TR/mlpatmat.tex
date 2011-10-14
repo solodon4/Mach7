@@ -26,7 +26,7 @@ showstringspaces=false,
            {CM}{{\emph{CM}}}2 {KS}{{\emph{KS}}}2 {KV}{{\emph{KV}}}2 
 }
 \lstset{style=C++}
-\DeclareRobustCommand{\code}[1]{{\lstinline[breaklines=false]{#1}}}
+\DeclareRobustCommand{\code}[1]{{\lstinline[breaklines=false,escapechar=@]{#1}}}
 \DeclareRobustCommand{\codehaskell}[1]{{\lstinline[breaklines=false,language=Haskell]{#1}}}
 \DeclareRobustCommand{\codeocaml}[1]{{\lstinline[breaklines=false,language=Caml]{#1}}}
 
@@ -109,7 +109,7 @@ with other features of the language. A prototype implementation will likely
 require a lot of effort, but will be hard to publish due to lack of novelty.
 
 To balance the utility and effort we decided to start with a Semantically 
-Enhanced Library Language\cite{SELL} approach, that promotes subsetting a 
+Enhanced Library Language (SELL) approach\cite{SELL}, that promotes subsetting a
 general-purpose programming language with a library, extended with a tool 
 support. This will typically not provide you 100\% of the functionality that a 
 language extension would do, but will rather give you 80\% of it at 20\% of the 
@@ -1033,11 +1033,13 @@ Note again how implementation of \code{eval} resembles equations in Haskell that
 decompose an algebraic data type. The similarities are so striking that there 
 were attempts to use Haskell as a pseudo code language for template 
 metaprogramming in C++\cite{Milewski11}. A key observation in this analogy is 
-that partial and explicit template specialization of C++ class templates is 
+that partial and explicit template specialization of C++ class templates are 
 similar to defining equations for Haskell functions. Variables introduced via 
 template clause of each equation serve as \emph{variable patterns}, while the 
 names of actual templates describing arguments serve as \emph{variant 
-constructors}. 
+constructors}. An important difference between the two is that Haskell's 
+equations use \emph{first-fit} strategy making order of equations important, 
+while C++ uses \emph{best-fit} strategy, thus making the order irrelevant.
 
 Patterns expressed this way can be arbitrarily nested as long as they can be 
 expressed in terms of the types involved and not the values they store. Using 
@@ -1086,12 +1088,38 @@ implement its run-time counterpart.
 \section{Pattern Matching for C++} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:pm}
 
+%In order to be able to provide a common syntax for these representations, we 
+%need to understand better similarities and differences between them. Before we 
+%look into them let's fix some terminology.
+
+When we deal with pattern matching, the static type of the original expression 
+we are matching may not necessarily be the same as the type of expression we 
+match it with. We call the original expression a \emph{selector} and its static 
+type -- \emph{selector type}. We call the type we are trying to match selector 
+against -- a \emph{target type}.
+
+In the simplest case, detecting that the target type is a given type or a type 
+derived from it, is everything we want to know. We refer to such a use-case as 
+\emph{type testing}. In the next simplest case, besides testing we might want to 
+get a pointer or a reference to the target type of selector as casting it to such 
+a type may involve a non-trivial computation only a compiler can safely 
+generate. We refer to such a use-case as \emph{type identification}. Type 
+identification of a given selector against multiple target types is typically 
+referred to as \emph{type switching}.
+
+Once we uncovered the target type, we may want to be able to decompose it 
+\emph{structurally} (when the target type is a \emph{structured} data type like 
+array, tuple or class) or \emph{algebraically} (when the target type is a scalar 
+data type like \code{int} or \code{double}). Structural decomposition in our 
+library can be performed with the help of \emph{tree patterns}, while algebraic 
+decomposition can be done with the help of \emph{generalized n+k patterns}.
+
+\subsection{Algebraic Data Types in C++}
+
 C++ does not have a direct support of algebraic data types, but they can usually 
 be emulated in a number of ways. A pattern-matching solution that strives to be 
 general will have to account for different encodings and be applicable to all of 
 them.
-
-\subsection{Algebraic Data Types in C++}
 
 Consider an ML data type of the form:
 
@@ -1108,6 +1136,11 @@ datatype DT = @$C_1$@ of {@$L_{11}:T_{11},...,L_{1m}:T_{1m}$@}
 \item Tagged Class
 \item Discriminated Union
 \end{itemize}
+
+The first two encodings are inherently \emph{open} because the classes can be 
+arbitrarily extended through subclassing. The last encoding is inherently 
+\emph{closed} because we cannot add more members to the union without modifying 
+its definition.
 
 \subsubsection{Polymorphic Base Class}
 
@@ -1166,8 +1199,7 @@ of the structure. The approach is used in EDG front-end\cite{EDG}.
 struct DT
 {
     enum kinds {@$c_1, ..., c_k$@} m_kind;
-    union
-    {
+    union {
         struct @$C_1$@ {@$T_{11} L_{11}; ... T_{1m} L_{1m};$@} @$C_1$@;
         ...
         struct @$C_k$@ {@$T_{k1} L_{k1}; ... T_{kn} L_{kn};$@} @$C_k$@; 
@@ -1178,134 +1210,63 @@ struct DT
 As before, the user can use a switch statement to identify the variant $c_i$ and 
 then access its members via $C_i$ union member.
 
-\subsection{Syntax}
+Note that in this case both selector type and target types are the same and 
+we use an integral constant to distinguish which member(s) of the underlain union 
+is active now. In the other two cases the type of a selector is a base class of 
+the target type and we use either run-time type information or the integral 
+constant associated by the user with the target type to uncover the target type. 
 
-We present rather informally abstract syntax enabled by our SELL. We do not try 
-to capture all of the C++ syntax here because we do not in fact change or extend 
-the language. All the facilities available through our library are nothing else 
-but a syntactic sugar enabled through the clever use of template and macro 
-mechanisms already present in the language. We do make use of several 
-non-terminals from the C++ grammar to put the use of our constructs into context. 
-For the complete C++ grammar we refer the curious reader to Appendix A of the 
-current C++ standard\cite{C++0x}.
+\subsection{Pattern Matching Syntax}
+
+We present rather informally abstract syntax enabled by our SELL in order to 
+improve clarity of the presentation. We do not try to capture all of the C++ 
+syntax here because we do not in fact change or extend the language. All the 
+facilities available through our library are nothing else but a syntactic sugar 
+enabled through the ``clever'' use of template and macro mechanisms already 
+present in the language. We do make use of several non-terminals from the C++ 
+grammar to put the use of our constructs into context. For the complete C++ 
+grammar we refer the curious reader to Appendix A of the current C++ 
+standard\cite{C++0x}.
 
 % TODO:
-%()	Function call
-%[]	Array subscripting
-%*	Indirection (dereference)
-%&	Address-of
-%sizeof	Size-of
+%()     Function call
+%[]     Array subscripting
+%*      Indirection (dereference)
+%&      Address-of
+%sizeof Size-of
 
 \begin{center}
 \begin{tabular}{rp{0em}cl}
+\Rule{match expression}    & $m$     & \is{}  & $\pi(e)$ \\
+\Rule{match statement}     & $M$     & \is{}  & \code{Match(}$e$\code{)} $\left[C s^*\right]^*$ \code{EndMatch} \\
+\Rule{case clause}         & $C$     & \is{}  & \code{Case(}$T\left[,v\right]^*$\code{)} \\
+                           &         & \Alt{} & \code{Que(} $T\left[,c|v|\pi\right]^*$\code{)} \\
+\Rule{target expression}   & $T$     & \is{}  & $\tau$ \Alt{} $l$ \\
+\Rule{pattern}             & $\pi$   & \is{}  & $\_$\Alt{} $n$ \Alt{} $g$ \Alt{} $t$ \\
+\Rule{tree pattern}        & $t$     & \is{}  & \code{match<}$\tau\left[,l\right]$\code{>(}$\left[c|v|\pi\right]^*$\code{)} \\
+\Rule{guard pattern}       & $g$     & \is{}  & $n \models x$ \Alt{} $t \models x$ \\
+\Rule{n+k pattern}         & $n$     & \is{}  & $w$ \Alt{} $n \oplus c$ \Alt{} $c \oplus n$ \Alt{} $\ominus n$ \Alt{} $(n)$ \Alt{} $\_$ \\
+\Rule{wildcard pattern}    & $\_^{wildcard}$& & \\
+\Rule{xt expression}       & $x$     & \is{}  & $w$ \Alt{} $x \oplus c$ \Alt{} $c \oplus x$ \Alt{} $\ominus x$ \Alt{} $(x)$ \Alt{} $x \oplus x$ \\
+\Rule{xt variable}         & $w^{variable\langle\tau\rangle}$ & & \ \\
+\Rule{layout}              & $l$     & \is{}  & $c^{int}$ \\
+\Rule{unary operator}      &$\ominus$& $\in$  & $\lbrace*,\&,+,-,!,\sim\rbrace$ \\
+\Rule{binary operator}     & $\oplus$& $\in$  & $\lbrace*,/,\%,+,-,\ll,\gg,\&,\wedge,|,$ \\
+                           &         &        & $<,\leq,>,\geq,=,\neq,\&\&,||\rbrace$ \\
 \Rule{type-id}             & $\tau$  &        & C++\cite[\textsection A.7]{C++0x} \\
 \Rule{statement}           & $s$     &        & C++\cite[\textsection A.5]{C++0x} \\
 \Rule{expression}          & $e^\tau$&        & C++\cite[\textsection A.4]{C++0x} \\
 \Rule{constant-expression} & $c^\tau$&        & C++\cite[\textsection A.4]{C++0x} \\
 \Rule{identifier}          & $v^\tau$&        & C++\cite[\textsection A.2]{C++0x} \\
-                           &         &        & \\
-\Rule{binary operator}     & $\oplus$& $\in$  & $\lbrace*,/,\%,+,-,\ll,\gg,\&,\wedge,|,$ \\
-                           &         &        & $<,\leq,>,\geq,=,\neq,\&\&,||\rbrace$ \\
-\Rule{unary operator}      &$\ominus$& $\in$  & $\lbrace*,\&,+,-,!,\sim\rbrace$ \\
-\Rule{layout}              & $l$     & \is{}  & $c^{int}$ \\
-\Rule{xt variable}         & $w^{variable\langle\tau\rangle}$ & & \ \\
-\Rule{xt expression}       & $x$     & \is{}  & $w$ \Alt{} $x \oplus c$ \Alt{} $c \oplus x$ \Alt{} $\ominus x$ \Alt{} $(x)$ \Alt{} $x \oplus x$ \\
-\Rule{wildcard pattern}    & $\_^{wildcard}$& & \\
-\Rule{n+k pattern}         & $n$     & \is{}  & $w$ \Alt{} $n \oplus c$ \Alt{} $c \oplus n$ \Alt{} $\ominus n$ \Alt{} $(n)$ \Alt{} $\_$ \\
-\Rule{guard pattern}       & $g$     & \is{}  & $n \models x$ \Alt{} $t \models x$ \\
-\Rule{tree pattern}        & $t$     & \is{}  & \code{match<}$\tau\left[,l\right]$\code{>(}$\left[c|v|\pi\right]^*$\code{)} \\
-\Rule{pattern}             & $\pi$   & \is{}  & $\_$\Alt{} $n$ \Alt{} $g$ \Alt{} $t$ \\
-\Rule{match expression}    & $m$     & \is{}  & $\pi(e)$ \\
-                           &         &        & \\
-\Rule{target expression}   & $T$     & \is{}  & $\tau$ \Alt{} $l$ \\
-\Rule{case clause}         & $C$     & \is{}  & \code{Case(}$T\left[,v\right]^*$\code{)} \\
-                           &         & \Alt{} & \code{Que(} $T\left[,c|v|\pi\right]^*$\code{)} \\
-\Rule{match statement}     & $M$     & \is{}  & \code{Match(}$e$\code{)} $\left[C s^*\right]^*$ \code{EndMatch} \\
 \end{tabular}
 \end{center}
 
-\noindent
-{\bf type-id} Represents a type expression that designates any valid C++ type. 
-We will be using this meta-variable in the superscript of other meta-variables 
-in order to indicate a C++ type of the entity they represent.
-
-\noindent
-{\bf statement} Refers to any valid statement allowed by the C++ grammar. Our 
-match statement $M$ would have been extending this grammar rule with an extra 
-case should have it been defined in the grammar directly.
-
-\noindent
-{\bf expression} Any valid C++ expression. An expression $e^\tau$ would refer to 
-a C++ expression, whose result type is $\tau$.
-
-\noindent
-{\bf constant-expression} An expression computable at compile time. Similarly to 
-expression, when we mention its type in the superscript, we refer to constant 
-expressions of that type only.
-
-\noindent
-{\bf identifier} The way we use this construct in our grammar will only refer to 
-variable names.
-
-\noindent
-{\bf binary operator} and {\bf unary operator} Subset of C++ operators we make 
-use of and provide support for in our pattern matching library.
-
-\noindent
-{\bf layout} Layouts are enumerators user can use to define alternative bindings 
-for the same class. When layout is not mentioned, the default layout is used, 
-which is the only required layout a user has to define if she wishes to make use 
-of bindings.
-
-\noindent
-{\bf xt variable} Expression template variables are variables whose type is 
-\code{variable<T>} for any given type \code{T}. They are terminal symbols that 
-let one build an expression template by overloading corresponding operators.
-
-\noindent
-{\bf xt expression} Expression template built by applying a given operator to 
-argument expression templates. Expression templates represent a C++ technique 
-for lazy evaluations.
-
-\noindent
-{\bf wildcard pattern} A wildcard pattern in our library is represented by a 
-predeclared global variable of our type \code{wildcard} that bears no state.
-
-\noindent
-{\bf n+k pattern} Our n+k patterns are essentially limited to arbitrary 
-expressions with at most one variable in them.
-
-\noindent
-{\bf guard pattern} Our guard patterns consist of two expressions essentially: 
-an expression being matched (left operand) and a condition (right operand), that 
-is allowed to make use of the variable bound in the left hand side. We 
-effectively allow guard patterns on arguments of a tree patterns as well as 
-right after it.
-
-\noindent
-{\bf tree pattern} Tree patterns take a type being matched and an optional 
-bindings layout for it as template arguments. Any nested subexpressions are 
-taken as run-time arguments. Besides patterns already mentioned above, we allow 
-as subpatterns the use of constants and regularl C++ variables as \emph{value 
-patterns} and \emph{variable patterns} respectively. Tree patterns can be 
-arbitrarily nested.
-
-\noindent
-{\bf pattern} This metavariable just summarizes different kinds of patterns we 
-support.
-
-\noindent
-{\bf match expression} Once a pattern is created, it can be applied to an 
-expression in order to check whether that expression matches the pattern. The 
-result of application is always \code{bool} except for tree pattern, where it is 
-a value convertible to \code{bool}. The actual value in this case is going to be 
-a pointer to target type \code{T} in case of a successful match and a 
-\code{nullptr} otherwise.
-
-\noindent
-{\bf target expression} Target expression can either be a type, representing a 
-type being matched or a constant value, representing a layout for discriminated 
-union encoding of algebraic data types.
+\noindent                           
+{\bf match statement} Match statement is an analog of a switch statement that 
+allows case clauses to be used as its case statements. We require it to be 
+terminated with a dedicate EndMatch macro, to properly close the syntactic 
+structure introduced with \code{Match} and followed by \code{Case} and 
+\code{Que} macros.
 
 \noindent
 {\bf case clause} We support two kinds of case clauses, both of which take a 
@@ -1316,14 +1277,250 @@ requires any variables mentioned in its argument list be explicitly declared by
 the user. In turn, similarly to tree pattern, it allows arbitrary pattern 
 expressions to be used.
 
-\noindent                           
-{\bf match statement} Match statement is an analog of a switch statement that 
-allows case clauses to be used as its case statements. We require it to be 
-terminated with a dedicate EndMatch macro, to properly close the syntactic 
-structure introduced with \code{Match} and followed by \code{Case} and 
-\code{Que} macros.
+\noindent
+{\bf target expression} Target expression can either be a type, representing a 
+type being matched or a constant value, representing a layout for discriminated 
+union encoding of algebraic data types.
 
+\noindent
+{\bf match expression} Once a pattern is created, it can be applied to an 
+expression in order to check whether that expression matches the pattern. The 
+result of application is always \code{bool} except for the tree pattern, where 
+it is a value convertible to \code{bool}. The actual value in this case is going 
+to be a pointer to target type \code{T} in case of a successful match and a 
+\code{nullptr} otherwise.
 
+\noindent
+{\bf pattern} This metavariable just summarizes different kinds of patterns we 
+support.
+
+\noindent
+{\bf tree pattern} like the one above takes a type being matched and an optional 
+bindings layout for it as template arguments. Any nested subexpressions are 
+taken as run-time arguments. Besides patterns already mentioned above, we allow 
+constants and regular C++ variables to be passed as an argument of the tree 
+pattern, which are treated as \emph{value patterns} and \emph{variable patterns} 
+respectively. Tree patterns can be arbitrarily nested, for example:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+double x,y;
+if (match<Circle>(match<Point2D>(x,y),4)(shape)) ...
+\end{lstlisting}
+
+The above example assumes presense of a class hierarchy of \code{Shape}s and 
+checks whether a given \code{shape} is a \code{Circle} with radius 4. If it is, 
+the coordinates of its center will be bound to regular variables \code{x} and 
+\code{y} of type \code{double}.
+
+\noindent
+{\bf guard pattern} in our SELL consist of two expressions separated with 
+\code{|=}: an expression being matched (left operand) and a condition (right 
+operand). The right operand is allowed to make use of the variable bound in the 
+left operand. When used on arguments of a tree pattern, the condition is also 
+allowed to make use of any variable bound by preceeding argument positions. 
+Naturally, guard pattern that follows a tree pattern may use all the variables 
+bound by the tree pattern. For example:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+variable<double> r,g,b;
+auto p = match<RGB>( 
+             256*r, 
+             256*g |= g [<] r, 
+             256*b |= b [<] g+r
+         ) |= r+g+b <= 0.5;
+\end{lstlisting}
+
+\noindent
+{\bf n+k pattern} is essentially a subset of \emph{xt expressions} with at most 
+one non-repeated variable in them. This allows for expressions like $2x+1$, but 
+not for $x+x+1$, which even though is semantically equivalent to the first one, 
+will not be accepted by our library as an \emph{n+k pattern}.
+
+\noindent
+{\bf wildcard pattern} in our library is represented by a predefined global 
+variable of a dedicated type \code{wildcard} bearing no state. 
+Wildcard pattern is accepted everywhere where an \emph{xt variable} $x$ or a 
+regular variable $v$ are accepted.
+
+\noindent
+{\bf xt expression} similarly refers to an \emph{expression-template expression} 
+built by applying a given operator to argument expression templates. We use this 
+syntactic category to distinguish lazily evaluated expressions introduced by our 
+SELL from eagerly evaluated expressions, directly supported by C++.
+
+\noindent
+{\bf xt variable} stands for \emph{expression-template variable} and refers to 
+variables whose type is \code{variable<T>} for any given type \code{T}. They are 
+terminal symbols in our SELL that let us build various expression templates 
+described by subsequent categories. These variables hold a value of type 
+\code{T} and in most cases can be used in the same context where a variable of 
+type \code{T} can. In few cases where this doesn't happen implicitly, the user 
+might need to put an explicit cast to \code{T&} or \code{const T&}. 
+
+\noindent
+{\bf layout} is an enumerator that user can use to define alternative bindings 
+for the same class. When layout is not mentioned, the default layout is used, 
+which is the only required layout a user has to define if she wishes to make use 
+of bindings.
+
+\noindent
+{\bf binary operator} and {\bf unary operator} name a subset of C++ operators we 
+make use of and provide support for in our pattern matching library.
+
+\noindent
+{\bf identifier} will only refer to variable names in our SELL, even though it 
+has a broader meaning in the C++ grammar.
+
+\noindent
+{\bf constant-expression} is a subset of the above that restricted to only 
+expression computable at compile time.
+
+\noindent
+{\bf expression} subsumes any valid C++ expression. We use expression $e^\tau$ 
+to refer to a C++ expression, whose result type is $\tau$.
+
+\noindent
+{\bf statement} refers to any valid statement allowed by the C++ grammar. Our 
+match statement $M$ would have been extending this grammar rule with an extra 
+case should it have been defined in the grammar directly.
+
+\noindent
+{\bf type-id} represents a type expression that designates any valid C++ type. 
+We will be using this meta-variable in the superscript to other meta-variables 
+in order to indicate a C++ type of the entity they represent.
+
+Entities \Rule{type-id}, \Rule{statement}, \Rule{expression}, 
+\Rule{constant-expression} and \Rule{identifier} refer to non-terminals from the 
+C++ grammar bearing the same name. We do not elaborate them besides few comments 
+on their use we make.
+
+\subsection{Bindings Syntax}
+
+Structural decomposition in functional languages is done with the help of 
+constructor symbol and a list of patterns in positions that correspond to 
+arguments of that constructor. C++ allows for multiple constructors in a class, 
+often overloaded for different types but the same arity. Implicit nature of 
+variable patterns that matches ``any value'' will thus not help in 
+disambiguating such constructors, unless the user explicitly declares the 
+variables, thus fixing their types. Besides, C++ does not have means for 
+compile-time reflection at the moment, so a library like ours cannot enumerate 
+all the constructors present in a class automatically. This is why we decided to 
+separate \emph{construction} of objects with \emph{constructors} and their 
+decomposition through pattern matching with \emph{deconstructors}.
+
+%Similarly to constructors, a class may have multiple deconstructors. Unlike 
+%constructors, deconstructors are named differently.
+
+The following grammar defines a syntax for a sublange a user will use to specify 
+decomposition of various classes for pattern matching:\footnote{We reuse several 
+meta-variables introduced in the previous grammar}
+
+\begin{center}
+\begin{tabular}{rp{0em}cl}
+\Rule{bindings}                &           & \is{}  & $b^*$ \\
+\Rule{binding definition}      & $b$       & \is{}  & \code{template <}$\left[\vec{p}\right]$\code{>} \\
+                               &           &        & \code{struct bindings<} $\tau[$\code{<}$\vec{p}$\code{>}$]\left[,l\right]$\code{>} \\
+                               &           &        & \code{\{} $\left[cm|ks|kv\right]^*$ \code{\};} \\
+\Rule{class member}            & $cm$      & \is{}  & \code{CM(}$c^{size\_t},q$\code{);} \\
+\Rule{kind selector}           & $ks$      & \is{}  & \code{KS(}$q$\code{);}   \\
+\Rule{kind value}              & $kv$      & \is{}  & \code{KV(}$q$\code{);}   \\
+\Rule{template-parameter-list} & $\vec{p}$ &        & C++\cite[\textsection A.12]{C++0x} \\
+\Rule{qualified-id}            & $q$       &        & C++\cite[\textsection A.4]{C++0x} \\
+\end{tabular}
+\end{center}
+
+User provides decomposition of a given class by specializing a traits-like class 
+\code{bindings<T}$\left[,l\right]$\code{>}. For example the following definition 
+provides bindings to a standard library type \code{std::complex}:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+template <typename T> struct bindings<std::complex<T>> {
+    CM(0, std::complex<T>::real); 
+    CM(1, std::complex<T>::imag); 
+};
+\end{lstlisting}
+
+The above definition states that when pattern matching against 
+\code{std::complex<T>} for any given type \code{T}, use the result of invoking 
+member-function \code{real()} to obtain the value for the first pattern matching 
+position and \code{imag()} for the second position. \code{CM} stands for 
+\emph{Class Member} and generates an unspecified code understood by the rest of 
+the library that maps position specified as its first argument to a member, 
+specified as its second argument. \code{CM} will accept the following entities 
+as its second parameter:
+
+\begin{itemize}
+\item Pointer to a data member of the target type
+\item Pointer to a nullary member-function of the target type
+\item Pointer to a unary external function taking target type by pointer 
+      reference or value.
+\end{itemize}
+
+\code{CM} will unambiguosly pick one of the above when several overloaded 
+members with that name exist of different arity e.g. 
+\code{T std::complex<T>::real() const} will be prefered to \\
+\code{void std::complex<T>::real(T)}.
+
+Note that binding definitions made this way are \emph{non-intrusive} since the 
+original class definition is not touched and respect \emph{encapsulation} since 
+only the public members of the target type will be accessible from within 
+\code{bindings} specialization.
+
+Note also that the above definition is made once for all instantiations of 
+\code{std::complex}, but can be fully or partially specialized for cases of 
+interest. Non-parameterized classes should fully specialize the \code{bindings} 
+trait to define their own bindings.
+
+The above definition will fall short, however, when we have to define bindings 
+for an algebraic data type encoded with discriminated union. In this case we 
+have a single target type and multiple bindings associated with it. To account for this, we recognize that a class (whether discriminated union or not) 
+may have alternative bindings associated with it and thus introduce an optional 
+integral parameter called \emph{layout} that can be passed to \code{bindings} to
+distinguish various binding layouts. Classes that are not instances of our 
+discriminated union encoding are free to choose whatever unique constants they 
+feel appropriate to define alternative layouts. We require, however, that classes 
+representing discriminated union encoding use constants that correspond to kinds 
+supported by the union and only access members within layout that are valid for 
+its kind. Consider the following discriminated union describing various shapes:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+struct cloc { double first; double second; };
+struct ADTShape
+{
+    enum shape_kind {circle, square, triangle} kind;
+    union {
+      struct { cloc center;     double radius; }; // circle
+      struct { cloc upper_left; double size; };   // square
+      struct { cloc first, second, third; };      // triangle
+    };
+};
+
+template <> struct bindings<ADTShape> { 
+    KS(ADTShape::kind);     // Kind Selector
+};
+template <> struct bindings<ADTShape, ADTShape::circle> {
+    KV(ADTShape::circle);   // Kind Value
+    CM(0, ADTShape::center);
+    CM(1, ADTShape::radius);
+};
+\end{lstlisting}
+
+Similarly to \code{CM}, the \code{KS} macro inside defult bindings for 
+\code{ADTShape} tells the library which member should be used to access 
+\emph{kind selector} for the type. Correspondingly each of the layouts uses 
+\code{KV} macro to indicate \emph{kind value} -- a value of the \emph{kind 
+selector} this layout is specified for. Note that the second parameter used to 
+distinguish this specialization from default one matches the value specified 
+with \code{KV} as we require. To understand the difference between the two, 
+think of a tagged class encoding, which will use \code{KV} in all derived 
+classes to indicate kind value that uniquely identifies them, but will not have 
+to provide the layout parameter as their class already uniquely identifies 
+target type\footnote{Unless, of course, one would likes to specify multiple 
+layouts per that target class}. Bindings for the base class in this case will 
+similarly have to use \code{KS} macro to indicate which field should be used as 
+a kind selector.
+
+-------------------------
 The important difference between algebraic data types and classes in C++ is that
 algebraic data types are closed and once constructors have been defined, no new
 constructors can be added. C++ classes on the other hand are always open: user 
