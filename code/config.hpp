@@ -14,6 +14,11 @@
 
 #include <cassert>
 
+/// Uncomment this macro definition if you'd like to do some performance tracing
+#define XTL_TRACE_PERFORMANCE
+/// Uncomment this macro definition if you'd like to do some performance tracing
+#define XTL_DUMP_PERFORMANCE
+
 /// Several choices for configuring syntax:
 /// Default syntax Match,Case,Que,Or,Otherwise,EndMatch are resolved to
 /// - 'G' - Generic switch (default)
@@ -57,16 +62,18 @@
 
 //------------------------------------------------------------------------------
 
-/// Uncomment this macro definition if you'd like to do some performance tracing
-#if !defined(XTL_TRACE_PERFORMANCE)
-//#define XTL_TRACE_PERFORMANCE
+#if defined(XTL_TRACE_PERFORMANCE)
+    #define XTL_TRACE_PERFORMANCE_ONLY(...) __VA_ARGS__
+#else
+    #define XTL_TRACE_PERFORMANCE_ONLY(...)
 #endif
 
 //------------------------------------------------------------------------------
 
-/// Uncomment this macro definition if you'd like to do some performance tracing
-#if !defined(XTL_DUMP_PERFORMANCE)
-//#define XTL_DUMP_PERFORMANCE
+#if defined(XTL_DUMP_PERFORMANCE)
+    #define XTL_DUMP_PERFORMANCE_ONLY(...) __VA_ARGS__
+#else
+    #define XTL_DUMP_PERFORMANCE_ONLY(...)
 #endif
 
 //------------------------------------------------------------------------------
@@ -163,6 +170,20 @@
 
 //------------------------------------------------------------------------------
 
+/// When the compiler supports Visual C++ like __COUNTER__ macro that is resolved 
+/// to consequitive number each time it is used, we use it, otherwise we approximate 
+/// it with line number. This means that multiple uses of this macro within the same
+/// line should be memoized in a constant to avoid differences in behavior as well as
+/// the user cannot rely on consequitiveness of numbers even when the counter is 
+/// supported because other macros may use the counter as well.
+#if defined(_MSC_VER) || defined(__GNUC__)
+    #define XTL_COUNTER __COUNTER__
+#else
+    #define XTL_COUNTER __LINE__
+#endif
+
+//------------------------------------------------------------------------------
+
 /// Helper macro for the following one to resolve macros inside its arguments
 #define _XTL_STRING_LITERAL(x)  #x
 /// Macro to stringize some expression.
@@ -244,7 +265,28 @@
 //------------------------------------------------------------------------------
 
 #if !defined(XTL_ARR_SIZE)
-#define XTL_ARR_SIZE(a) (sizeof(a)/sizeof((a)[0]))
+    #define XTL_ARR_SIZE(a) (sizeof(a)/sizeof((a)[0]))
+#endif
+
+//------------------------------------------------------------------------------
+
+#if defined(__GNUC__)
+    #define XTL_SUPPORTS_VLA
+#elif defined(_MSC_VER)
+    #define XTL_SUPPORTS_ALLOCA
+#endif
+
+//------------------------------------------------------------------------------
+
+#if   defined(XTL_SUPPORTS_VLA)
+    #define XTL_VLA(v,T,n,N)  T v[n]
+    #define XTL_VLAZ(v,T,n,N) T v[n]; std::memset(v,0,n*sizeof(T))
+#elif defined(XTL_SUPPORTS_ALLOCA)
+    #define XTL_VLA(v,T,n,N)  T* v = static_cast<T*>(alloca(n*sizeof(T)))
+    #define XTL_VLAZ(v,T,n,N) T* v = static_cast<T*>(alloca(n*sizeof(T))); std::memset(v,0,n*sizeof(T))
+#else
+    #define XTL_VLA(v,T,n,N)  T v[N]
+    #define XTL_VLAZ(v,T,n,N) T v[N] = {}
 #endif
 
 //------------------------------------------------------------------------------

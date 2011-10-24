@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <iostream>
 #include <unordered_map>
+#include "ptrtools.hpp"  // Helper functions to work with pointers
 #include "config.hpp"    // Various compiler/platform dependent macros
 
     // TODO: 
@@ -33,11 +34,6 @@
 
 typedef std::unordered_map<std::intptr_t, std::ptrdiff_t> vtbl2offset;
 static const std::ptrdiff_t no_cast_exists = 0x0FF1C1A1; // A dedicated constant marking impossible offset
-
-//------------------------------------------------------------------------------
-
-template <typename T> inline const T* adjust_ptr(const void* p, ptrdiff_t offset) { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
-template <typename T> inline       T* adjust_ptr(      void* p, ptrdiff_t offset) { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)+offset); }
 
 //------------------------------------------------------------------------------
 

@@ -202,29 +202,16 @@ public:
 };
 
 #define UPDATE_VTBL_PERFORMANCE(vtbl, cached_vtbl) this->update(vtbl, cached_vtbl)
-#define TRACE_PERFORMANCE_ONLY(x) x
+#define XTL_TRACE_PERFORMANCE_ONLY(x) x
 #else
 #define UPDATE_VTBL_PERFORMANCE(vtbl, cached_vtbl)
-#define TRACE_PERFORMANCE_ONLY(x)
+#define XTL_TRACE_PERFORMANCE_ONLY(x)
 #endif
 
 //------------------------------------------------------------------------------
 
-/// Global counter of allocated type indecies
-size_t global_index = 1;
-
-/// Returns the index that will be used for a given type T
-template <typename T> 
-inline size_t type_index() 
-{ 
-    static size_t idx = global_index++; 
-    return idx; 
-}
-
-//------------------------------------------------------------------------------
-
 template <typename T, size_t N = VTBL_DEFAULT_CACHE_BITS>
-class vtblmap TRACE_PERFORMANCE_ONLY(: vtblmap_performance<N>)
+class vtblmap XTL_TRACE_PERFORMANCE_ONLY(: vtblmap_performance<N>)
 {
 private:
 
@@ -527,7 +514,7 @@ public:
 //------------------------------------------------------------------------------
 
 template <typename T, size_t N>
-class vtblmap<T&,N> TRACE_PERFORMANCE_ONLY(: vtblmap_performance<N>)
+class vtblmap<T&,N> XTL_TRACE_PERFORMANCE_ONLY(: vtblmap_performance<N>)
 {
 private:
 

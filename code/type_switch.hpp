@@ -16,33 +16,7 @@
 
 #pragma once
 
-#include "vtblmap2.hpp"
-
-//------------------------------------------------------------------------------
-
-template <typename T> 
-inline const T* adjust_ptr(const void* p, std::ptrdiff_t offset) 
-{
-    return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); 
-}
-
-template <typename T>
-inline       T* adjust_ptr(      void* p, std::ptrdiff_t offset) 
-{
-    return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)+offset);
-}
-
-//------------------------------------------------------------------------------
-
-template <typename T> inline const T* addr(const T* t) { return  t; }
-template <typename T> inline       T* addr(      T* t) { return  t; }
-template <typename T> inline const T* addr(const T& t) { return &t; }
-template <typename T> inline       T* addr(      T& t) { return &t; }
-
-//------------------------------------------------------------------------------
-
-template <int N> struct requires_bits    { enum { value = requires_bits<(N+1)/2>::value+1 }; };
-template <>      struct requires_bits<1> { enum { value = 0 }; };
+#include "vtblmap.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -59,7 +33,7 @@ template <>      struct requires_bits<1> { enum { value = 0 }; };
 /// Extended version of the above macro that takes an expected number of cases in
 /// to estimate the size of the cache needed instead of using the default size
 #define TYPE_SWITCH_N(s,N) {\
-        static vtblmap<type_switch_info&,requires_bits<N>::value> __vtbl2lines_map;\
+        static vtblmap<type_switch_info&/*,requires_bits<N>::value*/> __vtbl2lines_map(requires_bits<N>::value);\
         auto const   __selector_ptr = addr(s);\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\

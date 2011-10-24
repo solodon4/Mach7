@@ -243,7 +243,7 @@ int main1()
 
     for (size_t i = 0; i < 3; ++i)
     {
-        static vtblmap<type_switch_info&> __vtbl2lines_map; 
+        static vtblmap<type_switch_info&> __vtbl2lines_map XTL_DUMP_PERFORMANCE_ONLY((__FILE__,__LINE__)); 
         auto const __selector_ptr = addr(shapes[i]); 
         const void* __casted_ptr; 
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr); 
@@ -318,7 +318,7 @@ int main1()
 
     for (size_t i = 0; i < 3; ++i)
     {
-        static vtblmap<type_switch_info&> __vtbl2lines_map;
+        static vtblmap<type_switch_info&> __vtbl2lines_map XTL_DUMP_PERFORMANCE_ONLY((__FILE__,__LINE__));
         auto const __selector_ptr = addr(shapes[i]);
         const void* __casted_ptr;
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);

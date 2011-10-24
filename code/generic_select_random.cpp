@@ -1609,12 +1609,12 @@ int test_randomized()
     for (size_t n = 0; n < K; ++n)
     {
         std::vector<Shape*> shapes(N);
-        TRACE_PERFORMANCE_ONLY(std::vector<size_t> distribution(K));
+        XTL_TRACE_PERFORMANCE_ONLY(std::vector<size_t> distribution(K));
 
         for (size_t i = 0; i < N; ++i)
         {
             size_t n = rand()%K;
-            TRACE_PERFORMANCE_ONLY(distribution[n]++);
+            XTL_TRACE_PERFORMANCE_ONLY(distribution[n]++);
             shapes[i] = make_shape(n);
         }
 #if defined(XTL_TRACE_PERFORMANCE)

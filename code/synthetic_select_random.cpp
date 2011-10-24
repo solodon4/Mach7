@@ -82,7 +82,8 @@ XTL_DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s)
 {
     #define FOR_EACH_MAX      NUMBER_OF_DERIVED-1
-    #define FOR_EACH_PRELUDE  MatchP_N(s,NUMBER_OF_DERIVED)
+    //#define FOR_EACH_PRELUDE  MatchP_N(s,NUMBER_OF_DERIVED)
+    #define FOR_EACH_PRELUDE  MatchP(s)
     #define FOR_EACH_N(N)     CaseP(shape_kind<N>) return N;
     #define FOR_EACH_POSTLUDE EndMatchP
     #include "loop_over_numbers.hpp"
@@ -1951,12 +1952,12 @@ int test_randomized()
     for (size_t n = 0; n < K; ++n)
     {
         std::vector<Shape*> shapes(N);
-        TRACE_PERFORMANCE_ONLY(std::vector<size_t> distribution(K));
+        XTL_TRACE_PERFORMANCE_ONLY(std::vector<size_t> distribution(K));
 
         for (size_t i = 0; i < N; ++i)
         {
             size_t n = rand()%K;
-            TRACE_PERFORMANCE_ONLY(distribution[n]++);
+            XTL_TRACE_PERFORMANCE_ONLY(distribution[n]++);
             shapes[i] = make_shape(n);
         }
 #if defined(XTL_TRACE_PERFORMANCE)
@@ -2020,7 +2021,7 @@ int test_randomized()
 
 int main()
 {
-    int ps = test_sequential();
+    int ps = 0;//test_sequential();
     int pr = test_randomized();
     std::cout << "OVERALL: Sequential: " 
               << abs(ps) << (ps >= 0 ? "% slower" : "% faster") << "; Random: " 
