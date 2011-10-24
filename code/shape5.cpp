@@ -313,6 +313,9 @@ int main()
 
     std::cout << m << std::endl;
 
+// Disambiguation between value and type in first argument of Match macro is only possible when Match resolves to MatchG
+#if XTL_DEFAULT_SYNTAX == 'G'
+
     // Union case with bound variables explicitly declared
 
     m = 0.0;
@@ -353,6 +356,8 @@ int main()
     }
 
     std::cout << m << std::endl;
+
+#endif
 
     m = 0.0;
 

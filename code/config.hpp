@@ -15,9 +15,9 @@
 #include <cassert>
 
 /// Uncomment this macro definition if you'd like to do some performance tracing
-#define XTL_TRACE_PERFORMANCE
+//#define XTL_TRACE_PERFORMANCE
 /// Uncomment this macro definition if you'd like to do some performance tracing
-#define XTL_DUMP_PERFORMANCE
+//#define XTL_DUMP_PERFORMANCE
 
 /// Several choices for configuring syntax:
 /// Default syntax Match,Case,Que,Or,Otherwise,EndMatch are resolved to
@@ -27,7 +27,7 @@
 /// - 'U' - Union switch
 /// - 'E' - Exception switch
 #if !defined(XTL_DEFAULT_SYNTAX)
-  #define XTL_DEFAULT_SYNTAX 'G'
+  #define XTL_DEFAULT_SYNTAX 'P'
 #endif
 
 /// Another choice is whether user would like to have Otherwise statement, as if

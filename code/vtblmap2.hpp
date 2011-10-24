@@ -17,6 +17,7 @@
 #include <cstdint>
 #include <cstring>
 #include <unordered_map>
+#include "ptrtools.hpp"  // Helper functions to work with pointers
 #include "config.hpp"    // Various compiler/platform dependent macros
 
 #if defined(XTL_DUMP_PERFORMANCE)
@@ -94,124 +95,8 @@ inline unsigned char pearson_hash(intptr_t key)
 
 //------------------------------------------------------------------------------
 
-#ifdef XTL_TRACE_PERFORMANCE
-#include <algorithm>
-#include <bitset> // For print out purposes only
-#include <set>
-
-template <size_t N>
-class vtblmap_performance
-{
-public:
-    vtblmap_performance() : cache_hits(0), cache_misses(0), common(~0), differ(0), prev(0) {}
-   ~vtblmap_performance() { std:: cout << *this << std::endl; }
-
-    /// A few useful constants
-    enum
-    {
-        cache_bits = N,
-        cache_mask = (1<<cache_bits)-1,
-        /// Irrelevant lowest bits in vtbl pointers that are always the same for given 
-        /// compiler/platform configuration.
-        irrelevant_bits = VTBL_IRRELEVANT_BITS
-    };
-
-    void update(intptr_t vtbl, intptr_t cached_vtbl)
-    {
-        if (vtbl != cached_vtbl)
-        {
-            vtbls.insert(vtbl);
-
-            //std::cout << "Differ: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)differ) << std::endl;
-            //std::cout << "Common: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)common) << std::endl;
-            //std::cout << "Prev  : " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)prev)   << std::endl;
-            //std::cout << "Vtbl  : " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl)   << std::endl;
-            //std::cout << " Pr^Vt: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)  prev ^ vtbl)  << std::endl;
-            //std::cout << "~Pr^Vt: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)~(prev ^ vtbl)) << std::endl;
-
-            ++cache_misses;
-
-            if (prev)
-            {
-                intptr_t prvt = prev ^ vtbl;
-                common &= ~prvt;
-                differ |=  prvt;
-            }
-
-            prev = vtbl;
-        }
-        else
-            ++cache_hits;
-    }
-
-    std::ostream& operator>>(std::ostream& os) const
-    {
-        std::cout << "Vtbl cache hits: "   << cache_hits << '\t'
-                  << "Vtbl cache misses: " << cache_misses 
-                  << std::endl;
-
-        size_t uses[1<<N] = {};
-
-        for (std::set<intptr_t>::const_iterator p = vtbls.begin(); p != vtbls.end(); ++p)
-        {
-            intptr_t vtbl = *p;
-            const intptr_t key  = vtbl >> irrelevant_bits; // We do this as we rely that hash function is identity
-        #if defined(XTL_USE_PEARSON_HASH)
-            unsigned char h = pearson_hash(key);
-            os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << (size_t(h) & cache_mask) << " -> " << (key & cache_mask) << std::endl;
-            uses[h & cache_mask]++;
-        #else
-            os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << (key & cache_mask) << std::endl;
-            uses[key & cache_mask]++;
-        #endif
-        }
-
-        bool show = false;
-
-        for (size_t i = vtbls.size(); i != ~0; --i)
-        {
-            size_t n = std::count(uses,uses+XTL_ARR_SIZE(uses),i);
-
-            if (show = show || n > 0)
-                std::cout << i << " -> " << n << std::endl;
-        }
-
-        size_t i = trailing_zeros(static_cast<unsigned int>(differ));
-
-        if (i != VTBL_IRRELEVANT_BITS)
-        {
-            os << "WARNING: Empirically computed irrelevant_bits " << i 
-               << " differs from the predefined one " XTL_STRING_LITERAL(VTBL_IRRELEVANT_BITS) 
-               << ". See vtbl patterns below: " << std::endl;
-        }
-
-        os << "Common: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)prev|differ) << std::endl
-           << "Differ: " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)differ) << std::endl;
-
-        return os;
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const vtblmap_performance& p) { return p >> os; }
-
-    intptr_t cache_hits;
-    intptr_t cache_misses;
-    intptr_t common;
-    intptr_t differ;
-    intptr_t prev;
-    std::set<intptr_t> vtbls;
-};
-
-#define UPDATE_VTBL_PERFORMANCE(vtbl, cached_vtbl) this->update(vtbl, cached_vtbl)
-#define XTL_TRACE_PERFORMANCE_ONLY(x) x
-#else
-#define UPDATE_VTBL_PERFORMANCE(vtbl, cached_vtbl)
-#define XTL_TRACE_PERFORMANCE_ONLY(x)
-#endif
-
-//------------------------------------------------------------------------------
-
 template <typename T, size_t N = VTBL_DEFAULT_CACHE_BITS>
-class vtblmap XTL_TRACE_PERFORMANCE_ONLY(: vtblmap_performance<N>)
+class vtblmap
 {
 private:
 
@@ -288,7 +173,6 @@ public:
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
         //XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
-        UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When XTL_TRACE_PERFORMANCE is enabled, this will update our performance counters
 
         if (XTL_UNLIKELY(ce.vtbl != vtbl))
         {
@@ -342,7 +226,6 @@ public:
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
         //XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
-        UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When XTL_TRACE_PERFORMANCE is enabled, this will update our performance counters
 
         bool result = false;
 
@@ -514,7 +397,7 @@ public:
 //------------------------------------------------------------------------------
 
 template <typename T, size_t N>
-class vtblmap<T&,N> XTL_TRACE_PERFORMANCE_ONLY(: vtblmap_performance<N>)
+class vtblmap<T&,N>
 {
 private:
 
@@ -551,6 +434,13 @@ public:
         optimal_shift(VTBL_IRRELEVANT_BITS)
     {}
 #if defined(XTL_DUMP_PERFORMANCE)
+    vtblmap(const char* fl, size_t ln, const int log_size = 3) :
+        m_differ(0),
+        m_prev(0),
+        irrelevant_bits(VTBL_IRRELEVANT_BITS),
+        different_bits(0),
+        optimal_shift(VTBL_IRRELEVANT_BITS)
+    {}
    ~vtblmap() { std::cout << *this << std::endl; }
 #endif
     typedef typename vtbl_to_t_map::mapped_type mapped_type;
@@ -593,7 +483,6 @@ public:
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
         //XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
-        UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When XTL_TRACE_PERFORMANCE is enabled, this will update our performance counters
 
         if (XTL_UNLIKELY(ce.vtbl != vtbl))
         {
@@ -647,7 +536,6 @@ public:
 
         XTL_ASSERT(vtbl);                                // Since this represents VTBL pointer it cannot be null
         //XTL_ASSERT(!(vtbl & (1<<irrelevant_bits)-1));    // Assertion here means your irrelevant_bits is not correct as there are 1 bits in what we discard
-        UPDATE_VTBL_PERFORMANCE(vtbl, ce.vtbl);          // When XTL_TRACE_PERFORMANCE is enabled, this will update our performance counters
 
         bool result = false;
 

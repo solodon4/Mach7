@@ -2021,7 +2021,7 @@ int test_randomized()
 
 int main()
 {
-    int ps = 0;//test_sequential();
+    int ps = test_sequential();
     int pr = test_randomized();
     std::cout << "OVERALL: Sequential: " 
               << abs(ps) << (ps >= 0 ? "% slower" : "% faster") << "; Random: " 

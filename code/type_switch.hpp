@@ -23,7 +23,7 @@
 /// Macro that starts the switch on dynamic type of a variable s that can be 
 /// either pointer or reference to a polymorphic type.
 #define TYPE_SWITCH(s) {\
-        static vtblmap<type_switch_info&> __vtbl2lines_map;\
+        static vtblmap<type_switch_info&> __vtbl2lines_map XTL_DUMP_PERFORMANCE_ONLY((__FILE__,__LINE__));\
         auto const   __selector_ptr = addr(s);\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         const void*  __casted_ptr;\
@@ -33,7 +33,7 @@
 /// Extended version of the above macro that takes an expected number of cases in
 /// to estimate the size of the cache needed instead of using the default size
 #define TYPE_SWITCH_N(s,N) {\
-        static vtblmap<type_switch_info&/*,requires_bits<N>::value*/> __vtbl2lines_map(requires_bits<N>::value);\
+        static vtblmap<type_switch_info&/*,requires_bits<N>::value*/> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)requires_bits<N>::value);\
         auto const   __selector_ptr = addr(s);\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
