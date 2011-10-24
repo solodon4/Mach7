@@ -407,7 +407,7 @@ struct view
     #define CaseE(...) CaseE_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) /*{*/
 #endif
 
-#define EndCaseE } catch (...) {} }
+#define EndMatchE } catch (...) {} }
 
 //------------------------------------------------------------------------------
 
@@ -656,8 +656,6 @@ public:
         };
     };
 
-    static void foo() { std::cout << "General" << std::endl; }
-
     static inline size_t choose(const selector_type* selector_ptr, static_data_type& static_data, local_data_type& local_data)
     {
         local_data.switch_info_ptr = &static_data.get(selector_ptr);
@@ -773,8 +771,6 @@ public:
             exit                             ///< Case label that will be used to jump to the end of the switch
         };
     };
-
-    static void foo() { std::cout << "Special" << std::endl; }
 
     static inline auto choose(const selector_type* selector_ptr, static_data_type& static_data, local_data_type& local_data) 
              -> typename remove_ref<decltype(apply_member(selector_ptr, match_members<selector_type>::kind_selector()))>::type

@@ -397,9 +397,6 @@ int main()
     }
 
     std::cout << m << std::endl;
-
-    generic_switch<Shape>::foo();
-    generic_switch<Circle>::foo();
 }
 
 void test_read(const Shape* shape)

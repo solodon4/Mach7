@@ -26,10 +26,10 @@ goto END
 :PROCEED
 
 set logfile=test-pm-timing.log
-set results=test-pm-timing.txt
+rem set results=test-pm-timing.txt
 
 echo Test from %date% at %time% > %logfile%
-echo Test from %date% at %time% > %results%
+rem echo Test from %date% at %time% > %results%
 
 set CXX=cl.exe
 rem /Zi /nologo /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL  /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue 
@@ -46,79 +46,86 @@ echo [ MS Visual C++/Win32 ] ========================= >> %logfile%
 rem Set up VC variables for x86 build
 call "%VCINSTALLDIR%vcvarsall.bat" x86
 
-%CXX% %CXXFLAGS% exception_select_random.cpp /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% generic_select_kind.cpp     /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% generic_select_random.cpp   /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% generic_select_union.cpp    /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% hierarchy2.cpp              /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% ocaml_cmp.cpp               /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% ocaml_cmp_kind.cpp          /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% synthetic.cpp               /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% synthetic_dynamic_cast.cpp  /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% synthetic_select.cpp        /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% synthetic_select_kind.cpp   /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% synthetic_select_random.cpp /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% type_switch.cpp             /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-
-goto END
-
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='p' /DXTL_REP_TEST skeleton.cxx /Fetime-32-fwd-generic-poly-rep.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='p' /DXTL_SEQ_TEST skeleton.cxx /Fetime-32-fwd-generic-poly-seq.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='p' /DXTL_RND_TEST skeleton.cxx /Fetime-32-fwd-generic-poly-rnd.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='k' /DXTL_REP_TEST skeleton.cxx /Fetime-32-fwd-generic-kind-rep.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='k' /DXTL_SEQ_TEST skeleton.cxx /Fetime-32-fwd-generic-kind-seq.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='k' /DXTL_RND_TEST skeleton.cxx /Fetime-32-fwd-generic-kind-rnd.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='P' /DXTL_REP_TEST skeleton.cxx /Fetime-32-fwd-special-poly-rep.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='P' /DXTL_SEQ_TEST skeleton.cxx /Fetime-32-fwd-special-poly-seq.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='P' /DXTL_RND_TEST skeleton.cxx /Fetime-32-fwd-special-poly-rnd.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='K' /DXTL_REP_TEST skeleton.cxx /Fetime-32-fwd-special-kind-rep.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='K' /DXTL_SEQ_TEST skeleton.cxx /Fetime-32-fwd-special-kind-seq.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='K' /DXTL_RND_TEST skeleton.cxx /Fetime-32-fwd-special-kind-rnd.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='p' /DXTL_REP_TEST skeleton.cxx /Fetime-32-non-generic-poly-rep.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='p' /DXTL_SEQ_TEST skeleton.cxx /Fetime-32-non-generic-poly-seq.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='p' /DXTL_RND_TEST skeleton.cxx /Fetime-32-non-generic-poly-rnd.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='k' /DXTL_REP_TEST skeleton.cxx /Fetime-32-non-generic-kind-rep.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='k' /DXTL_SEQ_TEST skeleton.cxx /Fetime-32-non-generic-kind-seq.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='k' /DXTL_RND_TEST skeleton.cxx /Fetime-32-non-generic-kind-rnd.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='P' /DXTL_REP_TEST skeleton.cxx /Fetime-32-non-special-poly-rep.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='P' /DXTL_SEQ_TEST skeleton.cxx /Fetime-32-non-special-poly-seq.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='P' /DXTL_RND_TEST skeleton.cxx /Fetime-32-non-special-poly-rnd.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='K' /DXTL_REP_TEST skeleton.cxx /Fetime-32-non-special-kind-rep.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='K' /DXTL_SEQ_TEST skeleton.cxx /Fetime-32-non-special-kind-seq.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='K' /DXTL_RND_TEST skeleton.cxx /Fetime-32-non-special-kind-rnd.exe /link %LNKFLAGS% /MACHINE:X86 >> %logfile% 2>&1
+call :COMPILE 1 p REP 32
+call :COMPILE 1 p SEQ 32
+call :COMPILE 1 p RND 32
+call :COMPILE 1 k REP 32
+call :COMPILE 1 k SEQ 32
+call :COMPILE 1 k RND 32
+call :COMPILE 1 P REP 32
+call :COMPILE 1 P SEQ 32
+call :COMPILE 1 P RND 32
+call :COMPILE 1 K REP 32
+call :COMPILE 1 K SEQ 32
+call :COMPILE 1 K RND 32
+call :COMPILE 0 p REP 32
+call :COMPILE 0 p SEQ 32
+call :COMPILE 0 p RND 32
+call :COMPILE 0 k REP 32
+call :COMPILE 0 k SEQ 32
+call :COMPILE 0 k RND 32
+call :COMPILE 0 P REP 32
+call :COMPILE 0 P SEQ 32
+call :COMPILE 0 P RND 32
+call :COMPILE 0 K REP 32
+call :COMPILE 0 K SEQ 32
+call :COMPILE 0 K RND 32
 
 echo [ MS Visual C++/x64 ] ========================= >> %logfile%
 
 rem Set up VC variables for x64 build
 call "%VCINSTALLDIR%vcvarsall.bat" x64
 
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='p' /DXTL_REP_TEST skeleton.cxx /Fetime-64-fwd-generic-poly-rep.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='p' /DXTL_SEQ_TEST skeleton.cxx /Fetime-64-fwd-generic-poly-seq.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='p' /DXTL_RND_TEST skeleton.cxx /Fetime-64-fwd-generic-poly-rnd.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='k' /DXTL_REP_TEST skeleton.cxx /Fetime-64-fwd-generic-kind-rep.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='k' /DXTL_SEQ_TEST skeleton.cxx /Fetime-64-fwd-generic-kind-seq.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='k' /DXTL_RND_TEST skeleton.cxx /Fetime-64-fwd-generic-kind-rnd.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='P' /DXTL_REP_TEST skeleton.cxx /Fetime-64-fwd-special-poly-rep.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='P' /DXTL_SEQ_TEST skeleton.cxx /Fetime-64-fwd-special-poly-seq.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='P' /DXTL_RND_TEST skeleton.cxx /Fetime-64-fwd-special-poly-rnd.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='K' /DXTL_REP_TEST skeleton.cxx /Fetime-64-fwd-special-kind-rep.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='K' /DXTL_SEQ_TEST skeleton.cxx /Fetime-64-fwd-special-kind-seq.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=1 /DXTL_DEFAULT_SYNTAX='K' /DXTL_RND_TEST skeleton.cxx /Fetime-64-fwd-special-kind-rnd.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='p' /DXTL_REP_TEST skeleton.cxx /Fetime-64-non-generic-poly-rep.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='p' /DXTL_SEQ_TEST skeleton.cxx /Fetime-64-non-generic-poly-seq.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='p' /DXTL_RND_TEST skeleton.cxx /Fetime-64-non-generic-poly-rnd.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='k' /DXTL_REP_TEST skeleton.cxx /Fetime-64-non-generic-kind-rep.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='k' /DXTL_SEQ_TEST skeleton.cxx /Fetime-64-non-generic-kind-seq.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='k' /DXTL_RND_TEST skeleton.cxx /Fetime-64-non-generic-kind-rnd.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='P' /DXTL_REP_TEST skeleton.cxx /Fetime-64-non-special-poly-rep.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='P' /DXTL_SEQ_TEST skeleton.cxx /Fetime-64-non-special-poly-seq.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='P' /DXTL_RND_TEST skeleton.cxx /Fetime-64-non-special-poly-rnd.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='K' /DXTL_REP_TEST skeleton.cxx /Fetime-64-non-special-kind-rep.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='K' /DXTL_SEQ_TEST skeleton.cxx /Fetime-64-non-special-kind-seq.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
-%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=0 /DXTL_DEFAULT_SYNTAX='K' /DXTL_RND_TEST skeleton.cxx /Fetime-64-non-special-kind-rnd.exe /link %LNKFLAGS% /MACHINE:X64 >> %logfile% 2>&1
+call :COMPILE 1 p REP 64
+call :COMPILE 1 p SEQ 64
+call :COMPILE 1 p RND 64
+call :COMPILE 1 k REP 64
+call :COMPILE 1 k SEQ 64
+call :COMPILE 1 k RND 64
+call :COMPILE 1 P REP 64
+call :COMPILE 1 P SEQ 64
+call :COMPILE 1 P RND 64
+call :COMPILE 1 K REP 64
+call :COMPILE 1 K SEQ 64
+call :COMPILE 1 K RND 64
+call :COMPILE 0 p REP 64
+call :COMPILE 0 p SEQ 64
+call :COMPILE 0 p RND 64
+call :COMPILE 0 k REP 64
+call :COMPILE 0 k SEQ 64
+call :COMPILE 0 k RND 64
+call :COMPILE 0 P REP 64
+call :COMPILE 0 P SEQ 64
+call :COMPILE 0 P RND 64
+call :COMPILE 0 K REP 64
+call :COMPILE 0 K SEQ 64
+call :COMPILE 0 K RND 64
 
-echo Running timings ...
+rem echo Running timings ...
+rem for %%i in (time-*.exe) do echo %%i & echo ==================[ %%i ]===================  >> %results% & %%i >> %results% 2>&1 
 
-for %%i in (time-*.exe) do echo %%i & echo ==================[ %%i ]===================  >> %results% & %%i >> %results% 2>&1 
+goto END
+
+:COMPILE
+
+if "%1" == "1" (set F=fwd) ELSE (set F=non)
+if "%2" == "p"  set S=generic& set E=poly
+if "%2" == "P"  set S=special& set E=poly
+if "%2" == "k"  set S=generic& set E=kind
+if "%2" == "K"  set S=special& set E=kind
+if "%4" == "32" set M=X86
+if "%4" == "64" set M=X64
+set filename=%4-%F%-%S%-%E%-%3
+<nul (set/p output=Working on time-%filename%.exe: ) 
+<nul (set/p output=- compiling ) 
+%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=%1 /DXTL_DEFAULT_SYNTAX='%2' /DXTL_%3_TEST skeleton.cxx /Fotime-%filename%.obj     /Fetime-%filename%.exe     /link %LNKFLAGS% /MACHINE:%M% >> %logfile% 2>&1
+<nul (set/p output=- instrumenting )
+%CXX% %CXXFLAGS% /DXTL_VISITOR_FORWARDING=%1 /DXTL_DEFAULT_SYNTAX='%2' /DXTL_%3_TEST skeleton.cxx /Fotime-pgo-%filename%.obj /Fetime-pgo-%filename%.exe /link %LNKFLAGS% /MACHINE:%M% /PGD:"time-pgo-%filename%.pgd" /LTCG:PGINSTRUMENT >> %logfile% 2>&1
+<nul (set/p output=- profiling )
+time-pgo-%filename%.exe > nul
+<nul (set/p output=- optimizing )
+link %LNKFLAGS% /MACHINE:%M% /PGD:"time-pgo-%filename%.pgd" time-pgo-%filename%.obj /LTCG:PGOPTIMIZE >> %logfile% 2>&1
+del time-%filename%.obj time-%filename%.pdb time-pgo-%filename%.obj time-pgo-%filename%.pdb time-pgo-%filename%.pgd time-pgo-%filename%*.pgc
+echo.
 
 :END
