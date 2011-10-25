@@ -688,12 +688,30 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 #else
     #define CaseG(...) CaseG_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
 #endif
-#define QueG(C,...)  }}} { enum { target_label = XTL_COUNTER-__base_counter }; typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; if (target_specific::main_condition(__selector_ptr, local_data)) { switch_traits::on_first_pass(__selector_ptr, local_data, target_label); case target_specific::CaseLabel<target_label>::value: auto matched = target_specific::get_matched(__selector_ptr,local_data); if (XTL_LIKELY(match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
+#define QueG(C,...)  }}} \
+        { enum { target_label = XTL_COUNTER-__base_counter }; \
+        typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; \
+        if (target_specific::main_condition(__selector_ptr, local_data)) \
+        { \
+            switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
+        case target_specific::CaseLabel<target_label>::value: \
+            auto matched = target_specific::get_matched(__selector_ptr,local_data); \
+            if (XTL_LIKELY(match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
 #define OrG(...)     } else if (match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
 #define OtherwiseG() }}} {{ default: auto matched = __selector_ptr; { XTL_UNUSED(matched);
-#define EndMatchG    }}} enum { target_label = XTL_COUNTER-__base_counter }; switch_traits::on_end(__selector_ptr, local_data, target_label); case switch_traits::CaseLabel<target_label>::exit: ; }}
+#define EndMatchG    }}} \
+        enum { target_label = XTL_COUNTER-__base_counter }; \
+        switch_traits::on_end(__selector_ptr, local_data, target_label); \
+        case switch_traits::CaseLabel<target_label>::exit: ; }}
 
 //------------------------------------------------------------------------------
+
+/// From: C++0x 14.2[5]
+/// A name prefixed by the keyword template shall be a template-id or the name shall refer to a class template.
+/// [ Note: The keyword template may not be applied to non-template members of class templates. -end
+/// note ] [ Note: As is the case with the typename prefix, the template prefix is allowed in cases where it is
+/// not strictly necessary; i.e., when the nested-name-specifier or the expression on the left of the -> or . is not
+/// dependent on a template-parameter, or the use does not appear in the scope of a template. -end note ]
 
 /// Macro that starts generic switch on types capable of figuring out by itself
 /// which of the 3 cases presented above we are dealing with: open, closed or union.
@@ -745,6 +763,76 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 #define TOrG(...)     } else if (match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
 #define TOtherwiseG() }}} {{ default: auto matched = __selector_ptr; { XTL_UNUSED(matched);
 #define TEndMatchG    }}} enum { target_label = XTL_COUNTER-__base_counter }; switch_traits::on_end(__selector_ptr, local_data, target_label); case switch_traits::template CaseLabel<target_label>::exit: ; }}
+
+//------------------------------------------------------------------------------
+
+/// Macro that starts generic switch on types capable of figuring out by itself
+/// which of the 3 cases presented above we are dealing with: open, closed or union.
+/// \note This macro cannot be used in a template context! If you need to have 
+///       it inside a template, please use @TMatch and corresponding @TCase and 
+///       @TEndMatch. Unfortunately at the moment we are unaware how to unify 
+///       these 2 macros as types and templates should only be annotated inside
+///       a template context and not outside.
+#define MatchQ(s) {\
+        auto const __selector_ptr = addr(s);\
+        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
+        enum { __base_counter = XTL_COUNTER };\
+        typedef unified_switch<selector_type> switch_traits;\
+        static switch_traits::static_data_type static_data;\
+               switch_traits::local_data_type  local_data;\
+        size_t jump_target = switch_traits::choose(__selector_ptr,static_data,local_data);\
+        XTL_CONCAT(ReMatch,__LINE__):\
+        switch (jump_target)\
+        {\
+            XTL_REDUNDANCY_LABEL(default:) { XTL_REDUNDANCY_TRY {{\
+            if (switch_traits::on_default(jump_target,local_data,static_data))\
+                goto XTL_CONCAT(ReMatch,__LINE__);\
+
+/// NOTE: We need this extra indirection to properly handle 0 arguments as it
+///       seems to be impossible to introduce dummy argument inside the Case 
+///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
+#define CaseQ_(C,...) }}} \
+        XTL_REDUNDANCY_CATCH(C) \
+        { \
+            typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; \
+            typedef target_specific::target_type target_type; \
+            enum { default_layout = target_specific::layout, target_label = XTL_COUNTER-__base_counter }; \
+            if (target_specific::main_condition(__selector_ptr, local_data)) \
+            { \
+                switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
+            XTL_REDUNDANCY_LABEL(case target_specific::CaseLabel<target_label>::value:) \
+                auto matched = target_specific::get_matched(__selector_ptr,local_data); \
+                XTL_UNUSED(matched);
+
+/// Macro that defines the case statement for the above switch
+/// NOTE: If Visual C++ gives you error C2051: case expression not constant
+///       on this CaseP label, just change the Debug Format in project setting 
+///       Project -> Properties -> C/C++ -> General -> Debug Information Format 
+///       from "Program Database for Edit And Continue (/ZI)" 
+///       to   "Program Database (/Zi)", which is the default in Release builds,
+///       but not in Debug. This is a known bug of Visual C++ described here:
+///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
+#ifdef _MSC_VER
+    #define CaseQ(...) XTL_APPLY_VARIADIC_MACRO(CaseQ_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
+#else
+    #define CaseQ(...) CaseQ_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
+#endif
+#define QueQ(C,...)  }}} \
+        { enum { target_label = XTL_COUNTER-__base_counter }; \
+        typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; \
+        if (target_specific::main_condition(__selector_ptr, local_data)) \
+        { \
+            switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
+        case target_specific::CaseLabel<target_label>::value: \
+            auto matched = target_specific::get_matched(__selector_ptr,local_data); \
+            if (XTL_LIKELY(match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
+#define OrQ(...)     } else if (match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
+#define OtherwiseQ() CaseQ(selector_type)
+#define EndMatchQ    }}} \
+        enum { target_label = XTL_COUNTER-__base_counter }; \
+        switch_traits::on_end(__selector_ptr, local_data, target_label); \
+        case switch_traits::CaseLabel<target_label>::exit: ; }}
 
 //------------------------------------------------------------------------------
 
@@ -841,7 +929,15 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 
 //------------------------------------------------------------------------------
 
-/// This is the general case that essentially assumes open case
+/// A traits-like class used by pattern matching library to unify the syntax of
+/// open and close cases. This is different from defining the XTL_DEFAULT_SYNTAX, 
+/// which will make the choice global for every class hierarchy and Match 
+/// statement used by the program. With the help of this class, the library will
+/// be able to figure out on its own whether we are dealing with open, closed or
+/// discriminated union case. The price of such generality is a slight performance
+/// overhead that appears because of the necessity of merging the syntactic 
+/// structures used by open and closed cases.
+/// \note This is the general case that essentially assumes open case
 template <typename SelectorType, class condition = void>
 class generic_switch
 {
@@ -872,23 +968,28 @@ public:
         type_switch_info* switch_info_ptr;
     };
 
-    /// Meta function that defines some case labels required to support extended switch
-    template <size_t LineNumber>
+    /// Meta function that defines some case labels required to support extended switch.
+    /// The main difference of this function from the one used on case clauses is that 
+    /// this one is used on the level of match statement to define the values of common
+    /// entry and exit cases.
+    template <size_t Counter>
     struct CaseLabel
     {
         enum
         {
-            entry = 0,         ///< Case label that will be used to enter beginning of the switch
-            exit  = LineNumber ///< Case label that will be used to jump to the end of the switch
+            entry = 0,      ///< Case label that will be used to enter beginning of the switch
+            exit  = Counter ///< Case label that will be used to jump to the end of the switch
         };
     };
 
+    /// Function used to get the value we'll be switching on
     static inline size_t choose(const selector_type* selector_ptr, static_data_type& static_data, local_data_type& local_data)
     {
         local_data.switch_info_ptr = &static_data.get(selector_ptr);
         return local_data.switch_info_ptr->line;
     }
 
+    /// Function that will be called upon first entry to the case through the fall-through behavior
     static inline void on_first_pass(const selector_type* selector_ptr, local_data_type& local_data, size_t line)
     {
         if (XTL_LIKELY(local_data.switch_info_ptr->line == 0)) 
@@ -898,6 +999,7 @@ public:
         } 
     }
     
+    /// Function that will be called when the fall-through behavior reached end of the switch
     static inline void on_end(const selector_type* selector_ptr, local_data_type& local_data, size_t line)
     {
         if (XTL_LIKELY(local_data.switch_info_ptr->line == 0)) 
@@ -906,36 +1008,57 @@ public:
         }
     }
 
+    /// Structure used to disambiguate whether first argument is a type or a value
+    /// \note Not used for the open case, so we don't specialize it based on argument,
+    ///       which will always be type.
     template <bool FirstParamIsValue>
     struct disambiguate
     {
+        static_assert(!FirstParamIsValue, "Open case does not allow values as first argument. Did you forget to use KS macro?");
+
+        /// Essentially a catcher of the first argument of the case clause
+        /// a type in this case.
         template <typename T>
         struct parameter
         {
+            /// The type passed as a first argument of the case clause is the target type.
             typedef T target_type;
 
-            template <size_t LineNumber>
+            /// Depending on whether we handle open or closed case, different case labels
+            /// are used for the generated match statement. This metafunction takes
+            /// a unique (per match statement) counter and returns the actual label that
+            /// will be used for the case clause.
+            template <size_t Counter>
             struct CaseLabel
             {
                 enum 
                 {
-                    value = LineNumber ///< Case label that will be used for case at line offset LineNumber
+                    value = Counter ///< Case label that will be used for case at line offset Counter
                 };
             };
 
+            /// Layout that has to be used for the given target type.
             enum { layout = default_layout };
 
+            /// Condition that guards applicability of the given case clause
+            /// during the fall-through behavior.
             static inline bool main_condition(const selector_type* selector_ptr, local_data_type& local_data)
             {
                 return (local_data.casted_ptr = dynamic_cast<const target_type*>(selector_ptr)) != 0;
             }
-            
+
+            /// Performs the necessary conversion of the original selector into the proper
+            /// object of target type.
+            /// \note The selector is const-qualified, thus the target is also const-qualified
             static inline const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data)
             {
                 //std::cout << "Open case (const)" << std::endl;
                 return adjust_ptr<target_type>(selector_ptr,local_data.switch_info_ptr->offset);
             }
 
+            /// Performs the necessary conversion of the original selector into the proper
+            /// object of target type.
+            /// \note The selector is non-const, thus the target is also non-const
             static inline       target_type* get_matched(      selector_type* selector_ptr, local_data_type& local_data)
             {
                 //std::cout << "Open case (non-const)" << std::endl;
@@ -945,9 +1068,19 @@ public:
     };
 };
 
-/// This is a specialization for the closed case. It becomes enabled when user 
-/// used KS macro inside @match_members to define which member will be used as
-/// kind selector.
+//------------------------------------------------------------------------------
+
+/// A traits-like class used by pattern matching library to unify the syntax of
+/// open and close cases. This is different from defining the XTL_DEFAULT_SYNTAX, 
+/// which will make the choice global for every class hierarchy and Match 
+/// statement used by the program. With the help of this class, the library will
+/// be able to figure out on its own whether we are dealing with open, closed or
+/// discriminated union case. The price of such generality is a slight performance
+/// overhead that appears because of the necessity of merging the syntactic 
+/// structures used by open and closed cases.
+/// \note This is a specialization for the closed case. It becomes enabled when
+///       user used KS macro inside @match_members to define which member will
+///       be used as kind selector.
 template <typename SelectorType>
 class generic_switch<
     SelectorType, 
@@ -982,8 +1115,11 @@ public:
         kind_selector_shift     = 2
     };
 
-    /// Meta function that defines some case labels required to support extended switch
-    template <size_t LineNumber>
+    /// Meta function that defines some case labels required to support extended switch.
+    /// The main difference of this function from the one used on case clauses is that 
+    /// this one is used on the level of match statement to define the values of common
+    /// entry and exit cases.
+    template <size_t Counter>
     struct CaseLabel
     {
         // We effectively prepend two new case labels to the user's range of 
@@ -999,15 +1135,23 @@ public:
         };
     };
 
+    /// Function used to get the value we'll be switching on
     static inline auto choose(const selector_type* selector_ptr, static_data_type& static_data, local_data_type& local_data) 
              -> typename underlying<decltype(apply_member(selector_ptr, match_members<selector_type>::kind_selector()))>::type
     {
         typedef typename underlying<decltype(apply_member(selector_ptr, match_members<selector_type>::kind_selector()))>::type result_type; // Can be enum
         return result_type(apply_member(selector_ptr, match_members<selector_type>::kind_selector()) + kind_selector_shift);
     }
+
+    /// Function that will be called upon first entry to the case through the fall-through behavior
     static inline void on_first_pass(const selector_type* selector_ptr, local_data_type& local_data, size_t line) {}
+
+    /// Function that will be called when the fall-through behavior reached end of the switch
     static inline void        on_end(const selector_type* selector_ptr, local_data_type& local_data, size_t line) {}
 
+    /// Structure used to disambiguate whether first argument is a type or a value.
+    /// \note This generic one handles a value, which can be seen from the type of 
+    ///       parameter struct.
     // C++ standard (14.7.3.2) would not allow us to explicitly specialize 
     // disambiguate later here, but will accept a partial specialization so we
     // add a bogus template parameter to turn explicit specialization into 
@@ -1015,30 +1159,48 @@ public:
     template <bool FirstParamIsValue, typename bogus_parameter = void>
     struct disambiguate
     {
+        /// Essentially a catcher of the first argument of the case clause
+        /// a value in this case.
         template <size_t N>
         struct parameter
         {
+            /// Since value as a first argument of the case clause is only
+            /// allowed by us on discriminated unions, the target type is equal
+            /// to the selector type.
             typedef selector_type target_type;
 
-            template <size_t LineNumber>
+            /// Depending on whether we handle open or closed case, different case labels
+            /// are used for the generated match statement. This metafunction takes
+            /// a unique (per match statement) counter and returns the actual label that
+            /// will be used for the case clause.
+            template <size_t Counter>
             struct CaseLabel
             {
                 enum 
                 {
-                    value = N + kind_selector_shift          ///< Case label that will be used for case at line offset LineNumber
+                    value = N + kind_selector_shift          ///< Case label that will be used for case at line offset Counter
                 };
             };
-
+            
+            /// Layout that has to be used for the given target type.
             enum { layout = N };
 
+            /// Condition that guards applicability of the given case clause
+            /// during the fall-through behavior.
             static inline bool main_condition(const selector_type* selector_ptr, local_data_type& local_data) { return true; }
 
+            /// Performs the necessary conversion of the original selector into the proper
+            /// object of target type.
+            /// \note The selector is const-qualified, thus the target is also const-qualified
             static inline const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data)
             {
                 //std::cout << "Union case (const)" << std::endl;
                 return selector_ptr;
             }
 
+            /// Performs the necessary conversion of the original selector into the proper
+            /// object of target type.
+            /// \note The selector is non-const, thus the target is also non-const
             static inline       target_type* get_matched(      selector_type* selector_ptr, local_data_type& local_data)
             {
                 //std::cout << "Union case (non-const)" << std::endl;
@@ -1047,33 +1209,415 @@ public:
         };
     };
 
+    /// Structure used to disambiguate whether first argument is a type or a value.
+    /// \note This specialization handles a type, which can be seen from the type of 
+    ///       parameter struct.
     template <typename bogus_parameter>
     struct disambiguate<false,bogus_parameter>
     {
+        /// Essentially a catcher of the first argument of the case clause
+        /// a type in this case.
         template <typename T>
         struct parameter
         {
+            /// The type passed as a first argument of the case clause is the target type.
             typedef T target_type;
 
-            template <size_t LineNumber>
+            /// Depending on whether we handle open or closed case, different case labels
+            /// are used for the generated match statement. This metafunction takes
+            /// a unique (per match statement) counter and returns the actual label that
+            /// will be used for the case clause.
+            template <size_t Counter>
             struct CaseLabel
             {
                 enum 
                 {
-                    value = match_members<target_type>::kind_value + kind_selector_shift ///< Case label that will be used for case at line offset LineNumber
+                    value = match_members<target_type>::kind_value + kind_selector_shift ///< Case label that will be used for case at line offset Counter
                 };
             };
 
+            /// Layout that has to be used for the given target type.
             enum { layout = default_layout };
 
+            /// Condition that guards applicability of the given case clause
+            /// during the fall-through behavior.
             static inline bool main_condition(const selector_type* selector_ptr, local_data_type& local_data) { return true; }
 
+            /// Performs the necessary conversion of the original selector into the proper
+            /// object of target type.
+            /// \note The selector is const-qualified, thus the target is also const-qualified
             static inline const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data)
             {
                 //std::cout << "Closed case (const)" << std::endl;
                 return stat_cast<target_type>(selector_ptr);
             }
 
+            /// Performs the necessary conversion of the original selector into the proper
+            /// object of target type.
+            /// \note The selector is non-const, thus the target is also non-const
+            static inline       target_type* get_matched(      selector_type* selector_ptr, local_data_type& local_data)
+            {
+                //std::cout << "Closed case (non-const)" << std::endl;
+                return stat_cast<target_type>(selector_ptr);
+            }
+        };
+    };
+};
+
+//------------------------------------------------------------------------------
+
+/// A traits-like class used by pattern matching library to unify the syntax of
+/// open and close cases. This is different from defining the XTL_DEFAULT_SYNTAX, 
+/// which will make the choice global for every class hierarchy and Match 
+/// statement used by the program. With the help of this class, the library will
+/// be able to figure out on its own whether we are dealing with open, closed or
+/// discriminated union case. The price of such generality is a slight performance
+/// overhead that appears because of the necessity of merging the syntactic 
+/// structures used by open and closed cases.
+/// \note This is the general case that essentially assumes open case
+/// \note The only difference of @unified_switch from @unified_switch is that it
+///       is capable of handling base classes in case clauses for the closed case.
+///       The open case is exactly the same.
+template <typename SelectorType, class condition = void>
+class unified_switch
+{
+public:
+
+    /// Type of the argument on which extended switch is done
+    typedef typename underlying<SelectorType>::type selector_type;
+
+    // Open case only works for polymorphic types (types with virtual funcs)
+    // If your base type is not polymorphic, but you'd still like to have 
+    // type switching/pattern matching functionality on it, use KS macro in 
+    // corresponding @match_members<your_base_type> to identify which field
+    // behaves as a selector and thus uniquely identifies derived type.
+    static_assert(
+        std::is_polymorphic<selector_type>::value,
+        "Type of selector should either be polymorphic or you should provide kind selector for the type"
+    );
+
+    /// Type of data that has to be statically allocated inside the block 
+    /// containg extended switch
+    typedef vtblmap<type_switch_info&> static_data_type;
+
+    /// Type of data that has to be automatically allocated inside the block 
+    /// containg extended switch
+    struct local_data_type
+    {
+        const void*       casted_ptr;
+        type_switch_info* switch_info_ptr;
+    };
+
+    /// Meta function that defines some case labels required to support extended switch.
+    /// The main difference of this function from the one used on case clauses is that 
+    /// this one is used on the level of match statement to define the values of common
+    /// entry and exit cases.
+    template <size_t Counter>
+    struct CaseLabel
+    {
+        enum
+        {
+            //entry = 0,      ///< Case label that will be used to enter beginning of the switch
+            exit  = Counter ///< Case label that will be used to jump to the end of the switch
+        };
+    };
+
+    /// Function used to get the value we'll be switching on
+    static inline size_t choose(const selector_type* selector_ptr, static_data_type& static_data, local_data_type& local_data)
+    {
+        local_data.switch_info_ptr = &static_data.get(selector_ptr);
+        return local_data.switch_info_ptr->line;
+    }
+
+    /// Function that will be called upon first entry to the case through the fall-through behavior
+    static inline void on_first_pass(const selector_type* selector_ptr, local_data_type& local_data, size_t line)
+    {
+        if (XTL_LIKELY(local_data.switch_info_ptr->line == 0)) 
+        {
+            local_data.switch_info_ptr->line   = line; 
+            local_data.switch_info_ptr->offset = intptr_t(local_data.casted_ptr)-intptr_t(selector_ptr);
+        } 
+    }
+    
+    /// Function that will be called when the fall-through behavior reached end of the switch
+    static inline void on_end(const selector_type* selector_ptr, local_data_type& local_data, size_t line)
+    {
+        if (XTL_LIKELY(local_data.switch_info_ptr->line == 0)) 
+        { 
+            local_data.switch_info_ptr->line   = line;
+        }
+    }
+
+    /// Function that will be called on default clause. It should return true 
+    /// when unconditional jump to ReMatch label should be performed.
+    static inline bool on_default(size_t&, local_data_type&, static_data_type&) { return false; }
+
+    /// Structure used to disambiguate whether first argument is a type or a value
+    /// \note Not used for the open case, so we don't specialize it based on argument,
+    ///       which will always be type.
+    template <bool FirstParamIsValue>
+    struct disambiguate
+    {
+        static_assert(!FirstParamIsValue, "Open case does not allow values as first argument. Did you forget to use KS macro?");
+
+        /// Essentially a catcher of the first argument of the case clause
+        /// a type in this case.
+        template <typename T>
+        struct parameter
+        {
+            /// The type passed as a first argument of the case clause is the target type.
+            typedef T target_type;
+
+            /// Depending on whether we handle open or closed case, different case labels
+            /// are used for the generated match statement. This metafunction takes
+            /// a unique (per match statement) counter and returns the actual label that
+            /// will be used for the case clause.
+            template <size_t Counter>
+            struct CaseLabel
+            {
+                enum 
+                {
+                    value = Counter ///< Case label that will be used for case at line offset Counter
+                };
+            };
+
+            /// Layout that has to be used for the given target type.
+            enum { layout = default_layout };
+
+            /// Condition that guards applicability of the given case clause
+            /// during the fall-through behavior.
+            static inline bool main_condition(const selector_type* selector_ptr, local_data_type& local_data)
+            {
+                return (local_data.casted_ptr = dynamic_cast<const target_type*>(selector_ptr)) != 0;
+            }
+
+            /// Performs the necessary conversion of the original selector into the proper
+            /// object of target type.
+            /// \note The selector is const-qualified, thus the target is also const-qualified
+            static inline const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data)
+            {
+                //std::cout << "Open case (const)" << std::endl;
+                return adjust_ptr<target_type>(selector_ptr,local_data.switch_info_ptr->offset);
+            }
+
+            /// Performs the necessary conversion of the original selector into the proper
+            /// object of target type.
+            /// \note The selector is non-const, thus the target is also non-const
+            static inline       target_type* get_matched(      selector_type* selector_ptr, local_data_type& local_data)
+            {
+                //std::cout << "Open case (non-const)" << std::endl;
+                return adjust_ptr<target_type>(selector_ptr,local_data.switch_info_ptr->offset);
+            }
+        };
+    };
+};
+
+//------------------------------------------------------------------------------
+
+/// A traits-like class used by pattern matching library to unify the syntax of
+/// open and close cases. This is different from defining the XTL_DEFAULT_SYNTAX, 
+/// which will make the choice global for every class hierarchy and Match 
+/// statement used by the program. With the help of this class, the library will
+/// be able to figure out on its own whether we are dealing with open, closed or
+/// discriminated union case. The price of such generality is a slight performance
+/// overhead that appears because of the necessity of merging the syntactic 
+/// structures used by open and closed cases.
+/// \note This is a specialization for the closed case. It becomes enabled when
+///       user used KS macro inside @match_members to define which member will
+///       be used as kind selector.
+template <typename SelectorType>
+class unified_switch<
+    SelectorType, 
+    typename std::enable_if<
+                has_member_kind_selector<match_members<typename underlying<SelectorType>::type>>::value,
+                void
+             >::type
+>
+{
+public:
+
+    /// Type of the argument on which extended switch is done
+    typedef typename underlying<SelectorType>::type selector_type;
+
+    /// Type of data that has to be statically allocated inside the block 
+    /// containg extended switch
+    typedef std::vector<const int*> static_data_type;
+
+    /// Type of data that has to be automatically allocated inside the block 
+    /// containg extended switch
+    struct local_data_type
+    {
+        local_data_type() : kinds(0), attempt(0) {}
+        const int* kinds;
+        size_t     attempt;
+    };
+
+    enum 
+    {
+        /// The value that should be equal to the smalles kind used by selector_type
+        /// FIX: Let user override this inside @match_members in case his minimum is not 0
+        user_kind_minimum_value = 0,
+        /// Just a mnemonic name to the amount of cases we add on top of user kinds.
+        /// We effectively shift user kinds by this number in order to maintain all
+        /// case labels sequentials to assure that jump table is generated for the 
+        /// switch.
+        kind_selector_shift     = 2
+    };
+
+    /// Meta function that defines some case labels required to support extended switch.
+    /// The main difference of this function from the one used on case clauses is that 
+    /// this one is used on the level of match statement to define the values of common
+    /// entry and exit cases.
+    template <size_t Counter>
+    struct CaseLabel
+    {
+        // We effectively prepend two new case labels to the user's range of 
+        // labels to assure that all the labels are close to each other.
+        // From our experiments we saw that putting just these two labels 
+        // elsewhere was often triggering both gcc and msvc to generate a
+        // binary search and then jump table based on subranges, which was
+        // killing the performance.
+        enum
+        {
+            //entry = user_kind_minimum_value, ///< Case label that will be used to enter beginning of the switch
+            exit  = 0                        ///< Case label that will be used to jump to the end of the switch
+        };
+    };
+
+    /// Function used to get the value we'll be switching on
+    static inline size_t choose(const selector_type* selector_ptr, static_data_type& static_data, local_data_type& local_data)
+    {
+        return size_t(original2remapped<selector_type>((int)apply_member(selector_ptr, match_members<selector_type>::kind_selector())));
+    }
+
+    /// Function that will be called upon first entry to the case through the fall-through behavior
+    static inline void on_first_pass(const selector_type* selector_ptr, local_data_type& local_data, size_t line) {}
+
+    /// Function that will be called when the fall-through behavior reached end of the switch
+    static inline void on_end(const selector_type* selector_ptr, local_data_type& local_data, size_t line) {}
+
+    /// Function that will be called on default clause. It should return true 
+    /// when unconditional jump to ReMatch label should be performed.
+    static inline bool on_default(size_t& jump_target, local_data_type& local_data, static_data_type& static_data)
+    {
+        if (XTL_LIKELY(!local_data.kinds))
+        {
+            if (XTL_UNLIKELY(jump_target >= static_data.size()))
+                static_data.resize(jump_target+1);
+            if (!(local_data.kinds = static_data[jump_target]))
+                local_data.kinds = static_data[jump_target] = get_kinds<selector_type>(jump_target);
+        }
+        XTL_ASSERT(("Base classes for this kind were not specified",local_data.kinds));
+        XTL_ASSERT(("Invalid list of kinds",local_data.kinds[local_data.attempt]==jump_target));
+        jump_target = local_data.kinds[++local_data.attempt];
+        return true;
+    }
+    /// Structure used to disambiguate whether first argument is a type or a value.
+    /// \note This generic one handles a value, which can be seen from the type of 
+    ///       parameter struct.
+    // C++ standard (14.7.3.2) would not allow us to explicitly specialize 
+    // disambiguate later here, but will accept a partial specialization so we
+    // add a bogus template parameter to turn explicit specialization into 
+    // partial.
+    template <bool FirstParamIsValue, typename bogus_parameter = void>
+    struct disambiguate
+    {
+        /// Essentially a catcher of the first argument of the case clause
+        /// a value in this case.
+        template <size_t N>
+        struct parameter
+        {
+            /// Since value as a first argument of the case clause is only
+            /// allowed by us on discriminated unions, the target type is equal
+            /// to the selector type.
+            typedef selector_type target_type;
+
+            /// Depending on whether we handle open or closed case, different case labels
+            /// are used for the generated match statement. This metafunction takes
+            /// a unique (per match statement) counter and returns the actual label that
+            /// will be used for the case clause.
+            template <size_t Counter>
+            struct CaseLabel
+            {
+                enum 
+                {
+                    value = N + kind_selector_shift          ///< Case label that will be used for case at line offset Counter
+                };
+            };
+            
+            /// Layout that has to be used for the given target type.
+            enum { layout = N };
+
+            /// Condition that guards applicability of the given case clause
+            /// during the fall-through behavior.
+            static inline bool main_condition(const selector_type* selector_ptr, local_data_type& local_data) { return true; }
+
+            /// Performs the necessary conversion of the original selector into the proper
+            /// object of target type.
+            /// \note The selector is const-qualified, thus the target is also const-qualified
+            static inline const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data)
+            {
+                //std::cout << "Union case (const)" << std::endl;
+                return selector_ptr;
+            }
+
+            /// Performs the necessary conversion of the original selector into the proper
+            /// object of target type.
+            /// \note The selector is non-const, thus the target is also non-const
+            static inline       target_type* get_matched(      selector_type* selector_ptr, local_data_type& local_data)
+            {
+                //std::cout << "Union case (non-const)" << std::endl;
+                return selector_ptr;
+            }
+        };
+    };
+
+    /// Structure used to disambiguate whether first argument is a type or a value.
+    /// \note This specialization handles a type, which can be seen from the type of 
+    ///       parameter struct.
+    template <typename bogus_parameter>
+    struct disambiguate<false,bogus_parameter>
+    {
+        /// Essentially a catcher of the first argument of the case clause
+        /// a type in this case.
+        template <typename T>
+        struct parameter
+        {
+            /// The type passed as a first argument of the case clause is the target type.
+            typedef T target_type;
+
+            /// Depending on whether we handle open or closed case, different case labels
+            /// are used for the generated match statement. This metafunction takes
+            /// a unique (per match statement) counter and returns the actual label that
+            /// will be used for the case clause.
+            template <size_t Counter>
+            struct CaseLabel
+            {
+                enum 
+                {
+                    value = remapped_kind<target_type>::value ///< Case label that will be used for case at line offset Counter
+                };
+            };
+
+            /// Layout that has to be used for the given target type.
+            enum { layout = default_layout };
+
+            /// Condition that guards applicability of the given case clause
+            /// during the fall-through behavior.
+            static inline bool main_condition(const selector_type* selector_ptr, local_data_type& local_data) { return true; }
+
+            /// Performs the necessary conversion of the original selector into the proper
+            /// object of target type.
+            /// \note The selector is const-qualified, thus the target is also const-qualified
+            static inline const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data)
+            {
+                //std::cout << "Closed case (const)" << std::endl;
+                return stat_cast<target_type>(selector_ptr);
+            }
+
+            /// Performs the necessary conversion of the original selector into the proper
+            /// object of target type.
+            /// \note The selector is non-const, thus the target is also non-const
             static inline       target_type* get_matched(      selector_type* selector_ptr, local_data_type& local_data)
             {
                 //std::cout << "Closed case (non-const)" << std::endl;

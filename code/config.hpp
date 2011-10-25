@@ -53,7 +53,7 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 /// - 'U' - Union switch
 /// - 'E' - Exception switch
 #if !defined(XTL_DEFAULT_SYNTAX)
-  #define XTL_DEFAULT_SYNTAX 'F'
+  #define XTL_DEFAULT_SYNTAX 'G'
 #endif
 
 //------------------------------------------------------------------------------

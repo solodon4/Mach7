@@ -41,6 +41,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Expr", "msvc\Expr\Expr.vcxp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Skeleton", "msvc\Skeleton\Skeleton.vcxproj", "{74DA394A-1378-4FA0-B16D-AB55ED4FE226}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape8", "msvc\Shape8\Shape8.vcxproj", "{0B8B3558-5D89-49C9-8573-A9664FC51382}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -207,6 +209,12 @@ Global
 		{74DA394A-1378-4FA0-B16D-AB55ED4FE226}.Release|Win32.ActiveCfg = Release|Win32
 		{74DA394A-1378-4FA0-B16D-AB55ED4FE226}.Release|Win32.Build.0 = Release|Win32
 		{74DA394A-1378-4FA0-B16D-AB55ED4FE226}.Release|x64.ActiveCfg = Release|Win32
+		{0B8B3558-5D89-49C9-8573-A9664FC51382}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0B8B3558-5D89-49C9-8573-A9664FC51382}.Debug|Win32.Build.0 = Debug|Win32
+		{0B8B3558-5D89-49C9-8573-A9664FC51382}.Debug|x64.ActiveCfg = Debug|Win32
+		{0B8B3558-5D89-49C9-8573-A9664FC51382}.Release|Win32.ActiveCfg = Release|Win32
+		{0B8B3558-5D89-49C9-8573-A9664FC51382}.Release|Win32.Build.0 = Release|Win32
+		{0B8B3558-5D89-49C9-8573-A9664FC51382}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
