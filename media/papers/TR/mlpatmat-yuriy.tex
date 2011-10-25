@@ -953,9 +953,10 @@ One may wonder why we could not simply write the above case clause as
 \codeocaml{Plus(Times(e,e2), Times(e,e4))} to avoid the guard? Patterns that 
 permit use of the same variable in them multiple times are called 
 \emph{equivalence patterns}, while the requirement of absence of such patterns 
-in a language is called \emph{linearity}. Unfortunately, neither OCaml nor 
-Haskell support such patterns. Miranda\cite{Miranda85} is one of the languages 
-that permit them. 
+in a language is called \emph{linearity}. Neither OCaml nor Haskell support such 
+patterns, while Miranda\cite{Miranda85} as well as Tom's pattern matching 
+extension to C, Java and Eiffel\cite{Moreau:2003} support \emph{non-linear 
+patterns}.
 
 The example above illustrates yet another common pattern-matching facility -- 
 \emph{nesting of patterns}. In general, a constructor pattern composed of a 
@@ -3536,14 +3537,16 @@ case bindings<Di>::kind_value:
 \end{lstlisting}
 
 
-\subsection{(Ab)using Exceptions for Pattern Matching}
+\subsection{(Ab)using Exceptions for Type Switching}
 \label{sec:xpm}
 
-Interestingly enough, the exception handling mechanism of C++ can be abused to 
-implement the first-fit semantics of the match statement. The idea is to harness 
-the fact that catch-handlers in C++ essentially use first-fit semantics to 
-decide which one is going to handle a given exception. The only problem is to 
-raise an exception with a static type equal to the dynamic type of selector.
+Several authors had noted the relationship between exception handling and type 
+switching before\cite{Glew99,ML2000}. Not surprisingly, the exception handling 
+mechanism of C++ can be abused to implement the first-fit semantics of a type 
+switch statement. The idea is to harness the fact that catch-handlers in C++ 
+essentially use first-fit semantics to decide which one is going to handle a 
+given exception. The only problem is to raise an exception with a static type 
+equal to the dynamic type of selector.
 
 To do this, we employ \emph{polymorphic exception} idiom\cite{PolyExcept} that 
 introduces a virtual function \code{virtual void raise() const = 0;} into the 
@@ -4052,9 +4055,43 @@ Our work addresses exactly this problem, showing that it is not only
 theoretically possible but also practically efficient and in application to a 
 broader problem.
 
+Tom is a pattern matching compiler that can be used together with Java, C or 
+Eiffel to bring a common pattern matching and term rewriting syntax into the 
+languages\cite{Moreau:2003}. It works as a preprocessor that transforms 
+syntactic extensions into imperative code in the target language. Tom is quite 
+transparent as to the concrete target language used and can potentially be 
+extended to other target languages besides the three supported now. In 
+particular, it never uses any semantic information of the target language during 
+the compilation process and it does not inspect nor modify the source language 
+part (their preprocessor is only aware of parenthesis and block delimiters of 
+the source language). Tom has a sublanguage called Gom that can be used to 
+define algebraic data types in a uniform mannaer, which their preprocessor then 
+transforms into conrete definitions in the target language. Alternatively, the 
+user can provide mappings to his own data structures that the preprocessor will 
+use to generate the code.
 
+In comparison to our approach Tom has much bigger goals. The combination of 
+pattern matching, term rewriting and strategies turns Tom into a 
+tree-transformation language similar to Stratego/XT, XDuce and others. 
+The main accent is made on expressivity and the speed of development, which 
+makes one often wonder about the run-time complexity of the generated code.
+Tom's approach is also prone to general problems of any preprocessor based 
+solution\cite[\textsection 4.3]{SELL}. For example, when several preprocessors 
+have to be used together, each independent extension may not be able to 
+understand the other's syntax, making it impossible to form a toolchain.
+A library approach we follow avoids most of these problems by relying only on a 
+standard C++ compiler. It also lets us employ semantics of the language within 
+patterns: e.g. our patterns work directly on underlying user-defined data 
+structures, largely avoiding abstraction penalties. A tighter integration with 
+the language semantics also makes our patterns first-class citizens that can be 
+composed and passed to other functions. The approach we take to type switching 
+can also be used by Tom's preprocessor to implement type patterns efficiently -- 
+similarly to other object-oriented languages, Tom's handling of them is based on 
+highly inefficient \code{instanceof} operator and its equivalents in other 
+languages.
 
-
+%An example would be our generalized n+k patterns where we 
+%can turn any invertible function even user defined into a pattern.
 
 There has been previous attempts to use pattern matching with the Pivot 
 framework that we used to experiment with our library. In his dissertation, 
@@ -4261,8 +4298,11 @@ RND |   222    |   208        RND |          |
 
 \section{Acknowledgements} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Gregory Berkolaiko for entropy idea. Jaakko Jarvi for Haskell help. Andrew Sutton 
-for suggestions. Jasson Cassey for branch hinting. Mani Zandifar for PAPI help.
+We would like to thank Dr. Gregory Berkolaiko for ideas related to minimization 
+of conflicts, Dr. Xavier Leroy and Dr. Luc Maranget for valuable feedback and 
+suggestions for improvements, Dr. Jaakko Jarvi for assistance with comparison to 
+other languages, Dr. Andrew Sutton for discussions. Jasson Cassey for branch 
+hinting. Mani Zandifar for PAPI help.
 
 \section{Scratch}
 

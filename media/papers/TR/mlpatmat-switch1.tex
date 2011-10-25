@@ -106,14 +106,14 @@ showstringspaces=false,
 \maketitle
 
 \begin{abstract}
-We present ``memoization device'' -- a technique that can be used in a compiler 
-and/or library setting to implement efficiently type switching, type testing, 
-pattern matching, predicate dispatch, multi-methods and other facilities that 
-depend on run-time type of the argument. The technique copes well with 
-multiple inheritance typical for C++, however it is not specific to C++ and can 
-be adopted to implementation of similar facilities in other languages.
+We present several techniques that can be used in a compiler and/or library 
+setting to implement efficiently type switching, type testing, pattern matching, 
+predicate dispatch, multi-methods and other facilities that depend on run-time 
+type of the argument. The techniques cope well with multiple inheritance typical 
+for C++, however they are not specific to C++ and can be adopted to implementation 
+of similar facilities in other languages.
 
-Our library-only implementation of a type switch based on this technique, equals 
+Our library-only implementation of a type switch based on these techniques, equals 
 or outperforms visitor design pattern, as commonly used for type-casing 
 scenarios in C++, and for many use cases it equals or outperforms equivalent 
 code in languages with built-in type switching constructs. While remaining a 
@@ -2469,6 +2469,10 @@ efficiently yet expressively as in functional languages.
 \section{Conclusions} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:cc}
 
+We described three techniques that can be used to implement type switching, type 
+testing, pattern matching, predicate dispatching and other facilities that 
+depend on a run-time type of an argument.
+
 \emph{Memoization Device} is an optimization technique that maps run-time values 
 to execution paths, allowing to take shortcuts on subsequent runs with the same 
 value. The technique does not require code duplication and in typical cases adds 
@@ -2485,22 +2489,16 @@ our fast type switch as well as memoized dynamic cast optimization.
 implement best-fit type switching on tagged classes. The technique has its pros 
 and cons in comparison to v-table memoization, which we discuss in the paper.
 
-We described an efficient technique that can be used to implement type 
-switching, type testing, pattern matching, predicate dispatching and other 
-facilities that depend on a run-time type of an argument. The technique can be 
-used in a compiler and library setting and supports well separate compilation 
-and dynamic linking. It is open to class extensions and interacts well with 
-other C++ facilities such as multiple inheritance (including repetitive and 
-virtual inheritance) and templates. The technique is not specific to C++ and can 
-be used in other object-oriented languages that use v-tables to implement 
-dynamic dispatch.  
+These techniques can be used in a compiler and library setting and support well 
+separate compilation and dynamic linking. They are open to class extensions and 
+interact well with other C++ facilities such as multiple inheritance (including 
+repetitive and virtual inheritance) and templates. The techniques are not 
+specific to C++ and can be adopted in other languages for similar purposes.
 
-Using the above technique we implemented a pattern-matching library for C++ that 
-closely resembles pattern-matching facilities available in other languages on a 
-first-class bases. Our implementation is very similar or outperforms its closest 
-contender -- visitor design pattern as well as overcomes the restrictions, 
-inconveniences and difficulties in teaching and using, typically associated with 
-it.
+Using the above techniques we implemented a library for efficient type switching 
+in C++. Our implementation comes close or outperforms its closest contender -- 
+visitor design pattern as well as overcomes the restrictions, inconveniences and 
+difficulties in teaching and using, typically associated with it.
 
 We used the library to rewrite an existing code that was relying heavily on 
 visitors and discovered that resulting code became much shorter, simpler, easier 
