@@ -36,11 +36,23 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 //------------------------------------------------------------------------------
 
 /// Uncomment this macro definition if you'd like to do some performance tracing
-#define XTL_TRACE_PERFORMANCE
+//#define XTL_TRACE_PERFORMANCE
 /// Uncomment this macro definition if you'd like to do some performance tracing
-#define XTL_DUMP_PERFORMANCE
+//#define XTL_DUMP_PERFORMANCE
 /// Uncomment to use Pearson hash
 //#define XTL_USE_PEARSON_HASH
+
+/// When this macro is defined, vtblmaps will count frequency of requests using a
+/// given vtbl pointer and will take it into account during rearranging of the map.
+/// \note This introduces a slight performance overhead to the most frequent path,
+///       but supposedly will pay when no zero conflict is possible.
+//#define XTL_USE_VTBL_FREQUENCY
+
+/// When this macro is defined, our library will generate additional code that 
+/// will trigger compiler to check case clauses for redundancy.
+/// \warning Do not define this macro in actual builds as the generated code 
+///          will effectively have a switch statement whose body is never evaluated!
+//#define XTL_REDUNDANCY_CHECKING
 
 //------------------------------------------------------------------------------
 
@@ -104,6 +116,14 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
     #define XTL_DUMP_PERFORMANCE_ONLY(...) __VA_ARGS__
 #else
     #define XTL_DUMP_PERFORMANCE_ONLY(...)
+#endif
+
+//------------------------------------------------------------------------------
+
+#if defined(XTL_USE_VTBL_FREQUENCY)
+    #define XTL_USE_VTBL_FREQUENCY_ONLY(...) __VA_ARGS__
+#else
+    #define XTL_USE_VTBL_FREQUENCY_ONLY(...)
 #endif
 
 //------------------------------------------------------------------------------
@@ -212,6 +232,20 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 #define _XTL_STRING_LITERAL(x)  #x
 /// Macro to stringize some expression.
 #define XTL_STRING_LITERAL(x)   _XTL_STRING_LITERAL(x)
+
+//------------------------------------------------------------------------------
+
+#if defined(_MSC_VER)
+    /// MSVC10 doesn't seem to support the standard _Pragma operator
+    #define XTL_PRAGMA(x) __pragma(x)
+    /// Helper macro to output a message during compilation in format understood by Visual Studio
+    #define XTL_MESSAGE(str) XTL_PRAGMA(message(__FILE__ "(" XTL_STRING_LITERAL(__LINE__) ") : " str))
+#else
+    /// Helper macro to use the sandard _Pragma operator
+    #define XTL_PRAGMA(x) _Pragma(#x)
+    /// Helper macro to output a message during compilation. GCC prepends file and line info to it anyways
+    #define XTL_MESSAGE(str) XTL_PRAGMA(message str)
+#endif
 
 //------------------------------------------------------------------------------
 

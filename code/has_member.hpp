@@ -37,3 +37,4 @@ struct has_member_##name \
 
 HAS_MEMBER_XXX(kind_selector,  bool (T::*)() const,  kind_selector_dummy);
 HAS_MEMBER_XXX(raise_selector, bool (T::*)() const, raise_selector_dummy);
+HAS_MEMBER_XXX(frequency,      bool (T::*)() const,      frequency_dummy);

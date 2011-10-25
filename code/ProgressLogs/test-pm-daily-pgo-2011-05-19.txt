@@ -1,0 +1,95 @@
+Test from Thu 05/19/2011 at 16:57:26.67 
+========== [ Visual C++/Win32 without PGO ] =============================== 
+[ Win32/Synthetic.exe ] ============================ 
+[ Win32/SyntheticSelectRandom.exe ] ================ 
+OVERALL: Sequential: 0% slower; Random: 2% slower
+VTBLS: 00000000010000100101XXXXXXXXXX00 irrelevant=2 width=10 	1->100; 0->28; 21% unused
+[ Win32/SyntheticSelect.exe ] ====================== 
+OVERALL: Repetitive: 6% slower; Random: 15% slower
+VTBLS: 00000000010000100101XXXXXXXXXX00 irrelevant=2 width=10 	1->100; 0->28; 21% unused
+[ Win32/Hierarchy.exe ] ============================ 
+OVERALL: Sequential: 91% faster; Random: 1% faster
+VTBLS: 00000000000101011010XXXXXXXXXX00 irrelevant=2 width=10 	1->100; 0->28; 21% unused
+[ Win32/SyntheticSelectKind.exe ] ================== 
+OVERALL: Sequential: 28% faster; Random: 23% faster
+[ Win32/TypeSwitch.exe ] =========================== 
+OVERALL: Sequential: 23% slower; Random: 22% slower
+VTBLS: 00000000000011111100XXXXXXXXXX00 irrelevant=2 width=10 	1->100; 0->28; 21% unused
+[ Win32/OCamlCmp.exe ] ============================= 
+Average time for 1000000 runs takes 0.022554 seconds: 704532704
+VTBLS: 000000001110110001110XXXXXXXX000 irrelevant=3 width=8 	1->100; 0->28; 21% unused
+[ Win32/OCamlCmpKind.exe ] ========================= 
+Average time for 1000000 runs takes 0.012812 seconds: 704532704
+[ Win32/Numbers.exe ] ============================== 
+1% slower
+30% slower
+========== [ Visual C++/Win32 optimize PGO ] ============================== 
+[ Win32/Synthetic.exe ] ============================ 
+[ Win32/SyntheticSelectRandom.exe ] ================ 
+OVERALL: Sequential: 0% slower; Random: 14% slower
+VTBLS: 00000000010000100110XXXXXXXXXX00 irrelevant=2 width=10 	1->100; 0->28; 21% unused
+[ Win32/SyntheticSelect.exe ] ====================== 
+OVERALL: Repetitive: 30% faster; Random: 11% slower
+VTBLS: 00000000010000100110XXXXXXXXXX00 irrelevant=2 width=10 	1->100; 0->28; 21% unused
+[ Win32/Hierarchy.exe ] ============================ 
+OVERALL: Sequential: 137% faster; Random: 4% faster
+VTBLS: 00000001000110111010XXXXXXXXXX00 irrelevant=2 width=10 	1->100; 0->28; 21% unused
+[ Win32/SyntheticSelectKind.exe ] ================== 
+OVERALL: Sequential: 56% faster; Random: 59% faster
+[ Win32/TypeSwitch.exe ] =========================== 
+[ Win32/OCamlCmp.exe ] ============================= 
+Average time for 1000000 runs takes 0.019762 seconds: 704532704
+VTBLS: 000000001000001001110XXXXXXXX000 irrelevant=3 width=8 	1->100; 0->28; 21% unused
+[ Win32/OCamlCmpKind.exe ] ========================= 
+Average time for 1000000 runs takes 0.013129 seconds: 704532704
+[ Win32/Numbers.exe ] ============================== 
+4% slower
+32% slower
+========== [ Visual C++/x64 without PGO ] ================================= 
+[ x64/Synthetic.exe ] ============================== 
+[ x64/SyntheticSelectRandom.exe ] ================== 
+OVERALL: Sequential: 0% slower; Random: 40% slower
+VTBLS: 000000000000000000000000000000010100000000000010101XXXXXXXXXX000 irrelevant=3 width=10 	1->100; 0->28; 21% unused
+[ x64/SyntheticSelect.exe ] ======================== 
+OVERALL: Repetitive: 20% slower; Random: 34% slower
+VTBLS: 000000000000000000000000000000010100000000000010101XXXXXXXXXX000 irrelevant=3 width=10 	1->100; 0->28; 21% unused
+[ x64/Hierarchy.exe ] ============================== 
+OVERALL: Sequential: 90% faster; Random: 22% slower
+VTBLS: 000000000000000000000000000000010011111101000000101XXXXXXXXXX000 irrelevant=3 width=10 	1->100; 0->28; 21% unused
+[ x64/SyntheticSelectKind.exe ] ==================== 
+OVERALL: Sequential: 5% faster; Random: 13% faster
+[ x64/TypeSwitch.exe ] ============================= 
+OVERALL: Sequential: 40% slower; Random: 34% slower
+VTBLS: 000000000000000000000000000000010011111100101000110XXXXXXXXXX000 irrelevant=3 width=10 	1->100; 0->28; 21% unused
+[ x64/OCamlCmp.exe ] =============================== 
+Average time for 1000000 runs takes 0.021158 seconds: 704532704
+VTBLS: 0000000000000000000000000000000100111111110111100111XXXXXXXX1000 irrelevant=4 width=8 	1->100; 0->28; 21% unused
+[ x64/OCamlCmpKind.exe ] =========================== 
+Average time for 1000000 runs takes 0.013584 seconds: 704532704
+[ x64/Numbers.exe ] ================================ 
+17% slower
+50% slower
+========== [ Visual C++/x64 optimize PGO ] ================================ 
+[ x64/Synthetic.exe ] ============================== 
+[ x64/SyntheticSelectRandom.exe ] ================== 
+OVERALL: Sequential: 0% slower; Random: 30% slower
+VTBLS: 0000000000000000000000000000000101000000000000101XXXXXXXXXXXX000 irrelevant=3 width=12 	1->100; 0->28; 21% unused
+[ x64/SyntheticSelect.exe ] ======================== 
+OVERALL: Repetitive: 0% slower; Random: 28% slower
+VTBLS: 0000000000000000000000000000000101000000000000101XXXXXXXXXXXX000 irrelevant=3 width=12 	1->100; 0->28; 21% unused
+[ x64/Hierarchy.exe ] ============================== 
+OVERALL: Sequential: 110% faster; Random: 12% slower
+VTBLS: 000000000000000000000000000000010011111111000000110XXXXXXXXXX000 irrelevant=3 width=10 	1->100; 0->28; 21% unused
+[ x64/SyntheticSelectKind.exe ] ==================== 
+OVERALL: Sequential: 52% faster; Random: 29% faster
+[ x64/TypeSwitch.exe ] ============================= 
+OVERALL: Sequential: 23% faster; Random: 32% slower
+VTBLS: 00000000000000000000000000000001001111111010000111XXXXXXXXXXX000 irrelevant=3 width=11 	1->100; 0->28; 21% unused
+[ x64/OCamlCmp.exe ] =============================== 
+Average time for 1000000 runs takes 0.0097327 seconds: 704532704
+VTBLS: 0000000000000000000000000000000100111111100100101000XXXXXXXX0000 irrelevant=4 width=8 	1->100; 0->28; 21% unused
+[ x64/OCamlCmpKind.exe ] =========================== 
+Average time for 1000000 runs takes 0.014208 seconds: 704532704
+[ x64/Numbers.exe ] ================================ 
+19% slower
+9% slower

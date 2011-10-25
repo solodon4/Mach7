@@ -1,0 +1,85 @@
+Test from Mon 06/06/2011 at  0:21:24.67 
+[ synthetic.exe ] ========================== 
+[ generic_select_random.exe ] ============== 
+OVERALL: Sequential: 13% faster; Random: 6% faster
+VTBLS: 000000000100000XXXXXXXXXXX000000 irrelevant=6 shift=6 width=11 Entropy: 6.64386	 1->100; 0->28; 21% unused
+[ synthetic_select_random.exe ] ============ 
+OVERALL: Sequential: 19% faster; Random: 8% faster
+VTBLS: 000000000100000XXXXXXXXXXX000000 irrelevant=6 shift=6 width=11 Entropy: 6.64386	 1->100; 0->28; 21% unused
+[ synthetic_select.exe ] =================== 
+OVERALL: Repetitive: 101% faster; Random: 15% faster
+VTBLS: 000000000100000XXXXXXXXXXX000000 irrelevant=6 shift=6 width=11 Entropy: 6.64386	 1->100; 0->28; 21% unused
+[ hierarchy2.exe ] ========================= 
+OVERALL: Sequential: 282% faster; Random: 27% faster
+VTBLS: 000000000100000011XXXXXXXX000000 irrelevant=6 shift=6 width=8 Entropy: 6.64386	 1->100; 0->28; 21% unused
+[ generic_select_kind.exe ] ================ 
+OVERALL: Sequential: 508% faster; Random: 528% faster
+[ synthetic_select_kind.exe ] ============== 
+OVERALL: Sequential: 509% faster; Random: 527% faster
+[ type_switch.exe ] ======================== 
+OVERALL: Sequential: 5% faster; Random: 4% faster
+VTBLS: 000000000100000XXXXXXXXXXX000000 irrelevant=6 shift=6 width=11 Entropy: 6.64386	 1->100; 0->28; 21% unused
+[ ocaml_cmp.exe ] ========================== 
+Average time for 1000000 runs takes 0.022545 seconds: 704532704
+VTBLS: 000000000100000010010XXXXXXX0000 irrelevant=4 shift=4 width=7 Entropy: 6.6439	 1->100; 0->28; 21% unused
+[ ocaml_cmp_kind.exe ] ===================== 
+Average time for 1000000 runs takes 0.003396 seconds: 704532704
+[ numbers.exe ] ============================ 
+-8% slower
+76% slower
+[ Win32/Synthetic.exe ] ============================ 
+[ Win32/GenericSelectRandom.exe ] ================== 
+OVERALL: Sequential: 10% slower; Random: 10% slower
+VTBLS: 00000000010000100110XXXXXXXXXX00 irrelevant=2 shift=4 width=10 Entropy: 6.64386	 1->100; 0->28; 21% unused
+[ Win32/SyntheticSelectRandom.exe ] ================ 
+OVERALL: Sequential: 12% slower; Random: 11% slower
+VTBLS: 00000000010000100110XXXXXXXXXX00 irrelevant=2 shift=4 width=10 Entropy: 6.64386	 1->100; 0->28; 21% unused
+[ Win32/SyntheticSelect.exe ] ====================== 
+OVERALL: Repetitive: 4% slower; Random: 14% slower
+VTBLS: 00000000010000100110XXXXXXXXXX00 irrelevant=2 shift=4 width=10 Entropy: 6.64386	 1->100; 0->28; 21% unused
+[ Win32/Hierarchy.exe ] ============================ 
+OVERALL: Sequential: 84% faster; Random: 6% slower
+VTBLS: 00000000111011001010XXXXXXXXXX00 irrelevant=2 shift=4 width=10 Entropy: 6.64386	 1->100; 0->28; 21% unused
+[ Win32/GenericSelectKind.exe ] ==================== 
+OVERALL: Sequential: 28% faster; Random: 21% faster
+[ Win32/SyntheticSelectKind.exe ] ================== 
+OVERALL: Sequential: 27% faster; Random: 23% faster
+[ Win32/TypeSwitch.exe ] =========================== 
+OVERALL: Sequential: 23% slower; Random: 15% slower
+VTBLS: 00000000100000011011XXXXXXXXXX00 irrelevant=2 shift=4 width=10 Entropy: 6.64386	 1->100; 0->28; 21% unused
+[ Win32/OCamlCmp.exe ] ============================= 
+Average time for 1000000 runs takes 0.029347 seconds: 704532704
+VTBLS: 000000010010011101100XXXXXXXX100 irrelevant=3 shift=3 width=8 Entropy: 6.6439	 1->100; 0->28; 21% unused
+[ Win32/OCamlCmpKind.exe ] ========================= 
+Average time for 1000000 runs takes 0.01405 seconds: 704532704
+[ Win32/Numbers.exe ] ============================== 
+13% slower
+82% slower
+[ x64/Synthetic.exe ] ============================== 
+[ x64/GenericSelectRandom.exe ] ==================== 
+OVERALL: Sequential: 36% slower; Random: 31% slower
+VTBLS: 000000000000000000000000000000010100000000000010101XXXXXXXXXX000 irrelevant=3 shift=5 width=10 Entropy: 6.64386	 1->100; 0->28; 21% unused
+[ x64/SyntheticSelectRandom.exe ] ================== 
+OVERALL: Sequential: 30% slower; Random: 36% slower
+VTBLS: 000000000000000000000000000000010100000000000010101XXXXXXXXXX000 irrelevant=3 shift=5 width=10 Entropy: 6.64386	 1->100; 0->28; 21% unused
+[ x64/SyntheticSelect.exe ] ======================== 
+OVERALL: Repetitive: 7% slower; Random: 33% slower
+VTBLS: 000000000000000000000000000000010100000000000010101XXXXXXXXXX000 irrelevant=3 shift=5 width=10 Entropy: 6.64386	 1->100; 0->28; 21% unused
+[ x64/Hierarchy.exe ] ============================== 
+OVERALL: Sequential: 110% faster; Random: 18% slower
+VTBLS: 000000000000000000000000000000010011111110110001101XXXXXXXXXX000 irrelevant=3 shift=5 width=10 Entropy: 6.64386	 1->100; 0->28; 21% unused
+[ x64/GenericSelectKind.exe ] ====================== 
+OVERALL: Sequential: 12% faster; Random: 7% faster
+[ x64/SyntheticSelectKind.exe ] ==================== 
+OVERALL: Sequential: 5% faster; Random: 13% faster
+[ x64/TypeSwitch.exe ] ============================= 
+OVERALL: Sequential: 38% slower; Random: 44% slower
+VTBLS: 000000000000000000000000000000010011111110101010110XXXXXXXXXX000 irrelevant=3 shift=5 width=10 Entropy: 6.64386	 1->100; 0->28; 21% unused
+[ x64/OCamlCmp.exe ] =============================== 
+Average time for 1000000 runs takes 0.02101 seconds: 704532704
+VTBLS: 0000000000000000000000000000000100111111010110010111XXXXXXXX0000 irrelevant=4 shift=4 width=8 Entropy: 6.6439	 1->100; 0->28; 21% unused
+[ x64/OCamlCmpKind.exe ] =========================== 
+Average time for 1000000 runs takes 0.013287 seconds: 704532704
+[ x64/Numbers.exe ] ================================ 
+20% slower
+53% slower

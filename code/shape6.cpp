@@ -135,6 +135,8 @@ int main()
 
     for (size_t i = 0; i < 3; ++i)
     {
+        /// \note Unlike the rest of our Match statements, MatchE does not allow {} 
+        ///       around the case clauses.
         MatchE(shapes[i])
         CaseE(Circle,_,r)    std::cout << "Circle"   << std::endl; m += r;       // break;
         CaseE(Square,_,r)    std::cout << "Square"   << std::endl; m += r;       // break;

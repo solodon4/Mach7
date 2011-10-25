@@ -1,0 +1,70 @@
+Test from Wed 05/18/2011 at 16:43:51.58 
+[ synthetic.exe ] ========================== 
+[ synthetic_select_random.exe ] ============ 
+OVERALL: Sequential: 21% faster; Random: 7% faster
+VTBLS: 000000000100000XXXXXXXXXXX000000 irrelevant=6 width=11 	1->100; 0->28; 21% unused
+[ synthetic_select.exe ] =================== 
+OVERALL: Repetitive: 75% faster; Random: 10% faster
+VTBLS: 000000000100000XXXXXXXXXXX000000 irrelevant=6 width=11 	1->100; 0->28; 21% unused
+[ hierarchy2.exe ] ========================= 
+OVERALL: Sequential: 244% faster; Random: 25% faster
+VTBLS: 000000000100000011XXXXXXXX000000 irrelevant=6 width=8 	1->100; 0->28; 21% unused
+[ synthetic_select_kind.exe ] ============== 
+OVERALL: Sequential: 518% faster; Random: 534% faster
+[ type_switch.exe ] ======================== 
+OVERALL: Sequential: 15% faster; Random: 8% faster
+VTBLS: 000000000100000XXXXXXXXXXX000000 irrelevant=6 width=11 	1->100; 0->28; 21% unused
+[ ocaml_cmp.exe ] ========================== 
+Average time for 1000000 runs takes 0.018683 seconds: 704532704
+VTBLS: 000000000100000010010XXXXXXX0000 irrelevant=4 width=7 	1->100; 0->28; 21% unused
+[ ocaml_cmp_kind.exe ] ===================== 
+Average time for 1000000 runs takes 0.003396 seconds: 704532704
+[ numbers.exe ] ============================ 
+4% slower
+-15% slower
+[ Win32/Synthetic.exe ] ============================ 
+[ Win32/SyntheticSelectRandom.exe ] ================ 
+OVERALL: Sequential: 14% slower; Random: 13% slower
+VTBLS: 00000000010000100101XXXXXXXXXX00 irrelevant=2 width=10 	1->100; 0->28; 21% unused
+[ Win32/SyntheticSelect.exe ] ====================== 
+OVERALL: Repetitive: 5% slower; Random: 14% slower
+VTBLS: 00000000010000100101XXXXXXXXXX00 irrelevant=2 width=10 	1->100; 0->28; 21% unused
+[ Win32/Hierarchy.exe ] ============================ 
+OVERALL: Sequential: 90% faster; Random: 1% faster
+VTBLS: 00000000101001111010XXXXXXXXXX00 irrelevant=2 width=10 	1->100; 0->28; 21% unused
+[ Win32/SyntheticSelectKind.exe ] ================== 
+OVERALL: Sequential: 27% faster; Random: 23% faster
+[ Win32/TypeSwitch.exe ] =========================== 
+OVERALL: Sequential: 23% slower; Random: 22% slower
+VTBLS: 00000001000000001100XXXXXXXXXX00 irrelevant=2 width=10 	1->100; 0->28; 21% unused
+[ Win32/OCamlCmp.exe ] ============================= 
+Average time for 1000000 runs takes 0.02301 seconds: 704532704
+VTBLS: 000000001110000101110XXXXXXXX000 irrelevant=3 width=8 	1->100; 0->28; 21% unused
+[ Win32/OCamlCmpKind.exe ] ========================= 
+Average time for 1000000 runs takes 0.012822 seconds: 704532704
+[ Win32/Numbers.exe ] ============================== 
+7% slower
+-11% slower
+[ x64/Synthetic.exe ] ============================== 
+[ x64/SyntheticSelectRandom.exe ] ================== 
+OVERALL: Sequential: 31% slower; Random: 38% slower
+VTBLS: 000000000000000000000000000000010100000000000010101XXXXXXXXXX000 irrelevant=3 width=10 	1->100; 0->28; 21% unused
+[ x64/SyntheticSelect.exe ] ======================== 
+OVERALL: Repetitive: 20% slower; Random: 35% slower
+VTBLS: 000000000000000000000000000000010100000000000010101XXXXXXXXXX000 irrelevant=3 width=10 	1->100; 0->28; 21% unused
+[ x64/Hierarchy.exe ] ============================== 
+OVERALL: Sequential: 90% faster; Random: 22% slower
+VTBLS: 000000000000000000000000000000010011111110010110101XXXXXXXXXX000 irrelevant=3 width=10 	1->100; 0->28; 21% unused
+[ x64/SyntheticSelectKind.exe ] ==================== 
+OVERALL: Sequential: 5% faster; Random: 13% faster
+[ x64/TypeSwitch.exe ] ============================= 
+OVERALL: Sequential: 40% slower; Random: 34% slower
+VTBLS: 000000000000000000000000000000010011111101110111110XXXXXXXXXX000 irrelevant=3 width=10 	1->100; 0->28; 21% unused
+[ x64/OCamlCmp.exe ] =============================== 
+Average time for 1000000 runs takes 0.021307 seconds: 704532704
+VTBLS: 0000000000000000000000000000000100111111111001110111XXXXXXXX1000 irrelevant=4 width=8 	1->100; 0->28; 21% unused
+[ x64/OCamlCmpKind.exe ] =========================== 
+Average time for 1000000 runs takes 0.013436 seconds: 704532704
+[ x64/Numbers.exe ] ================================ 
+17% slower
+51% slower

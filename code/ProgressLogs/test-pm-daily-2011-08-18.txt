@@ -1,0 +1,67 @@
+Test from Fri 08/19/2011 at  1:22:49.74 
+[ synthetic.exe ] ========================== 
+[ generic_select_random.exe ] ============== 
+OVERALL: Sequential: 9% faster; Random: 2% faster
+[ synthetic_select_random.exe ] ============ 
+OVERALL: Sequential: 13% faster; Random: 2% faster
+[ synthetic_select.exe ] =================== 
+OVERALL: Repetitive: 76% faster; Random: 10% faster
+[ hierarchy2.exe ] ========================= 
+OVERALL: Sequential: 241% faster; Random: 27% faster
+[ generic_select_kind.exe ] ================ 
+OVERALL: Sequential: 8% faster; Random: 1% faster
+[ synthetic_select_kind.exe ] ============== 
+OVERALL: Sequential: 516% faster; Random: 536% faster
+[ type_switch.exe ] ======================== 
+OVERALL: Sequential: 7% faster; Random: 3% slower
+[ ocaml_cmp.exe ] ========================== 
+Average time for 1000000 runs takes 0.021079 seconds: 704532704
+[ ocaml_cmp_kind.exe ] ===================== 
+Average time for 1000000 runs takes 0.0033762 seconds: 704532704
+[ numbers.exe ] ============================ 
+3% slower
+-10% slower
+[ Win32/Synthetic.exe ] ============================ 
+[ Win32/GenericSelectRandom.exe ] ================== 
+OVERALL: Sequential: 12% slower; Random: 14% slower
+[ Win32/SyntheticSelectRandom.exe ] ================ 
+OVERALL: Sequential: 9% slower; Random: 9% slower
+[ Win32/SyntheticSelect.exe ] ====================== 
+OVERALL: Repetitive: 13% faster; Random: 12% slower
+[ Win32/Hierarchy.exe ] ============================ 
+OVERALL: Sequential: 12% slower; Random: 1% faster
+[ Win32/GenericSelectKind.exe ] ==================== 
+OVERALL: Sequential: 13% slower; Random: 14% slower
+[ Win32/SyntheticSelectKind.exe ] ================== 
+OVERALL: Sequential: 28% faster; Random: 24% faster
+[ Win32/TypeSwitch.exe ] =========================== 
+OVERALL: Sequential: 24% slower; Random: 25% slower
+[ Win32/OCamlCmp.exe ] ============================= 
+Average time for 1000000 runs takes 0.023475 seconds: 704532704
+[ Win32/OCamlCmpKind.exe ] ========================= 
+Average time for 1000000 runs takes 0.013337 seconds: 704532704
+[ Win32/Numbers.exe ] ============================== 
+1% slower
+88% slower
+[ x64/Synthetic.exe ] ============================== 
+[ x64/GenericSelectRandom.exe ] ==================== 
+OVERALL: Sequential: 41% slower; Random: 46% slower
+[ x64/SyntheticSelectRandom.exe ] ================== 
+OVERALL: Sequential: 42% slower; Random: 36% slower
+[ x64/SyntheticSelect.exe ] ======================== 
+OVERALL: Repetitive: 20% slower; Random: 38% slower
+[ x64/Hierarchy.exe ] ============================== 
+OVERALL: Sequential: 2% slower; Random: 24% slower
+[ x64/GenericSelectKind.exe ] ====================== 
+OVERALL: Sequential: 45% slower; Random: 40% slower
+[ x64/SyntheticSelectKind.exe ] ==================== 
+OVERALL: Sequential: 5% faster; Random: 13% faster
+[ x64/TypeSwitch.exe ] ============================= 
+OVERALL: Sequential: 50% slower; Random: 56% slower
+[ x64/OCamlCmp.exe ] =============================== 
+Average time for 1000000 runs takes 0.022465 seconds: 4999500000
+[ x64/OCamlCmpKind.exe ] =========================== 
+Average time for 1000000 runs takes 0.013802 seconds: 4999500000
+[ x64/Numbers.exe ] ================================ 
+0% slower
+61% slower

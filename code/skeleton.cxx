@@ -200,13 +200,16 @@ size_t do_match(const Shape& s, size_t n)
         #define FOR_EACH_MAX      NUMBER_OF_DERIVED-1
         #define FOR_EACH_N(N)     Case(shape_kind<NUMBER_OF_DERIVED-1-N>) return NUMBER_OF_DERIVED-1-N;
     #endif
-    #define FOR_EACH_PRELUDE  Match(s)
-    #define FOR_EACH_POSTLUDE EndMatch
-    #include "loop_over_numbers.hpp"
-    #undef  FOR_EACH_POSTLUDE
+
+    Match(s)
+    {
+        #include "loop_over_numbers.hpp"
+    }
+    EndMatch
+    
     #undef  FOR_EACH_N
-    #undef  FOR_EACH_PRELUDE
     #undef  FOR_EACH_MAX
+
     return -1;
 }
 XTL_DO_NOT_INLINE_END

@@ -78,21 +78,35 @@ struct ShapeVisitor
 template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(*this); }
 
 //------------------------------------------------------------------------------
+size_t frequency(const Shape& s)
+{
+    MatchP(s)
+    {
+        #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
+        #define FOR_EACH_N(N) CaseP(shape_kind<N>) return 10*N+7;
+        #include "loop_over_numbers.hpp"
+        #undef  FOR_EACH_N
+        #undef  FOR_EACH_MAX
+    }
+    EndMatchP
+    return -1;
+}
+//size_t frequency(intptr_t vtbl) { return frequency(*reinterpret_cast<const Shape*>(&vtbl)); }
+template <> struct match_members<Shape> { FQS(frequency); };
 
 #if 1
 XTL_DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s)
 {
-    #define FOR_EACH_MAX      NUMBER_OF_DERIVED-1
-    //#define FOR_EACH_PRELUDE  MatchP_N(s,NUMBER_OF_DERIVED)
-    #define FOR_EACH_PRELUDE  MatchP(s)
-    #define FOR_EACH_N(N)     CaseP(shape_kind<N>) return N;
-    #define FOR_EACH_POSTLUDE EndMatchP
-    #include "loop_over_numbers.hpp"
-    #undef  FOR_EACH_POSTLUDE
-    #undef  FOR_EACH_N
-    #undef  FOR_EACH_PRELUDE
-    #undef  FOR_EACH_MAX
+    MatchP(s)
+    {
+        #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
+        #define FOR_EACH_N(N) CaseP(shape_kind<N>) return N;
+        #include "loop_over_numbers.hpp"
+        #undef  FOR_EACH_N
+        #undef  FOR_EACH_MAX
+    }
+    EndMatchP
     return -1;
 }
 XTL_DO_NOT_INLINE_END
@@ -1754,11 +1768,11 @@ Shape* make_shape(size_t i)
 {
     switch (i)
     {
-    #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
-    #define FOR_EACH_N(N) case N: return new shape_kind<N>;
-    #include "loop_over_numbers.hpp"
-    #undef  FOR_EACH_N
-    #undef  FOR_EACH_MAX
+        #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
+        #define FOR_EACH_N(N) case N: return new shape_kind<N>;
+        #include "loop_over_numbers.hpp"
+        #undef  FOR_EACH_N
+        #undef  FOR_EACH_MAX
     }
     return 0;
 }

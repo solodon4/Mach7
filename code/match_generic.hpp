@@ -47,24 +47,22 @@
 
 #pragma once
 
+#include "vtblmap.hpp"   // Class implementing fast mapping of v-table pointers to T
+
 #include <cassert>
 #include <ostream>
 #include <type_traits>
 #include <utility>
-#ifdef _MSC_VER
-/// Visual C++ 2010 does not include declval
-namespace std { template <typename T> typename std::add_rvalue_reference<T>::type declval(); }
-#endif
-
 #include <vector>
-#include "exprtmpl.hpp"
-#include "vtblmap.hpp"
-#include "ptrtools.hpp"  // Helper functions to work with pointers
-
 #ifdef _DEBUG
 #include <typeinfo>
 #include <iostream>
 #endif
+#include "exprtmpl.hpp"
+#include "ptrtools.hpp"  // Helper functions to work with pointers
+#include "has_member.hpp"// Meta-functions to check use of certain @match_members facilities
+
+//------------------------------------------------------------------------------
 
 #if XTL_USE_MEMOIZED_CAST
   #include "memoized_cast.hpp"
@@ -73,8 +71,15 @@ namespace std { template <typename T> typename std::add_rvalue_reference<T>::typ
   #define memoized_cast dynamic_cast
 #endif
 
+#ifdef _MSC_VER
+/// Visual C++ 2010 does not include declval
+namespace std { template <typename T> typename std::add_rvalue_reference<T>::type declval(); }
+#endif
+
 //------------------------------------------------------------------------------
 
+/// Helper meta-function to remove reference ans const qualification from a type.
+/// Used to get an underlying selector type of Match' argument.
 template <typename T> 
 struct underlying : std::remove_const<typename std::remove_reference<T>::type> {};
 
@@ -127,6 +132,8 @@ enum { default_layout = size_t(~0) };
 template <typename type_being_matched, size_t layout = default_layout> 
 struct match_members;
 
+//------------------------------------------------------------------------------
+
 /// A wrapper class that lets one pack a given layout and type into a view.
 template <typename type_being_matched, size_t layout = default_layout> 
 struct view
@@ -134,6 +141,45 @@ struct view
     typedef type_being_matched target_type;
     static const size_t        target_layout = layout;
 };
+
+//------------------------------------------------------------------------------
+
+/// Helper meta-function used to obtain the first argument of a single-argument
+/// template instantiation.
+/// \note Default template does not have implementation by design to fail on 
+///       inappropriate application.
+template <typename T>                         struct get_param;
+/// This is the actual implementation that grabs the first parameter for any 
+/// single-argument template Q instantiation.
+template <class U, template<class X> class Q> struct get_param<Q<U>> { typedef U type; };
+/// This specialization is for uses of @match_members that employ layouts.
+template <class U, size_t L>                  struct get_param<match_members<U,L>> { typedef U type; };
+
+//------------------------------------------------------------------------------
+
+/// Helper function that is enabled when user provided frequency function for the
+/// selector type.
+template <typename T>
+inline typename std::enable_if<has_member_frequency<match_members<T>>::value, size_t>::type
+get_frequency_ex(intptr_t vtbl)
+{
+    return match_members<T>::frequency(vtbl);
+}
+
+/// Helper function that is enabled when user did not provide frequency function
+/// for selector type.
+template <typename T>
+inline typename std::enable_if<!has_member_frequency<match_members<T>>::value, size_t>::type
+get_frequency_ex(intptr_t)
+{
+    // FIX: Make this function warn user
+    return 1;
+}
+
+/// We need this extra wrapper to be able to forward declare it from @vtblmap_of's header
+template <typename T> inline size_t get_frequency(intptr_t vtbl) { return get_frequency_ex<T>(vtbl); }
+
+//------------------------------------------------------------------------------
 
 /// Macro to define member's position within decomposition of a given data type
 /// Example: CM(0,MyClass::member) or CM(1,external_func)
@@ -175,7 +221,13 @@ struct view
 /// \note We use variadic macro parameter here in order to be able to handle 
 ///       templates, which might have commas, otherwise juse a second argument
 ///       would be sufficient.
-#define FQ(...) enum { frequency = __VA_ARGS__ };
+#define FQ(...) enum { fq = __VA_ARGS__ };
+
+/// Macro to define a function that returns expected frequency of a given type.
+/// The syntax of the function should be: size_t f(const selector_type&);
+/// FIX: Make sure there is no re-entrancy problems when pattern matching is
+///      used inside of the frequency function f to uncover selector type.
+#define FQS(f) static size_t frequency(intptr_t vtbl) { return ::f(*reinterpret_cast<const XTL_CPP0X_TYPENAME get_param<match_members>::type*>(&vtbl)); } bool frequency_dummy() const;
 
 /// Macro to define a raise selector - a virtual member function of the common
 /// base class that implements a polymorphic exception idiom (\see 
@@ -188,23 +240,6 @@ struct view
 ///       templates, which might have commas, otherwise juse a second argument
 ///       would be sufficient.
 #define RS(...)       static inline decltype(unary(&__VA_ARGS__)) raise_selector() { return unary(&__VA_ARGS__); } bool raise_selector_dummy() const;
-
-//------------------------------------------------------------------------------
-
-template <typename T>
-struct get_param;
-
-template <class U, template<class X> class Q>
-struct get_param<Q<U>>
-{
-    typedef U type;
-};
-
-template <class U, size_t L>
-struct get_param<match_members<U,L>>
-{
-    typedef U type;
-};
 
 //------------------------------------------------------------------------------
 
@@ -335,6 +370,19 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
 /// \warning Do not define this macro in actual builds as the generated code 
 ///          will effectively have a switch statement whose body is never evaluated!
 #if defined(XTL_REDUNDANCY_CHECKING)
+  /// During redundancy checking mode all case labels are removed from the 
+  /// underlying switch statement, making it effectively empty. Your code will
+  /// still compile, but during execution no switching will happen until you
+  /// disable redundancy checking macro again.
+  /// You should also be ready that in this mode, case clauses with the same
+  /// target type (which is allowed for open case) will report an error in MSVC
+  XTL_MESSAGE("WARNING: Redundancy checking is enabled. Match statements will not be executed until redundancy checking is disabled again!")
+  /// Even though normal case labels are agnostic of the block structure around them,
+  /// which lets us use or not use {} around case clauses, the try-catch structure
+  /// used for redundancy checking does not have this flexibility as catch handlers
+  /// should correspond to the try block. Our macros assume {} are present, but we
+  /// can probably make it configurable via macro one day should there be demand for it.
+  XTL_MESSAGE("WARNING: All Match statements except MatchE must have { and } around case clauses for redundancy checking mode!")
   /// In type-checking builds we resolve it to try to start a try-catch block 
   /// that will trigger redundancy warnings by a compiler.
   #define XTL_REDUNDANCY_TRY       try
@@ -370,7 +418,7 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
         enum { __base_counter = XTL_COUNTER };\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use TypeMatch");\
-        static vtblmap<type_switch_info&> __vtbl2lines_map XTL_DUMP_PERFORMANCE_ONLY((__FILE__,__LINE__));\
+        static vtblmap_of<selector_type, type_switch_info&> __vtbl2lines_map XTL_DUMP_PERFORMANCE_ONLY((__FILE__,__LINE__));\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
         switch (__switch_info.line) {\
@@ -386,7 +434,7 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
         enum { __base_counter = XTL_COUNTER };\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use TypeMatchN");\
-        static vtblmap<type_switch_info&/*,requires_bits<N>::value*/> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)requires_bits<N>::value);\
+        static vtblmap_of<selector_type, type_switch_info&/*,requires_bits<N>::value*/> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)requires_bits<N>::value);\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
         switch (__switch_info.line) {\
@@ -409,53 +457,53 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
 /// \note case 0: instead of default: will work in the same way because we 
 ///       initialize cache with 0, however through experiments we can see
 ///       that having default here is quite a bit faster than having case 0.
-#define MatchP(s) {\
-        auto const   __selector_ptr = addr(s);\
-        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
-        enum { __base_counter = XTL_COUNTER };\
-        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
+#define MatchP(s) {                                                                            \
+        auto const   __selector_ptr = addr(s);                                                 \
+        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;  \
+        enum { __base_counter = XTL_COUNTER };                                                 \
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));                      \
         static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use MatchP");\
-        static vtblmap<type_switch_info&> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)deferred_value<vtbl_count_t>::get<__base_counter>());\
-        const void*  __casted_ptr;\
-        type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
-        switch (__switch_info.line)\
-        {\
-        XTL_REDUNDANCY_LABEL(case 0:) { XTL_REDUNDANCY_TRY {{
+        static vtblmap_of<selector_type, type_switch_info&> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)deferred_value<vtbl_count_t>::get<__base_counter>());\
+        const void*  __casted_ptr;                                                             \
+        type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);                \
+        switch (__switch_info.line)                                                            \
+        {                                                                                      \
+        XTL_REDUNDANCY_LABEL(default:) { XTL_REDUNDANCY_TRY {{
 
 /// Extended version of the macro that starts the switch on pattern, that takes an expected number of cases in
 /// \note case 0: instead of default: will work in the same way because we 
 ///       initialize cache with 0, however through experiments we can see
 ///       that having default here is quite a bit faster than having case 0.
-#define MatchP_N(s,N) {\
-        auto const   __selector_ptr = addr(s);\
-        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
-        enum { __base_counter = XTL_COUNTER };\
-        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
+#define MatchP_N(s,N) {                                                                        \
+        auto const   __selector_ptr = addr(s);                                                 \
+        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;  \
+        enum { __base_counter = XTL_COUNTER };                                                 \
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));                      \
         static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use MatchP_N");\
-        static vtblmap<type_switch_info&/*,requires_bits<N>::value*/> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)deferred_value<vtbl_count_t>::get<__base_counter>());\
-        const void*  __casted_ptr;\
-        type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
-        switch (__switch_info.line)\
-        {\
-        XTL_REDUNDANCY_LABEL(case 0:) { XTL_REDUNDANCY_TRY {{
+        static vtblmap_of<selector_type, type_switch_info&/*,requires_bits<N>::value*/> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)deferred_value<vtbl_count_t>::get<__base_counter>());\
+        const void*  __casted_ptr;                                                             \
+        type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);                \
+        switch (__switch_info.line)                                                            \
+        {                                                                                      \
+        XTL_REDUNDANCY_LABEL(default:) { XTL_REDUNDANCY_TRY {{
 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
 ///       seems to be impossible to introduce dummy argument inside the Case 
 ///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
-#define CaseP_(C,...) }}} \
-        XTL_REDUNDANCY_CATCH(C) \
-        { \
-            typedef C target_type;\
-            enum { target_label = XTL_COUNTER-__base_counter }; \
+#define CaseP_(C,...) }}}                                                                      \
+        XTL_REDUNDANCY_CATCH(C)                                                                \
+        {                                                                                      \
+            typedef C target_type;                                                             \
+            enum { target_label = XTL_COUNTER-__base_counter };                                \
             if (XTL_UNLIKELY(__casted_ptr = dynamic_cast<const target_type*>(__selector_ptr))) \
-            { \
-                if (XTL_LIKELY((__switch_info.line == 0))) \
-                { \
-                    __switch_info.line = target_label; \
-                    __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); \
-                } \
-            XTL_REDUNDANCY_LABEL(case target_label:) \
-                auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset); \
+            {                                                                                  \
+                if (XTL_LIKELY((__switch_info.line == 0)))                                     \
+                {                                                                              \
+                    __switch_info.line = target_label;                                         \
+                    __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr);    \
+                }                                                                              \
+            XTL_REDUNDANCY_LABEL(case target_label:)                                           \
+                auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset);   \
                 XTL_UNUSED(matched);
 
 /// Macro that defines the case statement for the above switch
@@ -471,7 +519,22 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
 #else
     #define CaseP(...) CaseP_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
 #endif
-#define QueP(C,...)  }}} { typedef C target_type; enum { target_label = XTL_COUNTER-__base_counter }; if (XTL_UNLIKELY(__casted_ptr = dynamic_cast<const target_type*>(__selector_ptr))) { if (XTL_LIKELY((__switch_info.line == 0))) { __switch_info.line = target_label; __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); } case target_label: auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset); if (XTL_LIKELY(match<target_type>(__VA_ARGS__)(matched))) {
+#define QueP(C,...)  }}}                                                                       \
+        XTL_REDUNDANCY_CATCH(C)                                                                \
+        {                                                                                      \
+            typedef C target_type;                                                             \
+            enum { target_label = XTL_COUNTER-__base_counter };                                \
+            if (XTL_UNLIKELY(__casted_ptr = dynamic_cast<const target_type*>(__selector_ptr))) \
+            {                                                                                  \
+                if (XTL_LIKELY((__switch_info.line == 0)))                                     \
+                {                                                                              \
+                    __switch_info.line = target_label;                                         \
+                    __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr);    \
+                }                                                                              \
+            XTL_REDUNDANCY_LABEL(case target_label:)                                           \
+                auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset);   \
+                if (XTL_LIKELY(match<target_type>(__VA_ARGS__)(matched))) {
+
 #define OrP(...)     } else if (match<target_type>(__VA_ARGS__)(matched)) {
 #define OtherwiseP(...) CaseP(selector_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
 #define EndMatchP    }}} enum { target_label = XTL_COUNTER-__base_counter }; deferred_value<vtbl_count_t>::set<__base_counter,target_label-1>::value; if (XTL_LIKELY((__switch_info.line == 0))) { __switch_info.line = target_label; } case target_label: ; }}
@@ -480,23 +543,23 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
 
 /// Macro that starts the switch on types that carry their own dynamic type as
 /// a distinct integral value in one of their members.
-#define MatchK(s) {\
-        auto const __selector_ptr  = addr(s);\
-        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
+#define MatchK(s) {                                                                            \
+        auto const __selector_ptr  = addr(s);                                                  \
+        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;  \
         static_assert(has_member_kind_selector<match_members<selector_type>>::value, "Before using MatchK, you have to specify kind selector on the selector type using KS macro");\
-        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));                      \
         auto const __kind_selector = apply_member(__selector_ptr, match_members<selector_type>::kind_selector());\
         switch (__kind_selector) { {{
 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
 ///       seems to be impossible to introduce dummy argument inside the Case 
 ///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
-#define CaseK_(C,...) }} \
-        if (XTL_UNLIKELY((__kind_selector == match_members<C>::kind_value))) \
-        { \
-        case match_members<C>::kind_value: \
-            typedef C target_type; \
-            auto matched = stat_cast<target_type>(__selector_ptr); \
+#define CaseK_(C,...) }}                                                                       \
+        if (XTL_UNLIKELY((__kind_selector == match_members<C>::kind_value)))                   \
+        {                                                                                      \
+        case match_members<C>::kind_value:                                                     \
+            typedef C target_type;                                                             \
+            auto matched = stat_cast<target_type>(__selector_ptr);                             \
             XTL_UNUSED(matched);
 
 /// Macro that defines the case statement for the above switch
@@ -512,22 +575,22 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
 
 /// Macro that starts the switch on types that carry their own dynamic type as
 /// a distinct integral value in one of their members.
-#define MatchU(s) {\
-        auto const __selector_ptr  = addr(s);\
-        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
+#define MatchU(s) {                                                                            \
+        auto const __selector_ptr  = addr(s);                                                  \
+        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;  \
         static_assert(has_member_kind_selector<match_members<selector_type>>::value, "Before using MatchU, you have to specify kind selector on the selector type using KS macro");\
-        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));                      \
         auto const __kind_selector = apply_member(__selector_ptr, match_members<selector_type>::kind_selector());\
         switch (__kind_selector) { {{
 
 /// Macro that defines the case statement for the above switch
-#define CaseU_(L,...) }} \
-        if (XTL_UNLIKELY((__kind_selector == match_members<selector_type,L>::kind_value))) \
-        { \
-        case match_members<selector_type,L>::kind_value: \
-            typedef selector_type target_type; \
-            enum { default_layout = L }; \
-            auto matched = __selector_ptr; \
+#define CaseU_(L,...) }}                                                                       \
+        if (XTL_UNLIKELY((__kind_selector == match_members<selector_type,L>::kind_value)))     \
+        {                                                                                      \
+        case match_members<selector_type,L>::kind_value:                                       \
+            typedef selector_type target_type;                                                 \
+            enum { default_layout = L };                                                       \
+            auto matched = __selector_ptr;                                                     \
             XTL_UNUSED(matched);
 
 /// Macro that defines the case statement for the above switch
@@ -543,19 +606,21 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
 
 /// Macro that starts the switch on types that carry their own dynamic type as
 /// a distinct integral value in one of their members.
-#define MatchE(s) {\
-        auto const __selector_ptr  = addr(s);\
-        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
+/// \note Unlike the rest of our Match statements, MatchE does not allow {} 
+///       around the case clauses.
+#define MatchE(s) {                                                                            \
+        auto const __selector_ptr  = addr(s);                                                  \
+        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;  \
         static_assert(has_member_raise_selector<match_members<selector_type>>::value, "Before using MatchE, you have to specify raise selector on the selector type using RS macro");\
-        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));                      \
         try { apply_member(__selector_ptr, match_members<selector_type>::raise_selector());
 
 /// Macro that defines the case statement for the above switch
-#define CaseE_(L,...) } \
-        catch (L& matched_ref) \
-        { \
-            typedef L target_type; \
-            auto matched = &matched_ref; \
+#define CaseE_(L,...) }                                                                        \
+        catch (L& matched_ref)                                                                 \
+        {                                                                                      \
+            typedef L target_type;                                                             \
+            auto matched = &matched_ref;                                                       \
             XTL_UNUSED(matched);
 
 /// Macro that defines the case statement for the above switch
@@ -580,12 +645,13 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         auto __kind_selector = original2remapped<selector_type>((int)apply_member(__selector_ptr, match_members<selector_type>::kind_selector()));\
         const int* __kinds = 0;\
-        size_t __attempt = 0;\
+        size_t __attempt;\
         XTL_CONCAT(ReMatch,__LINE__):\
         switch (__kind_selector) {\
         default:\
             if (XTL_LIKELY(!__kinds)) \
             { \
+                __attempt = 0;\
                 static std::vector<const int*> __kinds_cache;\
                 if (XTL_UNLIKELY(__kind_selector >= __kinds_cache.size()))\
                     __kinds_cache.resize(__kind_selector+1);\
@@ -605,7 +671,7 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
 //        auto const __selector_ptr  = addr(s);\
 //        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
 //        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
-//        auto __kind_selector = original2remapped<selector_type>((int)apply_member(__selector_ptr, match_members<selector_type>::kind_selector()));\
+////        auto __kind_selector = original2remapped<selector_type>((int)apply_member(__selector_ptr, match_members<selector_type>::kind_selector()));\
 //        size_t __attempt = 0;\
 //        XTL_CONCAT(ReMatch,__LINE__):\
 //        switch (__kind_selector) {\
@@ -685,7 +751,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
             typedef XTL_CPP0X_TYPENAME switch_traits::XTL_CPP0X_TEMPLATE disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>::XTL_CPP0X_TEMPLATE parameter<C> target_specific; \
             typedef XTL_CPP0X_TYPENAME target_specific::target_type target_type; \
             enum { default_layout = target_specific::layout, target_label = XTL_COUNTER-__base_counter }; \
-            if (target_specific::main_condition(__selector_ptr, local_data)) \
+            if (XTL_UNLIKELY(target_specific::main_condition(__selector_ptr, local_data))) \
             { \
                 switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
             XTL_REDUNDANCY_LABEL(case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value:) \
@@ -705,10 +771,10 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 #else
     #define CaseG(...) CaseG_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
 #endif
-#define QueG(C,...)  }}} \
-        { enum { target_label = XTL_COUNTER-__base_counter }; \
+#define QueG(C,...)  }}} {\
+        enum { target_label = XTL_COUNTER-__base_counter }; \
         typedef XTL_CPP0X_TYPENAME switch_traits::XTL_CPP0X_TEMPLATE disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>::XTL_CPP0X_TEMPLATE parameter<C> target_specific; \
-        if (target_specific::main_condition(__selector_ptr, local_data)) \
+        if (XTL_UNLIKELY(target_specific::main_condition(__selector_ptr, local_data))) \
         { \
             switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
         case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value: \
@@ -755,7 +821,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
             typedef XTL_CPP0X_TYPENAME switch_traits::XTL_CPP0X_TEMPLATE disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>::XTL_CPP0X_TEMPLATE parameter<C> target_specific; \
             typedef XTL_CPP0X_TYPENAME target_specific::target_type target_type; \
             enum { default_layout = target_specific::layout, target_label = XTL_COUNTER-__base_counter }; \
-            if (target_specific::main_condition(__selector_ptr, local_data)) \
+            if (XTL_UNLIKELY(target_specific::main_condition(__selector_ptr, local_data))) \
             { \
                 switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
             XTL_REDUNDANCY_LABEL(case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value:) \
@@ -775,15 +841,19 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 #else
     #define CaseQ(...) CaseQ_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
 #endif
-#define QueQ(C,...)  }}} \
-        { enum { target_label = XTL_COUNTER-__base_counter }; \
-        typedef XTL_CPP0X_TYPENAME switch_traits::XTL_CPP0X_TEMPLATE disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>::XTL_CPP0X_TEMPLATE parameter<C> target_specific; \
-        if (target_specific::main_condition(__selector_ptr, local_data)) \
-        { \
-            switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
-        case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value: \
-            auto matched = target_specific::get_matched(__selector_ptr,local_data); \
-            if (XTL_LIKELY(match<XTL_CPP0X_TYPENAME target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
+#define QueQ(C,...)  }}}                                                                                                 \
+        XTL_REDUNDANCY_CATCH(C)                                                                                          \
+        {                                                                                                                \
+            enum { target_label = XTL_COUNTER-__base_counter };                                                          \
+            typedef XTL_CPP0X_TYPENAME switch_traits::                                                                   \
+                    XTL_CPP0X_TEMPLATE disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>:: \
+                    XTL_CPP0X_TEMPLATE parameter<C> target_specific;                                                     \
+            if (XTL_UNLIKELY(target_specific::main_condition(__selector_ptr, local_data)))                               \
+            {                                                                                                            \
+                switch_traits::on_first_pass(__selector_ptr, local_data, target_label);                                  \
+            XTL_REDUNDANCY_LABEL(case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value:)               \
+                auto matched = target_specific::get_matched(__selector_ptr,local_data);                                  \
+                if (XTL_LIKELY(match<XTL_CPP0X_TYPENAME target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
 #define OrQ(...)     } else if (match<XTL_CPP0X_TYPENAME target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
 #define OtherwiseQ(...) CaseQ(selector_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
 #define EndMatchQ    }}} \
@@ -796,6 +866,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 /// Now based on user's preference we can set up default syntax to one of the above
 #if   XTL_DEFAULT_SYNTAX == 'P'
   /// The user chooses polymorphic match statement to be the default
+  XTL_MESSAGE("Default pattern matching syntax is: P")
   #define  Match      MatchP
   #define  Case       CaseP
   #define  Que        QueP
@@ -804,6 +875,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  EndMatch   EndMatchP
 #elif XTL_DEFAULT_SYNTAX == 'K'
   /// The user chooses closed kind match statement to be the default
+  XTL_MESSAGE("Default pattern matching syntax is: K")
   #define  Match      MatchK
   #define  Case       CaseK
   #define  Que        QueK
@@ -812,6 +884,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  EndMatch   EndMatchK
 #elif XTL_DEFAULT_SYNTAX == 'U'
   /// The user chooses discriminated union statement to be the default
+  XTL_MESSAGE("Default pattern matching syntax is: U")
   #define  Match      MatchU
   #define  Case       CaseU
   #define  Que        QueU
@@ -820,6 +893,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  EndMatch   EndMatchU
 #elif XTL_DEFAULT_SYNTAX == 'E'
   /// The user chooses exception match statement to be the default
+  XTL_MESSAGE("Default pattern matching syntax is: E")
   #define  Match      MatchE
   #define  Case       CaseE
   #define  Que        QueE
@@ -828,6 +902,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  EndMatch   EndMatchE
 #elif XTL_DEFAULT_SYNTAX == 'F'
   /// The user chooses closed kind match statement to be the default
+  XTL_MESSAGE("Default pattern matching syntax is: F")
   #define  Match      MatchF
   #define  Case       CaseF
   #define  Que        QueF
@@ -836,6 +911,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  EndMatch   EndMatchF
 #else
   /// The user chooses generic match statement to be the default
+  XTL_MESSAGE("Default pattern matching syntax is: G")
   //#define  Match      MatchG
   //#define  Case       CaseG
   //#define  Que        QueG
@@ -849,10 +925,6 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  Otherwise  OtherwiseQ
   #define  EndMatch   EndMatchQ
 #endif
-
-//------------------------------------------------------------------------------
-
-#include "has_member.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -885,7 +957,7 @@ public:
 
     /// Type of data that has to be statically allocated inside the block 
     /// containg extended switch
-    typedef vtblmap<type_switch_info&> static_data_type;
+    typedef vtblmap_of<selector_type, type_switch_info&> static_data_type;
 
     /// Type of data that has to be automatically allocated inside the block 
     /// containg extended switch
@@ -1071,10 +1143,10 @@ public:
     }
 
     /// Function that will be called upon first entry to the case through the fall-through behavior
-    static inline void on_first_pass(const selector_type* selector_ptr, local_data_type& local_data, size_t line) {}
+    static inline void on_first_pass(const selector_type*, local_data_type&, size_t) {}
 
     /// Function that will be called when the fall-through behavior reached end of the switch
-    static inline void        on_end(const selector_type* selector_ptr, local_data_type& local_data, size_t line) {}
+    static inline void        on_end(const selector_type*, local_data_type&, size_t) {}
 
     /// Structure used to disambiguate whether first argument is a type or a value.
     /// \note This generic one handles a value, which can be seen from the type of 
@@ -1202,7 +1274,7 @@ public:
 /// overhead that appears because of the necessity of merging the syntactic 
 /// structures used by open and closed cases.
 /// \note This is the general case that essentially assumes open case
-/// \note The only difference of @unified_switch from @unified_switch is that it
+/// \note The only difference of @unified_switch from @generic_switch is that it
 ///       is capable of handling base classes in case clauses for the closed case.
 ///       The open case is exactly the same.
 template <typename SelectorType, class condition = void>
@@ -1225,7 +1297,7 @@ public:
 
     /// Type of data that has to be statically allocated inside the block 
     /// containg extended switch
-    typedef vtblmap<type_switch_info&> static_data_type;
+    typedef vtblmap_of<selector_type, type_switch_info&> static_data_type;
 
     /// Type of data that has to be automatically allocated inside the block 
     /// containg extended switch
@@ -1374,7 +1446,7 @@ public:
     /// containg extended switch
     struct local_data_type
     {
-        local_data_type() : kinds(0), attempt(0) {}
+        local_data_type() : kinds(0)/*, attempt(0)*/ {} // NOTE: attempt is not intialized on purpose for performance reasons. It will be initialized before use in on_default.
         const int* kinds;
         size_t     attempt;
     };
@@ -1405,10 +1477,10 @@ public:
     }
 
     /// Function that will be called upon first entry to the case through the fall-through behavior
-    static inline void on_first_pass(const selector_type* selector_ptr, local_data_type& local_data, size_t line) {}
+    static inline void on_first_pass(const selector_type*, local_data_type&, size_t) {}
 
     /// Function that will be called when the fall-through behavior reached end of the switch
-    static inline void on_end(const selector_type* selector_ptr, local_data_type& local_data, size_t line) {}
+    static inline void on_end(const selector_type*, local_data_type&, size_t) {}
 
     /// Function that will be called on default clause. It should return true 
     /// when unconditional jump to ReMatch label should be performed.
@@ -1416,6 +1488,7 @@ public:
     {
         if (XTL_LIKELY(!local_data.kinds))
         {
+            local_data.attempt = 0;
             if (XTL_UNLIKELY(jump_target >= static_data.size()))
                 static_data.resize(jump_target+1);
             if (!(local_data.kinds = static_data[jump_target]))

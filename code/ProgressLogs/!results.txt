@@ -1,0 +1,27 @@
+2011-05-02 - Synergy
+
+[Normal Use]
+
+Sequential: -07%
+Random:     -11%
+Repetitive: -45%
+
+1->100; 0->28; 21% unused
+
+[Visitor Forwards]
+
+Sequential: -70%
+Random:     -27%
+
+1->100; 0->28; 21% unused
+
+[Type Switch]
+
+Sequential: -8%
+Random:     -14%
+
+1->100; 0->28; 21% unused
+
+[OCaml Comparison]
+
+OCaml:      +72%

@@ -139,15 +139,15 @@ template <>         struct match_members<Shape>         { KS(Shape::m_kind); KV(
 XTL_DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s)
 {
-    #define FOR_EACH_MAX      NUMBER_OF_BASES-1
-    #define FOR_EACH_PRELUDE  MatchF(s)
-    #define FOR_EACH_N(N)     CaseF(shape_kind<N>) return N;
-    #define FOR_EACH_POSTLUDE EndMatchF
-    #include "loop_over_numbers.hpp"
-    #undef  FOR_EACH_POSTLUDE
-    #undef  FOR_EACH_N
-    #undef  FOR_EACH_PRELUDE
-    #undef  FOR_EACH_MAX
+    MatchF(s)
+    {
+        #define FOR_EACH_MAX  NUMBER_OF_BASES-1
+        #define FOR_EACH_N(N) CaseF(shape_kind<N>) return N;
+        #include "loop_over_numbers.hpp"
+        #undef  FOR_EACH_N
+        #undef  FOR_EACH_MAX
+    }
+    EndMatchF
     return -1;
 }
 XTL_DO_NOT_INLINE_END
@@ -288,11 +288,11 @@ Shape* make_shape(size_t i)
 {
     switch (i)
     {
-    #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
-    #define FOR_EACH_N(N) case N: return new shape_kind<N>;
-    #include "loop_over_numbers.hpp"
-    #undef  FOR_EACH_N
-    #undef  FOR_EACH_MAX
+        #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
+        #define FOR_EACH_N(N) case N: return new shape_kind<N>;
+        #include "loop_over_numbers.hpp"
+        #undef  FOR_EACH_N
+        #undef  FOR_EACH_MAX
     }
     return 0;
 }

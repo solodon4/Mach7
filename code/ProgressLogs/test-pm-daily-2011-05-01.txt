@@ -1,0 +1,19 @@
+Test from Sat 05/14/2011 at  3:41:54.85 
+[ synthetic.exe ] ========================== 
+[ synthetic_select_random.exe ] ============ 
+OVERALL: Sequential: -5% slower; Random: -11% slower;
+VTBLS: 000000000100000XXXXXXXXXXX100000 irrelevant=6 width=11 	1->100; 0->28; 21% unused
+[ synthetic_select.exe ] =================== 
+OVERALL: Repetitive: -45% slower; Random: -5% slower;
+VTBLS: 000000000100000XXXXXXXXXXX100000 irrelevant=6 width=11 	1->100; 0->28; 21% unused
+[ hierarchy2.exe ] ========================= 
+OVERALL: Sequential: -70% slower; Random: -27% slower;
+VTBLS: 0000000001000000110XXXXXXX000000 irrelevant=6 width=7 	1->100; 0->28; 21% unused
+[ synthetic_select_kind.exe ] ============== 
+[ type_switch.exe ] ======================== 
+[ ocaml_cmp.exe ] ========================== 
+Average time for 1000000 runs takes 0.01282 seconds: 704532704
+[ ocaml_cmp_kind.exe ] ===================== 
+[ numbers.exe ] ============================ 
+0% slower
+93% slower

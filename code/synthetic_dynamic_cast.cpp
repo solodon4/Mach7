@@ -99,14 +99,10 @@ template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(
 XTL_DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s, size_t n)
 {
-    #define FOR_EACH_MAX      NUMBER_OF_DERIVED-1
-    #define FOR_EACH_PRELUDE  
-    #define FOR_EACH_N(N)     if (const shape_kind<N>* p = dynamic_cast<const shape_kind<N>*>(&s)) return N+p->m_member1;
-    #define FOR_EACH_POSTLUDE 
+    #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
+    #define FOR_EACH_N(N) if (const shape_kind<N>* p = dynamic_cast<const shape_kind<N>*>(&s)) return N+p->m_member1;
     #include "loop_over_numbers.hpp"
-    #undef  FOR_EACH_POSTLUDE
     #undef  FOR_EACH_N
-    #undef  FOR_EACH_PRELUDE
     #undef  FOR_EACH_MAX
     return -1;
 }
@@ -248,11 +244,11 @@ Shape* make_shape(size_t i)
 {
     switch (i)
     {
-    #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
-    #define FOR_EACH_N(N) case N: return new shape_kind<N>;
-    #include "loop_over_numbers.hpp"
-    #undef  FOR_EACH_N
-    #undef  FOR_EACH_MAX
+        #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
+        #define FOR_EACH_N(N) case N: return new shape_kind<N>;
+        #include "loop_over_numbers.hpp"
+        #undef  FOR_EACH_N
+        #undef  FOR_EACH_MAX
     }
     return 0;
 }

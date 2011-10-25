@@ -137,7 +137,7 @@ int main()
     {
         MatchQ(shapes[i])
         {
-      //CaseQ(Shape)         std::cout << "Shape"    << std::endl; m += 42;      break;
+        //CaseQ(Shape)         std::cout << "Shape"    << std::endl; m += 42;      break;
         CaseQ(Circle,_,r)    std::cout << "Circle"   << std::endl; m += r;       break;
         CaseQ(Square,_,r)    std::cout << "Square"   << std::endl; m += r;       break;
         CaseQ(Triangle,p)    std::cout << "Triangle" << std::endl; m += p.first; break;

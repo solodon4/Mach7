@@ -1,0 +1,39 @@
+SYNTAX: Generic ENCODING: Polymorphic FORWARDING: Yes TEST: Repetitive:   2% faster *
+SYNTAX: Generic ENCODING: Polymorphic FORWARDING: Yes TEST: Randomized:   1% faster *
+SYNTAX: Generic ENCODING: Polymorphic FORWARDING: Yes TEST: Sequential:   8% slower *
+SYNTAX: Special ENCODING: Polymorphic FORWARDING: Yes TEST: Repetitive:   4% faster *
+SYNTAX: Special ENCODING: Polymorphic FORWARDING: Yes TEST: Randomized:   4% faster *
+SYNTAX: Special ENCODING: Polymorphic FORWARDING: Yes TEST: Sequential: 133% faster *
+
+SYNTAX: Generic ENCODING: Kind        FORWARDING: No  TEST: Repetitive: 131% faster *
+SYNTAX: Generic ENCODING: Kind        FORWARDING: No  TEST: Randomized:  26% faster *
+SYNTAX: Generic ENCODING: Kind        FORWARDING: No  TEST: Sequential:  61% faster *
+SYNTAX: Generic ENCODING: Polymorphic FORWARDING: No  TEST: Repetitive:   2% slower
+SYNTAX: Generic ENCODING: Polymorphic FORWARDING: No  TEST: Randomized:   5% slower
+SYNTAX: Generic ENCODING: Polymorphic FORWARDING: No  TEST: Sequential:  10% slower
+SYNTAX: Special ENCODING: Kind        FORWARDING: No  TEST: Repetitive: 108% faster
+SYNTAX: Special ENCODING: Kind        FORWARDING: No  TEST: Randomized:  25% faster
+SYNTAX: Special ENCODING: Kind        FORWARDING: No  TEST: Sequential:  59% faster
+SYNTAX: Special ENCODING: Polymorphic FORWARDING: No  TEST: Repetitive:   4% slower
+SYNTAX: Special ENCODING: Polymorphic FORWARDING: No  TEST: Randomized:   9% slower
+SYNTAX: Special ENCODING: Polymorphic FORWARDING: No  TEST: Sequential:  14% slower
+
+SYNTAX: Generic ENCODING: Polymorphic FORWARDING: Yes TEST: Repetitive:   0% slower
+SYNTAX: Generic ENCODING: Polymorphic FORWARDING: Yes TEST: Randomized:  15% slower
+SYNTAX: Generic ENCODING: Polymorphic FORWARDING: Yes TEST: Sequential: 132% faster
+SYNTAX: Special ENCODING: Polymorphic FORWARDING: Yes TEST: Repetitive:   6% slower
+SYNTAX: Special ENCODING: Polymorphic FORWARDING: Yes TEST: Randomized:  20% slower
+SYNTAX: Special ENCODING: Polymorphic FORWARDING: Yes TEST: Sequential: 121% faster
+
+SYNTAX: Generic ENCODING: Kind        FORWARDING: No  TEST: Repetitive:  55% faster
+SYNTAX: Generic ENCODING: Kind        FORWARDING: No  TEST: Randomized:   9% faster
+SYNTAX: Generic ENCODING: Kind        FORWARDING: No  TEST: Sequential:   2% faster
+SYNTAX: Generic ENCODING: Polymorphic FORWARDING: No  TEST: Repetitive:   2% slower
+SYNTAX: Generic ENCODING: Polymorphic FORWARDING: No  TEST: Randomized:  34% slower
+SYNTAX: Generic ENCODING: Polymorphic FORWARDING: No  TEST: Sequential:  29% slower
+SYNTAX: Special ENCODING: Kind        FORWARDING: No  TEST: Repetitive:  55% faster
+SYNTAX: Special ENCODING: Kind        FORWARDING: No  TEST: Randomized:  12% faster
+SYNTAX: Special ENCODING: Kind        FORWARDING: No  TEST: Sequential:   3% faster
+SYNTAX: Special ENCODING: Polymorphic FORWARDING: No  TEST: Repetitive:  28% slower
+SYNTAX: Special ENCODING: Polymorphic FORWARDING: No  TEST: Randomized:  31% slower
+SYNTAX: Special ENCODING: Polymorphic FORWARDING: No  TEST: Sequential:  37% slower
