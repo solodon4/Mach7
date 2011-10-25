@@ -98,15 +98,16 @@ const Either<S, T>* lift_ex(const Either<X, Y>& e, S f(X), T g(Y))
 		return 0;
 }
 
+
 template<class X, class Y, class S, class T>
 const Either<S, T>* lift_ex2(const Either<X, Y>& e, S f(X), T g(Y))
 {
-    TMatch(e)
+    Match(e)
     {
-        TCase(TTypeArg( Left<X,Y>), x) return  left<S, T>(f(x));
-        TCase(TTypeArg(Right<X,Y>), y) return right<S, T>(g(y));
+        Case(TypeArg( Left<X,Y>), x) return  left<S, T>(f(x));
+        Case(TypeArg(Right<X,Y>), y) return right<S, T>(g(y));
     }
-    TEndMatch
+    EndMatch
 }
 
 int  my_f(double d) { return (int)(d+0.5); }

@@ -373,6 +373,13 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 /// non-template context. If indeed so, this is what we need to avoid duplication
 /// of macros depending on whether they are used in templated and non-templated 
 /// context.
+///
+/// From: C++0x 14.2[5]
+/// A name prefixed by the keyword template shall be a template-id or the name shall refer to a class template.
+/// [ Note: The keyword template may not be applied to non-template members of class templates. -end
+/// note ] [ Note: As is the case with the typename prefix, the template prefix is allowed in cases where it is
+/// not strictly necessary; i.e., when the nested-name-specifier or the expression on the left of the -> or . is not
+/// dependent on a template-parameter, or the use does not appear in the scope of a template. -end note ]
 #define XTL_CPP0X_TYPENAME XTL_NON_MSC_ONLY(typename)
 
 //------------------------------------------------------------------------------

@@ -100,6 +100,152 @@ template <> struct match_members<Minus>  { CM(0,Minus::exp1);  CM(1,Minus::exp2)
 template <> struct match_members<Times>  { CM(0,Times::exp1);  CM(1,Times::exp2);  };
 template <> struct match_members<Divide> { CM(0,Divide::exp1); CM(1,Divide::exp2); };
 
+int eval1(const Expr* e)
+{
+    {
+        auto const __selector_ptr = addr(e);
+        typedef typename underlying<decltype(*__selector_ptr)>::type selector_type;
+        ;
+        enum 
+        {
+            __base_counter = 0 
+        }
+        ;
+        typedef generic_switch<selector_type> switch_traits;
+        static typename switch_traits::static_data_type static_data;
+        typename switch_traits::local_data_type local_data;
+        switch (switch_traits::choose(__selector_ptr,static_data,local_data)) 
+        {
+        case switch_traits::CaseLabel<0>::entry:
+            {
+                {
+                    {
+                        {
+                        }
+                    }
+                }
+                {
+                    typedef typename switch_traits::template disambiguate<sizeof(Value)<sizeof(typename switch_traits::selector_type)>::template parameter<Value> target_specific;
+                    typedef typename target_specific::target_type target_type;
+                    enum 
+                    {
+                        default_layout = target_specific::layout, target_label = 1 -__base_counter 
+                    }
+                    ;
+                    if (target_specific::main_condition(__selector_ptr, local_data)) 
+                    {
+                        switch_traits::on_first_pass(__selector_ptr, local_data, target_label);
+        case target_specific::template CaseLabel<target_label>::value:
+            auto matched = target_specific::get_matched(__selector_ptr,local_data);
+            (void)matched;
+            ;
+            const auto& n = apply_member(matched, match_members<target_type,default_layout>::member0());
+            {
+                return n;
+            }
+                    }
+                }
+                {
+                    typedef typename switch_traits::template disambiguate<sizeof(Plus)<sizeof(typename switch_traits::selector_type)>::template parameter<Plus> target_specific;
+                    typedef typename target_specific::target_type target_type;
+                    enum 
+                    {
+                        default_layout = target_specific::layout, target_label = 2 -__base_counter 
+                    }
+                    ;
+                    if (target_specific::main_condition(__selector_ptr, local_data)) 
+                    {
+                        switch_traits::on_first_pass(__selector_ptr, local_data, target_label);
+        case target_specific::template CaseLabel<target_label>::value:
+            auto matched = target_specific::get_matched(__selector_ptr,local_data);
+            (void)matched;
+            ;
+            const auto& a = apply_member(matched, match_members<target_type,default_layout>::member0());
+            const auto& b = apply_member(matched, match_members<target_type,default_layout>::member1());
+            {
+                return eval(a) + eval(b);
+            }
+                    }
+                }
+                {
+                    typedef typename switch_traits::template disambiguate<sizeof(Minus)<sizeof(typename switch_traits::selector_type)>::template parameter<Minus> target_specific;
+                    typedef typename target_specific::target_type target_type;
+                    enum 
+                    {
+                        default_layout = target_specific::layout, target_label = 3 -__base_counter 
+                    }
+                    ;
+                    if (target_specific::main_condition(__selector_ptr, local_data)) 
+                    {
+                        switch_traits::on_first_pass(__selector_ptr, local_data, target_label);
+        case target_specific::template CaseLabel<target_label>::value:
+            auto matched = target_specific::get_matched(__selector_ptr,local_data);
+            (void)matched;
+            ;
+            const auto& a = apply_member(matched, match_members<target_type,default_layout>::member0());
+            const auto& b = apply_member(matched, match_members<target_type,default_layout>::member1());
+            {
+                return eval(a) - eval(b);
+            }
+                    }
+                }
+                {
+                    typedef typename switch_traits::template disambiguate<sizeof(Times)<sizeof(typename switch_traits::selector_type)>::template parameter<Times> target_specific;
+                    typedef typename target_specific::target_type target_type;
+                    enum 
+                    {
+                        default_layout = target_specific::layout, target_label = 4 -__base_counter 
+                    }
+                    ;
+                    if (target_specific::main_condition(__selector_ptr, local_data)) 
+                    {
+                        switch_traits::on_first_pass(__selector_ptr, local_data, target_label);
+        case target_specific::template CaseLabel<target_label>::value:
+            auto matched = target_specific::get_matched(__selector_ptr,local_data);
+            (void)matched;
+            ;
+            const auto& a = apply_member(matched, match_members<target_type,default_layout>::member0());
+            const auto& b = apply_member(matched, match_members<target_type,default_layout>::member1());
+            {
+                return eval(a) * eval(b);
+            }
+                    }
+                }
+                {
+                    typedef typename switch_traits::template disambiguate<sizeof(Divide)<sizeof(typename switch_traits::selector_type)>::template parameter<Divide> target_specific;
+                    typedef typename target_specific::target_type target_type;
+                    enum 
+                    {
+                        default_layout = target_specific::layout, target_label = 5 -__base_counter 
+                    }
+                    ;
+                    if (target_specific::main_condition(__selector_ptr, local_data)) 
+                    {
+                        switch_traits::on_first_pass(__selector_ptr, local_data, target_label);
+        case target_specific::template CaseLabel<target_label>::value:
+            auto matched = target_specific::get_matched(__selector_ptr,local_data);
+            (void)matched;
+            ;
+            const auto& a = apply_member(matched, match_members<target_type,default_layout>::member0());
+            const auto& b = apply_member(matched, match_members<target_type,default_layout>::member1());
+            {
+                return eval(a) / eval(b);
+            }
+                    }
+                }
+            }
+            enum 
+            {
+                target_label = 6 -__base_counter 
+            }
+            ;
+            switch_traits::on_end(__selector_ptr, local_data, target_label);
+        case switch_traits::template CaseLabel<target_label>::exit:
+            ;
+        }
+    }
+}
+
 int eval(const Expr* e)
 {
     Match(e)

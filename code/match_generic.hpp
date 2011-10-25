@@ -50,6 +50,7 @@
 #include <cassert>
 #include <ostream>
 #include <type_traits>
+#include <vector>
 #include "exprtmpl.hpp"
 #include "vtblmap.hpp"
 #include "ptrtools.hpp"  // Helper functions to work with pointers
@@ -632,11 +633,8 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 ///       Case(TypeArg(MyMap<int,string>),x,y,z) ...
 /// The solution used here is based on the following discussion:
 /// \see http://stackoverflow.com/questions/4295890/trouble-with-template-parameters-used-in-macros
-#define  TypeArg_(X)           get_first_param<void X>::type
-#define  TypeArg(...)   TypeArg_((__VA_ARGS__))
-/// Same as @TypeArg but to be used in the template context
-#define TTypeArg_(X)  typename get_first_param<void X>::type
-#define TTypeArg(...)  TTypeArg_((__VA_ARGS__))
+#define  TypeArg_(X)  XTL_CPP0X_TYPENAME get_first_param<void X>::type
+#define  TypeArg(...) TypeArg_((__VA_ARGS__))
 
 //------------------------------------------------------------------------------
 
@@ -653,11 +651,11 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         enum { __base_counter = XTL_COUNTER };\
         typedef generic_switch<selector_type> switch_traits;\
-        static switch_traits::static_data_type static_data;\
-               switch_traits::local_data_type  local_data;\
+        static XTL_CPP0X_TYPENAME switch_traits::static_data_type static_data;\
+               XTL_CPP0X_TYPENAME switch_traits::local_data_type  local_data;\
         switch (switch_traits::choose(__selector_ptr,static_data,local_data))\
         {\
-            XTL_REDUNDANCY_LABEL(case switch_traits::CaseLabel<0>::entry:) { XTL_REDUNDANCY_TRY {{
+            XTL_REDUNDANCY_LABEL(case switch_traits::template CaseLabel<0>::entry:) { XTL_REDUNDANCY_TRY {{
 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
 ///       seems to be impossible to introduce dummy argument inside the Case 
@@ -665,13 +663,13 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 #define CaseG_(C,...) }}} \
         XTL_REDUNDANCY_CATCH(C) \
         { \
-            typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; \
-            typedef target_specific::target_type target_type; \
+            typedef XTL_CPP0X_TYPENAME switch_traits::template disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>::template parameter<C> target_specific; \
+            typedef XTL_CPP0X_TYPENAME target_specific::target_type target_type; \
             enum { default_layout = target_specific::layout, target_label = XTL_COUNTER-__base_counter }; \
             if (target_specific::main_condition(__selector_ptr, local_data)) \
             { \
                 switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
-            XTL_REDUNDANCY_LABEL(case target_specific::CaseLabel<target_label>::value:) \
+            XTL_REDUNDANCY_LABEL(case target_specific::template CaseLabel<target_label>::value:) \
                 auto matched = target_specific::get_matched(__selector_ptr,local_data); \
                 XTL_UNUSED(matched);
 
@@ -690,79 +688,19 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 #endif
 #define QueG(C,...)  }}} \
         { enum { target_label = XTL_COUNTER-__base_counter }; \
-        typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; \
+        typedef XTL_CPP0X_TYPENAME switch_traits::template disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>::template parameter<C> target_specific; \
         if (target_specific::main_condition(__selector_ptr, local_data)) \
         { \
             switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
-        case target_specific::CaseLabel<target_label>::value: \
+        case target_specific::template CaseLabel<target_label>::value: \
             auto matched = target_specific::get_matched(__selector_ptr,local_data); \
-            if (XTL_LIKELY(match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
-#define OrG(...)     } else if (match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
+            if (XTL_LIKELY(match<XTL_CPP0X_TYPENAME target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
+#define OrG(...)     } else if (match<XTL_CPP0X_TYPENAME target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
 #define OtherwiseG() }}} {{ default: auto matched = __selector_ptr; { XTL_UNUSED(matched);
 #define EndMatchG    }}} \
         enum { target_label = XTL_COUNTER-__base_counter }; \
         switch_traits::on_end(__selector_ptr, local_data, target_label); \
-        case switch_traits::CaseLabel<target_label>::exit: ; }}
-
-//------------------------------------------------------------------------------
-
-/// From: C++0x 14.2[5]
-/// A name prefixed by the keyword template shall be a template-id or the name shall refer to a class template.
-/// [ Note: The keyword template may not be applied to non-template members of class templates. -end
-/// note ] [ Note: As is the case with the typename prefix, the template prefix is allowed in cases where it is
-/// not strictly necessary; i.e., when the nested-name-specifier or the expression on the left of the -> or . is not
-/// dependent on a template-parameter, or the use does not appear in the scope of a template. -end note ]
-
-/// Macro that starts generic switch on types capable of figuring out by itself
-/// which of the 3 cases presented above we are dealing with: open, closed or union.
-/// \note The only difference from @Match macro is that this macro is supposed 
-///       to be used in template context, so we properly mark all types and 
-///       templates with typename and template respectively
-#define TMatchG(s) {\
-        auto const __selector_ptr = addr(s);\
-        typedef typename underlying<decltype(*__selector_ptr)>::type selector_type;\
-        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
-        enum { __base_counter = XTL_COUNTER };\
-        typedef generic_switch<selector_type> switch_traits;\
-        static typename switch_traits::static_data_type static_data;\
-               typename switch_traits::local_data_type  local_data;\
-        switch (switch_traits::choose(__selector_ptr,static_data,local_data))\
-        {\
-            XTL_REDUNDANCY_LABEL(case switch_traits::template CaseLabel<0>::entry:) { XTL_REDUNDANCY_TRY {{
-
-/// NOTE: We need this extra indirection to properly handle 0 arguments as it
-///       seems to be impossible to introduce dummy argument inside the Case 
-///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
-#define TCaseG_(C,...) }}} \
-        XTL_REDUNDANCY_CATCH(C) \
-        { \
-            typedef typename switch_traits::template disambiguate<sizeof(C)<sizeof(typename switch_traits::selector_type)>::template parameter<C> target_specific; \
-            typedef typename target_specific::target_type target_type; \
-            enum { default_layout = target_specific::layout, target_label = XTL_COUNTER-__base_counter }; \
-            if (target_specific::main_condition(__selector_ptr, local_data)) \
-            { \
-                switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
-            XTL_REDUNDANCY_LABEL(case target_specific::template CaseLabel<target_label>::value:) \
-                auto matched = target_specific::get_matched(__selector_ptr,local_data); \
-                XTL_UNUSED(matched);
-
-/// Macro that defines the case statement for the above switch
-/// NOTE: If Visual C++ gives you error C2051: case expression not constant
-///       on this CaseP label, just change the Debug Format in project setting 
-///       Project -> Properties -> C/C++ -> General -> Debug Information Format 
-///       from "Program Database for Edit And Continue (/ZI)" 
-///       to   "Program Database (/Zi)", which is the default in Release builds,
-///       but not in Debug. This is a known bug of Visual C++ described here:
-///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#ifdef _MSC_VER
-    #define TCaseG(...) XTL_APPLY_VARIADIC_MACRO(TCaseG_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
-#else
-    #define TCaseG(...) TCaseG_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
-#endif
-#define TQueG(C,...)  }}} { enum { target_label = XTL_COUNTER-__base_counter }; typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; if (target_specific::main_condition(__selector_ptr, local_data)) { switch_traits::on_first_pass(__selector_ptr, local_data, target_label); case target_specific::CaseLabel<target_label>::value: auto matched = target_specific::get_matched(__selector_ptr,local_data); if (XTL_LIKELY(match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
-#define TOrG(...)     } else if (match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
-#define TOtherwiseG() }}} {{ default: auto matched = __selector_ptr; { XTL_UNUSED(matched);
-#define TEndMatchG    }}} enum { target_label = XTL_COUNTER-__base_counter }; switch_traits::on_end(__selector_ptr, local_data, target_label); case switch_traits::template CaseLabel<target_label>::exit: ; }}
+        case switch_traits::template CaseLabel<target_label>::exit: ; }}
 
 //------------------------------------------------------------------------------
 
@@ -779,8 +717,8 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         enum { __base_counter = XTL_COUNTER };\
         typedef unified_switch<selector_type> switch_traits;\
-        static switch_traits::static_data_type static_data;\
-               switch_traits::local_data_type  local_data;\
+        static XTL_CPP0X_TYPENAME switch_traits::static_data_type static_data;\
+               XTL_CPP0X_TYPENAME switch_traits::local_data_type  local_data;\
         size_t jump_target = switch_traits::choose(__selector_ptr,static_data,local_data);\
         XTL_CONCAT(ReMatch,__LINE__):\
         switch (jump_target)\
@@ -795,13 +733,13 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 #define CaseQ_(C,...) }}} \
         XTL_REDUNDANCY_CATCH(C) \
         { \
-            typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; \
-            typedef target_specific::target_type target_type; \
+            typedef XTL_CPP0X_TYPENAME switch_traits::template disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>::template parameter<C> target_specific; \
+            typedef XTL_CPP0X_TYPENAME target_specific::target_type target_type; \
             enum { default_layout = target_specific::layout, target_label = XTL_COUNTER-__base_counter }; \
             if (target_specific::main_condition(__selector_ptr, local_data)) \
             { \
                 switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
-            XTL_REDUNDANCY_LABEL(case target_specific::CaseLabel<target_label>::value:) \
+            XTL_REDUNDANCY_LABEL(case target_specific::template CaseLabel<target_label>::value:) \
                 auto matched = target_specific::get_matched(__selector_ptr,local_data); \
                 XTL_UNUSED(matched);
 
@@ -820,19 +758,19 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 #endif
 #define QueQ(C,...)  }}} \
         { enum { target_label = XTL_COUNTER-__base_counter }; \
-        typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; \
+        typedef XTL_CPP0X_TYPENAME switch_traits::template disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>::template parameter<C> target_specific; \
         if (target_specific::main_condition(__selector_ptr, local_data)) \
         { \
             switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
-        case target_specific::CaseLabel<target_label>::value: \
+        case target_specific::template CaseLabel<target_label>::value: \
             auto matched = target_specific::get_matched(__selector_ptr,local_data); \
-            if (XTL_LIKELY(match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
-#define OrQ(...)     } else if (match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
+            if (XTL_LIKELY(match<XTL_CPP0X_TYPENAME target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
+#define OrQ(...)     } else if (match<XTL_CPP0X_TYPENAME target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
 #define OtherwiseQ() CaseQ(selector_type)
 #define EndMatchQ    }}} \
         enum { target_label = XTL_COUNTER-__base_counter }; \
         switch_traits::on_end(__selector_ptr, local_data, target_label); \
-        case switch_traits::CaseLabel<target_label>::exit: ; }}
+        case switch_traits::template CaseLabel<target_label>::exit: ; }}
 
 //------------------------------------------------------------------------------
 
@@ -845,12 +783,6 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  Alt        OrP // Conflicts with ipr::Or
   #define  Otherwise  OtherwiseP
   #define  EndMatch   EndMatchP
-  #define TMatch      MatchP
-  #define TCase       CaseP
-  #define TQue        QueP
-  #define TOr         OrP
-  #define TOtherwise  OtherwiseP
-  #define TEndMatch   EndMatchP
 #elif XTL_DEFAULT_SYNTAX == 'K'
   /// The user chooses closed kind match statement to be the default
   #define  Match      MatchK
@@ -859,12 +791,6 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  Alt        OrK // Conflicts with ipr::Or
   #define  Otherwise  OtherwiseK
   #define  EndMatch   EndMatchK
-  #define TMatch      MatchK
-  #define TCase       CaseK
-  #define TQue        QueK
-  #define TOr         OrK
-  #define TOtherwise  OtherwiseK
-  #define TEndMatch   EndMatchK
 #elif XTL_DEFAULT_SYNTAX == 'U'
   /// The user chooses discriminated union statement to be the default
   #define  Match      MatchU
@@ -873,12 +799,6 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  Alt        OrU // Conflicts with ipr::Or
   #define  Otherwise  OtherwiseU
   #define  EndMatch   EndMatchU
-  #define TMatch      MatchU
-  #define TCase       CaseU
-  #define TQue        QueU
-  #define TOr         OrU
-  #define TOtherwise  OtherwiseU
-  #define TEndMatch   EndMatchU
 #elif XTL_DEFAULT_SYNTAX == 'E'
   /// The user chooses exception match statement to be the default
   #define  Match      MatchE
@@ -887,12 +807,6 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  Alt        OrE // Conflicts with ipr::Or
   #define  Otherwise  OtherwiseE
   #define  EndMatch   EndMatchE
-  #define TMatch      MatchE
-  #define TCase       CaseE
-  #define TQue        QueE
-  #define TOr         OrE
-  #define TOtherwise  OtherwiseE
-  #define TEndMatch   EndMatchE
 #elif XTL_DEFAULT_SYNTAX == 'F'
   /// The user chooses closed kind match statement to be the default
   #define  Match      MatchF
@@ -901,26 +815,20 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  Alt        OrF // Conflicts with ipr::Or
   #define  Otherwise  OtherwiseF
   #define  EndMatch   EndMatchF
-  #define TMatch      MatchF
-  #define TCase       CaseF
-  #define TQue        QueF
-  #define TOr         OrF
-  #define TOtherwise  OtherwiseF
-  #define TEndMatch   EndMatchF
 #else
   /// The user chooses generic match statement to be the default
-  #define  Match      MatchG
-  #define  Case       CaseG
-  #define  Que        QueG
-  #define  Alt        OrG // Conflicts with ipr::Or
-  #define  Otherwise  OtherwiseG
-  #define  EndMatch   EndMatchG
-  #define TMatch     TMatchG
-  #define TCase      TCaseG
-  #define TQue       TQueG
-  #define TOr        TOrG
-  #define TOtherwise TOtherwiseG
-  #define TEndMatch  TEndMatchG
+  //#define  Match      MatchG
+  //#define  Case       CaseG
+  //#define  Que        QueG
+  //#define  Alt        OrG // Conflicts with ipr::Or
+  //#define  Otherwise  OtherwiseG
+  //#define  EndMatch   EndMatchG
+  #define  Match      MatchQ
+  #define  Case       CaseQ
+  #define  Que        QueQ
+  #define  Alt        OrQ // Conflicts with ipr::Or
+  #define  Otherwise  OtherwiseQ
+  #define  EndMatch   EndMatchQ
 #endif
 
 //------------------------------------------------------------------------------
