@@ -8,10 +8,13 @@
 #include <string>
 #include <vector>
 #include "match_generic.hpp"
-    #define NOMINMAX
-    #include <windows.h>
-//#define XTL_TIMING_METHOD_2
 #include "timing.hpp"
+
+//------------------------------------------------------------------------------
+
+#if !XTL_USE_MEMOIZED_CAST
+    #define dynamic_cast fast_dynamic_cast
+#endif
 
 //------------------------------------------------------------------------------
 
@@ -19,7 +22,7 @@
 #define NUMBER_OF_VFUNCS  1
 #endif
 #if !defined(NUMBER_OF_DERIVED)
-#define NUMBER_OF_DERIVED 40
+#define NUMBER_OF_DERIVED 100
 #endif
 
 //------------------------------------------------------------------------------
@@ -38,7 +41,20 @@ struct OtherBase
 
 //------------------------------------------------------------------------------
 
-static const size_t primes[41] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,179};
+static const size_t primes[] = {
+   2,   3,   5,   7,  11,  13,  17,  19,  23,  29, 
+  31,  37,  41,  43,  47,  53,  59,  61,  67,  71, 
+  73,  79,  83,  89,  97, 101, 103, 107, 109, 113, 
+ 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 
+ 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 
+ 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 
+ 283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 
+ 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 
+ 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 
+ 467, 479, 487, 491, 499, 503, 509, 521, 523, 541, 
+ 547, 557, 563, 569, 571, 577, 587, 593, 599, 601, 
+ 607, 613, 617, 619, 631, 641, 643, 647, 653, 659, 
+};
 
 struct Shape
 {
@@ -101,12 +117,12 @@ const size_t shape_ids[100] =
      id(10), id(11), id(12), id(13), id(14), id(15), id(16), id(17), id(18), id(19),
      id(20), id(21), id(22), id(23), id(24), id(25), id(26), id(27), id(28), id(29),
      id(30), id(31), id(32), id(33), id(34), id(35), id(36), id(37), id(38), id(39),
-     //id(40), id(41), id(42), id(43), id(44), id(45), id(46), id(47), id(48), id(49),
-     //id(50), id(51), id(52), id(53), id(54), id(55), id(56), id(57), id(58), id(59),
-     //id(60), id(61), id(62), id(63), id(64), id(65), id(66), id(67), id(68), id(69),
-     //id(70), id(71), id(72), id(73), id(74), id(75), id(76), id(77), id(78), id(79),
-     //id(80), id(81), id(82), id(83), id(84), id(85), id(86), id(87), id(88), id(89),
-     //id(90), id(91), id(92), id(93), id(94), id(95), id(96), id(97), id(98), id(99),
+     id(40), id(41), id(42), id(43), id(44), id(45), id(46), id(47), id(48), id(49),
+     id(50), id(51), id(52), id(53), id(54), id(55), id(56), id(57), id(58), id(59),
+     id(60), id(61), id(62), id(63), id(64), id(65), id(66), id(67), id(68), id(69),
+     id(70), id(71), id(72), id(73), id(74), id(75), id(76), id(77), id(78), id(79),
+     id(80), id(81), id(82), id(83), id(84), id(85), id(86), id(87), id(88), id(89),
+     id(90), id(91), id(92), id(93), id(94), id(95), id(96), id(97), id(98), id(99),
 };
 
 template <size_t N>
@@ -122,8 +138,6 @@ inline T fast_dynamic_cast(const Shape* u)
 {
     return fast_dynamic_cast_ex(static_cast<T>(0), u);
 }
-
-#define dynamic_cast fast_dynamic_cast
 
 //------------------------------------------------------------------------------
 
@@ -196,66 +210,66 @@ size_t do_match(const Shape& s, size_t n)
     if (const shape_kind<37>* p = dynamic_cast<const shape_kind<37>*>(&s)) return 37 ;
     if (const shape_kind<38>* p = dynamic_cast<const shape_kind<38>*>(&s)) return 38 ;
     if (const shape_kind<39>* p = dynamic_cast<const shape_kind<39>*>(&s)) return 39 ;
-    //if (const shape_kind<40>* p = dynamic_cast<const shape_kind<40>*>(&s)) return 40 ;
-    //if (const shape_kind<41>* p = dynamic_cast<const shape_kind<41>*>(&s)) return 41 ;
-    //if (const shape_kind<42>* p = dynamic_cast<const shape_kind<42>*>(&s)) return 42 ;
-    //if (const shape_kind<43>* p = dynamic_cast<const shape_kind<43>*>(&s)) return 43 ;
-    //if (const shape_kind<44>* p = dynamic_cast<const shape_kind<44>*>(&s)) return 44 ;
-    //if (const shape_kind<45>* p = dynamic_cast<const shape_kind<45>*>(&s)) return 45 ;
-    //if (const shape_kind<46>* p = dynamic_cast<const shape_kind<46>*>(&s)) return 46 ;
-    //if (const shape_kind<47>* p = dynamic_cast<const shape_kind<47>*>(&s)) return 47 ;
-    //if (const shape_kind<48>* p = dynamic_cast<const shape_kind<48>*>(&s)) return 48 ;
-    //if (const shape_kind<49>* p = dynamic_cast<const shape_kind<49>*>(&s)) return 49 ;
-    //if (const shape_kind<50>* p = dynamic_cast<const shape_kind<50>*>(&s)) return 50 ;
-    //if (const shape_kind<51>* p = dynamic_cast<const shape_kind<51>*>(&s)) return 51 ;
-    //if (const shape_kind<52>* p = dynamic_cast<const shape_kind<52>*>(&s)) return 52 ;
-    //if (const shape_kind<53>* p = dynamic_cast<const shape_kind<53>*>(&s)) return 53 ;
-    //if (const shape_kind<54>* p = dynamic_cast<const shape_kind<54>*>(&s)) return 54 ;
-    //if (const shape_kind<55>* p = dynamic_cast<const shape_kind<55>*>(&s)) return 55 ;
-    //if (const shape_kind<56>* p = dynamic_cast<const shape_kind<56>*>(&s)) return 56 ;
-    //if (const shape_kind<57>* p = dynamic_cast<const shape_kind<57>*>(&s)) return 57 ;
-    //if (const shape_kind<58>* p = dynamic_cast<const shape_kind<58>*>(&s)) return 58 ;
-    //if (const shape_kind<59>* p = dynamic_cast<const shape_kind<59>*>(&s)) return 59 ;
-    //if (const shape_kind<60>* p = dynamic_cast<const shape_kind<60>*>(&s)) return 60 ;
-    //if (const shape_kind<61>* p = dynamic_cast<const shape_kind<61>*>(&s)) return 61 ;
-    //if (const shape_kind<62>* p = dynamic_cast<const shape_kind<62>*>(&s)) return 62 ;
-    //if (const shape_kind<63>* p = dynamic_cast<const shape_kind<63>*>(&s)) return 63 ;
-    //if (const shape_kind<64>* p = dynamic_cast<const shape_kind<64>*>(&s)) return 64 ;
-    //if (const shape_kind<65>* p = dynamic_cast<const shape_kind<65>*>(&s)) return 65 ;
-    //if (const shape_kind<66>* p = dynamic_cast<const shape_kind<66>*>(&s)) return 66 ;
-    //if (const shape_kind<67>* p = dynamic_cast<const shape_kind<67>*>(&s)) return 67 ;
-    //if (const shape_kind<68>* p = dynamic_cast<const shape_kind<68>*>(&s)) return 68 ;
-    //if (const shape_kind<69>* p = dynamic_cast<const shape_kind<69>*>(&s)) return 69 ;
-    //if (const shape_kind<70>* p = dynamic_cast<const shape_kind<70>*>(&s)) return 70 ;
-    //if (const shape_kind<71>* p = dynamic_cast<const shape_kind<71>*>(&s)) return 71 ;
-    //if (const shape_kind<72>* p = dynamic_cast<const shape_kind<72>*>(&s)) return 72 ;
-    //if (const shape_kind<73>* p = dynamic_cast<const shape_kind<73>*>(&s)) return 73 ;
-    //if (const shape_kind<74>* p = dynamic_cast<const shape_kind<74>*>(&s)) return 74 ;
-    //if (const shape_kind<75>* p = dynamic_cast<const shape_kind<75>*>(&s)) return 75 ;
-    //if (const shape_kind<76>* p = dynamic_cast<const shape_kind<76>*>(&s)) return 76 ;
-    //if (const shape_kind<77>* p = dynamic_cast<const shape_kind<77>*>(&s)) return 77 ;
-    //if (const shape_kind<78>* p = dynamic_cast<const shape_kind<78>*>(&s)) return 78 ;
-    //if (const shape_kind<79>* p = dynamic_cast<const shape_kind<79>*>(&s)) return 79 ;
-    //if (const shape_kind<80>* p = dynamic_cast<const shape_kind<80>*>(&s)) return 80 ;
-    //if (const shape_kind<81>* p = dynamic_cast<const shape_kind<81>*>(&s)) return 81 ;
-    //if (const shape_kind<82>* p = dynamic_cast<const shape_kind<82>*>(&s)) return 82 ;
-    //if (const shape_kind<83>* p = dynamic_cast<const shape_kind<83>*>(&s)) return 83 ;
-    //if (const shape_kind<84>* p = dynamic_cast<const shape_kind<84>*>(&s)) return 84 ;
-    //if (const shape_kind<85>* p = dynamic_cast<const shape_kind<85>*>(&s)) return 85 ;
-    //if (const shape_kind<86>* p = dynamic_cast<const shape_kind<86>*>(&s)) return 86 ;
-    //if (const shape_kind<87>* p = dynamic_cast<const shape_kind<87>*>(&s)) return 87 ;
-    //if (const shape_kind<88>* p = dynamic_cast<const shape_kind<88>*>(&s)) return 88 ;
-    //if (const shape_kind<89>* p = dynamic_cast<const shape_kind<89>*>(&s)) return 89 ;
-    //if (const shape_kind<90>* p = dynamic_cast<const shape_kind<90>*>(&s)) return 90 ;
-    //if (const shape_kind<91>* p = dynamic_cast<const shape_kind<91>*>(&s)) return 91 ;
-    //if (const shape_kind<92>* p = dynamic_cast<const shape_kind<92>*>(&s)) return 92 ;
-    //if (const shape_kind<93>* p = dynamic_cast<const shape_kind<93>*>(&s)) return 93 ;
-    //if (const shape_kind<94>* p = dynamic_cast<const shape_kind<94>*>(&s)) return 94 ;
-    //if (const shape_kind<95>* p = dynamic_cast<const shape_kind<95>*>(&s)) return 95 ;
-    //if (const shape_kind<96>* p = dynamic_cast<const shape_kind<96>*>(&s)) return 96 ;
-    //if (const shape_kind<97>* p = dynamic_cast<const shape_kind<97>*>(&s)) return 97 ;
-    //if (const shape_kind<98>* p = dynamic_cast<const shape_kind<98>*>(&s)) return 98 ;
-    //if (const shape_kind<99>* p = dynamic_cast<const shape_kind<99>*>(&s)) return 99 ;
+    if (const shape_kind<40>* p = dynamic_cast<const shape_kind<40>*>(&s)) return 40 ;
+    if (const shape_kind<41>* p = dynamic_cast<const shape_kind<41>*>(&s)) return 41 ;
+    if (const shape_kind<42>* p = dynamic_cast<const shape_kind<42>*>(&s)) return 42 ;
+    if (const shape_kind<43>* p = dynamic_cast<const shape_kind<43>*>(&s)) return 43 ;
+    if (const shape_kind<44>* p = dynamic_cast<const shape_kind<44>*>(&s)) return 44 ;
+    if (const shape_kind<45>* p = dynamic_cast<const shape_kind<45>*>(&s)) return 45 ;
+    if (const shape_kind<46>* p = dynamic_cast<const shape_kind<46>*>(&s)) return 46 ;
+    if (const shape_kind<47>* p = dynamic_cast<const shape_kind<47>*>(&s)) return 47 ;
+    if (const shape_kind<48>* p = dynamic_cast<const shape_kind<48>*>(&s)) return 48 ;
+    if (const shape_kind<49>* p = dynamic_cast<const shape_kind<49>*>(&s)) return 49 ;
+    if (const shape_kind<50>* p = dynamic_cast<const shape_kind<50>*>(&s)) return 50 ;
+    if (const shape_kind<51>* p = dynamic_cast<const shape_kind<51>*>(&s)) return 51 ;
+    if (const shape_kind<52>* p = dynamic_cast<const shape_kind<52>*>(&s)) return 52 ;
+    if (const shape_kind<53>* p = dynamic_cast<const shape_kind<53>*>(&s)) return 53 ;
+    if (const shape_kind<54>* p = dynamic_cast<const shape_kind<54>*>(&s)) return 54 ;
+    if (const shape_kind<55>* p = dynamic_cast<const shape_kind<55>*>(&s)) return 55 ;
+    if (const shape_kind<56>* p = dynamic_cast<const shape_kind<56>*>(&s)) return 56 ;
+    if (const shape_kind<57>* p = dynamic_cast<const shape_kind<57>*>(&s)) return 57 ;
+    if (const shape_kind<58>* p = dynamic_cast<const shape_kind<58>*>(&s)) return 58 ;
+    if (const shape_kind<59>* p = dynamic_cast<const shape_kind<59>*>(&s)) return 59 ;
+    if (const shape_kind<60>* p = dynamic_cast<const shape_kind<60>*>(&s)) return 60 ;
+    if (const shape_kind<61>* p = dynamic_cast<const shape_kind<61>*>(&s)) return 61 ;
+    if (const shape_kind<62>* p = dynamic_cast<const shape_kind<62>*>(&s)) return 62 ;
+    if (const shape_kind<63>* p = dynamic_cast<const shape_kind<63>*>(&s)) return 63 ;
+    if (const shape_kind<64>* p = dynamic_cast<const shape_kind<64>*>(&s)) return 64 ;
+    if (const shape_kind<65>* p = dynamic_cast<const shape_kind<65>*>(&s)) return 65 ;
+    if (const shape_kind<66>* p = dynamic_cast<const shape_kind<66>*>(&s)) return 66 ;
+    if (const shape_kind<67>* p = dynamic_cast<const shape_kind<67>*>(&s)) return 67 ;
+    if (const shape_kind<68>* p = dynamic_cast<const shape_kind<68>*>(&s)) return 68 ;
+    if (const shape_kind<69>* p = dynamic_cast<const shape_kind<69>*>(&s)) return 69 ;
+    if (const shape_kind<70>* p = dynamic_cast<const shape_kind<70>*>(&s)) return 70 ;
+    if (const shape_kind<71>* p = dynamic_cast<const shape_kind<71>*>(&s)) return 71 ;
+    if (const shape_kind<72>* p = dynamic_cast<const shape_kind<72>*>(&s)) return 72 ;
+    if (const shape_kind<73>* p = dynamic_cast<const shape_kind<73>*>(&s)) return 73 ;
+    if (const shape_kind<74>* p = dynamic_cast<const shape_kind<74>*>(&s)) return 74 ;
+    if (const shape_kind<75>* p = dynamic_cast<const shape_kind<75>*>(&s)) return 75 ;
+    if (const shape_kind<76>* p = dynamic_cast<const shape_kind<76>*>(&s)) return 76 ;
+    if (const shape_kind<77>* p = dynamic_cast<const shape_kind<77>*>(&s)) return 77 ;
+    if (const shape_kind<78>* p = dynamic_cast<const shape_kind<78>*>(&s)) return 78 ;
+    if (const shape_kind<79>* p = dynamic_cast<const shape_kind<79>*>(&s)) return 79 ;
+    if (const shape_kind<80>* p = dynamic_cast<const shape_kind<80>*>(&s)) return 80 ;
+    if (const shape_kind<81>* p = dynamic_cast<const shape_kind<81>*>(&s)) return 81 ;
+    if (const shape_kind<82>* p = dynamic_cast<const shape_kind<82>*>(&s)) return 82 ;
+    if (const shape_kind<83>* p = dynamic_cast<const shape_kind<83>*>(&s)) return 83 ;
+    if (const shape_kind<84>* p = dynamic_cast<const shape_kind<84>*>(&s)) return 84 ;
+    if (const shape_kind<85>* p = dynamic_cast<const shape_kind<85>*>(&s)) return 85 ;
+    if (const shape_kind<86>* p = dynamic_cast<const shape_kind<86>*>(&s)) return 86 ;
+    if (const shape_kind<87>* p = dynamic_cast<const shape_kind<87>*>(&s)) return 87 ;
+    if (const shape_kind<88>* p = dynamic_cast<const shape_kind<88>*>(&s)) return 88 ;
+    if (const shape_kind<89>* p = dynamic_cast<const shape_kind<89>*>(&s)) return 89 ;
+    if (const shape_kind<90>* p = dynamic_cast<const shape_kind<90>*>(&s)) return 90 ;
+    if (const shape_kind<91>* p = dynamic_cast<const shape_kind<91>*>(&s)) return 91 ;
+    if (const shape_kind<92>* p = dynamic_cast<const shape_kind<92>*>(&s)) return 92 ;
+    if (const shape_kind<93>* p = dynamic_cast<const shape_kind<93>*>(&s)) return 93 ;
+    if (const shape_kind<94>* p = dynamic_cast<const shape_kind<94>*>(&s)) return 94 ;
+    if (const shape_kind<95>* p = dynamic_cast<const shape_kind<95>*>(&s)) return 95 ;
+    if (const shape_kind<96>* p = dynamic_cast<const shape_kind<96>*>(&s)) return 96 ;
+    if (const shape_kind<97>* p = dynamic_cast<const shape_kind<97>*>(&s)) return 97 ;
+    if (const shape_kind<98>* p = dynamic_cast<const shape_kind<98>*>(&s)) return 98 ;
+    if (const shape_kind<99>* p = dynamic_cast<const shape_kind<99>*>(&s)) return 99 ;
     return -1;
 }
 XTL_DO_NOT_INLINE_END
@@ -300,7 +314,7 @@ Shape* make_shape(size_t i)
 
 //------------------------------------------------------------------------------
 
-const size_t N = 10000; // The amount of times visitor and matching procedure is invoked in one time measuring
+const size_t N = 1000; // The amount of times visitor and matching procedure is invoked in one time measuring
 const size_t M = 101;   // The amount of times time measuring is done
 const size_t K = NUMBER_OF_DERIVED; // The amount of cases we have in hierarchy
 

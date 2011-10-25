@@ -26,10 +26,10 @@ goto END
 :PROCEED
 
 set logfile=test-pm-timing.log
-rem set results=test-pm-timing.txt
+set results=test-pm-timing.txt
 
 echo Test from %date% at %time% > %logfile%
-rem echo Test from %date% at %time% > %results%
+echo Test from %date% at %time% > %results%
 
 set CXX=cl.exe
 rem /Zi /nologo /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL  /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue 
@@ -46,17 +46,12 @@ echo [ MS Visual C++/Win32 ] ========================= >> %logfile%
 rem Set up VC variables for x86 build
 call "%VCINSTALLDIR%vcvarsall.bat" x86
 
-call :COMPILE 1 F REP 32
-call :COMPILE 1 F SEQ 32
-call :COMPILE 1 F RND 32
-goto END
-
 call :COMPILE 1 p REP 32
 call :COMPILE 1 p SEQ 32
 call :COMPILE 1 p RND 32
-call :COMPILE 1 k REP 32
-call :COMPILE 1 k SEQ 32
-call :COMPILE 1 k RND 32
+call :COMPILE 1 f REP 32
+call :COMPILE 1 f SEQ 32
+call :COMPILE 1 f RND 32
 call :COMPILE 1 P REP 32
 call :COMPILE 1 P SEQ 32
 call :COMPILE 1 P RND 32
@@ -84,9 +79,9 @@ call "%VCINSTALLDIR%vcvarsall.bat" x64
 call :COMPILE 1 p REP 64
 call :COMPILE 1 p SEQ 64
 call :COMPILE 1 p RND 64
-call :COMPILE 1 k REP 64
-call :COMPILE 1 k SEQ 64
-call :COMPILE 1 k RND 64
+call :COMPILE 1 f REP 64
+call :COMPILE 1 f SEQ 64
+call :COMPILE 1 f RND 64
 call :COMPILE 1 P REP 64
 call :COMPILE 1 P SEQ 64
 call :COMPILE 1 P RND 64
@@ -132,7 +127,7 @@ set filename=%4-%F%-%S%-%E%-%3
 time-pgo-%filename%.exe > nul
 <nul (set/p output=- optimizing )
 link %LNKFLAGS% /MACHINE:%M% /PGD:"time-pgo-%filename%.pgd" time-pgo-%filename%.obj /LTCG:PGOPTIMIZE >> %logfile% 2>&1
-del time-%filename%.obj time-%filename%.pdb time-pgo-%filename%.obj time-pgo-%filename%.pdb time-pgo-%filename%.pgd time-pgo-%filename%*.pgc
+rem del time-%filename%.obj time-%filename%.pdb time-pgo-%filename%.obj time-pgo-%filename%.pdb time-pgo-%filename%.pgd time-pgo-%filename%*.pgc
 echo.
 
 :END

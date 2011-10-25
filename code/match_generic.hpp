@@ -18,8 +18,8 @@
 // TODO: Make a test case that tests all features in template context
 // TODO: Provide implementation when variadic templates are supported
 //  FIX: Remove const currently added on auto-declared references to allow modification
-// TODO: Preallocate cache for number of case clauses
-// TODO: Add probabilities on classes to be taken into account for collisions
+// done: Preallocate cache for number of case clauses
+// done: Add probabilities on classes to be taken into account for collisions
 // TODO: Add support for multiple scrutinies
 // TODO: Add static assert that verifies types in clauses to be related to selector type
 //       in the same way dynamic_cast does. This cannot always be check that target type
@@ -47,6 +47,8 @@
 //        - use of separate translation units, libraries and DLLs
 //        - passing null-pointer to Match in release/debug builds
 //        - use of layouts and views
+// FIX: Add support of guards |= on other patterns e.g. matcherN
+// TODO: Check if implicit breaks render better code than code with ifs for fall-through behavior
 
 #pragma once
 
@@ -664,7 +666,7 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
             } \
             XTL_ASSERT(("Base classes for this kind were not specified",__kinds));\
             XTL_ASSERT(("Invalid list of kinds",__kinds[__attempt]==__kind_selector));\
-            __kind_selector = __kinds[++__attempt];\
+            __kind_selector = __kinds ? __kinds[++__attempt] : 0;\
             goto XTL_CONCAT(ReMatch,__LINE__);\
         case 0: break; {{
 
@@ -1455,6 +1457,8 @@ public:
         size_t     attempt;
     };
 
+    enum { match_exit_label = 0 }; // A label value reserved for exiting base class tag iteration loop
+
     /// Meta function that defines some case labels required to support extended switch.
     /// The main difference of this function from the one used on case clauses is that 
     /// this one is used on the level of match statement to define the values of common
@@ -1470,7 +1474,7 @@ public:
         // killing the performance.
         enum
         {
-            exit = 0 ///< Case label that will be used to jump to the end of the switch
+            exit = match_exit_label ///< Case label that will be used to jump to the end of the switch
         };
     };
 
@@ -1500,7 +1504,7 @@ public:
         }
         XTL_ASSERT(("Base classes for this kind were not specified",local_data.kinds));
         XTL_ASSERT(("Invalid list of kinds",local_data.kinds[local_data.attempt]==jump_target));
-        jump_target = local_data.kinds[++local_data.attempt];
+        jump_target = local_data.kinds ? local_data.kinds[++local_data.attempt] : int(match_exit_label);
         return true;
     }
     /// Structure used to disambiguate whether first argument is a type or a value.
@@ -1741,6 +1745,8 @@ struct variable<const T*>
         else
             return false;
     }
+
+    variable& operator=(const T* t) { m_value = t; return *this; }
 
     template <typename E> 
     auto operator|=(E&& e) -> guard<const T*,decltype(filter(std::forward<E>(e)))>

@@ -122,7 +122,12 @@ private:
 public:
     
 #if defined(XTL_DUMP_PERFORMANCE)
-    vtblmap(const char* fl, size_t ln, const vtbl_count_t expected_size = min_expected_size) : file(fl), line(ln), updates(0),
+    vtblmap(const char* fl, size_t ln, const vtbl_count_t expected_size = min_expected_size) : 
+        file(fl), 
+        line(ln), 
+        updates(0), 
+        clauses(expected_size),
+        conflicts(0),
         cache_mask((1<<std::min(max_log_size,bit_offset_t(req_bits(expected_size-1))))-1),
         cache(cache_mask < local_cache_size ? local_cache : new cache_entry[cache_mask+1]),
         optimal_shift(VTBL_IRRELEVANT_BITS),
@@ -133,7 +138,7 @@ public:
         std::memset(cache,0,(cache_mask+1)*sizeof(cache_entry)); // Reset cache
     }
 #endif
-    vtblmap(const vtbl_count_t expected_size = min_expected_size) : XTL_DUMP_PERFORMANCE_ONLY(file("unspecified"), line(0), updates(0),)
+    vtblmap(const vtbl_count_t expected_size = min_expected_size) : XTL_DUMP_PERFORMANCE_ONLY(file("unspecified"), line(0), updates(0), clauses(expected_size), conflicts(0),)
         cache_mask((1<<std::min(max_log_size,bit_offset_t(req_bits(expected_size-1))))-1),
         cache(cache_mask < local_cache_size ? local_cache : new cache_entry[cache_mask+1]),
         optimal_shift(VTBL_IRRELEVANT_BITS),
@@ -141,7 +146,6 @@ public:
         last_table_size(0),
         collisions_before_update(initial_collisions_before_update)
     {
-        //std::clog << "expected_size=" << expected_size << std::endl;
         std::memset(cache,0,(cache_mask+1)*sizeof(cache_entry)); // Reset cache
     }
 
@@ -182,21 +186,24 @@ public:
 
         if (XTL_UNLIKELY(ce.vtbl != vtbl))
         {
-            const iterator q = table.find(vtbl);
+            //XTL_DUMP_PERFORMANCE_ONLY(if (ce.vtbl) ++conflicts);
+            //const iterator q = table.find(vtbl);
 
-            if (q != table.end())
-                ce.ptr = &q->second;
-            else
-            {
-                // If this is an actual collision, we rearrange cache
-                if (ce.vtbl && table.size() != last_table_size && !--collisions_before_update)
-                    return update(vtbl); // try to rearrange cache
-                else
-                    ce.ptr = &table.insert(value_type(vtbl,stored_type())).first->second;
-            }
+            //if (q != table.end())
+            //    ce.ptr = &q->second;
+            //else
+            //{
+            //    // If this is an actual collision, we rearrange cache
+            //    if (ce.vtbl && !--collisions_before_update && table.size() != last_table_size)
+            //        return update(vtbl); // try to rearrange cache
+            //    else
+            //        ce.ptr = &table.insert(value_type(vtbl,stored_type())).first->second;
+            //}
 
+            //-----------------------------------------------
             //if (XTL_LIKELY(ce.vtbl))
             //{
+            //    XTL_DUMP_PERFORMANCE_ONLY(++conflicts);
             //    const iterator q = table.find(vtbl);
 
             //    if (q != table.end())
@@ -214,10 +221,11 @@ public:
             //    ce.ptr = &table.insert(value_type(vtbl,stored_type())).first->second;
 
             //-----------------------------------------------
-            //if (ce.vtbl && table.size() != last_table_size && !--collisions_before_update)
-            //    return update(vtbl); // try to rearrange cache
+            XTL_DUMP_PERFORMANCE_ONLY(if (ce.vtbl) ++conflicts);
+            if (ce.vtbl && --collisions_before_update <= 0 && table.size() != last_table_size)
+                return update(vtbl); // try to rearrange cache
 
-            //ce.ptr = &table[vtbl];
+            ce.ptr = &table[vtbl];
             //-----------------------------------------------
             //if (XTL_LIKELY(ce.vtbl))
             //{
@@ -280,6 +288,12 @@ public:
         }
 
         stored_type& result = table[vtbl];
+        XTL_USE_VTBL_FREQUENCY_ONLY(++result.hits);
+
+//#if defined(XTL_DUMP_PERFORMANCE)
+//        std::clog << "\nVtbl:New" << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << ((vtbl >> optimal_shift) & cache_mask) << '\t' << vtbl_typeid(vtbl).name() << std::endl;
+//        *this >> std::clog;       
+//#endif
 
         XTL_DUMP_PERFORMANCE_ONLY(++updates); // Record update
         last_table_size = table.size();       // Update memoized value
@@ -324,34 +338,103 @@ public:
                 }
             }
 
-            if (no > k)
+            if (optimal_shift != zo || no > k)
             {
-                if (cache_mask > local_cache_size) delete[] cache; 
-                cache_mask = (1<<no)-1;
-                cache = cache_mask < local_cache_size ? local_cache : new cache_entry[1<<no];
-            }
-            else
-                no = k;
+                if (no > k)
+                {
+                    if (cache_mask > local_cache_size) delete[] cache; 
+                    cache_mask = (1<<no)-1;
+                    cache = cache_mask < local_cache_size ? local_cache : new cache_entry[1<<no];
+                }
+                else
+                    no = k;
 
-            std::memset(cache,0,(1<<no)*sizeof(cache_entry)); // Reset cache
-            optimal_shift = zo;
+                std::memset(cache,0,(1<<no)*sizeof(cache_entry)); // Reset cache
+                optimal_shift = zo;
 
-            for (typename vtbl_to_t_map::iterator p = table.begin(); p != table.end(); ++p)
-            {
-                intptr_t vtbl = p->first;
-                cache_entry& ce = cache[(vtbl>>optimal_shift) & cache_mask];
-                ce.vtbl = vtbl;
-                ce.ptr  = &p->second;
+                for (typename vtbl_to_t_map::iterator p = table.begin(); p != table.end(); ++p)
+                {
+                    intptr_t vtbl = p->first;
+                    cache_entry& ce = cache[(vtbl>>optimal_shift) & cache_mask];
+                    ce.vtbl = vtbl;
+                    ce.ptr  = &p->second;
+                }
             }
         }
+
 //#if defined(XTL_DUMP_PERFORMANCE)
-//        std::clog << "Vtbl:New" << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << ((vtbl >> optimal_shift) & cache_mask) << '\t' << vtbl_typeid(vtbl).name() << std::endl;
+//        std::clog << "After" << std::endl;
 //        *this >> std::clog;       
 //#endif
-        XTL_USE_VTBL_FREQUENCY_ONLY(++result.hits);
         return result;
     }
 
+#if defined(XTL_USE_VTBL_FREQUENCY) || defined(XTL_DUMP_PERFORMANCE)
+    /// Struct holding sum and a square sum of vtbl frequencies falling into a given bin.
+    struct SQS 
+    {
+        size_t       sum;
+        size_t       sqsum;
+        vtbl_count_t count;
+    };
+#endif
+
+#if defined(XTL_USE_VTBL_FREQUENCY)
+    /// Compute entropy and probability of collision for all vtbls currently 
+    /// present in the table when they are mapped into cache of size 2^log_size 
+    /// with given offset used to ignore irrelevant bits.
+    size_t get_stats_for(bit_offset_t log_size, bit_offset_t offset, double& entropy, double& conflict) const
+    {
+        const size_t   cache_size = 1<<log_size;
+        const intptr_t cache_mask = cache_size-1;
+
+        XTL_ASSERT(log_size <= max_log_size); 
+        XTL_ASSERT(req_bits(table.size()) < sizeof(vtbl_count_t)*8); // Make sure vtbl_count_t is sufficiently large
+
+        // We do this to not resort to vectors and heap and keep counting on stack
+        XTL_VLAZ(histogram, SQS, cache_size, 1<<max_log_size); // SQS histogram[cache_size];
+        size_t sum = 0;
+
+        for (typename vtbl_to_t_map::const_iterator p = table.begin(); p != table.end(); ++p)
+        {
+            SQS&   sqs  = histogram[(p->first >> offset) & cache_mask];
+            size_t hits = p->second.hits;
+            sum       += hits;
+            sqs.sum   += hits;
+            sqs.sqsum += hits*hits;
+            ++sqs.count;
+        }
+
+        size_t entries = 0;
+
+        entropy  = 0.0;
+        conflict = 0.0;
+
+        for (size_t j = 0; j < cache_size; ++j)
+        {
+            SQS& sqs = histogram[j];
+
+            if (sqs.sum)
+            {
+                double pi = double(sqs.sum)/sum;
+                entropy -= pi*std::log(pi)/ln2;
+                ++entries;
+
+                if (sqs.count > 1)
+                    conflict += pi*(1.0-double(sqs.sqsum)/(sqs.sum*sqs.sum));
+            }
+        }
+//#if defined(XTL_DUMP_PERFORMANCE)
+//        std::clog <<    "ENTROPY: "  << entropy 
+//                  << "\t CONFLICT: " << conflict 
+//                  << "\t entries="   << entries 
+//                  << "\t log_size="  << (int)log_size 
+//                  << "\t offset="    << (int)offset 
+//                  << '[' << line << ']' << std::endl;
+//#endif
+        return entries;
+    }
+#else
     /// Compute entropy and probability of collision for all vtbls currently 
     /// present in the table when they are mapped into cache of size 2^log_size 
     /// with given offset used to ignore irrelevant bits.
@@ -397,21 +480,29 @@ public:
 #endif
         return entries;
     }
+#endif
 
 #if defined(XTL_DUMP_PERFORMANCE)
     std::ostream& operator>>(std::ostream& os) const
     {
         os << file << '[' << line << ']' << std::endl;
 
-        intptr_t diff = 0;
-        intptr_t prev = 0;
-        size_t   log_size  = req_bits(cache_mask);
-        size_t   cache_size = (1<<log_size);
+        size_t log_size   = req_bits(cache_mask);
+        size_t cache_size = (1<<log_size);
 
+#if defined(XTL_USE_VTBL_FREQUENCY)
+        // We do this to not resort to vectors and heap and keep counting on stack
+        XTL_VLAZ(histogram, SQS, cache_size, 1<<max_log_size); // SQS histogram[cache_size];
+#else
         // We do this to not resort to vectors and heap and keep counting on stack
         XTL_VLAZ(histogram, vtbl_count_t, cache_size, 1<<max_log_size); // vtbl_count_t histogram[cache_size];
+#endif
         std::vector<intptr_t> vtbls(table.size());
         std::vector<intptr_t>::iterator q = vtbls.begin();
+
+        intptr_t diff = 0;
+        intptr_t prev = 0;
+        size_t   sum = 0;
 
         for (typename vtbl_to_t_map::const_iterator p = table.begin(); p != table.end(); ++p)
         {
@@ -421,23 +512,56 @@ public:
                 diff |= prev ^ vtbl; // Update diff with information about which bits in all vtbls differ
 
             prev = vtbl;
+
+#if defined(XTL_USE_VTBL_FREQUENCY)
+            SQS&   sqs  = histogram[(vtbl >> optimal_shift) & cache_mask];
+            size_t hits = p->second.hits;
+            sum       += hits;
+            sqs.sum   += hits;
+            sqs.sqsum += hits*hits;
+            ++sqs.count;
+#else
             histogram[(vtbl >> optimal_shift) & cache_mask]++;
+#endif
+
         }
 
         // Sort vtables to output them is address order
         std::sort(vtbls.begin(),vtbls.end());
+        prev = 0;
 
         for (q = vtbls.begin(); q != vtbls.end(); ++q)
         {
             intptr_t vtbl = *q;
             os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) 
-               << " -> " << std::setw(3) << ((vtbl >> optimal_shift) & cache_mask) 
-               << '\t';
-            XTL_USE_VTBL_FREQUENCY_ONLY(os << ' ' << table.find(vtbl)->second.hits << " \t");
+               << " -> "     << std::setw(3) << ((vtbl >> optimal_shift) & cache_mask) 
+               << ' ';
+            
+            if (prev)
+                os << std::setw(4) << std::showpos << vtbl-prev;
+            else
+                os << "    ";
+
+            prev = vtbl;
+#if defined(XTL_USE_VTBL_FREQUENCY)
+            SQS& sqs  = histogram[(vtbl >> optimal_shift) & cache_mask];
+
+            if (sqs.count > 1)
+                os << '['  << sqs.count << ']';
+            else
+                os << "   ";
+
+            size_t hits = table.find(vtbl)->second.hits;
+
+            os << " f=" << std::setw(5) << hits << " "
+               << " p=" << std::setw(9) << std::fixed << std::setprecision(7) << double(hits)/sum
+               << " s=" << std::setw(9) << std::fixed << std::setprecision(7) << double(hits*hits)/(sqs.sum*sqs.sum);
+#else
             if (histogram[(vtbl >> optimal_shift) & cache_mask] > 1)
                 os << '[' << histogram[(vtbl >> optimal_shift) & cache_mask] << ']';
             else
                 os << "   ";
+#endif
 
             os << '\t' << vtbl_typeid(vtbl).name() << std::endl;        
         }
@@ -457,15 +581,37 @@ public:
         size_t entries = get_stats_for(log_size, optimal_shift, entropy, conflict);
 
         os << "VTBLS:  "     << str
-           << " total="      << table.size()
+           << " clauses="    << std::setw(3) << clauses
+           << " total="      << std::setw(3) << table.size()
            << " log_size="   << log_size
-           << " shift="      << optimal_shift
-           << " width="      << str.find_last_of("X")-str.find_first_of("X")+1 
-           XTL_DUMP_PERFORMANCE_ONLY(<< " updates=" << updates)
-           << " entries: "   << entries
-           << " Entropy: "   << entropy
-           << " Conflict: "  << conflict << "\t ";
+           << " shift="      << std::setw(2) << optimal_shift
+           << " width="      << std::setw(2) << str.find_last_of("X")-str.find_first_of("X")+1 
+           << " updates="    << std::setw(2) << updates
+           << " conflicts="  << std::setw(4) << conflicts
+           << " entries: "   << std::setw(3) << entries
+           XTL_USE_VTBL_FREQUENCY_ONLY(<< " sum=" << std::setw(5) << sum)
+           << " Entropy: "   << std::setw(9) << std::fixed << std::setprecision(7) << entropy
+           << " Conflict: "  << std::setw(9) << std::fixed << std::setprecision(7) << conflict
+           XTL_USE_VTBL_FREQUENCY_ONLY(<< " confl/sum: " << std::setw(9) << std::fixed << std::setprecision(7) << double(conflicts)/sum) << "\t ";
 
+#if defined(XTL_USE_VTBL_FREQUENCY)
+        bool show = false;
+        size_t  d = 0;
+
+        for (size_t i = table.size(); i != ~0; --i)
+        {
+            d = 0;
+
+            for (size_t j = 0; j < cache_size; ++j)
+                if (histogram[j].count == i)
+                    ++d;
+
+            if (show = show || d > 0)
+                os << i << "->" << d << "; ";
+        }
+
+        os << d*100/cache_size << "% unused " << '[' << line << ']' << std::endl;
+#else
         bool show = false;
 
         for (size_t i = table.size(); i != ~0; --i)
@@ -477,7 +623,7 @@ public:
         }
 
         os << std::count(histogram,histogram+cache_size,0)*100/cache_size << "% unused " << '[' << line << ']' << std::endl;
-
+#endif
         bit_offset_t k  = req_bits(cache_mask);     // current log_size
         bit_offset_t n  = req_bits(table.size()-1); // needed  log_size
         bit_offset_t m  = req_bits(diff);           // highest bit in which vtbls differ
@@ -491,7 +637,7 @@ public:
             {
                 double e, p;
                 size_t t = get_stats_for(i,j,e,p);
-                os << "\tlog_size=" << int(i) << " shift=" << int(j) << " Entropy=" << e << " Conflict=" << p << (t == table.size() ? " \t*" : "") << std::endl;
+                os << "\tlog_size=" << int(i) << " shift=" << std::setw(2) << int(j) << " Entropy=" << std::setw(9) << std::fixed << std::setprecision(7) << e << " Conflict=" << std::setw(9) << std::fixed << std::setprecision(7) << p << (t == table.size() ? " \t*" : "") << std::endl;
             }
         }
 
@@ -527,9 +673,11 @@ private:
     int collisions_before_update;
 
 #if defined(XTL_DUMP_PERFORMANCE)
-    const char* file;    ///< File in which this vtblmap is instantiated
-    size_t      line;    ///< Line in the file where it is instantiated
-    size_t      updates; ///< Amount of reconfigurations performed at run time
+    const char* file;      ///< File in which this vtblmap_of is instantiated
+    size_t      line;      ///< Line in the file where it is instantiated
+    size_t      updates;   ///< Amount of reconfigurations performed at run time
+    size_t      clauses;   ///< Size of the table expected from the number of clauses
+    size_t      conflicts; ///< The amount of conflicts we've encountered
 #endif
 
     /// An on board memory for cache for log sizes smaller than default.
@@ -959,10 +1107,8 @@ public:
     {
         os << file << '[' << line << ']' << std::endl;
 
-        intptr_t diff = 0;
-        intptr_t prev = 0;
-        size_t   log_size  = req_bits(cache_mask);
-        size_t   cache_size = (1<<log_size);
+        size_t log_size   = req_bits(cache_mask);
+        size_t cache_size = (1<<log_size);
 
 #if defined(XTL_USE_VTBL_FREQUENCY)
         // We do this to not resort to vectors and heap and keep counting on stack
@@ -974,7 +1120,9 @@ public:
         std::vector<intptr_t> vtbls(table.size());
         std::vector<intptr_t>::iterator q = vtbls.begin();
 
-        size_t sum = 0;
+        intptr_t diff = 0;
+        intptr_t prev = 0;
+        size_t   sum = 0;
 
         for (typename vtbl_to_t_map::const_iterator p = table.begin(); p != table.end(); ++p)
         {
@@ -1000,6 +1148,7 @@ public:
 
         // Sort vtables to output them is address order
         std::sort(vtbls.begin(),vtbls.end());
+        prev = 0;
 
         for (q = vtbls.begin(); q != vtbls.end(); ++q)
         {
@@ -1007,7 +1156,13 @@ public:
             os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) 
                << " -> "     << std::setw(3) << ((vtbl >> optimal_shift) & cache_mask) 
                << ' ';
+            
+            if (prev)
+                os << std::setw(4) << std::showpos << vtbl-prev;
+            else
+                os << "    ";
 
+            prev = vtbl;
 #if defined(XTL_USE_VTBL_FREQUENCY)
             SQS& sqs  = histogram[(vtbl >> optimal_shift) & cache_mask];
 

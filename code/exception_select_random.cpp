@@ -10,6 +10,8 @@
 #include "match_generic.hpp"
 #include "timing.hpp"
 
+//------------------------------------------------------------------------------
+
 #if !defined(NUMBER_OF_VFUNCS)
 #define NUMBER_OF_VFUNCS  1
 #endif
@@ -144,8 +146,8 @@ Shape* make_shape(size_t i)
 
 //------------------------------------------------------------------------------
 
-const size_t N = 1000; // The amount of times visitor and matching procedure is invoked in one time measuring
-const size_t M = 11;   // The amount of times time measuring is done
+const size_t N = 10000; // The amount of times visitor and matching procedure is invoked in one time measuring
+const size_t M = 101;   // The amount of times time measuring is done
 const size_t K = NUMBER_OF_DERIVED; // The amount of cases we have in hierarchy
 
 //------------------------------------------------------------------------------
@@ -251,6 +253,70 @@ long long display(const char* name, std::vector<long long>& timings)
               << std::endl;
 
     return med;
+}
+
+//------------------------------------------------------------------------------
+
+int test_repetitive()
+{
+    std::cout << "=================== Repetitive Test ===================" << std::endl;
+
+    size_t a1 = 0,a2 = 0;
+    std::vector<int> percentages(K); // Final verdict of medians for each of the K experiments
+
+    for (size_t n = 0; n < K; ++n)
+    {
+        std::vector<Shape*> shapes(N);
+
+        for (size_t i = 0; i < N; ++i)
+        {
+            shapes[i] = make_shape((n+i)*2-n-2*i);
+        }
+
+        std::vector<long long> timingsV(M);
+        std::vector<long long> timingsM(M);
+
+        for (size_t m = 0; m < M; ++m)
+        {
+            time_stamp liStart1 = get_time_stamp();
+
+            for (size_t i = 0; i < N; ++i)
+                a1 += do_visit(*shapes[i]);
+
+            time_stamp liFinish1 = get_time_stamp();
+
+            time_stamp liStart2 = get_time_stamp();
+
+            for (size_t i = 0; i < N; ++i)
+                a2 += do_match(*shapes[i]);
+
+            time_stamp liFinish2 = get_time_stamp();
+
+            XTL_ASSERT(a1==a2);
+
+            timingsV[m] = liFinish1-liStart1;
+            timingsM[m] = liFinish2-liStart2;
+        }
+
+        long long avgV = display("AreaVisRep", timingsV);
+        long long avgM = display("AreaMatRep", timingsM);
+        percentages[n] = relative_performance(avgV, avgM);
+
+        for (size_t i = 0; i < N; ++i)
+        {
+            delete shapes[i];
+            shapes[i] = 0;
+        }
+    }
+
+    if (a1 != a2)
+    {
+        std::cout << "ERROR: Invariant " << a1 << "==" << a2 << " doesn't hold." << std::endl;
+        exit(42);
+    }
+
+    std::sort(percentages.begin(), percentages.end());
+    return percentages[percentages.size()/2];
 }
 
 //------------------------------------------------------------------------------
@@ -402,9 +468,12 @@ int test_randomized()
 
 int main()
 {
-    int ps = test_sequential();
-    int pr = test_randomized();
-    std::cout << "OVERALL: Sequential: " 
-              << abs(ps) << (ps >= 0 ? "% slower" : "% faster") << "; Random: " 
-              << abs(pr) << (pr >= 0 ? "% slower" : "% faster") << std::endl; 
+    int pp = test_repetitive();
+    //int ps = test_sequential();
+    //int pr = test_randomized();
+    std::cout << "OVERALL: "
+              << "Repetitive: " << abs(pp) << (pp >= 0 ? "% slower" : "% faster") << "; "
+              //<< "Sequential: " << abs(ps) << (ps >= 0 ? "% slower" : "% faster") << "; "
+              //<< "Random: "     << abs(pr) << (pr >= 0 ? "% slower" : "% faster") 
+              << std::endl; 
 }

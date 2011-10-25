@@ -1,7 +1,20 @@
 ///
 /// \file config.hpp
 ///
-/// This file defines various macros that are compiler or platform specific.
+/// This file defines various options for configuring the library for use with a 
+/// specific project and its class hierarchies as well as macros that are compiler 
+/// or platform specific.
+///
+/// Here are some of the library configuration options that can be set:
+///
+/// - Default syntax
+/// - Redundancy checking
+/// - Use of vtbl frequencies to optimize vtblmap performance
+/// - Use of memoized_cast
+/// - Fallthrough behavior
+/// - Whether extractors might throw
+/// - Trace of performance
+/// - Certain types used under the hood
 ///
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
@@ -40,7 +53,7 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 /// Uncomment this macro definition if you'd like to do some performance tracing
 #define XTL_DUMP_PERFORMANCE
 /// Uncomment to use Pearson hash
-#define XTL_USE_PEARSON_HASH
+//#define XTL_USE_PEARSON_HASH
 
 /// When this macro is defined, vtblmaps will count frequency of requests using a
 /// given vtbl pointer and will take it into account during rearranging of the map.
@@ -54,6 +67,9 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 ///          will effectively have a switch statement whose body is never evaluated!
 //#define XTL_REDUNDANCY_CHECKING
 
+/// When this macro is enabled the default fall-through behavior of underlying 
+/// switch is disabled by putting explicit breaks after case statements.
+
 //------------------------------------------------------------------------------
 
 /// Several choices for configuring syntax:
@@ -65,7 +81,7 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 /// - 'U' - Union switch
 /// - 'E' - Exception switch
 #if !defined(XTL_DEFAULT_SYNTAX)
-  #define XTL_DEFAULT_SYNTAX 'P'
+  #define XTL_DEFAULT_SYNTAX 'G'
 #endif
 
 //------------------------------------------------------------------------------

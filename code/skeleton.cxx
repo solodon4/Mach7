@@ -522,7 +522,13 @@ int test_repetitive()
 
     for (size_t n = 0; n < K; ++n)
     {
-        Shape* s = make_shape(n);
+        std::vector<Shape*> shapes(N);
+
+        for (size_t i = 0; i < N; ++i)
+        {
+            shapes[i] = make_shape((n+i)*2-n-2*i);
+        }
+
         std::vector<long long> timingsV(M);
         std::vector<long long> timingsM(M);
 
@@ -531,14 +537,14 @@ int test_repetitive()
             time_stamp liStart1 = get_time_stamp();
 
             for (size_t i = 0; i < N; ++i)
-                a1 += do_visit(*s,i);
+                a1 += do_visit(*shapes[i],i);
 
             time_stamp liFinish1 = get_time_stamp();
 
             time_stamp liStart2 = get_time_stamp();
 
             for (size_t i = 0; i < N; ++i)
-                a2 += do_match(*s,i);
+                a2 += do_match(*shapes[i],i);
 
             time_stamp liFinish2 = get_time_stamp();
 
@@ -548,10 +554,15 @@ int test_repetitive()
             timingsM[m] = liFinish2-liStart2;
         }
 
-        long long avgV = display("AreaVisSeq", timingsV);
-        long long avgM = display("AreaMatSeq", timingsM);
+        long long avgV = display("AreaVisRep", timingsV);
+        long long avgM = display("AreaMatRep", timingsM);
         percentages[n] = relative_performance(avgV, avgM);
-        delete s;
+
+        for (size_t i = 0; i < N; ++i)
+        {
+            delete shapes[i];
+            shapes[i] = 0;
+        }
     }
 
     if (a1 != a2)

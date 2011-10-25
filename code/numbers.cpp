@@ -54,8 +54,8 @@ int fib(int n)
     if (match<int>(2)(n))     return 1;
 	if (match<int>(m*2)(n))   return sqr(fib(m+1)) - sqr(fib(m-1));
 	if (match<int>(m*2+1)(n)) return sqr(fib(m+1)) + sqr(fib(m));
-	XTL_ASSERT(!"Should never happen");	
-    return 0;
+	//XTL_ASSERT(!"Should never happen");	
+ //   return 0;
 }
 
 double power1(double x, int n)
