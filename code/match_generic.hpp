@@ -50,6 +50,12 @@
 #include <cassert>
 #include <ostream>
 #include <type_traits>
+#include <utility>
+#ifdef _MSC_VER
+/// Visual C++ 2010 does not include declval
+namespace std { template <typename T> typename std::add_rvalue_reference<T>::type declval(); }
+#endif
+
 #include <vector>
 #include "exprtmpl.hpp"
 #include "vtblmap.hpp"
@@ -205,7 +211,7 @@ smallest_kind_is<0> smallest_kind_value_helper(...);
 template <typename T>
 struct smallest_kind
 {
-    typedef decltype(smallest_kind_value_helper(*reinterpret_cast<T*>(0))) type;
+    typedef decltype(smallest_kind_value_helper(std::declval<T>())) type;
     enum { value = type::value };
 };
 
@@ -217,9 +223,10 @@ struct smallest_kind
 const int reserved_extra_kinds = 1;
 
 /// Convenience meta-function to get the original kind associated with the class T
-template <typename T> struct original_kind { enum { value = match_members<T>::kind_value }; };
+template <typename T, size_t L> struct original_kind                   { enum { value = L }; }; // FIX: This temporarily for test purposes assumes only union case. Split in two with enable_if
+template <typename T>           struct original_kind<T,default_layout> { enum { value = match_members<T>::kind_value }; };
 /// Convenience meta-function to get the remapped kind associated with the class T
-template <typename T> struct remapped_kind { enum { value = match_members<T>::kind_value - smallest_kind<T>::value + reserved_extra_kinds }; };
+template <typename T, size_t L = default_layout> struct remapped_kind  { enum { value = original_kind<T,L>::value - smallest_kind<T>::value + reserved_extra_kinds }; };
 /// Convenience function to convert remapped kind to original at run-time
 template <typename T> inline int remapped2original(int k) { return k + smallest_kind<T>::value - reserved_extra_kinds; }
 /// Convenience function to convert original kind to remapped at run-time
@@ -283,8 +290,8 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
 /// A macro that will be passed arguments to case statement. This should include
 /// the first type parameter that will be used as a dummy. This is required to
 /// be able to handle 0 non-type parameters.
-#define  BCS(...) typedef          get_param<match_members>::type D; BCS_(XTL_NARG(__VA_ARGS__), __VA_ARGS__)
-#define TBCS(...) typedef typename get_param<match_members>::type D; BCS_(XTL_NARG(__VA_ARGS__), __VA_ARGS__)
+#define  BCS(...) typedef          get_param<match_members>::type D; BCS_(XTL_NARG(__VA_ARGS__),##__VA_ARGS__)
+#define TBCS(...) typedef typename get_param<match_members>::type D; BCS_(XTL_NARG(__VA_ARGS__),##__VA_ARGS__)
 
 //------------------------------------------------------------------------------
 
@@ -309,7 +316,7 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
 /// A macro that will be passed arguments to case statement. This should include
 /// the first type parameter that will be used as a dummy. This is required to
 /// be able to handle 0 non-type parameters.
-#define DECL_BOUND_VARS(...) DECL_BOUND_VAR_(XTL_NARG_EX(__VA_ARGS__), __VA_ARGS__)
+#define DECL_BOUND_VARS(...) DECL_BOUND_VAR_(XTL_NARG_EX(__VA_ARGS__),##__VA_ARGS__)
 
 //------------------------------------------------------------------------------
 
@@ -348,11 +355,12 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
 ///       initialize cache with 0, however through experiments we can see
 ///       that having default here is quite a bit faster than having case 0.
 #define TypeMatch(s) {\
-        static vtblmap<type_switch_info&> __vtbl2lines_map XTL_DUMP_PERFORMANCE_ONLY((__FILE__,__LINE__));\
         auto const   __selector_ptr = addr(s);\
         typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
-        static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use TypeMatch");\
+        enum { __base_counter = XTL_COUNTER };\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
+        static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use TypeMatch");\
+        static vtblmap<type_switch_info&> __vtbl2lines_map XTL_DUMP_PERFORMANCE_ONLY((__FILE__,__LINE__));\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
         switch (__switch_info.line) {\
@@ -363,11 +371,12 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
 ///       initialize cache with 0, however through experiments we can see
 ///       that having default here is quite a bit faster than having case 0.
 #define TypeMatchN(s,N) {\
-        static vtblmap<type_switch_info&/*,requires_bits<N>::value*/> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)requires_bits<N>::value);\
         auto const   __selector_ptr = addr(s);\
         typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
-        static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use TypeMatchN");\
+        enum { __base_counter = XTL_COUNTER };\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
+        static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use TypeMatchN");\
+        static vtblmap<type_switch_info&/*,requires_bits<N>::value*/> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)requires_bits<N>::value);\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
         switch (__switch_info.line) {\
@@ -391,12 +400,12 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
 ///       initialize cache with 0, however through experiments we can see
 ///       that having default here is quite a bit faster than having case 0.
 #define MatchP(s) {\
-        enum { __base_counter = XTL_COUNTER };\
-        static vtblmap<type_switch_info&> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)deferred_value<vtbl_count_t>::get<__base_counter>());\
         auto const   __selector_ptr = addr(s);\
         typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
-        static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use MatchP");\
+        enum { __base_counter = XTL_COUNTER };\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
+        static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use MatchP");\
+        static vtblmap<type_switch_info&> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)deferred_value<vtbl_count_t>::get<__base_counter>());\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
         switch (__switch_info.line)\
@@ -408,12 +417,12 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
 ///       initialize cache with 0, however through experiments we can see
 ///       that having default here is quite a bit faster than having case 0.
 #define MatchP_N(s,N) {\
-        enum { __base_counter = XTL_COUNTER };\
-        static vtblmap<type_switch_info&/*,requires_bits<N>::value*/> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)deferred_value<vtbl_count_t>::get<__base_counter>());\
         auto const   __selector_ptr = addr(s);\
         typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
-        static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use MatchP_N");\
+        enum { __base_counter = XTL_COUNTER };\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
+        static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use MatchP_N");\
+        static vtblmap<type_switch_info&/*,requires_bits<N>::value*/> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)deferred_value<vtbl_count_t>::get<__base_counter>());\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
         switch (__switch_info.line)\
@@ -454,7 +463,7 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
 #endif
 #define QueP(C,...)  }}} { typedef C target_type; enum { target_label = XTL_COUNTER-__base_counter }; if (XTL_UNLIKELY(__casted_ptr = dynamic_cast<const target_type*>(__selector_ptr))) { if (XTL_LIKELY((__switch_info.line == 0))) { __switch_info.line = target_label; __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); } case target_label: auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset); if (XTL_LIKELY(match<target_type>(__VA_ARGS__)(matched))) {
 #define OrP(...)     } else if (match<target_type>(__VA_ARGS__)(matched)) {
-#define OtherwiseP() }}} {{ default: auto matched = __selector_ptr; { XTL_UNUSED(matched);
+#define OtherwiseP(...) CaseP(selector_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
 #define EndMatchP    }}} enum { target_label = XTL_COUNTER-__base_counter }; deferred_value<vtbl_count_t>::set<__base_counter,target_label-1>::value; if (XTL_LIKELY((__switch_info.line == 0))) { __switch_info.line = target_label; } case target_label: ; }}
 
 //------------------------------------------------------------------------------
@@ -615,7 +624,7 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
     #define CaseF(...) CaseF_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
 #endif
 
-#define OtherwiseF() CaseF(selector_type)
+#define OtherwiseF(...) CaseF(selector_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
 #define EndMatchF   }} }}
 
 //------------------------------------------------------------------------------
@@ -655,7 +664,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
                XTL_CPP0X_TYPENAME switch_traits::local_data_type  local_data;\
         switch (switch_traits::choose(__selector_ptr,static_data,local_data))\
         {\
-            XTL_REDUNDANCY_LABEL(case switch_traits::template CaseLabel<0>::entry:) { XTL_REDUNDANCY_TRY {{
+            XTL_REDUNDANCY_LABEL(case switch_traits::XTL_CPP0X_TEMPLATE CaseLabel<0>::entry:) { XTL_REDUNDANCY_TRY {{
 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
 ///       seems to be impossible to introduce dummy argument inside the Case 
@@ -663,13 +672,13 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 #define CaseG_(C,...) }}} \
         XTL_REDUNDANCY_CATCH(C) \
         { \
-            typedef XTL_CPP0X_TYPENAME switch_traits::template disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>::template parameter<C> target_specific; \
+            typedef XTL_CPP0X_TYPENAME switch_traits::XTL_CPP0X_TEMPLATE disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>::XTL_CPP0X_TEMPLATE parameter<C> target_specific; \
             typedef XTL_CPP0X_TYPENAME target_specific::target_type target_type; \
             enum { default_layout = target_specific::layout, target_label = XTL_COUNTER-__base_counter }; \
             if (target_specific::main_condition(__selector_ptr, local_data)) \
             { \
                 switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
-            XTL_REDUNDANCY_LABEL(case target_specific::template CaseLabel<target_label>::value:) \
+            XTL_REDUNDANCY_LABEL(case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value:) \
                 auto matched = target_specific::get_matched(__selector_ptr,local_data); \
                 XTL_UNUSED(matched);
 
@@ -688,11 +697,11 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 #endif
 #define QueG(C,...)  }}} \
         { enum { target_label = XTL_COUNTER-__base_counter }; \
-        typedef XTL_CPP0X_TYPENAME switch_traits::template disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>::template parameter<C> target_specific; \
+        typedef XTL_CPP0X_TYPENAME switch_traits::XTL_CPP0X_TEMPLATE disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>::XTL_CPP0X_TEMPLATE parameter<C> target_specific; \
         if (target_specific::main_condition(__selector_ptr, local_data)) \
         { \
             switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
-        case target_specific::template CaseLabel<target_label>::value: \
+        case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value: \
             auto matched = target_specific::get_matched(__selector_ptr,local_data); \
             if (XTL_LIKELY(match<XTL_CPP0X_TYPENAME target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
 #define OrG(...)     } else if (match<XTL_CPP0X_TYPENAME target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
@@ -700,7 +709,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 #define EndMatchG    }}} \
         enum { target_label = XTL_COUNTER-__base_counter }; \
         switch_traits::on_end(__selector_ptr, local_data, target_label); \
-        case switch_traits::template CaseLabel<target_label>::exit: ; }}
+        case switch_traits::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::exit: ; }}
 
 //------------------------------------------------------------------------------
 
@@ -733,13 +742,13 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 #define CaseQ_(C,...) }}} \
         XTL_REDUNDANCY_CATCH(C) \
         { \
-            typedef XTL_CPP0X_TYPENAME switch_traits::template disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>::template parameter<C> target_specific; \
+            typedef XTL_CPP0X_TYPENAME switch_traits::XTL_CPP0X_TEMPLATE disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>::XTL_CPP0X_TEMPLATE parameter<C> target_specific; \
             typedef XTL_CPP0X_TYPENAME target_specific::target_type target_type; \
             enum { default_layout = target_specific::layout, target_label = XTL_COUNTER-__base_counter }; \
             if (target_specific::main_condition(__selector_ptr, local_data)) \
             { \
                 switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
-            XTL_REDUNDANCY_LABEL(case target_specific::template CaseLabel<target_label>::value:) \
+            XTL_REDUNDANCY_LABEL(case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value:) \
                 auto matched = target_specific::get_matched(__selector_ptr,local_data); \
                 XTL_UNUSED(matched);
 
@@ -758,19 +767,19 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 #endif
 #define QueQ(C,...)  }}} \
         { enum { target_label = XTL_COUNTER-__base_counter }; \
-        typedef XTL_CPP0X_TYPENAME switch_traits::template disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>::template parameter<C> target_specific; \
+        typedef XTL_CPP0X_TYPENAME switch_traits::XTL_CPP0X_TEMPLATE disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>::XTL_CPP0X_TEMPLATE parameter<C> target_specific; \
         if (target_specific::main_condition(__selector_ptr, local_data)) \
         { \
             switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
-        case target_specific::template CaseLabel<target_label>::value: \
+        case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value: \
             auto matched = target_specific::get_matched(__selector_ptr,local_data); \
             if (XTL_LIKELY(match<XTL_CPP0X_TYPENAME target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
 #define OrQ(...)     } else if (match<XTL_CPP0X_TYPENAME target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
-#define OtherwiseQ() CaseQ(selector_type)
+#define OtherwiseQ(...) CaseQ(selector_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
 #define EndMatchQ    }}} \
         enum { target_label = XTL_COUNTER-__base_counter }; \
         switch_traits::on_end(__selector_ptr, local_data, target_label); \
-        case switch_traits::template CaseLabel<target_label>::exit: ; }}
+        case switch_traits::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::exit: ; }}
 
 //------------------------------------------------------------------------------
 
@@ -1360,18 +1369,6 @@ public:
         size_t     attempt;
     };
 
-    enum 
-    {
-        /// The value that should be equal to the smalles kind used by selector_type
-        /// FIX: Let user override this inside @match_members in case his minimum is not 0
-        user_kind_minimum_value = 0,
-        /// Just a mnemonic name to the amount of cases we add on top of user kinds.
-        /// We effectively shift user kinds by this number in order to maintain all
-        /// case labels sequentials to assure that jump table is generated for the 
-        /// switch.
-        kind_selector_shift     = 2
-    };
-
     /// Meta function that defines some case labels required to support extended switch.
     /// The main difference of this function from the one used on case clauses is that 
     /// this one is used on the level of match statement to define the values of common
@@ -1387,8 +1384,7 @@ public:
         // killing the performance.
         enum
         {
-            //entry = user_kind_minimum_value, ///< Case label that will be used to enter beginning of the switch
-            exit  = 0                        ///< Case label that will be used to jump to the end of the switch
+            exit = 0 ///< Case label that will be used to jump to the end of the switch
         };
     };
 
@@ -1449,7 +1445,7 @@ public:
             {
                 enum 
                 {
-                    value = N + kind_selector_shift          ///< Case label that will be used for case at line offset Counter
+                    value = remapped_kind<target_type,N>::value ///< Case label that will be used for case at line offset Counter
                 };
             };
             
@@ -1787,7 +1783,7 @@ struct expr<F,E1>
     expr(const E1& e1) : m_e1(e1) {}
     expr(E1&& e1) : m_e1(std::move(e1)) {}
     expr(expr&& e) : m_e1(std::move(e.m_e1)) {}
-    typedef typename std::remove_const<decltype(F()(*static_cast<typename E1::result_type*>(0)))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
+    typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>()))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
     operator result_type() const { return eval(*this); }
     bool operator()(const result_type& t) const 
     {
@@ -1803,7 +1799,7 @@ struct expr
     expr(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
     expr(E1&& e1, E2&& e2) : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
     expr(expr&& e) : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {}
-    typedef typename std::remove_const<decltype(F()(*static_cast<typename E1::result_type*>(0),*static_cast<typename E2::result_type*>(0)))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
+    typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>(),std::declval<typename E2::result_type>()))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
     operator result_type() const { return eval(*this); }
     bool operator()(const result_type& t) const 
     {

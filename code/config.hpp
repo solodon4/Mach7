@@ -234,19 +234,21 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 
 //------------------------------------------------------------------------------
 
+/// MS Visual C++ 2005 (in which variadic macros became supported) till at 
+/// least MS Visual C++ 2010 has a bug in passing __VA_ARGS__ to subsequent
+/// macros as a single token, which results in:
+///     warning C4003: not enough actual parameters for macro 'XTL_ARG_N'
+/// and incorrect behavior. The workaround used here is described at:
+/// https://connect.microsoft.com/VisualStudio/feedback/details/380090/variadic-macro-replacement
+#define XTL_APPLY_VARIADIC_MACRO(macro,tuple) macro tuple
+
+//------------------------------------------------------------------------------
+
 #define XTL_RSEQ_N() 63,62,61,60,59,58,57,56,55,54,53,52,51,50,49,48,47,46,45,44,43,42,41,40,39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0
 #define    XTL_ARG_N( _1, _2, _3, _4, _5, _6, _7, _8, _9,_10, _11,_12,_13,_14,_15,_16,_17,_18,_19,_20, _21,_22,_23,_24,_25,_26,_27,_28,_29,_30, _31,_32,_33,_34,_35,_36,_37,_38,_39,_40, _41,_42,_43,_44,_45,_46,_47,_48,_49,_50, _51,_52,_53,_54,_55,_56,_57,_58,_59,_60, _61,_62,_63,      N,...) N 
 #define XTL_ARG_N_EX( _1, _2, _3, _4, _5, _6, _7, _8, _9,_10, _11,_12,_13,_14,_15,_16,_17,_18,_19,_20, _21,_22,_23,_24,_25,_26,_27,_28,_29,_30, _31,_32,_33,_34,_35,_36,_37,_38,_39,_40, _41,_42,_43,_44,_45,_46,_47,_48,_49,_50, _51,_52,_53,_54,_55,_56,_57,_58,_59,_60, _61,_62,_63,Dummy,N,...) N 
 
 #ifdef _MSC_VER
-
-    /// MS Visual C++ 2005 (in which variadic macros became supported) till at 
-    /// least MS Visual C++ 2010 has a bug in passing __VA_ARGS__ to subsequent
-    /// macros as a single token, which results in:
-    ///     warning C4003: not enough actual parameters for macro 'XTL_ARG_N'
-    /// and incorrect behavior. The workaround used here is described at:
-    /// https://connect.microsoft.com/VisualStudio/feedback/details/380090/variadic-macro-replacement
-    #define XTL_APPLY_VARIADIC_MACRO(macro,tuple) macro tuple
 
     /// A macro used to count a number of variadic arguments.
     /// \note Using this macro without arguments violates 6.10.3p4 of ISO C99 
@@ -285,6 +287,53 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
     #define XTL_NARG_EX_(...) XTL_ARG_N_EX(__VA_ARGS__)
 
 #endif
+
+//------------------------------------------------------------------------------
+
+/// The following set of macros was copied verbatim from a response by Moritz Beutel
+/// here: https://forums.embarcadero.com/message.jspa?messageID=320338
+/// It is used for suppressing , (comma) when argument is added to __VA_ARGS__, which
+/// might be empty.
+#define UCL_PP_AND(a,b) UCL_PP_CAT3(_UCL_PP_AND_, a, b)
+#define UCL_PP_NOT(a) UCL_PP_CAT2(_UCL_PP_NOT_, a)
+#define UCL_PP_IF(a,b,...) UCL_PP_CAT2(_UCL_PP_IF_, a)(b, __VA_ARGS__)
+ 
+#define UCL_PP_EMPTY()
+#define UCL_PP_EXPAND(...) __VA_ARGS__
+#define UCL_PP_1ST(a,...) a
+#define UCL_PP_2ND(a,b,...) b
+#define UCL_PP_REMOVE_1ST(a,...) __VA_ARGS__
+#define UCL_PP_PAIR(a,...) a __VA_ARGS__
+#define UCL_PP_CAT2(a,...) UCL_PP_CAT2_(a, __VA_ARGS__)
+#define UCL_PP_CAT3(a,b,...) UCL_PP_CAT3_(a, b, __VA_ARGS__)
+ 
+    // The two macros below are inspired by Laurent Deniau's posting on comp.lang.c from 2006/09/27
+    // http://groups.google.com/group/comp.lang.c/browse_thread/thread/578912299f8f87ce#msg_937356effc43f569
+#define UCL_PP_IS_EMPTY(...) \
+    UCL_PP_AND(UCL_PP_IS_LIST(__VA_ARGS__ ()),UCL_PP_NOT(UCL_PP_IS_LIST(__VA_ARGS__ _)))
+#define UCL_PP_IS_LIST(...) \
+    UCL_PP_PAIR(UCL_PP_1ST, (UCL_PP_CAT2(UCL_PP_IS_LIST_RET_, UCL_PP_IS_LIST_TST_ __VA_ARGS__)))
+ 
+ 
+    // implementation details
+ 
+#define UCL_PP_IS_LIST_TST_(...) 1
+#define UCL_PP_IS_LIST_RET_UCL_PP_IS_LIST_TST_ 0,
+#define UCL_PP_IS_LIST_RET_1 1,
+ 
+#define UCL_PP_CAT2_(a,...) UCL_PP_EXPAND(a ## __VA_ARGS__)
+#define UCL_PP_CAT3_(a,b,...) UCL_PP_EXPAND(a ## b ## __VA_ARGS__)
+ 
+#define _UCL_PP_AND_00 0
+#define _UCL_PP_AND_01 0
+#define _UCL_PP_AND_10 0
+#define _UCL_PP_AND_11 1
+ 
+#define _UCL_PP_IF_0(a,...) __VA_ARGS__
+#define _UCL_PP_IF_1(a,...) a
+ 
+#define _UCL_PP_NOT_0 1
+#define _UCL_PP_NOT_1 0
 
 //------------------------------------------------------------------------------
 
@@ -381,5 +430,5 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 /// not strictly necessary; i.e., when the nested-name-specifier or the expression on the left of the -> or . is not
 /// dependent on a template-parameter, or the use does not appear in the scope of a template. -end note ]
 #define XTL_CPP0X_TYPENAME XTL_NON_MSC_ONLY(typename)
-
+#define XTL_CPP0X_TEMPLATE XTL_NON_GCC_ONLY(template)
 //------------------------------------------------------------------------------

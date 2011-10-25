@@ -440,7 +440,7 @@ for (size_t i = 0; i < 3; ++i)
         //std::cout << "Selector: " << adtshapes[i]->kind << std::endl;
         Match(adtshapes[i])
         {
-            Otherwise()                        std::cout << "Other"       << std::endl; m += 2;       break;
+            //Otherwise()                        std::cout << "Other"       << std::endl; m += 2;       break;
             Que(ADTShape::circle,_,x)          std::cout << "ADTCircle"   << std::endl; m += x;       break;
             Que(ADTShape::square,_,v |= v > 5) std::cout << "ADTSquare>5" << std::endl; m += v;       break;
              Alt(                _,v |= v > 3) std::cout << "ADTSquare>3" << std::endl; m += v;       break;
@@ -465,7 +465,7 @@ for (size_t i = 0; i < 3; ++i)
             Case(ADTShape::circle,c,r)  std::cout << "ADTCircle"   << std::endl; m += r;       break;
             Case(ADTShape::square,c,s)  std::cout << "ADTSquare"   << std::endl; m += s;       break;
             Case(ADTShape::triangle,p)  std::cout << "ADTTriangle" << std::endl; m += p.first; break;
-            Otherwise()                 std::cout << "Other"       << std::endl; m += 2;       break;
+            //Otherwise()                 std::cout << "Other"       << std::endl; m += 2;       break;
         }
         EndMatch
     }
