@@ -2067,10 +2067,11 @@ several meta-variables introduced in the previous grammar}
 \Rule{bindings}                &           & \is{}  & $\delta^*$ \\
 \Rule{binding definition}      & $\delta$  & \is{}  & \code{template <}$\left[\vec{p}\right]$\code{>} \\
                                &           &        & \code{struct bindings<} $\tau[$\code{<}$\vec{p}$\code{>}$]\left[,l\right]$\code{>} \\
-                               &           &        & \code{\{} $\left[cm|ks|kv\right]^*$ \code{\};} \\
+                               &           &        & \code{\{} $ks? kv? bc? cm^*$ \code{\};} \\
 \Rule{class member}            & $cm$      & \is{}  & \code{CM(}$c^{size\_t},q$\code{);} \\
-\Rule{kind selector}           & $ks$      & \is{}  & \code{KS(}$q$\code{);}   \\
-\Rule{kind value}              & $kv$      & \is{}  & \code{KV(}$c$\code{);}   \\
+\Rule{kind selector}           & $ks$      & \is{}  & \code{KS(}$q$\code{);}    \\
+\Rule{kind value}              & $kv$      & \is{}  & \code{KV(}$c$\code{);}    \\
+\Rule{base class}              & $bc$      & \is{}  & \code{BC(}$\tau$\code{);} \\
 \Rule{template-parameter-list} & $\vec{p}$ &        & C++\cite[\textsection A.12]{C++0x} \\
 \Rule{qualified-id}            & $q$       &        & C++\cite[\textsection A.4]{C++0x} \\
 \end{tabular}
@@ -2092,9 +2093,9 @@ template <typename T, size_t l = default_layout>
 \end{lstlisting}
 
 \noindent
-The body of the class should consist of a sequence of \code{CM}, \code{KS} or 
-\code{KV} specifiers that generate the necessary definitions for querying 
-bindings by the library code.
+The body of the class should consist of optional \code{KS} and \code{KV} 
+specifiers as well as a sequence of \code{CM} specifiers. These specifiers 
+generate the necessary definitions for querying bindings by the library code.
 
 {\bf Class Member} specifier \code{CM(}$c,q$\code{)} that takes (zero-based) binding 
 position $c$ and a qualified identifier $q$, specifies a member, whose value will 
@@ -2162,6 +2163,12 @@ the three categories listed for \code{CM}, but is required to return an
 {\bf Kind Value} specifier \code{KV(}$c$\code{)} is used by variant classes 
 (encoded as either \emph{Tag Class} or \emph{Discriminated Union}) to specify a 
 constant $c$ that uniquely identifies the variant.
+
+{\bf Base Class} specifier \code{BC(}$\tau$\code{)} is used by the taged class 
+encoding to specify an immediate base class of the class whose bindings we 
+define. A helper specifier \code{BCS(}$\tau*$\code{)} can also be used to 
+specify the exact topologically sorted list of base classes 
+(\textsection\ref{sec:cotc})
 
 {\bf Layout} parameter $l$, as we mentioned, can be used to define multiple 
 bindings to the same target type. This is particularly essential for 
@@ -2438,6 +2445,7 @@ characteristic function of a type, while logical implication can be seen as
 subtyping. 
 
 \subsection{Problem of Efficient Type Switching}
+\label{sec:poets}
 
 The fact that algebraic data types in functional languages are closed allows for 
 their efficient implementation. Traditional compilation scheme assigns unique 
@@ -2501,7 +2509,7 @@ few questions that might help evaluate and compare solutions:
 \item Can independently developed DLLs that either extend classes involved in 
       type switching or do type switching themselve be loaded together without 
       any integration efforts?
-\item Is there any limitation on the amount and or shape of class extensions?
+\item Are there any limitations on the amount and or shape of class extensions?
 \item What is the complexity of matching based on the number of case clauses and 
       the number of possible types?
 \end{enumerate}
@@ -2515,23 +2523,28 @@ if (D2* derived = dynamic_cast<D2*>(base)) { s2; } else
 if (Dn* derived = dynamic_cast<Dn*>(base)) { sn; }
 \end{lstlisting}
 
-Despite the obvious simplicity, its main drawback is performance: a typical implementation of 
-\code{dynamic_cast} might take time proportional to the distance between base 
-and derived class in the inheritance tree~\cite{}. Even with constant-time 
-implementation of Gibbs et al~\cite{FastDynCast} the time to uncover the type in 
-the $i^{th}$ case clause will be proportional to $i$. This linear increase can 
-be well seen in the Figure~\ref{fig:DCastVis}, where the above cascading-if was 
-applied to a flat hierarchy encoding an algebraic data type of 100 variants.
-The same type-switching functionality implemented with visitor design pattern 
-took only 28 cycles regardless of the case. This is more than 3 times faster 
-than the 93 cycles it took to uncover even the first case with 
-\code{dynamic_cast}, while it took 22760 cycles to uncover the last.
+Despite the obvious simplicity, its main drawback is performance: a typical 
+implementation of \code{dynamic_cast} might take time proportional to the 
+distance between base and derived classes in the inheritance tree~\cite{}.
+What is worse, is that the time to uncover the type in the $i^{th}$ case clause 
+is proportional to $i$, while failure to match will always take the longest. 
+This linear increase can be well seen in the Figure~\ref{fig:DCastVis1}, where 
+the above cascading-if was applied to a flat hierarchy encoding an algebraic 
+data type of 100 variants. The same type-switching functionality implemented 
+with visitor design pattern took only 28 cycles regardless of the case.
+\footnote{Each case $i$ was timed multiple times to avoid fluctuations, turning 
+the experiment into a repetitive benchmark described in 
+\textsection\ref{sec:eval}. In a realistic setting the cost of double dispatch 
+was varying between 52 and 55 cycles.}
+This is more than 3 times faster than the 93 cycles it took to uncover even the 
+first case with \code{dynamic_cast}, while it took 22760 cycles to uncover the 
+last.
 
 \begin{figure}[htbp]
   \centering
     \includegraphics[width=0.47\textwidth]{DCast-vs-Visitors1.png}
-  \caption{Time to uncover type in the $i^{th}$ case clause}
-  \label{fig:DCastVis}
+  \caption{Type switching based on dynamic\_cast}
+  \label{fig:DCastVis1}
 \end{figure}
 
 When the class hiearchy is not flat and has several levels, the above 
@@ -2540,24 +2553,81 @@ and thus eliminates many of the derived classes from consideration. This
 approach is used by Emir to deal with type patterns in Scala
 \cite[\textsection 4.2]{EmirThesis}. The intent is to replace a sequence of 
 independent dynamic casts between classes that are far from each other in the 
-hierarchy with nested dynamic casts between classes that are closer to each 
-other. Another advantage is possiblity to fail early: if the type of the object 
-in quesion does not match any of the clauses, we will not have to try all the 
-cases. Flat hierarchy, which will likely be formed by the leafs in an even 
-multi-level hiearrchy, will not be able to benefit from this optimization and 
+hierarchy with nested dynamic casts between classes that are close to each 
+other. Another advantage is possiblity to fail early: if the type of the subject 
+does not match any of the clauses, we will not have to try all the cases. 
+Flat hierarchy, which will likely be formed by the leafs in even a multi-level 
+hiearrchy, will not be able to benefit from this optimization and 
 will effectively degrade to the above cascading-if. Nevertheless, when 
-applicable the optimization can be very useful and its benefits can be seen in
-Figure~\ref{fig:DCastVis} under ``Decision tree dynamic\_cast''. The class 
+applicable, the optimization can be very useful and its benefits can be seen in
+Figure~\ref{fig:DCastVis1} under ``Decision-Tree + dynamic\_cast''. The class 
 hierarchy for this timing experiment was forming a perfect binary tree with 
-classes with number 2*N and 2*N+1 derived from a class with number N.
+classes number 2*N and 2*N+1 derived from a class with number N.
 
-While looking for alternatives to visitor design pattern it became clear that 
-any open solution that will have a non-constant dispatching overhead will 
-have a poor chance of being adopted. Switching on sequentially allocated tags
-was one of the few techniques that could achieve constant overhead, even smaller 
-than that of visitors, but it had problems of its own that were making it not
-suitable. To better understand the problem let us look at some existing 
-solutions to type switching that we found to be used in practice.
+The above solution either in a form of cascading-if or a decision tree can be 
+significantly improved by lowering the cost of a single \code{dynamic_cast}. 
+We devise an asymptotically constant version of this operator that we call
+\code{memoized_cast} in \textsection\ref{memcast}. As can be seen from the graph 
+titled ``Cascading-If + memoized\_cast'', it speeds up the above cascading-if 
+solution by a factor of 18 on average, as well as outperforms the decision-tree 
+based solution for a number of case clauses way beyond those that can happen in 
+a reasonable program. We leave the discussion of the technique until 
+\textsection\ref{memcast}, while we keep it in the chart to give perspective on 
+an even faster solution to dynamic casting.
+
+The approach of Gibbs and Stroustrup employs divisibility of numbers to obtain a 
+tag allocation scheme capable of performing type testing in constant time. 
+Extended with a mechanism for storing offsets required for this-pointer 
+adjustments, the technique can be used for an extremely fast dynamic casting on 
+quite large class hierarchies\cite{FastDynCast}. The idea is to allocate tags 
+for each class in such a way that tag of a class D is divisible by a tag of a 
+class B if and only if class D is derived from class B. For comparison purposes 
+we hand crafted this technique on the above flat and binary-tree hierarchies and 
+then redid the timing experiments from Figure~\ref{fig:DCastVis1} using the fast 
+dynamic cast. The results are presented in Figure~\ref{fig:DCastVis2}. For 
+reference purposes we retained ``Visitor Design Pattern'' and ``Cascading-If + 
+memoized\_cast'' timings from Figure~\ref{fig:DCastVis1} unchanged. Note that 
+the Y-axis has been scaled-up 140 times, which is why the slope of 
+``Cascading-If + memoized\_cast'' timings is so much bigger.
+
+\begin{figure}[htbp]
+  \centering
+    \includegraphics[width=0.47\textwidth]{DCast-vs-Visitors2.png}
+  \caption{Type switching based on fast dynamic cast of Gibbs and Stroustrup\cite{FastDynCast}}
+  \label{fig:DCastVis2}
+\end{figure}
+
+As can be seen from the figure the use of our memoized\_cast implementation can 
+get really close in terms of performance to the fast dynamic cast, especially 
+when combined with decision trees. An important difference that cannot be seen 
+from the chart, however, is that the performance of memoized\_cast is 
+asymptotic, while the performance of fast dynamic cast is guaranteed. This 
+happens because the implementation of memoized\_cast will incure an overhead of 
+a regular dynamic\_cast call on every first call with a given most derived type. 
+Once that class is memoized, the performance will remain as shown. Averaged over 
+all calls with a given type we can only claim we are asymptotically as good as 
+fast dynamic cast.
+
+Unfortunately fast dynamic casting is not truly open to fully satisfy our 
+checklist. The structure of tags required by the scheme limits the amount of 
+classes it can handle. A 32-bit integer is estimated to be able to represent 7 
+levels of a class hierarchy that forms a binary tree (255 classes), 6 levels of 
+a similar ternary tree hierarchy (1093 classes) or just one level of a hierarchy 
+with 9 base classes -- multiple inheritance is the worst case scenario of the 
+scheme that quickly drains its allocation possibilities. Besdies, similarly to 
+other tag allocation schemes, presence of class extensions in DLLs will likely 
+require an integration effort to make sure different DLLs are not reusing prime 
+numbers in a way that might result in an incorrect dynamic cast.
+
+Seeing predictably constant dispatching overhead of the visitor design pattern 
+it became clear that any open solution that will have a non-constant dispatching 
+overhead will have a poor chance of being adopted. Switching on sequentially 
+allocated tags was one of the few techniques that could achieve constant 
+overhead, and thus compete and even outperform visitors. Unfortunately the 
+scheme has problems of its own that make it unsuitable.
+
+%To better understand the problem let us look at some existing solutions to type 
+%switching that we found to be used in practice. 
 
 %From our experience on this project we have noticed that we can only compete 
 %with visitors when switch statements are implemented with a jump table. As soon 
@@ -2567,95 +2637,108 @@ solutions to type switching that we found to be used in practice.
 %compete compete with the visitors solution.
 
 The simple scheme of assigning a unique tag per variant (instantiatable class 
-here) will not pass the first question because the tags of base and derived 
+here) will not pass our first question because the tags of base and derived 
 classes will have to be different if the base class can be instantiated on its 
-own. When the base class is used as an interface only and is never instantiated, 
-the already mentioned partitioning of tags of derived classes could have been 
-used, but that again will assume knowledge of all the classes and thus fail 
-extensibility through DLLs.
+own. In other words we will not be able to land on a case label of a base class 
+having a derived tag only. The already mentioned partitioning of tags of derived 
+classes based on the classes in case clauses also will not help as it assumes 
+knowledge of all the classes and thus fails extensibility through DLLs.
 
-Often time tags are chosen not arbitrarily, but to reflect the subtyping 
-relation of the underlain hierarchy. An example of such scheme would be having a 
-certain bit in the tag set for all the classes derived from a given base class.  
-Switching on base classes then involves a call to some function $f$ that 
-converts derived class' tag into a base class' tag. Unfortunately this solution 
-creates more problems then it solves. 
+In practical implementations hand crafted for a specific class hierarchy, tags 
+often are not chosen arbitrarily, but to reflect the subtyping relation of the 
+underlain hierarchy. Switching on base classes in such setting will typically 
+involve a call to some function $f$ that converts derived class' tag into a base 
+class' tag. An example of such scheme would be having a certain bit in the tag 
+set for all the classes derived from a given base class. Unfortunately this 
+solution creates more problems then it solves.
 
-First of all the solution will not be able 
-to recognize an exceptional case where most of the derived classes should be 
-handled as base class, while few should be handled specifically. Applying 
-function $f$ puts several different types into an equivalence class with their 
-base type, making them indistinguishable from each other. 
+First of all the solution will not be able to recognize an exceptional case 
+where most of the derived classes should be handled as base class, while few 
+should be handled specifically. Applying function $f$ puts several different 
+types into an equivalence class with their base type, making them 
+indistinguishable from each other.
 
-Secondly, the assumed 
-structure of tags is likely to make the set of tags sparce, effectively forcing 
-compiler to use a decision tree instead of jump table to implement the switch.
-Even though conditional jump is reported to be faster than indirect jump on many 
-computer architectures~\cite[\textsection 4]{garrigue-98}, this did not seem to 
-be the case in our experiments. Spliting of a jump table into two with a 
-condition, that was sometimes happening because of our case label allocation 
-scheme, was resulting in a noticable degradation of performance in comparison to 
-a single jump table.
+Secondly, the assumed structure of tags is likely to make the set of tags 
+sparce, effectively forcing compiler to use a decision tree instead of jump 
+table to implement the switch. Even though conditional jump is reported to be 
+faster than indirect jump on many computer architectures~\cite[\textsection 
+4]{garrigue-98}, this did not seem to be the case in our experiments. Spliting 
+of a jump table into two with a condition, that was sometimes happening because 
+of our case label allocation scheme, was resulting in a noticable degradation of 
+performance in comparison to a single jump table.
 
-The assumed structure of tags can also significantly decrease the amount of 
-classes a given allocation scheme can handle. Allocation scheme used by Gibbs et 
-al to implement fast dynamic casting employs divisibility of numbers to 
-represent inheritance relation\cite{FastDynCast}. A 32-bit integer is estimated 
-to be able to represent 7 levels of a class hierarchy that forms a binary tree 
-(255 classes), 6 levels of a similar ternary tree hierarchy (1093 classes) or 
-just one level of a hierarchy with 9 base classes -- multiple inheritance is the 
-worst case scenario of the scheme that quickly drains it of allocation 
-possibilities. It is interesting to note that the above scheme can be easily adopted to implemented type switching with decision trees, it is not easily adoptable for type switching: 
-in order to obtain tags of base classes we will have to decompose the derived 
-tag into primes
+Besides, as was seen on the scheme of Gibbs and Stroustrup, the assumed 
+structure of tags can also significantly decrease the amount of classes a given 
+allocation scheme can handle. It is also interesting to note that even though 
+their scheme can be easily adopted for type switching with decision trees, it is 
+not easily adoptable for type switching with jump tables: in order to obtain 
+tags of base classes we will have to decompose the derived tag into primes and 
+then find all the dividers of the tag, present in case clauses.
 
-To the best of our knowledge we are unaware of any tag allocation scheme capable 
-of dealing with all of the above isues that can be incorporated efficiently into  
-a switch statement to form a type switch.
+Summarizing, truly open and efficient type switching seems to be a non trivial 
+problem. The implementations we found in the literature where either open or 
+efficient, but not both. Efficient implementation was typically achieved by 
+sealing class hiearchy and using jump table. Without sealing, the implementation 
+was resorting to decision trees and type testing, which was not efficient.
+To the best of our knowledge we are unaware of any efficient tag allocation 
+scheme that can be used in a truly open scenario.
 
-Our approach can be used together with backtracking or decision tree approaches. 
-Instead of a linear search our current macros generate simply to because we 
-depend on the syntacti order of definitions in library setting, the compiler may 
-generate either a decision tree or backtracking automata to find the applicable 
-type. After that the compiler would just cache the jump target inside the 
-function.
+%Our approach can be used together with backtracking or decision tree approaches. 
+%Instead of a linear search our current macros generate simply to because we 
+%depend on the syntacti order of definitions in library setting, the compiler may 
+%generate either a decision tree or backtracking automata to find the applicable 
+%type. After that the compiler would just cache the jump target inside the 
+%function.
 
-The approach can also be used to optimize handling of polymorphic variants in 
-OCaml when implemented as proposed by Garrigue\cite{garrigue-98}. The tag values 
-compiler generates for each of the variants can be seen as vtbl pointer value 
-and a similar memoization device can be embedded into a decision tree.
+%The approach can also be used to optimize handling of polymorphic variants in 
+%OCaml when implemented as proposed by Garrigue\cite{garrigue-98}. The tag values 
+%compiler generates for each of the variants can be seen as vtbl pointer value 
+%and a similar memoization device can be embedded into a decision tree.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5555
 
-\noindent
-We chose to give it a first-fit semantics in our library as it was resembling 
-pattern matching facilities of other languages and was the most intuitive. The 
-following code can be generated to implement it:
+%\noindent
+%We chose to give it a first-fit semantics in our library as it was resembling 
+%pattern matching facilities of other languages and was the most intuitive. The 
+%following code can be generated to implement it:
+%
+%\begin{lstlisting}
+%if (D1* derived = dynamic_cast<D1*>(base)) { s1; } else
+%if (D2* derived = dynamic_cast<D2*>(base)) { s2; } else
+%...
+%if (Dn* derived = dynamic_cast<Dn*>(base)) { sn; }
+%\end{lstlisting}
 
-\begin{lstlisting}
-if (D1* derived = dynamic_cast<D1*>(base)) { s1; } else
-if (D2* derived = dynamic_cast<D2*>(base)) { s2; } else
-...
-if (Dn* derived = dynamic_cast<Dn*>(base)) { sn; }
-\end{lstlisting}
+%\noindent
+%Note that leaving \code{else} out will effectively turn it into an all-fit 
+%statement with enabled statements executed in lexicographical order.
+%
+%The above code is easy to understand but is extremely inefficient as for an 
+%object of dynamic type $D_i$ we will have to perform $i-1$ dynamic casts that 
+%fail first. The diagram below compares the times spent by visitors and the above 
+%type switch statement to uncover the $i^{th}$ case. We postpone the discussion 
+%of \code{memoized_cast} until section \textsection\ref{}, here we would only 
+%like to notice that even though faster than the actual dynamic cast it also bears 
+%a linear coefficient, not present in visitors.
 
-\noindent
-Note that leaving \code{else} out will effectively turn it into an all-fit 
-statement with enabled statements executed in lexicographical order.
+\subsection{Case of Polymorphic Classes}
+\label{sec:copc}
 
-The above code is easy to understand but is extremely inefficient as for an 
-object of dynamic type $D_i$ we will have to perform $i-1$ dynamic casts that 
-fail first. The diagram below compares the times spent by visitors and the above 
-type switch statement to uncover the $i^{th}$ case. We postpone the discussion 
-of \code{memoized_cast} until section \textsection\ref{}, here we would only 
-like to notice that even though faster than the actual dynamic cast it also bears 
-a linear coefficient, not present in visitors.
+As we have already mentioned we approach differently type switching on 
+polymorphic classes and tagged classes. In this subsection we outline the 
+implementation of type switching on classes that have vtbl pointer in their 
+instances.
 
-\subsection{Memoization Device}
+%To put further explanations into perspective as well understand the problem 
+%better we present some timing measurements of straightforward, but rather naive 
+%implementation of a match statement outlined in \textsection\ref{sec:semms}.
 
-Let's look at slightly more general problem. Consider a generalization of switch 
-statement that takes predicates on a selector as its clauses and executes the 
-first statement $s_i$ whose predicate got enabled:
+\subsubsection{Memoization Device}
+\label{sec:memdev}
+
+Let's look at a slightly more general problem than type switching. Consider a 
+generalization of switch statement that takes predicates on a selector as its 
+clauses and executes the first statement $s_i$ whose predicate got enabled: 
 
 \begin{lstlisting}
 switch (x)
@@ -2674,7 +2757,7 @@ jump straight to the statement it guards. In a way we would like the switch to
 memoize which case becomes enabled for a given value of $x$. 
 
 Inspired by Duff's Device\cite{Duff} we devised a construct that we call 
-\emph{Memoization Device} that does just that.
+\emph{Memoization Device} that does just that:
 
 \begin{lstlisting}
 typedef decltype(x) T;
@@ -2683,19 +2766,23 @@ static std::unordered_map<T,int> memory;
 switch (int& target = memory[x])
 {
 default:
-    if (P1(x)) { target = 1;
-case 1:
-        s1;
+    if (P1(x)) 
+    {
+        target = 1;
+case 1: s1;
     } else 
-    if (P2(x)) { target = 2;
-case 2:
-        s2;
+    if (P2(x)) 
+    {
+        target = 2;
+case 2: s2;
     } else
  ...
-    if (Pn(x)) { target = N;
-case N:
-        sN;
-    } else       target = N+1;
+    if (Pn(x)) 
+    {
+        target = N;
+case N: sN;
+    } else
+        target = N+1;
 case N+1:
 }
 \end{lstlisting}
@@ -2704,7 +2791,7 @@ Upon first entry into such a function we will allocate a static map associating
 values we are memoizing to cases labels. A value $x$ that is not yet in the map 
 will result in an new entry allocated with its data (of type int) being default 
 initialized to 0. switch on a value 0 will take us to default statement, which 
-will iniate going over cascading-if in a normal way. 
+will initiate going over cascading-if in a normal way. 
 
 Assuming that predicate Pi(x) returns true, we will store i as a target 
 associated with $x$ so that the next time we are called with the value $x$ we 
@@ -2741,12 +2828,50 @@ each other. Not following this rule might result in compiler choosing decision
 tree over a jump table implementation, which will significantly degrade 
 performance.
 
-The main advantage of such a device is that it does not impose any restriction 
-on the type of a selector. It can easily support multiple scrutinee by turning 
-$x$ into a tuple. One has to be careful however to make sure his predicates do 
-not involve global state. Another advantage is that conditions and statements 
-do not have to be repeated several times textually, which lets us turn the 
-boilerplate code of maintaining memoization logic into macros.
+The cascading-if that was used inside the switch effectively gives the entire 
+statement first-fit semantics. Assuming that conditions are either mutually 
+exclusive or imply one another we can build a decision-tree based memoization 
+device that will effectively have \emph{most specific} semantics -- an analog 
+of best-fit semantics in predicate dispatching.
+
+Imagine that predicates with numbers $2i$ and $2i+1$ are mutually exclusive and 
+each imply the value of the predicate with number $i$ i.e. $\forall x \in Domain(P)$
+\begin{eqnarray*}
+P_{2i+1}(x)\rightarrow P_i(x) \wedge P_{2i}(x)\rightarrow P_i(x) \wedge \neg(P_{2i+1}(x) \wedge P_{2i}(x))
+\end{eqnarray*}
+\noindent
+The following decision-tree based memoization device will execute the statement 
+$s_i$ associated with the most specific predicate $P_i$ that evaluates to true 
+or will skip the entire statement if none of the predicates is true on x.
+
+\begin{lstlisting}
+switch (int& target = memory[x])
+{
+default:
+    if (P1(x)) {
+        if (P2(x)) {
+            if (P4(x)) { target = 4; case 4: s4; } else
+            if (P5(x)) { target = 5; case 5: s5; } 
+            target = 2; case 2: s2;
+        } else
+        if (P3(x)) {
+            if (P6(x)) { target = 6; case 6: s6; } else
+            if (P7(x)) { target = 7; case 7: s7; } 
+            target = 3; case 3: s3;
+        }
+        target = 1; case 1: s1;
+    } else {
+        target = 0; case 0:   ;
+    }
+}
+\end{lstlisting}
+
+The main advantage of memoization device is that it does not impose any 
+restriction on the type of a selector. It can easily support multiple scrutinee 
+by turning $x$ into a tuple. One has to be careful, however, to make sure the 
+predicates do not involve global state. Another advantage is that conditions and 
+statements do not have to be repeated several times textually, which lets us 
+turn the boilerplate code of maintaining memoization logic into macros.
 
 The main disadvantage of such solution is of course the size of table that grows 
 proportionally to the amount of different values coming through the function. We 
@@ -2754,7 +2879,8 @@ will see, however, that often times the values can be grouped into equivalence
 classes, such that values in the same class do not change the predicate. The map 
 can then associate an equivalence class with target.
 
-\subsection{Virtual Table Pointers}
+\subsubsection{Virtual Table Pointers}
+\label{sec:vtp}
 
 Before we discuss our solution we would like to talk about certain properties of 
 the C++ run-time system that we rely on. Strictly speaking C++ standard does not 
@@ -2763,7 +2889,9 @@ requirements have forced compiler vendors to design a set of rules called
 Application Binary Interface (ABI)\cite{C++ABI}. Most of the C++ compilers today 
 follow these rules, with notable exception of Microsoft Visual C++. We show that 
 the technique presented here will work with any C++ compiler that follows the 
-C++ ABI.
+C++ ABI. We also verified experimentally that Microsoft Visual C++ maintains the 
+properties we rely on and thus our techniques are applicable to its current 
+implementations as well.
 
 Besides traditional single inheritance on classes, C++ supports 
 multiple-inheritance of two kinds: repeated and virtual. Under repeated 
@@ -2790,7 +2918,7 @@ $\sigma = \langle h,l\rangle$ with $h \in \{Repeated,Shared\}$ representing the
 kind of inheritance (single inheritance is repeated with one base class) and $l$ 
 representing the path in non-virtual inheritance graph.
 
-A predicated $C\leftY\sigma\rightY A$ they introduce means that $\sigma$ 
+A predicate $C\leftY\sigma\rightY A$ they introduce means that $\sigma$ 
 designates a base class subobject of class $C$, with subobject's static type 
 being $A$. (Give recursive definition and more explanations from Layout paper).
 
@@ -2918,7 +3046,8 @@ $\forall a_1, a_2 : A\ |\ a_1.vtbl_i = a_2.vtbl_i \Rightarrow$
 throws.
 \end{corollary}
 
-\subsection{VTable Memoization}
+\subsubsection{VTable Memoization}
+\label{sec:vtblmem}
 
 Since the results of dynamic cast can be reapplied on objects with the same 
 virtual table pointer, we can now apply memoization device to polymorphic 
@@ -2955,7 +3084,7 @@ case 42:
 
 \noindent
 The main condition remains the same. We keep check for the first initialization 
-because we allow the fall-through semantics here, letting user break fromt the 
+because we allow the fall-through semantics here, letting user break from the 
 switch when needed. Upon first entry we compute the offset that the dynamic cast 
 performed and save it together with targed associated to the virtual table 
 pointer. On the next iteration we will jump directly to the case label and 
@@ -2964,18 +3093,243 @@ derived object.
 
 \begin{figure}[htbp]
   \centering
-    \includegraphics[width=0.47\textwidth]{DCast-vs-Visitors2.png}
+    \includegraphics[width=0.47\textwidth]{DCast-vs-Visitors3.png}
   \caption{Time to uncover i\textsuperscript{th} case. X-axis - case i; Y-axis - cycles per iteration}
-  \label{fig:DCastVis2}
+  \label{fig:DCastVis3}
 \end{figure}
 
-The net effect of this optimization can be seen in Figure~\ref{fig:DCastVis2}. 
+The net effect of this optimization can be seen in Figure~\ref{fig:DCastVis3}. 
 We can see that the time does not increase with the position of the case we are 
 handling. The spikes represent activities on computer during measurement and are 
 present in both measurements. The type switch is still about 50\% slower, and 
 making it even faster is discussed in the next subsection.
 
-\subsection{Structure of Virtual Table Pointers}
+Note that we can apply the reasoning of \textsection\ref{sec:memdev} and change 
+the first-fit semantics of the resulting match statement into a best-fit 
+semantics simply by changing the underlain cascading-if structure with decision 
+tree.
+
+\subsubsection{Structure of Virtual Table Pointers}
+\label{sec:sovtp}
+
+Virtual table pointers are not entirely random addresses in memory and have 
+certain structure when we look at groups of those that are associated with 
+classes related by inheritance. Let us first look at some vtbl pointers that 
+were present in some of our tests. The 32-bit pointers are shown in binary form 
+(lower bits on the right) and are sorted in ascending order:
+
+\begin{verbatim}
+00000001001111100000011001001000
+00000001001111100000011001011100
+00000001001111100000011001110000
+ ...
+00000001001111100000011111011000
+00000001001111100000011111101100
+\end{verbatim}
+
+These pointers are not constant values and are not even guaranteed to be the 
+same between different runs of the same application. Techniques like 
+\emph{address space layout randomization} or simple rebasing of the entire 
+module are likely to change these values. The relative distance between them is 
+likely to remain the same though as long as they come from the same module.
+
+Comparing all the vtbl pointers that are coming through a given match statement 
+we can trace ar run time the set of bits in which they do and do not differ. 
+For the above example it may look as \texttt{00000001001111100000X11XXXXXXX00} 
+where positions marked with X represent bits that are different in some vtbl 
+pointers.
+
+When a DLL is loaded it may have its own copy of v-tables for classes also used 
+in other modules as well as v-tables for classes it introduces. Comparing 
+similarly all vtbl pointers coming only from this DLL we can get a different 
+pattern \\ \texttt{01110011100000010111XXXXXXXXX000} and when compared over all 
+the loaded modules the pattern will likely becomes something like 
+\texttt{0XXX00X1X0XXXXXX0XXXXXXXXXXXXX00}.
+
+The common bits on the right come from the virtual table size and alignment 
+requirements and depending on compiler, configuration and class hierarchy could 
+easily vary from 2 to 6 bits. Because the vtbl pointer under C++ ABI points into 
+an array of function pointers, the alignment requirement of 4 bytes for those 
+pointers on a 32-bit architecture is what makes at least the last 2 bits to be 0. 
+For our purpose the exact amount of bits on the right is not important as we 
+evaluate this amount at run time based on vtbl pointers seen so far. Here we only 
+would like to point out that there will be some amount of common bits on the 
+right.
+
+Another observation we made during our experiments with vtbl pointers of various 
+existing applications was that the values of the pointers where changing more 
+frequently in the lower bits than in the higher ones. We believe that this was 
+happening because programers tend to group multiple derived classes in the same 
+translation unit so the compiler was emitting virtual tables for them close to 
+each other as well. 
+
+Note also that derived classes that do not introduce their own virtual functions 
+are likely to have virtual tables of the same size as their base class. Even 
+when they do add new virtual functions the size of their virtual tables can only 
+increase in comparison to their base classes. This is why the difference between 
+many consequitive vtbl pointers that came through a given match statement was 
+usually constant or very slightly different.
+
+The changes in higher bits were typically due to separate compilation and 
+especially due to dynamically loaded modules. Overally they were not changing 
+the general tendancy we saw: smaller bits were changing more frequently than 
+larger ones with the exception of lowest common bits of course.
+
+With these observations in mind we introduced a cache on top of the hash table 
+holding information about jump targets and the necessary offsets. The cache was 
+using lowest non-common bits of the vtbl pointer to locate the necessary hash 
+table information without consulting the hash table itself. The important 
+guarantee about the validity of the cached hash table references comes from the 
+C++0x standard, which states that ``insert and emplace members shall not affect 
+the validity of references to container elements''\cite[\textsection 
+23.2.5(13)]{C++0x}. Parameterized over the type T of elements stored in the hash 
+table we implemented the above data structure in a reusable class 
+\code{vtblmap<T>}.
+
+Depending on the amount of collisions that happens in the cache our vtbl 
+memoization technique can come close and even outperform the visitor design 
+pattern. The numbers are of course averaged over many runs as the first run on 
+every most derived type will take time shown in Figure\ref{fig:DCastVis1}. We 
+did however test our technique on real code and can confirm that it does perform 
+well in real-world use cases.
+
+\subsubsection{Minimization of Conflicts}
+\label{sec:moc}
+
+The amount of cycles that the visitor design pattern requires to uncover a type 
+does not let us put sophisticated cache indexing mechanisms into the critical 
+path of execution. This is we limit our indexing function to shifts and masking 
+operations as well as choose the size of cache to be a power of 2.
+
+From the bit patterns of section \textsection\ref{sec:sovtp} we can see that 
+given $n$ vtbl pointers we can always find a cache size that will render no 
+conflicts between the vtbl pointers. The required size, however, can be too big 
+to justify the use of memory. This is why in our current implementation we 
+always consider only 2 different cache sizes: $2^k$ and $2^{k+1}$ where 
+$2^{k-1} \le n \leq 2^k$. This guarantees us that the cache size is never more 
+than 4 times bigger than the minimum required cache size.
+
+During our experiments we noticed that often times the change in the last bit 
+happens only in very few vtbl pointers, which effectively cuts the available 
+cache space in half. To overcome this problem we let the amount of bits we 
+shift the vtbl pointer by to compute cache index, vary further and compute it in 
+such a way that minimizes the number of vtbl pointer collisions.
+
+To avoid doing any computations in the critical path \code{vtblmap} only 
+reconfigures the optimal shift and the size of the cache when an actual collision 
+happens: i.e. when it needs to fetch the value from a slower underlain hash 
+table. In order to avoid constant recomputations when conflicts are unavoidable, 
+we add an additional restriction of only reconfiguring the optimal parameters if 
+the amount of vtbl pointers in the \code{vtblmap} has increased since the last 
+recomputation. Since the amount of vtbl pointers is of the order $O(N)$, where 
+$N$ is the finite amount of different classes in the loaded program, the 
+restriction assures us that reconfigurations will not happen infinitely often.
+
+To minimize the amount of recomputations even further, our library communicates 
+to the \code{vtblmap<T>} through its constructor the amount of case clauses in 
+the underlain match statement. We use this number as an estimate of expected 
+size of \code{vtblmap} and pre-allocate the cache accordingly to this estimated 
+number. The cache is still allowed to grow based on the actual amount of vtbl 
+pointers that comes through a \code{vtblmap}, but it never shrinks from the 
+initial value. This improvement significantly minimizes the amount of collisions 
+at early stages as well as the number of possibilities we have to consider 
+during reconfiguration.
+
+The above logic of \code{vtblmap} always chooses the configuration that renders 
+no conflicts, when such a configuration is possible during recomputation of 
+optimal parameters. When this is not possible it is natural to prefer collisions 
+to happen on less frequent vtbl pointers.
+
+We studied frequency of vtbl pointers that come through various match statements 
+on a C++ pretty-printer that we implemented on top of the Pivot 
+framework\cite{Pivot} using our pattern-matching library. We ran the pretty 
+printer through a set of C++ standard library headers and then ranked all the 
+classes from the most frequent to the least frequent ones on average. The 
+resulting probability distribution can be seen on a thicker line in 
+Figure\ref{fig:PowerLaw}.
+
+\begin{figure}[htbp]
+  \centering
+    \includegraphics[width=0.47\textwidth]{std-lib-power-law-distributions.png}
+  \caption{Probability distribution of various nodes in Pivot framework}
+  \label{fig:PowerLaw}
+\end{figure}
+
+Note that Y-Axis is using logarithmic scale, suggesting that the resulting 
+probability has power-law distribution. This is likely to be a specific of our 
+application, however the above picture demonstrates that frequency of certain 
+classes can be larger than the overall frequency of all the other classes. In 
+our case the 2 most frequent classes were representing the use of a variable in 
+a program, and their combined frequency was larger than the frequency of all the 
+other nodes. Naturally we would to avoid conflicts on such classes in the cache.
+
+\begin{figure}[htbp]
+  \centering
+    \includegraphics[width=0.47\textwidth]{CollisionsWithAndWithoutFrequencies.png}
+  \caption{Decrease in number of collisions when probabilities of nodes are taken into account}
+  \label{fig:Collisions}
+\end{figure}
+
+\subsection{Case of Tagged Classes}
+\label{sec:cotc}
+
+Memoization device outlined in \textsection\ref{sec:memdev} can in principle be 
+applied to tagged classes too. The dynamic cast will be replaced by a small 
+compile-time template meta-program that checks whether class associated with 
+given tag is derived from the target type of the case clause. If so, the static 
+cast can be used to obtain the offset.
+
+Despite its straightforwardness we felt that it should be possible to do better 
+than the general solution, given that each class is already identified with a 
+dedicated constant known at compile time.
+
+As we mentioned in \textsection\ref{sec:poets}, nominal subtyping of C++ 
+effectively gives every class multiple types. The idea is thus to associate with 
+the type not only its most derived tag, but the tags of all its base classes.
+Such a list can be shared in a vtable-like structure between all the instances 
+with the same most derived tag. The list of tags is topologically sorted 
+accordingly to the subtyping relation and terminates with a dedicated value 
+distinct from all the tags.
+
+A type switch built on top of a hierarchy of tagged classes proceeds as regular 
+switch on the subject's tag. If the jump succeeds, we found exact match. If the 
+jump fails, we get into a default clause that obtains the tag of its immediate 
+base class and jumps back to the beginning of the switch statement for rematch:
+
+\begin{lstlisting}
+    const size_t* taglist = 0;
+          size_t  attempt = 0;
+          size_t  tag     = object->tag;
+ReMatch:
+    switch (tag) 
+    {
+    default:
+        if (!taglist) 
+            taglist = get_taglist(object->tag);
+        tag = taglist[++attempt];
+        goto ReMatch;
+    case end_of_list: break;
+    case tag1: s1;
+    ...
+    case tagN: sN;
+    }
+\end{lstlisting}
+
+The above structure lets us dispatch to case clauses of the most derived class 
+with an overhead of a single initialization compared to a switch on a sealed 
+hierarchy.\footnote{attempt can be initialized inside default's if}. Dispatching 
+to a case clause of a base class will take a time roughly proportional to the 
+distance between the matched base class and the most derived class in the 
+inheritance graph. When none of the base class tags was matched we will 
+necessarily reach the end\_of\_list marker in the taglist and thus exit the 
+loop.
+
+Our library automatically builds the function \code{get_taglist} based on the 
+\code{BC} or \code{BCS} specifiers that the user specifies in bindings 
+(\textsection\ref{sec:bnd}).
+
+\subsection{Unified Syntax}
+\label{sec:unisyn}
 
 \subsection{Redundancy Checking}
 \label{sec:redun}
@@ -2995,14 +3349,6 @@ filename.cpp(55): warning C4286: 'ipr::Decl*' : is caught by
 Note that message contains both: a line number of the redundant case (55) and 
 the line number of the case it is made redundant with (42).
 
-\subsection{Open Case}
-
-To put further explanations into perspective as well understand the problem 
-better we present some timing measurements of straightforward, but rather naive 
-implementation of a match statement outlined in \textsection\ref{sec:semms}.
-
-\subsection{Closed Case}
-
 %[FROM ABI: 2.4 I 2.c] If C has no primary base class, allocate the virtual 
 %table pointer for C at offset zero, and set sizeof(C), align(C), and dsize(C) to 
 %the appropriate values for a pointer (all 8 bytes for Itanium 64-bit ABI).
@@ -3021,8 +3367,6 @@ implementation of a match statement outlined in \textsection\ref{sec:semms}.
 %incomplete types. The typeinfo pointer is a valid pointer for polymorphic 
 %classes, i.e. those with virtual functions, and is zero for non-polymorphic 
 %classes.
-
-
 
 \section{Evaluation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:eval}
@@ -3088,11 +3432,18 @@ pattern matching.
 \item Forwarding
 \end{itemize}
 
-\emph{Repetitive} benchmark performs multiple calls on one and the same object. 
-This scenario often happens in object-oriented setting because of encapsulation 
-where multiple callees effectively reevaluate the same method in order not to 
-pass additional context around. Most of the data related to such call is usually 
-present in cache.
+%\emph{Repetitive} benchmark performs multiple calls on one and the same object. 
+%This scenario often happens in object-oriented setting because of encapsulation 
+%where multiple callees effectively reevaluate the same method in order not to 
+%pass additional context around. Most of the data related to such call is usually 
+%present in cache.
+
+\emph{Repetitive} benchmark performs multiple calls on different objects of the 
+same most derived type. This scenario happens in object-oriented setting when a 
+group of polymorphic objects is created and passed around (e.g. numerous 
+particles of a given kind in a particle simulation system). We include it 
+because double dispatch becomes about twice faster (27 vs 53 cycles) in this 
+scenario compared to others due to cache and call target prediction mechanisms. 
 
 \emph{Sequential} benchmark effectively uses object of each derived type only 
 once and then moves on to an object of a different type. The cache is typically 
@@ -3166,6 +3517,7 @@ smaller for visitors than pattern matching, which resulted in worse relative
 performance.
 
 \subsection{Qualitative Comparison}
+\label{sec:qualcmp}
 
 For this experiment we have reimplemented a visitor based C++ pretty printer for 
 Pivot's IPR using our pattern matching library. Most of the rewrite was 
