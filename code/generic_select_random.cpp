@@ -1,3 +1,15 @@
+///
+/// \file
+///
+/// This file is a part of pattern matching testing suite.
+///
+/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+///
+/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
+/// Copyright (C) 2005-2011 Texas A&M University.
+/// All rights reserved.
+///
+
 #include "testutils.hpp"
 #include "match_generic.hpp"
 
@@ -91,11 +103,11 @@ Shape* make_shape(size_t i)
 
 int main()
 {
-    int pp = test_repetitive();
+//  int pp = test_repetitive();
     int ps = test_sequential();
     int pr = test_randomized();
     std::cout << "OVERALL: "
-              << "Repetitive: " << abs(pp) << (pp >= 0 ? "% slower" : "% faster") << "; "
+//            << "Repetitive: " << abs(pp) << (pp >= 0 ? "% slower" : "% faster") << "; "
               << "Sequential: " << abs(ps) << (ps >= 0 ? "% slower" : "% faster") << "; "
               << "Random: "     << abs(pr) << (pr >= 0 ? "% slower" : "% faster") 
               << std::endl; 

@@ -49,9 +49,9 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 //------------------------------------------------------------------------------
 
 /// Uncomment this macro definition if you'd like to do some performance tracing
-//#define XTL_TRACE_PERFORMANCE
+#define XTL_TRACE_PERFORMANCE
 /// Uncomment this macro definition if you'd like to do some performance tracing
-//#define XTL_DUMP_PERFORMANCE
+#define XTL_DUMP_PERFORMANCE
 /// Uncomment to use Pearson hash
 //#define XTL_USE_PEARSON_HASH
 
@@ -115,7 +115,7 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 /// Another choice is whether library code should try to benefit from memoized_cast 
 /// or just use dynamic_cast 
 #if !defined(XTL_USE_MEMOIZED_CAST)
-  #define XTL_USE_MEMOIZED_CAST 0
+  #define XTL_USE_MEMOIZED_CAST 1
 #endif
 
 //------------------------------------------------------------------------------
