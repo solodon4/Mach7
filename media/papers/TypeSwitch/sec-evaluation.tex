@@ -1,0 +1,156 @@
+\section{Evaluation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:eval}
+
+\begin{figure*}
+\begin{tabular}{@{}c@{ }l||@{ }r@{}@{ }r@{}|@{ }r@{}@{ }r@{}||@{ }r@{}@{ }r@{}|@{ }r@{}@{ }r@{}||@{ }r@{}@{ }r@{}|@{ }r@{}@{ }r@{}}
+\hline % -----------------------------------------------------------------------------------------------------------------------------------------
+\hline % -----------------------------------------------------------------------------------------------------------------------------------------
+ &            & \multicolumn{4}{c||}{G++/32}  & \multicolumn{4}{c||}{MS Visual C++/32} & \multicolumn{4}{c}{MS Visual C++/64} \\
+\hline % -----------------------------------------------------------------------------------------------------------------------------------------
+ & Syntax     & \multicolumn{2}{c|}{Unified} & \multicolumn{2}{c||}{Special} & \multicolumn{2}{c|}{Unified} & \multicolumn{2}{c||}{Special} & \multicolumn{2}{c|}{Unified} & \multicolumn{2}{c}{Special} \\
+\hline % -----------------------------------------------------------------------------------------------------------------------------------------
+ & Encoding   & \Opn  & \Cls  & \Opn  & \Cls  & \Opn  & \Cls  & \Opn  & \Cls  & \Opn  & \Cls  & \Opn  & \Cls   \\
+\hline % -------------------------------------------------------------------------------------------------
+\hline % -------------------------------------------------------------------------------------------------
+ & Repetitive &\gwNGPp&\gwNGKp&\gwNSPp&\gwNSKp&\VwNGPp&\VwNGKp&\VwNSPp&\VwNSKp&\VxNGPp&\VxNGKp&\VxNSPp&\VxNSKp \\
+ & Sequential &\gwNGPq&\gwNGKq&\gwNSPq&\gwNSKq&\VwNGPq&\VwNGKq&\VwNSPq&\VwNSKq&\VxNGPq&\VxNGKq&\VxNSPq&\VxNSKq \\
+ & Random     &\gwNGPn&\gwNGKn&\gwNSPn&\gwNSKn&\VwNGPn&\VwNGKn&\VwNSPn&\VwNSKn&\VxNGPn&\VxNGKn&\VxNSPn&\VxNSKn \\
+\hline % --------------------------------------------------------------------------------------------------
+\multirow{3}{*}{\begin{sideways}{\tiny Forward}\end{sideways}}
+ & Repetitive &\gwYGPp&\gwYGKp&\gwYSPp&\gwYSKp&\VwYGPp&\VwYGKp&\VwYSPp&\VwYSKp&\VxYGPp&\VxYGKp&\VxYSPp&\VxYSKp \\
+ & Sequential &\gwYGPq&\gwYGKq&\gwYSPq&\gwYSKq&\VwYGPq&\VwYGKq&\VwYSPq&\VwYSKq&\VxYGPq&\VxYGKq&\VxYSPq&\VxYSKq \\
+ & Random     &\gwYGPn&\gwYGKn&\gwYSPn&\gwYSKn&\VwYGPn&\VwYGKn&\VwYSPn&\VwYSKn&\VxYGPn&\VxYGKn&\VxYSPn&\VxYSKn \\
+\hline % --------------------------------------------------------------------------------------------------
+\end{tabular}
+\caption{\f{42} type switching is faster than visitors are. \s{42} visitors are faster than type switching.}
+\label{relperf}
+\end{figure*}
+
+In this section we evaluate the performance of our solution in comparison to its 
+de facto contender -- visitor design pattern. We also compare performance of 
+some typical uses cases expressed with our solution and OCaml.
+
+Our evaluation methodology consists of several benchmarks that we believe 
+represent various possible uses of objects analyzed with either visitors or 
+pattern matching.
+
+\emph{Repetitive} benchmark performs multiple calls on different objects of the 
+same most derived type. This scenario happens in object-oriented setting when a 
+group of polymorphic objects is created and passed around (e.g. numerous 
+particles of a given kind in a particle simulation system). We include it 
+because double dispatch becomes about twice faster (27 vs. 53 cycles) in this 
+scenario compared to others due to cache and call target prediction mechanisms. 
+
+\emph{Sequential} benchmark effectively uses object of each derived type only 
+once and then moves on to an object of a different type. The cache is typically 
+reused the least in this scenario. The scenario is typical of lookup tables, 
+where each entry is implemented with a different derived class.
+
+\emph{Random} benchmark is the most representative as it randomly makes calls on 
+random objects, which will probably be the most common usage scenario in the 
+real world.
+
+\emph{Forwarding} benchmark is not a benchmark on its own, but rather a 
+combinator that can be applied to any of the above scenarios. It refers to the 
+common technique used by visitors where for class hierarchies with multiple 
+levels of inheritance the \code{visit} method of a derived class will provide a 
+default implementation of forwarding to its immediate base class, who in turn 
+may forward it to its base class etc. The use of forwarding in visitors is a 
+way to achieve substitutability, which in type switches corresponds to the use 
+of base classes in the case clauses.
+
+These benchmarks were executed in the following configurations:
+
+\begin{itemize}
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+\item Sony VAIO\textsuperscript{\textregistered} laptop with Intel\textsuperscript{\textregistered} Core\texttrademark i5 460M 
+      Processor at 2.53 GHz equipped with 6GB of RAM running Windows 7 
+      Professional
+      \begin{itemize}
+      \setlength{\itemsep}{0pt}
+      \setlength{\parskip}{0pt}
+      \item G++ 4.5.2 under MinGW executed with -O2 and producing x86 binary
+      \item MS Visual C++ 2010 Professional x86/x64 binary with Profile Guided Optimizations
+      \end{itemize}
+\end{itemize}
+
+Each benchmark under each configuration was tested with either \emph{unified} 
+or \emph{specialized} syntax. Each syntax was used to run tests on \emph{Open} 
+(\emph{polymorphic base class} encoding) and \emph{Tag} (\emph{tag class} 
+encoding). Specialized syntax avoids generating unnecessary syntactic structure 
+used to unify syntax and thus produces faster code. We include it in results as 
+compiler implementation of pattern matching will be able to distinguish each 
+case and thus generate only the required structure.
+
+The code on the critical path of our type switch implementation benefits 
+significantly from branch hinting as some branches are much more likely than 
+others. We use branch hinting facilities of GCC to tell the compiler which 
+branches are more likely, but, unfortunately, Visual C++ does not have similar 
+facilities. The official way suggested by Microsoft to achieve the same effect 
+is to use \emph{Profile Guided Optimization} and let the compiler gather 
+statistics on each branch. This is why the result for Visual C++ reported here 
+are those obtained with profile guided optimizations enabled. The slightly less 
+favorable for us results without profile guided optimizations can be found in 
+accompanying technical report\cite{TR}.
+%The results of optimizing code created with Visual C++ by using profile 
+%guided optimizations as currently Visual C++ does not have means for branch 
+%hinting, which are supported by G++ and proven to be very effective in few 
+%cruicial places. Profile guided optimization in Visual C++ lets compiler find 
+%out experimentally what we would have otherwise hinted, even though this 
+%includes other optimizations as well.
+
+We compare performance of our solution relatively to performance of visitors in 
+Figure~\ref{relperf}. The values are given as percentage of performance increase 
+against the slower technique. Numbers in bold represent cases where our type 
+switching was faster than visitors were and indicate corresponding percentage. 
+Numbers in italics indicate cases where visitors were faster by given percentage
+respectively.
+
+From the numbers given we can see that type switching wins by a good margin in 
+the presence of at least one level of forwarding on visitors. Using type 
+switching on closed hierarchies is also a definite winner.
+
+From the table is may seem that Visual C++ is generating not as good code as GCC 
+does, but remember that numbers are relative and thus the ratio depends on the 
+both: performance of virtual calls and performance of switch statement. Visual 
+C++ was generating faster virtual function calls, while GCC was generating 
+faster switch statements which is why their relative performance seem to be much 
+more favorable for us in case of GCC.
+
+Similarly the code for x64 is only slower relatively: the actual time spent for 
+both visitors and type switching was smaller than that for x86, but it was much 
+smaller for visitors than type switching, which resulted in worse relative 
+performance.
+
+\subsection{V-Table Pointer Memoization vs. Tag Precedence List}
+\label{sec:cmp}
+
+With a few exceptions for x64 tests, it can be seen from Figure~\ref{relperf} 
+that performance of a tag precedence list approach (Tag column) dominates the 
+performance of v-table pointer memoization approach (Open column). We believe 
+that the difference, often significant, is the price one pays for the true 
+openness of the v-table pointer memoization solution.
+
+Unfortunately tag precedence list approach is not truly open. The use of tags, 
+even if they would be allocated by compiler, may require integration efforts to 
+ensure that different DLLs have not reused the same tags. Randomization of tags,
+similar to proposal of Garrigue\cite{garrigue-98}, will not eliminate the 
+problem and will surely replace jump table in switch with decision trees. This 
+will likely significantly degrade the numbers for Tag column of 
+Figure~\ref{relperf}, since tags in our experiments were all sequential.
+
+Besides, tag precedence list approach relies on static cast to obtain the 
+proper reference once the most specific case clause has been found. As we 
+described in \textsection\ref{sec:vtblmem} this has severe limitations in the 
+presence of multiple inheritance and thus is not as versatile as the other 
+solution. Overcoming this problem will either require the use of 
+\code{dynamic_cast} or techniques similar to those we used in v-table pointer 
+memoization. This will likely degrade performance numbers for Tag column as well.
+
+Note also that v-table pointer memoization approach can be used to implement 
+first-fit and best-fit semantics, while the tag precedence list is only suitable 
+for best-fit semantics. Their complexity guarantees also differ: v-table pointer 
+memoization is constant on average, and slow on the first call. Tag list is 
+logarithmic in size of the class hierarchy on average (assuming balanced 
+hierarchy), including on the first call.

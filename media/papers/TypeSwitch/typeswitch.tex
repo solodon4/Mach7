@@ -1,0 +1,168 @@
+\documentclass[preprint]{sigplanconf}
+
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{breakurl}             % Not needed if you use pdflatex only.
+\usepackage{color}
+\usepackage{epsfig}
+\usepackage{esvect}
+\usepackage{listings}
+\usepackage{mathpartir}
+\usepackage{MnSymbol}
+\usepackage{multirow}
+\usepackage{rotating}
+
+\lstdefinestyle{Caml}{language=Caml,%
+  literate={when}{{{\bf when}}}4
+}
+
+\lstdefinestyle{C++}{language=C++,%
+showstringspaces=false,
+  columns=fullflexible,
+  escapechar=@,
+  basicstyle=\sffamily,
+%  commentstyle=\rmfamily\itshape,
+  moredelim=**[is][\color{white}]{~}{~},
+  literate={[<]}{{\textless}}1      {[>]}{{\textgreater}}1 %
+           {<}{{$\langle$}}1        {>}{{$\rangle$}}1 %
+           {<=}{{$\leq$}}1          {>=}{{$\geq$}}1          
+           {==}{{$==$}}2            {!=}{{$\neq$}}1 %
+           {=>}{{$\Rightarrow\;$}}1 {->}{{$\rightarrow{}$}}1 %
+           {<:}{{$\subtype{}\ $}}1  {<-}{{$\leftarrow$}}1 %
+           {s1;}{{$s_1$;}}3 {s2;}{{$s_2$;}}3 {s3;}{{$s_3$;}}3 {s4;}{{$s_4$;}}3 {s5;}{{$s_5$;}}3 {s6;}{{$s_6$;}}3 {s7;}{{$s_7$;}}3 {sn;}{{$s_n$;}}3 {si;}{{$s_i$;}}3%
+           {P1}{{$P_1$}}2 {P2}{{$P_2$}}2 {P3}{{$P_3$}}2 {P4}{{$P_4$}}2 {P5}{{$P_5$}}2 {P6}{{$P_6$}}2 {P7}{{$P_7$}}2 {Pn}{{$P_n$}}2 {Pi}{{$P_i$}}2%
+           {D1}{{$D_1$}}2 {D2}{{$D_2$}}2 {D3}{{$D_3$}}2 {D4}{{$D_4$}}2 {D5}{{$D_5$}}2 {D6}{{$D_6$}}2 {D7}{{$D_7$}}2 {Dn}{{$D_n$}}2 {Di}{{$D_i$}}2%
+           {e1}{{$e_1$}}2 {e2}{{$e_2$}}2 {e3}{{$e_3$}}2 {e4}{{$e_4$}}2%
+           {E1}{{$E_1$}}2 {E2}{{$E_2$}}2 {E3}{{$E_3$}}2 {E4}{{$E_4$}}2%
+           {m_e1}{{$m\_e_1$}}4 {m_e2}{{$m\_e_2$}}4 {m_e3}{{$m\_e_3$}}4 {m_e4}{{$m\_e_4$}}4%
+           {Divide}{{Divide}}6 %
+           {Match}{{\emph{Match}}}5 %
+           {Case}{{\emph{Case}}}4 %
+           {Que}{{\emph{Que}}}3 %
+           {Otherwise}{{\emph{Otherwise}}}9 %
+           {EndMatch}{{\emph{EndMatch}}}8 %
+           {CM}{{\emph{CM}}}2 {KS}{{\emph{KS}}}2 {KV}{{\emph{KV}}}2 
+}
+\lstset{style=C++}
+\DeclareRobustCommand{\Cpp}{C\texttt{++}}
+\DeclareRobustCommand{\code}[1]{{\lstinline[breaklines=false,escapechar=@]{#1}}}
+\DeclareRobustCommand{\codebr}[1]{{\lstinline[breaklines=true]{#1}}}
+\DeclareRobustCommand{\codehaskell}[1]{{\lstinline[breaklines=false,language=Haskell]{#1}}}
+\DeclareRobustCommand{\codeocaml}[1]{{\lstinline[breaklines=false,language=Caml]{#1}}}
+\DeclareRobustCommand{\concept}[1]{{\small\textsc{#1}}}
+\newcommand{\exclude}[1]{}
+\newcommand{\halfline}{\vspace{-1.5ex}}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+
+%% grammar commands
+\newcommand{\Rule}[1]{{\rmfamily\itshape{#1}}}
+\newcommand{\Alt}{\ensuremath{|}}
+\newcommand{\is}{$::=$}
+\newcommand{\subtype}{\textless:}
+\newcommand{\evals}{\Rightarrow}
+\newcommand{\evalspp}{\Rightarrow^+}
+\newcommand{\DynCast}[2]{\ensuremath{dc\langle{#1}\rangle({#2})}}
+\newcommand{\nullptr}{\ensuremath{\bot}}
+
+\newcommand{\f}[1]{{ {\bf \textcolor{blue}{#1\%}}}}
+\newcommand{\s}[1]{{ {\em \textcolor{cyan}{#1\%}}}}
+\newcommand{\n}[1]{{ {\bf ~ ~ ~ ~ }}}
+\newcommand{\Opn}{{\scriptsize {\bf Open}}}
+\newcommand{\Cls}{{\scriptsize {\bf Tag}}}
+\newcommand{\Unn}{{\scriptsize {\bf Union}}}
+
+\input{data2}
+
+\newsavebox{\sembox}
+\newlength{\semwidth}
+\newlength{\boxwidth}
+
+\newcommand{\Sem}[1]{%
+\sbox{\sembox}{\ensuremath{#1}}%
+\settowidth{\semwidth}{\usebox{\sembox}}%
+\sbox{\sembox}{\ensuremath{\left[\usebox{\sembox}\right]}}%
+\settowidth{\boxwidth}{\usebox{\sembox}}%
+\addtolength{\boxwidth}{-\semwidth}%
+\left[\hspace{-0.3\boxwidth}%
+\usebox{\sembox}%
+\hspace{-0.3\boxwidth}\right]%
+}
+
+\newcommand{\authormodification}[2]{{\color{#1}#2}}
+\newcommand{\ys}[1]{\authormodification{blue}{#1}}
+\newcommand{\bs}[1]{\authormodification{red}{#1}}
+\newcommand{\gdr}[1]{\authormodification{magenta}{#1}}
+
+\begin{document}
+
+%\conferenceinfo{PLDI 2012}{Beijing, China} 
+%\copyrightyear{2012} 
+%\copyrightdata{[to be supplied]} 
+
+\titlebanner{Draft}        % These are ignored unless
+\preprintfooter{Y.Solodkyy, G.Dos Reis, B.Stroustrup: Efficient Type Switch for Object-Oriented Languages}   % 'preprint' option specified.
+
+\title{Efficient Type Switch for Object-Oriented Languages}
+%\subtitle{your \code{visit}, Jim, is not \code{accept}able anymore}
+%\subtitle{\code{accepting} aint no \code{visit}ors}
+
+\authorinfo{Yuriy Solodkyy\and Gabriel Dos Reis\and Bjarne Stroustrup}
+           {Texas A\&M University\\ Texas, USA}
+           {\{yuriys,gdr,bs\}@cse.tamu.edu}
+
+\maketitle
+
+\begin{abstract}
+We present techniques that can be used in a compiler and/or library setting to 
+implement efficiently type switching, type testing, pattern matching, predicate 
+dispatch, multi-methods and other facilities that depend on run-time type of the 
+argument. The techniques cope well with multiple inheritance in C++, however 
+they are not specific to C++ and can be adapted to implementation of similar 
+facilities in other languages.
+
+Our library-only implementation of a type switch based on these techniques, equals 
+or outperforms visitor design pattern, as commonly used for type-casing 
+scenarios in C++, and for many use cases, it equals or outperforms equivalent 
+code in languages with built-in type switching constructs. While remaining a 
+library-only solution, such a facility better addresses expression problem 
+than the visitor design pattern does: it is non-intrusive and does not have 
+extensibility restrictions. It also avoids control inversion characteristic to 
+visitors, making the code significantly more concise and easier to comprehend.
+The library was motivated by and is used for applications involving large, 
+typed, abstract syntax trees.
+\end{abstract}
+
+\category{CR-number}{subcategory}{third-level}
+
+\terms
+Languages, Design
+
+\keywords
+Pattern Matching, Visitor Design Pattern, Expression Problem, C++
+
+\input{sec-introduction}
+
+\input{sec-problem}
+
+\input{sec-memoization}
+
+\input{sec-tagged}
+
+\input{sec-exceptions}
+
+\input{sec-memcast}
+
+\input{sec-evaluation}
+
+\input{sec-related}
+
+\input{sec-future}
+
+\input{sec-conclusions}
+
+\bibliographystyle{abbrvnat}
+\bibliography{mlpatmat}
+\end{document}

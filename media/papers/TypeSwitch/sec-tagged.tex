@@ -1,0 +1,71 @@
+\section{Solution for Tagged Classes}
+\label{sec:cotc}
+
+Memoization device outlined in \textsection\ref{sec:memdev} can in principle be 
+applied to tagged classes too. The dynamic cast will be replaced by a small 
+compile-time template meta-program that checks whether class associated with 
+given tag is derived from the target type of the case clause. If so, the static 
+cast can be used to obtain the offset.
+
+Despite its straightforwardness we felt that it should be possible to do better 
+than the general solution, given that each class is already identified with a 
+dedicated constant known at compile time.
+
+As we mentioned in \textsection\ref{sec:poets}, nominal subtyping of C++ 
+effectively gives every class multiple types. The idea is thus to associate with 
+the type not only its most derived tag, but also the tags of all its base classes.
+In a compiler implementation such a list can be stored inside the virtual table 
+of a class, while in our library solution it is shared between all the instances 
+with the same most derived tag in a less efficient global map, associating the 
+tag to its tag list.
+
+The list of tags is topologically sorted accordingly to the subtyping relation 
+and terminates with a dedicated value distinct from all the tags. We call such a 
+list a \emph{Tag Precedence List} (TPL) as it resembles the \emph{Class 
+Precedence List} (CPL) of object-oriented descendants of Lisp (e.g. Dylan, 
+Flavors, LOOPS, and CLOS) used there for \emph{linearization} of class 
+hierarchies. The classes in CPL are ordered from most specific to least specific 
+with siblings listed in the \emph{local precedence order} -- the order of the 
+direct base classes used in the class definition. TPL is just an implementation 
+detail and the only reason we distinguish TPL from CPL is that in C++ classes 
+are often separated into interface and implementation classes and it might so 
+happen that the same tag is associated by the user with an interface and several 
+implementation classes. 
+
+A type switch below, built on top of a hierarchy of tagged classes, proceeds as 
+regular switch on the subject's tag. If the jump succeeds, we found an exact 
+match, otherwise we get into a default clause that obtains the next tag in the 
+tag precedence list and jump back to the beginning of the switch statement for a 
+rematch:
+
+\begin{lstlisting}
+    const size_t* taglist = 0;
+          size_t  attempt = 0;
+          size_t  tag     = object->tag;
+ReMatch:
+    switch (tag) 
+    {
+    default:
+        if (!taglist) 
+            taglist = get_taglist(object->tag);
+        tag = taglist[++attempt];
+        goto ReMatch;
+    case end_of_list: break;
+    case bindings<D1>::kind_value: s1; break;
+    ...
+    case bindings<Dn>::kind_value: sn; break;
+    }
+\end{lstlisting}
+
+\noindent
+The above structure lets us dispatch to case clauses of the most derived class 
+with an overhead of initializing two local variables compared to a switch on a 
+sealed hierarchy. Dispatching to a case clause of a base class will take a time 
+roughly proportional to the distance between the matched base class and the most 
+derived class in the inheritance graph. When none of the base class tags was 
+matched we will necessarily reach the end\_of\_list marker in the tag precedence 
+list and thus exit the loop.
+
+Our library automatically builds the function \code{get_taglist} based on 
+additional definitions that user provides inside \code{bindings}. The details 
+can be found in our accompanying paper\cite{AP}.
