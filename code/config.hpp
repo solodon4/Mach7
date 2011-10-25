@@ -18,12 +18,14 @@
 
 /// Type capable of representing bit offsets and bit counts in intptr_t
 typedef unsigned char  bit_offset_t;
+//typedef size_t  bit_offset_t;
 
 /// The smallest integral type capable of representing the amount N of different 
 /// vtbl pointers in the program. Roughly N should be equal to some constant c
 /// multiplied by the amount of different classes polymorphic classes in the 
 /// program. Constant c accounts for potential multiple inheritance.
 typedef unsigned short vtbl_count_t;
+//typedef size_t vtbl_count_t;
 
 //------------------------------------------------------------------------------
 

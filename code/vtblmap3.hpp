@@ -321,6 +321,8 @@ class vtblmap<T&>
 {
 private:
 
+    enum { local_cache_bits = VTBL_DEFAULT_CACHE_BITS, local_cache_size = 1 << local_cache_bits };
+
 #ifdef _MSC_VER
    	/// Hash functor for vtbl.
     /// MSVC uses by default a complicated hash function on all integral types,
@@ -345,12 +347,11 @@ private:
     typedef typename vtbl_to_t_map::value_type  value_type;
 
 public:
-
     
 #if defined(XTL_DUMP_PERFORMANCE)
     vtblmap(const char* fl, size_t ln, const vtbl_count_t expected_size = min_expected_size) : file(fl), line(ln), updates(0),
         cache_mask((1<<std::min(max_log_size,bit_offset_t(req_bits(expected_size-1))))-1),
-        cache(new cache_entry[cache_mask+1]),
+        cache(cache_mask < local_cache_size ? local_cache : new cache_entry[cache_mask+1]),
         optimal_shift(VTBL_IRRELEVANT_BITS),
         table(expected_size),
         last_table_size(0),
@@ -361,7 +362,7 @@ public:
 #endif
     vtblmap(const vtbl_count_t expected_size = min_expected_size) : XTL_DUMP_PERFORMANCE_ONLY(file("unspecified"), line(0), updates(0),)
         cache_mask((1<<std::min(max_log_size,bit_offset_t(req_bits(expected_size-1))))-1),
-        cache(new cache_entry[cache_mask+1]),
+        cache(cache_mask < local_cache_size ? local_cache : new cache_entry[cache_mask+1]),
         optimal_shift(VTBL_IRRELEVANT_BITS),
         table(expected_size),
         last_table_size(0),
@@ -373,7 +374,7 @@ public:
 
    ~vtblmap()
     {
-        delete[] cache; 
+        if (cache_mask > local_cache_size) delete[] cache; 
         XTL_DUMP_PERFORMANCE_ONLY(std::clog << *this << std::endl); 
     }
 
@@ -420,6 +421,24 @@ public:
                 else
                     ce.ptr = &table.insert(value_type(vtbl,T())).first->second;
             }
+
+            //if (XTL_LIKELY(ce.vtbl))
+            //{
+            //    const iterator q = table.find(vtbl);
+
+            //    if (q != table.end())
+            //        ce.ptr = &q->second;
+            //    else
+            //    {
+            //        // If this is an actual collision, we rearrange cache
+            //        if (table.size() != last_table_size && !--collisions_before_update)
+            //            return update(vtbl); // try to rearrange cache
+            //        else
+            //            ce.ptr = &table.insert(value_type(vtbl,T())).first->second;
+            //    }
+            //}
+            //else
+            //    ce.ptr = &table.insert(value_type(vtbl,T())).first->second;
 
             //-----------------------------------------------
             //if (ce.vtbl && table.size() != last_table_size && !--collisions_before_update)
@@ -533,9 +552,9 @@ public:
 
             if (no > k)
             {
-                delete[] cache;
-                cache = new cache_entry[1<<no];
+                if (cache_mask > local_cache_size) delete[] cache; 
                 cache_mask = (1<<no)-1;
+                cache = cache_mask < local_cache_size ? local_cache : new cache_entry[1<<no];
             }
             else
                 no = k;
@@ -736,6 +755,10 @@ private:
     size_t      line;    ///< Line in the file where it is instantiated
     size_t      updates; ///< Amount of reconfigurations performed at run time
 #endif
+
+    /// An on board memory for cache for log sizes smaller than default.
+    cache_entry local_cache[local_cache_size];
+
 };
 
 //------------------------------------------------------------------------------

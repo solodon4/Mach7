@@ -21,6 +21,28 @@
 /// TODO: Preallocate cache for number of case clauses
 /// TODO: Add probabilities on classes to be taken into account for collisions
 /// TODO: Add support for multiple scrutinies
+/// TODO: Add static assert that verifies types in clauses to be related to selector type
+///       in the same way dynamic_cast does.
+/// FIX:  Define logic with dedicated value used by closed matching and the way user
+///       can override that value when it conflicts with one of its values.
+/// TODO: Add static_asserts that check that case constants are not equal to dedicate value
+/// TODO: Implement Otherwise for closed cases
+/// TODO: Test cases should test:
+///        - template vs. non-template context
+///        - presense and absense of Otherwise as well as when user disabled its use
+///        - const vs. non-const selector
+///        - presence and absense of forwarding to base classes
+///        - usage of fall-through behavior
+///        - use of implicitly declared variables in Case and explicitly declared in Que
+///        - read and write of explicitly declared variables
+///        - selector by reference and by pointer
+///        - use of generic and specialized syntax
+///        - multiple match statements within the same function (to check labels and instantiations)
+///        - presense of multiple inheritance: both repeated and virtual
+///        - presense of ambiguous bases and casts
+///        - use of exceptions in: code associated with clauses, bound members
+///        - use of separate translation units, libraries and DLLs
+///        - passing null-pointer to Match in release/debug builds
 
 #pragma once
 
@@ -158,6 +180,83 @@ struct view
 ///       templates, which might have commas, otherwise juse a second argument
 ///       would be sufficient.
 #define RS(...)       static inline decltype(unary(&__VA_ARGS__)) raise_selector() { return unary(&__VA_ARGS__); } bool raise_selector_dummy() const;
+
+//------------------------------------------------------------------------------
+
+template <typename T>
+struct get_param;
+
+template <class U, template<class X> class Q>
+struct get_param<Q<U>>
+{
+    typedef U type;
+};
+
+template <class U, size_t L>
+struct get_param<match_members<U,L>>
+{
+    typedef U type;
+};
+
+//------------------------------------------------------------------------------
+
+typedef std::unordered_map<int, const int*> kind_to_kinds_map;
+
+template <typename T>
+inline kind_to_kinds_map& get_kind_to_kinds_map() 
+{
+    static kind_to_kinds_map result;
+    return result;
+}
+
+/// Gets all the kinds of a class with static type T and dynamic type represented 
+/// by kind. The first element of the returned list will always be equal to kind,
+/// the last to a dedicated value and those in between to the kinds of base classes.
+template <typename T>
+inline const int* get_kinds(int kind)
+{
+    static kind_to_kinds_map& k2k = get_kind_to_kinds_map<T>();
+    return k2k[kind];
+}
+
+template <typename T>
+inline const int* set_kinds(int kind, const int* kinds)
+{
+    static kind_to_kinds_map& k2k = get_kind_to_kinds_map<T>();
+    return k2k[kind] = kinds;
+}
+
+template <typename D, typename B>
+struct associate_kinds
+{
+    static const int* kinds;
+};
+
+template <typename D, typename B>
+const int* associate_kinds<D,B>::kinds = set_kinds<B>(match_members<D>::kind_value, match_members<D>::get_kinds());
+
+//------------------------------------------------------------------------------
+
+/// A helper macro to access kind value of a class
+#define BCK(D,B) (associate_kinds<D,B>::kinds,match_members<B>::kind_value)
+
+/// A set of macros handling various amount of base classes passed to BCS macro.
+#define BCS0()                        typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { 0 }; return kinds; }
+#define BCS1(x0)                      typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), 0 }; return kinds; }
+#define BCS2(x0,x1)                   typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), 0 }; return kinds; }
+#define BCS3(x0,x1,x2)                typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), 0 }; return kinds; }
+#define BCS4(x0,x1,x2,x3)             typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), BCK(D,x3), 0 }; return kinds; }
+#define BCS5(x0,x1,x2,x3,x4)          typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), BCK(D,x3), BCK(D,x4), 0 }; return kinds; }
+#define BCS6(x0,x1,x2,x3,x4,x5)       typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), BCK(D,x3), BCK(D,x4), BCK(D,x5), 0 }; return kinds; }
+#define BCS7(x0,x1,x2,x3,x4,x5,x6)    typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), BCK(D,x3), BCK(D,x4), BCK(D,x5), BCK(D,x6), 0 }; return kinds; }
+#define BCS8(x0,x1,x2,x3,x4,x5,x6,x7) typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), BCK(D,x3), BCK(D,x4), BCK(D,x5), BCK(D,x6), BCK(D,x7), 0 }; return kinds; }
+
+/// Helper macro for the one below
+#define BCS_(N, ...) XTL_CONCAT(BCS, N)(__VA_ARGS__)
+/// A macro that will be passed arguments to case statement. This should include
+/// the first type parameter that will be used as a dummy. This is required to
+/// be able to handle 0 non-type parameters.
+#define BCS(...) BCS_(XTL_NARG(__VA_ARGS__), __VA_ARGS__)
 
 //------------------------------------------------------------------------------
 
@@ -403,6 +502,45 @@ struct view
 #endif
 
 #define EndMatchE } catch (...) {} }
+
+//------------------------------------------------------------------------------
+
+/// Macro that starts the switch on types that carry their own dynamic type as
+/// a distinct integral value in one of their members.
+#define MatchF(s) {\
+        auto const __selector_ptr  = addr(s);\
+        typedef remove_ref<decltype(*__selector_ptr)>::type __selector_type;\
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
+        auto __kind_selector = apply_member(__selector_ptr, match_members<__selector_type>::kind_selector());\
+        const int* __kinds = 0;\
+        size_t __attempt = 0;\
+        ReMatch:\
+        switch (__kind_selector) {\
+        default:\
+            if (!__kinds) __kinds = get_kinds<__selector_type>(__kind_selector);\
+            XTL_ASSERT(("Base classes for this kind were not specified",__kinds));\
+            __kind_selector = (decltype(__kind_selector))__kinds[++__attempt];\
+            goto ReMatch;\
+        case 0: break; {{
+
+/// NOTE: We need this extra indirection to properly handle 0 arguments as it
+///       seems to be impossible to introduce dummy argument inside the Case 
+///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
+#define CaseF_(C,...) }} \
+        if (XTL_UNLIKELY((__kind_selector == match_members<C>::kind_value))) \
+        { \
+        case match_members<C>::kind_value: \
+            typedef C target_type; \
+            auto matched = stat_cast<target_type>(__selector_ptr);
+
+/// Macro that defines the case statement for the above switch
+#ifdef _MSC_VER
+    #define CaseF(...) XTL_APPLY_VARIADIC_MACRO(CaseF_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
+#else
+    #define CaseF(...) CaseF_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
+#endif
+
+#define EndMatchF   }} }}
 
 //------------------------------------------------------------------------------
 
