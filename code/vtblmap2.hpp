@@ -21,44 +21,17 @@
 #include "config.hpp"    // Various compiler/platform dependent macros
 
 #if defined(XTL_DUMP_PERFORMANCE)
+// For print out purposes only
 #include <algorithm>
-#include <bitset> // For print out purposes only
+#include <bitset>
 #include <iostream>
 #include <string>
 #endif
 
 //------------------------------------------------------------------------------
 
-/// Finds the number of trailing zeros in v.
-/// The following code to count trailing zeros was taken from:
-/// http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightFloatCast
-inline unsigned int trailing_zeros(unsigned int v)
-{
-#ifdef _MSC_VER
-  #pragma warning( push )
-  #pragma warning( disable : 4146 ) // warning C4146: unary minus operator applied to unsigned type, result still unsigned
-#endif
-    float  f = (float)(v & -v); // cast the least significant bit in v to a float
-    return (*(uint32_t *)&f >> 23) - 0x7f; // the result goes here
-#ifdef _MSC_VER
-  #pragma warning( pop )
-#endif
-}
-
-//------------------------------------------------------------------------------
-
-/// Counts the number of bits set in v (the Brian Kernighan's way)
-/// The following code to count set bits was taken from:
-/// http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan
-inline unsigned int bits_set(intptr_t v)
-{
-    unsigned int c = 0; // c accumulates the total bits set in v
-
-    for (; v; c++)
-        v &= v - 1; // clear the least significant bit set
-
-    return c;
-}
+/// Natural logarithm of 2 needed for conversion into log base 2.
+const double ln2 = 0.69314718055994528622676398299518041312694549560546875;
 
 //------------------------------------------------------------------------------
 
@@ -103,8 +76,8 @@ private:
 #if defined(USE_PEARSON_HASH_XXX)
     struct vtbl_hasher
     {
-	    typedef intptr_t argument_type;
-	    typedef size_t   result_type;
+        typedef intptr_t argument_type;
+        typedef size_t   result_type;
 
         /// hash key to size_t value by pseudorandomizing transform
         size_t operator()(const intptr_t key) const 
@@ -118,13 +91,13 @@ private:
 
 #else
     #ifdef _MSC_VER
-   	/// Hash functor for vtbl.
+    /// Hash functor for vtbl.
     /// MSVC uses by default a complicated hash function on all integral types,
     /// but for our application to v-tables identity works best.
     struct vtbl_hasher
     {
-	    typedef intptr_t argument_type;
-	    typedef size_t   result_type;
+        typedef intptr_t argument_type;
+        typedef size_t   result_type;
 
         /// hash key to size_t value by pseudorandomizing transform
         size_t operator()(const intptr_t key) const { return key; }
@@ -194,13 +167,12 @@ public:
                 if (/*XTL_UNLIKELY*/(ce.vtbl))
                 {
                     size_t r = trailing_zeros(static_cast<unsigned int>(m_differ));
-                    size_t d = table.size(); //bits_set(m_differ);
 
-                    if (XTL_UNLIKELY(irrelevant_bits != r || different_bits != d))
+                    if (XTL_UNLIKELY(irrelevant_bits != r || last_table_size != table.size()))
                     {
                         optimal_shift   = get_optimal_shift();
                         irrelevant_bits = r;
-                        different_bits  = d;
+                        last_table_size = table.size();
                         auto saved_val  = ce.value; // Since we've alread written it. Putting the whole insertion later degrades performance
                         std::memset(cache,0,sizeof(cache)); // Reset cache
                         ce.value = saved_val;
@@ -287,11 +259,11 @@ public:
                 opt_shift   = i;
             }
 
-            //std::cout << "Shift: " << i << " -> " << entropy << std::endl; 
+            //std::clog << "Shift: " << i << " -> " << entropy << std::endl; 
         }
 
-        //std::cout << "Optimal Shift: " << opt_shift << " -> " << opt_entropy << " after " << int(total) << " vtbls" << std::endl;
-        //std::cout << *this << std::endl;
+        //std::clog << "Optimal Shift: " << opt_shift << " -> " << opt_entropy << " after " << int(total) << " vtbls" << std::endl;
+        //std::clog << *this << std::endl;
         return opt_shift;
     }
 #if defined(XTL_DUMP_PERFORMANCE)
@@ -379,7 +351,7 @@ public:
     size_t irrelevant_bits;
 
     /// The amount of bits in which all vtbl pointers differ
-    size_t different_bits;
+    size_t last_table_size;
 
     /// Optimal shift computed based on the vtbl pointers already in the map.
     /// Most of the time this value would be equal to @irrelevant_bits, but not
@@ -402,13 +374,13 @@ class vtblmap<T&,N>
 private:
 
 #ifdef _MSC_VER
-   	/// Hash functor for vtbl.
+    /// Hash functor for vtbl.
     /// MSVC uses by default a complicated hash function on all integral types,
     /// but for our application to v-tables identity works best.
     struct vtbl_hasher
     {
-	    typedef intptr_t argument_type;
-	    typedef size_t   result_type;
+        typedef intptr_t argument_type;
+        typedef size_t   result_type;
 
         /// hash key to size_t value by pseudorandomizing transform
         size_t operator()(const intptr_t key) const { return key; }
@@ -426,22 +398,24 @@ private:
 
 public:
 
-    vtblmap() :
+    vtblmap(const vtbl_count_t expected_size = min_expected_size) :
         m_differ(0),
         m_prev(0),
         irrelevant_bits(VTBL_IRRELEVANT_BITS),
-        different_bits(0),
-        optimal_shift(VTBL_IRRELEVANT_BITS)
+        last_table_size(0),
+        optimal_shift(VTBL_IRRELEVANT_BITS),
+        table(expected_size)
     {}
 #if defined(XTL_DUMP_PERFORMANCE)
-    vtblmap(const char* fl, size_t ln, const int log_size = 3) :
+    vtblmap(const char* fl, size_t ln, const vtbl_count_t expected_size = min_expected_size) :
         m_differ(0),
         m_prev(0),
         irrelevant_bits(VTBL_IRRELEVANT_BITS),
-        different_bits(0),
-        optimal_shift(VTBL_IRRELEVANT_BITS)
+        last_table_size(0),
+        optimal_shift(VTBL_IRRELEVANT_BITS),
+        table(expected_size)
     {}
-   ~vtblmap() { std::cout << *this << std::endl; }
+   ~vtblmap() { std::clog << *this << std::endl; }
 #endif
     typedef typename vtbl_to_t_map::mapped_type mapped_type;
 
@@ -506,11 +480,11 @@ public:
                     size_t r = trailing_zeros(static_cast<unsigned int>(m_differ));
                     size_t d = table.size(); //bits_set(m_differ);
 
-                    if (XTL_UNLIKELY(irrelevant_bits != r || different_bits != d))
+                    if (XTL_UNLIKELY(irrelevant_bits != r || last_table_size != d))
                     {
                         optimal_shift   = get_optimal_shift();
                         irrelevant_bits = r;
-                        different_bits  = d;
+                        last_table_size = d;
                         auto saved_ptr  = ce.ptr; // Since we've alread written it. Putting the whole insertion later degrades performance
                         std::memset(cache,0,sizeof(cache)); // Reset cache
                         ce.ptr = saved_ptr;
@@ -597,11 +571,11 @@ public:
                 opt_shift   = i;
             }
 
-            //std::cout << "Shift: " << i << " -> " << entropy << std::endl; 
+            //std::clog << "Shift: " << i << " -> " << entropy << std::endl; 
         }
 
-        //std::cout << "Optimal Shift: " << opt_shift << " -> " << opt_entropy << " after " << int(total) << " vtbls" << std::endl;
-        //std::cout << *this << std::endl;
+        //std::clog << "Optimal Shift: " << opt_shift << " -> " << opt_entropy << " after " << int(total) << " vtbls" << std::endl;
+        //std::clog << *this << std::endl;
         return opt_shift;
     }
 #if defined(XTL_DUMP_PERFORMANCE)
@@ -688,8 +662,8 @@ public:
     /// Irrelevant lowest bits in vtbl pointers that came through this map
     size_t irrelevant_bits;
 
-    /// The amount of bits in which all vtbl pointers differ
-    size_t different_bits;
+    /// Memoized table.size() during last cache rearranging
+    size_t last_table_size;
 
     /// Optimal shift computed based on the vtbl pointers already in the map.
     /// Most of the time this value would be equal to @irrelevant_bits, but not
@@ -760,24 +734,6 @@ private:
     /// The amount of allocated indecies
     size_t indecies;
 
-};
-
-//------------------------------------------------------------------------------
-
-inline size_t req_bits(size_t v)
-{
-    // FIX: Optimize this draft function
-    if (v == 0)
-        return 0;
-
-    size_t bit = 1;
-    size_t i   = 0;
-
-    for (size_t j = 0, n = 8*sizeof(size_t); j < n; ++j, bit <<= 1)
-        if (v & bit)
-            i = j;
-
-    return i+1; // FIX: Not exact for powers of 2.
 };
 
 //------------------------------------------------------------------------------

@@ -61,6 +61,32 @@ template <typename T> struct remove_ref<const T&> { typedef T type; };
 
 //------------------------------------------------------------------------------
 
+/// A class representing a set of locations of type T, indexed by a compile-time
+/// value N. The class is used to implicitly introduce global variables in block
+/// scopes, whose initializer will only be known later in the lexical scope. 
+/// Initialization of such variables will happen before main() and thus accesses
+/// to these locations from within any function that was called after main can
+/// rely on the value of initializer to be known.
+template <typename T>
+struct deferred_value
+{
+    /// Accessor to location N of type T
+    template <size_t N>      static T& get() { static T location; return location; }
+    /// A way to associate initializer with location.
+    /// \note This may happen later in the lexical scope with the net effect 
+    ///       that the result of the association will be available in an earlier
+    ///       access to the location through get() without having to execute any
+    ///       code at the program point where association has been made.
+    template <size_t N, T V> struct set { static T* value; };
+};
+
+/// The trick that makes the above possible: instantiation of set will introduce
+/// another static variable, whose dynamic initialization (before main) will 
+/// force the initializer to be properly set.
+template <class T> template <size_t N, T V> T* deferred_value<T>::set<N,V>::value = &(deferred_value<T>::get<N>() = V);
+
+//------------------------------------------------------------------------------
+
 /// Helper function to help disambiguate a unary version of a given function when 
 /// overloads with different arity are available.
 /// All of the members we work with so far through @match_members are unary:
@@ -233,10 +259,10 @@ struct view
 ///       initialize cache with 0, however through experiments we can see
 ///       that having default here is quite a bit faster than having case 0.
 #define MatchP(s) {\
-        static vtblmap<type_switch_info&> __vtbl2lines_map XTL_DUMP_PERFORMANCE_ONLY((__FILE__,__LINE__));\
+        enum { __base_counter = XTL_COUNTER };\
+        static vtblmap<type_switch_info&> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)deferred_value<vtbl_count_t>::get<__base_counter>());\
         auto const   __selector_ptr = addr(s);\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
-        enum { __base_counter = XTL_COUNTER };\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
         switch (__switch_info.line)\
@@ -248,10 +274,10 @@ struct view
 ///       initialize cache with 0, however through experiments we can see
 ///       that having default here is quite a bit faster than having case 0.
 #define MatchP_N(s,N) {\
-        static vtblmap<type_switch_info&/*,requires_bits<N>::value*/> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)requires_bits<N>::value);\
+        enum { __base_counter = XTL_COUNTER };\
+        static vtblmap<type_switch_info&/*,requires_bits<N>::value*/> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)deferred_value<vtbl_count_t>::get<__base_counter>());\
         auto const   __selector_ptr = addr(s);\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
-        enum { __base_counter = XTL_COUNTER };\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
         switch (__switch_info.line)\
@@ -292,7 +318,7 @@ struct view
 #define QueP(C,...)  }}} { typedef C target_type; enum { target_label = XTL_COUNTER-__base_counter }; if (XTL_UNLIKELY(__casted_ptr = dynamic_cast<const target_type*>(__selector_ptr))) { if (XTL_LIKELY((__switch_info.line == 0))) { __switch_info.line = target_label; __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); } case target_label: auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset); if (XTL_LIKELY(match<target_type>(__VA_ARGS__)(matched))) {
 #define OrP(...)     } else if (match<target_type>(__VA_ARGS__)(matched)) {
 #define OtherwiseP() }}} {{ default: auto matched = __selector_ptr; {
-#define EndMatchP    }}} enum { target_label = XTL_COUNTER-__base_counter }; if (XTL_LIKELY((__switch_info.line == 0))) { __switch_info.line = target_label; } case target_label: ; }}
+#define EndMatchP    }}} enum { target_label = XTL_COUNTER-__base_counter }; deferred_value<vtbl_count_t>::set<__base_counter,target_label-1>::value; if (XTL_LIKELY((__switch_info.line == 0))) { __switch_info.line = target_label; } case target_label: ; }}
 
 //------------------------------------------------------------------------------
 

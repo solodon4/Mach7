@@ -29,66 +29,39 @@
 #include <vector>
 #endif
 
+// --------------------[ Collisions Management ]--------------------
+// Definition: Collision is condition in which cache cell for a
+//             given vtbl is occupied by a different vtbl.
+// Rules:
+// - We only try to rearrange cache when actual collision happens
+// - There is no point in rearranging if table.size() hasn't changed
+// - Counting conflicts without changes in table size may decrease 
+//   the counter to overflow in repetitive scenario.
+// - There is always M such that growing cache to size 2^M will have
+//   zero collisions. Such M is often too large to justify growth.
+// - We only try log sizes N and N+1, where N = log2(|table|)
+// - We do not know apriory if the set of all vtbls that will come 
+//   through this vtblmap can have 0 collisions for log size N, N+1
+// - Cache arrangement with no conflicts can be a good indicator that
+//   such arrangement will still be possible after adding one more vtbl.
+// - Cache arrangement with conflicts will have them with more vtbls 
+//   added unless the cache size got increased.
+// - In most cases we'd want at least one rearrangement to happen as
+//   default value for irrelevant bits is usually irrelevant for a
+//   given vtblmap and has to be recomputed.
+// - We also have to avoid rearranging after every vtbl added as
+//   for some especially large tables conflicts with log sizes N and
+//   N+1 are unavoidable.
+// - Once we found offset/size combination that renders no conflicts
+//   there is no point in computing entropy further.
+// - Addition of extra vtbl can make probability of conflict smaller
+//   since total number of vtbls increased and we divide by it.
+// - Addition of extra vtbl can make probability of conflict larger
+//   when that vtbl conflicts with some that was not in conflict before.
 //------------------------------------------------------------------------------
 
-/// Type capable of representing bit offsets and bit counts in intptr_t
-typedef unsigned char  bit_offset_t;
-/// The smallest integral type capable of representing the amount N of different 
-/// vtbl pointers in the program. Roughly N should be equal to some constant c
-/// multiplied by the amount of different classes polymorphic classes in the 
-/// program. Constant c accounts for potential multiple inheritance.
-typedef unsigned short vtbl_count_t;
-
-//------------------------------------------------------------------------------
-
-const bit_offset_t min_log_size = 3;  // FIX: Make this configurable
-const bit_offset_t max_log_size = 16; // FIX: Make this configurable
-static const double lg2 = std::log(2.0);
-
-//------------------------------------------------------------------------------
-
-/// Finds the number of trailing zeros in v.
-/// The following code to count trailing zeros was taken from:
-/// http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightFloatCast
-inline unsigned int trailing_zeros(unsigned int v)
-{
-#ifdef _MSC_VER
-  #pragma warning( push )
-  #pragma warning( disable : 4146 ) // warning C4146: unary minus operator applied to unsigned type, result still unsigned
-#endif
-    float  f = (float)(v & -v); // cast the least significant bit in v to a float
-    return (*(uint32_t *)&f >> 23) - 0x7f; // the result goes here
-#ifdef _MSC_VER
-  #pragma warning( pop )
-#endif
-}
-
-//------------------------------------------------------------------------------
-
-/// Counts the number of bits set in v (the Brian Kernighan's way)
-/// The following code to count set bits was taken from:
-/// http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan
-inline unsigned int bits_set(intptr_t v)
-{
-    unsigned int c = 0; // c accumulates the total bits set in v
-
-    for (; v; c++)
-        v &= v - 1; // clear the least significant bit set
-
-    return c;
-}
-
-//------------------------------------------------------------------------------
-// FIX: Optimize this draft function
-inline size_t req_bits(size_t v)
-{
-    size_t r = 1;   // r-1 will be lg(v)
-
-    while (v >>= 1) // unroll for more speed...
-        r++;
-
-    return r;
-};
+/// Natural logarithm of 2 needed for conversion into log base 2.
+const double ln2 = 0.69314718055994528622676398299518041312694549560546875;
 
 //------------------------------------------------------------------------------
 
@@ -233,11 +206,11 @@ public:
                 opt_shift   = i;
             }
 
-            //std::cout << "Shift: " << i << " -> " << entropy << std::endl; 
+            //std::clog << "Shift: " << i << " -> " << entropy << std::endl; 
         }
 
-        //std::cout << "Optimal Shift: " << opt_shift << " -> " << opt_entropy << " after " << int(total) << " vtbls" << std::endl;
-        //std::cout << *this << std::endl;
+        //std::clog << "Optimal Shift: " << opt_shift << " -> " << opt_entropy << " after " << int(total) << " vtbls" << std::endl;
+        //std::clog << *this << std::endl;
         return opt_shift;
     }
 
@@ -375,30 +348,33 @@ public:
 
     
 #if defined(XTL_DUMP_PERFORMANCE)
-    vtblmap(const char* fl, size_t ln, const bit_offset_t log_size = min_log_size) : file(fl), line(ln), updates(0),
-        cache(new cache_entry[1<<log_size]),
-        cache_mask((1<<log_size)-1),
+    vtblmap(const char* fl, size_t ln, const vtbl_count_t expected_size = min_expected_size) : file(fl), line(ln), updates(0),
+        cache_mask((1<<std::min(max_log_size,bit_offset_t(req_bits(expected_size-1))))-1),
+        cache(new cache_entry[cache_mask+1]),
         optimal_shift(VTBL_IRRELEVANT_BITS),
+        table(expected_size),
         last_table_size(0),
-        collisions(0)
+        collisions_before_update(1)
     {
-        std::memset(cache,0,(1<<log_size)*sizeof(cache_entry)); // Reset cache
+        std::memset(cache,0,(cache_mask+1)*sizeof(cache_entry)); // Reset cache
     }
 #endif
-    vtblmap(const bit_offset_t log_size = min_log_size) : XTL_DUMP_PERFORMANCE_ONLY(file("unspecified"), line(0), updates(0),)
-        cache(new cache_entry[1<<log_size]),
-        cache_mask((1<<log_size)-1),
+    vtblmap(const vtbl_count_t expected_size = min_expected_size) : XTL_DUMP_PERFORMANCE_ONLY(file("unspecified"), line(0), updates(0),)
+        cache_mask((1<<std::min(max_log_size,bit_offset_t(req_bits(expected_size-1))))-1),
+        cache(new cache_entry[cache_mask+1]),
         optimal_shift(VTBL_IRRELEVANT_BITS),
+        table(expected_size),
         last_table_size(0),
-        collisions(0)
+        collisions_before_update(1)
     {
-        std::memset(cache,0,(1<<log_size)*sizeof(cache_entry)); // Reset cache
+        //std::clog << "expected_size=" << expected_size << std::endl;
+        std::memset(cache,0,(cache_mask+1)*sizeof(cache_entry)); // Reset cache
     }
 
    ~vtblmap()
     {
         delete[] cache; 
-        XTL_DUMP_PERFORMANCE_ONLY(std::cout << *this << std::endl); 
+        XTL_DUMP_PERFORMANCE_ONLY(std::clog << *this << std::endl); 
     }
 
     typedef typename vtbl_to_t_map::mapped_type mapped_type;
@@ -432,11 +408,25 @@ public:
 
         if (XTL_UNLIKELY(ce.vtbl != vtbl))
         {
-            if (ce.vtbl && ++collisions > 4 && table.size() != last_table_size)
-                return update(vtbl); // try to rearrange cache
+            const iterator q = table.find(vtbl);
 
-            ce.ptr = &table[vtbl];
+            if (q != table.end())
+                ce.ptr = &q->second;
+            else
+            {
+                // If this is an actual collision, we rearrange cache
+                if (ce.vtbl && table.size() != last_table_size && !--collisions_before_update)
+                    return update(vtbl); // try to rearrange cache
+                else
+                    ce.ptr = &table.insert(value_type(vtbl,T())).first->second;
+            }
 
+            //-----------------------------------------------
+            //if (ce.vtbl && table.size() != last_table_size && !--collisions_before_update)
+            //    return update(vtbl); // try to rearrange cache
+
+            //ce.ptr = &table[vtbl];
+            //-----------------------------------------------
             //if (XTL_LIKELY(ce.vtbl))
             //{
             //    const iterator q = table.find(vtbl);
@@ -455,14 +445,14 @@ public:
             //}
             //else
             //    ce.ptr = &table[vtbl];
-
+            //-----------------------------------------------
             //size_t sz = table.size();
 
-            //if (/*++collisions > sz &&*/ sz != last_table_size)
+            //if (++collisions > sz && sz != last_table_size)
             //    return update(vtbl);   // try to rearrange cache
             //else
             //    ce.ptr = &table[vtbl];
-
+            //-----------------------------------------------
             //if (XTL_LIKELY(ce.vtbl))
             //{
             //    const iterator q = table.find(vtbl);
@@ -484,11 +474,7 @@ public:
     T& update(intptr_t vtbl)
     {
         XTL_ASSERT(last_table_size  < table.size()); // We will only call this if size changed
-        XTL_ASSERT(table.find(vtbl) == table.end()); // This is guaranteed by the caller
-
-        XTL_DUMP_PERFORMANCE_ONLY(++updates); // Record update
-        last_table_size = table.size();       // Update memoized value
-        collisions = 0;                       // Reset collitions counter
+        //XTL_ASSERT(table.find(vtbl) == table.end()); // This is guaranteed by the caller
 
         intptr_t diff = 0;
         intptr_t prev = vtbl;
@@ -502,28 +488,45 @@ public:
 
         T& result = table[vtbl];
 
+        XTL_DUMP_PERFORMANCE_ONLY(++updates); // Record update
+        last_table_size = table.size();       // Update memoized value
+        collisions_before_update = 4;         // Reset collisions counter
+
         if (true/*diff != m_different*/)
         {
-            bit_offset_t k = req_bits(cache_mask);     // current log_size
-            bit_offset_t n = req_bits(table.size()-1); // needed log_size
-            bit_offset_t l = std::min(bit_offset_t(n+1),max_log_size);
-            bit_offset_t z = trailing_zeros(static_cast<unsigned int>(diff));
-            bit_offset_t m = req_bits(diff);
-            bit_offset_t no = n;
+            bit_offset_t k  = req_bits(cache_mask);     // current log_size
+            bit_offset_t n  = req_bits(table.size()-1); // needed  log_size
+            bit_offset_t m  = req_bits(diff);           // highest bit in which vtbls differ
+            bit_offset_t z  = trailing_zeros(static_cast<unsigned int>(diff)); // amount of lowest bits in which vtbls do not differ
+            bit_offset_t l1 = std::min(max_log_size,std::max(k,n));
+            bit_offset_t l2 = std::min(max_log_size,std::max(k,bit_offset_t(n+1)));
+            bit_offset_t no = l1;
             bit_offset_t zo = z;
             double e_max = 0.0;
 
-            for (bit_offset_t i = n; i <= l; ++i)
+            for (bit_offset_t i = l1; i <= l2; ++i)
             {
                 for (bit_offset_t j = z; j <= m-i; ++j)
                 {
-                    double e = entropy(i,j);
+                    double e,c;
+                    size_t t = get_stats_for(i,j,e,c);
+
+                    XTL_ASSERT(t == last_table_size ? e >= e_max : true); // t == table.size() means there is no conflict, thus entropy should be largest
+                    XTL_ASSERT(c > 0.0 ? t < last_table_size : true);     // When probability of conflict is not 0, there should be collisions
 
                     if (e > e_max)
                     {
                         e_max = e;
                         no = i;
                         zo = j;
+                    }
+
+                    if (t == last_table_size)
+                    {
+                        // We found size and offset without conflicts, exit both loops
+                        i = l2+1; // to exit both for loops
+                        collisions_before_update = 1; // since it is likely that adding another vtbl may still render no conflicts
+                        break;
                     }
                 }
             }
@@ -549,22 +552,22 @@ public:
             }
         }
 #if defined(XTL_DUMP_PERFORMANCE)
-        //std::cout << "Vtbl:New" << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << ((vtbl >> optimal_shift) & cache_mask) << '\t' << vtbl_typeid(vtbl).name() << std::endl;
-        //*this >> std::cout;       
+        std::clog << "Vtbl:New" << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << ((vtbl >> optimal_shift) & cache_mask) << '\t' << vtbl_typeid(vtbl).name() << std::endl;
+        *this >> std::clog;       
 #endif
         return result;
     }
 
-    /// Compute entropy of collision probabilities when all vtbls currently 
-    /// present in the table will be mapped into cache of size 2^log_size 
+    /// Compute entropy and probability of collision for all vtbls currently 
+    /// present in the table when they are mapped into cache of size 2^log_size 
     /// with given offset used to ignore irrelevant bits.
-    double entropy(bit_offset_t log_size, bit_offset_t offset) const
+    size_t get_stats_for(bit_offset_t log_size, bit_offset_t offset, double& entropy, double& conflict) const
     {
         const size_t   cache_size = 1<<log_size;
         const intptr_t cache_mask = cache_size-1;
 
         XTL_ASSERT(log_size <= max_log_size); 
-        XTL_ASSERT(table.size() < 1 << sizeof(vtbl_count_t)*8);
+        XTL_ASSERT(req_bits(table.size()) < sizeof(vtbl_count_t)*8); // Make sure vtbl_count_t is sufficiently large
 
         // We do this to not resort to vectors and heap and keep counting on stack
         XTL_VLAZ(histogram, vtbl_count_t, cache_size, 1<<max_log_size); // vtbl_count_t histogram[cache_size];
@@ -572,46 +575,33 @@ public:
         for (typename vtbl_to_t_map::const_iterator p = table.begin(); p != table.end(); ++p)
             histogram[(p->first >> offset) & cache_mask]++;
 
-        double result = 0.0;
-        double total  = double(table.size());
+        double total = double(table.size());
+        size_t entries = 0;
+
+        entropy  = 0.0;
+        conflict = 0.0;
 
         for (size_t j = 0; j < cache_size; ++j)
         {
             if (histogram[j])
             {
                 double pi = histogram[j]/total;
-                result -= pi*std::log(pi)/lg2;
+                entropy -= pi*std::log(pi)/ln2;
+                ++entries;
             }
+
+            if (histogram[j] > 1)
+                conflict += (histogram[j]-1)/total;
         }
 #if defined(XTL_DUMP_PERFORMANCE)
-        //std::cout << "ENTROPY: " << result << "\t log_size=" << (int)log_size << " offset=" << (int)offset << '[' << line << ']' << std::endl;
+        //std::clog <<    "ENTROPY: "  << entropy 
+        //          << "\t CONFLICT: " << conflict 
+        //          << "\t entries="   << entries 
+        //          << "\t log_size="  << (int)log_size 
+        //          << "\t offset="    << (int)offset 
+        //          << '[' << line << ']' << std::endl;
 #endif
-        return result;
-    }
-
-    /// Computes probability of conflict assuming uniform distribution of vtbls
-    double conflict(bit_offset_t log_size, bit_offset_t offset) const
-    {
-        const size_t   cache_size = 1<<log_size;
-        const intptr_t cache_mask = cache_size-1;
-
-        XTL_ASSERT(log_size <= max_log_size); 
-        XTL_ASSERT(table.size() < 1 << sizeof(vtbl_count_t)*8);
-
-        // We do this to not resort to vectors and heap and keep counting on stack
-        XTL_VLAZ(histogram, vtbl_count_t, cache_size, 1<<max_log_size); // vtbl_count_t histogram[cache_size];
-
-        for (typename vtbl_to_t_map::const_iterator p = table.begin(); p != table.end(); ++p)
-            histogram[(p->first >> offset) & cache_mask]++;
-
-        double result = 0.0;
-        double total  = double(table.size());
-
-        for (size_t j = 0; j < cache_size; ++j)
-            if (histogram[j] > 1)
-                result += (histogram[j]-1)/total;
-
-        return result;
+        return entries;
     }
 
 #if defined(XTL_DUMP_PERFORMANCE)
@@ -667,14 +657,19 @@ public:
             if (prev & j)
                 str[i-1] = '1';
 
+        double entropy;
+        double conflict;
+        size_t entries = get_stats_for(log_size, optimal_shift, entropy, conflict);
+
         os << "VTBLS:  "     << str
            << " total="      << table.size()
            << " log_size="   << log_size
            << " shift="      << optimal_shift
            << " width="      << str.find_last_of("X")-str.find_first_of("X")+1 
            XTL_DUMP_PERFORMANCE_ONLY(<< " updates=" << updates)
-           << " Entropy: "   << entropy(log_size, optimal_shift)
-           << " Conflict: "  << conflict(log_size, optimal_shift) << "\t ";
+           << " entries: "   << entries
+           << " Entropy: "   << entropy
+           << " Conflict: "  << conflict << "\t ";
 
         bool show = false;
 
@@ -688,19 +683,20 @@ public:
 
         os << std::count(histogram,histogram+cache_size,0)*100/cache_size << "% unused " << '[' << line << ']' << std::endl;
 
-        //bit_offset_t k = req_bits(cache_mask);     // current log_size
-        bit_offset_t n = req_bits(table.size()-1); // needed log_size
-        bit_offset_t l = std::min(bit_offset_t(n+1),max_log_size);
-        bit_offset_t z = trailing_zeros(static_cast<unsigned int>(diff));
-        bit_offset_t m = req_bits(diff);
+        bit_offset_t k  = req_bits(cache_mask);     // current log_size
+        bit_offset_t n  = req_bits(table.size()-1); // needed  log_size
+        bit_offset_t m  = req_bits(diff);           // highest bit in which vtbls differ
+        bit_offset_t z  = trailing_zeros(static_cast<unsigned int>(diff)); // amount of lowest bits in which vtbls do not differ
+        bit_offset_t l1 = std::min(max_log_size,std::max(k,n));
+        bit_offset_t l2 = std::min(max_log_size,std::max(k,bit_offset_t(n+1)));
 
-        for (bit_offset_t i = n; i <= l; ++i)
+        for (bit_offset_t i = l1; i <= l2; ++i)
         {
             for (bit_offset_t j = z; j <= m-i; ++j)
             {
-                double e = entropy(i,j);
-                double p = conflict(i,j);
-                os << "\tEntropy for log_size=" << int(i) << " and shift=" << int(j) << " is " << e << " or " << e/i << " per cell witch conflict " << p << std::endl;
+                double e, p;
+                size_t t = get_stats_for(i,j,e,p);
+                os << "\tlog_size=" << int(i) << " shift=" << int(j) << " Entropy=" << e << " Conflict=" << p << (t == table.size() ? " \t*" : "") << std::endl;
             }
         }
 
@@ -710,11 +706,13 @@ public:
 #endif
 private:
 
+    /// Cache mask to access entries. Always cache_size-1 since cache_size is a power of 2
+    /// \note We currently rely in constructors on this member be first in 
+    ///       declaration order so that it is initialized first!
+    size_t cache_mask;
+
     /// Cached mappings of vtbl to some indecies
     cache_entry* cache;
-
-    /// Cache mask to access entries. Always cache_size-1 since cache_size is a power of 2
-    size_t cache_mask;
 
     /// Optimal shift computed based on the vtbl pointers already in the map.
     /// Most of the time this value would be equal to @irrelevant_bits, but not
@@ -730,8 +728,8 @@ private:
     /// Memoized table.size() during last cache rearranging
     size_t last_table_size;
 
-    /// Number of colisions since last cache rearranging
-    size_t collisions;
+    /// Number of colisions that we will still tolerate before next update
+    int collisions_before_update;
 
 #if defined(XTL_DUMP_PERFORMANCE)
     const char* file;    ///< File in which this vtblmap is instantiated

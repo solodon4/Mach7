@@ -128,7 +128,122 @@ int main()
     cloc     cl;
 
     double m = 0.0;
+//-----------------------------------------------------------------------------
+for (size_t i = 0; i < 3; ++i)
+{
+    {
+        enum {__base_counter = 0 };
+        static vtblmap<type_switch_info&> __vtbl2lines_map(deferred_value<vtbl_count_t>::get<__base_counter>());
+        auto const __selector_ptr = addr(shapes[i]);
+        ;
+        const void* __casted_ptr;
+        type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);
+        switch (__switch_info.line) 
+        {
+        case 0:
+            {
+                {
+                    {
+                        {
+                        }
+                    }
+                }
+                {
+                    typedef Circle target_type;
+                    enum { target_label = 1-__base_counter };
+                    if ((__casted_ptr = dynamic_cast<const target_type*>(__selector_ptr))) 
+                    {
+                        if (((__switch_info.line == 0))) 
+                        {
+                            __switch_info.line = target_label;
+                            __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr);
+                        }
+        case target_label:
+                        auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset);
+                        const auto& _ = apply_member(matched, match_members<target_type,default_layout>::member0());
+                        const auto& r = apply_member(matched, match_members<target_type,default_layout>::member1());
+                        {
+                            std::cout << "Circle"   << std::endl;
+                            m += r;
+                            break;
+                        }
+                    }
+                }
+                {
+                    typedef Square target_type;
+                    enum { target_label = 2-__base_counter };
+                    if ((__casted_ptr = dynamic_cast<const target_type*>(__selector_ptr))) 
+                    {
+                        if (((__switch_info.line == 0))) 
+                        {
+                            __switch_info.line = target_label;
+                            __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr);
+                        }
+        case target_label:
+                        auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset);
+                        const auto& _ = apply_member(matched, match_members<target_type,default_layout>::member0());
+                        const auto& r = apply_member(matched, match_members<target_type,default_layout>::member1());
+                        {
+                            std::cout << "Square"   << std::endl;
+                            m += r;
+                            break;
+                        }
+                    }
+                }
+                {
+                    typedef Triangle target_type;
+                    enum { target_label = 3-__base_counter };
+                    if ((__casted_ptr = dynamic_cast<const target_type*>(__selector_ptr))) 
+                    {
+                        if (((__switch_info.line == 0))) 
+                        {
+                            __switch_info.line = target_label;
+                            __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr);
+                        }
+        case target_label:
+                        auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset);
+                        const auto& p = apply_member(matched, match_members<target_type,default_layout>::member0());
+                        {
+                            std::cout << "Triangle" << std::endl;
+                            m += p.first;
+                            break;
+                        }
+                    }
+                }
+                {
+                    typedef Triangle target_type;
+                    enum { target_label = 4-__base_counter };
+                    if ((__casted_ptr = dynamic_cast<const target_type*>(__selector_ptr))) 
+                    {
+                        if (((__switch_info.line == 0))) 
+                        {
+                            __switch_info.line = target_label;
+                            __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr);
+                        }
+        case target_label:
+                        auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset);
+                        const auto& p = apply_member(matched, match_members<target_type,default_layout>::member0());
+                        {
+                            std::cout << "Triangle" << std::endl;
+                            m += p.first;
+                            break;
+                        }
+                    }
+                }
+            }
+            enum { target_label = 5-__base_counter };
+            deferred_value<vtbl_count_t>::set<__base_counter,target_label>::value;
+            if (((__switch_info.line == 0))) 
+            {
+                __switch_info.line = target_label;
+            }
+        case target_label:
+            ;
+        }
+    }
+}
 
+//-----------------------------------------------------------------------------
     for (size_t i = 0; i < 3; ++i)
     {
         TypeMatch(shapes[i])

@@ -48,3 +48,48 @@ template <int N> struct requires_bits    { enum { value = requires_bits<(N+1)/2>
 template <>      struct requires_bits<1> { enum { value = 0 }; };
 
 //------------------------------------------------------------------------------
+
+/// Finds the number of trailing zeros in v.
+/// The following code to count trailing zeros was taken from:
+/// http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightFloatCast
+inline unsigned int trailing_zeros(unsigned int v)
+{
+#ifdef _MSC_VER
+  #pragma warning( push )
+  #pragma warning( disable : 4146 ) // warning C4146: unary minus operator applied to unsigned type, result still unsigned
+#endif
+    float  f = (float)(v & -v); // cast the least significant bit in v to a float
+    return (*(uint32_t *)&f >> 23) - 0x7f; // the result goes here
+#ifdef _MSC_VER
+  #pragma warning( pop )
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+/// Counts the number of bits set in v (the Brian Kernighan's way)
+/// The following code to count set bits was taken from:
+/// http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan
+inline unsigned int bits_set(intptr_t v)
+{
+    unsigned int c = 0; // c accumulates the total bits set in v
+
+    for (; v; c++)
+        v &= v - 1; // clear the least significant bit set
+
+    return c;
+}
+
+//------------------------------------------------------------------------------
+// FIX: Optimize this draft function
+inline size_t req_bits(size_t v)
+{
+    size_t r = 1;   // r-1 will be lg(v)
+
+    while (v >>= 1) // unroll for more speed...
+        r++;
+
+    return r;
+};
+
+//------------------------------------------------------------------------------

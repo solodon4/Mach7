@@ -14,10 +14,33 @@
 
 #include <cassert>
 
+//------------------------------------------------------------------------------
+
+/// Type capable of representing bit offsets and bit counts in intptr_t
+typedef unsigned char  bit_offset_t;
+
+/// The smallest integral type capable of representing the amount N of different 
+/// vtbl pointers in the program. Roughly N should be equal to some constant c
+/// multiplied by the amount of different classes polymorphic classes in the 
+/// program. Constant c accounts for potential multiple inheritance.
+typedef unsigned short vtbl_count_t;
+
+//------------------------------------------------------------------------------
+
+const bit_offset_t min_log_size = 3;
+const bit_offset_t max_log_size = 16;
+const vtbl_count_t min_expected_size = 1<<min_log_size;
+
+//------------------------------------------------------------------------------
+
 /// Uncomment this macro definition if you'd like to do some performance tracing
 //#define XTL_TRACE_PERFORMANCE
 /// Uncomment this macro definition if you'd like to do some performance tracing
 //#define XTL_DUMP_PERFORMANCE
+/// Uncomment to use Pearson hash
+//#define XTL_USE_PEARSON_HASH
+
+//------------------------------------------------------------------------------
 
 /// Several choices for configuring syntax:
 /// Default syntax Match,Case,Que,Or,Otherwise,EndMatch are resolved to
@@ -29,6 +52,8 @@
 #if !defined(XTL_DEFAULT_SYNTAX)
   #define XTL_DEFAULT_SYNTAX 'P'
 #endif
+
+//------------------------------------------------------------------------------
 
 /// Another choice is whether user would like to have Otherwise statement, as if
 /// she doesn't, we can use default: to enter the cascading-if, which accordingly
@@ -54,6 +79,8 @@
   #endif
 #endif
 
+//------------------------------------------------------------------------------
+
 /// Another choice is whether library code should try to benefit from memoized_cast 
 /// or just use dynamic_cast 
 #if !defined(XTL_USE_MEMOIZED_CAST)
@@ -78,14 +105,8 @@
 
 //------------------------------------------------------------------------------
 
-#if !defined(XTL_USE_PEARSON_HASH)
-//#define XTL_USE_PEARSON_HASH
-#endif
-
-//------------------------------------------------------------------------------
-
 #if !defined(VTBL_DEFAULT_CACHE_BITS)
-#define VTBL_DEFAULT_CACHE_BITS 7
+    #define VTBL_DEFAULT_CACHE_BITS 7
 #endif
 
 //------------------------------------------------------------------------------
