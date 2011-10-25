@@ -15,6 +15,14 @@
 #include <utility>
 #include "match_generic.hpp"
 
+#if defined(__GNUC__)
+    // We need to do this workaround for this file until GCC will fix the bug 
+    // in their handling of C++0x. The details of the bug can be found here:
+    // http://gcc.gnu.org/bugzilla/show_bug.cgi?id=50080
+    #undef  XTL_CPP0X_TEMPLATE
+    #define XTL_CPP0X_TEMPLATE template
+#endif
+
 template<class X, class Y, class S, class T>
 std::pair<S, T> lift(const std::pair<X, Y>& p, S f(X), T g(Y))
 {

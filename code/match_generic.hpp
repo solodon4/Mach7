@@ -49,6 +49,11 @@
 //        - use of layouts and views
 // FIX: Add support of guards |= on other patterns e.g. matcherN
 // TODO: Check if implicit breaks render better code than code with ifs for fall-through behavior
+// TODO: Make a configuration option that uses static_cast directly instead of 
+//       our ptr_adjust. It is an option as static_cast won't work for virtual
+//       inheritance or ambiguous base classes, while in typical case we won't 
+//       need to store and will simply inline adjustment.
+// TODO: Overload comma operator on patterns to handle multiple subjects
 
 #pragma once
 

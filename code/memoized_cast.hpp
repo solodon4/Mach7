@@ -117,6 +117,7 @@ inline std::ptrdiff_t& per_source_offset_of(const void* p, size_t ti)
 template <typename T, typename S>
 inline T memoized_cast_non_null(const S* p)
 {
+    XTL_ASSERT(p);
     typedef typename cast_target<T >::type target_type;
     typedef typename cast_target<S*>::type source_type;
 #if 1
@@ -157,13 +158,62 @@ inline T memoized_cast_non_null(S* p)
 
 /// Actual implementation of memoized_cast on pointers.
 /// \note Type T here is assumed to be of pointer type!
-template <typename T, typename S>
-inline T memoized_cast(S* p)
+//template <typename T, typename S>
+//inline T memoized_cast(S* p)
+//{
+//    if (XTL_LIKELY(p))
+//        return memoized_cast_non_null<T>(p);
+//    else
+//        return 0;    
+//}
+
+//------------------------------------------------------------------------------
+
+/// This general case is not defined on purpose as expected types are only 
+/// pointer and reference types, which will be handled by the two partial 
+/// specializations below. Introduction of a class is needed as functions don't
+/// have partial specialization and type T is not in deducible context to just 
+/// overload on it.
+template <typename T>
+struct memoized_cast_helper;
+
+/// Partial specialization handling pointers as target type.
+template <typename T>
+struct memoized_cast_helper<T*>
 {
-    if (XTL_LIKELY(p))
-        return memoized_cast_non_null<T>(p);
-    else
-        return 0;    
+    template <typename S>
+    static inline T* go(S* p)
+    {
+        if (XTL_LIKELY(p))
+            return memoized_cast_non_null<T*>(p);
+        else
+            return 0;    
+    }
+};
+
+/// Partial specialization handling references as target type.
+template <typename T>
+struct memoized_cast_helper<T&>
+{
+    template <typename S>
+    static inline T& go(S& s)
+    {
+        if (T* t = memoized_cast_helper<T*>::go(&s))
+            return *t;
+        else
+            throw std::bad_cast();
+    }
+};
+
+//------------------------------------------------------------------------------
+
+/// Actual implementation of memoized_cast that simply forwards the call to a 
+/// static member of @memoized_cast_helper in order to distinguish pointer and 
+/// reference types in the target type.
+template <typename T, typename S>
+inline T memoized_cast(S&& s)
+{
+    return memoized_cast_helper<T>::go(std::forward<S>(s));
 }
 
 //------------------------------------------------------------------------------

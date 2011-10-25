@@ -40,8 +40,8 @@ struct A
 
 struct B : INHERIT_VIRTUALLY A
 {
-    //B(intptr_t b = byte_pattern<intptr_t>(0xBB)) : m_b(b) {}
-    //intptr_t m_b;
+    B(intptr_t b = byte_pattern<intptr_t>(0xBB)) : m_b(b) {}
+    intptr_t m_b;
 };
 
 struct C : NON_MSVC(INHERIT_VIRTUALLY A,) B

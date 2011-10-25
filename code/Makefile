@@ -12,7 +12,7 @@
 
 INCLUDES = -I"$(BOOST)"
 LIBS     = -lstdc++
-CXXFLAGS = $(INCLUDES) -Wall -time -O2 -DNDEBUG -std=c++0x
+CXXFLAGS = $(INCLUDES) -Wall -time -O2 -DNDEBUG -std=gnu++0x
 LIBFLAGS =  
 AR       = ar
 
