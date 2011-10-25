@@ -64,7 +64,7 @@ showstringspaces=false,
 \newcommand{\Cls}{{\scriptsize {\bf Tag}}}
 \newcommand{\Unn}{{\scriptsize {\bf Union}}}
 
-\input{data}
+\input{data2}
 
 \newsavebox{\sembox}
 \newlength{\semwidth}
@@ -618,11 +618,13 @@ const Either<S,T>& lift(const Either<X,Y>& e, S f(X), T g(Y))
 The same function expressed with our pattern-matching facility seems to be much 
 closer to the original Haskell definition:
 
+%@$^T$@@\footnote{T indicates that the user will have to use TMatch, TCase and TEndMatch versions of the macros respectively since the substituted code has to be correct in the template environment}@
+
 \begin{lstlisting}[keepspaces,columns=flexible]
 template <class X, class Y, class S, class T>
 const Either<S,T>* lift(const Either<X,Y>& e, S f(X), T g(Y))
 {
-    Match(e) %@$^T$@@\footnote{T indicates that the user will have to use TMatch, TCase and TEndMatch versions of the macros respectively since the substituted code has to be correct in the template environment}@
+    Match(e)
       Case(( Left<X,Y>), x)  return  left<S,T>(f(x));@\footnote{We need to take the first argument in parentheses to avoid interpretation of comma in template argument list by the preprocessor}@
       Case((Right<X,Y>), y)  return right<S,T>(g(y));
     EndMatch
@@ -786,7 +788,21 @@ object-oriented languages is that an algebraic data type definition is
 Once we have listed all the variants a given algebraic data type may have we 
 cannot extend it with new variants without modifying its definition. This is not 
 the case in object-oriented languages, where classes are \emph{open} to 
-extension through subclassing. 
+extension through subclassing. Notable exceptions to this restriction in 
+functional community are \emph{polymorphic variants} in OCaml\cite{garrigue-98} 
+and \emph{open data types} in Haskell\cite{LohHinze2006}, which allow addition 
+of new variants later. These extensions, however, are simpler than object-oriented 
+extensions as neither polymorphic variants nor open data types form subtyping 
+relation between themselves: open data types do not introduce any subtyping 
+relation, while the subtyping relation on polymorphic variants is a 
+\emph{semantic subtyping} similar to that of XDuce\cite{HosoyaPierce2000}, which 
+is based on the subset relation between values of the type. In either case they 
+maintain the important property that each value of the underlain algebraic data 
+type belongs to exactly one disjoint subset tagged with a constructor. The 
+\emph{nominative subtyping} of object-oriented languages does not usually have 
+this disjointness making classes effectively have multiple types. In particular, 
+the case of disjoint constructors can be seen as a degenerated case of a flat 
+class hierarchy among the multitude of possible class hierarchies.
 
 Closeness of algebraic data types is particularly useful in reasoning about 
 programs by case analysis and allows the compiler to perform an automatic 
@@ -2377,7 +2393,7 @@ backbone to the general match statement presented in~\textsection\ref{sec:semms}
 Working within a multi-paradigm programming language like C++, we will not be 
 looking at algebraic data types in the closed form they are present in 
 functional languages, but rather in an open/extensible form discussed by 
-Zenger\cite{Zenger:2001}, L\"oh\cite{LohHinze2006} and others. We will thus 
+Zenger\cite{Zenger:2001}, Emir\cite{EmirThesis}, L\"oh\cite{LohHinze2006} and others. We will thus 
 assume an object-oriented setting where new variants can be added later and form
 subtyping relations between each other including those through multiple 
 inheritance. We will look separately at polymorphic and tagged class encodings 
@@ -2440,9 +2456,9 @@ example, often prefer first-fit, while object-oriented languages would typically
 be inclined to best-fit semantics. The-only-fit semantics is traditionally seen 
 in procedural languages like C and Pascal to deal with discriminated union types. 
 All-fit and any-fit semantics might be seen in languages based on predicate 
-dispatching or guarded commands, where a predicate can be seen as a 
-characteristic function of a type, while logical implication can be seen as 
-subtyping. 
+dispatching\cite{ErnstKC98} or guarded commands\cite{EWD:EWD472}, where a 
+predicate can be seen as a characteristic function of a type, while logical 
+implication can be seen as subtyping.
 
 \subsection{Problem of Efficient Type Switching}
 \label{sec:poets}
@@ -2567,12 +2583,12 @@ classes number 2*N and 2*N+1 derived from a class with number N.
 The above solution either in a form of cascading-if or a decision tree can be 
 significantly improved by lowering the cost of a single \code{dynamic_cast}. 
 We devise an asymptotically constant version of this operator that we call
-\code{memoized_cast} in \textsection\ref{memcast}. As can be seen from the graph 
+\code{memoized_cast} in \textsection\ref{sec:memcast}. As can be seen from the graph 
 titled ``Cascading-If + memoized\_cast'', it speeds up the above cascading-if 
 solution by a factor of 18 on average, as well as outperforms the decision-tree 
 based solution for a number of case clauses way beyond those that can happen in 
 a reasonable program. We leave the discussion of the technique until 
-\textsection\ref{memcast}, while we keep it in the chart to give perspective on 
+\textsection\ref{sec:memcast}, while we keep it in the chart to give perspective on 
 an even faster solution to dynamic casting.
 
 The approach of Gibbs and Stroustrup employs divisibility of numbers to obtain a 
@@ -2621,10 +2637,10 @@ numbers in a way that might result in an incorrect dynamic cast.
 
 Seeing predictably constant dispatching overhead of the visitor design pattern 
 it became clear that any open solution that will have a non-constant dispatching 
-overhead will have a poor chance of being adopted. Switching on sequentially 
-allocated tags was one of the few techniques that could achieve constant 
-overhead, and thus compete and even outperform visitors. Unfortunately the 
-scheme has problems of its own that make it unsuitable.
+overhead will have a poor chance of being adopted. Multi-way switch on 
+sequentially allocated tags\cite{Spuler94} was one of the few techniques that 
+could achieve constant overhead, and thus compete and even outperform visitors. 
+Unfortunately the scheme has problems of its own that make it unsuitable.
 
 %To better understand the problem let us look at some existing solutions to type 
 %switching that we found to be used in practice. 
@@ -2682,18 +2698,6 @@ sealing class hiearchy and using jump table. Without sealing, the implementation
 was resorting to decision trees and type testing, which was not efficient.
 To the best of our knowledge we are unaware of any efficient tag allocation 
 scheme that can be used in a truly open scenario.
-
-%Our approach can be used together with backtracking or decision tree approaches. 
-%Instead of a linear search our current macros generate simply to because we 
-%depend on the syntacti order of definitions in library setting, the compiler may 
-%generate either a decision tree or backtracking automata to find the applicable 
-%type. After that the compiler would just cache the jump target inside the 
-%function.
-
-%The approach can also be used to optimize handling of polymorphic variants in 
-%OCaml when implemented as proposed by Garrigue\cite{garrigue-98}. The tag values 
-%compiler generates for each of the variants can be seen as vtbl pointer value 
-%and a similar memoization device can be embedded into a decision tree.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5555
 
@@ -3182,38 +3186,57 @@ table information without consulting the hash table itself. The important
 guarantee about the validity of the cached hash table references comes from the 
 C++0x standard, which states that ``insert and emplace members shall not affect 
 the validity of references to container elements''\cite[\textsection 
-23.2.5(13)]{C++0x}. Parameterized over the type T of elements stored in the hash 
-table we implemented the above data structure in a reusable class 
-\code{vtblmap<T>}.
+23.2.5(13)]{C++0x}. 
 
-Depending on the amount of collisions that happens in the cache our vtbl 
+Depending on the amount of actual collisions that happen in the cache our vtbl 
 memoization technique can come close and even outperform the visitor design 
-pattern. The numbers are of course averaged over many runs as the first run on 
+pattern. The numbers are, of course, averaged over many runs as the first run on 
 every most derived type will take time shown in Figure\ref{fig:DCastVis1}. We 
 did however test our technique on real code and can confirm that it does perform 
-well in real-world use cases.
+well in the real-world use cases.
+
+The information about jump targets and necessary offsets is just an example of 
+information we might want to be able to associate with and access via vtbl 
+pointers. Our implementation of \code{memoized_cast} for example effectively 
+reuses this general datastructure with a different type of element values. 
+We thus created a generic reusable class \code{vtblmap<T>} that maps vtbl 
+pointers to elements of type T. We will refer to the combined cache and 
+hash-table data structure extended with the logic for minimizing conflicts 
+presented below as \emph{vtblmap} data structure.
 
 \subsubsection{Minimization of Conflicts}
 \label{sec:moc}
 
+Throughout this section by \emph{collision} we will call a run-time condition in 
+which the cache entry of an incoming vtbl pointer is occupied by another vtbl 
+pointer. Collision requires vtblmap to fetch the data associated with the new 
+vtbl pointer from a slower hash-table and, under certain conditions, reconfigure 
+cache for better performance. By \emph{conflict} we will call a different 
+run-time condition under which given cache configuration maps two or more vtbl 
+pointers to the same cache location. Presence of conflict does not necessarily 
+imply presence of collisions, but collisions can only happen when there is a 
+conflict. In the rest of this section we devise a mechanism that tries to 
+minimize the amount of conflicts in a hope that it will also decrease the amount 
+of actual collisions.
+
 The amount of cycles that the visitor design pattern requires to uncover a type 
 does not let us put sophisticated cache indexing mechanisms into the critical 
-path of execution. This is we limit our indexing function to shifts and masking 
-operations as well as choose the size of cache to be a power of 2.
+path of execution. This is why we limit our indexing function to shifts and 
+masking operations as well as choose the size of cache to be a power of 2.
 
 From the bit patterns of section \textsection\ref{sec:sovtp} we can see that 
 given $n$ vtbl pointers we can always find a cache size that will render no 
-conflicts between the vtbl pointers. The required size, however, can be too big 
-to justify the use of memory. This is why in our current implementation we 
-always consider only 2 different cache sizes: $2^k$ and $2^{k+1}$ where 
-$2^{k-1} \le n \leq 2^k$. This guarantees us that the cache size is never more 
-than 4 times bigger than the minimum required cache size.
+conflicts between the vtbl pointers. The necessary size of such cache, however, 
+can be too big to justify the use of memory. This is why in our current 
+implementation we always consider only 2 different cache sizes: $2^k$ and 
+$2^{k+1}$ where $2^{k-1} \le n \leq 2^k$. This guarantees us that the cache size 
+is never more than 4 times bigger than the minimum required cache size.
 
 During our experiments we noticed that often times the change in the last bit 
 happens only in very few vtbl pointers, which effectively cuts the available 
 cache space in half. To overcome this problem we let the amount of bits we 
-shift the vtbl pointer by to compute cache index, vary further and compute it in 
-such a way that minimizes the number of vtbl pointer collisions.
+shift the vtbl pointer by vary further and compute it in such a way that 
+minimizes the number of conflicts.
 
 To avoid doing any computations in the critical path \code{vtblmap} only 
 reconfigures the optimal shift and the size of the cache when an actual collision 
@@ -3242,10 +3265,10 @@ to happen on less frequent vtbl pointers.
 
 We studied frequency of vtbl pointers that come through various match statements 
 on a C++ pretty-printer that we implemented on top of the Pivot 
-framework\cite{Pivot} using our pattern-matching library. We ran the pretty 
+framework\cite{Pivot09} using our pattern-matching library. We ran the pretty 
 printer through a set of C++ standard library headers and then ranked all the 
 classes from the most frequent to the least frequent ones on average. The 
-resulting probability distribution can be seen on a thicker line in 
+resulting probability distribution is shown with a thicker line in 
 Figure\ref{fig:PowerLaw}.
 
 \begin{figure}[htbp]
@@ -3256,12 +3279,86 @@ Figure\ref{fig:PowerLaw}.
 \end{figure}
 
 Note that Y-Axis is using logarithmic scale, suggesting that the resulting 
-probability has power-law distribution. This is likely to be a specific of our 
-application, however the above picture demonstrates that frequency of certain 
+probability has power-law distribution. This is likely to be a specifics of our 
+application, nevertheless, the above picture demonstrates that frequency of certain 
 classes can be larger than the overall frequency of all the other classes. In 
 our case the 2 most frequent classes were representing the use of a variable in 
 a program, and their combined frequency was larger than the frequency of all the 
-other nodes. Naturally we would to avoid conflicts on such classes in the cache.
+other nodes. Naturally we would like to avoid conflicts on such classes in the 
+cache when possible.
+
+Let us assume that a given \code{vtblmap} contains a set of vtbl pointers 
+$V = \{v_1, ... , v_n\}$ with known probabilities $p_i$ of occuring. For a cache 
+of size $2^k$ and a shift by $l$ bits we get a cache-indexing function 
+$f_{lk} : V \rightarrow [0..2^k-1]$ defined as $f_{lk}(v_i) = (v_i \gg l) \& (2^k-1)$.
+To calculate the probability of conflict for a given $l$ and $k$ parameters, let 
+us consider $j^{th}$ cache cell and a subset $V^j_{lk}=\{v \in V | f_{lk}(v)=j\}$. 
+When the size of this subset $m=|V^j_{lk}|$ is greater than 1, we have a 
+potential conflict as subsequent request for a vtbl pointer $v''$ might be 
+different from the vtbl pointer $v'$ currenly stored in the cell $j$. Within the 
+cell only the probability of not having a conflict is the probability of both 
+values $v''$ and $v'$ be the same:
+\begin{eqnarray*}
+P(v''=v')=\sum\limits_{v_i \in V^j_{lk}}P(v''=v_i)P(v'=v_i)=\sum\limits_{v_i \in V^j_{lk}}P^2(v_i|V^j_{lk})=\\
+=\sum\limits_{v_i \in V^j_{lk}}\frac{P^2(v_i)}{P^2(V^j_{lk})}=
+\sum\limits_{v_i \in V^j_{lk}}\frac{p_i^2}{(\sum\limits_{v_{i'} \in V^j_{lk}}p_{i'})^2}=
+\frac{\sum\limits_{v_i \in V^j_{lk}}p_i^2}{(\sum\limits_{v_{i} \in V^j_{lk}}p_{i})^2}
+\end{eqnarray*}
+
+The probability of having a conflict among the vtbl pointers of a given cell is 
+thus one minus the above value:
+
+\begin{eqnarray*}
+P(v''\neq v')=1-\frac{\sum\limits_{v_i \in V^j_{lk}}p_i^2}{(\sum\limits_{v_{i} \in V^j_{lk}}p_{i})^2}
+\end{eqnarray*}
+
+To obtain probability of conflict given any vtbl pointer and not just the one 
+from a given cell we need to sum up the above probabilities of conflict within a 
+cell multiplied by the probability of vtbl pointer fall into that cell:
+
+\begin{eqnarray*}
+P_{lk}^{conflict}=\sum\limits_{j=0}^{2^k-1}P(V^j_{lk})(1-\frac{\sum\limits_{v_i \in V^j_{lk}}p_i^2}{(\sum\limits_{v_{i} \in V^j_{lk}}p_{i})^2})=\\
+=\sum\limits_{j=0}^{2^k-1}(\sum\limits_{v_{i} \in V^j_{lk}}p_{i})(1-\frac{\sum\limits_{v_i \in V^j_{lk}}p_i^2}{(\sum\limits_{v_{i} \in V^j_{lk}}p_{i})^2})
+\end{eqnarray*}
+
+Our reconfiguration algorithm then iterates over possible values of $l$ and $k$ 
+and chooses those that minimize the overal probability of conflict $P_{lk}^{conflict}$.
+The only data still missing are the actual probabilities $p_i$ used by the above 
+formula. They can be approximated in many different ways.
+
+Besides probability distribution on all the tests, Figure~\ref{fig:PowerLaw} 
+shows probabilities of a given node on each of the tests. The X-Axis in this 
+case represents the ordering of all the nodes accordingly to their overall rank 
+of all the tests combined. As can be seen from the picture, the shape of each 
+specific test's distribution still mimics the overal probability distribution. 
+With this in mind we can simply let the user assign probabilities to each of the 
+classes in the hierarchy and use these values during reconfiguration. The 
+practical problem we came accross with this solution was that we wanted these 
+probabilities be inheritable as Pivot separates interface and implementation 
+classes and we prefered the user to define them on interfaces rather than on 
+implementation classes. The easiest way to do so wast to write a dedicated 
+function that would return the probabilities using a match statement. 
+Unfortunately such a function will introduce a lot of overhead as it will 
+ideally only be used very few times (since we try to minimize the amount of 
+reconfiguration) and thus not be using memoized jumps but rather slow 
+cascading-if.
+
+A simpler and likely more precise way of estimating $p_i$ would be to count 
+frequencies of each vtbl pointers directly inside the \code{vtblmap}. This 
+introduces an overhead of an increment into the critical path of execution, but 
+accordingly to our tests was only degrading the overal performance by 1-2\%.
+Instead, it was compensating with a smaller amount of conflicts and thus a 
+potential gain of performance. We leave the choice of whether the library should 
+count frequencies of each vtbl pointer to the user of the library as the 
+concrete choice may be to advantage on some class hierarchies and to 
+disadvantage on others.
+
+Figure~\ref{fig:Collisions} compares the amount of collisions when frequency 
+information is and is not used. The data was gathered from 312 tests on multiple 
+match statements present in Pivot's C++ pretty printer when it was ran over 
+standard library headers. In 122 of these test both schemes had 0 conflicts and 
+these tests are thus not shown on the graph. The remaining tests where ranked by 
+the amount of conflicts in the scheme that does not utilize frequency information.
 
 \begin{figure}[htbp]
   \centering
@@ -3269,6 +3366,24 @@ other nodes. Naturally we would to avoid conflicts on such classes in the cache.
   \caption{Decrease in number of collisions when probabilities of nodes are taken into account}
   \label{fig:Collisions}
 \end{figure}
+
+As can be seen from the graph, both schemes render quite low amount of 
+collisions given that there was about 57000 calls in the rightmost test having 
+the largest amount of conflicts. Taking into account that the Y-axis has 
+logarithmic scale, the use of frequency information in many cases decreased the 
+amount of conflicts by a factor of 2. The handfull of cases where the use of 
+frequency increased the number of conflicts can be explained by the fact that 
+the optimal values are not recomputed after each conflict, but after several 
+conflicts and only if the amount of vtbl pointers in the vtblmap increased. These 
+extra conditions sacrify optimality of parameters at any given time for the amount 
+of times they are recomputed. By varying the number of conflicts we are willing 
+to tolerate before reconfiguration we can decrease the number of conflicts by 
+increasing the amount of recomputations and vise versa. From our experience, 
+however, we saw that the drop in the number of conflicts was not translating 
+into a proportional drop in execution time, while the amount of reconfigurations 
+was proportional to the increase in execution time. This is why we choose to 
+tolerate a relatively large amount of conflicts before recomputation just to 
+keep the amount of recomputations low.
 
 \subsection{Case of Tagged Classes}
 \label{sec:cotc}
@@ -3331,14 +3446,80 @@ Our library automatically builds the function \code{get_taglist} based on the
 \subsection{Unified Syntax}
 \label{sec:unisyn}
 
+The discussion in this subsection will be irrelevant for a compiler 
+implementation, nevertheless we include it because some of the challenges we 
+came accross as well as techniques we used to overcome them might show up in 
+other active libraries. The problem is that working in a library setting, the 
+toolbox of properties we can automatically infer about user's class hierarchy, 
+match statement, clauses in it, etc. is much more limited than the set of 
+properties a compiler can infer. On one side such additional information may let 
+us generate a better code, but on the other side we understand that it is 
+important not to overburden the user's syntax with every bit of information she 
+can possibly provide us with to generate a better code. Some examples of 
+information we can use to generate a better code even in the library setting 
+include:
+
+\begin{itemize}
+\item Encoding we are dealing with (\textsection\ref{sec:adt})
+\item Shape of the class hierarchy: flat/deep, single/multiple inheritance etc.
+\item The amount of clauses in the match statement
+\item Presense of Otherwise clause in the match statement
+\item Presence of extensions in dynamically linked libraries
+\end{itemize}
+
+We try to infer the information when we can, but otherwise resort to a usually 
+slower default that will work in all or most of the cases. The major source of 
+inefficiency comes from the fact that macro resolution happens before any 
+meta-programming techniques can be employed and thus the macros have to generate 
+a syntactic structure that can essentially handle all the cases as opposed to 
+the exact case. Each of the macros involved in rendering the syntactic structure 
+of a match statement (e.g. \code{Match}, \code{Case}, \code{Otherwise}) have a 
+version identified with a suffix that is specific to a combination of encoding 
+and shape of the class hierarchy. By default the macros are resolved to a 
+unified version that infers encoding with a template meta-program, but this 
+resolution can be overriden with a configuration flag for a more specific 
+version when all the match statements in user's program satisfy the requirements 
+of that version. The user can also pin-point specific match statement with the 
+most applicable version, but we discourage such use as performance differences 
+are not big enough to justify the exposure of details.
+
+To better understand what is going on, consider the following examples. Case 
+labels for polymorphic base class encoding can be arbitrary, but preferably 
+sequential numbers, while the case labels for tagged class and discriminated 
+union encodings are the actual kind values associated with concrete variants.
+Discriminated union and tagged class encodings can use both types (views in case
+of unions) and kind values to identify the target variant, while polymorphic 
+base class encoding can only use types for that. The latter encoding requires 
+allocation of a static vtblmap in each match statement, not needed by any other 
+encoding, while tagged class encoding on non-flat hierarchy requires the use of 
+default label of the generated switch statement as well as a dedicated case 
+label distinct from all kind values (\textsection\ref{sec:cotc}). 
+When merging these and other requirements into a syntactic structure of a 
+unified version capable of handling any encoding we essentially always have to 
+reserve the use of default label (and thus not use it to generate 
+\code{Otherwise}-clause), allocate an extra dedicated case label, introduce  
+a loop over base classes used by tagged class encoding etc. This is a clear 
+overhead for handling of a discriminated union encoding whose syntactic 
+structure only involves a simple switch over kind values and default label to 
+implement \code{Otherwise}. To minimize the effects of this overhead we rely on 
+compiler's optimizer to inline calls specific to each encoding and either remove 
+branching on conditions that will always be true after inlining or elminate dead 
+code on conditions that will always be false after inlining. Luckily for us 
+today's compilers do a great job in doing just that, rendering our unified 
+version only slightly less efficient than the specialized ones. These 
+differences can be best seen in Figure\ref{relperf} under corresponding entries 
+of \emph{Unified} and \emph{Specialized} columns.
+
 \subsection{Redundancy Checking}
 \label{sec:redun}
 
-Our library lets the compiler check the case clauses for redundancy by defining 
-a macro that triggers generation of additional syntactic structure. The 
-structure effectively generates a try-catch statement based on the target types 
-of case clauses, which forces the compiler to give warning when more general 
-catch handler preceeds more specific one e.g.:
+Another interesting use of syntax unification we just described allows us to 
+perform redundancy checking (\textsection\ref{sec:bg}). A library-configuration 
+flag that user may define effectively turns the entire match statement into a 
+try-catch block with handlers accepting the target types of the case clauses. 
+This forces the compiler to give warning when more general catch handler 
+preceeds more specific one effectively performing a redundancy checking for us, 
+e.g.:
 
 \begin{lstlisting}
 filename.cpp(55): warning C4286: 'ipr::Decl*' : is caught by 
@@ -3346,8 +3527,12 @@ filename.cpp(55): warning C4286: 'ipr::Decl*' : is caught by
 \end{lstlisting}
 
 \noindent
-Note that message contains both: a line number of the redundant case (55) and 
-the line number of the case it is made redundant with (42).
+Note that message contains both: a line number of the redundant case clause (55) 
+and the line number of the case clause it is made redundant with (42).
+
+Unfortunately the flag cannot be always enabled as case labels of the underlying 
+switch statement have to be eliminated in order to render a syntactically 
+correct program.
 
 %[FROM ABI: 2.4 I 2.c] If C has no primary base class, allocate the virtual 
 %table pointer for C at offset zero, and set sizeof(C), align(C), and dsize(C) to 
@@ -3367,6 +3552,11 @@ the line number of the case it is made redundant with (42).
 %incomplete types. The typeinfo pointer is a valid pointer for polymorphic 
 %classes, i.e. those with virtual functions, and is zero for non-polymorphic 
 %classes.
+
+\subsection{Memoized Dynamic Cast}
+\label{sec:memcast}
+
+Describe \code{memoized_cast}
 
 \section{Evaluation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:eval}
@@ -3579,6 +3769,80 @@ overhead.
 \section{Related Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:rw}
 
+There are two main approaches to compiling pattern matching code: the first is 
+based on \emph{backtracking automata} and was introduced by Augustsson\cite{}, 
+the second is based on \emph{decision trees} and is attributed in the literature 
+to Dave MacQueen and Gilles Kahn in their implementation of Hope compiler \cite{}.
+Backtracking approach usually generates smaller code, while decision tree 
+approach produces faster code by ensuring that each primitive test is only 
+performed once. Neither of the approaches addresses specifically type patterns 
+or type switching and simply assumes presence of a primitive operation capable 
+of performing type tests.
+
+Memoization device we proposed is not specifically concerned with compiling 
+pattern matching and can be used independently. In particular it can be combined 
+with either backtracking or decision tree approaches to avoid subsequent 
+decisions on datum that has already been seen.
+
+%Instead of a linear search our current macros generate simply to because we 
+%depend on the syntacti order of definitions in library setting, the compiler may 
+%generate either a decision tree or backtracking automata to find the applicable 
+%type. After that the compiler would just cache the jump target inside the 
+%function.
+
+In order to address expression problem in Haskell, L\"{o}h and Hinze proposed to 
+extend its type system with open data types and open functions\cite{LohHinze2006}.
+Their solution allows the user to mark top-level data types and functions as 
+open and then provide concrete variants and overloads anywhere in the program. 
+The semantics of open extension is given by transformation into a single module, 
+where all the definitions are seen in one place. While open data types introduce 
+some of the problems that subclassing does in object-oriented languages, the 
+problems are simpler. As we discussed before, the object-oriented analog of 
+adding new variants is addition of a class that implements a given interface. In 
+other words it is a derived class that extends a strictly flat class hierarchy. 
+This largely avoids the problem of classes having multiple types and thus the 
+problem of type switching on base classes. Another limitation of their approach 
+that prevents from calling it a truly open solution is the fact that their 
+semantics essentially assumes a whole program view, which excludes any 
+extensions via DLLs. As is the case with many other implementations of open 
+extensions authors rely on the closed world for efficient implementation: in 
+their implementation \emph{data types can only be entirely abstract (not 
+allowing pattern matching) or concrete with all constructors with the reason 
+being that pattern matching can be compiled more efficiently if the layout of 
+the data type is known completely}. The authors also believe that \emph{there 
+are no theoretical difficulties in lifting this restriction, but it might imply 
+a small performance loss if closed functions pattern match on open data types}. 
+Our work addresses exactly this problem, showing that it is not only 
+theoretically possible but also practically efficient and in application to a 
+broader problem.
+
+
+
+
+
+There has been previous attempts to use pattern matching with the Pivot 
+framework that we used to experiment with our library. In his dissertation, 
+Pirkelbauer devised a pattern language capable of representing various entities 
+in a C++ program. The patterns were then translated with a tool into a set of 
+visitors implementing the underlain pattern matching 
+semantics\cite{PirkelbauerThesis}. Earlier, Cook et al used expression templates 
+to implement a query language for Pivot's Internal Program Representation 
+\cite{iql04}. While their work was built around a concrete class hierarchy 
+letting them put some semantic knowledge about concrete classes into the 
+The principal difference of their work from this work is that 
+authors were essentially creating a pattern matcher for a given class hierarchy 
+and thus could take the semantics of the entities represented by classes in the 
+hierarchy into account. Our approach is parametrized over class hierarchy and 
+thus provides a rather lower level pattern-matching functionality that lets one 
+simplify work with that hierarchy.  One can think of it as a generalized 
+dynamic\_cast.
+
+
+The approach can also be used to optimize handling of polymorphic variants in 
+OCaml when implemented as proposed by Garrigue\cite{garrigue-98}. The tag values 
+compiler generates for each of the variants can be seen as vtbl pointer value 
+and a similar memoization device can be embedded into a decision tree.
+
 Spuler compares a number of techniques in implementing switch 
 statements\cite{Spuler94}.
 
@@ -3598,18 +3862,6 @@ implemented in C++\cite{SankelFP10,Sankel10}.
 
 Emir's PhD thesis provides an extensive analysis of pattern matching in the 
 context of object-oriented languages\cite{EmirThesis}.
-
-Cook et al used expression templates to implement a query language to Pivot's 
-IPR\cite{iql04}. The principal difference of their work from this work is that 
-authors were essentially creating a pattern matcher for a given class hierarchy 
-and thus could take the semantics of the entities represented by classes in the 
-hierarchy into account. Our approach is parametrized over class hierarchy and 
-thus provides a rather lower level pattern-matching functionality that lets one 
-simplify work with that hierarchy.  One can think of it as a generalized 
-dynamic\_cast.
-
-In his dissertation, Pirkelbauer provides a different pattern matcher against 
-Pivot's IPR\cite{PirkelbauerThesis}.
 
 Veldhuizen discovered a very powerful technique called Expression 
 templates\cite{Veldhuizen95expressiontemplates}.
