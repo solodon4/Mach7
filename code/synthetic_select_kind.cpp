@@ -92,7 +92,7 @@ XTL_DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s)
 {
     auto const __selector_ptr = addr(s); 
-    switch (apply_member(__selector_ptr, match_members<remove_ref<decltype(*__selector_ptr)>::type>::kind_selector()))
+    switch (apply_member(__selector_ptr, match_members<underlying<decltype(*__selector_ptr)>::type>::kind_selector()))
     {
         {
         }

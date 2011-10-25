@@ -199,7 +199,7 @@ int main1()
     for (size_t i = 0; i < 3; ++i)
     {
         auto const __selector_ptr = addr(shapes[i]); 
-        switch (apply_member(__selector_ptr, match_members<remove_ref<decltype(*__selector_ptr)>::type>::kind_selector()))
+        switch (apply_member(__selector_ptr, match_members<underlying<decltype(*__selector_ptr)>::type>::kind_selector()))
         {
 //-->8--------------------------------------------------------------------------  //
             {                                                                     //

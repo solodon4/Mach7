@@ -1,5 +1,6 @@
 #include <iostream>
 #include <utility>
+#include <vector>
 #include "match_generic.hpp"
 
 typedef std::pair<double,double> loc;
@@ -22,13 +23,14 @@ struct Shape
 {
     enum ShapeKind {SK_Shape=1,SK_Circle,SK_Square,SK_Triangle};
     ShapeKind kind;
-    Shape(ShapeKind k) : kind(k) {}
+    const int* m_all_kinds;
+    Shape(ShapeKind k) : kind(k), m_all_kinds(0) {}
     virtual void accept(ShapeVisitor& v) = 0;
 };
 
 struct Circle : Shape
 {
-    Circle(const loc& c, const double& r) : Shape(SK_Circle), center(c), radius(r) {}
+    Circle(const loc& c, const double& r) : Shape(SK_Circle), center(c), radius(r) { m_all_kinds = get_kinds<Shape>(SK_Circle); }
 
     void accept(ShapeVisitor& v) { v.visit(*this); }
 
@@ -40,7 +42,7 @@ struct Circle : Shape
 
 struct Square : Shape
 {
-    Square(const loc& c, const double& s) : Shape(SK_Square), upper_left(c), side(s) {}
+    Square(const loc& c, const double& s) : Shape(SK_Square), upper_left(c), side(s) { m_all_kinds = get_kinds<Shape>(SK_Square); }
 
     void accept(ShapeVisitor& v) { v.visit(*this); }
 
@@ -50,7 +52,7 @@ struct Square : Shape
 
 struct Triangle : Shape
 {
-    Triangle(const loc& a, const loc& b, const loc& c) : Shape(SK_Triangle), first(a), second(b), third(c) {}
+    Triangle(const loc& a, const loc& b, const loc& c) : Shape(SK_Triangle), first(a), second(b), third(c) { m_all_kinds = get_kinds<Shape>(SK_Triangle); }
 
     void accept(ShapeVisitor& v) { v.visit(*this); }
 
@@ -85,6 +87,8 @@ struct ADTShape
 	cloc first, second, third;    // as_triangle;
 #endif
 };
+
+SKV(Shape,Shape::SK_Shape);
 
 template <> struct match_members<Shape>    { KS(Shape::kind); KV(Shape::SK_Shape); };
 
@@ -134,9 +138,9 @@ int main()
         MatchF(shapes[i])
         {
         CaseF(Shape)         std::cout << "Shape"    << std::endl; m += 42;      break;
-        //CaseF(Circle,_,r)    std::cout << "Circle"   << std::endl; m += r;       break;
-        //CaseF(Square,_,r)    std::cout << "Square"   << std::endl; m += r;       break;
-        //CaseF(Triangle,p)    std::cout << "Triangle" << std::endl; m += p.first; break;
+        CaseF(Circle,_,r)    std::cout << "Circle"   << std::endl; m += r;       break;
+        CaseF(Square,_,r)    std::cout << "Square"   << std::endl; m += r;       break;
+        CaseF(Triangle,p)    std::cout << "Triangle" << std::endl; m += p.first; break;
         }
         EndMatchF
      }

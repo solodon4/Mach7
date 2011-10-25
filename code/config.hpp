@@ -48,11 +48,12 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 /// Default syntax Match,Case,Que,Or,Otherwise,EndMatch are resolved to
 /// - 'G' - Generic switch (default)
 /// - 'P' - Polymorphic switch
-/// - 'K' - Kind switch
+/// - 'K' - Kind switch: the-only-match
+/// - 'F' - Kind switch: nearly-best-match
 /// - 'U' - Union switch
 /// - 'E' - Exception switch
 #if !defined(XTL_DEFAULT_SYNTAX)
-  #define XTL_DEFAULT_SYNTAX 'P'
+  #define XTL_DEFAULT_SYNTAX 'F'
 #endif
 
 //------------------------------------------------------------------------------
@@ -315,6 +316,26 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 //------------------------------------------------------------------------------
 
 #if defined(_MSC_VER)
+    #define XTL_MSC_ONLY(...)     __VA_ARGS__
+    #define XTL_NON_MSC_ONLY(...)
+#else
+    #define XTL_MSC_ONLY(...)
+    #define XTL_NON_MSC_ONLY(...) __VA_ARGS__
+#endif
+
+//------------------------------------------------------------------------------
+
+#if defined(__GNUC__)
+    #define XTL_GCC_ONLY(...)     __VA_ARGS__
+    #define XTL_NON_GCC_ONLY(...)
+#else
+    #define XTL_GCC_ONLY(...)
+    #define XTL_NON_GCC_ONLY(...) __VA_ARGS__
+#endif
+
+//------------------------------------------------------------------------------
+
+#if defined(_MSC_VER)
 
     /// Macros to use compiler's branch hinting. 
     /// \note These macros are only to be used in Case macro expansion, not in 
@@ -345,5 +366,13 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
     #define XTL_DO_NOT_INLINE_END
 
 #endif
+
+//------------------------------------------------------------------------------
+
+/// Apparently in C++0x typename can be used to annotate types even in 
+/// non-template context. If indeed so, this is what we need to avoid duplication
+/// of macros depending on whether they are used in templated and non-templated 
+/// context.
+#define XTL_CPP0X_TYPENAME XTL_NON_MSC_ONLY(typename)
 
 //------------------------------------------------------------------------------

@@ -44,7 +44,8 @@ struct OtherBase
 struct Shape
 {
     size_t m_kind;
-    Shape(size_t kind) : m_kind(kind) {}
+    const int* m_all_kinds;
+    Shape(size_t kind) : m_kind(kind), m_all_kinds(0) {}
     virtual ~Shape() {}
     virtual void accept(ShapeVisitor&) const = 0;
     #define FOR_EACH_MAX NUMBER_OF_VFUNCS-2
@@ -60,7 +61,7 @@ template <size_t N>
 struct shape_kind;
 
 #define FOR_EACH_MAX NUMBER_OF_BASES-1
-#define FOR_EACH_N(N) template <> struct shape_kind<N> : OtherBase, Shape { typedef Shape base_type; void accept(ShapeVisitor&) const; int m_member0; int m_member1; };
+#define FOR_EACH_N(N) template <> struct shape_kind<N> : OtherBase, Shape { typedef Shape base_type; shape_kind(size_t kind = N) : Shape(kind) { this->m_all_kinds = get_kinds<Shape>(original2remapped<Shape>(kind)); } void accept(ShapeVisitor&) const; int m_member0; int m_member1; };
 #include "loop_over_numbers.hpp"
 #undef  FOR_EACH_N
 #undef  FOR_EACH_MAX
@@ -71,6 +72,7 @@ template <size_t N>
 struct shape_kind : shape_kind<N % NUMBER_OF_BASES>
 {
     typedef shape_kind<N % NUMBER_OF_BASES> base_type;
+    shape_kind() : base_type(N) { this->m_all_kinds = get_kinds<Shape>(original2remapped<Shape>(N)); }
     void accept(ShapeVisitor&) const;
     int m_member0;
     int m_member1;
@@ -108,8 +110,28 @@ struct ShapeVisitor
 
 template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(*this); }
 
-template <>         struct match_members<Shape>         { KS(Shape::m_kind); };
-template <size_t N> struct match_members<shape_kind<N>> { KV(N); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
+SKV(Shape,0); // Declare the smallest kind value for Shape hierarchy
+template <>         struct match_members<Shape>         { KS(Shape::m_kind); KV(NUMBER_OF_DERIVED+1); };
+
+// NOTE: We need to explicitly instantiate all match_members as otherwise our kinds 
+//       associations don't get instantiated and recorded. This happens because
+//       now that match_members with specific N > base cases is never instantiated
+// FIX:  Wonder though why it didn't instantiate them for base cases at least since
+//       we instantiate them explicitly in Case statements
+#define FOR_EACH_MAX NUMBER_OF_BASES-1
+#define FOR_EACH_N(N) template <> struct match_members<shape_kind<N>> { KV(N);  BCS(shape_kind<N>,Shape); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
+#include "loop_over_numbers.hpp"
+#undef  FOR_EACH_N
+#undef  FOR_EACH_MAX
+
+// NOTE: We need to explicitly instantiate all match_members as otherwise our kinds 
+//       associations don't get instantiated and recorded. This happens because
+//       now that match_members with specific N > base cases is never instantiated
+#define FOR_EACH_MAX NUMBER_OF_DERIVED-NUMBER_OF_BASES-1
+#define FOR_EACH_N(N) template <> struct match_members<shape_kind<NUMBER_OF_BASES+N>> { KV(NUMBER_OF_BASES+N);  BCS(shape_kind<NUMBER_OF_BASES+N>,shape_kind<NUMBER_OF_BASES+N>::base_type,Shape); CM(0,shape_kind<NUMBER_OF_BASES+N>::m_member0); CM(1,shape_kind<NUMBER_OF_BASES+N>::m_member1); };
+#include "loop_over_numbers.hpp"
+#undef  FOR_EACH_N
+#undef  FOR_EACH_MAX
 
 //------------------------------------------------------------------------------
 
@@ -131,6 +153,89 @@ size_t do_match(const Shape& s)
 XTL_DO_NOT_INLINE_END
 #else
 XTL_DO_NOT_INLINE_BEGIN
+size_t do_match(const Shape& s)
+{
+    {
+        auto const __selector_ptr = addr(s);
+        typedef underlying<decltype(*__selector_ptr)>::type __selector_type;
+        ;
+        auto __kind_selector = original2remapped<__selector_type>((int)apply_member(__selector_ptr, match_members<__selector_type>::kind_selector()));
+        const int* __kinds = 0;
+        size_t __attempt = 0;
+ReMatch:
+        switch (__kind_selector) 
+        {
+        default:
+            if (!__kinds) __kinds = __selector_ptr->m_all_kinds; //get_kinds<__selector_type>(__kind_selector);
+            XTL_ASSERT(("Base classes for this kind were not specified",__kinds));
+            XTL_ASSERT(("Invalid list of kinds",__kinds[__attempt]==__kind_selector));
+            __kind_selector = (decltype(__kind_selector))__kinds[++__attempt];
+            goto ReMatch;
+        case 0:
+            break;
+            {
+                {
+                }
+            }
+            if (((__kind_selector == remapped_kind<shape_kind<0>>::value))) 
+            {
+        case remapped_kind<shape_kind<0>>::value:
+            typedef shape_kind<0> target_type;
+            auto matched = stat_cast<target_type>(__selector_ptr);
+            (void)matched;
+            ;
+            {
+                return 0;
+            }
+            }
+            if (((__kind_selector == remapped_kind<shape_kind<1>>::value))) 
+            {
+        case remapped_kind<shape_kind<1>>::value:
+            typedef shape_kind<1> target_type;
+            auto matched = stat_cast<target_type>(__selector_ptr);
+            (void)matched;
+            ;
+            {
+                return 1;
+            }
+            }
+            if (((__kind_selector == remapped_kind<shape_kind<2>>::value))) 
+            {
+        case remapped_kind<shape_kind<2>>::value:
+            typedef shape_kind<2> target_type;
+            auto matched = stat_cast<target_type>(__selector_ptr);
+            (void)matched;
+            ;
+            {
+                return 2;
+            }
+            }
+            if (((__kind_selector == remapped_kind<shape_kind<3>>::value))) 
+            {
+        case remapped_kind<shape_kind<3>>::value:
+            typedef shape_kind<3> target_type;
+            auto matched = stat_cast<target_type>(__selector_ptr);
+            (void)matched;
+            ;
+            {
+                return 3;
+            }
+            }
+            if (((__kind_selector == remapped_kind<shape_kind<4>>::value))) 
+            {
+        case remapped_kind<shape_kind<4>>::value:
+            typedef shape_kind<4> target_type;
+            auto matched = stat_cast<target_type>(__selector_ptr);
+            (void)matched;
+            ;
+            {
+                return 4;
+            }
+            }
+        }
+    }
+    return -1;
+}
 XTL_DO_NOT_INLINE_END
 #endif
 
@@ -238,13 +343,13 @@ void statistics(std::vector<T>& measurements, T& min, T& max, T& avg, T& med, T&
 
 int relative_performance(long long v, long long m)
 {
-    if (v <= 0 || m <= 0)
+    if (XTL_UNLIKELY(v <= 0 || m <= 0))
     {
         std::cout << "ERROR: Insufficient timer resolution. Increase number of iterations N" << std::endl;
         exit(42);
     }
     else
-    if (v <= m)
+    if (XTL_UNLIKELY(v <= m))
     {
         int percent = int(m*100/v-100);
         std::cout << "\t\t" << percent << "% slower" << std::endl;

@@ -46,6 +46,11 @@ echo [ MS Visual C++/Win32 ] ========================= >> %logfile%
 rem Set up VC variables for x86 build
 call "%VCINSTALLDIR%vcvarsall.bat" x86
 
+call :COMPILE 1 F REP 32
+call :COMPILE 1 F SEQ 32
+call :COMPILE 1 F RND 32
+goto END
+
 call :COMPILE 1 p REP 32
 call :COMPILE 1 p SEQ 32
 call :COMPILE 1 p RND 32
@@ -55,9 +60,9 @@ call :COMPILE 1 k RND 32
 call :COMPILE 1 P REP 32
 call :COMPILE 1 P SEQ 32
 call :COMPILE 1 P RND 32
-call :COMPILE 1 K REP 32
-call :COMPILE 1 K SEQ 32
-call :COMPILE 1 K RND 32
+call :COMPILE 1 F REP 32
+call :COMPILE 1 F SEQ 32
+call :COMPILE 1 F RND 32
 call :COMPILE 0 p REP 32
 call :COMPILE 0 p SEQ 32
 call :COMPILE 0 p RND 32
@@ -85,9 +90,9 @@ call :COMPILE 1 k RND 64
 call :COMPILE 1 P REP 64
 call :COMPILE 1 P SEQ 64
 call :COMPILE 1 P RND 64
-call :COMPILE 1 K REP 64
-call :COMPILE 1 K SEQ 64
-call :COMPILE 1 K RND 64
+call :COMPILE 1 F REP 64
+call :COMPILE 1 F SEQ 64
+call :COMPILE 1 F RND 64
 call :COMPILE 0 p REP 64
 call :COMPILE 0 p SEQ 64
 call :COMPILE 0 p RND 64
@@ -113,6 +118,8 @@ if "%2" == "p"  set S=generic& set E=poly
 if "%2" == "P"  set S=special& set E=poly
 if "%2" == "k"  set S=generic& set E=kind
 if "%2" == "K"  set S=special& set E=kind
+if "%2" == "f"  set S=generic& set E=knfw
+if "%2" == "F"  set S=special& set E=knfw
 if "%4" == "32" set M=X86
 if "%4" == "64" set M=X64
 set filename=%4-%F%-%S%-%E%-%3

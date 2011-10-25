@@ -43,12 +43,13 @@
 ///        - use of exceptions in: code associated with clauses, bound members
 ///        - use of separate translation units, libraries and DLLs
 ///        - passing null-pointer to Match in release/debug builds
+///        - use of layouts and views
 
 #pragma once
 
 #include <cassert>
 #include <ostream>
-#include <boost/type_traits/remove_const.hpp>
+#include <type_traits>
 #include "exprtmpl.hpp"
 #include "vtblmap.hpp"
 #include "ptrtools.hpp"  // Helper functions to work with pointers
@@ -67,19 +68,8 @@
 
 //------------------------------------------------------------------------------
 
-using boost::remove_const;
-
-//------------------------------------------------------------------------------
-
-//template <typename T> struct remove_const          { typedef T type; };
-//template <typename T> struct remove_const<const T> { typedef T type; };
-
-//------------------------------------------------------------------------------
-
-template <typename T> struct remove_ref           { typedef T type; };
-template <typename T> struct remove_ref<      T&> { typedef T type; };
-template <typename T> struct remove_ref<const T > { typedef T type; };
-template <typename T> struct remove_ref<const T&> { typedef T type; };
+template <typename T> 
+struct underlying : std::remove_const<typename std::remove_reference<T>::type> {};
 
 //------------------------------------------------------------------------------
 
@@ -159,6 +149,7 @@ struct view
 /// \note We use variadic macro parameter here in order to be able to handle 
 ///       templates, which might have commas, otherwise juse a second argument
 ///       would be sufficient.
+/// FIX: KS doesn't accept now members qualified with base class, but CM does, check why.
 #define KS(...)       static inline decltype(unary(&__VA_ARGS__)) kind_selector() { return unary(&__VA_ARGS__); } bool kind_selector_dummy() const;
 
 /// Macro to define an integral constant that uniquely identifies the derived 
@@ -200,6 +191,41 @@ struct get_param<match_members<U,L>>
 
 //------------------------------------------------------------------------------
 
+/// Predefined structure that will be used when user did not specify smallest
+/// kind value for the class hierarchy with SKV macro.
+struct smallest_kind_unknown {};
+
+/// Predefined structure that will be used when user did specify smallest kind
+template <int N> struct smallest_kind_is { enum {value = N }; };
+//smallest_kind_unknown smallest_kind_value_helper(...);
+smallest_kind_is<0> smallest_kind_value_helper(...);
+
+/// Accessort to get the smallest kind for the hierarchy type T belongs to
+template <typename T>
+struct smallest_kind
+{
+    typedef decltype(smallest_kind_value_helper(*reinterpret_cast<T*>(0))) type;
+    enum { value = type::value };
+};
+
+/// Macro to be used in global scope to set the smallest kind value N for the 
+/// class hierarchy rooted at C. When it is not used, 0 is assumed.
+#define SKV(C,N) smallest_kind_is<N> smallest_kind_value_helper(const C&);
+
+/// Amount of extra values in the range of allowed kinds we need for our purposes
+const int reserved_extra_kinds = 1;
+
+/// Convenience meta-function to get the original kind associated with the class T
+template <typename T> struct original_kind { enum { value = match_members<T>::kind_value }; };
+/// Convenience meta-function to get the remapped kind associated with the class T
+template <typename T> struct remapped_kind { enum { value = match_members<T>::kind_value - smallest_kind<T>::value + reserved_extra_kinds }; };
+/// Convenience function to convert remapped kind to original at run-time
+template <typename T> inline int remapped2original(int k) { return k + smallest_kind<T>::value - reserved_extra_kinds; }
+/// Convenience function to convert original kind to remapped at run-time
+template <typename T> inline int original2remapped(int k) { return k - smallest_kind<T>::value + reserved_extra_kinds; }
+
+//------------------------------------------------------------------------------
+
 typedef std::unordered_map<int, const int*> kind_to_kinds_map;
 
 template <typename T>
@@ -233,30 +259,31 @@ struct associate_kinds
 };
 
 template <typename D, typename B>
-const int* associate_kinds<D,B>::kinds = set_kinds<B>(match_members<D>::kind_value, match_members<D>::get_kinds());
+const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, match_members<D>::get_kinds());
 
 //------------------------------------------------------------------------------
 
 /// A helper macro to access kind value of a class
-#define BCK(D,B) (associate_kinds<D,B>::kinds,match_members<B>::kind_value)
+#define BCK(D,B) (associate_kinds<D,B>::kinds,remapped_kind<B>::value)
 
 /// A set of macros handling various amount of base classes passed to BCS macro.
-#define BCS0()                        typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { 0 }; return kinds; }
-#define BCS1(x0)                      typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), 0 }; return kinds; }
-#define BCS2(x0,x1)                   typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), 0 }; return kinds; }
-#define BCS3(x0,x1,x2)                typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), 0 }; return kinds; }
-#define BCS4(x0,x1,x2,x3)             typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), BCK(D,x3), 0 }; return kinds; }
-#define BCS5(x0,x1,x2,x3,x4)          typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), BCK(D,x3), BCK(D,x4), 0 }; return kinds; }
-#define BCS6(x0,x1,x2,x3,x4,x5)       typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), BCK(D,x3), BCK(D,x4), BCK(D,x5), 0 }; return kinds; }
-#define BCS7(x0,x1,x2,x3,x4,x5,x6)    typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), BCK(D,x3), BCK(D,x4), BCK(D,x5), BCK(D,x6), 0 }; return kinds; }
-#define BCS8(x0,x1,x2,x3,x4,x5,x6,x7) typedef typename get_param<match_members>::type D; static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), BCK(D,x3), BCK(D,x4), BCK(D,x5), BCK(D,x6), BCK(D,x7), 0 }; return kinds; }
+#define BCS0()                        static const int* get_kinds() { static const int kinds[] = { 0 }; return kinds; }
+#define BCS1(x0)                      static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), 0 }; return kinds; }
+#define BCS2(x0,x1)                   static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), 0 }; return kinds; }
+#define BCS3(x0,x1,x2)                static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), 0 }; return kinds; }
+#define BCS4(x0,x1,x2,x3)             static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), BCK(D,x3), 0 }; return kinds; }
+#define BCS5(x0,x1,x2,x3,x4)          static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), BCK(D,x3), BCK(D,x4), 0 }; return kinds; }
+#define BCS6(x0,x1,x2,x3,x4,x5)       static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), BCK(D,x3), BCK(D,x4), BCK(D,x5), 0 }; return kinds; }
+#define BCS7(x0,x1,x2,x3,x4,x5,x6)    static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), BCK(D,x3), BCK(D,x4), BCK(D,x5), BCK(D,x6), 0 }; return kinds; }
+#define BCS8(x0,x1,x2,x3,x4,x5,x6,x7) static const int* get_kinds() { static const int kinds[] = { BCK(D,x0), BCK(D,x1), BCK(D,x2), BCK(D,x3), BCK(D,x4), BCK(D,x5), BCK(D,x6), BCK(D,x7), 0 }; return kinds; }
 
 /// Helper macro for the one below
 #define BCS_(N, ...) XTL_CONCAT(BCS, N)(__VA_ARGS__)
 /// A macro that will be passed arguments to case statement. This should include
 /// the first type parameter that will be used as a dummy. This is required to
 /// be able to handle 0 non-type parameters.
-#define BCS(...) BCS_(XTL_NARG(__VA_ARGS__), __VA_ARGS__)
+#define  BCS(...) typedef          get_param<match_members>::type D; BCS_(XTL_NARG(__VA_ARGS__), __VA_ARGS__)
+#define TBCS(...) typedef typename get_param<match_members>::type D; BCS_(XTL_NARG(__VA_ARGS__), __VA_ARGS__)
 
 //------------------------------------------------------------------------------
 
@@ -322,6 +349,8 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(match_members<D>::kind_val
 #define TypeMatch(s) {\
         static vtblmap<type_switch_info&> __vtbl2lines_map XTL_DUMP_PERFORMANCE_ONLY((__FILE__,__LINE__));\
         auto const   __selector_ptr = addr(s);\
+        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
+        static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use TypeMatch");\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
@@ -335,6 +364,9 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(match_members<D>::kind_val
 #define TypeMatchN(s,N) {\
         static vtblmap<type_switch_info&/*,requires_bits<N>::value*/> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)requires_bits<N>::value);\
         auto const   __selector_ptr = addr(s);\
+        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
+        static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use TypeMatchN");\
+        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
         switch (__switch_info.line) {\
@@ -348,7 +380,7 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(match_members<D>::kind_val
 ///       to   "Program Database (/Zi)", which is the default in Release builds,
 ///       but not in Debug. This is a known bug of Visual C++ described here:
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#define TypeCase(C)   } if (XTL_UNLIKELY(__casted_ptr = dynamic_cast<const C*>(__selector_ptr))) { if (__switch_info.line == 0) { __switch_info.line = __LINE__; __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); } case __LINE__: auto matched = adjust_ptr<C>(__selector_ptr,__switch_info.offset);
+#define TypeCase(C)   } if (XTL_UNLIKELY(__casted_ptr = dynamic_cast<const C*>(__selector_ptr))) { if (__switch_info.line == 0) { __switch_info.line = __LINE__; __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); } case __LINE__: auto matched = adjust_ptr<C>(__selector_ptr,__switch_info.offset); XTL_UNUSED(matched);
 #define EndTypeMatch } if (__switch_info.line == 0) { __switch_info.line = __LINE__; } case __LINE__: ; }}
 
 //------------------------------------------------------------------------------
@@ -361,6 +393,8 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(match_members<D>::kind_val
         enum { __base_counter = XTL_COUNTER };\
         static vtblmap<type_switch_info&> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)deferred_value<vtbl_count_t>::get<__base_counter>());\
         auto const   __selector_ptr = addr(s);\
+        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
+        static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use MatchP");\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
@@ -376,6 +410,8 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(match_members<D>::kind_val
         enum { __base_counter = XTL_COUNTER };\
         static vtblmap<type_switch_info&/*,requires_bits<N>::value*/> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)deferred_value<vtbl_count_t>::get<__base_counter>());\
         auto const   __selector_ptr = addr(s);\
+        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
+        static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use MatchP_N");\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         const void*  __casted_ptr;\
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
@@ -399,7 +435,8 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(match_members<D>::kind_val
                     __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); \
                 } \
             XTL_REDUNDANCY_LABEL(case target_label:) \
-                auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset);
+                auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset); \
+                XTL_UNUSED(matched);
 
 /// Macro that defines the case statement for the above switch
 /// NOTE: If Visual C++ gives you error C2051: case expression not constant
@@ -416,7 +453,7 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(match_members<D>::kind_val
 #endif
 #define QueP(C,...)  }}} { typedef C target_type; enum { target_label = XTL_COUNTER-__base_counter }; if (XTL_UNLIKELY(__casted_ptr = dynamic_cast<const target_type*>(__selector_ptr))) { if (XTL_LIKELY((__switch_info.line == 0))) { __switch_info.line = target_label; __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); } case target_label: auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset); if (XTL_LIKELY(match<target_type>(__VA_ARGS__)(matched))) {
 #define OrP(...)     } else if (match<target_type>(__VA_ARGS__)(matched)) {
-#define OtherwiseP() }}} {{ default: auto matched = __selector_ptr; {
+#define OtherwiseP() }}} {{ default: auto matched = __selector_ptr; { XTL_UNUSED(matched);
 #define EndMatchP    }}} enum { target_label = XTL_COUNTER-__base_counter }; deferred_value<vtbl_count_t>::set<__base_counter,target_label-1>::value; if (XTL_LIKELY((__switch_info.line == 0))) { __switch_info.line = target_label; } case target_label: ; }}
 
 //------------------------------------------------------------------------------
@@ -425,8 +462,10 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(match_members<D>::kind_val
 /// a distinct integral value in one of their members.
 #define MatchK(s) {\
         auto const __selector_ptr  = addr(s);\
+        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
+        static_assert(has_member_kind_selector<match_members<selector_type>>::value, "Before using MatchK, you have to specify kind selector on the selector type using KS macro");\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
-        auto const __kind_selector = apply_member(__selector_ptr, match_members<remove_ref<decltype(*__selector_ptr)>::type>::kind_selector());\
+        auto const __kind_selector = apply_member(__selector_ptr, match_members<selector_type>::kind_selector());\
         switch (__kind_selector) { {{
 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
@@ -437,7 +476,8 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(match_members<D>::kind_val
         { \
         case match_members<C>::kind_value: \
             typedef C target_type; \
-            auto matched = stat_cast<target_type>(__selector_ptr);
+            auto matched = stat_cast<target_type>(__selector_ptr); \
+            XTL_UNUSED(matched);
 
 /// Macro that defines the case statement for the above switch
 #ifdef _MSC_VER
@@ -454,9 +494,10 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(match_members<D>::kind_val
 /// a distinct integral value in one of their members.
 #define MatchU(s) {\
         auto const __selector_ptr  = addr(s);\
+        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
+        static_assert(has_member_kind_selector<match_members<selector_type>>::value, "Before using MatchU, you have to specify kind selector on the selector type using KS macro");\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
-        auto const __kind_selector = apply_member(__selector_ptr, match_members<remove_ref<decltype(*__selector_ptr)>::type>::kind_selector());\
-        typedef remove_ref<decltype(*__selector_ptr)>::type selector_type; \
+        auto const __kind_selector = apply_member(__selector_ptr, match_members<selector_type>::kind_selector());\
         switch (__kind_selector) { {{
 
 /// Macro that defines the case statement for the above switch
@@ -466,7 +507,8 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(match_members<D>::kind_val
         case match_members<selector_type,L>::kind_value: \
             typedef selector_type target_type; \
             enum { default_layout = L }; \
-            auto matched = __selector_ptr; 
+            auto matched = __selector_ptr; \
+            XTL_UNUSED(matched);
 
 /// Macro that defines the case statement for the above switch
 #ifdef _MSC_VER
@@ -483,7 +525,8 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(match_members<D>::kind_val
 /// a distinct integral value in one of their members.
 #define MatchE(s) {\
         auto const __selector_ptr  = addr(s);\
-        typedef remove_ref<decltype(*__selector_ptr)>::type selector_type; \
+        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
+        static_assert(has_member_raise_selector<match_members<selector_type>>::value, "Before using MatchE, you have to specify raise selector on the selector type using RS macro");\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         try { apply_member(__selector_ptr, match_members<selector_type>::raise_selector());
 
@@ -492,7 +535,8 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(match_members<D>::kind_val
         catch (L& matched_ref) \
         { \
             typedef L target_type; \
-            auto matched = &matched_ref; 
+            auto matched = &matched_ref; \
+            XTL_UNUSED(matched);
 
 /// Macro that defines the case statement for the above switch
 #ifdef _MSC_VER
@@ -507,31 +551,61 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(match_members<D>::kind_val
 
 /// Macro that starts the switch on types that carry their own dynamic type as
 /// a distinct integral value in one of their members.
+/// Non-forwarding: Sequential:  33% faster; Random: 34% faster
+///     Forwarding: Sequential: 251% faster; Random: 33% faster
 #define MatchF(s) {\
         auto const __selector_ptr  = addr(s);\
-        typedef remove_ref<decltype(*__selector_ptr)>::type __selector_type;\
+        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
+        static_assert(has_member_kind_selector<match_members<selector_type>>::value, "Before using MatchF, you have to specify kind selector on the selector type using KS macro");\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
-        auto __kind_selector = apply_member(__selector_ptr, match_members<__selector_type>::kind_selector());\
+        auto __kind_selector = original2remapped<selector_type>((int)apply_member(__selector_ptr, match_members<selector_type>::kind_selector()));\
         const int* __kinds = 0;\
         size_t __attempt = 0;\
-        ReMatch:\
+        XTL_CONCAT(ReMatch,__LINE__):\
         switch (__kind_selector) {\
         default:\
-            if (!__kinds) __kinds = get_kinds<__selector_type>(__kind_selector);\
+            if (XTL_LIKELY(!__kinds)) \
+            { \
+                static std::vector<const int*> __kinds_cache;\
+                if (XTL_UNLIKELY(__kind_selector >= __kinds_cache.size()))\
+                    __kinds_cache.resize(__kind_selector+1);\
+                if (!(__kinds = __kinds_cache[__kind_selector]))\
+                    __kinds = __kinds_cache[__kind_selector] = get_kinds<selector_type>(__kind_selector);\
+            } \
             XTL_ASSERT(("Base classes for this kind were not specified",__kinds));\
-            __kind_selector = (decltype(__kind_selector))__kinds[++__attempt];\
-            goto ReMatch;\
+            XTL_ASSERT(("Invalid list of kinds",__kinds[__attempt]==__kind_selector));\
+            __kind_selector = __kinds[++__attempt];\
+            goto XTL_CONCAT(ReMatch,__LINE__);\
         case 0: break; {{
+
+/// Version of the above macro when kinds are stored in vtbl-like of structure.
+/// Non-forwarding: Sequential:  68% faster; Random: 37% faster
+///     Forwarding: Sequential: 425% faster; Random: 54% faster
+//#define MatchF(s) {\
+//        auto const __selector_ptr  = addr(s);\
+//        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
+//        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
+//        auto __kind_selector = original2remapped<selector_type>((int)apply_member(__selector_ptr, match_members<selector_type>::kind_selector()));\
+//        size_t __attempt = 0;\
+//        XTL_CONCAT(ReMatch,__LINE__):\
+//        switch (__kind_selector) {\
+//        default:\
+//            XTL_ASSERT(("Base classes for this kind were not specified",__selector_ptr->m_all_kinds));\
+//            XTL_ASSERT(("Invalid list of kinds",__selector_ptr->m_all_kinds[__attempt]==__kind_selector));\
+//            __kind_selector = __selector_ptr->m_all_kinds[++__attempt];\
+//            goto XTL_CONCAT(ReMatch,__LINE__);\
+//        case 0: break; {{
 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
 ///       seems to be impossible to introduce dummy argument inside the Case 
 ///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
 #define CaseF_(C,...) }} \
-        if (XTL_UNLIKELY((__kind_selector == match_members<C>::kind_value))) \
+        if (XTL_UNLIKELY((__kind_selector == remapped_kind<C>::value))) \
         { \
-        case match_members<C>::kind_value: \
+        case remapped_kind<C>::value: \
             typedef C target_type; \
-            auto matched = stat_cast<target_type>(__selector_ptr);
+            auto matched = stat_cast<target_type>(__selector_ptr); \
+            XTL_UNUSED(matched);
 
 /// Macro that defines the case statement for the above switch
 #ifdef _MSC_VER
@@ -540,6 +614,7 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(match_members<D>::kind_val
     #define CaseF(...) CaseF_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
 #endif
 
+#define OtherwiseF() CaseF(selector_type)
 #define EndMatchF   }} }}
 
 //------------------------------------------------------------------------------
@@ -574,9 +649,10 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 ///       a template context and not outside.
 #define MatchG(s) {\
         auto const __selector_ptr = addr(s);\
+        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         enum { __base_counter = XTL_COUNTER };\
-        typedef generic_switch<decltype(*__selector_ptr)> switch_traits;\
+        typedef generic_switch<selector_type> switch_traits;\
         static switch_traits::static_data_type static_data;\
                switch_traits::local_data_type  local_data;\
         switch (switch_traits::choose(__selector_ptr,static_data,local_data))\
@@ -596,7 +672,8 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
             { \
                 switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
             XTL_REDUNDANCY_LABEL(case target_specific::CaseLabel<target_label>::value:) \
-                auto matched = target_specific::get_matched(__selector_ptr,local_data);
+                auto matched = target_specific::get_matched(__selector_ptr,local_data); \
+                XTL_UNUSED(matched);
 
 /// Macro that defines the case statement for the above switch
 /// NOTE: If Visual C++ gives you error C2051: case expression not constant
@@ -613,7 +690,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 #endif
 #define QueG(C,...)  }}} { enum { target_label = XTL_COUNTER-__base_counter }; typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; if (target_specific::main_condition(__selector_ptr, local_data)) { switch_traits::on_first_pass(__selector_ptr, local_data, target_label); case target_specific::CaseLabel<target_label>::value: auto matched = target_specific::get_matched(__selector_ptr,local_data); if (XTL_LIKELY(match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
 #define OrG(...)     } else if (match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
-#define OtherwiseG() }}} {{ default: auto matched = __selector_ptr; {
+#define OtherwiseG() }}} {{ default: auto matched = __selector_ptr; { XTL_UNUSED(matched);
 #define EndMatchG    }}} enum { target_label = XTL_COUNTER-__base_counter }; switch_traits::on_end(__selector_ptr, local_data, target_label); case switch_traits::CaseLabel<target_label>::exit: ; }}
 
 //------------------------------------------------------------------------------
@@ -625,9 +702,10 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 ///       templates with typename and template respectively
 #define TMatchG(s) {\
         auto const __selector_ptr = addr(s);\
+        typedef typename underlying<decltype(*__selector_ptr)>::type selector_type;\
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));\
         enum { __base_counter = XTL_COUNTER };\
-        typedef generic_switch<decltype(*__selector_ptr)> switch_traits;\
+        typedef generic_switch<selector_type> switch_traits;\
         static typename switch_traits::static_data_type static_data;\
                typename switch_traits::local_data_type  local_data;\
         switch (switch_traits::choose(__selector_ptr,static_data,local_data))\
@@ -648,6 +726,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
                 switch_traits::on_first_pass(__selector_ptr, local_data, target_label); \
             XTL_REDUNDANCY_LABEL(case target_specific::template CaseLabel<target_label>::value:) \
                 auto matched = target_specific::get_matched(__selector_ptr,local_data); \
+                XTL_UNUSED(matched);
 
 /// Macro that defines the case statement for the above switch
 /// NOTE: If Visual C++ gives you error C2051: case expression not constant
@@ -664,7 +743,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 #endif
 #define TQueG(C,...)  }}} { enum { target_label = XTL_COUNTER-__base_counter }; typedef switch_traits::disambiguate<sizeof(C)<sizeof(switch_traits::selector_type)>::parameter<C> target_specific; if (target_specific::main_condition(__selector_ptr, local_data)) { switch_traits::on_first_pass(__selector_ptr, local_data, target_label); case target_specific::CaseLabel<target_label>::value: auto matched = target_specific::get_matched(__selector_ptr,local_data); if (XTL_LIKELY(match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched))) {
 #define TOrG(...)     } else if (match<target_specific::target_type,target_specific::layout>(__VA_ARGS__)(matched)) {
-#define TOtherwiseG() }}} {{ default: auto matched = __selector_ptr; {
+#define TOtherwiseG() }}} {{ default: auto matched = __selector_ptr; { XTL_UNUSED(matched);
 #define TEndMatchG    }}} enum { target_label = XTL_COUNTER-__base_counter }; switch_traits::on_end(__selector_ptr, local_data, target_label); case switch_traits::template CaseLabel<target_label>::exit: ; }}
 
 //------------------------------------------------------------------------------
@@ -726,6 +805,20 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define TOr         OrE
   #define TOtherwise  OtherwiseE
   #define TEndMatch   EndMatchE
+#elif XTL_DEFAULT_SYNTAX == 'F'
+  /// The user chooses closed kind match statement to be the default
+  #define  Match      MatchF
+  #define  Case       CaseF
+  #define  Que        QueF
+  #define  Alt        OrF // Conflicts with ipr::Or
+  #define  Otherwise  OtherwiseF
+  #define  EndMatch   EndMatchF
+  #define TMatch      MatchF
+  #define TCase       CaseF
+  #define TQue        QueF
+  #define TOr         OrF
+  #define TOtherwise  OtherwiseF
+  #define TEndMatch   EndMatchF
 #else
   /// The user chooses generic match statement to be the default
   #define  Match      MatchG
@@ -755,7 +848,7 @@ class generic_switch
 public:
 
     /// Type of the argument on which extended switch is done
-    typedef typename remove_ref<SelectorType>::type selector_type;
+    typedef typename underlying<SelectorType>::type selector_type;
 
     // Open case only works for polymorphic types (types with virtual funcs)
     // If your base type is not polymorphic, but you'd still like to have 
@@ -859,7 +952,7 @@ template <typename SelectorType>
 class generic_switch<
     SelectorType, 
     typename std::enable_if<
-                has_member_kind_selector<match_members<typename remove_ref<SelectorType>::type>>::value,
+                has_member_kind_selector<match_members<typename underlying<SelectorType>::type>>::value,
                 void
              >::type
 >
@@ -867,7 +960,7 @@ class generic_switch<
 public:
 
     /// Type of the argument on which extended switch is done
-    typedef typename remove_ref<SelectorType>::type selector_type;
+    typedef typename underlying<SelectorType>::type selector_type;
 
     /// Type of data that has to be statically allocated inside the block 
     /// containg extended switch
@@ -907,9 +1000,9 @@ public:
     };
 
     static inline auto choose(const selector_type* selector_ptr, static_data_type& static_data, local_data_type& local_data) 
-             -> typename remove_ref<decltype(apply_member(selector_ptr, match_members<selector_type>::kind_selector()))>::type
+             -> typename underlying<decltype(apply_member(selector_ptr, match_members<selector_type>::kind_selector()))>::type
     {
-        typedef typename remove_ref<decltype(apply_member(selector_ptr, match_members<selector_type>::kind_selector()))>::type result_type; // Can be enum
+        typedef typename underlying<decltype(apply_member(selector_ptr, match_members<selector_type>::kind_selector()))>::type result_type; // Can be enum
         return result_type(apply_member(selector_ptr, match_members<selector_type>::kind_selector()) + kind_selector_shift);
     }
     static inline void on_first_pass(const selector_type* selector_ptr, local_data_type& local_data, size_t line) {}
@@ -1242,7 +1335,7 @@ struct expr<F,E1>
     expr(const E1& e1) : m_e1(e1) {}
     expr(E1&& e1) : m_e1(std::move(e1)) {}
     expr(expr&& e) : m_e1(std::move(e.m_e1)) {}
-    typedef typename remove_const<decltype(F()(*static_cast<typename E1::result_type*>(0)))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
+    typedef typename std::remove_const<decltype(F()(*static_cast<typename E1::result_type*>(0)))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
     operator result_type() const { return eval(*this); }
     bool operator()(const result_type& t) const 
     {
@@ -1258,7 +1351,7 @@ struct expr
     expr(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
     expr(E1&& e1, E2&& e2) : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
     expr(expr&& e) : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {}
-    typedef typename remove_const<decltype(F()(*static_cast<typename E1::result_type*>(0),*static_cast<typename E2::result_type*>(0)))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
+    typedef typename std::remove_const<decltype(F()(*static_cast<typename E1::result_type*>(0),*static_cast<typename E2::result_type*>(0)))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
     operator result_type() const { return eval(*this); }
     bool operator()(const result_type& t) const 
     {

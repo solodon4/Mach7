@@ -33,6 +33,7 @@ struct has_member_##name \
 }
 #endif
 
-// Helpers to detect some unary operators
+/// Helpers to detect use of some of our macros within a @match_members
 
-HAS_MEMBER_XXX(kind_selector, bool (T::*)() const, kind_selector_dummy);
+HAS_MEMBER_XXX(kind_selector,  bool (T::*)() const,  kind_selector_dummy);
+HAS_MEMBER_XXX(raise_selector, bool (T::*)() const, raise_selector_dummy);

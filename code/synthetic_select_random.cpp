@@ -44,6 +44,8 @@ struct Shape
     #undef  FOR_EACH_MAX
 };
 
+static_assert(std::is_polymorphic<Shape>::value, "XXX Type of selector should be polymorphic when you use this version of the macro");\
+
 //------------------------------------------------------------------------------
 
 template <size_t N>

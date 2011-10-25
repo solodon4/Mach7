@@ -1,0 +1,154 @@
+unknown_cat,                            // ipr::Node    -- abstract
+annotation_cat,                         // ipr::Annotation
+region_cat,                             // ipr::Region
+comment_cat,                            // ipr::Comment
+string_cat,                             // ipr::String
+linkage_cat,                            // ipr::Linkage
+parameter_list_cat,                     // ipr::Parameter_list
+
+expr_cat,                               // ipr::Expr    -- abstract
+overload_cat,                           // ipr::Overload
+type_cat,                               // ipr::Type    -- abstract
+
+array_cat,                              // ipr::Array
+class_cat,                              // ipr::Class
+decltype_cat,                           // ipr::Decltype
+as_type_cat,                            // ipr::As_type
+enum_cat,                               // ipr::Enum
+function_cat,                           // ipr::Function
+namespace_cat,                          // ipr::Namespace
+global_scope_cat,                       // ipr::Global_scope              // 2011-08-10 YS: Added for pattern matching purposes
+pointer_cat,                            // ipr::Pointer
+ptr_to_member_cat,                      // ipr::Ptr_to_member
+product_cat,                            // ipr::Product
+qualified_cat,                          // ipr::Qualified
+reference_cat,                          // ipr::Reference
+rvalue_reference_cat,                   // ipr::Rvalue_reference
+sum_cat,                                // ipr::Sum
+template_cat,                           // ipr::Template
+udt_cat,                                // ipr::Udt     -- abstract
+union_cat,                              // ipr::Union
+
+name_cat,                               // ipr::Name    -- abstract
+identifier_cat,                         // ipr::Identifier
+operator_cat,                           // ipr::Operator
+conversion_cat,                         // ipr::Conversion
+scope_ref_cat,                          // ipr::Scope_ref
+template_id_cat,                        // ipr::Template_id
+type_id_cat,                            // ipr::Type_id
+ctor_name_cat,                          // ipr::Ctor_name
+dtor_name_cat,                          // ipr::Dtor_name
+rname_cat,                              // ipr::Rname
+
+phantom_cat,                            // ipr::Phantom
+
+address_cat,                            // ipr::Address
+array_delete_cat,                       // ipr::Array_delete
+complement_cat,                         // ipr::Complement
+delete_cat,                             // ipr::Delete
+deref_cat,                              // ipr::Deref
+expr_list_cat,                          // ipr::Expr_list
+expr_sizeof_cat,                        // ipr::Expr_sizeof
+expr_typeid_cat,                        // ipr::Expr_typeid
+id_expr_cat,                            // ipr::Id_expr
+label_cat,                              // ipr::Label
+not_cat,                                // ipr::Not
+paren_expr_cat,                         // ipr::Paren_expr
+post_decrement_cat,                     // ipr::Post_decrement
+post_increment_cat,                     // ipr::Post_increment
+pre_decrement_cat,                      // ipr::Pre_decrement
+pre_increment_cat,                      // ipr::Pre_increment
+throw_cat,                              // ipr::Throw
+type_sizeof_cat,                        // ipr::Type_sizeof
+type_typeid_cat,                        // ipr::Type_typeid
+unary_minus_cat,                        // ipr::Unary_minus
+unary_plus_cat,                         // ipr::Unary_plus;
+
+plus_cat,                               // ipr::Plus
+plus_assign_cat,                        // ipr::Plus_assign
+and_cat,                                // ipr::And
+array_ref_cat,                          // ipr::Array_ref
+arrow_cat,                              // ipr::Arrow
+arrow_star_cat,                         // ipr::Arrow_star
+assign_cat,                             // ipr::Assign
+bitand_cat,                             // ipr::Bitand
+bitand_assign_cat,                      // ipr::Bitand_assign
+bitor_cat,                              // ipr::Bitor
+bitor_assign_cat,                       // ipr::Bitor_assign
+bitxor_cat,                             // ipr::Bitxor
+bitxor_assign_cat,                      // ipr::Bitxor_assign
+call_cat,                               // ipr::Call
+cast_cat,                               // ipr::Cast
+comma_cat,                              // ipr::Comma
+const_cast_cat,                         // ipr::Const_cast
+datum_cat,                              // ipr::Datum
+div_cat,                                // ipr::Div
+div_assign_cat,                         // ipr::Div_assign
+dot_cat,                                // ipr::Dot
+dot_star_cat,                           // ipr::Dot_star
+dynamic_cast_cat,                       // ipr::Dynamic_cast
+equal_cat,                              // ipr::Equal
+greater_cat,                            // ipr::Greater
+greater_equal_cat,                      // ipr::Greater_equal
+initializer_list_cat,                   // ipr::Initializer_list
+less_cat,                               // ipr::Less
+less_equal_cat,                         // ipr::Less_equal
+literal_cat,                            // ipr::Literal
+lshift_cat,                             // ipr::Lshift
+lshift_assign_cat,                      // ipr::Lshift_assign
+mapping_cat,                            // ipr::Mapping
+member_init_cat,                        // ipr::Member_init
+modulo_cat,                             // ipr::Modulo
+modulo_assign_cat,                      // ipr::Modulo_assign
+mul_cat,                                // ipr::Mul
+mul_assign_cat,                         // ipr::Mul_assign
+not_equal_cat,                          // ipr::Not_equal
+or_cat,                                 // ipr::Or
+reinterpret_cast_cat,                   // ipr::Reinterpret_cast
+rshift_cat,                             // ipr::Rshift,
+rshift_assign_cat,                      // ipr::Rshift_assign
+static_cast_cat,                        // ipr::Static_cast
+minus_cat,                              // ipr::Minus
+minus_assign_cat,                       // ipr::Minus_assign
+
+new_cat,                                // ipr::New
+conditional_cat,                        // ipr::Conditional
+scope_cat,                              // ipr::Scope
+
+stmt_cat,                               // ipr::Stmt    -- abstract
+block_cat,                              // ipr::Block
+break_cat,                              // ipr::Break
+continue_cat,                           // ipr::Continue
+ctor_body_cat,                          // ipr::Ctor_body
+do_cat,                                 // ipr::Do
+expr_stmt_cat,                          // ipr::Expr_stmt,
+empty_stmt_cat,                         // ipr::Empty_stmt,   // 2011-08-10 YS: Added for pattern matching purposes
+for_cat,                                // ipr::For
+for_in_cat,                             // ipr::For_in
+goto_cat,                               // ipr::Goto
+handler_cat,                            // ipr::Handler
+if_then_cat,                            // ipr::If_then
+if_then_else_cat,                       // ipr::If_then_else
+labeled_stmt_cat,                       // ipr::Labeled_stmt
+return_cat,                             // ipr::Return
+switch_cat,                             // ipr::Switch
+while_cat,                              // ipr::While
+
+decl_cat,                               // ipr::Decl    -- abstract
+alias_cat,                              // ipr::Alias
+asm_cat,                                // ipr::Asm
+base_type_cat,                          // ipr::Base_type
+enumerator_cat,                         // ipr::Enumerator
+field_cat,                              // ipr::Field
+bitfield_cat,                           // ipr::Bitfield
+fundecl_cat,                            // ipr::Fundecl
+named_map_cat,                          // ipr::Named_map
+parameter_cat,                          // ipr::Parameter
+typedecl_cat,                           // ipr::Typedecl
+var_cat,                                // ipr::Var
+using_directive,                        // ipr::Using_directive
+
+unit_cat,                               // ipr::Unit
+
+last_code_cat
+

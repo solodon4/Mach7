@@ -238,29 +238,29 @@ std::string eval_name(const ipr::Name& name)
 
 std::string eval_type_ex(const ipr::Type& n, const std::string& declarator) 
 {
-    Match(n)
+    MatchP(n)
     {
-        Case(ipr::Array,        element_type, bound) { return eval_type(element_type, declarator + '[' + eval_expr(bound)+ ']', ipr::precedence<ipr::Array>::value); }
-        Case(ipr::Void          )  { return "void"               + postfix(declarator); }
-        Case(ipr::Bool          )  { return "bool"               + postfix(declarator); }
-        Case(ipr::Char          )  { return "char"               + postfix(declarator); }
-        Case(ipr::sChar         )  { return "signed char"        + postfix(declarator); }
-        Case(ipr::uChar         )  { return "unsigned char"      + postfix(declarator); }
-        Case(ipr::Wchar_t       )  { return "wchar_t"            + postfix(declarator); }
-        Case(ipr::Short         )  { return "short"              + postfix(declarator); }
-        Case(ipr::uShort        )  { return "unsigned short"     + postfix(declarator); }
-        Case(ipr::Int           )  { return "int"                + postfix(declarator); }
-        Case(ipr::uInt          )  { return "unsigned int"       + postfix(declarator); }
-        Case(ipr::Long          )  { return "long"               + postfix(declarator); }
-        Case(ipr::uLong         )  { return "unsigned long"      + postfix(declarator); }
-        Case(ipr::Long_long     )  { return "long long"          + postfix(declarator); }
-        Case(ipr::uLong_long    )  { return "unsigned long long" + postfix(declarator); }
-        Case(ipr::Float         )  { return "float"              + postfix(declarator); }
-        Case(ipr::Double        )  { return "double"             + postfix(declarator); }
-        Case(ipr::Long_double   )  { return "long double"        + postfix(declarator); }
-        Case(ipr::Ellipsis      )  { return "..."; }
-        Case(ipr::Decltype,     expr)  { return "decltype(" + eval_expr(expr) + ')'; }
-        Case(ipr::Function,     source, target, throws)  
+        CaseP(ipr::Array,        element_type, bound) { return eval_type(element_type, declarator + '[' + eval_expr(bound)+ ']', ipr::precedence<ipr::Array>::value); }
+        CaseP(ipr::Void          )  { return "void"               + postfix(declarator); }
+        CaseP(ipr::Bool          )  { return "bool"               + postfix(declarator); }
+        CaseP(ipr::Char          )  { return "char"               + postfix(declarator); }
+        CaseP(ipr::sChar         )  { return "signed char"        + postfix(declarator); }
+        CaseP(ipr::uChar         )  { return "unsigned char"      + postfix(declarator); }
+        CaseP(ipr::Wchar_t       )  { return "wchar_t"            + postfix(declarator); }
+        CaseP(ipr::Short         )  { return "short"              + postfix(declarator); }
+        CaseP(ipr::uShort        )  { return "unsigned short"     + postfix(declarator); }
+        CaseP(ipr::Int           )  { return "int"                + postfix(declarator); }
+        CaseP(ipr::uInt          )  { return "unsigned int"       + postfix(declarator); }
+        CaseP(ipr::Long          )  { return "long"               + postfix(declarator); }
+        CaseP(ipr::uLong         )  { return "unsigned long"      + postfix(declarator); }
+        CaseP(ipr::Long_long     )  { return "long long"          + postfix(declarator); }
+        CaseP(ipr::uLong_long    )  { return "unsigned long long" + postfix(declarator); }
+        CaseP(ipr::Float         )  { return "float"              + postfix(declarator); }
+        CaseP(ipr::Double        )  { return "double"             + postfix(declarator); }
+        CaseP(ipr::Long_double   )  { return "long double"        + postfix(declarator); }
+        CaseP(ipr::Ellipsis      )  { return "..."; }
+        CaseP(ipr::Decltype,     expr)  { return "decltype(" + eval_expr(expr) + ')'; }
+        CaseP(ipr::Function,     source, target, throws)  
         { 
             std::string result = eval_type(target, declarator + '(' + eval_expr(source) + ')', ipr::precedence<ipr::Function>::value);
 
@@ -269,10 +269,10 @@ std::string eval_type_ex(const ipr::Type& n, const std::string& declarator)
 
             return result;
         }
-        Case(ipr::Pointer,      points_to)  { return eval_type(points_to, '*' + postfix(declarator), ipr::precedence<ipr::Pointer>::value); }
-        Case(ipr::Reference,    refers_to)  { return eval_type(refers_to, '&' + postfix(declarator), ipr::precedence<ipr::Reference>::value); }
-        Case(ipr::Ptr_to_member,containing_type, member_type) { return eval_type(member_type, eval_type(containing_type) + "::*" + postfix(declarator), ipr::precedence<ipr::Ptr_to_member>::value); }
-        Case(ipr::Qualified,    main_variant, quals)
+        CaseP(ipr::Pointer,      points_to)  { return eval_type(points_to, '*' + postfix(declarator), ipr::precedence<ipr::Pointer>::value); }
+        CaseP(ipr::Reference,    refers_to)  { return eval_type(refers_to, '&' + postfix(declarator), ipr::precedence<ipr::Reference>::value); }
+        CaseP(ipr::Ptr_to_member,containing_type, member_type) { return eval_type(member_type, eval_type(containing_type) + "::*" + postfix(declarator), ipr::precedence<ipr::Ptr_to_member>::value); }
+        CaseP(ipr::Qualified,    main_variant, quals)
         {
             std::string qualifiers;
 
@@ -292,13 +292,13 @@ std::string eval_type_ex(const ipr::Type& n, const std::string& declarator)
             return eval_type(main_variant, qualifiers + postfix(/*matched->main_variant()*/declarator), ::precedence(main_variant));
         }
     
-        Case(ipr::Product,      elements)       { return eval_sqnc(elements); }
-        Case(ipr::Sum,          elements)       { return eval_sqnc(elements); }
-        Case(ipr::Template,     source, target) { return "template <" + eval_type(source) + "> " + eval_type(target, postfix(declarator)); }
-        Case(ipr::As_type,      expr)           { return eval_expr(expr) + postfix(declarator); } // This may represent user-defined class
-        Case(ipr::Udt,          name)           { return eval_name(name) + postfix(declarator); } // This is analog of Decl handling in expression context - we only refer the name
+        CaseP(ipr::Product,      elements)       { return eval_sqnc(elements); }
+        CaseP(ipr::Sum,          elements)       { return eval_sqnc(elements); }
+        CaseP(ipr::Template,     source, target) { return "template <" + eval_type(source) + "> " + eval_type(target, postfix(declarator)); }
+        CaseP(ipr::As_type,      expr)           { return eval_expr(expr) + postfix(declarator); } // This may represent user-defined class
+        CaseP(ipr::Udt,          name)           { return eval_name(name) + postfix(declarator); } // This is analog of Decl handling in expression context - we only refer the name
     }
-    EndMatch
+    EndMatchP
 
     assert(!"Inexhaustive match"); // Your case clauses don't cover all the cases!
 }
@@ -944,7 +944,7 @@ cxx_printer& operator<<(cxx_printer& pr, const ipr::Decl& decl)
             break;
         }
 
-        //Case(ipr::Expr)         { pr << eval_expr(*matched); break; } // TODO: Discuss why we had it in visitors!
+        Case(ipr::Expr)         { pr << eval_expr(*matched); break; } // TODO: Discuss why we had it in visitors!
     }
     EndMatch
 
