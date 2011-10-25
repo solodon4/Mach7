@@ -296,15 +296,15 @@ algorithms can be expressed. This is why our initial goal was to develop a
 domain-specific library within C++ that would enable us to express various 
 predicates on tree-like structures with the laconism of functional languages.
 
-The library presented here is the latest in a series of 5 libraries.
-The earlier versions were superceded because they failed to meet our standards
-for notation, performance, or generality.
-Our standard is set by the principle that a fair comparison must be against the gold
-standard in a field. For example, if we work on a linear algebra library,
-we must compare to Fortran or one of the industrial C++ libraries, rather than Java or C.
-For pattern matching we chose optimized O'Caml as our standard for closed (compile-time
-polymorphic) sets of classes and C++ for uses of the visitor pattern.
-For generality and simplicity, we deemed doing both with a uniform syntax essential.
+The library presented here is the latest in a series of 5 libraries. The earlier 
+versions were superceded because they failed to meet our standards for notation, 
+performance, or generality. Our standard is set by the principle that a fair 
+comparison must be against the gold standard in a field. For example, if we work 
+on a linear algebra library, we must compare to Fortran or one of the industrial 
+C++ libraries, rather than Java or C. For pattern matching we chose optimized 
+O'Caml as our standard for closed (compile-time polymorphic) sets of classes and 
+C++ for uses of the visitor pattern. For generality and simplicity of use, we 
+deemed it essential to do both with a uniform syntax.
 
 %[From Emir PhD Thesis 1.3]
 %In the context of the JAVA virtual machine (and any other object system that supports runtime
@@ -314,6 +314,7 @@ For generality and simplicity, we deemed doing both with a uniform syntax essent
 %They are error prone since it is possible to perform a cast without a preceding check.
 
 \subsection{Expression Problem}
+\label{sec:exp}
 
 Functional languages allow for easy addition of new functions on existing data 
 types, but fall short in extending data types themselves (e.g. with new constructors), 
@@ -396,13 +397,13 @@ that saves the expression in XML format. Adding new virtual function implies
 modifying the base class and creating a versioning problem with the code that 
 has been deployed already using the old interface.
 
-To alleviate this problem, Visitor Design Pattern separates the 
+To alleviate this problem, the Visitor Design Pattern separates the 
 \emph{commonality} of all such future member-functions from their 
 \emph{specifics}. The former deals with identifying the most specific derived 
 class of the receiver object, known to the system at the time the base class was 
 designed. The latter provides implementation of the required functionality once 
 the most specific derived class has been identified. The interaction between the 
-two is encoded in the protocol that fixes \emph{visitation interface} 
+two is encoded in the protocol that fixes a \emph{visitation interface} 
 enumerating all known derived classes on one side and a dispatching mechanism 
 that guarantees to select the most specific case with respect to the dynamic 
 type of the receiver in the visitation interface. An implementation of this 
@@ -445,7 +446,7 @@ to convert expressions to string:
 \begin{lstlisting}
 std::string to_str(const Expr* e); // Forward declaration
 
-struct ToStrVisitor : ExprVisitor
+struct ToStrVisitor : ExprVisitor  // Converts expressions to string
 {
     void visit(const Value& e) { result = std::to_string(e.value); }
     ...
@@ -543,7 +544,7 @@ pattern-matching solution to the same problem enabled with our library.
 \label{sec:xmpl}
 
 While comparing generic programming facilities available to functional and 
-imperative languages (mainly Haskell and C++), Dos Reis and Jarvi present the 
+imperative languages (mainly Haskell and C++), Dos Reis and J\"arvi present the 
 following example in Haskell describing a sum functor\cite{DRJ05}:
 
 \begin{lstlisting}[language=Haskell]
@@ -559,7 +560,7 @@ object and depending on the actual type constructor the object was created with,
 calls first or second function on the embedded value, encoding the result 
 correspondingly.
 
-Its equivalent in C++ is not as straightforward. The idiomatic handling of 
+Its equivalent in C++ is not straightforward. The idiomatic handling of 
 discriminated unions in C++ typically assumes use of the \emph{Visitor Design 
 Pattern}\cite{DesignPatterns1993}.
 
@@ -598,8 +599,9 @@ struct Right : Either<X,Y> {
 The code above defines the necessary parameterized data structures as well as a 
 correspondingly parameterized visitor class capable of introspecting it at 
 run-time. The authors agree with us \emph{``The code has a fair amount of 
-boilerplate to simulate pattern matching...''} The actual implementation of 
-\codehaskell{lift} in C++ now amounts to declaring and invoking a visitor:
+boilerplate to simulate pattern matching...''}\cite{DRJ05} The actual 
+implementation of \codehaskell{lift} in C++ now amounts to declaring and 
+invoking a visitor:
 
 \begin{lstlisting}
 template <class X, class Y, class S, class T>
@@ -641,8 +643,8 @@ const Either<S,T>* lift(const Either<X,Y>& e, S f(X), T g(Y))
 }
 \end{lstlisting}
 
-It is also as fast as the visitor solution, but unlike the visitors based 
-approach neither requires \code{EitherVisitor} class anymore (together with 
+This is also as fast as the visitor solution, but unlike the visitors based 
+approach it neither requires \code{EitherVisitor} class anymore (together with 
 forward declarations it needed), nor any of the \code{accept} member-functions 
 injected in all three classes. We do require binding definitions though to be 
 able to bind variables \code{x} and \code{y}:
@@ -657,7 +659,8 @@ template <class X, class Y>
 \end{lstlisting}
 
 Note that these binding definitions are made once for all possible instantiations 
-with the use of partial template specialization in C++.
+with the use of partial template specialization in C++ and would not be needed 
+if we implemented pattern matching in a compiler rather than a library.
 
 \subsection{Summary}
 
@@ -690,12 +693,12 @@ object-oriented languages as well as libraries written in them to implement
 \emph{multiple dispatch} efficiently. We look at different approaches that are 
 taken in implementing algebraic data types in C++ today and present a unified 
 pattern-matching syntax that works uniformly with all of them. We also 
-generalize Haskell's n+k patterns to any invertible operations. Semantics issues 
-that typically accompany n+k pattern are handled transparently by forwarding the 
-problem into the concepts domain, thanks to the fact that we work in a library 
-setting. A practical benefit of our solution is that it can be used right away 
-with any compiler with a descent support of C++0x without requiring to install 
-any additional tools or preprocessors.
+generalize Haskell's n+k patterns\cite{haskell98} to any invertible operations. 
+Semantics issues that typically accompany n+k pattern are handled transparently 
+by forwarding the problem into the concepts domain, thanks to the fact that we 
+work in a library setting. A practical benefit of our solution is that it can be 
+used right away with any compiler with a descent support of C++0x without 
+requiring to install any additional tools or preprocessors.
 
 The rest of this paper is structured as following. In Section~\ref{sec:bg}, we 
 present evolution of pattern matching in different languages, presenting 
@@ -946,7 +949,7 @@ let factorize e =
     ;;
 \end{lstlisting}
 
-One may wonder why could not we simply write the above case clause as 
+One may wonder why we could not simply write the above case clause as 
 \codeocaml{Plus(Times(e,e2), Times(e,e4))} to avoid the guard? Patterns that 
 permit use of the same variable in them multiple times are called 
 \emph{equivalence patterns}, while the requirement of absence of such patterns 
@@ -1168,9 +1171,10 @@ v = 7;           // assumes overloading of assignment
 int r = eval(x); // returns 10
 \end{lstlisting}
 
-\noindent The above technique for lazy evaluation of expressions was originally 
-invented by Todd Veldhuizen and is generally known in C++ community by the name 
-\emph{Expression Templates} he coined\cite{Veldhuizen95expressiontemplates}. 
+\noindent The above technique for lazy evaluation of expressions was 
+independently invented by Todd Veldhuizen and David Vandevoorde and is generally 
+known in the C++ community by the name \emph{Expression Templates} that Todd 
+coined\cite{Veldhuizen95expressiontemplates, vandevoorde2003c++}.  
 
 Note again how implementation of \code{eval} resembles equations in Haskell that 
 decompose an algebraic data type. The similarities are so striking that there 
@@ -1273,8 +1277,8 @@ datatype DT = @$C_1$@ of {@$L_{11}:T_{11},...,L_{1m}:T_{1m}$@}
               | @$C_k$@ of {@$L_{k1}:T_{k1},...,L_{kn}:T_{kn}$@}
 \end{lstlisting}
 
-\noindent We are aware of at least 3 different ways to encode them in C++ to 
-which, following Emir, we will refer as \emph{encodings}:
+\noindent There are at least 3 different ways to encode them in C++. Following 
+Emir, we will refer to them as \emph{encodings}:
 
 \begin{itemize}
 \item Polymorphic Base Class
@@ -1285,7 +1289,9 @@ which, following Emir, we will refer as \emph{encodings}:
 The first two encodings are inherently \emph{open} because the classes can be 
 arbitrarily extended through subclassing. The last encoding is inherently 
 \emph{closed} because we cannot add more members to the union without modifying 
-its definition.
+its definition. For brevity, we will refer to these encoding throughout the rest 
+of the paper as \emph{polymorphic}, \emph{tagged} and \emph{union} encodings 
+respectively.
 
 \subsubsection{Polymorphic Base Class}
 \label{sec:pbc}
@@ -1315,11 +1321,11 @@ orthogonal issues of visitors aside).
 
 This encoding is similar to the \emph{Polymorphic Base Class} in that we use 
 derived classes to encode the variants. The main difference is that the user 
-foresees a dedicated member in the base class, whose value will uniquely 
+designates a member in the base class, whose value will uniquely 
 determine the most derived class a given object is an instance of. Constructors 
 of each variant $C_i$ are responsible for properly initializing the dedicated 
 member with a unique value $c_i$ associated with that variant. Clang\cite{Clang} 
-uses this approach.
+among others uses this approach.
 
 \begin{lstlisting}[keepspaces,columns=flexible]
 class DT { enum kinds {@$c_1, ..., c_k$@} m_kind; };
@@ -1348,7 +1354,7 @@ benefits gained originally by putting a dedicated member into the base class.
 This encoding is popular in projects that are either implemented in C or 
 originated from C before coming to C++. It involves a type that contains a union 
 of its possible variants, discriminated with a dedicated value stored as a part 
-of the structure. The approach is used in EDG front-end\cite{EDG} for example.
+of the structure. The approach is used by EDG front-end\cite{EDG} and many others.
 
 \begin{lstlisting}[keepspaces,columns=flexible]
 struct DT
@@ -2077,7 +2083,7 @@ often overloaded for different types but the same arity. Implicit nature of
 variable patterns that matches ``any value'' will thus not help in 
 disambiguating such constructors, unless the user explicitly declares the 
 variables, thus fixing their types. Besides, C++ does not have means for 
-compile-time reflection at the moment, so a library like ours cannot enumerate 
+general compile-time reflection, so a library like ours cannot enumerate 
 all the constructors present in a class automatically. This is why we decided to 
 separate \emph{construction} of objects from their \emph{decomposition} through 
 pattern matching with \emph{bindings}.
@@ -2094,7 +2100,7 @@ several meta-variables introduced in the previous grammar}
 \Rule{bindings}                &           & \is{}  & $\delta^*$ \\
 \Rule{binding definition}      & $\delta$  & \is{}  & \code{template <}$\left[\vec{p}\right]$\code{>} \\
                                &           &        & \code{struct bindings<} $\tau[$\code{<}$\vec{p}$\code{>}$]\left[,l\right]$\code{>} \\
-                               &           &        & \code{\{} $ks? kv? bc? cm^*$ \code{\};} \\
+                               &           &        & \code{\{} $\left[ks\right]\left[kv\right]\left[bc\right]\left[cm^*\right]$ \code{\};} \\
 \Rule{class member}            & $cm$      & \is{}  & \code{CM(}$c^{size\_t},q$\code{);} \\
 \Rule{kind selector}           & $ks$      & \is{}  & \code{KS(}$q$\code{);}    \\
 \Rule{kind value}              & $kv$      & \is{}  & \code{KV(}$c$\code{);}    \\
@@ -2371,7 +2377,7 @@ how $\Psi_f^\tau$ is defined.
 \label{sec:impl}
 
 Our implementation of pattern matching expressions follows the naive way of 
-essentially interpreting them through backtracking. On one hand this was a 
+essentially interpreting them through backtracking. On one hand, this was a 
 consequence of working in a library setting, where code transformations are much 
 harder to achive. On the other hand, from the very beginning we were trying to 
 find an expressive alternative to object decomposition with either nested 
@@ -2395,14 +2401,14 @@ The interpretation of pattern matching expressions with expression templates fol
 very closely the composition of expressions described by abstract syntax 
 in~\textsection\ref{sec:syn} as well as their application to selector expression 
 described by evaluation rules in \textsection\ref{sec:semme}. This section thus
-mainly concentrates instead on efficient implementation of a match statement as 
+mainly concentrates on efficient implementation of a match statement as 
 well as unification of its syntax to the three encodings of algebraic data types
 outlined in \textsection\ref{sec:adt}. The discussion will largely focus on 
 devising an efficient \emph{type-switch}, which is then used by our library as a 
 backbone to the general match statement presented in~\textsection\ref{sec:semms}. 
 
 Working within a multi-paradigm programming language like C++, we will not be 
-looking at algebraic data types in the closed form they are present in 
+just looking at algebraic data types in the closed form they are present in 
 functional languages, but rather in an open/extensible form discussed by 
 Zenger\cite{Zenger:2001}, Emir\cite{EmirThesis}, L\"oh\cite{LohHinze2006} and others. We will thus 
 assume an object-oriented setting where new variants can be added later and form
@@ -2478,8 +2484,7 @@ The fact that algebraic data types in functional languages are closed allows for
 their efficient implementation. Traditional compilation scheme assigns unique 
 tags to every variant of the algebraic data type and pattern matching is then 
 simply implemented with a jump table over all tags. A number of issues in 
-object-oriented languages makes this otherwise extremely efficient approach 
-infeasible:
+object-oriented languages makes this extremely efficient approach infeasible:
 
 \begin{itemize}
 \item Extensibility
@@ -2540,6 +2545,20 @@ few questions that might help evaluate and compare solutions:
 \item What is the complexity of matching based on the number of case clauses and 
       the number of possible types?
 \end{enumerate}
+
+The number of possible types in the last question refers to the amount of subtypes 
+of the static type of the subject, not all the types in the program. Several 
+solutions discussed below depend on the number of case clauses in the match 
+statement, which raises the question of what amount of clauses a typical program 
+might have? The C++ pretty-printer for Pivot we implemented using our pattern 
+matching techniques (\textsection\ref{sec:qualcmp}) originally had 8 match 
+statements of 5,7,8,10,15,17,30 and 63 case clauses each. While experimenting 
+with probability distributions of various classes, as discussed in 
+\textsection\ref{sec:moc}, we had to associate probabilities with classes and 
+implemented it with a match statement over all 160 nodes in the Pivot's class 
+hierarchy. With Pivot having the smallest amount of node kinds among the 
+compiler frameworks we had a chance to work with, we expect a similar or larger 
+number of case clauses in other compiler applications.
 
 An obvious solution that will pass the above checklist can look as following:
 
@@ -2710,8 +2729,8 @@ problem. The implementations we found in the literature where either open or
 efficient, but not both. Efficient implementation was typically achieved by 
 sealing class hiearchy and using jump table. Without sealing, the implementation 
 was resorting to decision trees and type testing, which was not efficient.
-To the best of our knowledge we are unaware of any efficient tag allocation 
-scheme that can be used in a truly open scenario.
+We are unaware of any efficient tag allocation scheme that can be used in a 
+truly open scenario.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5555
 
@@ -2742,10 +2761,9 @@ scheme that can be used in a truly open scenario.
 \subsection{Case of Polymorphic Classes}
 \label{sec:copc}
 
-As we have already mentioned we approach differently type switching on 
-polymorphic classes and tagged classes. In this subsection we outline the 
-implementation of type switching on classes that have vtbl pointer in their 
-instances.
+As mentioned, we approach type switching on polymorphic classes and tagged 
+classes differently. In this subsection we outline the implementation of type 
+switching on classes that have vtbl pointer in their instances.
 
 %To put further explanations into perspective as well understand the problem 
 %better we present some timing measurements of straightforward, but rather naive 
@@ -2768,9 +2786,9 @@ switch (x)
 \end{lstlisting}
 
 \noindent
-Assuming that predicates depend only on $x$ and nothing else we can be sure that
+Assuming that predicates depend only on $x$ and nothing else, we can be sure that
 the next time we come to such switch with the same value, the same predicate 
-will become enabled first. Thus we would like to avoid evaluating predicates and 
+will become enabled first. Thus, we would like to avoid evaluating predicates and 
 jump straight to the statement it guards. In a way we would like the switch to 
 memoize which case becomes enabled for a given value of $x$. 
 
@@ -2779,51 +2797,58 @@ Inspired by Duff's Device\cite{Duff} we devised a construct that we call
 
 \begin{lstlisting}
 typedef decltype(x) T;
-static std::unordered_map<T,int> memory;
+static std::unordered_map<T,int> jump_target_map;
 
-switch (int& target = memory[x])
+switch (int& target = jump_target_map[x])
 {
-default:
+default: // entered when we haven't seen x yet
     if (P1(x)) 
     {
-        target = 1;
+        target = 1; // same as jump_target_map[x] = 1;
 case 1: s1;
     } else 
     if (P2(x)) 
     {
-        target = 2;
+        target = 2; // maps x to jump target 2
 case 2: s2;
     } else
  ...
     if (Pn(x)) 
     {
-        target = N;
+        target = N; // maps x to jump target N
 case N: sN;
     } else
-        target = N+1;
+        target = N+1; // maps x to switch' exit
 case N+1:
 }
 \end{lstlisting}
 
-Upon first entry into such a function we will allocate a static map associating 
-values we are memoizing to cases labels. A value $x$ that is not yet in the map 
-will result in an new entry allocated with its data (of type int) being default 
-initialized to 0. switch on a value 0 will take us to default statement, which 
-will initiate going over cascading-if in a normal way. 
+The static \code{jump_target_map} maps values to jump targets, and will be 
+allocated upon first entry to the function. The map is initially empty and is 
+updated from within the switch as we proceed through the interleaved 
+cascading-if statement. Accordingly to the logic of STL's \code{unordered_map}, 
+a key $x$ that is not yet in the map will result in allocation of a new entry 
+with its associated data (of type int) default initialized to 0. Since there is 
+no case label 0 in the switch, default case will be taken, which, in turn, will 
+initiate sequential execution of the interleaved cascading-if statement.
 
-Assuming that predicate Pi(x) returns true, we will store i as a target 
-associated with $x$ so that the next time we are called with the value $x$ we 
-can jump directly to label i. If none of the predicates returned true, we will 
-record it by setting target to N+1, so that the next time we can jump directly 
-to the end of the switch on such $x$. 
+The sequential execution of the cascading-if statement will keep checking 
+predicates $P_j(x)$ until the first predicate $P_i(x)$ that returns true. By 
+assigning $i$ to \code{target} we will effectively associate $i$ with $x$ since 
+\code{target} is just a reference to \code{jump_target_map[x]}. This association 
+will make sure that the next time we are called with the value $x$ we will jump 
+directly to the label $i$. When none of the predicates returns true, we will 
+record it by associating $x$ with $N+1$, so that the next time we can jump 
+directly to the end of the switch on $x$. 
 
-In certain cases we might want to be able to preserve the fall-through behavior 
-of a switch and be able to evaluate all statements, whose predicates are true. 
-In such case we might still prefer to skip the initial predicates returning 
-false, starting from the first successful one. This can easily be achieved by 
-removing all else statements, making all if-statements independent, but wrapping 
-all assignments to target with condition, to make sure only the first 
-successfult predicate executes it:
+The above construct effectively gives the entire statement first-fit semantics. 
+In order to evaluate all the statements, whose predicates are true, and thus 
+give the construct all-fit semantics, we might want to be able to preserve the 
+fall-through behavior of the switch. In this case we can still skip the initial 
+predicates returning false and start from the first successful one. This can be 
+easily achieved by removing all else statements and making if-statements 
+independent as well as wrapping all assignments to \code{target} with condition, 
+to make sure only the first successful predicate executes it:
 
 \begin{lstlisting}
  ...
@@ -2836,21 +2861,20 @@ case i:
 \end{lstlisting}
 
 Note that the protocol that has to be maintained by this structure does not 
-depend on the actual value of case labels. The only thing we rely on here is 
-that they are all different and that there is a predefined default value, not 
-equal to any of them as well. In fact, the default clause we used here could 
-have been replaced with case clause with that predefined value. From experience,
-however, we have noticed that keeping the default clause results in a faster 
-code. A more important performance consideration is to keep the values close to
-each other. Not following this rule might result in compiler choosing decision 
-tree over a jump table implementation, which will significantly degrade 
-performance.
+depend on the actual value of case labels. The only property we rely on here is 
+that they are all different and that there is a predefined default value, 
+distinct from any of them. In fact, the default clause we used here can be 
+replaced with case clause with the predefined value. From experience, however, 
+we have noticed that keeping the default clause results in a faster code. A more 
+important performance consideration is to keep the values close to each other. 
+Not following this rule might result in compiler choosing decision trees over a 
+jump table implementation, which will significantly degrade the performance.
 
-The cascading-if that was used inside the switch effectively gives the entire 
-statement first-fit semantics. Assuming that conditions are either mutually 
-exclusive or imply one another we can build a decision-tree based memoization 
-device that will effectively have \emph{most specific} semantics -- an analog 
-of best-fit semantics in predicate dispatching.
+The first-fit semantics is not an inherent property of memoization device. 
+Assuming that conditions are either mutually exclusive or imply one another we 
+can build a decision-tree based memoization device that will effectively have 
+\emph{most specific} semantics -- an analog of best-fit semantics in predicate 
+dispatching\cite{ErnstKC98}.
 
 Imagine that predicates with numbers $2i$ and $2i+1$ are mutually exclusive and 
 each imply the value of the predicate with number $i$ i.e. $\forall x \in Domain(P)$
@@ -2859,11 +2883,12 @@ P_{2i+1}(x)\rightarrow P_i(x) \wedge P_{2i}(x)\rightarrow P_i(x) \wedge \neg(P_{
 \end{eqnarray*}
 \noindent
 The following decision-tree based memoization device will execute the statement 
-$s_i$ associated with the most specific predicate $P_i$ that evaluates to true 
-or will skip the entire statement if none of the predicates is true on x.
+$s_i$ associated with the \emph{most specific} (i.e. the predicate that implies 
+all other predicates true on $x$) predicate $P_i$ that evaluates to true or will 
+skip the entire statement if none of the predicates is true on $x$.
 
 \begin{lstlisting}
-switch (int& target = memory[x])
+switch (int& target = jump_target_map[x])
 {
 default:
     if (P1(x)) {
@@ -2883,6 +2908,14 @@ default:
     }
 }
 \end{lstlisting}
+
+An example of predicates that satisfy this condition are class membership tests
+where the truth of a predicate that tests membership in a derived class implies 
+the truth of a predicate that tests membership in its base class. Our library 
+solution prefers the simpler cascading-if approach only because the necessary 
+structure of the code can be layed out directly with macros. A compiler solution 
+will use the decision-tree approach whenever possible to lower the cost of the 
+first match from linear in case's number to logarithmic as senn in Figure\ref{fig:DCastVis1}.
 
 The main advantage of memoization device is that it does not impose any 
 restriction on the type of a selector. It can easily support multiple scrutinee 
@@ -2992,6 +3025,25 @@ would like to point out a few fields in it that we will refer to later.
       base class.
 \end{itemize}
 
+%[FROM ABI: 2.4 I 2.c] If C has no primary base class, allocate the virtual 
+%table pointer for C at offset zero, and set sizeof(C), align(C), and dsize(C) to 
+%the appropriate values for a pointer (all 8 bytes for Itanium 64-bit ABI).
+
+%[FROM ABI: 2.5.2]
+%The offset to top holds the displacement to the top of the object from the 
+%location within the object of the virtual table pointer that addresses this 
+%virtual table, as a  ptrdiff_t. It is always present. The offset provides a way 
+%to find the top of the object from any base subobject with a virtual table 
+%pointer. This is necessary for dynamic_cast<void*> in particular.
+
+%The typeinfo pointer points to the typeinfo object used for RTTI. It is always 
+%present. All entries in each of the virtual tables for a given class must point 
+%to the same typeinfo object. A correct implementation of typeinfo equality is to 
+%check pointer equality, except for pointers (directly or indirectly) to 
+%incomplete types. The typeinfo pointer is a valid pointer for polymorphic 
+%classes, i.e. those with virtual functions, and is zero for non-polymorphic 
+%classes.
+
 \noindent
 Given a virtual table pointer \code{vtbl}, we will refer to these fields as 
 \code{rtti(vtbl)}, \code{off2top(vtbl)} and \code{vbase(vtbl)} respectively. 
@@ -3023,6 +3075,7 @@ inheritance path in the same most-derived type.
     \forall a_1, a_2 : A\ |\ a_1\in C_1\leftY\sigma_1\rightY A \wedge a_2\in C_2\leftY\sigma_2\rightY A \\
     a_1.vtbl_i = a_2.vtbl_i \iff C_1 = C_2 \wedge \sigma_1 = \sigma_2
 \end{eqnarray*}
+\label{thm:vtbl}
 \end{theorem}
 \begin{proof}
 Let's assume first $a_1.vtbl_i = a_2.vtbl_i$ but $C_1 \neq C_2$. In this case we 
@@ -3057,11 +3110,12 @@ vtable pointers.
 \end{proof}
 
 \begin{corollary}
-Results of \code{dynamic_cast} can be reapplied to a different instance from the same subobject.
+Results of \code{dynamic_cast} can be reapplied to a different instance from within the same subobject.
 $\forall a_1, a_2 : A\ |\ a_1.vtbl_i = a_2.vtbl_i \Rightarrow$
 \code{dynamic_cast<B>}$(a_1).vtbl_j = $\code{dynamic_cast<B>}$(a_2).vtbl_j \vee$ \\
 \code{dynamic_cast<B>}$(a_1)$ throws $\wedge$ \code{dynamic_cast<B>}$(a_2)$ 
 throws.
+\label{crl:vtbl}
 \end{corollary}
 
 \subsubsection{VTable Memoization}
@@ -3074,9 +3128,9 @@ few extra definitions:
 
 \begin{lstlisting}
 typedef pair<ptrdiff_t,size_t> type_switch_info;
-static std::unordered_map<intptr_t, type_switch_info> memory;
+static std::unordered_map<intptr_t, type_switch_info> jump_target_map;
 intptr_t          vtbl = *reinterpret_cast<const intptr_t*>(p);
-type_switch_info& info = memory[vtbl];
+type_switch_info& info = jump_target_map[vtbl];
 const void*       tptr; 
 \end{lstlisting}
 
@@ -3414,16 +3468,30 @@ dedicated constant known at compile time.
 
 As we mentioned in \textsection\ref{sec:poets}, nominal subtyping of C++ 
 effectively gives every class multiple types. The idea is thus to associate with 
-the type not only its most derived tag, but the tags of all its base classes.
-Such a list can be shared in a vtable-like structure between all the instances 
-with the same most derived tag. The list of tags is topologically sorted 
-accordingly to the subtyping relation and terminates with a dedicated value 
-distinct from all the tags.
+the type not only its most derived tag, but also the tags of all its base classes.
+In a compiler implementation such a list can be stored inside the vtable of a 
+class, while in our library solution it is shared between all the instances with 
+the same most derived tag in a less efficient global map, associating the tag to 
+its tag list.
 
-A type switch built on top of a hierarchy of tagged classes proceeds as regular 
-switch on the subject's tag. If the jump succeeds, we found exact match. If the 
-jump fails, we get into a default clause that obtains the tag of its immediate 
-base class and jumps back to the beginning of the switch statement for rematch:
+The list of tags is topologically sorted accordingly to the subtyping relation 
+and terminates with a dedicated value distinct from all the tags. We call such a 
+list a \emph{Tag Precedence List} (TPL) as it resembles the \emph{Class 
+Precedence List} (CPL) of object-oriented descendants of Lisp (e.g. Dylan, 
+Flavors, LOOPS, and CLOS) used there for \emph{linearization} of class 
+hierarchies. The classes in CPL are ordered from most specific to least specific 
+with siblings listed in the \emph{local precedence order} -- the order of the 
+direct base classes used in the class definition. TPL is just an implementation 
+detail and the only reason we distinguish TPL from CPL is that in C++ classes 
+are often separated into interface and implementation classes and it might so 
+happen that the same tag is associated by the user with an interface and several 
+implementation classes. 
+
+A type switch below, built on top of a hierarchy of tagged classes, proceeds as 
+regular switch on the subject's tag. If the jump succeeds, we found an exact 
+match, otherwise we get into a default clause that obtains the next tag in the 
+tag precedence list and jump back to the beginning of the switch statement for a 
+rematch:
 
 \begin{lstlisting}
     const size_t* taglist = 0;
@@ -3438,24 +3506,106 @@ ReMatch:
         tag = taglist[++attempt];
         goto ReMatch;
     case end_of_list: break;
-    case tag1: s1;
+    case bindings<D1>::kind_value: s1;
     ...
-    case tagN: sN;
+    case bindings<Dn>::kind_value: sN;
     }
 \end{lstlisting}
 
 The above structure lets us dispatch to case clauses of the most derived class 
-with an overhead of a single initialization compared to a switch on a sealed 
-hierarchy.\footnote{attempt can be initialized inside default's if}. Dispatching 
-to a case clause of a base class will take a time roughly proportional to the 
-distance between the matched base class and the most derived class in the 
-inheritance graph. When none of the base class tags was matched we will 
-necessarily reach the end\_of\_list marker in the taglist and thus exit the 
-loop.
+with an overhead of initializing two local variables compared to a switch on a 
+sealed hierarchy. Dispatching to a case clause of a base class will take a time 
+roughly proportional to the distance between the matched base class and the most 
+derived class in the inheritance graph. When none of the base class tags was 
+matched we will necessarily reach the end\_of\_list marker in the tag precedence 
+list and thus exit the loop.
 
 Our library automatically builds the function \code{get_taglist} based on the 
 \code{BC} or \code{BCS} specifiers that the user specifies in bindings 
 (\textsection\ref{sec:bnd}).
+
+To make the behavior clos
+
+\begin{lstlisting}
+    if (is_derived_from<Di>(object))
+    {
+case bindings<Di>::kind_value:
+        auto matched = static_cast<Di>(object); 
+        si;
+    }
+\end{lstlisting}
+
+
+\subsection{(Ab)using Exceptions for Pattern Matching}
+\label{sec:xpm}
+
+Interestingly enough, the exception handling mechanism of C++ can be abused to 
+implement the first-fit semantics of the match statement. The idea is to harness 
+the fact that catch-handlers in C++ essentially use first-fit semantics to 
+decide which one is going to handle a given exception. The only problem is to 
+raise an exception with a static type equal to the dynamic type of selector.
+
+To do this, we employ \emph{polymorphic exception} idiom\cite{PolyExcept} that 
+introduces a virtual function \code{virtual void raise() const = 0;} into the 
+base class, overriden by each derived class in syntactically same way: 
+\code{throw *this;}. Match statement then simply calls \code{raise} on selector, 
+while case clauses are turned into catch-handlers.
+The exact name of the function is not important and can be communicated to the 
+library as \emph{raise selector} with \code{RS} specifier in the same way 
+\emph{kind selector} and \emph{class members} are (\textsection\ref{sec:bnd}). 
+The \code{raise} member function can be seen as an analog of \code{accept} 
+member function in visitor design pattern, whose main purpose is to discover 
+subject's most specific type. The analog of call to \code{visit} to communicate 
+that type is replaced in this scheme with exception unwinding mechanism.
+
+Just because we can, it does not mean we should abuse the exception handling 
+mechanism to give us the desired control flow. In the table-driven approach 
+commonly used in high-performance implementations of exception handling, the 
+speed of handling an exception is sacrificed to provide a zero execution-time 
+overhead for when exceptions are not thrown\cite{Schilling98}. Using exception 
+handling to implement pattern matching will reverse the common and exceptional 
+cases, significantly degrading performance. As can be seen in 
+Figure\ref{fig:DCastVis1}, matching the type of the first case clause with 
+polymorphic exception approach takes more than 7000 cycles and then grows 
+linearly (with the position of case clause in the match statement), making it the 
+slowest approach. The numbers illustrate why exception handling should only be 
+used to deal with exceptional and not common cases.
+
+Despite its total inpracticality, the approach fits well into our unified syntax 
+(\textsection\ref{sec:unisyn}) and gave us a very practical idea of harnessing a
+C++ compiler to do \emph{redundancy checking} at compile time.
+
+\subsubsection{Redundancy Checking}
+\label{sec:redun}
+
+As discussed in \textsection\ref{sec:bg}, redundancy checking is only applicable 
+to first-fit semantics of the match statement, and warns the user of any 
+case clause that will never be entered because of preceding one being more 
+general.
+
+We provide a library-configuration flag, which, when defined, effectively turns 
+the entire match statement into a try-catch block with handlers accepting the 
+target types of the case clauses. This forces the compiler to give warning when 
+more general catch handler preceeds more specific one effectively performing a 
+redundancy checking for us, e.g.:
+
+\begin{lstlisting}
+filename.cpp(55): warning C4286: 'ipr::Decl*' : is caught by 
+                  base class ('ipr::Stmt*') on line 42
+\end{lstlisting}
+
+\noindent
+Note that message contains both: a line number of the redundant case clause (55) 
+and the line number of the case clause it is made redundant with (42).
+
+Unfortunately the flag cannot be always enabled as case labels of the underlying 
+switch statement have to be eliminated in order to render a syntactically 
+correct program. Nevertheless, we found the redundancy checking facility of the 
+library extremely useful when rewriting visitors based code: even though the 
+order of overrides in visitor's implementation does not matter, for some reason 
+more general ones were inclined to happen before specific ones in the code we 
+looked at. Perhaps we are inclined to follow the class declaration order when 
+defining and implementing visitors.
 
 \subsection{Unified Syntax}
 \label{sec:unisyn}
@@ -3524,87 +3674,125 @@ version only slightly less efficient than the specialized ones. These
 differences can be best seen in Figure\ref{relperf} under corresponding entries 
 of \emph{Unified} and \emph{Specialized} columns.
 
-\subsection{Redundancy Checking}
-\label{sec:redun}
-
-Another interesting use of syntax unification we just described allows us to 
-perform redundancy checking (\textsection\ref{sec:bg}). A library-configuration 
-flag that user may define effectively turns the entire match statement into a 
-try-catch block with handlers accepting the target types of the case clauses. 
-This forces the compiler to give warning when more general catch handler 
-preceeds more specific one effectively performing a redundancy checking for us, 
-e.g.:
-
-\begin{lstlisting}
-filename.cpp(55): warning C4286: 'ipr::Decl*' : is caught by 
-                  base class ('ipr::Stmt*') on line 42
-\end{lstlisting}
-
-\noindent
-Note that message contains both: a line number of the redundant case clause (55) 
-and the line number of the case clause it is made redundant with (42).
-
-Unfortunately the flag cannot be always enabled as case labels of the underlying 
-switch statement have to be eliminated in order to render a syntactically 
-correct program.
-
-\subsection{(Ab)using Exceptions for Pattern Matching}
-\label{sec:xpm}
-
-The above harnessing of C++ type system to perform redundancy checking may seem 
-accidental, but it is not entirely so. The exception handling mechanism of C++ 
-can be used to implement the first-fit semantics of the match statement. To do 
-this, we employ \emph{polymorphic exception} idiom\cite{PolyExcept} that 
-introduces a virtual function \code{virtual void raise() const = 0;} into the 
-base class, overriden by each derived class in syntactically same way: 
-\code{throw *this;}. Match statement then simply calls 
-\code{raise} on the subject, while case clauses are turned into catch-handlers. 
-The exact name of the function is not important and can be communicated to the 
-library as \emph{raise selector} with \code{RS} specifier in the same way 
-\emph{kind selector} and \emph{class members} are (\textsection\ref{sec:bnd}). 
-The \code{raise} member function can be seen as an analog of \code{accept} 
-member function in visitor design pattern, whose main purpose is to discover 
-subject's most specific type. The analog of call to \code{visit} to communicate 
-that type is replaced in this scheme with exception unwinding mechanism.
-
-Just because we can, it does not mean we should abuse the exception handling 
-mechanism to give us the desired control flow. In the table-driven approach 
-commonly used in high-performance implementations of exception handling, the 
-speed of handling an exception is sacrificed to provide a zero execution-time 
-overhead for when exceptions are not thrown\cite{Schilling98}. Using exception 
-handling to implement pattern matching will reverse the common and exceptional 
-cases, significantly degrading performance. As can be seen in 
-Figure\ref{fig:DCastVis1}, matching the type of the first case clause with 
-polymorphic exception approach takes more than 7000 cycles and then grows 
-linearly (with the position of case clause in the match statement), making it the 
-slowest approach. Despite its total inpracticality, the approach fits into our 
-unified syntax framework (\textsection\ref{sec:unisyn}). We also mention it here 
-to demonstrate why exception handling should only be used to deal with 
-exceptional and not common cases.
-
-%[FROM ABI: 2.4 I 2.c] If C has no primary base class, allocate the virtual 
-%table pointer for C at offset zero, and set sizeof(C), align(C), and dsize(C) to 
-%the appropriate values for a pointer (all 8 bytes for Itanium 64-bit ABI).
-
-%[FROM ABI: 2.5.2]
-%The offset to top holds the displacement to the top of the object from the 
-%location within the object of the virtual table pointer that addresses this 
-%virtual table, as a  ptrdiff_t. It is always present. The offset provides a way 
-%to find the top of the object from any base subobject with a virtual table 
-%pointer. This is necessary for dynamic_cast<void*> in particular.
-
-%The typeinfo pointer points to the typeinfo object used for RTTI. It is always 
-%present. All entries in each of the virtual tables for a given class must point 
-%to the same typeinfo object. A correct implementation of typeinfo equality is to 
-%check pointer equality, except for pointers (directly or indirectly) to 
-%incomplete types. The typeinfo pointer is a valid pointer for polymorphic 
-%classes, i.e. those with virtual functions, and is zero for non-polymorphic 
-%classes.
-
 \subsection{Memoized Dynamic Cast}
 \label{sec:memcast}
 
-Describe \code{memoized_cast}
+As seen from corollary~\ref{crl:vtbl} the results of \code{dynamic_cast} can be 
+reapplied to a different instance from within the same subobject. This leads to 
+a simple idea of memoizing the results of \code{dynamic_cast} and then using 
+them on subsequent casts. In what follows we will only be dealing with the 
+pointer version of the operator since the version on references that has a 
+slight semantic difference can be easily implemented in terms of the pointer one.
+
+The \code{dynamic_cast} operator in C++ involves two arguments: a value argument 
+representing an object of a known static type as well as a type argument 
+denoting the runtime type we are querying. It's behavior is twofold: on one side 
+it should be able to determine when the object's most derived type is not a 
+subtype of the queried type (or when the cast is ambiguous), while on the other 
+it should be able to produce an offset to adjust the value argument by when it is.
+
+We mimic the syntax of \code{dynamic_cast} by defining:
+
+\begin{lstlisting}
+template <typename T, typename S>
+inline T memoized_cast(S* p);
+\end{lstlisting}
+
+\noindent
+which lets the user replace all the uses of \code{dynamic_cast} in the program 
+with \code{memoized_cast} with a simple:
+
+\begin{lstlisting}
+#define dynamic_cast memoized_cast
+\end{lstlisting}
+
+It is important to stress that the offset is not a function of source and target 
+types of \code{dynamic_cast} operator, which is why we cannot simply memoize the 
+outcome inside the individual instantiations of \code{memoized_cast}.
+The use of repeated multiple inheritance will result in classes having several 
+different offsets associated with the same pair of source and target types 
+depending on which subobject the cast is performed from. Accordingly to 
+corollary~\ref{crl:vtbl}, however, it is a function of target type and the value 
+of the vtbl pointer stored in the object, because the vtbl pointer uniquely 
+determines the subobject within the most derived type. Our memoization of 
+results of \code{dynamic_cast} should thus be specific to a vtbl pointer and the 
+target type. 
+
+The easiest way to achieve this would be to use a dedicated global
+\code{vtblmap<std::ptrdiff_t>} (\textsection\ref{sec:sovtp}) per each 
+instantiation of the \code{memoized_cast}. This, however, will create an 
+unnecessarily large amount of vtblmap structures, many of which will be  
+duplicating information and repeating the work already done. This will happen 
+because instantiations of \code{memoized_cast} with same target but different 
+source types can share their vtblmap structures since vtbl pointers of different 
+source types are necessarily different accordingly to Theorem~\ref{thm:vtbl}. 
+
+Even though the above solution can be easily improved to allocates a single 
+vtblmap per target type, an average application might have a lot of different 
+target types. This is especially true for applications that will use our Match 
+statement since we use \code{dynamic_cast} under the hood in each case clause. 
+Indeed our C++ pretty printer was creating 160 vtblmaps of relatively small size 
+each, which was increasing the executable size quite significantly because of 
+numerous instantiations as well as noticably slowed down the compilation time.
+
+To overcome the problem we turn each target type into a runtime instantiation 
+index of the type and allocate a single \code{vtblmap<std::vector<std::ptrdiff_t>>} 
+that associates vtbl pointers with a vector of offsets indexed by target type. 
+The slight performance overhead that is brought by this improvement is specific 
+to our library solution and would not be present in a compiler implementaion. 
+Instead we get a much smaller memory footrpint, which can be made even smaller 
+once we recognize the fact that global type indexing may effectively enumerate 
+target classes that will never appear in the same Match statement. This will 
+result in entries in the vector of offsets that are never used.
+
+Our actual solution uses separate indexing of target types per each source type 
+they are used with as well as allocates a different 
+\code{vtblmap<std::vector<std::ptrdiff_t>>} for every source type. This lets us 
+minimize unused entries within offset vectors by making sure only the plausible 
+target types for a given source type are indexed. This solution should be 
+suitable for most of the applications since we expect to have a fairly small 
+amount of source types of \code{dynamic_cast} operator with a much larger amount 
+of target types. For the unlikely case of small amount of target types and large 
+amount of source types we let the user to revert the default behavior with a 
+library confirugration switch that allocates a single vtblmap per target type as 
+we have already discussed above.
+
+Use of \code{memoized_cast} to implement match statement potentially reuses the 
+results of \code{dynamic_cast} computation accross multiple independent match 
+statements. This allows to leverage the cost of expensive first call with a 
+given vtbl pointer even further accross all the match statements inside the 
+program. The above define, with which a user can easily turn all dynamic casts 
+into memoized casts can be used to speed-up existing code that uses dynamic 
+casting without any refactoring overhead.
+
+\subsection{Discussion}
+\label{sec:dsc}
+
+Let us look at both our techniques in the context of Zenger and Odersky 
+challenge to independently extensible solutions of extension problem discussed 
+in \textsection\ref{sec:exp}.
+
+\begin{itemize}
+\item Extensibility in both dimensions: \\
+      %It should be possible to add new data variants, while adapting the 
+      %existing operations accordingly. It should also be possible to introduce 
+      %new functions. 
+      Our techniques allow one to extend data with subclassing as well as 
+      introduce new functions through a match statement on corresponding 
+      encoding. The existing operations 
+\item Strong static type safety: \\
+      %It should be impossible to apply a function to a data variant, which it 
+      %cannot handle.
+\item No modification or duplication: \\
+      %Existing code should neither be modified nor duplicated.
+\item Separate compilation: \\
+      %Neither datatype extensions nor addition of new functions should require 
+      %re-typechecking the original datatype or existing functions. No safety 
+      %checks should be deferred until link or runtime.
+\item Independent extensibility: \\
+      %It should be possible to combine independently developed extensions so 
+      %that they can be used jointly.
+\end{itemize}
 
 \section{Evaluation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:eval}
@@ -3960,9 +4148,9 @@ imperative languages such as C, Java, or Eiffel.\cite{Moreau:2003}
 \section{Future Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:fw}
 
-Current implementation of our library relies on static variables and global 
-state they enable. This will have problems in a multi-threaded environment and 
-thus the first extension we would like to provide is an efficient multi-threaded 
+The current implementation of our library relies on static variables and global 
+state. This will have problems in a multi-threaded environment so the first 
+extension we would like to provide is an efficient multi-threaded 
 implementation.
 
 Match statement that we presented here deals with only one scrutiny at the 
@@ -3989,7 +4177,7 @@ We described a technique for implementing efficiently various language
 facilities that depend on a run-time type of an argument: type switching, type 
 testing, pattern matching etc. The technique is open to class extensions and 
 interacts well with multiple inheritance in C++ (including repetitive and 
-virtual inheritance) as well as templates. The technique can also be reused in 
+virtual inheritance) as well as templates. The technique can be used in 
 other object-oriented language that use v-tables to implement dynamic dispatch.
 
 Using the above technique we implemented a pattern-matching library for C++ that 

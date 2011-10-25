@@ -297,6 +297,7 @@ C++ for uses of the visitor pattern. For generality and simplicity of use, we
 deemed it essential to do both with a uniform syntax.
 
 \subsection{Expression Problem}
+\label{sec:exp}
 
 Functional languages allow for easy addition of new functions on existing data 
 types, but fall short in extending data types themselves (e.g. with new constructors), 
@@ -1174,7 +1175,9 @@ Emir, we will refer to them as \emph{encodings}:
 The first two encodings are inherently \emph{open} because the classes can be 
 arbitrarily extended through subclassing. The last encoding is inherently 
 \emph{closed} because we cannot add more members to the union without modifying 
-its definition.
+its definition. For brevity, we will refer to these encoding throughout the rest 
+of the paper as \emph{polymorphic}, \emph{tagged} and \emph{union} encodings 
+respectively.
 
 \subsubsection{Polymorphic Base Class}
 \label{sec:pbc}
@@ -2888,6 +2891,7 @@ inheritance path in the same most-derived type.
     \forall a_1, a_2 : A\ |\ a_1\in C_1\leftY\sigma_1\rightY A \wedge a_2\in C_2\leftY\sigma_2\rightY A \\
     a_1.vtbl_i = a_2.vtbl_i \iff C_1 = C_2 \wedge \sigma_1 = \sigma_2
 \end{eqnarray*}
+\label{thm:vtbl}
 \end{theorem}
 \begin{proof}
 Let's assume first $a_1.vtbl_i = a_2.vtbl_i$ but $C_1 \neq C_2$. In this case we 
@@ -2922,11 +2926,12 @@ vtable pointers.
 \end{proof}
 
 \begin{corollary}
-Results of \code{dynamic_cast} can be reapplied to a different instance from the same subobject.
+Results of \code{dynamic_cast} can be reapplied to a different instance from within the same subobject.
 $\forall a_1, a_2 : A\ |\ a_1.vtbl_i = a_2.vtbl_i \Rightarrow$
 \code{dynamic_cast<B>}$(a_1).vtbl_j = $\code{dynamic_cast<B>}$(a_2).vtbl_j \vee$ \\
 \code{dynamic_cast<B>}$(a_1)$ throws $\wedge$ \code{dynamic_cast<B>}$(a_2)$ 
 throws.
+\label{crl:vtbl}
 \end{corollary}
 
 \subsubsection{VTable Memoization}
@@ -3347,6 +3352,77 @@ case bindings<Di>::kind_value:
 \end{lstlisting}
 
 
+\subsection{(Ab)using Exceptions for Pattern Matching}
+\label{sec:xpm}
+
+Interestingly enough, the exception handling mechanism of C++ can be abused to 
+implement the first-fit semantics of the match statement. The idea is to harness 
+the fact that catch-handlers in C++ essentially use first-fit semantics to 
+decide which one is going to handle a given exception. The only problem is to 
+raise an exception with a static type equal to the dynamic type of selector.
+
+To do this, we employ \emph{polymorphic exception} idiom\cite{PolyExcept} that 
+introduces a virtual function \code{virtual void raise() const = 0;} into the 
+base class, overriden by each derived class in syntactically same way: 
+\code{throw *this;}. Match statement then simply calls \code{raise} on selector, 
+while case clauses are turned into catch-handlers.
+The exact name of the function is not important and can be communicated to the 
+library as \emph{raise selector} with \code{RS} specifier in the same way 
+\emph{kind selector} and \emph{class members} are (\textsection\ref{sec:bnd}). 
+The \code{raise} member function can be seen as an analog of \code{accept} 
+member function in visitor design pattern, whose main purpose is to discover 
+subject's most specific type. The analog of call to \code{visit} to communicate 
+that type is replaced in this scheme with exception unwinding mechanism.
+
+Just because we can, it does not mean we should abuse the exception handling 
+mechanism to give us the desired control flow. In the table-driven approach 
+commonly used in high-performance implementations of exception handling, the 
+speed of handling an exception is sacrificed to provide a zero execution-time 
+overhead for when exceptions are not thrown\cite{Schilling98}. Using exception 
+handling to implement pattern matching will reverse the common and exceptional 
+cases, significantly degrading performance. As can be seen in 
+Figure\ref{fig:DCastVis1}, matching the type of the first case clause with 
+polymorphic exception approach takes more than 7000 cycles and then grows 
+linearly (with the position of case clause in the match statement), making it the 
+slowest approach. The numbers illustrate why exception handling should only be 
+used to deal with exceptional and not common cases.
+
+Despite its total inpracticality, the approach fits well into our unified syntax 
+(\textsection\ref{sec:unisyn}) and gave us a very practical idea of harnessing a
+C++ compiler to do \emph{redundancy checking} at compile time.
+
+\subsubsection{Redundancy Checking}
+\label{sec:redun}
+
+As discussed in \textsection\ref{sec:bg}, redundancy checking is only applicable 
+to first-fit semantics of the match statement, and warns the user of any 
+case clause that will never be entered because of preceding one being more 
+general.
+
+We provide a library-configuration flag, which, when defined, effectively turns 
+the entire match statement into a try-catch block with handlers accepting the 
+target types of the case clauses. This forces the compiler to give warning when 
+more general catch handler preceeds more specific one effectively performing a 
+redundancy checking for us, e.g.:
+
+\begin{lstlisting}
+filename.cpp(55): warning C4286: 'ipr::Decl*' : is caught by 
+                  base class ('ipr::Stmt*') on line 42
+\end{lstlisting}
+
+\noindent
+Note that message contains both: a line number of the redundant case clause (55) 
+and the line number of the case clause it is made redundant with (42).
+
+Unfortunately the flag cannot be always enabled as case labels of the underlying 
+switch statement have to be eliminated in order to render a syntactically 
+correct program. Nevertheless, we found the redundancy checking facility of the 
+library extremely useful when rewriting visitors based code: even though the 
+order of overrides in visitor's implementation does not matter, for some reason 
+more general ones were inclined to happen before specific ones in the code we 
+looked at. Perhaps we are inclined to follow the class declaration order when 
+defining and implementing visitors.
+
 \subsection{Unified Syntax}
 \label{sec:unisyn}
 
@@ -3414,68 +3490,96 @@ version only slightly less efficient than the specialized ones. These
 differences can be best seen in Figure\ref{relperf} under corresponding entries 
 of \emph{Unified} and \emph{Specialized} columns.
 
-\subsection{Redundancy Checking}
-\label{sec:redun}
-
-Another interesting use of syntax unification we just described allows us to 
-perform redundancy checking (\textsection\ref{sec:bg}). A library-configuration 
-flag that user may define effectively turns the entire match statement into a 
-try-catch block with handlers accepting the target types of the case clauses. 
-This forces the compiler to give warning when more general catch handler 
-preceeds more specific one effectively performing a redundancy checking for us, 
-e.g.:
-
-\begin{lstlisting}
-filename.cpp(55): warning C4286: 'ipr::Decl*' : is caught by 
-                  base class ('ipr::Stmt*') on line 42
-\end{lstlisting}
-
-\noindent
-Note that message contains both: a line number of the redundant case clause (55) 
-and the line number of the case clause it is made redundant with (42).
-
-Unfortunately the flag cannot be always enabled as case labels of the underlying 
-switch statement have to be eliminated in order to render a syntactically 
-correct program.
-
-\subsection{(Ab)using Exceptions for Pattern Matching}
-\label{sec:xpm}
-
-The above harnessing of C++ type system to perform redundancy checking may seem 
-accidental, but it is not entirely so. The exception handling mechanism of C++ 
-can be used to implement the first-fit semantics of the match statement. To do 
-this, we employ \emph{polymorphic exception} idiom\cite{PolyExcept} that 
-introduces a virtual function \code{virtual void raise() const = 0;} into the 
-base class, overriden by each derived class in syntactically same way: 
-\code{throw *this;}. Match statement then simply calls 
-\code{raise} on the subject, while case clauses are turned into catch-handlers. 
-The exact name of the function is not important and can be communicated to the 
-library as \emph{raise selector} with \code{RS} specifier in the same way 
-\emph{kind selector} and \emph{class members} are (\textsection\ref{sec:bnd}). 
-The \code{raise} member function can be seen as an analog of \code{accept} 
-member function in visitor design pattern, whose main purpose is to discover 
-subject's most specific type. The analog of call to \code{visit} to communicate 
-that type is replaced in this scheme with exception unwinding mechanism.
-
-Just because we can, it does not mean we should abuse the exception handling 
-mechanism to give us the desired control flow. In the table-driven approach 
-commonly used in high-performance implementations of exception handling, the 
-speed of handling an exception is sacrificed to provide a zero execution-time 
-overhead for when exceptions are not thrown\cite{Schilling98}. Using exception 
-handling to implement pattern matching will reverse the common and exceptional 
-cases, significantly degrading performance. As can be seen in 
-Figure\ref{fig:DCastVis1}, matching the type of the first case clause with 
-polymorphic exception approach takes more than 7000 cycles and then grows 
-linearly (with the position of case clause in the match statement), making it the 
-slowest approach. Despite its total inpracticality, the approach fits into our 
-unified syntax framework (\textsection\ref{sec:unisyn}). We also mention it here 
-to demonstrate why exception handling should only be used to deal with 
-exceptional and not common cases.
-
 \subsection{Memoized Dynamic Cast}
 \label{sec:memcast}
 
-Describe \code{memoized_cast}
+As seen from corollary~\ref{crl:vtbl} the results of \code{dynamic_cast} can be 
+reapplied to a different instance from within the same subobject. This leads to 
+a simple idea of memoizing the results of \code{dynamic_cast} and then using 
+them on subsequent casts. In what follows we will only be dealing with the 
+pointer version of the operator since the version on references that has a 
+slight semantic difference can be easily implemented in terms of the pointer one.
+
+The \code{dynamic_cast} operator in C++ involves two arguments: a value argument 
+representing an object of a known static type as well as a type argument 
+denoting the runtime type we are querying. It's behavior is twofold: on one side 
+it should be able to determine when the object's most derived type is not a 
+subtype of the queried type (or when the cast is ambiguous), while on the other 
+it should be able to produce an offset to adjust the value argument by when it is.
+
+We mimic the syntax of \code{dynamic_cast} by defining:
+
+\begin{lstlisting}
+template <typename T, typename S>
+inline T memoized_cast(S* p);
+\end{lstlisting}
+
+\noindent
+which lets the user replace all the uses of \code{dynamic_cast} in the program 
+with \code{memoized_cast} with a simple:
+
+\begin{lstlisting}
+#define dynamic_cast memoized_cast
+\end{lstlisting}
+
+It is important to stress that the offset is not a function of source and target 
+types of \code{dynamic_cast} operator, which is why we cannot simply memoize the 
+outcome inside the individual instantiations of \code{memoized_cast}.
+The use of repeated multiple inheritance will result in classes having several 
+different offsets associated with the same pair of source and target types 
+depending on which subobject the cast is performed from. Accordingly to 
+corollary~\ref{crl:vtbl}, however, it is a function of target type and the value 
+of the vtbl pointer stored in the object, because the vtbl pointer uniquely 
+determines the subobject within the most derived type. Our memoization of 
+results of \code{dynamic_cast} should thus be specific to a vtbl pointer and the 
+target type. 
+
+The easiest way to achieve this would be to use a dedicated global
+\code{vtblmap<std::ptrdiff_t>} (\textsection\ref{sec:sovtp}) per each 
+instantiation of the \code{memoized_cast}. This, however, will create an 
+unnecessarily large amount of vtblmap structures, many of which will be  
+duplicating information and repeating the work already done. This will happen 
+because instantiations of \code{memoized_cast} with same target but different 
+source types can share their vtblmap structures since vtbl pointers of different 
+source types are necessarily different accordingly to Theorem~\ref{thm:vtbl}. 
+
+Even though the above solution can be easily improved to allocates a single 
+vtblmap per target type, an average application might have a lot of different 
+target types. This is especially true for applications that will use our Match 
+statement since we use \code{dynamic_cast} under the hood in each case clause. 
+Indeed our C++ pretty printer was creating 160 vtblmaps of relatively small size 
+each, which was increasing the executable size quite significantly because of 
+numerous instantiations as well as noticably slowed down the compilation time.
+
+To overcome the problem we turn each target type into a runtime instantiation 
+index of the type and allocate a single \code{vtblmap<std::vector<std::ptrdiff_t>>} 
+that associates vtbl pointers with a vector of offsets indexed by target type. 
+The slight performance overhead that is brought by this improvement is specific 
+to our library solution and would not be present in a compiler implementaion. 
+Instead we get a much smaller memory footrpint, which can be made even smaller 
+once we recognize the fact that global type indexing may effectively enumerate 
+target classes that will never appear in the same Match statement. This will 
+result in entries in the vector of offsets that are never used.
+
+Our actual solution uses separate indexing of target types per each source type 
+they are used with as well as allocates a different 
+\code{vtblmap<std::vector<std::ptrdiff_t>>} for every source type. This lets us 
+minimize unused entries within offset vectors by making sure only the plausible 
+target types for a given source type are indexed. This solution should be 
+suitable for most of the applications since we expect to have a fairly small 
+amount of source types of \code{dynamic_cast} operator with a much larger amount 
+of target types. For the unlikely case of small amount of target types and large 
+amount of source types we let the user to revert the default behavior with a 
+library confirugration switch that allocates a single vtblmap per target type as 
+we have already discussed above.
+
+Use of \code{memoized_cast} to implement match statement potentially reuses the 
+results of \code{dynamic_cast} computation accross multiple independent match 
+statements. This allows to leverage the cost of expensive first call with a 
+given vtbl pointer even further accross all the match statements inside the 
+program. The above define, with which a user can easily turn all dynamic casts 
+into memoized casts can be used to speed-up existing code that uses dynamic 
+casting without any refactoring overhead.
 
 \section{Evaluation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:eval}
