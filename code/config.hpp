@@ -36,9 +36,9 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 //------------------------------------------------------------------------------
 
 /// Uncomment this macro definition if you'd like to do some performance tracing
-//#define XTL_TRACE_PERFORMANCE
+#define XTL_TRACE_PERFORMANCE
 /// Uncomment this macro definition if you'd like to do some performance tracing
-//#define XTL_DUMP_PERFORMANCE
+#define XTL_DUMP_PERFORMANCE
 /// Uncomment to use Pearson hash
 //#define XTL_USE_PEARSON_HASH
 
@@ -53,7 +53,7 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 /// - 'U' - Union switch
 /// - 'E' - Exception switch
 #if !defined(XTL_DEFAULT_SYNTAX)
-  #define XTL_DEFAULT_SYNTAX 'G'
+  #define XTL_DEFAULT_SYNTAX 'P'
 #endif
 
 //------------------------------------------------------------------------------
@@ -290,53 +290,6 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 
 //------------------------------------------------------------------------------
 
-/// The following set of macros was copied verbatim from a response by Moritz Beutel
-/// here: https://forums.embarcadero.com/message.jspa?messageID=320338
-/// It is used for suppressing , (comma) when argument is added to __VA_ARGS__, which
-/// might be empty.
-#define UCL_PP_AND(a,b) UCL_PP_CAT3(_UCL_PP_AND_, a, b)
-#define UCL_PP_NOT(a) UCL_PP_CAT2(_UCL_PP_NOT_, a)
-#define UCL_PP_IF(a,b,...) UCL_PP_CAT2(_UCL_PP_IF_, a)(b, __VA_ARGS__)
- 
-#define UCL_PP_EMPTY()
-#define UCL_PP_EXPAND(...) __VA_ARGS__
-#define UCL_PP_1ST(a,...) a
-#define UCL_PP_2ND(a,b,...) b
-#define UCL_PP_REMOVE_1ST(a,...) __VA_ARGS__
-#define UCL_PP_PAIR(a,...) a __VA_ARGS__
-#define UCL_PP_CAT2(a,...) UCL_PP_CAT2_(a, __VA_ARGS__)
-#define UCL_PP_CAT3(a,b,...) UCL_PP_CAT3_(a, b, __VA_ARGS__)
- 
-    // The two macros below are inspired by Laurent Deniau's posting on comp.lang.c from 2006/09/27
-    // http://groups.google.com/group/comp.lang.c/browse_thread/thread/578912299f8f87ce#msg_937356effc43f569
-#define UCL_PP_IS_EMPTY(...) \
-    UCL_PP_AND(UCL_PP_IS_LIST(__VA_ARGS__ ()),UCL_PP_NOT(UCL_PP_IS_LIST(__VA_ARGS__ _)))
-#define UCL_PP_IS_LIST(...) \
-    UCL_PP_PAIR(UCL_PP_1ST, (UCL_PP_CAT2(UCL_PP_IS_LIST_RET_, UCL_PP_IS_LIST_TST_ __VA_ARGS__)))
- 
- 
-    // implementation details
- 
-#define UCL_PP_IS_LIST_TST_(...) 1
-#define UCL_PP_IS_LIST_RET_UCL_PP_IS_LIST_TST_ 0,
-#define UCL_PP_IS_LIST_RET_1 1,
- 
-#define UCL_PP_CAT2_(a,...) UCL_PP_EXPAND(a ## __VA_ARGS__)
-#define UCL_PP_CAT3_(a,b,...) UCL_PP_EXPAND(a ## b ## __VA_ARGS__)
- 
-#define _UCL_PP_AND_00 0
-#define _UCL_PP_AND_01 0
-#define _UCL_PP_AND_10 0
-#define _UCL_PP_AND_11 1
- 
-#define _UCL_PP_IF_0(a,...) __VA_ARGS__
-#define _UCL_PP_IF_1(a,...) a
- 
-#define _UCL_PP_NOT_0 1
-#define _UCL_PP_NOT_1 0
-
-//------------------------------------------------------------------------------
-
 #if !defined(XTL_ARR_SIZE)
     #define XTL_ARR_SIZE(a) (sizeof(a)/sizeof((a)[0]))
 #endif
@@ -431,4 +384,52 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 /// dependent on a template-parameter, or the use does not appear in the scope of a template. -end note ]
 #define XTL_CPP0X_TYPENAME XTL_NON_MSC_ONLY(typename)
 #define XTL_CPP0X_TEMPLATE XTL_NON_GCC_ONLY(template)
+
+//------------------------------------------------------------------------------
+
+/// The following set of macros was copied verbatim from a response by Moritz Beutel
+/// here: https://forums.embarcadero.com/message.jspa?messageID=320338
+/// It is used for suppressing , (comma) when argument is added to __VA_ARGS__, which
+/// might be empty.
+#define UCL_PP_AND(a,b) UCL_PP_CAT3(_UCL_PP_AND_, a, b)
+#define UCL_PP_NOT(a) UCL_PP_CAT2(_UCL_PP_NOT_, a)
+#define UCL_PP_IF(a,b,...) UCL_PP_CAT2(_UCL_PP_IF_, a)(b, __VA_ARGS__)
+ 
+#define UCL_PP_EMPTY()
+#define UCL_PP_EXPAND(...) __VA_ARGS__
+#define UCL_PP_1ST(a,...) a
+#define UCL_PP_2ND(a,b,...) b
+#define UCL_PP_REMOVE_1ST(a,...) __VA_ARGS__
+#define UCL_PP_PAIR(a,...) a __VA_ARGS__
+#define UCL_PP_CAT2(a,...) UCL_PP_CAT2_(a, __VA_ARGS__)
+#define UCL_PP_CAT3(a,b,...) UCL_PP_CAT3_(a, b, __VA_ARGS__)
+ 
+    // The two macros below are inspired by Laurent Deniau's posting on comp.lang.c from 2006/09/27
+    // http://groups.google.com/group/comp.lang.c/browse_thread/thread/578912299f8f87ce#msg_937356effc43f569
+#define UCL_PP_IS_EMPTY(...) \
+    UCL_PP_AND(UCL_PP_IS_LIST(__VA_ARGS__ ()),UCL_PP_NOT(UCL_PP_IS_LIST(__VA_ARGS__ _)))
+#define UCL_PP_IS_LIST(...) \
+    UCL_PP_PAIR(UCL_PP_1ST, (UCL_PP_CAT2(UCL_PP_IS_LIST_RET_, UCL_PP_IS_LIST_TST_ __VA_ARGS__)))
+ 
+ 
+    // implementation details
+ 
+#define UCL_PP_IS_LIST_TST_(...) 1
+#define UCL_PP_IS_LIST_RET_UCL_PP_IS_LIST_TST_ 0,
+#define UCL_PP_IS_LIST_RET_1 1,
+ 
+#define UCL_PP_CAT2_(a,...) UCL_PP_EXPAND(a ## __VA_ARGS__)
+#define UCL_PP_CAT3_(a,b,...) UCL_PP_EXPAND(a ## b ## __VA_ARGS__)
+ 
+#define _UCL_PP_AND_00 0
+#define _UCL_PP_AND_01 0
+#define _UCL_PP_AND_10 0
+#define _UCL_PP_AND_11 1
+ 
+#define _UCL_PP_IF_0(a,...) __VA_ARGS__
+#define _UCL_PP_IF_1(a,...) a
+ 
+#define _UCL_PP_NOT_0 1
+#define _UCL_PP_NOT_1 0
+
 //------------------------------------------------------------------------------

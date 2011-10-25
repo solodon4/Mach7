@@ -323,6 +323,19 @@ private:
 
     enum { local_cache_bits = VTBL_DEFAULT_CACHE_BITS, local_cache_size = 1 << local_cache_bits };
 
+#ifdef XTL_TRACE_PERFORMANCE
+    struct stored_type
+    {
+        stored_type() : value(), hits(0) {}
+        operator const T&() const { return value; }
+        operator       T&()       { return value; }
+        T      value;
+        size_t hits;
+    };
+#else
+    typedef T stored_type;
+#endif
+
 #ifdef _MSC_VER
    	/// Hash functor for vtbl.
     /// MSVC uses by default a complicated hash function on all integral types,
@@ -337,10 +350,10 @@ private:
     };
 
     /// A map from vtbl to T
-    typedef std::unordered_map<intptr_t, T, vtbl_hasher> vtbl_to_t_map;
+    typedef std::unordered_map<intptr_t, stored_type, vtbl_hasher> vtbl_to_t_map;
 #else
     /// A map from vtbl to T
-    typedef std::unordered_map<intptr_t, T>              vtbl_to_t_map;
+    typedef std::unordered_map<intptr_t, stored_type>              vtbl_to_t_map;
 #endif
 
     typedef typename vtbl_to_t_map::iterator    iterator;
@@ -383,8 +396,8 @@ public:
     /// Structure describing entry in the cache
     struct cache_entry
     {
-        intptr_t vtbl;   ///< vtbl for which value has been computed
-        T*       ptr;    ///< pointer to actual value in the table!
+        intptr_t     vtbl;   ///< vtbl for which value has been computed
+        stored_type* ptr;    ///< pointer to actual value in the table!
     };
 
     /// This is the main function to get the value of type T associated with
@@ -419,7 +432,7 @@ public:
                 if (ce.vtbl && table.size() != last_table_size && !--collisions_before_update)
                     return update(vtbl); // try to rearrange cache
                 else
-                    ce.ptr = &table.insert(value_type(vtbl,T())).first->second;
+                    ce.ptr = &table.insert(value_type(vtbl,stored_type())).first->second;
             }
 
             //if (XTL_LIKELY(ce.vtbl))
@@ -434,11 +447,11 @@ public:
             //        if (table.size() != last_table_size && !--collisions_before_update)
             //            return update(vtbl); // try to rearrange cache
             //        else
-            //            ce.ptr = &table.insert(value_type(vtbl,T())).first->second;
+            //            ce.ptr = &table.insert(value_type(vtbl,stored_type())).first->second;
             //    }
             //}
             //else
-            //    ce.ptr = &table.insert(value_type(vtbl,T())).first->second;
+            //    ce.ptr = &table.insert(value_type(vtbl,stored_type())).first->second;
 
             //-----------------------------------------------
             //if (ce.vtbl && table.size() != last_table_size && !--collisions_before_update)
@@ -487,6 +500,7 @@ public:
             ce.vtbl = vtbl;
         }
 
+        XTL_TRACE_PERFORMANCE_ONLY(++ce.ptr->hits);
         return *ce.ptr;
     }
 
@@ -505,7 +519,7 @@ public:
             prev = vtbl;
         }
 
-        T& result = table[vtbl];
+        stored_type& result = table[vtbl];
 
         XTL_DUMP_PERFORMANCE_ONLY(++updates); // Record update
         last_table_size = table.size();       // Update memoized value
@@ -570,10 +584,11 @@ public:
                 ce.ptr  = &p->second;
             }
         }
-#if defined(XTL_DUMP_PERFORMANCE)
-        std::clog << "Vtbl:New" << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << ((vtbl >> optimal_shift) & cache_mask) << '\t' << vtbl_typeid(vtbl).name() << std::endl;
-        *this >> std::clog;       
-#endif
+//#if defined(XTL_DUMP_PERFORMANCE)
+//        std::clog << "Vtbl:New" << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) << " -> " << ((vtbl >> optimal_shift) & cache_mask) << '\t' << vtbl_typeid(vtbl).name() << std::endl;
+//        *this >> std::clog;       
+//#endif
+        XTL_TRACE_PERFORMANCE_ONLY(++result.hits);
         return result;
     }
 
@@ -658,6 +673,7 @@ public:
             os << "Vtbl:   " << std::bitset<8*sizeof(intptr_t)>((unsigned long long)vtbl) 
                << " -> " << ((vtbl >> optimal_shift) & cache_mask) 
                << '\t';
+            XTL_TRACE_PERFORMANCE_ONLY(os << ' ' << table.find(vtbl)->second.hits << " \t");
             if (histogram[(vtbl >> optimal_shift) & cache_mask] > 1)
                 os << '[' << histogram[(vtbl >> optimal_shift) & cache_mask] << ']';
             else
@@ -706,7 +722,7 @@ public:
         bit_offset_t n  = req_bits(table.size()-1); // needed  log_size
         bit_offset_t m  = req_bits(diff);           // highest bit in which vtbls differ
         bit_offset_t z  = trailing_zeros(static_cast<unsigned int>(diff)); // amount of lowest bits in which vtbls do not differ
-        bit_offset_t l1 = std::min(max_log_size,std::max(k,n));
+        bit_offset_t l1 = std::min(max_log_size,std::min(k,n));
         bit_offset_t l2 = std::min(max_log_size,std::max(k,bit_offset_t(n+1)));
 
         for (bit_offset_t i = l1; i <= l2; ++i)

@@ -11,39 +11,39 @@
 /// All rights reserved.
 ///
 
-///  FIX: Big question: should null pointers match pointer variables???
-///  FIX: Replace all MatchX_N versions of the macro with variadic macro 
-///       taking either 1 or 2 arguments
-/// TODO: Make non-null version of matchers to call from match statement and avoid checks
-/// TODO: Make a test case that tests all features in template context
-/// TODO: Provide implementation when variadic templates are supported
-///  FIX: Remove const currently added on auto-declared references to allow modification
-/// TODO: Preallocate cache for number of case clauses
-/// TODO: Add probabilities on classes to be taken into account for collisions
-/// TODO: Add support for multiple scrutinies
-/// TODO: Add static assert that verifies types in clauses to be related to selector type
-///       in the same way dynamic_cast does.
-/// FIX:  Define logic with dedicated value used by closed matching and the way user
-///       can override that value when it conflicts with one of its values.
-/// TODO: Add static_asserts that check that case constants are not equal to dedicate value
-/// TODO: Implement Otherwise for closed cases
-/// TODO: Test cases should test:
-///        - template vs. non-template context
-///        - presense and absense of Otherwise as well as when user disabled its use
-///        - const vs. non-const selector
-///        - presence and absense of forwarding to base classes
-///        - usage of fall-through behavior
-///        - use of implicitly declared variables in Case and explicitly declared in Que
-///        - read and write of explicitly declared variables
-///        - selector by reference and by pointer
-///        - use of generic and specialized syntax
-///        - multiple match statements within the same function (to check labels and instantiations)
-///        - presense of multiple inheritance: both repeated and virtual
-///        - presense of ambiguous bases and casts
-///        - use of exceptions in: code associated with clauses, bound members
-///        - use of separate translation units, libraries and DLLs
-///        - passing null-pointer to Match in release/debug builds
-///        - use of layouts and views
+//  FIX: Big question: should null pointers match pointer variables???
+//  FIX: Replace all MatchX_N versions of the macro with variadic macro 
+//       taking either 1 or 2 arguments
+// TODO: Make non-null version of matchers to call from match statement and avoid checks
+// TODO: Make a test case that tests all features in template context
+// TODO: Provide implementation when variadic templates are supported
+//  FIX: Remove const currently added on auto-declared references to allow modification
+// TODO: Preallocate cache for number of case clauses
+// TODO: Add probabilities on classes to be taken into account for collisions
+// TODO: Add support for multiple scrutinies
+// TODO: Add static assert that verifies types in clauses to be related to selector type
+//       in the same way dynamic_cast does.
+// FIX:  Define logic with dedicated value used by closed matching and the way user
+//       can override that value when it conflicts with one of its values.
+// TODO: Add static_asserts that check that case constants are not equal to dedicate value
+// TODO: Implement Otherwise for closed cases
+// TODO: Test cases should test:
+//        - template vs. non-template context
+//        - presense and absense of Otherwise as well as when user disabled its use
+//        - const vs. non-const selector
+//        - presence and absense of forwarding to base classes
+//        - usage of fall-through behavior
+//        - use of implicitly declared variables in Case and explicitly declared in Que
+//        - read and write of explicitly declared variables
+//        - selector by reference and by pointer
+//        - use of generic and specialized syntax
+//        - multiple match statements within the same function (to check labels and instantiations)
+//        - presense of multiple inheritance: both repeated and virtual
+//        - presense of ambiguous bases and casts
+//        - use of exceptions in: code associated with clauses, bound members
+//        - use of separate translation units, libraries and DLLs
+//        - passing null-pointer to Match in release/debug builds
+//        - use of layouts and views
 
 #pragma once
 
@@ -165,7 +165,17 @@ struct view
 /// \note We use variadic macro parameter here in order to be able to handle 
 ///       templates, which might have commas, otherwise juse a second argument
 ///       would be sufficient.
-#define KV(...)      static const size_t kind_value = __VA_ARGS__;
+#define KV(...) enum { kind_value = __VA_ARGS__ };//     static const size_t kind_value = __VA_ARGS__;
+
+/// Macro to define an expected frequency of objects of a given class.
+/// The exact values are not important as they are turned into probabilities by
+/// dividing these numbers onto sum of frequencies of all classes, statically
+/// allowable by a given match statement (derived from a selector type).
+/// \note Use this macro only inside specializations of @match_members
+/// \note We use variadic macro parameter here in order to be able to handle 
+///       templates, which might have commas, otherwise juse a second argument
+///       would be sufficient.
+#define FQ(...) enum { frequency = __VA_ARGS__ };
 
 /// Macro to define a raise selector - a virtual member function of the common
 /// base class that implements a polymorphic exception idiom (\see 
