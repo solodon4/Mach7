@@ -380,6 +380,7 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 //------------------------------------------------------------------------------
 
 #if defined(__GNUC__)
+    #define XTL_GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
     #define XTL_GCC_ONLY(...)     __VA_ARGS__
     #define XTL_NON_GCC_ONLY(...)
 #else

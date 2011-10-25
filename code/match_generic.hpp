@@ -81,7 +81,7 @@
   #define memoized_cast dynamic_cast
 #endif
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__GNUC__) && XTL_GCC_VERSION < 40500
 /// Visual C++ 2010 does not include declval
 namespace std { template <typename T> typename std::add_rvalue_reference<T>::type declval(); }
 #endif
