@@ -10,6 +10,8 @@
 #include "match_generic.hpp"
 #include "timing.hpp"
 
+//------------------------------------------------------------------------------
+
 #if !defined(NUMBER_OF_VFUNCS)
 #define NUMBER_OF_VFUNCS  1
 #endif
@@ -17,7 +19,11 @@
 #define NUMBER_OF_DERIVED 100
 #endif
 
+//------------------------------------------------------------------------------
+
 struct ShapeVisitor;
+
+//------------------------------------------------------------------------------
 
 struct OtherBase
 {
@@ -27,8 +33,23 @@ struct OtherBase
     int m_foo;
 };
 
+//------------------------------------------------------------------------------
+
 struct Shape
 {
+    Shape(size_t n) :
+        m_member0(n+0),
+        m_member1(n+1),
+        m_member2(n+2),
+        m_member3(n+3),
+        m_member4(n+4),
+        m_member5(n+5),
+        m_member6(n+6),
+        m_member7(n+7),
+        m_member8(n+8),
+        m_member9(n+9)
+    {}
+
     virtual ~Shape() {}
     virtual void accept(ShapeVisitor&) const = 0;
     #define FOR_EACH_MAX NUMBER_OF_VFUNCS-2
@@ -36,12 +57,7 @@ struct Shape
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_N
     #undef  FOR_EACH_MAX
-};
 
-template <size_t N>
-struct shape_kind : OtherBase, Shape
-{
-    void accept(ShapeVisitor& v) const;
     int m_member0;
     int m_member1;
     int m_member2;
@@ -53,6 +69,18 @@ struct shape_kind : OtherBase, Shape
     int m_member8;
     int m_member9;
 };
+
+//------------------------------------------------------------------------------
+
+template <size_t N>
+struct shape_kind : OtherBase, Shape
+{
+    typedef Shape base_class;
+    shape_kind(size_t n = N) : base_class(n) {}
+    void accept(ShapeVisitor&) const;
+};
+
+//------------------------------------------------------------------------------
 
 struct ShapeVisitor
 {
@@ -802,6 +830,8 @@ size_t do_match(const Shape& s)
 XTL_DO_NOT_INLINE_END
 #endif
 
+//------------------------------------------------------------------------------
+
 XTL_DO_NOT_INLINE_BEGIN
 size_t do_visit(const Shape& s)
 {
@@ -822,6 +852,8 @@ size_t do_visit(const Shape& s)
 }
 XTL_DO_NOT_INLINE_END
 
+//------------------------------------------------------------------------------
+
 Shape* make_shape(size_t i)
 {
     switch (i)
@@ -835,15 +867,21 @@ Shape* make_shape(size_t i)
     return 0;
 }
 
+//------------------------------------------------------------------------------
+
 const size_t N = 10000; // The amount of times visitor and matching procedure is invoked in one time measuring
 const size_t M = 101;   // The amount of times time measuring is done
 const size_t K = NUMBER_OF_DERIVED; // The amount of cases we have in hierarchy
+
+//------------------------------------------------------------------------------
 
 template <typename Container>
 typename Container::value_type mean(const Container& c)
 {
     return std::accumulate(c.begin(),c.end(),typename Container::value_type())/c.size();
 }
+
+//------------------------------------------------------------------------------
 
 template <typename Container>
 typename Container::value_type deviation(const Container& c)
@@ -858,6 +896,8 @@ typename Container::value_type deviation(const Container& c)
     return value_type(std::sqrt(double(d)/c.size()));
 }
 
+//------------------------------------------------------------------------------
+
 template <typename T>
 void statistics(std::vector<T>& measurements, T& min, T& max, T& avg, T& med, T& dev)
 {
@@ -868,6 +908,8 @@ void statistics(std::vector<T>& measurements, T& min, T& max, T& avg, T& med, T&
     med = measurements[measurements.size()/2];
     dev = deviation(measurements);
 }
+
+//------------------------------------------------------------------------------
 
 int relative_performance(long long v, long long m)
 {
@@ -890,6 +932,8 @@ int relative_performance(long long v, long long m)
         return -percent; // Negative number indicates how many percents faster we are 
     }
 }
+
+//------------------------------------------------------------------------------
 
 long long display(const char* name, std::vector<long long>& timings)
 {
@@ -914,9 +958,27 @@ long long display(const char* name, std::vector<long long>& timings)
               << std::setw(4) << microseconds(avg) << "/" 
               << std::setw(4) << microseconds(med) << " -- "
               << std::setw(4) << microseconds(max) << "] Dev = " 
-              << std::setw(4) << dev << std::endl;
+              << std::setw(4) << microseconds(dev)
+#if   defined(XTL_TIMING_METHOD_1)
+              // FIX: 1000 is heuristic here for my laptop. QueryPerformanceCounter doesn't specify how it is related to cycles!
+              << " Cycles/iteration: ["
+              << std::setw(4) << min*1000/N << " -- " 
+              << std::setw(4) << avg*1000/N << "/" 
+              << std::setw(4) << med*1000/N << " -- "
+              << std::setw(4) << max*1000/N << "]"
+#elif defined(XTL_TIMING_METHOD_2)
+              << " Cycles/iteration: ["
+              << std::setw(4) << min/N << " -- " 
+              << std::setw(4) << avg/N << "/" 
+              << std::setw(4) << med/N << " -- "
+              << std::setw(4) << max/N << "]"
+#endif
+              << std::endl;
+
     return med;
 }
+
+//------------------------------------------------------------------------------
 
 int test_repetitive()
 {
@@ -968,6 +1030,8 @@ int test_repetitive()
     std::sort(percentages.begin(), percentages.end());
     return percentages[percentages.size()/2];
 }
+
+//------------------------------------------------------------------------------
 
 int test_randomized()
 {
@@ -1034,6 +1098,8 @@ int test_randomized()
 
     return relative_performance(avgV, avgM);
 }
+
+//------------------------------------------------------------------------------
 
 int main()
 {

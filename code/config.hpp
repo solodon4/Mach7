@@ -36,11 +36,11 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 //------------------------------------------------------------------------------
 
 /// Uncomment this macro definition if you'd like to do some performance tracing
-//#define XTL_TRACE_PERFORMANCE
+#define XTL_TRACE_PERFORMANCE
 /// Uncomment this macro definition if you'd like to do some performance tracing
-//#define XTL_DUMP_PERFORMANCE
+#define XTL_DUMP_PERFORMANCE
 /// Uncomment to use Pearson hash
-//#define XTL_USE_PEARSON_HASH
+#define XTL_USE_PEARSON_HASH
 
 /// When this macro is defined, vtblmaps will count frequency of requests using a
 /// given vtbl pointer and will take it into account during rearranging of the map.
@@ -330,11 +330,13 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 
 //------------------------------------------------------------------------------
 
-#if defined(__GNUC__)
-    #define XTL_SUPPORTS_VLA
-#elif defined(_MSC_VER)
-    #define XTL_SUPPORTS_ALLOCA
-#endif
+//#if !defined(_DEBUG)
+    #if defined(__GNUC__)
+        #define XTL_SUPPORTS_VLA
+    #elif defined(_MSC_VER)
+        #define XTL_SUPPORTS_ALLOCA
+    #endif
+//#endif
 
 //------------------------------------------------------------------------------
 

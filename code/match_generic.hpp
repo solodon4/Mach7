@@ -22,7 +22,10 @@
 // TODO: Add probabilities on classes to be taken into account for collisions
 // TODO: Add support for multiple scrutinies
 // TODO: Add static assert that verifies types in clauses to be related to selector type
-//       in the same way dynamic_cast does.
+//       in the same way dynamic_cast does. This cannot always be check that target type
+//       is derived from selector type because we may have cross cast, but we can add
+//       a configuration macro that says that hierarchy is not using multiple inheritance
+//       in which case such assertion will be valid. This can be made default too.
 // FIX:  Define logic with dedicated value used by closed matching and the way user
 //       can override that value when it conflicts with one of its values.
 // TODO: Add static_asserts that check that case constants are not equal to dedicate value
@@ -308,6 +311,7 @@ inline const int* set_kinds(int kind, const int* kinds)
 template <typename D, typename B>
 struct associate_kinds
 {
+    static_assert(std::is_base_of<B,D>::value, "Not a base class");
     static const int* kinds;
 };
 

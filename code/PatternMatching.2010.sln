@@ -47,6 +47,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape6", "msvc\Shape6\Shape
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape7", "msvc\Shape7\Shape7.vcxproj", "{B4136FFF-CA75-43B0-98DA-4CE3FD33C1A2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SyntheticDynamicCast", "msvc\SyntheticDynamicCast\SyntheticDynamicCast.vcxproj", "{6150394B-CFE6-45BC-A61A-B230772E795A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -231,6 +233,12 @@ Global
 		{B4136FFF-CA75-43B0-98DA-4CE3FD33C1A2}.Release|Win32.ActiveCfg = Release|Win32
 		{B4136FFF-CA75-43B0-98DA-4CE3FD33C1A2}.Release|Win32.Build.0 = Release|Win32
 		{B4136FFF-CA75-43B0-98DA-4CE3FD33C1A2}.Release|x64.ActiveCfg = Release|Win32
+		{6150394B-CFE6-45BC-A61A-B230772E795A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6150394B-CFE6-45BC-A61A-B230772E795A}.Debug|Win32.Build.0 = Debug|Win32
+		{6150394B-CFE6-45BC-A61A-B230772E795A}.Debug|x64.ActiveCfg = Debug|Win32
+		{6150394B-CFE6-45BC-A61A-B230772E795A}.Release|Win32.ActiveCfg = Release|Win32
+		{6150394B-CFE6-45BC-A61A-B230772E795A}.Release|Win32.Build.0 = Release|Win32
+		{6150394B-CFE6-45BC-A61A-B230772E795A}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

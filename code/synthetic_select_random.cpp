@@ -10,6 +10,8 @@
 #include "match_generic.hpp"
 #include "timing.hpp"
 
+//------------------------------------------------------------------------------
+
 #if !defined(NUMBER_OF_VFUNCS)
 #define NUMBER_OF_VFUNCS  1
 #endif
@@ -35,6 +37,19 @@ struct OtherBase
 
 struct Shape
 {
+    Shape(size_t n) :
+        m_member0(n+0),
+        m_member1(n+1),
+        m_member2(n+2),
+        m_member3(n+3),
+        m_member4(n+4),
+        m_member5(n+5),
+        m_member6(n+6),
+        m_member7(n+7),
+        m_member8(n+8),
+        m_member9(n+9)
+    {}
+
     virtual ~Shape() {}
     virtual void accept(ShapeVisitor&) const = 0;
     #define FOR_EACH_MAX NUMBER_OF_VFUNCS-2
@@ -42,16 +57,7 @@ struct Shape
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_N
     #undef  FOR_EACH_MAX
-};
 
-static_assert(std::is_polymorphic<Shape>::value, "XXX Type of selector should be polymorphic when you use this version of the macro");\
-
-//------------------------------------------------------------------------------
-
-template <size_t N>
-struct shape_kind : OtherBase, Shape
-{
-    void accept(ShapeVisitor& v) const;
     int m_member0;
     int m_member1;
     int m_member2;
@@ -62,6 +68,16 @@ struct shape_kind : OtherBase, Shape
     int m_member7;
     int m_member8;
     int m_member9;
+};
+
+//------------------------------------------------------------------------------
+
+template <size_t N>
+struct shape_kind : OtherBase, Shape
+{
+    typedef Shape base_class;
+    shape_kind(size_t n = N) : base_class(n) {}
+    void accept(ShapeVisitor&) const;
 };
 
 //------------------------------------------------------------------------------

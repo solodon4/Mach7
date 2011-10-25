@@ -139,6 +139,17 @@ Pattern Matching, Visitor Design Pattern, Expression Problem, C++
 %Give a summary of the paper: what you did and how
 %Explicitly state your contribution
 
+%From Cardelli: Compiling a Functional Language
+%Pattern matching communicates highly structured information
+%about the input parameters. As a consequence, a compiler can produce better code from a pattern
+%matching description than from a corresponding sequence of discrimination and selection
+%operations.
+%
+%ML pattern matching is less powerful than, for example, Prolog pattern matching, because
+%every variable can occur only once in an ML pattern. Hence, ML pattern matching is just an
+%abbreviation for nested if-then-else, case statements and selection functions.
+
+
 Pattern matching is an abstraction supported by many programming languages, which 
 allows the user to describe in a breve manner a (possibly infinite) set of 
 values accepted by the pattern. Pattern represents effectively a predicate on 
@@ -229,11 +240,11 @@ int eval(const Expr* e)
 {
     Match(e)@\footnote{We use alternative formatting on symbols representing preprocessor macros}@
     {
-    Case(Value,  n)    return n;
-    Case(Plus,   a, b) return eval(a) + eval(b);
-    Case(Minus,  a, b) return eval(a) - eval(b);
-    Case(Times,  a, b) return eval(a) * eval(b);
-    Case(Divide, a, b) return eval(a) / eval(b);
+        Case(Value,  n)    return n;
+        Case(Plus,   a, b) return eval(a) + eval(b);
+        Case(Minus,  a, b) return eval(a) - eval(b);
+        Case(Times,  a, b) return eval(a) * eval(b);
+        Case(Divide, a, b) return eval(a) / eval(b);
     }
     EndMatch
 }
@@ -611,7 +622,7 @@ closer to the original Haskell definition:
 template <class X, class Y, class S, class T>
 const Either<S,T>* lift(const Either<X,Y>& e, S f(X), T g(Y))
 {
-    Match@$^T$@(e)@\footnote{T indicates that the user will have to use TMatch, TCase and TEndMatch versions of the macros respectively since the substituted code has to be correct in the template environment}@
+    Match(e) %@$^T$@@\footnote{T indicates that the user will have to use TMatch, TCase and TEndMatch versions of the macros respectively since the substituted code has to be correct in the template environment}@
       Case(( Left<X,Y>), x)  return  left<S,T>(f(x));@\footnote{We need to take the first argument in parentheses to avoid interpretation of comma in template argument list by the preprocessor}@
       Case((Right<X,Y>), y)  return right<S,T>(g(y));
     EndMatch
@@ -725,10 +736,10 @@ Pattern matching has been closely related to \emph{algebraic data types} and
 In languages like ML and Haskel an \emph{Algebraic Data Type} is a data type 
 each of whose values is picked from a disjoint sum of (possibly recursive) data 
 types, called \emph{variants}. Each of the variants is marked with a unique 
-symbolic constant called \emph{constructor}. Constructors provide a 
-convenient way of creating a value of its variant type as well as a way of 
-discriminating its variant type from the algebraic data type through pattern 
-matching.
+symbolic constant called \emph{constructor}, while the set of all constructors 
+of a given type is called \emph{signature}. Constructors provide a convenient 
+way of creating a value of its variant type as well as a way of discriminating 
+its variant type from the algebraic data type through pattern matching.
 
 Algebraic data type \codeocaml{expr} from Section~\ref{sec:intro} consists of 5 
 variants, marked with constructors \codeocaml{Value}, \codeocaml{Plus}, 
@@ -2325,69 +2336,48 @@ how $\Psi_f^\tau$ is defined.
 \section{Implementation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:impl}
 
-Implementation of pattern matching expressions with expression templates follows 
+Our implementation of pattern matching expressions follows the naive way of 
+essentially interpreting them through backtracking. On one hand this was a 
+consequence of working in a library setting, where code transformations are much 
+harder to achive. On the other hand, from the very beginning we were trying to 
+find an expressive alternative to object decomposition with either nested 
+dynamic casts or visitor design pattern, and thus were not concerned with 
+pattern matching on multiple arguments, where decision tree approach becomes 
+more efficient. Dealing with single argument certainly leaves less choices for 
+optimization, but does not eliminate them as repeated use of constructor-pattern 
+with the same target type but different argument patterns essentially leads to 
+the same inefficiencies. To tackle this issue in a library setting we rely on 
+and give more control to the library user. For example, we fix the order of 
+evaluation, but let guard-patterns be placed directly on the arguments of a 
+constructor-pattern to let the user benefit from the consciesness of expression, 
+while holding a grip on performance. Similarly, we added \code{Alt} sub-clauses 
+to \code{Que}-clause to syntactically separate fast type switching from slow 
+sequential evaluation of pattern matching expressions. The fall-through behavior 
+of the \code{Match}-statement allows the user to achieve the same effect 
+directly with \code{Que}-clauses, however the performance overhead involved 
+justified the addition of otherwise syntactic sugar.
+
+The interpretation of pattern matching expressions with expression templates follows 
 very closely the composition of expressions described by abstract syntax 
 in~\textsection\ref{sec:syn} as well as their application to selector expression 
 described by evaluation rules in \textsection\ref{sec:semme}. This section thus
-mainly concentrates on efficient implementation of a match statement as well as 
-unification of its syntax to the three encodings of algebraic data types 
+mainly concentrates instead on efficient implementation of a match statement as 
+well as unification of its syntax to the three encodings of algebraic data types
 outlined in \textsection\ref{sec:adt}. The discussion will largely focus on 
-devising an efficient type-switch, which is then used by our library as a 
+devising an efficient \emph{type-switch}, which is then used by our library as a 
 backbone to the general match statement presented in~\textsection\ref{sec:semms}. 
 
 Working within a multi-paradigm programming language like C++, we will not be 
 looking at algebraic data types in the closed form they are present in 
 functional languages, but rather in an open/extensible form discussed by 
-Garrigue\cite{garrigue-98}, Zenger\cite{Zenger:2001}, L\"oh\cite{LohHinze2006} 
-and others. We will thus assume that new variants can be added later and form 
+Zenger\cite{Zenger:2001}, L\"oh\cite{LohHinze2006} and others. We will thus 
+assume an object-oriented setting where new variants can be added later and form
 subtyping relations between each other including those through multiple 
-inheritance.
-
-\subsection{Problem}
-
-The fact that algebraic data types in functional languages are closed allows for 
-their efficient implementation. Traditional compilation scheme assigns unique 
-tags to every variant of the algebraic data type and pattern matching is then 
-simply implemented with a jump table over all tags. A number of issues in 
-object-oriented languages makes such an approach difficult or infeasible:
-
-\begin{itemize}
-\item Extensibility
-\item Subtyping/subclassing
-\item Multiple inheritance
-\item Separate compilation
-\item Dynamic linking 
-\end{itemize}
-
-Unlike functional style algebraic data types, classes are \emph{extensible} 
-whereby new variants can be arbitrarily added to the base class in the form of 
-derived classes. Such extension can happen in a different translation unit or a
-static library (subject to \emph{separate compilation}) or a dynamically linked 
-module (subject to \emph{dynamic linking}). Separate compilation effectively 
-implies that all derived classes will only be known at link time, thus 
-postponing all tag-allocation related decisions till then. Presence of dynamic 
-linking effectively requires the compiler to assume that it will not know all 
-the derived classes until the run time and thus any tag allocation scheme should
-on one hand assume presence of unknown tags and on the other -- the necessity of 
-maintaing the same tags for the commonly seen classes of each dynamic module. 
-
-\emph{Subtyping} or \emph{subclassing} relation that comes along with 
-extensibility effectively gives every class multiple types -- its own and the 
-types of all its base classes. Best-fit strategy typically used in 
-object-oriented languages effectively requires compiler to generate jump tables 
-proportional to the size of hierarchy (as opposed to the amount of case clauses) 
-or resort to decision trees, which are usually inferior to jump tables in terms 
-of performance.
-
-\emph{Multiple inheritance} complicates things further by making each class 
-potentially belong to different unrelated hierarchies. Tag allocation scheme 
-capable of dealing with this will either have to assure that generated tags 
-satisfy properties of each subhierarchy independently or use different tags for 
-different subhierarchies.
-
-To the best of our knowledge we are unaware of any tag allocation scheme capable 
-of dealing with all of the above isues that can be incorporated efficiently into  
-a switch statement to form a type switch.
+inheritance. We will look separately at polymorphic and tagged class encodings 
+as our handling of these two encodings is significantly different. Before we 
+look into these differences in greater details, however, we would like to look 
+at the problem of type switching without specific implementation in mind as well 
+as properties we would like to seek from such an implementation.
 
 \subsection{Type Switch}
 
@@ -2396,18 +2386,18 @@ inherited from it. An object is said to be of the \emph{most derived type}
 \code{D} if it was created by explicitly calling a constructor of that type.
 Inheritance relation on classes induces subtyping relation on them, which in 
 turn allows objects of derived class to be used in places where an object of a 
-base class is expected. The type of variable or parameter referencing such 
+base class is expected. The type of variable or parameter referencing such an
 object is called \emph{static type} of the object. When object is passed by 
 reference or by pointer we might end up in situation where static type of an 
 object is different from its most derived type, with the later necessarily 
 being a subtype of the former. Most derived type along with all its subtypes 
 that are not subtypes of the static type are typically refered to as 
-\emph{dynamic types} of an object. At each program point we know the static type 
-of an object, but not its dynamic types.
+\emph{dynamic types} of an object. At each program point the compiler knows the 
+static type of an object, but not its dynamic types.
 
 By a \emph{type switch} we will call a programming language construct capable of 
-uncovering a reference or a pointer to a dynamic type of an object present in a 
-given list of types.
+uncovering a reference or a pointer to a dynamic type(s) of an object present in 
+a given list of types.
 
 Consider an object of (most derived) type \code{D}, pointed to by a variable of 
 static type \code{B*}: e.g. \code{B* base = new D;}. A hypotetical type switch 
@@ -2428,13 +2418,214 @@ switch (base)
 \item \emph{First-fit} semantics will evaluate the first statement $s_i$ such 
       that $D_i$ is a base class of $D$
 \item \emph{Best-fit} semantics will evaluate the statement corresponding to the 
-      most derived base class $D_i$ of $D$ if it is unique
+      most derived base class $D_i$ of $D$ if it is unique (subject to 
+      ambiguity)
 \item \emph{The-only-fit} semantics will only evaluate statement $s_i$ if $D_i=D$.
 \item \emph{All-fit} semantics will evaluate all statements $s_i$ whose guard 
       type $D_i$ is a subtype of $D$
 \item \emph{Any-fit} semantics might choose non-deterministically one of the 
       statements enabled by all-fit
 \end{itemize}
+
+The list is not exhaustive and depending on a language, any of these semantics 
+or their combination might be a plausible choice. Functional languages, for 
+example, often prefer first-fit, while object-oriented languages would typically 
+be inclined to best-fit semantics. The-only-fit semantics is traditionally seen 
+in procedural languages like C and Pascal to deal with discriminated union types. 
+All-fit and any-fit semantics might be seen in languages based on predicate 
+dispatching or guarded commands, where a predicate can be seen as a 
+characteristic function of a type, while logical implication can be seen as 
+subtyping. 
+
+\subsection{Problem of Efficient Type Switching}
+
+The fact that algebraic data types in functional languages are closed allows for 
+their efficient implementation. Traditional compilation scheme assigns unique 
+tags to every variant of the algebraic data type and pattern matching is then 
+simply implemented with a jump table over all tags. A number of issues in 
+object-oriented languages makes this otherwise extremely efficient approach 
+infeasible:
+
+\begin{itemize}
+\item Extensibility
+\item Subtyping
+\item Multiple inheritance
+\item Separate compilation
+\item Dynamic linking 
+\end{itemize}
+
+Unlike functional style algebraic data types, classes are \emph{extensible} 
+whereby new variants can be arbitrarily added to the base class in the form of 
+derived classes. Such extension can happen in a different translation unit or a
+static library (subject to \emph{separate compilation}) or a dynamically linked 
+module (subject to \emph{dynamic linking}). Separate compilation effectively 
+implies that all the derived classes of a given class will only be known at link 
+time, postponing thus any tag-allocation related decisions till then.
+Presence of dynamic linking effectively requires the compiler to assume that the 
+exact derived classes will only be known at run time, and not even at start-up 
+time.
+
+%and thus any tag allocation scheme should on one hand assume presence of 
+%unknown tags and on the other -- the necessity of maintaing the same tags for 
+%the commonly seen classes of each dynamic module.  
+
+\emph{Subtyping} relation that comes along with extensibility through 
+subclassing effectively gives every class multiple types -- its own and the 
+types of all its base classes. In such scenario it is natural to require that 
+type switching can be done not only against the exact dynamic type of an object, 
+but also against any of its base classes. This in itself is not a problem for 
+functional-style tag allocation as long as the set of all derived classes is 
+known, since the compiler can partition tags of all the derived classes 
+accordingly to chosen semantics based on classes mentioned in case clauses. 
+Unfortunately this will not work in the presence of dynamic linking as there 
+might be new derived classes with tags not known at the time of partitioning and 
+thus not mentioned in the generated jump table.
+
+\emph{Multiple inheritance} complicates things further by making each class 
+potentially belong to numerous unrelated hierarchies. Any tag allocation scheme 
+capable of dealing with multiple inheritance will either have to assure that 
+generated tags satisfy properties of each subhierarchy independently or use 
+different tags for different subhierarchies. From an implementation point of 
+view this also means that not only do we have to be able to check that a given 
+object belongs to a given class (type testing), but also be able to find a 
+correct offset to it from a given base class (type casting).
+
+While looking at various schemes for implementing type switching we noted down a 
+few questions that might help evaluate and compare solutions: 
+
+\begin{enumerate}
+\item Can the solution handle base classes in case clauses?
+\item Will it handle presence of base and derived classes in the same match statement?
+\item Will it work with derived classes comming from a DLL?
+\item Can it cope with multiple inheritance (repeated, virtual)?
+\item Can independently developed DLLs that either extend classes involved in 
+      type switching or do type switching themselve be loaded together without 
+      any integration efforts?
+\item Is there any limitation on the amount and or shape of class extensions?
+\item What is the complexity of matching based on the number of case clauses and 
+      the number of possible types?
+\end{enumerate}
+
+An obvious solution that will pass the above checklist can look as following:
+
+\begin{lstlisting}
+if (D1* derived = dynamic_cast<D1*>(base)) { s1; } else
+if (D2* derived = dynamic_cast<D2*>(base)) { s2; } else
+...
+if (Dn* derived = dynamic_cast<Dn*>(base)) { sn; }
+\end{lstlisting}
+
+Despite the obvious simplicity, its main drawback is performance: a typical implementation of 
+\code{dynamic_cast} might take time proportional to the distance between base 
+and derived class in the inheritance tree~\cite{}. Even with constant-time 
+implementation of Gibbs et al~\cite{FastDynCast} the time to uncover the type in 
+the $i^{th}$ case clause will be proportional to $i$. This linear increase can 
+be well seen in the Figure~\ref{fig:DCastVis}, where the above cascading-if was 
+applied to a flat hierarchy encoding an algebraic data type of 100 variants.
+The same type-switching functionality implemented with visitor design pattern 
+took only 28 cycles regardless of the case. This is more than 3 times faster 
+than the 93 cycles it took to uncover even the first case with 
+\code{dynamic_cast}, while it took 22760 cycles to uncover the last.
+
+\begin{figure}[htbp]
+  \centering
+    \includegraphics[width=0.47\textwidth]{DCast-vs-Visitors1.png}
+  \caption{Time to uncover type in the $i^{th}$ case clause}
+  \label{fig:DCastVis}
+\end{figure}
+
+When the class hiearchy is not flat and has several levels, the above 
+cascading-if can be replaced with a decision tree that tests base classes first 
+and thus eliminates many of the derived classes from consideration. This 
+approach is used by Emir to deal with type patterns in Scala
+\cite[\textsection 4.2]{EmirThesis}. The intent is to replace a sequence of 
+independent dynamic casts between classes that are far from each other in the 
+hierarchy with nested dynamic casts between classes that are closer to each 
+other. Another advantage is possiblity to fail early: if the type of the object 
+in quesion does not match any of the clauses, we will not have to try all the 
+cases. Flat hierarchy, which will likely be formed by the leafs in an even 
+multi-level hiearrchy, will not be able to benefit from this optimization and 
+will effectively degrade to the above cascading-if. Nevertheless, when 
+applicable the optimization can be very useful and its benefits can be seen in
+Figure~\ref{fig:DCastVis} under ``Decision tree dynamic\_cast''. The class 
+hierarchy for this timing experiment was forming a perfect binary tree with 
+classes with number 2*N and 2*N+1 derived from a class with number N.
+
+While looking for alternatives to visitor design pattern it became clear that 
+any open solution that will have a non-constant dispatching overhead will 
+have a poor chance of being adopted. Switching on sequentially allocated tags
+was one of the few techniques that could achieve constant overhead, even smaller 
+than that of visitors, but it had problems of its own that were making it not
+suitable. To better understand the problem let us look at some existing 
+solutions to type switching that we found to be used in practice.
+
+%From our experience on this project we have noticed that we can only compete 
+%with visitors when switch statements are implemented with a jump table. As soon 
+%as compiler was putting even a single branch into the decision tree of cases, 
+%the performance was degraded significantly. From this perspective we do not 
+%regard solutions based on decision trees as efficient, since they do not let us 
+%compete compete with the visitors solution.
+
+The simple scheme of assigning a unique tag per variant (instantiatable class 
+here) will not pass the first question because the tags of base and derived 
+classes will have to be different if the base class can be instantiated on its 
+own. When the base class is used as an interface only and is never instantiated, 
+the already mentioned partitioning of tags of derived classes could have been 
+used, but that again will assume knowledge of all the classes and thus fail 
+extensibility through DLLs.
+
+Often time tags are chosen not arbitrarily, but to reflect the subtyping 
+relation of the underlain hierarchy. An example of such scheme would be having a 
+certain bit in the tag set for all the classes derived from a given base class.  
+Switching on base classes then involves a call to some function $f$ that 
+converts derived class' tag into a base class' tag. Unfortunately this solution 
+creates more problems then it solves. 
+
+First of all the solution will not be able 
+to recognize an exceptional case where most of the derived classes should be 
+handled as base class, while few should be handled specifically. Applying 
+function $f$ puts several different types into an equivalence class with their 
+base type, making them indistinguishable from each other. 
+
+Secondly, the assumed 
+structure of tags is likely to make the set of tags sparce, effectively forcing 
+compiler to use a decision tree instead of jump table to implement the switch.
+Even though conditional jump is reported to be faster than indirect jump on many 
+computer architectures~\cite[\textsection 4]{garrigue-98}, this did not seem to 
+be the case in our experiments. Spliting of a jump table into two with a 
+condition, that was sometimes happening because of our case label allocation 
+scheme, was resulting in a noticable degradation of performance in comparison to 
+a single jump table.
+
+The assumed structure of tags can also significantly decrease the amount of 
+classes a given allocation scheme can handle. Allocation scheme used by Gibbs et 
+al to implement fast dynamic casting employs divisibility of numbers to 
+represent inheritance relation\cite{FastDynCast}. A 32-bit integer is estimated 
+to be able to represent 7 levels of a class hierarchy that forms a binary tree 
+(255 classes), 6 levels of a similar ternary tree hierarchy (1093 classes) or 
+just one level of a hierarchy with 9 base classes -- multiple inheritance is the 
+worst case scenario of the scheme that quickly drains it of allocation 
+possibilities. It is interesting to note that the above scheme can be easily adopted to implemented type switching with decision trees, it is not easily adoptable for type switching: 
+in order to obtain tags of base classes we will have to decompose the derived 
+tag into primes
+
+To the best of our knowledge we are unaware of any tag allocation scheme capable 
+of dealing with all of the above isues that can be incorporated efficiently into  
+a switch statement to form a type switch.
+
+Our approach can be used together with backtracking or decision tree approaches. 
+Instead of a linear search our current macros generate simply to because we 
+depend on the syntacti order of definitions in library setting, the compiler may 
+generate either a decision tree or backtracking automata to find the applicable 
+type. After that the compiler would just cache the jump target inside the 
+function.
+
+The approach can also be used to optimize handling of polymorphic variants in 
+OCaml when implemented as proposed by Garrigue\cite{garrigue-98}. The tag values 
+compiler generates for each of the variants can be seen as vtbl pointer value 
+and a similar memoization device can be embedded into a decision tree.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5555
 
 \noindent
 We chose to give it a first-fit semantics in our library as it was resembling 
@@ -2459,14 +2650,6 @@ type switch statement to uncover the $i^{th}$ case. We postpone the discussion
 of \code{memoized_cast} until section \textsection\ref{}, here we would only 
 like to notice that even though faster than the actual dynamic cast it also bears 
 a linear coefficient, not present in visitors.
-
-\begin{figure}[htbp]
-  \centering
-    \includegraphics[width=0.47\textwidth]{DCast-vs-Visitors1.png}
-  \caption{Time to uncover i\textsuperscript{th} case. The average for Visitors 
-  is 28. X-axis - case i; Y-axis - cycles per iteration}
-  \label{fig:DCastVis}
-\end{figure}
 
 \subsection{Memoization Device}
 
@@ -3043,6 +3226,9 @@ overhead.
 
 \section{Related Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:rw}
+
+Spuler compares a number of techniques in implementing switch 
+statements\cite{Spuler94}.
 
 A good survey of work on general pattern matching can be found in in a term 
 project paper by Miller\cite{Miller10}.
