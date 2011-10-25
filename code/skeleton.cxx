@@ -454,7 +454,7 @@ int test_randomized()
             XTL_TRACE_PERFORMANCE_ONLY(distribution[n]++);
             shapes[i] = make_shape(n);
         }
-#if defined(TRACE_PERFORMANCE)
+#if defined(XTL_TRACE_PERFORMANCE)
         size_t min, max, avg, med, dev;
         statistics(distribution, min, max, avg, med, dev);
         //std::copy(distribution.begin(), distribution.end(), std::ostream_iterator<size_t>(std::cout, ":"));

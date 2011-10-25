@@ -49,9 +49,9 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 //------------------------------------------------------------------------------
 
 /// Uncomment this macro definition if you'd like to do some performance tracing
-#define XTL_TRACE_PERFORMANCE
+//#define XTL_TRACE_PERFORMANCE
 /// Uncomment this macro definition if you'd like to do some performance tracing
-#define XTL_DUMP_PERFORMANCE
+//#define XTL_DUMP_PERFORMANCE
 /// Uncomment to use Pearson hash
 //#define XTL_USE_PEARSON_HASH
 
