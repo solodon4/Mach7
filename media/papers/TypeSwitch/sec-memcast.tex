@@ -3,17 +3,17 @@
 
 We saw in Corollary~\ref{crl:vtbl} that the results of \code{dynamic_cast} can 
 be reapplied to a different instance from within the same subobject. This leads 
-to a simple idea of memoizing the results of \code{dynamic_cast} and then using 
+to simple idea of memoizing the results of \code{dynamic_cast} and then using 
 them on subsequent casts. In what follows we will only be dealing with the  
 pointer version of the operator since the version on references that has a 
 slight semantic difference can be easily implemented in terms of the pointer one.
 
 The \code{dynamic_cast} operator in C++ involves two arguments: a value argument 
 representing an object of a known static type as well as a type argument 
-denoting the runtime type we are querying. Its behavior is twofold: on one side 
+denoting the runtime type we are querying. Its behavior is twofold: on one hand 
 it should be able to determine when the object's most derived type is not a 
 subtype of the queried type (or when the cast is ambiguous), while on the other 
-it should be able to produce an offset to adjust the value argument by when it is.
+it should be able to produce an offset by which to adjust the value argument when it is.
 
 We mimic the syntax of \code{dynamic_cast} by defining:
 
@@ -31,33 +31,33 @@ with \code{memoized_cast} with a simple:
 \end{lstlisting}
 
 \noindent
-It is important to stress that the offset is not a function of source and target 
-types of \code{dynamic_cast} operator, which is why we cannot simply memoize the 
+It is important to stress that the offset is not a function of the source and target 
+types of the \code{dynamic_cast} operator, which is why we cannot simply memoize the 
 outcome inside the individual instantiations of \code{memoized_cast}.
 The use of repeated multiple inheritance will result in classes having several 
 different offsets associated with the same pair of source and target types 
-depending on which subobject the cast is performed from. Accordingly to 
+depending on which subobject the cast is performed from. According to 
 corollary~\ref{crl:vtbl}, however, it is a function of target type and the value 
 of the vtbl-pointer stored in the object, because the vtbl-pointer uniquely 
-determines the subobject within the most derived type. Our memoization of 
+determines the subobject within the most derived type. Our memoization of the 
 results of \code{dynamic_cast} should thus be specific to a vtbl-pointer and the 
 target type. 
 
-Our actual solution uses separate indexing of target types per each source type 
-they are used with as well as allocates a different 
-\code{vtblmap<std::vector<std::ptrdiff_t>>} for every source type. This lets us 
+Our actual solution uses separate indexing of target types for each source type 
+they are used with, and also allocates a different 
+\code{vtblmap<std::vector<std::ptrdiff_t>>} for each source type. This lets us 
 minimize unused entries within offset vectors by making sure only the plausible 
 target types for a given source type are indexed. This solution should be 
-suitable for most of the applications since we expect to have a fairly small 
-amount of source types of \code{dynamic_cast} operator with a much larger amount 
-of target types. For the unlikely case of small amount of target types and large 
-amount of source types we let the user to revert the default behavior with a 
+suitable for most applications since we expect to have a fairly small 
+number of source types for the \code{dynamic_cast} operator and a much larger number 
+of target types. For the unlikely case of a small number of target types and large 
+number of source types we allow the user to revert to the default behavior with a 
 library configuration switch that allocates a single \code{vtblmap} per target type.
 
-Use of \code{memoized_cast} to implement match statement potentially reuses the 
-results of \code{dynamic_cast} computation across multiple independent match 
-statements. This allows leveraging the cost of expensive first call with a 
+The use of \code{memoized_cast} to implement the \code{Match}-statement potentially reuses the 
+results of \code{dynamic_cast} computations across multiple independent match 
+statements. This allows leveraging the cost of the expensive first call with a 
 given vtbl-pointer even further across all the match statements inside the 
 program. The above define, with which a user can easily turn all dynamic casts 
-into memoized casts can be used to speed-up existing code that uses dynamic 
+into memoized casts, can be used to speed-up existing code that uses dynamic 
 casting without any refactoring overhead.

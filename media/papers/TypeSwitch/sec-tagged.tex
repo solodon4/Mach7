@@ -1,17 +1,17 @@
 \section{Solution for Tagged Classes}
 \label{sec:cotc}
 
-Memoization device outlined in \textsection\ref{sec:memdev} can in principle be 
-applied to tagged classes too. The dynamic cast will be replaced by a small 
-compile-time template meta-program that checks whether class associated with 
-given tag is derived from the target type of the case clause. If so, the static 
+The memoization device outlined in \textsection\ref{sec:memdev} can, in principle, also be 
+applied to tagged classes. The dynamic cast will be replaced by a small 
+compile-time template meta-program that checks whether the class associated with 
+the given tag is derived from the target type of the case clause. If so, a static 
 cast can be used to obtain the offset.
 
-Despite its straightforwardness we felt that it should be possible to do better 
+Despite its straightforwardness, we felt that it should be possible to do better 
 than the general solution, given that each class is already identified with a 
 dedicated constant known at compile time.
 
-As we mentioned in \textsection\ref{sec:poets}, nominal subtyping of C++ 
+As we mentioned in \textsection\ref{sec:poets}, the nominal subtyping of C++ 
 effectively gives every class multiple types. The idea is thus to associate with 
 the type not only its most derived tag, but also the tags of all its base classes.
 In a compiler implementation such a list can be stored inside the virtual table 
@@ -33,9 +33,9 @@ happen that the same tag is associated by the user with an interface and several
 implementation classes. 
 
 A type switch below, built on top of a hierarchy of tagged classes, proceeds as 
-regular switch on the subject's tag. If the jump succeeds, we found an exact 
-match, otherwise we get into a default clause that obtains the next tag in the 
-tag precedence list and jump back to the beginning of the switch statement for a 
+a regular switch on the subject's tag. If the jump succeeds, we found an exact 
+match; otherwise, we get into a default clause that obtains the next tag in the 
+tag precedence list and jumps back to the beginning of the switch statement for a 
 rematch:
 
 \begin{lstlisting}
@@ -59,13 +59,13 @@ ReMatch:
 
 \noindent
 The above structure lets us dispatch to case clauses of the most derived class 
-with an overhead of initializing two local variables compared to a switch on a 
-sealed hierarchy. Dispatching to a case clause of a base class will take a time 
+with an overhead of initializing two local variables, compared to a switch on a 
+sealed hierarchy. Dispatching to a case clause of a base class will take time 
 roughly proportional to the distance between the matched base class and the most 
 derived class in the inheritance graph. When none of the base class tags was 
-matched we will necessarily reach the end\_of\_list marker in the tag precedence 
+matched, we will necessarily reach the end\_of\_list marker in the tag precedence 
 list and thus exit the loop.
 
 Our library automatically builds the function \code{get_taglist} based on 
-additional definitions that user provides inside \code{bindings}. The details 
-can be found in our accompanying paper\cite{AP}.
+additional definitions that the user provides inside \code{bindings}. The details 
+can be found in our accompanying paper~\cite{AP}.

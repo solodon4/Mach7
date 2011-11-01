@@ -22,40 +22,44 @@
  & Random     &\gwYGPn&\gwYGKn&\gwYSPn&\gwYSKn&\VwYGPn&\VwYGKn&\VwYSPn&\VwYSKn&\VxYGPn&\VxYGKn&\VxYSPn&\VxYSKn \\
 \hline % --------------------------------------------------------------------------------------------------
 \end{tabular}
-\caption{\f{42} type switching is faster than visitors are. \s{42} visitors are faster than type switching.}
+\caption{Relative performance of our pattern matching versus visitors. Numbers 
+like \f{42} in bold font indicate that our pattern matching is faster than 
+visitors by corresponding percentage. Numbers like \s{42} in italics font 
+indicate that our solution is slower than visitors (i.e. visitors is faster than 
+our solution) by corresponding percentage.}
 \label{relperf}
 \end{figure*}
 
-In this section we evaluate the performance of our solution in comparison to its 
-de facto contender -- visitor design pattern. We also compare performance of 
-some typical uses cases expressed with our solution and OCaml.
+In this section, we evaluate the performance of our solution in comparison to its 
+de-facto contender -- the visitor design pattern. We also compare performance of 
+some typical use cases expressed with our solution and OCaml.
 
 Our evaluation methodology consists of several benchmarks that we believe 
 represent various possible uses of objects analyzed with either visitors or 
 pattern matching.
 
-\emph{Repetitive} benchmark performs multiple calls on different objects of the 
+The \emph{repetitive} benchmark performs multiple calls on different objects of the 
 same most derived type. This scenario happens in object-oriented setting when a 
 group of polymorphic objects is created and passed around (e.g. numerous 
 particles of a given kind in a particle simulation system). We include it 
 because double dispatch becomes about twice faster (27 vs. 53 cycles) in this 
 scenario compared to others due to cache and call target prediction mechanisms. 
 
-\emph{Sequential} benchmark effectively uses object of each derived type only 
+The \emph{sequential} benchmark effectively uses an object of each derived type only 
 once and then moves on to an object of a different type. The cache is typically 
 reused the least in this scenario. The scenario is typical of lookup tables, 
 where each entry is implemented with a different derived class.
 
-\emph{Random} benchmark is the most representative as it randomly makes calls on 
+The \emph{random} benchmark is the most representative as it randomly makes calls on 
 random objects, which will probably be the most common usage scenario in the 
 real world.
 
-\emph{Forwarding} benchmark is not a benchmark on its own, but rather a 
+The \emph{forwarding} benchmark is not a benchmark on its own, but rather a 
 combinator that can be applied to any of the above scenarios. It refers to the 
-common technique used by visitors where for class hierarchies with multiple 
-levels of inheritance the \code{visit} method of a derived class will provide a 
-default implementation of forwarding to its immediate base class, who in turn 
-may forward it to its base class etc. The use of forwarding in visitors is a 
+common technique used by visitors where, for class hierarchies with multiple 
+levels of inheritance, the \code{visit} method of a derived class will provide a 
+default implementation of forwarding to its immediate base class, which, in turn, 
+may forward it to its base class, etc. The use of forwarding in visitors is a 
 way to achieve substitutability, which in type switches corresponds to the use 
 of base classes in the case clauses.
 
@@ -70,8 +74,8 @@ These benchmarks were executed in the following configurations:
       \begin{itemize}
       \setlength{\itemsep}{0pt}
       \setlength{\parskip}{0pt}
-      \item G++ 4.5.2 under MinGW executed with -O2 and producing x86 binary
-      \item MS Visual C++ 2010 Professional x86/x64 binary with Profile Guided Optimizations
+      \item G++ 4.5.2 under MinGW executed with -O2 and producing x86 binaries
+      \item MS Visual C++ 2010 Professional x86/x64 binaries with Profile-Guided Optimizations
       \end{itemize}
 \end{itemize}
 
@@ -79,20 +83,20 @@ Each benchmark under each configuration was tested with either \emph{unified}
 or \emph{specialized} syntax. Each syntax was used to run tests on \emph{Open} 
 (\emph{polymorphic base class} encoding) and \emph{Tag} (\emph{tag class} 
 encoding). Specialized syntax avoids generating unnecessary syntactic structure 
-used to unify syntax and thus produces faster code. We include it in results as 
-compiler implementation of pattern matching will be able to distinguish each 
+used to unify syntax, and thus produces faster code. We include it in our results as 
+a compiler implementation of pattern matching will be able to distinguish each 
 case and thus generate only the required structure.
 
 The code on the critical path of our type switch implementation benefits 
 significantly from branch hinting as some branches are much more likely than 
-others. We use branch hinting facilities of GCC to tell the compiler which 
+others. We use the branch hinting facilities of GCC to tell the compiler which 
 branches are more likely, but, unfortunately, Visual C++ does not have similar 
 facilities. The official way suggested by Microsoft to achieve the same effect 
-is to use \emph{Profile Guided Optimization} and let the compiler gather 
+is to use \emph{Profile-Guided Optimization} and let the compiler gather 
 statistics on each branch. This is why the result for Visual C++ reported here 
-are those obtained with profile guided optimizations enabled. The slightly less 
-favorable for us results without profile guided optimizations can be found in 
-accompanying technical report\cite{TR}.
+are those obtained with profile-guided optimizations enabled. The slightly 
+less-favorable-for-us results without profile-guided optimizations can be found 
+in the accompanying technical report~\cite{TR}.
 %The results of optimizing code created with Visual C++ by using profile 
 %guided optimizations as currently Visual C++ does not have means for branch 
 %hinting, which are supported by G++ and proven to be very effective in few 
@@ -100,23 +104,22 @@ accompanying technical report\cite{TR}.
 %out experimentally what we would have otherwise hinted, even though this 
 %includes other optimizations as well.
 
-We compare performance of our solution relatively to performance of visitors in 
-Figure~\ref{relperf}. The values are given as percentage of performance increase 
+We compare the performance of our solution relative to the performance of visitors in 
+Figure~\ref{relperf}. The values are given as percentages of performance increase 
 against the slower technique. Numbers in bold represent cases where our type 
-switching was faster than visitors were and indicate corresponding percentage. 
-Numbers in italics indicate cases where visitors were faster by given percentage
-respectively.
+switching was faster than visitors were. Numbers in italics indicate cases where 
+visitors were faster.
 
-From the numbers given we can see that type switching wins by a good margin in 
+From the numbers, we can see that type switching wins by a good margin in 
 the presence of at least one level of forwarding on visitors. Using type 
 switching on closed hierarchies is also a definite winner.
 
-From the table is may seem that Visual C++ is generating not as good code as GCC 
-does, but remember that numbers are relative and thus the ratio depends on the 
-both: performance of virtual calls and performance of switch statement. Visual 
+From the table it may seem that Visual C++ is generating not as good code as GCC 
+does, but remember that these numbers are relative, and thus the ratio depends on  
+both the performance of virtual calls and the performance of switch statements. Visual 
 C++ was generating faster virtual function calls, while GCC was generating 
-faster switch statements which is why their relative performance seem to be much 
-more favorable for us in case of GCC.
+faster switch statements, which is why their relative performance seem to be much 
+more favorable for us in the case of GCC.
 
 Similarly the code for x64 is only slower relatively: the actual time spent for 
 both visitors and type switching was smaller than that for x86, but it was much 
@@ -127,30 +130,30 @@ performance.
 \label{sec:cmp}
 
 With a few exceptions for x64 tests, it can be seen from Figure~\ref{relperf} 
-that performance of a tag precedence list approach (Tag column) dominates the 
-performance of v-table pointer memoization approach (Open column). We believe 
+that the performance of the tag precedence list approach (the Tag column) dominates the 
+performance of the v-table pointer memoization approach (the Open column). We believe 
 that the difference, often significant, is the price one pays for the true 
 openness of the v-table pointer memoization solution.
 
-Unfortunately tag precedence list approach is not truly open. The use of tags, 
+Unfortunately, the tag precedence list approach is not truly open. The use of tags, 
 even if they would be allocated by compiler, may require integration efforts to 
 ensure that different DLLs have not reused the same tags. Randomization of tags,
-similar to proposal of Garrigue\cite{garrigue-98}, will not eliminate the 
-problem and will surely replace jump table in switch with decision trees. This 
-will likely significantly degrade the numbers for Tag column of 
-Figure~\ref{relperf}, since tags in our experiments were all sequential.
+similar to a proposal of Garrigue~\cite{garrigue-98}, will not eliminate the 
+problem and will surely replace jump tables in switches with decision trees. This 
+will likely significantly degrade the numbers for the Tag column of 
+Figure~\ref{relperf}, since the tags in our experiments were all sequential.
 
-Besides, tag precedence list approach relies on static cast to obtain the 
+Besides, the tag precedence list approach relies on static cast to obtain the 
 proper reference once the most specific case clause has been found. As we 
-described in \textsection\ref{sec:vtblmem} this has severe limitations in the 
-presence of multiple inheritance and thus is not as versatile as the other 
+described in \textsection\ref{sec:vtblmem}, this has severe limitations in the 
+presence of multiple inheritance, and thus is not as versatile as the other 
 solution. Overcoming this problem will either require the use of 
 \code{dynamic_cast} or techniques similar to those we used in v-table pointer 
-memoization. This will likely degrade performance numbers for Tag column as well.
+memoization. This will likely degrade performance numbers for the Tag column even further.
 
-Note also that v-table pointer memoization approach can be used to implement 
+Note also that the v-table pointer memoization approach can be used to implement both
 first-fit and best-fit semantics, while the tag precedence list is only suitable 
 for best-fit semantics. Their complexity guarantees also differ: v-table pointer 
-memoization is constant on average, and slow on the first call. Tag list is 
-logarithmic in size of the class hierarchy on average (assuming balanced 
+memoization is constant on average, and slow on the first call. Tag list approach is 
+logarithmic in the size of the class hierarchy on average (assuming a balanced 
 hierarchy), including on the first call.

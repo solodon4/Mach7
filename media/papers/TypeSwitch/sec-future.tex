@@ -6,11 +6,11 @@ state, which will have problems in a multi-threaded environment. Efficient
 multi-threaded implementation is the first task on our list. 
 
 We would also like to experiment with other kinds of cache indexing functions in 
-order to decrease the amount of conflicts, especially those coming from the use 
-of dynamically linked libraries.
+order to decrease the frequency of conflicts, especially those coming from the use 
+of dynamically-linked libraries.
 
-Match statement that we presented here deals with only one scrutiny at the 
-moment, but we believe that memoization device along with vtable caching 
-technique we presented can cope reasonably efficiently with multiple scrutinies. 
+The match statement that we presented here deals with only one scrutiny at the 
+moment, but we believe that our memoization device, along with the v-table pointer memoization 
+technique we presented, can cope reasonably efficiently with multiple scrutinies. 
 Their support will make our library more general by addressing asymmetric 
 multiple dispatch.
