@@ -30,10 +30,6 @@ our solution) by corresponding percentage.}
 \label{relperf}
 \end{figure*}
 
-In this section, we evaluate the performance of our solution in comparison to its 
-de-facto contender -- the visitor design pattern. We also compare performance of 
-some typical use cases expressed with our solution and OCaml.
-
 Our evaluation methodology consists of several benchmarks that we believe 
 represent various possible uses of objects analyzed with either visitors or 
 pattern matching.
@@ -80,12 +76,12 @@ These benchmarks were executed in the following configurations:
 \end{itemize}
 
 Each benchmark under each configuration was tested with either \emph{unified} 
-or \emph{specialized} syntax. Each syntax was used to run tests on \emph{Open} 
-(\emph{polymorphic base class} encoding) and \emph{Tag} (\emph{tag class} 
-encoding). Specialized syntax avoids generating unnecessary syntactic structure 
-used to unify syntax, and thus produces faster code. We include it in our results as 
-a compiler implementation of pattern matching will be able to distinguish each 
-case and thus generate only the required structure.
+or \emph{specialized} syntax. Each syntax was used to run tests on polymorphic 
+encoding (\emph{Open}) and tagged encoding (\emph{Tag}). Specialized syntax  
+avoids generating unnecessary syntactic structure used to unify syntax, and thus 
+produces faster code. We include it in our results as a compiler implementation 
+of type switching will be able to distinguish each case and thus generate only 
+the required structure.
 
 The code on the critical path of our type switch implementation benefits 
 significantly from branch hinting as some branches are much more likely than 

@@ -1,22 +1,40 @@
-\section{Solution for Polymorphic Classes}
+\section{Proposed Solution}
 \label{sec:copc}
 
-As mentioned, we approach type switching on polymorphic classes and tagged 
-classes differently. In this subsection we outline the implementation of type 
-switching on classes that have vtbl-pointers in their instances.
+C++ does not have direct support of algebraic data types, but they can usually 
+be encoded with classes in a number of ways. One common such encoding is to 
+introduce an abstract base class representing an algebraic data type with 
+several derived classes representing variants. The variants can then be 
+discriminated with either run-time type information (further referred to as 
+\emph{polymorphic encoding}) or a dedicated member of a base class (further 
+referred to as \emph{tagged encoding}).
+
+Our handling of type switches for polymorphic and tagged encoding is different 
+with each having its pros and cons described in details in \textsection\ref{sec:cmp}.
+In the remainder of this section we will concentrate more on the type switch for 
+polymorphic encoding as it is truly open. The type switch for tagged encoding 
+(\textsection\ref{sec:cotc}) is somewhat more efficient, however, we believe 
+that making it more open will also eradicate the performance advantages it 
+currently has. The difference in performance can be seen as a price one pays for 
+keeping the solution open.
 
 \subsection{Virtual Table Pointers}
 \label{sec:vtp}
 
 Before we discuss our solution we would like to talk about certain properties of 
-the C++ run-time system that we rely on. Strictly speaking, C++ standard does not 
-require implementations to use any given technique (e.g. use virtual tables to 
-implement virtual functions), however interoperability requirements have forced 
-compiler vendors to design a set of rules called Common Vendor Application Binary Interface 
-(further refered to as the C++ ABI)~\cite{C++ABI}. Most C++ compilers today follow these rules, with the
-notable exception of Microsoft Visual C++. We show that the technique presented 
-here will work with any C++ compiler that follows C++ ABI. Microsoft's own 
-ABI is not publically available and thus we could not verify that it satisfies 
+the C++ run-time system that we rely on. The ultimate goal of this subsection is 
+to show that every polymorpic object in C++ has a run-time value embedded into 
+it that \emph{uniquely} determines the sub-object within the most derived object, 
+pointed to by this-pointer of a given static type.
+
+Strictly speaking, C++ standard does not require implementations to use any 
+given technique (e.g. use virtual tables to implement virtual functions), 
+however interoperability requirements have forced compiler vendors to design a 
+set of rules called Common Vendor Application Binary Interface (further refered 
+to as the C++ ABI)~\cite{C++ABI}. Most C++ compilers today follow these rules, 
+with the notable exception of Microsoft Visual C++. We show that the technique 
+presented here will work with any C++ compiler that follows C++ ABI. Microsoft's 
+own ABI is not publically available and thus we could not verify that it satisfies 
 our requirements. Nevertheless we did run numerous experiments with various 
 class hierarchies and have sufficient confidence that our approach can be used 
 in Visual C++. This is why we include experimental results for this compiler as 
@@ -74,6 +92,17 @@ virtual table pointer at offset 0.
 \label{lem:vtbl}
 \end{lemma}
 
+\noindent
+Knowing how to extract a vtbl-pointer as well as that all the objects of the 
+same most derived type share the same vtbl-pointer, the idea is to try to use 
+its value to uniquely identify the type and even sub-object within it, pointed 
+to by this-pointer. Unfortunately nothing in the C++ ABI states these pointers 
+should be unique. A popular optimization technique of sharing base's class 
+virtual table for a derived class that does not override any virtual methods 
+will surely violate this assumption. Nevertheless, we show below that in the 
+presense of RTTI, a C++ ABI-compliant implementation is guaranteed to have 
+different values of vtbl-pointers in different sub-objects.
+
 %C++ standard requires an argument of \code{dynamic_cast} to be a pointer to or 
 %an lvalue of a polymorphic type when performing \emph{downcast} -- a cast from 
 %base to derived~\cite[\textsection 5.2.7-6]{C++0x}. We can thus always safely 
@@ -86,7 +115,6 @@ virtual table pointer at offset 0.
 %virtual table pointers within all the objects (instances) of a particular 
 %most-derived class point to the same set of virtual tables.
 
-\noindent
 The exact content of the virtual table is not important for this discussion. We 
 would like to point out a few fields in it that we will refer to later.
 
@@ -379,7 +407,7 @@ case @$i$@: // @$i$@ is a constant here - clause's position in switch
 
 \noindent
 The main condition remains the same. We keep checking for the first initialization 
-because we allow fall-through semantics here, letting the user break from the 
+because we allow fall-through behavior here, letting the user break from the 
 switch when needed. Upon first entry we compute the offset that the dynamic cast 
 performed and save it together with target associated to the virtual table 
 pointer. On the next iteration we will jump directly to the case label and 
@@ -420,82 +448,41 @@ design pattern.
 \subsubsection{Structure of Virtual Table Pointers}
 \label{sec:sovtp}
 
-In our experiments with several compilers and different class 
-hierarchies, we noticed that virtual table pointers were not entirely random 
-addresses in memory and had certain structure. Virtual tables of classes related 
-by inheritance were grouped together in memory most of the time, making the 
-values of vtbl-pointers pointing to them follow a certain pattern. For example, 
-a set of 100 virtual table pointers that came through a type switch in one of 
-our test programs were all of the form 
-\texttt{00000001001111100000X11XXXXXXX00}, where X indicates positions for which 
-bits in at least two addresses were different.
-
 Virtual table pointers are not constant values and are not even guaranteed to be 
 the same between different runs of the same application. Techniques like 
 \emph{address space layout randomization} or simple \emph{rebasing} of the entire 
 module are likely to change these values. The relative distance between them is 
 likely to remain the same though as long as they come from the same module.
 
-The common bits on the right come from the virtual table size and alignment 
-requirements, and, depending on compiler, configuration, and class hierarchy could 
-easily vary from 2 to 6 bits. Because the vtbl-pointer under the C++ ABI points into 
-an array of function pointers, the alignment requirement of 4 bytes for those 
-pointers on a 32-bit architecture is what makes at least the last 2 bits to be 0. 
-For our purpose the exact number of bits on the right is not important as we 
-evaluate this number at run time based on vtbl-pointers seen so far. Here we only 
-would like to point out that there would be some number of common bits on the 
-right.
+Knowing that vtbl-pointers point into an array of function pointers, we should 
+expect them to be aligned accordingly to the alignment requirements of pointer 
+types on the target machine. Similarly, since many derived classes do not 
+introduce new virtual functions, the size of their virtual tables remains the 
+same. When allocated sequentially in memory, we can expect a certain amount of 
+lowest bits in the vtbl-pointers pointing to them to be the same.
 
-Another observation we made during our experiments with the vtbl-pointers of various 
-existing applications was that the values of the pointers where changing more 
-frequently in the lower bits than in the higher ones. We believe that this was 
-happening because programmers tend to group multiple derived classes in the same 
-translation unit so the compiler was emitting virtual tables for them close to 
-each other as well. 
-
-Note that derived classes that do not introduce their own virtual functions 
-(even if they override some existing ones) are likely to have virtual tables of 
-the same size as their base class. Even when they do add new virtual functions, 
-the size of their virtual tables can only increase relative to their base 
-classes. This is why the difference between many consecutive vtbl-pointers that 
-came through a given match statement was usually constant or very slightly 
-different.
-
-The changes in higher bits were typically due to separate compilation and 
-especially due to dynamically loaded modules. When a DLL is loaded, it may have 
-its own copies of v-tables for classes that are also used in other modules, in addition to 
-v-tables for classes it introduces. Comparing all vtbl-pointers coming only from 
-that DLL we can get a different pattern \texttt{01110011100000010111XXXXXXXXX000} 
-and when compared over all the loaded modules the pattern will likely become 
-something like \texttt{0XXX00X1X0XXXXXX0XXXXXXXXXXXXX00}. Overall they were not 
-changing the general tendency we saw: smaller bits were changing more frequently 
-than larger ones, with the exception of the lowest common bits, of course.
-
-These observations made virtual table pointers of classes related by inheritance 
-ideally suitable for indexing -- the values obtained by throwing away the common 
-bits on the right were compactly distributed in small disjoint ranges. We use 
-those values to address a cache built on top of the hash table in order to 
-eliminate a hash table lookup in most of the cases.  The important 
-guarantee about the validity of the cached hash table references comes from the 
-C++0x standard, which states that ``insert and emplace members shall not affect 
-the validity of references to container elements''~\cite[\textsection 
-23.2.5(13)]{C++0x}. 
+These assumptions, supported by actual observations, has made virtual table 
+pointers of classes related by inheritance ideally suitable for indexing -- the 
+values obtained by throwing away the common bits on the right were compactly 
+distributed in small disjoint ranges. We use those values to address a cache 
+built on top of the hash table in order to eliminate a hash table lookup in most 
+of the cases.
 
 Depending on the number of actual collisions that happen in the cache, our 
 v-table pointer memoization technique can come close to, and even outperform, the 
 visitor design pattern. The numbers are, of course, averaged over many runs as 
-the first run on every most derived type will take an amount of time as shown in 
+the first run on every vtbl-pointer will take an amount of time as shown in 
 Figure\ref{fig:DCastVis1}. We did however test our technique on real code and 
 can confirm that it does perform well in the real-world use cases.
 
 The information about jump targets and necessary offsets is just an example of 
 information we might want to be able to associate with, and access via, virtual 
-table pointers. Our implementation of \code{memoized_cast} from 
-\textsection\ref{sec:memcast} effectively reuses this general data structure with 
-a different type of element values. We thus created a generic reusable class 
-\code{vtblmap<T>} that maps vtbl-pointers to elements of type T. We will refer 
-to the combined cache and hash-table data structure, extended with the logic for 
-minimizing conflicts presented below, as a \emph{vtblmap} data structure.
+table pointers. Our implementation of \code{memoized_cast}, for example, 
+effectively reuses this general data structure with a different type of element 
+values. We thus created a generic reusable class \code{vtblmap<T>} that maps 
+vtbl-pointers to elements of type T. We will refer to the combined cache and 
+hash-table data structure, extended with the logic for minimizing conflicts 
+presented below, as a \emph{vtblmap} data structure.
 
 \subsubsection{Minimization of Conflicts}
 \label{sec:moc}
@@ -505,8 +492,8 @@ type does not let us put too sophisticated cache indexing mechanisms into the
 critical path of execution. This is why we limit our indexing function to shifts 
 and masking operations as well as choose the size of the cache to be a power of 2.
 
-As usual, by \emph{conflict} we mean a situation in which two or more virtual 
-table pointers are mapped to the same location in cache using a given indexing 
+As usual, by \emph{conflict} we mean a situation in which two or more keys (virtual 
+table pointers here) are mapped to the same location in cache using a given indexing 
 function. The presence of conflicts means that accessing values of \code{vtblmap<T>} 
 associated with some vtbl-pointers may result in slower lookup of the element 
 inside the underlying hash table relative to a direct fetch from the cache.
