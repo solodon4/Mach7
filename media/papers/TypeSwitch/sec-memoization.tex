@@ -59,8 +59,8 @@ kind of inheritance (single inheritance is $Repeated$ with one base class) and $
 representing the path in a non-virtual inheritance graph.
 
 A predicate $C\leftY\sigma\rightY A$ they introduce means that $\sigma$ 
-designates a base class subobject of class $C$, with subobject's static type 
-being $A$.
+designates a sub-object of static type $A$ within the most derived object of 
+type $C$.
 
 A class that declares or inherits a virtual function is called a 
 \emph{polymorphic class}~\cite[\textsection 10.3]{C++0x}. The C++ ABI in turn defines 
@@ -71,7 +71,7 @@ A polymorphic class is thus a dynamic class by definition.
 A \emph{virtual table pointer} (vtbl-pointer) is a member of object's layout 
 pointing to a virtual table. A \emph{virtual table} is a table of information used 
 to dispatch virtual functions, access virtual base class subobjects, and to 
-access information for runtime type identification (RTTI). Because of repeated
+access information for \emph{RunTime Type Identification} (RTTI). Because of repeated
 inheritance, an object of given type may have several vtbl-pointers in it. Each 
 such pointer corresponds to one of the polymorphic base classes. Given an object 
 $a$ of static type $A$ that has $k$ vtbl-pointers in it, we will use the same 
@@ -98,7 +98,7 @@ same most derived type share the same vtbl-pointer, the idea is to try to use
 its value to uniquely identify the type and even sub-object within it, pointed 
 to by this-pointer. Unfortunately nothing in the C++ ABI states these pointers 
 should be unique. A popular optimization technique of sharing base's class 
-virtual table for a derived class that does not override any virtual methods 
+virtual table for a derived class that does not override or introduce any virtual methods 
 will surely violate this assumption. Nevertheless, we show below that in the 
 presense of RTTI, a C++ ABI-compliant implementation is guaranteed to have 
 different values of vtbl-pointers in different sub-objects.
@@ -115,8 +115,9 @@ different values of vtbl-pointers in different sub-objects.
 %virtual table pointers within all the objects (instances) of a particular 
 %most-derived class point to the same set of virtual tables.
 
-The exact content of the virtual table is not important for this discussion. We 
-would like to point out a few fields in it that we will refer to later.
+The exact content of the virtual table is not important for our discussion, but 
+we would like to point out a few fields in it that we will refer to later. The 
+definitions are copied verbatim from the C++ ABI~\cite[\textsection 2.5.2]{C++ABI}:
 
 \begin{itemize}
 \setlength{\itemsep}{0pt}
@@ -159,11 +160,11 @@ contradicts that $C_1 \neq C_2$. Thus $C_1 = C_2 = C$.
 Let us assume now that $a_1.vtbl_i = a_2.vtbl_i$ but $\sigma_1 \neq \sigma_2$. 
 Let $\sigma_i=\langle h_i,l_i\rangle,i=1,2$ 
 
-If $h_1 \neq h_2$ then one of them refers to virtual base while the other to 
-repeated. Assuming $h_1$ refers to virtual path, \code{vbase}$(a_1.vtbl_i)$ has 
-to be defined inside the vtable accordingly to ABI, while 
+If $h_1 \neq h_2$ then one of them refers to a virtual base while the other to a 
+repeated one. Assuming $h_1$ refers to a virtual path, \code{vbase}$(a_1.vtbl_i)$ 
+has to be defined inside the vtable according to the ABI, while 
 \code{vbase}$(a_2.vtbl_i)$ -- should not. This would contradict again that both 
-$vtbl_i$ refer the same virtual table.
+$vtbl_i$ refer to the same virtual table.
 
 We have thus $h_1 = h_2 = h$. If $h = Shared$ than there is only one path to 
 such $A$ in $C$, which would contradict $\sigma_1 \neq \sigma_2$. 
@@ -171,18 +172,27 @@ If $h = Repeated$ then we must have that $l_1 \neq l_2$. In this case let $k$ be
 the first position in which they differ: 
 $l_1^j=l_2^j \forall j<k \wedge l_1^k\neq l_2^k$. Since our class $A$ is a base 
 class for classes $l_1^k$ and $l_2^k$, both of which are in turn base classes of 
-$C$, object identity requirement of C++ require that the relevant subobjects of 
-type $A$ have different offsets within class $C$: 
+$C$, the object identity requirement of C++ require that the relevant subobjects 
+of type $A$ have different offsets within class $C$: 
 $offset(\sigma_1)\neq offset(\sigma_2)$ However 
 $offset(\sigma_1)=$\code{off2top}$(a_1.vtbl_i)=$\code{off2top}$(a_2.vtbl_i)=offset(\sigma_2)$ 
-since $a_1.vtbl_i = a_2.vtbl_i$, which contradicts that offsets are different.
+since $a_1.vtbl_i = a_2.vtbl_i$, which contradicts that the offsets are different.
 \end{proof}
 
 Conjecture in the other direction is not true in general as there may be 
 duplicate virtual tables for the same type present at run-time. This happens in 
-many C++ implementations in the presence of dynamically linked libraries as the
-same class compiled into executable and into a DLL it loads may have identical 
-virtual tables inside the executable's and DLL's binaries.
+many C++ implementations in the presence of DLLs as the same class compiled into 
+executable and into a DLL it loads may have identical virtual tables inside the 
+executable's and DLL's binaries.
+
+Note also that we required both static types to be the same. Dropping this 
+requirement and saying that equality of vtbl-pointers also implies equality of 
+the static types is not true in general because a derived class will share the 
+vtbl-pointer with its primary base class (see Lemma~\ref{lem:vtbl}). The theorem 
+can be reformulated, however, stating that one static type will necessarily have 
+to be a subtype of the other. The current forumlation is sufficient for our 
+purposes, while reformulation would have required more elaborate discussion of 
+the algebra of sub-objects~\cite{RDL11}, which we touch only briefly.
 
 \begin{corollary}
 Results of \code{dynamic_cast} can be reapplied to a different instance from 
@@ -194,6 +204,7 @@ $\forall A,B \forall a_1, a_2 : A\ |\ a_1.vtbl_i = a_2.vtbl_i \Rightarrow$ \\
 \label{crl:vtbl}
 \end{corollary}
 
+\noindent
 Lastly we would like to point out that during construction and deconstruction of 
 an object, the value of a given virtual table pointer may change. In particular, 
 that value will reflect the dynamic type of the object to be the type of the 
@@ -458,7 +469,7 @@ Knowing that vtbl-pointers point into an array of function pointers, we should
 expect them to be aligned accordingly to the alignment requirements of pointer 
 types on the target machine. Similarly, since many derived classes do not 
 introduce new virtual functions, the size of their virtual tables remains the 
-same. When allocated sequentially in memory, we can expect a certain amount of 
+same. When allocated sequentially in memory, we can expect a certain number of 
 lowest bits in the vtbl-pointers pointing to them to be the same.
 
 These assumptions, supported by actual observations, has made virtual table 

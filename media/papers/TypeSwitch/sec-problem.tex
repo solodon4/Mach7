@@ -11,9 +11,17 @@ unsuitable to express our application logic, and slow. Seeing dynamic casts in
 many places, often nested, used to answer simple structural questions, was a 
 strong indication to us that the users preferred shorter, cleaner, and 
 more-direct code to visitors, even at a high cost in performance (assuming  
-that the programmer knew the cost). Interestingly, as bad as visitors were, they 
-were only trying to solve a larger problem in the context of object-oriented 
-languages, which was what we turned our attention to.
+that the programmer knew the cost). 
+
+A lot has been said about pros and cons of visitor design pattern~\cite{DesignPatterns1993,Zenger:2001}. 
+Its advantages include \emph{extensibility of functions}, \emph{speed}, and, 
+often undervalued, \emph{being a library solution}. Nevertheless, the solution 
+is still \emph{intrusive}, \emph{specific to hierarchy}, and requires a lot of 
+\emph{boilerplate code} to be written. It also introduces \emph{control 
+inversion}, and, most importantly, -- \emph{hinders extensibility} of classes.
+Interestingly, as bad as visitors are, they are only trying to solve a larger 
+problem in the context of object-oriented languages, which was what we turned 
+our attention to.
 
 %Expression problem is a problem of supporting in a programming language modular 
 %extensibility of both data and functions at the same time. Functional languages
@@ -50,9 +58,9 @@ experimenting with \emph{hierarchical extensible sum types}, which are closer to
 object-oriented classes then algebraic data types are, but, interestingly, they 
 did not provide pattern matching facilities on them!
 
-Zenger and Odersky later refined the problem in the context of independently 
-extensible solutions~\cite{fool12} as a challenge to find an implementation 
-technique that satisfies the following requirements:
+Zenger and Odersky later refined the expression problem in the context of 
+independently extensible solutions~\cite{fool12} as a challenge to find an 
+implementation technique that satisfies the following requirements:
 
 \begin{itemize}
 \setlength{\itemsep}{0pt}
@@ -116,8 +124,9 @@ reference or a pointer to a full object of a type present in the list of case
 clauses.
 
 Consider, for example, a class \code{B} and a set of classes \code{Di} directly 
-or indirectly inherited from it. A hypothetical type switch statement, not 
-currently supported by C++, can look as following:
+or indirectly inherited from it. Having an instance of class \code{D} referenced 
+by a variable \code{base} of static type \code{B&}, a hypothetical type switch 
+statement, not currently supported by C++, can look as following:
 
 \begin{lstlisting}
 switch (base)
@@ -175,14 +184,28 @@ object-oriented languages makes this extremely efficient approach infeasible:
       match tags of derived classes against case labels representing tags of 
       base classes.
 \item Presence of \emph{multiple inheritance} might require pointer adjustments 
-      that are not known at compiler time (e.g. due to virtual base class or 
+      that are not known at compile time (e.g. due to virtual base class or 
       cross-casting).
 \end{itemize}
 
 \noindent
-Does the truly open type switch capable of handling all these issues exist?
-It sure does and a possible solution can be generating the following code 
-that implements first-fit semantics:
+When tags are not chosen arbitrarily but to reflect the subtyping relation of the 
+underlying hierarchy (e.g. certain bit set for certain base class), one would 
+have to apply a function to obtain a base tag from a derived one. The latter 
+makes derived class indistinguishable from its base class and thus will not be 
+able to identify an exceptional case where most of the derived classes should be 
+handled as a base class, while a few should be handled specifically. The assumed 
+structure of tags is also likely to make the set of tags sparse, effectively 
+decreasing the number of representable hierarchies, as well as forcing the 
+compiler to use a decision tree instead of a jump table to implement the switch. 
+The former was consistently slower than the latter in our experience, even 
+though the opposite was noted on some architectures for small number of 
+cases~\cite[\textsection 4]{garrigue-98}.
+
+Instead of starting with an efficient solution and trying to make it open, let us 
+start with an open solution and try to make it efficient. The following 
+cascading-if statement implements the first-fit semantics for our type switch in 
+a truly open fashion:
 
 \begin{lstlisting}
 if (D1* derived = dynamic_cast<D1*>(base)) { s1; } else
@@ -281,48 +304,20 @@ is so much steeper.
 %all calls with a given type we can only claim we are asymptotically as good as 
 %fast dynamic cast.
 
-Unfortunately fast dynamic casting is not truly open as the structure of tags required by the scheme limits the number of 
-classes it can handle. %A 32-bit integer is estimated to be able to represent 7 
+Unfortunately fast dynamic casting is not truly open as the structure of tags 
+required by the scheme limits the number of classes it can handle. 
+%A 32-bit integer is estimated to be able to represent 7  
 %levels of a class hierarchy that forms a binary tree (255 classes), 6 levels of 
 %a similar ternary tree hierarchy (1093 classes) or just one level of a hierarchy 
 %with 9 base classes -- multiple inheritance is the worst case scenario of the 
 %scheme that quickly drains its allocation possibilities. 
-Besides, similarly to 
-other tag allocation schemes, presence of class extensions in DLLs will likely 
-require an integration effort to make sure different DLLs are not reusing prime 
-numbers in a way that might result in an incorrect dynamic cast.
-
-In view of the predictably-constant dispatching overhead of the visitor design pattern, 
-it became clear that any open solution that will have a non-constant dispatching 
-overhead will have a poor chance of being adopted. Multi-way switch on 
-sequentially allocated tags~\cite{Spuler94} was one of the few techniques that 
-could achieve constant overhead, and thus compete with and even outperform visitors. 
-Unfortunately the scheme has problems of its own that make it unsuitable for 
-truly open type-switching and here is why.
-
-%To better understand the problem let us look at some existing solutions to type 
-%switching that we found to be used in practice. 
-
-%From our experience on this project we have noticed that we can only compete 
-%with visitors when switch statements are implemented with a jump table. As soon 
-%as compiler was putting even a single branch into the decision tree of cases, 
-%the performance was degraded significantly. From this perspective we do not 
-%regard solutions based on decision trees as efficient, since they do not let us 
-%compete compete with the visitors solution.
-
-The simple scheme of assigning a unique tag per variant does not satisfy the 
-substitutability requirement as we will not be able to land on a base class' 
-case label with a derived class' tag. 
-
-When tags are not chosen arbitrarily but to reflect the subtyping relation of the 
-underlying hierarchy (e.g. certain bit set for certain base class), one would 
-have to apply a function to obtain a base tag from a derived one. The latter 
-makes derived class indistinguishable from its base class and thus will not be 
-able to identify an exceptional case where most of the derived classes should be 
-handled as a base class, while a few should be handled specifically. The assumed 
-structure of tags is also likely to make the set of tags sparse, effectively 
-decreasing the number of representable hierarchies, as well as forcing the 
-compiler to use a decision tree instead of a jump table to implement the switch. 
+The presence of class extensions in \emph{Dynamically Linked Libraries} (DLLs) 
+will also require an integration effort to make sure different DLLs are not 
+reusing prime numbers in a way that might result in an incorrect dynamic cast.
+Interestingly, while suitable for type testing and type switching with decision 
+trees, the fast dynamic cast approch is not suitable for type switching with 
+jump tables: computing the tag of a base class will have to decompose the 
+derived tag into primes.
 
 To summarize, truly open and efficient type switching seems to be a non-trivial 
 problem. The implementations we found in the literature were either open or 

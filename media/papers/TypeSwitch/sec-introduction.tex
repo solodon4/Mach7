@@ -65,6 +65,8 @@ few C++0x features~\cite{C++0x}, template meta-programming, and macros. As shown
 in section~\ref{sec:eval}, it runs about as fast as the OCaml version, and, 
 depending on the usage scenario, compiler and underlying hardware, comes close 
 or outperforms the handcrafted C++ code based on the \emph{visitor design pattern}.
+The mapping of members to matching positions that the user has to provide to 
+make the above example fully functional is omitted~\cite{TR}.
 
 \subsection{Summary}
 
@@ -80,9 +82,8 @@ based on the run-time type of the argument.
         virtual inheritance, as well as in generic code.
   \item The solution is open, non-intrusive, and avoids the control inversion 
         typical for visitors. 
-  \item It can be applied to any polymorphic or tagged class hierarchy.
-  \item Provides a unified syntax for various encodings of extensible 
-        hierarchical datatypes in C++.
+  \item It applies to polymorphic and tagged class hierarchies through a unified 
+        syntax. 
   \item The technique generalizes to other languages and can be used to 
         implement type switching, type testing, predicate dispatch, and 
         multi-methods efficiently.
