@@ -54,7 +54,7 @@ of target types. For the unlikely case of a small number of target types and lar
 number of source types we allow the user to revert to the default behavior with a 
 library configuration switch that allocates a single \code{vtblmap} per target type.
 
-The use of \code{memoized_cast} to implement the \code{Match}-statement potentially reuses the 
+The use of \code{memoized_cast} to implement the match statement potentially reuses the 
 results of \code{dynamic_cast} computations across multiple independent match 
 statements. This allows leveraging the cost of the expensive first call with a 
 given vtbl-pointer even further across all the match statements inside the 

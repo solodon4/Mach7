@@ -11,13 +11,12 @@ Despite its straightforwardness, we felt that it should be possible to do better
 than the general solution, given that each class is already identified with a 
 dedicated constant known at compile time.
 
-As we mentioned in \textsection\ref{sec:poets}, the nominal subtyping of C++ 
-effectively gives every class multiple types. The idea is thus to associate with 
-the type not only its most derived tag, but also the tags of all its base classes.
-In a compiler implementation such a list can be stored inside the virtual table 
-of a class, while in our library solution it is shared between all the instances 
-with the same most derived tag in a less efficient global map, associating the 
-tag to its tag list.
+The nominal subtyping of C++ effectively gives every class multiple types. The 
+idea is thus to associate with the type not only its most derived tag, but also 
+the list of tags of all its base classes. In a compiler implementation such a 
+list can be stored inside the virtual table of a class, while in our library 
+solution it is shared between all the instances with the same most derived tag 
+in a less efficient global map, associating the tag to its tag list.
 
 The list of tags is topologically sorted accordingly to the subtyping relation 
 and terminates with a dedicated value distinct from all the tags. We call such a 
@@ -67,5 +66,5 @@ matched, we will necessarily reach the end\_of\_list marker in the tag precedenc
 list and thus exit the loop.
 
 Our library automatically builds the function \code{get_taglist} based on 
-additional definitions that the user provides inside \code{bindings}. The details 
-can be found in our accompanying paper~\cite{AP}.
+additional definitions that the user provides. The details can be found in our 
+accompanying paper~\cite{AP}.

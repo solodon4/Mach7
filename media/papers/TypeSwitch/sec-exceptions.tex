@@ -12,7 +12,7 @@ equal to the dynamic type of the subject.
 To do this, we employ the \emph{polymorphic exception} idiom~\cite{PolyExcept} that 
 introduces a virtual function \code{virtual void raise() const = 0;} into the 
 base class, overridden by each derived class in syntactically the same way: 
-\code{throw *this;}. The \code{Match}-statement then simply calls \code{raise} on its subject, 
+\code{throw *this;}. The match statement then simply calls \code{raise} on its subject, 
 while case clauses are turned into catch-handlers. The exact name of the 
 function is not important, and is communicated to the library via 
 \code{bindings}. The \code{raise} member function can be seen as an analog of 

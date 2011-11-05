@@ -5,7 +5,7 @@
 %Give a summary of the paper: what you did and how
 %Explicitly state your contribution
 
-Algebraic data types as seen in functional languages are closed, while their 
+Algebraic data types as seen in functional languages are closed and their 
 variants are disjoint. This allows for easy addition of new functions through 
 case analysis as well as their efficient implementation. Data types in 
 object-oriented languages are extensible and hierarchical (non-disjoint), which 
@@ -15,7 +15,7 @@ open approaches, which allow for independent extensibility, modular
 type-checking and dynamic linking, rely on type testing through an 
 \code{instanceof}-like predicate combined with a decision tree. Efficient 
 approaches rely on sealing either the class hierarchy or the set of functions, 
-which looses extensibility. Consider for example a simple expression language: 
+which looses extensibility. Consider a simple expression language: 
 
 \begin{lstlisting}
 @$exp$ \is{} $val$ \Alt{} $exp+exp$ \Alt{} $exp-exp$ \Alt{} $exp*exp$ \Alt{} $exp/exp$@
@@ -30,21 +30,20 @@ functions, with derived classes representing variants:
 \begin{lstlisting}[keepspaces,columns=flexible]
 struct Expr { virtual @$\sim$@Expr() {} };
 struct Value  : Expr { int value; };
-struct Plus   : Expr { Expr* e1; Expr* e2; };
-struct Minus; struct Times; struct Divide; // similarly
+struct Plus   : Expr { Expr* e1; Expr* e2; }; // ...
 \end{lstlisting}
 
 \noindent
 A simple evaluator for this language can be implemented through a virtual 
 function \code{virtual int eval() const = 0;} introduced into the base class. 
-While extremely efficient, the approach is \emph{intrusive}, as we will have to 
-modify the base class every time we would like to add a function. 
-A less-intrusive solution to the extensibility of functions can be achieved with 
-\emph{visitor design pattern}~\cite{DesignPatterns1993}. The solution, however, 
-is not open as it restricts extensibility of classes.
+The approach is \emph{intrusive}, as we will have to modify the base class every 
+time we would like to add a function. A less-intrusive solution to the 
+extensibility of functions can be achieved with \emph{visitor design 
+pattern}~\cite{DesignPatterns1993}. The solution, however, is not open as it 
+restricts extensibility of classes.
 
 Our truly open solution overcomes extensibility problems of both functions and 
-types by allowing external introspection of objects with pattern matching:
+types by allowing external introspection of objects with a type switch:
 
 \begin{lstlisting}[keepspaces,columns=flexible]
 int eval(const Expr* e)
@@ -61,32 +60,44 @@ int eval(const Expr* e)
 
 \noindent
 The syntax is provided without any external tool support. Instead we rely on a 
-few C++0x features~\cite{C++0x}, template meta-programming, and macros. As shown 
-in section~\ref{sec:eval}, it runs about as fast as the OCaml version, and, 
-depending on the usage scenario, compiler and underlying hardware, comes close 
-or outperforms the handcrafted C++ code based on the \emph{visitor design pattern}.
-The mapping of members to matching positions that the user has to provide to 
-make the above example fully functional is omitted~\cite{TR}.
+few C++0x features~\cite{C++0x}, template meta-programming, and macros. It runs 
+about as fast as the OCaml version (\textsection\ref{sec:ocaml}), and, depending 
+on the usage scenario, compiler and underlying hardware, comes close or 
+outperforms the handcrafted C++ code based on the \emph{visitor design pattern} 
+(\textsection\ref{sec:eval}). The mapping of members to matching positions that 
+the user has to provide to make the above example fully functional is 
+omitted~\cite{TR}.
 
 \subsection{Summary}
 
-We present techniques that can be used to implement type switching efficiently 
-based on the run-time type of the argument.
+We present techniques based on memoization (\textsection\ref{sec:copc}) and 
+class precedence list (\textsection\ref{sec:cotc}) that can be used to implement 
+type switching efficiently based on the run-time type of the argument.
 
   \begin{itemize}
   \setlength{\itemsep}{0pt}
   \setlength{\parskip}{0pt}
-  \item The techniques outperform its de facto contender -- visitor design 
-        pattern -- without sacrificing extensibility.
+  \item The techniques come close and often outperform its de facto contender -- 
+        visitor design pattern -- without sacrificing extensibility (\textsection\ref{sec:eval}).
   \item They work in the presence of multiple inheritance, including repeated and 
-        virtual inheritance, as well as in generic code.
-  \item The solution is open, non-intrusive, and avoids the control inversion 
-        typical for visitors. 
-  \item It applies to polymorphic and tagged class hierarchies through a unified 
-        syntax. 
-  \item The technique generalizes to other languages and can be used to 
-        implement type switching, type testing, predicate dispatch, and 
-        multi-methods efficiently.
+        virtual inheritance, as well as in generic code (\textsection\ref{sec:vtblmem}).
+  \item The solution is open by construction (\textsection\ref{sec:poets}), 
+        non-intrusive, and avoids the control inversion typical for visitors.
+  \item It applies to polymorphic (\textsection\ref{sec:vtp}-\ref{sec:vtblmem}) and 
+        tagged (\textsection\ref{sec:cotc}) class hierarchies through a unified  
+        syntax~\cite{AP}.
+  \item Our memoization device (\textsection\ref{sec:memdev}) generalizes to 
+        other languages and can be used to implement type switching 
+        (\textsection\ref{sec:vtblmem}), type testing 
+        (\textsection\ref{sec:poets},\cite[\textsection 4.7]{TR}), predicate dispatch 
+        (\textsection\ref{sec:memdev}), and multiple dispatch 
+        (\textsection\ref{sec:cc}) efficiently.
+  \item We list conditions under which virtual table pointers, commonly used in 
+        C++ implementations, uniquely identify the exact subobject within the 
+        most derived type (\textsection\ref{sec:vtp}).
+  \item We also build an efficient cache indexing function for virtual table 
+        pointers that minimizes the amount of conflicts 
+        (\textsection\ref{sec:sovtp},\ref{sec:moc},\cite[\textsection 4.3.5]{TR}).
   \end{itemize}
 
 \noindent
@@ -99,14 +110,14 @@ a language solution for open type switching in C++.
 Due to page restrictions, we will only deal here with the part of the library 
 concerned with efficient type testing, type identification, and type switching. 
 These primitive operations are essential in providing support for type patterns 
-and constructor patterns, while their efficiency relative to the visitor design 
+and constructor patterns, and their efficiency relative to the visitor design 
 pattern might become a major argument for their adoption. We refer the reader to 
-accompanying paper~\cite{AP} and technical report~\cite{TR} for details on the 
+companion paper~\cite{AP} and technical report~\cite{TR} for details on the 
 rest of our pattern-matching library.
 
-Section~\ref{sec:probl} will motivate the problem as well as discuss some 
-existing solutions and their limitations. Section~\ref{sec:copc} will outline 
-the three techniques that comprise our solution, while the 
-section~\ref{sec:eval} will evaluate their performance. Related work is 
-discussed in Section~\ref{sec:rw}, followed by concluding remarks in 
-Section~\ref{sec:cc}.
+%Section~\ref{sec:probl} will motivate the problem as well as discuss some 
+%existing solutions and their limitations. Section~\ref{sec:copc} will outline 
+%the three techniques that comprise our solution, while the 
+%section~\ref{sec:eval} will evaluate their performance. Related work is 
+%discussed in Section~\ref{sec:rw}, followed by concluding remarks in 
+%Section~\ref{sec:cc}.

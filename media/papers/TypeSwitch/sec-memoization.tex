@@ -1,65 +1,60 @@
 \section{Proposed Solution}
 \label{sec:copc}
 
-C++ does not have direct support of algebraic data types, but they can usually 
-be encoded with classes in a number of ways. One common such encoding is to 
+C++ does not have direct support of algebraic data types, but they can be 
+encoded with classes in a number of ways. One common such encoding is to 
 introduce an abstract base class representing an algebraic data type with 
 several derived classes representing variants. The variants can then be 
 discriminated with either run-time type information (further referred to as 
 \emph{polymorphic encoding}) or a dedicated member of a base class (further 
 referred to as \emph{tagged encoding}).
 
-Our handling of type switches for polymorphic and tagged encoding is different 
+Our handling of type switches for polymorphic and tagged encodings differs 
 with each having its pros and cons described in details in \textsection\ref{sec:cmp}.
-In the remainder of this section we will concentrate more on the type switch for 
-polymorphic encoding as it is truly open. The type switch for tagged encoding 
-(\textsection\ref{sec:cotc}) is somewhat more efficient, however, we believe 
-that making it more open will also eradicate the performance advantages it 
-currently has. The difference in performance can be seen as a price one pays for 
+In this section we will concentrate on the truly open type switch for 
+polymorphic encoding. The type switch for tagged encoding (\textsection\ref{sec:cotc}) 
+is simpler and more efficient, however, making it open will eradicate its 
+performance advantages. The difference in performance is the price we pay for 
 keeping the solution open.
 
 \subsection{Virtual Table Pointers}
 \label{sec:vtp}
 
-Before we discuss our solution we would like to talk about certain properties of 
-the C++ run-time system that we rely on. The ultimate goal of this subsection is 
-to show that every polymorpic object in C++ has a run-time value embedded into 
-it that \emph{uniquely} determines the sub-object within the most derived object, 
-pointed to by this-pointer of a given static type.
+In this section we show that under certain conditions the compiler cannot share 
+the same virtual tables between different classes or subobjects of the same 
+class. This allows us to use virtual table pointers to \emph{uniquely} identify 
+the subobjects within the most derived class.
 
-Strictly speaking, C++ standard does not require implementations to use any 
-given technique (e.g. use virtual tables to implement virtual functions), 
-however interoperability requirements have forced compiler vendors to design a 
-set of rules called Common Vendor Application Binary Interface (further refered 
-to as the C++ ABI)~\cite{C++ABI}. Most C++ compilers today follow these rules, 
-with the notable exception of Microsoft Visual C++. We show that the technique 
-presented here will work with any C++ compiler that follows C++ ABI. Microsoft's 
-own ABI is not publically available and thus we could not verify that it satisfies 
-our requirements. Nevertheless we did run numerous experiments with various 
+Strictly speaking, the C++ standard~\cite{C++0x} does not require implementations 
+to use any specific technique (e.g. virtual tables) to implement virtual functions, 
+however interoperability requirements have forced many compiler vendors to design a 
+set of rules called Common Vendor Application Binary Interface (the C++ 
+ABI)~\cite{C++ABI}. Most C++ compilers today follow these rules, with the 
+notable exception of Microsoft Visual C++. The technique presented here will 
+work with any C++ compiler that follows the C++ ABI. Microsoft's own ABI is not 
+publically available and thus we cannot formally verify that it satisfies 
+our requirements. Nevertheless, we did run numerous experiments with various 
 class hierarchies and have sufficient confidence that our approach can be used 
 in Visual C++. This is why we include experimental results for this compiler as 
 well.
 
-Besides single inheritance, which is supported by most object-oriented languages, C++ 
-supports multiple-inheritance of two kinds: repeated and virtual. Under repeated 
-inheritance, a given derived class may inherit a certain base class in several ways. 
-Objects of such class will have several subobjects of that base class. Under 
-virtual inheritance there will only be one shared subobject, accessible through 
-different inheritance paths. Because of this peculiarity of the C++ type system 
-it is not sufficient to talk only about the static and dynamic types of an object -- 
-one has to talk about a subobject of a certain static type accessible through a
-given inheritance path within a dynamic type.
-
-The notion of subobject has been formalized before~\cite{RF95,WNST06,RDL11}.
-We follow here the presentation of Ramamanandro et al~\cite{RDL11}.
+C++ supports multiple-inheritance of two kinds: repeated and virtual (shared). 
+\emph{Repeated inheritance} creates multiple independent subobjects of the same 
+type within the most derived type. \emph{Virtual inheritance} creates only one 
+shared subobject, regardless of the inheritance paths. Because of this 
+peculiarity of the C++ type system it is not sufficient to talk only about the 
+static and dynamic types of an object -- one has to talk about a 
+\emph{subobject} of a certain static type accessible through a given inheritance 
+path within a dynamic type. The notion of subobject has been formalized 
+before~\cite{RF95,WNST06,RDL11}. We follow here the presentation of Ramamanandro 
+et al~\cite{RDL11}.
 
 A base class subobject of a given complete object is represented by a pair 
 $\sigma = \langle h,l\rangle$ with $h \in \{Repeated,Shared\}$ representing the 
 kind of inheritance (single inheritance is $Repeated$ with one base class) and $l$ 
 representing the path in a non-virtual inheritance graph.
-
 A predicate $C\leftY\sigma\rightY A$ they introduce means that $\sigma$ 
-designates a sub-object of static type $A$ within the most derived object of 
+designates a subobject of static type $A$ within the most derived object of 
 type $C$.
 
 A class that declares or inherits a virtual function is called a 
@@ -94,14 +89,15 @@ virtual table pointer at offset 0.
 
 \noindent
 Knowing how to extract a vtbl-pointer as well as that all the objects of the 
-same most derived type share the same vtbl-pointer, the idea is to try to use 
-its value to uniquely identify the type and even sub-object within it, pointed 
-to by this-pointer. Unfortunately nothing in the C++ ABI states these pointers 
-should be unique. A popular optimization technique of sharing base's class 
-virtual table for a derived class that does not override or introduce any virtual methods 
-will surely violate this assumption. Nevertheless, we show below that in the 
-presense of RTTI, a C++ ABI-compliant implementation is guaranteed to have 
-different values of vtbl-pointers in different sub-objects.
+same most derived type share the same vtbl-pointers, the idea is to use their 
+values to uniquely identify the type and subobject within it. Unfortunately 
+nothing in the C++ ABI states these pointers should be unique. A popular 
+optimization technique lets the compiler share the virtual table of a derived 
+class with its primary base class as long as the derived class that does not 
+override any virtual methods. Use of such optimization will violate the 
+uniqueness of vtbl-pointers; however, we show below that in the presense of 
+RTTI, a C++ ABI-compliant implementation is guaranteed to have different values 
+of vtbl-pointers in different subobjects.
 
 %C++ standard requires an argument of \code{dynamic_cast} to be a pointer to or 
 %an lvalue of a polymorphic type when performing \emph{downcast} -- a cast from 
@@ -116,8 +112,8 @@ different values of vtbl-pointers in different sub-objects.
 %most-derived class point to the same set of virtual tables.
 
 The exact content of the virtual table is not important for our discussion, but 
-we would like to point out a few fields in it that we will refer to later. The 
-definitions are copied verbatim from the C++ ABI~\cite[\textsection 2.5.2]{C++ABI}:
+we would like to point out a few fields in it. The following definitions are 
+copied verbatim from the C++ ABI~\cite[\textsection 2.5.2]{C++ABI}:
 
 \begin{itemize}
 \setlength{\itemsep}{0pt}
@@ -142,9 +138,10 @@ offset of the base class identified by the end of the path $\sigma$ within a
 class identified by its first element.
 
 \begin{theorem}
-In an object layout that adheres to the C++ ABI, if virtual table pointers of two 
-objects of the same static type are the same, then they both refer to subobjects 
-with the same inheritance path in the same most-derived type.
+In an object layout that adheres to the C++ ABI with present runtime type 
+information, the equality of virtual table pointers of two objects of the same 
+static type implies that they both belong to subobjects with the same 
+inheritance path in the same most-derived type.
 \begin{eqnarray*}
     \forall a_1, a_2 : A\ |\ a_1\in C_1\leftY\sigma_1\rightY A \wedge a_2\in C_2\leftY\sigma_2\rightY A \\
     a_1.vtbl_i = a_2.vtbl_i \Rightarrow C_1 = C_2 \wedge \sigma_1 = \sigma_2
@@ -192,7 +189,7 @@ vtbl-pointer with its primary base class (see Lemma~\ref{lem:vtbl}). The theorem
 can be reformulated, however, stating that one static type will necessarily have 
 to be a subtype of the other. The current forumlation is sufficient for our 
 purposes, while reformulation would have required more elaborate discussion of 
-the algebra of sub-objects~\cite{RDL11}, which we touch only briefly.
+the algebra of subobjects~\cite{RDL11}, which we touch only briefly.
 
 \begin{corollary}
 Results of \code{dynamic_cast} can be reapplied to a different instance from 
@@ -205,10 +202,10 @@ $\forall A,B \forall a_1, a_2 : A\ |\ a_1.vtbl_i = a_2.vtbl_i \Rightarrow$ \\
 \end{corollary}
 
 \noindent
-Lastly we would like to point out that during construction and deconstruction of 
+During construction and deconstruction of 
 an object, the value of a given virtual table pointer may change. In particular, 
 that value will reflect the dynamic type of the object to be the type of the 
-fully constructed part only. This fact does not affect our reasoning, as during 
+fully constructed part only. However, this does not affect our reasoning, as during 
 such transition we also treat the object to have the type of its fully 
 constructed base only. Such interpretation is in line with the C++ semantics for 
 virtual function calls and the use of RTTI during construction and destruction of an 
@@ -223,8 +220,7 @@ generalization of the switch statement that takes predicates on a subject as its
 clauses and executes the first statement $s_i$ whose predicate got enabled: 
 
 \begin{lstlisting}
-switch (x)
-{
+switch (x) {
 case P1(x): s1;
  ...
 case Pn(x): sn;
@@ -239,52 +235,51 @@ first. Thus, we would like to avoid evaluating predicates and jump straight to
 the statement it guards. In a way we would like the switch to  memoize which 
 case is enabled for a given value of $x$.
 
-Inspired by Duff's Device~\cite{Duff}, we devised a construct that we call 
-\emph{Memoization Device} that does just that:
+The idea is to generate a simple cascading-if statement interleaved with jump 
+targets and instructions that associate the original value with enabled targed. 
+The code before the statement looks up whether the association for a given value 
+has already been established, and, if so, jumps directly to the target; otherwise 
+the sequential execution of the underlying cascading-if is started. To ensure 
+that the actual code associated with the predicates remains unaware of this 
+optimization, the code preceeding it after the target must re-establish any 
+invariant guaranteed by sequential execution (\textsection\ref{sec:vtblmem}).
+
+The above code can easily be produced in a compiler setting, but producing it in 
+a library setting is a challenge. Inspired by Duff's Device~\cite{Duff}, 
+we devised a construct that we call \emph{Memoization Device} that does just 
+that in standard C++:
 
 \begin{lstlisting}
 typedef decltype(x) T;
 static std::unordered_map<T,int> jump_target_map;
 
-switch (int& target = jump_target_map[x])
-{
-default: // entered when we haven't seen x yet
-    if (P1(x)) { target = 1;   case 1: s1; } else 
-    if (P2(x)) { target = 2;   case 2: s2; } else
+switch (int& target = jump_target_map[x]) {
+default: // entered when we have not seen x yet
+    if (P1(x)) { target = 1; case 1: s1; } else 
+    if (P2(x)) { target = 2; case 2: s2; } else
       ...
-    if (Pn(x)) { target = n;   case n: sn; } else
-                 target = n+1;
-case n+1: // none of predicates is true on x
+    if (Pn(x)) { target = @$n$@; case @$n$@: sn; } else
+                target = @$n+1$@;
+case @$n+1$@: // none of the predicates is true on x
 }
 \end{lstlisting}
 
 \noindent
-The static \code{jump_target_map} maps values to jump targets, and will be 
-allocated upon first entry to the function. The map is initially empty and is 
-updated from within the switch as we proceed through the interleaved 
-cascading-if statement. Accordingly to the logic of the STL's \code{unordered_map}, 
-a key $x$ that is not yet in the map will result in allocation of a new entry 
-with its associated data (of type int) default initialized to 0. Since there is 
-no case label 0 in the switch, default case will be taken, which, in turn, will 
-initiate sequential execution of the interleaved cascading-if statement.
+The static \code{jump_target_map} hash table will be allocated upon first entry 
+to the function. The map is initially empty and accordingly to its logic, 
+request for a key $x$ not yet in the map will result in allocation of a 
+new entry with its associated data default initialized (to 0 for int). Since 
+there is no case label 0 in the switch, default case will be taken, which, in 
+turn, will initiate sequential execution of the interleaved cascading-if 
+statement. Assignments to \code{target} effectively establish association 
+between value $x$ and corresponding predicate, since \code{target} is just a 
+reference to \code{jump_target_map[x]}. The last assignment records absence of 
+enabled predicates for the value.
 
-The sequential execution of the cascading-if statement will keep checking 
-predicates $P_j(x)$ until the first predicate $P_i(x)$ that returns true. By 
-assigning $i$ to \code{target} we will effectively associate $i$ with $x$ since 
-\code{target} is just a reference to \code{jump_target_map[x]}. This association 
-will make sure that the next time we are called with the value $x$ we will jump 
-directly to the label $i$. When none of the predicates returns true, we will 
-record it by associating $x$ with $n+1$, so that the next time we can jump 
-directly to the end of the switch on $x$. 
-
-The above construct effectively gives the entire statement first-fit semantics. 
-In order to evaluate all the statements whose predicates are true, and thus 
-give the construct all-fit semantics, we might want to be able to preserve the 
-fall-through behavior of the switch. In this case we can still skip the initial 
-predicates returning false and start from the first successful one. This can be 
-easily achieved by removing all else statements and making if-statements 
-independent as well as wrapping all assignments to \code{target} with a condition, 
-to make sure only the first successful predicate executes it:
+To change the first-fit semantics of the above construct into \emph{sequential 
+all-fit}, we remove the \code{else}s and rely on fall-through behavior of the 
+switch. We also make the assignments conditional to make sure only the first one 
+gets recorded:
 
 \begin{lstlisting}
     if (Pi(x)) { if (target == 0) target = i; case i: si; }
@@ -292,15 +287,13 @@ to make sure only the first successful predicate executes it:
 
 \noindent
 Note that the protocol that has to be maintained by this structure does not 
-depend on the actual value of case labels. The only property we rely on here is 
-that they are all different and that there is a predefined default value, 
-distinct from any of them. In fact, the default clause we used here can be 
-replaced with case clause with the predefined value. From experience, however, 
-we have noticed that keeping the default clause results in a faster code. A more 
-important performance consideration is to keep the values close to each other. 
-Not following this rule might result in a compiler choosing a decision tree over a 
-jump table implementation of the switch, which will significantly degrade the 
-performance.
+depend on the actual values of case labels. We only require them to be 
+different and include a predefined default value. The default clause can be 
+replaced with a case clause for the predefined value, however keeping the default  
+clause result in a faster code. A more important performance consideration is to 
+keep the values close to each other. Not following this rule might result in a 
+compiler choosing a decision tree over a jump table implementation of the 
+switch, which in our experience significantly degrades the performance.
 
 The first-fit semantics is not an inherent property of the memoization device however. 
 Assuming that the conditions are either mutually exclusive or imply one another, we 
@@ -320,8 +313,7 @@ predicate that implies all other predicates true on $x$) that evaluates to true 
 skip the entire statement if none of the predicates is true on $x$.
 
 \begin{lstlisting}
-switch (int& target = jump_target_map[x])
-{
+switch (int& target = jump_target_map[x]) {
 default:
     if (P1(x)) {
         if (P2(x)) {
@@ -350,26 +342,22 @@ structure of the code can be laid out directly with macros. A compiler solution
 will use the decision-tree approach whenever possible to lower the cost of the 
 first match from linear in case's number to logarithmic as seen in Figure\ref{fig:DCastVis1}.
 
-When the predicates do not satisfy the implication or mutual exclusion properties 
-mentioned above, a compiler of a language based on predicate dispatching would 
-typically issue an ambiguity error. Some languages might choose to resolve it 
-according to lexical or some other ordering. In any case, the presence of 
-ambiguities or their resolution has nothing to do with memoization device 
-itself. The latter only helps optimize the execution once a particular choice of 
-semantics has been made and code implementing it has been laid out.
+%When the predicates do not satisfy the implication or mutual exclusion properties 
+%mentioned above, a compiler of a language based on predicate dispatching would 
+%typically issue an ambiguity error. Some languages might choose to resolve it 
+%according to lexical or some other ordering. In any case, the presence of 
+%ambiguities or their resolution has nothing to do with memoization device 
+%itself. The latter only helps optimize the execution once a particular choice of 
+%semantics has been made and code implementing it has been laid out.
 
-The main advantage of the memoization device is that it does not impose any 
-restriction on the type of a subject. It can easily support multiple scrutiny 
-by turning $x$ into a tuple. Another advantage is that conditions and statements 
-do not have to be repeated several times textually, which lets us turn the 
-boilerplate code of maintaining memoization logic into macros.
-
-The main disadvantage of such a solution is, of course, the size of the hash table 
-that grows proportionally to the number of different values coming through the 
-function. We will see, however, that oftentimes the values can be grouped into 
-equivalence classes, such that values in the same class do not change the 
-predicate. The map can then associate the equivalence class of a value with a
-target instead of associating the value with it.
+The main advantage of the memoization device is that it can be built around 
+almost any code, providing that we can re-establish the invariants, guaranteed 
+by sequential execution. Its main disadvantage is the size of the hash table 
+that grows proportionally to the number of different values seen. Fortunately, 
+the values can often be grouped into equivalence classes, such that values in 
+the same class do not change the predicate. The map can then associate the 
+equivalence class of a value with a target instead of associating the value with 
+it. The next subsection does exactly that for polymorphic objects.
 
 \subsection{V-Table Pointer Memoization}
 \label{sec:vtblmem}
@@ -379,15 +367,15 @@ using \code{dynamic_cast<Di>} as a predicate $P_i$. This cannot be considered a
 type switching solution, however, as one would expect to also have a reference 
 to the uncovered type. Using a \code{static_cast<Di>} upon successful type test 
 would have been a solution if we did not have multiple inheritance. It certainly 
-can be used as such in languages with only single inheritance, e.g.  
-Java. For the fully functional C++ solution, we combine the memoization device with 
-the properties of virtual table pointers into a \emph{V-Table Pointer 
-Memoization} technique.
+can be used as such in languages with only single inheritance. For the fully 
+functional C++ solution, we combine the memoization device with the properties 
+of virtual table pointers into a \emph{V-Table Pointer Memoization} technique.
 
-We showed in Corollary~\ref{crl:vtbl} that the result of a dynamic cast can be 
-reapplied on subobjects with the same virtual table pointer. With this in mind, 
-we can now apply the memoization device to polymorphic objects grouped by their 
-vtbl-pointer. The head of the switch requires few extra definitions:
+We saw that vtbl-pointers uniquely determine the subobject within an object 
+(Theorem~\ref{thm:vtbl}), while the result of a \code{dynamic_cast} can be reapplied 
+from the same subobject (Corollary~\ref{crl:vtbl}). The idea is thus to group 
+all the objects accordingly to the value of their vtbl-pointer and associate both 
+target and the required offset with it through memoization device:
 
 \begin{lstlisting}
 typedef std::pair<ptrdiff_t,size_t> type_switch_info;
@@ -395,18 +383,22 @@ static std::unordered_map<intptr_t, type_switch_info> jump_target_map;
 intptr_t          vtbl = *reinterpret_cast<const intptr_t*>(p);
 type_switch_info& info = jump_target_map[vtbl];
 const void*       tptr; 
+switch (info.second) ...
 \end{lstlisting}
 
 \noindent
-We use the virtual table pointer extracted from a polymorphic object pointed to 
-by \code{p} as a key for association. The value stored along the key in 
-association now keeps both: the target for the switch as well as a memoized 
-offset for dynamic cast. The snippet corresponding to the $i^{th}$ case now 
-looks as following:
+The code for the $i^{th}$ case now evaluates the required offset on the first 
+entry and associates it along the target with the vtbl-pointer of the subject.
+The call to \code{adjust_ptr<Di>} re-establishes the invariant that 
+\code{matched} is a properly-casted reference to type \code{Di} of the subject 
+\code{p}.
+%The condition of the inner if-statement is only needed to implement the 
+%sequential all-fit semantics and can be removed when fall-through behavior is 
+%not required.
 
 \begin{lstlisting}
     if (tptr = dynamic_cast<const Di*>(p)) {
-        if (info.second == 0) {
+        if (info.second == 0) { // supports fall-through
             info.first  = intptr_t(tptr)-intptr_t(p); // offset
             info.second = @$i$@; // jump target
         }
@@ -417,37 +409,26 @@ case @$i$@: // @$i$@ is a constant here - clause's position in switch
 \end{lstlisting}
 
 \noindent
-The main condition remains the same. We keep checking for the first initialization 
-because we allow fall-through behavior here, letting the user break from the 
-switch when needed. Upon first entry we compute the offset that the dynamic cast 
-performed and save it together with target associated to the virtual table 
-pointer. On the next iteration we will jump directly to the case label and 
-restore the invariant of \code{matched} being a properly-casted reference to the 
-derived object.
-
 The use of dynamic cast makes a huge difference in comparison to the use of 
 static cast we dismissed above. First of all the C++ type system is much more 
-restrictive about static cast and many cases where it is not allowed can 
+restrictive about the static cast and many cases where it is not allowed can 
 still be handled by dynamic cast. Examples of these include downcasting from an 
 ambiguous base class or cross-casting between unrelated base classes.
 
-An important benefit we get from this optimization is that we do not store the 
-actual values (pointers to objects) in the hash table anymore, but group them 
-into equivalence classes based on their virtual table pointers. The number of 
-such pointers in a program is always bound by $O(|A|)$, where $A$ represents the 
+An important benefit we get from this optimization is that the number of values 
+stored in the hash table is on the order $O(|A|)$, where $A$ represents the 
 static type of an object, while $|A|$ represents the number of classes directly 
 or indirectly derived from $A$. The linear coefficient hidden in big-o notation 
 reflects possibly multiple vtbl-pointers in derived classes due to the use of 
 multiple inheritance.
 
-However, the most important benefit of this optimization is the constant time on average 
-used to dispatch each of the case clauses, regardless of their position in the 
-type switch. The constant time on average comes from the average complexity 
-of accessing an element in an \code{unordered_map}, while its worst complexity can 
-be proportional to the size of the map. We show in the next section, however, 
-that most of the time we will be bypassing traditional access to elements of the 
-map, because, as-is, the type switch is still about 50\% slower than the visitor 
-design pattern.
+The most important benefit of this optimization, however, is the constant time 
+on average used to dispatch each of the case clauses, regardless of their 
+position in the type switch. The worst complexity can be proportional to the 
+size of the map, but we show in the next section that most of the time we will 
+be bypassing traditional access to its elements. We need this extra 
+optimization because, as-is, the type switch is still about 50\% slower than 
+the visitor design pattern.
 
 %Note that we can apply the reasoning of \textsection\ref{sec:memdev} and change 
 %the first-fit semantics of the resulting match statement into a best-fit 
@@ -466,11 +447,11 @@ module are likely to change these values. The relative distance between them is
 likely to remain the same though as long as they come from the same module.
 
 Knowing that vtbl-pointers point into an array of function pointers, we should 
-expect them to be aligned accordingly to the alignment requirements of pointer 
-types on the target machine. Similarly, since many derived classes do not 
-introduce new virtual functions, the size of their virtual tables remains the 
-same. When allocated sequentially in memory, we can expect a certain number of 
-lowest bits in the vtbl-pointers pointing to them to be the same.
+expect them to be aligned accordingly and thus have a few lowest bits as zero. 
+Similarly, since many derived classes do not introduce new virtual functions, 
+the size of their virtual tables remains the same. When allocated sequentially 
+in memory, we can expect a certain number of lowest bits in the vtbl-pointers 
+pointing to them to be the same.
 
 These assumptions, supported by actual observations, has made virtual table 
 pointers of classes related by inheritance ideally suitable for indexing -- the 
@@ -488,7 +469,7 @@ can confirm that it does perform well in the real-world use cases.
 
 The information about jump targets and necessary offsets is just an example of 
 information we might want to be able to associate with, and access via, virtual 
-table pointers. Our implementation of \code{memoized_cast}, for example, 
+table pointers. Our implementation of \code{memoized_cast}~\cite{TR}, for example, 
 effectively reuses this general data structure with a different type of element 
 values. We thus created a generic reusable class \code{vtblmap<T>} that maps 
 vtbl-pointers to elements of type T. We will refer to the combined cache and 
@@ -557,9 +538,9 @@ resulting probability distribution resembled the power-law distribution, which m
 that for that specific application, the probability of some vtbl-pointers was much 
 higher than the probability of many other vtbl-pointers taken altogether. In 
 our case, the two most frequent classes were representing the use of a variable in 
-a program, and their combined frequency was larger than the frequency of all the 
-other nodes. Naturally, we would like to avoid conflicts on such classes in the 
-cache, when possible.
+a program, and their combined frequency was larger than the combined frequency 
+of all the other nodes. Naturally, we would like to avoid conflicts on such 
+classes in the cache, when possible.
 
 To do this, our library provides a configuration flag that enables tracing the
 frequencies of each vtbl-pointer in a switch and uses this information to 

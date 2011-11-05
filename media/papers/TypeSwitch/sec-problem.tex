@@ -1,17 +1,17 @@
 \section{Problem Description} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:probl}
 
-The ideas and the library, only partially presented here, were motivated by our 
-rather unsatisfactory experiences working with various C++ front-ends and 
-program analysis frameworks~\cite{Pivot09,Phoenix,Clang,Lise}. 
+The ideas and the library were motivated by our unsatisfactory experiences 
+working with various C++ front-ends and program analysis 
+frameworks~\cite{Pivot09,Phoenix,Clang,Lise}.
 The problem was not in the frameworks per se, but in the fact that we had to use
 the \emph{visitor design pattern}~\cite{DesignPatterns1993} to inspect, traverse, and 
 elaborate abstract syntax trees of their target languages. We found visitors 
-unsuitable to express our application logic, and slow. Seeing dynamic casts in 
-many places, often nested, used to answer simple structural questions, was a 
-strong indication to us that the users preferred shorter, cleaner, and 
-more-direct code to visitors, even at a high cost in performance (assuming  
-that the programmer knew the cost). 
+unsuitable to express our application logic, surprisingly hard to teach 
+students, and slow. Seeing dynamic casts in many places, often nested, used to 
+answer simple structural questions, was a strong indication to us that the users 
+preferred shorter, cleaner, and more-direct code to visitors, even at a high 
+cost in performance (assuming that the programmer knew the cost).
 
 A lot has been said about pros and cons of visitor design pattern~\cite{DesignPatterns1993,Zenger:2001}. 
 Its advantages include \emph{extensibility of functions}, \emph{speed}, and, 
@@ -121,7 +121,8 @@ case analysis from the hierarchy it is performed on.
 By \emph{type switch} we will call a control structure taking either a pointer 
 or a reference to an object, called \emph{subject}, and capable of uncovering a 
 reference or a pointer to a full object of a type present in the list of case 
-clauses.
+clauses. Similar control structures exist in many programming languages and 
+date back to at least Simula's Inspect statement~\cite{Simula67}.
 
 Consider, for example, a class \code{B} and a set of classes \code{Di} directly 
 or indirectly inherited from it. Having an instance of class \code{D} referenced 
@@ -129,8 +130,7 @@ by a variable \code{base} of static type \code{B&}, a hypothetical type switch
 statement, not currently supported by C++, can look as following:
 
 \begin{lstlisting}
-switch (base)
-{
+switch (base) {
 case D1: s1;
  ...
 case Dn: sn;
@@ -189,18 +189,20 @@ object-oriented languages makes this extremely efficient approach infeasible:
 \end{itemize}
 
 \noindent
+In some cases the substitutability requirement can be satisfied by obtaining 
+the base class' tag from a derived one first and then performing the jump. 
+This will work as long as we have only base classes in the case clauses, because 
+few derived classes that have to be treated separately from the rest of their 
+siblings, will essentially be indistinguishable from them.
+
 When tags are not chosen arbitrarily but to reflect the subtyping relation of the 
-underlying hierarchy (e.g. certain bit set for certain base class), one would 
-have to apply a function to obtain a base tag from a derived one. The latter 
-makes derived class indistinguishable from its base class and thus will not be 
-able to identify an exceptional case where most of the derived classes should be 
-handled as a base class, while a few should be handled specifically. The assumed 
-structure of tags is also likely to make the set of tags sparse, effectively 
-decreasing the number of representable hierarchies, as well as forcing the 
-compiler to use a decision tree instead of a jump table to implement the switch. 
-The former was consistently slower than the latter in our experience, even 
-though the opposite was noted on some architectures for small number of 
-cases~\cite[\textsection 4]{garrigue-98}.
+underlying hierarchy (e.g. certain bit set for certain base class), the assumed 
+structure of tags is likely to make the set of tags sparse. On one side this 
+decreases the number of representable hierarchies and thus hinders openness, 
+while on the other forces the compiler to use a decision tree instead of a jump 
+table to implement the switch. The former was consistently slower than the 
+latter one in our experience, even though the opposite was noted on some 
+architectures for small number of cases~\cite[\textsection 4]{garrigue-98}.
 
 Instead of starting with an efficient solution and trying to make it open, let us 
 start with an open solution and try to make it efficient. The following 
@@ -215,7 +217,7 @@ if (Dn* derived = dynamic_cast<Dn*>(base)) { sn; }
 \end{lstlisting}
 
 \noindent
-Despite the obvious simplicity, its main drawback is performance: a typical 
+Its main drawback is performance: a typical 
 implementation of \code{dynamic_cast} might take time proportional to the 
 distance between base and derived classes in the inheritance tree~\cite{XXXXX}.
 What is worse, is that the time to uncover the type in the $i^{th}$ case clause 
@@ -243,10 +245,10 @@ Seeing several solutions whose time increases with the position of the case
 clause in the type switch, one may wonder how many such clauses a typical 
 program might have. A program dealing with abstract syntax trees in 
 Pivot~\cite{Pivot09} that we implemented using our pattern-matching library had 
-8 match statements with 5, 7, 8, 10, 15, 17, 30 and 63 case clauses each. With 
-Pivot having the smallest number of node kinds among the compiler frameworks we 
-had a chance to work with, we expect a similar or larger number of case clauses 
-in other compiler applications.
+8 match statements with 5, 7, 8, 10, 15, 17, 30 and 63 case clauses 
+respectively. With Pivot having the smallest number of node kinds among the 
+compiler frameworks we had a chance to work with, we expect a similar or larger 
+number of case clauses in other compiler applications.
 
 When the class hierarchy is not flat, the above cascading-if can be replaced 
 with a decision tree that tests base classes first and thus eliminates many of 
@@ -319,10 +321,10 @@ trees, the fast dynamic cast approch is not suitable for type switching with
 jump tables: computing the tag of a base class will have to decompose the 
 derived tag into primes.
 
-To summarize, truly open and efficient type switching seems to be a non-trivial 
-problem. The implementations we found in the literature were either open or 
-efficient, but not both. Efficient implementation was typically achieved by 
-sealing the class hierarchy and using a jump table. Without sealing, the implementation 
-was resorting to decision trees and type testing, which was not efficient.
+To summarize, truly open and efficient type switching is a non-trivial problem. 
+The approaches we found in the literature were either open or efficient, 
+but not both. Efficient implementation was typically achieved by sealing the 
+class hierarchy and using a jump table on sequential tags. Open implementations 
+were resorting to type testing and decision trees, which was not efficient. 
 We are unaware of any efficient tag allocation scheme that can be used in a 
 truly open scenario.

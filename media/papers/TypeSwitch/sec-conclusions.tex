@@ -1,9 +1,16 @@
-\section{Conclusions} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusions and Future Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:cc}
 
-We described three techniques that can be used to implement type switching, type 
+Type switching is an open alternative to visitor design pattern that overcomes 
+the restrictions, inconveniences, and difficulties in teaching and using, 
+typically associated with it. Our implementation of it comes close or 
+outperforms the visitor design pattern, which is true even in a library setting 
+using a production quality compiler, where the base-line for performance is 
+already extremely high.
+
+We describe three techniques that can be used to implement type switching, type 
 testing, pattern matching, predicate dispatching, and other facilities that 
-depend on the run-time type of an argument.
+depend on the run-time type of an argument as well as demonstrate their efficiency.
 
 The \emph{Memoization Device} is an optimization technique that maps run-time values 
 to execution paths, allowing to take shortcuts on subsequent runs with the same 
@@ -13,10 +20,9 @@ combined with other compiler optimizations and is particularly suitable for use
 in a library setting.
 
 The \emph{V-Table Pointer Memoization} is a technique based on memoization device that 
-employs certain properties of virtual table pointers to not only speed up 
-execution, but also properly uncover the dynamic type of an object. This technique 
-is a backbone of our fast type switch as well as memoized dynamic cast 
-optimization.
+employs uniqueness of virtual table pointers to not only speed up execution, but 
+also properly uncover the dynamic type of an object. This technique is a 
+backbone of our fast type switch as well as memoized dynamic cast optimization.
 
 The \emph{Tag Precedence List} is yet another technique that can be used to 
 implement best-fit type switching on tagged classes. The technique has its pros 
@@ -24,15 +30,11 @@ and cons in comparison to v-table memoization, which we discuss in the paper.
 
 These techniques can be used in a compiler and library setting, and support well 
 separate compilation and dynamic linking. They are open to class extensions and 
-interact well with other C++ facilities such as multiple inheritance (including 
-repetitive and virtual inheritance) and templates. The techniques are not 
-specific to C++ and can be adopted in other languages for similar purposes.
+interact well with other C++ facilities such as multiple inheritance and 
+templates. The techniques are not specific to C++ and can be adopted in other 
+languages for similar purposes.
 
 Using the above techniques, we implemented a library for efficient type switching 
-in C++. Our implementation comes close or outperforms its closest contender -- 
-the visitor design pattern -- as well as overcomes the restrictions, inconveniences, and 
-difficulties in teaching and using, typically associated with it.
-
-We used the library to rewrite existing code that relied heavily on 
-visitors, and discovered that the resulting code became much shorter, simpler, and easier 
-to maintain and comprehend.
+in C++. We used the library to rewrite existing code that relied heavily on 
+visitors, and discovered that the resulting code became much shorter, simpler, 
+and easier to maintain and comprehend.

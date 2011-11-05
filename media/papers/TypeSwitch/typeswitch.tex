@@ -116,7 +116,7 @@ showstringspaces=false,
 \maketitle
 
 \begin{abstract}
-We present techniques that can be used in a compiler and/or library setting to 
+We present techniques that can be used in a compiler or library setting to 
 efficiently implement type switching, type testing, pattern matching, predicate 
 dispatch, multi-methods and other facilities that depend on the run-time type 
 of an argument. The techniques cope well with multiple inheritance in C++, 
@@ -125,7 +125,7 @@ similar facilities in other languages.
 
 Our library-only implementation of a type switch based on these techniques equals 
 or outperforms the visitor design pattern, as commonly used for type-casing 
-scenarios in C++, and for many use cases, it equals or outperforms equivalent 
+scenarios in C++. For many use cases, it equals or outperforms equivalent 
 code in languages with built-in type-switching constructs. While remaining a 
 library-only solution, such a facility better addresses the expression problem 
 than the visitor design pattern does: it is non-intrusive and does not have 
