@@ -25,15 +25,14 @@ the same virtual tables between different classes or subobjects of the same
 class. This allows us to use virtual table pointers to \emph{uniquely} identify 
 the subobjects within the most derived class.
 
-Strictly speaking, the C++ standard~\cite{C++0x} does not require implementations 
-to use any specific technique (e.g. virtual tables) to implement virtual functions, 
-however interoperability requirements have forced many compiler vendors to design a 
-set of rules called Common Vendor Application Binary Interface (the C++ 
-ABI)~\cite{C++ABI}. Most C++ compilers today follow these rules, with the 
-notable exception of Microsoft Visual C++. The technique presented here will 
-work with any C++ compiler that follows the C++ ABI. Microsoft's own ABI is not 
-publically available and thus we cannot formally verify that it satisfies 
-our requirements. Nevertheless, we did run numerous experiments with various 
+The C++ standard~\cite{C++0x} does not prescribe any specific 
+implementatin technique (e.g. virtual tables) for virtual function dispatch.
+However, in practice, the vast majority of C++ compilers use well-established
+technologies \cite{C++ABI}.  The technique presented in this paper
+works with any C++ compiler that follows that C++ ABI. Microsoft's own ABI
+is not publically available and thus we cannot formally verify that it
+satisfies our requirements. Nevertheless, we did run numerous experiments
+with various 
 class hierarchies and have sufficient confidence that our approach can be used 
 in Visual C++. This is why we include experimental results for this compiler as 
 well.
