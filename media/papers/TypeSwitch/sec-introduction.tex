@@ -34,15 +34,15 @@ struct Plus   : Expr { Expr* e1; Expr* e2; }; // ...
 \end{lstlisting}
 
 \noindent
-A simple evaluator for this language can be implemented through a virtual 
-function \code{virtual int eval() const = 0;} introduced into the base class. 
+A simple evaluator for this language can be implemented with the aid of a
+virtual function \code{eval()} declared in the base class \code{Expr}. 
 The approach is \emph{intrusive}, as we will have to modify the base class every 
 time we would like to add a function. A less-intrusive solution to the 
 extensibility of functions can be achieved with \emph{visitor design 
-pattern}~\cite{DesignPatterns1993}. The solution, however, is not open as it 
+pattern}~\cite{DesignPatterns1993}. That solution, however, is not open as it 
 restricts extensibility of classes.
 
-Our truly open solution overcomes extensibility problems of both functions and 
+Our solution overcomes extensibility problems of both functions and 
 types by allowing external introspection of objects with a type switch:
 
 \begin{lstlisting}[keepspaces,columns=flexible]
@@ -68,12 +68,12 @@ outperforms the handcrafted C++ code based on the \emph{visitor design pattern}
 the user has to provide to make the above example fully functional is 
 omitted~\cite{TR}.
 
-\subsection{Summary}
+%\subsection{Summary}
 
 We present techniques based on memoization (\textsection\ref{sec:copc}) and 
-class precedence list (\textsection\ref{sec:cotc}) that can be used to implement 
-type switching efficiently based on the run-time type of the argument.
-
+class precedence list (\textsection\ref{sec:cotc}) that can be used to
+implement type switching efficiently based on the run-time type of the
+argument:
   \begin{itemize}
   \setlength{\itemsep}{0pt}
   \setlength{\parskip}{0pt}
