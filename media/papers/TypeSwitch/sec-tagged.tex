@@ -39,14 +39,11 @@ rematch:
 
 \begin{lstlisting}
     const size_t* taglist = 0;
-          size_t  attempt = 0;
-          size_t  tag     = object->tag;
+    size_t attempt = 0; size_t tag = object->tag;
 ReMatch:
-    switch (tag) 
-    {
+    switch (tag) {
     default:
-        if (!taglist) 
-            taglist = get_taglist(object->tag);
+        if (!taglist) taglist = get_taglist(object->tag);
         tag = taglist[++attempt];
         goto ReMatch;
     case end_of_list: break;
@@ -66,5 +63,5 @@ matched, we will necessarily reach the end\_of\_list marker in the tag precedenc
 list and thus exit the loop.
 
 Our library automatically builds the function \code{get_taglist} based on 
-additional definitions that the user provides. The details can be found in our 
-accompanying paper~\cite{AP}.
+additional definitions that the user provides. The details can be found in 
+companion technical report~\cite{TR}.

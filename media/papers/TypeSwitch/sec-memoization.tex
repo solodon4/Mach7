@@ -5,13 +5,13 @@ C++ does not have direct support of algebraic data types, but they can be
 encoded with classes in a number of ways. One common such encoding is to 
 introduce an abstract base class representing an algebraic data type with 
 several derived classes representing variants. The variants can then be 
-discriminated with either run-time type information (further referred to as 
-\emph{polymorphic encoding}) or a dedicated member of a base class (further 
-referred to as \emph{tagged encoding}).
+discriminated with either run-time type information (referred to as 
+\emph{polymorphic encoding}) or a dedicated member of a base class (referred to 
+as \emph{tagged encoding}).
 
 Our handling of type switches for polymorphic and tagged encodings differs 
 with each having its pros and cons described in details in \textsection\ref{sec:cmp}.
-In this section we will concentrate on the truly open type switch for 
+In this section we will concentrate on the open type switch for 
 polymorphic encoding. The type switch for tagged encoding (\textsection\ref{sec:cotc}) 
 is simpler and more efficient, however, making it open will eradicate its 
 performance advantages. The difference in performance is the price we pay for 
@@ -21,9 +21,9 @@ keeping the solution open.
 \label{sec:vtp}
 
 In this section we show that under certain conditions the compiler cannot share 
-the same virtual tables between different classes or subobjects of the same 
-class. This allows us to use virtual table pointers to \emph{uniquely} identify 
-the subobjects within the most derived class.
+the same virtual tables between different classes or their subobjects. This 
+allows us to use virtual table pointers to \emph{uniquely} identify the 
+subobjects within the most derived class.
 
 The C++ standard~\cite{C++0x} does not prescribe any specific 
 implementatin technique (e.g. virtual tables) for virtual function dispatch.
@@ -34,8 +34,7 @@ is not publically available and thus we cannot formally verify that it
 satisfies our requirements. Nevertheless, we did run numerous experiments
 with various 
 class hierarchies and have sufficient confidence that our approach can be used 
-in Visual C++. This is why we include experimental results for this compiler as 
-well.
+in Visual C++. We thus include experimental results for this compiler as well.
 
 C++ supports multiple-inheritance of two kinds: repeated and virtual (shared). 
 \emph{Repeated inheritance} creates multiple independent subobjects of the same 
@@ -52,18 +51,18 @@ A base class subobject of a given complete object is represented by a pair
 $\sigma = \langle h,l\rangle$ with $h \in \{Repeated,Shared\}$ representing the 
 kind of inheritance (single inheritance is $Repeated$ with one base class) and $l$ 
 representing the path in a non-virtual inheritance graph.
-A predicate $C\leftY\sigma\rightY A$ they introduce means that $\sigma$ 
+A predicate $C\leftY\sigma\rightY A$ states that $\sigma$ 
 designates a subobject of static type $A$ within the most derived object of 
 type $C$.
 
 A class that declares or inherits a virtual function is called a 
-\emph{polymorphic class}~\cite[\textsection 10.3]{C++0x}. The C++ ABI in turn defines 
+\emph{polymorphic class}~\cite[\textsection 10.3]{C++0x}. The C++ ABI defines 
 \emph{dynamic class} to be a class requiring a virtual table pointer (because it 
 or its bases have one or more virtual member functions or virtual base classes). 
 A polymorphic class is thus a dynamic class by definition.
 
 A \emph{virtual table pointer} (vtbl-pointer) is a member of object's layout 
-pointing to a virtual table. A \emph{virtual table} is a table of information used 
+pointing to a virtual table. A \emph{virtual table} (v-table) is a table of information used 
 to dispatch virtual functions, access virtual base class subobjects, and to 
 access information for \emph{RunTime Type Identification} (RTTI). Because of repeated
 inheritance, an object of given type may have several vtbl-pointers in it. Each 
@@ -73,9 +72,9 @@ notation we use for regular fields to refer them: $a.vtbl_i$.
 
 A \emph{primary base class} for a dynamic class is the unique base class (if any) 
 with which it shares the virtual table pointer at offset 0. The data layout 
-procedure for non-POD types described in \textsection2.4 of the C++ ABI~\cite{C++ABI} 
-requires dynamic classes either to allocate vtable pointer at offset 0 or share 
-the virtual table pointer from its primary base class, which is by definition at 
+procedure for classes described in \textsection2.4 of the C++ ABI~\cite{C++ABI} 
+requires dynamic classes either to allocate vtbl-pointer at offset 0 or share 
+one from its primary base class, which is by definition at 
 offset 0. For our purpose this means that we can rely on a virtual table pointer 
 always being present at offset 0 for all dynamic classes, and thus for all polymorphic 
 classes.
@@ -111,7 +110,7 @@ of vtbl-pointers in different subobjects.
 %most-derived class point to the same set of virtual tables.
 
 The exact content of the virtual table is not important for our discussion, but 
-we would like to point out a few fields in it. The following definitions are 
+we point out a few fields in it. The following definitions are 
 copied verbatim from the C++ ABI~\cite[\textsection 2.5.2]{C++ABI}:
 
 \begin{itemize}
@@ -120,13 +119,10 @@ copied verbatim from the C++ ABI~\cite[\textsection 2.5.2]{C++ABI}:
 \item The \emph{typeinfo pointer} points to the typeinfo object used for RTTI. 
       It is always present.  
 \item The \emph{offset to top} holds the displacement to the top of the object 
-      from the location within the object of the virtual table pointer that 
-      addresses this virtual table, as a \code{ptrdiff_t}. It is always present.
+      from the location within the object of the vtbl-pointer that 
+      addresses this virtual table. It is always present.
 \item \emph{Virtual Base (vbase) offsets} are used to access the virtual bases 
-      of an object. Such an entry is added to the derived class object address 
-      (i.e. the address of its virtual table pointer) to get the address of a 
-      virtual base class subobject. Such an entry is required for each virtual 
-      base class.
+      of an object. Such an entry is required for each virtual base class.
 \end{itemize}
 
 \noindent
@@ -138,13 +134,13 @@ class identified by its first element.
 
 \begin{theorem}
 In an object layout that adheres to the C++ ABI with present runtime type 
-information, the equality of virtual table pointers of two objects of the same 
+information, the equality of vtbl-pointers of two objects of the same 
 static type implies that they both belong to subobjects with the same 
 inheritance path in the same most-derived type.
-\begin{eqnarray*}
-    \forall a_1, a_2 : A\ |\ a_1\in C_1\leftY\sigma_1\rightY A \wedge a_2\in C_2\leftY\sigma_2\rightY A \\
-    a_1.vtbl_i = a_2.vtbl_i \Rightarrow C_1 = C_2 \wedge \sigma_1 = \sigma_2
-\end{eqnarray*}
+
+\noindent
+$\forall a_1, a_2 : A\ |\ a_1\in C_1\leftY\sigma_1\rightY A \wedge a_2\in C_2\leftY\sigma_2\rightY A $ \\ 
+$a_1.vtbl_i = a_2.vtbl_i \Rightarrow C_1 = C_2 \wedge \sigma_1 = \sigma_2$
 \label{thm:vtbl}
 \end{theorem}
 \begin{proof}
@@ -175,20 +171,21 @@ $offset(\sigma_1)=$\code{off2top}$(a_1.vtbl_i)=$\code{off2top}$(a_2.vtbl_i)=offs
 since $a_1.vtbl_i = a_2.vtbl_i$, which contradicts that the offsets are different.
 \end{proof}
 
+\noindent
 Conjecture in the other direction is not true in general as there may be 
-duplicate virtual tables for the same type present at run-time. This happens in 
+duplicate v-tables for the same type present at run-time. This happens in 
 many C++ implementations in the presence of DLLs as the same class compiled into 
-executable and into a DLL it loads may have identical virtual tables inside the 
+executable and DLL it loads may have identical v-tables inside the 
 executable's and DLL's binaries.
 
-Note also that we required both static types to be the same. Dropping this 
+Note also that we require both static types to be the same. Dropping this 
 requirement and saying that equality of vtbl-pointers also implies equality of 
 the static types is not true in general because a derived class will share the 
 vtbl-pointer with its primary base class (see Lemma~\ref{lem:vtbl}). The theorem 
-can be reformulated, however, stating that one static type will necessarily have 
-to be a subtype of the other. The current forumlation is sufficient for our 
-purposes, while reformulation would have required more elaborate discussion of 
-the algebra of subobjects~\cite{RDL11}, which we touch only briefly.
+can be reformulated, however, stating that one static type will necessarily be a 
+subtype of the other. The current forumlation is sufficient for our purposes, 
+while reformulation will require more elaborate discussion of the algebra 
+of subobjects~\cite{RDL11}, which we touch only briefly.
 
 \begin{corollary}
 Results of \code{dynamic_cast} can be reapplied to a different instance from 
@@ -202,28 +199,24 @@ $\forall A,B \forall a_1, a_2 : A\ |\ a_1.vtbl_i = a_2.vtbl_i \Rightarrow$ \\
 
 \noindent
 During construction and deconstruction of 
-an object, the value of a given virtual table pointer may change. In particular, 
+an object, the value of a given vtbl-pointer may change. In particular, 
 that value will reflect the dynamic type of the object to be the type of the 
 fully constructed part only. However, this does not affect our reasoning, as during 
 such transition we also treat the object to have the type of its fully 
 constructed base only. Such interpretation is in line with the C++ semantics for 
 virtual function calls and the use of RTTI during construction and destruction of an 
-object. Once the complete object is fully constructed, the value of the virtual 
-table pointer will remain the same for the lifetime of the object.
+object. Once the complete object is fully constructed, the value of the 
+vtbl-pointer will remain the same for the lifetime of the object.
 
 \subsection{Memoization Device}
 \label{sec:memdev}
 
 Let us look at a slightly more general problem than type switching. Consider a 
 generalization of the switch statement that takes predicates on a subject as its 
-clauses and executes the first statement $s_i$ whose predicate got enabled: 
+clauses and executes the first statement $s_i$ whose predicate is enabled: 
 
-\begin{lstlisting}
-switch (x) {
-case P1(x): s1;
- ...
-case Pn(x): sn;
-}
+\begin{lstlisting}[keepspaces]
+switch (x) { case P1(x): s1; ... case Pn(x): sn; }
 \end{lstlisting}
 
 \noindent
@@ -238,7 +231,7 @@ The idea is to generate a simple cascading-if statement interleaved with jump
 targets and instructions that associate the original value with enabled targed. 
 The code before the statement looks up whether the association for a given value 
 has already been established, and, if so, jumps directly to the target; otherwise 
-the sequential execution of the underlying cascading-if is started. To ensure 
+the sequential execution of the cascading-if is started. To ensure 
 that the actual code associated with the predicates remains unaware of this 
 optimization, the code preceeding it after the target must re-establish any 
 invariant guaranteed by sequential execution (\textsection\ref{sec:vtblmem}).
@@ -265,8 +258,8 @@ case @$n+1$@: // none of the predicates is true on x
 
 \noindent
 The static \code{jump_target_map} hash table will be allocated upon first entry 
-to the function. The map is initially empty and accordingly to its logic, 
-request for a key $x$ not yet in the map will result in allocation of a 
+to the function. The map is initially empty and according to its logic, 
+request for a key $x$ not yet in the map will allocate a 
 new entry with its associated data default initialized (to 0 for int). Since 
 there is no case label 0 in the switch, default case will be taken, which, in 
 turn, will initiate sequential execution of the interleaved cascading-if 
@@ -294,7 +287,7 @@ keep the values close to each other. Not following this rule might result in a
 compiler choosing a decision tree over a jump table implementation of the 
 switch, which in our experience significantly degrades the performance.
 
-The first-fit semantics is not an inherent property of the memoization device however. 
+The first-fit semantics is not an inherent property of the memoization device. 
 Assuming that the conditions are either mutually exclusive or imply one another, we 
 can build a decision-tree-based memoization device that will effectively have 
 \emph{most-specific} semantics -- an analog of best-fit semantics in predicate 
@@ -326,16 +319,14 @@ default:
             target = 3; case 3: s3;
         }
         target = 1; case 1: s1;
-    } else {
-        target = 0; case 0:   ;
-    }
+    } else { target = 0; case 0: ; }
 }
 \end{lstlisting}
 
 \noindent
 An example of predicates that satisfy this condition are class membership tests
-where the truth of a predicate that tests membership in a derived class implies 
-the truth of a predicate that tests membership in its base class. Our library 
+where the truth of testing membership in a derived class implies 
+the truth of testing membership in its base class. Our library 
 solution prefers the simpler cascading-if approach only because the necessary 
 structure of the code can be laid out directly with macros. A compiler solution 
 will use the decision-tree approach whenever possible to lower the cost of the 
@@ -353,10 +344,10 @@ The main advantage of the memoization device is that it can be built around
 almost any code, providing that we can re-establish the invariants, guaranteed 
 by sequential execution. Its main disadvantage is the size of the hash table 
 that grows proportionally to the number of different values seen. Fortunately, 
-the values can often be grouped into equivalence classes, such that values in 
-the same class do not change the predicate. The map can then associate the 
-equivalence class of a value with a target instead of associating the value with 
-it. The next subsection does exactly that for polymorphic objects.
+the values can often be grouped into equivalence classes that do not change the 
+outcome of the predicate. The map can then associate the equivalence class of a 
+value with a target instead of associating the value with it. The next 
+subsection does exactly that for polymorphic objects.
 
 \subsection{V-Table Pointer Memoization}
 \label{sec:vtblmem}
@@ -387,10 +378,9 @@ switch (info.second) ...
 
 \noindent
 The code for the $i^{th}$ case now evaluates the required offset on the first 
-entry and associates it along the target with the vtbl-pointer of the subject.
+entry and associates it and the target with the vtbl-pointer of the subject.
 The call to \code{adjust_ptr<Di>} re-establishes the invariant that 
-\code{matched} is a properly-casted reference to type \code{Di} of the subject 
-\code{p}.
+\code{matched} is a reference to type \code{Di} of the subject \code{p}.
 %The condition of the inner if-statement is only needed to implement the 
 %sequential all-fit semantics and can be removed when fall-through behavior is 
 %not required.
@@ -417,9 +407,9 @@ ambiguous base class or cross-casting between unrelated base classes.
 An important benefit we get from this optimization is that the number of values 
 stored in the hash table is on the order $O(|A|)$, where $A$ represents the 
 static type of an object, while $|A|$ represents the number of classes directly 
-or indirectly derived from $A$. The linear coefficient hidden in big-o notation 
-reflects possibly multiple vtbl-pointers in derived classes due to the use of 
-multiple inheritance.
+or indirectly derived from $A$. The linear coefficient of the big-o notation 
+reflects possibly multiple vtbl-pointers in derived classes due to multiple 
+inheritance.
 
 The most important benefit of this optimization, however, is the constant time 
 on average used to dispatch each of the case clauses, regardless of their 
@@ -455,7 +445,7 @@ pointing to them to be the same.
 These assumptions, supported by actual observations, has made virtual table 
 pointers of classes related by inheritance ideally suitable for indexing -- the 
 values obtained by throwing away the common bits on the right were compactly 
-distributed in small disjoint ranges. We use those values to address a cache 
+distributed in small disjoint ranges. We use them to address a cache 
 built on top of the hash table in order to eliminate a hash table lookup in most 
 of the cases.
 
@@ -507,7 +497,7 @@ a way that minimizes the number of conflicts.
 To avoid doing any computations in the critical path, \code{vtblmap} only 
 recomputes the optimal shift and the size of the cache when an actual collision 
 happens. In order to avoid constant recomputations when conflicts are unavoidable, 
-we add an additional restriction of only reconfiguring the optimal parameters if 
+we only reconfigure the optimal parameters if 
 the number of vtbl-pointers in the \code{vtblmap} has increased since the last 
 recomputation. Since the number of vtbl-pointers is of the order $O(|A|)$, where 
 $A$ is the static type of all vtbl-pointers coming through a \code{vtblmap}, the 
@@ -523,7 +513,7 @@ initial value. This improvement significantly minimizes the number of collisions
 at early stages, as well as the number of possibilities we have to consider 
 during reconfiguration.
 
-The above logic of \code{vtblmap} always chooses the configuration that renders 
+The above logic always chooses the configuration that renders 
 no conflicts, when such a configuration is possible during recomputation of 
 optimal parameters. When this is not possible, it is natural to prefer collisions 
 to happen on less-frequent vtbl-pointers.

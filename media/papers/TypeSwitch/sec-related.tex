@@ -5,72 +5,41 @@
 4.2]{Zenger:2001} attempt to solve the extensibility problem of visitors; 
 however, the solution, after 
 remapping it onto C++, has problems of its own. The visitation interface 
-hierarchy can easily be grown linearly (adding new cases for the new classes in 
-the original hierarchy each time), but independent extensions by different  
-authorities require developer's intervention to unify them all, before they can 
-be used together. This may not be feasible in environments that use dynamic 
-linking. To avoid writing even more boilerplate code in new visitors, the 
-solution would require usage of virtual inheritance, which typically has 
-an overhead of extra memory dereferencing. On top of the double dispatch already 
-present in the visitor pattern, the solution will incur two additional virtual 
-calls and a dynamic cast for each level of visitor extension. Additional double 
-dispatch is incurred by forwarding of default handling from a base visitor to a 
-derived one, while the dynamic cast is required for safety and can be replaced 
-with a static cast when the visitation interface is guaranteed to be grown linearly 
-(extended by one authority only). Yet another virtual call is required to be 
-able to forward computations to subcomponents on tree-like structures to the 
-most derived visitor. This last function lets one avoid the necessity of using 
-the heap to allocate a temporary visitor through the \emph{Factory Design 
-Pattern}~\cite{DesignPatterns1993} used in the \emph{Extensible Visitor} solution 
-originally proposed by Krishnamurti, Felleisen and Friedman~\cite{Krishnamurthi98}.
+hierarchy can easily be grown linearly, but independent extensions by different  
+authorities require developer's intervention. On top of the double dispatch the 
+solution will incur two additional virtual calls and a dynamic cast for each 
+level of visitor extension. The solution is simpler with virtual inheritance, 
+which adds even more indirections.
 
-In order to address the expression problem in Haskell, L\"{o}h and Hinze proposed to 
-extend its type system with open data types and open functions~\cite{LohHinze2006}.
-Their solution allows the user to mark top-level data types and functions as 
-open and then provide concrete variants and overloads anywhere in the program. 
-Open data types are extensible but not hierarchical, which largely avoids the 
-problems discussed here. The semantics of open extension is given by 
-transformation into a single module, where all the definitions are seen in one 
-place. This is a significant limitation of their approach that prevents it from 
-being truly open, since it essentially assumes a whole-program view, which 
-excludes any extension via DLLs. As is the case with many other implementations 
-of open extensions, the authors rely on the closed world for efficient 
-implementation: in their implementation, \emph{``data types can only be entirely 
-abstract (not allowing pattern matching) or concrete with all constructors with 
-the reason being that pattern matching can be compiled more efficiently if the 
-layout of the data type is known completely''}. The authors also believe that 
-\emph{there are no theoretical difficulties in lifting this restriction, but it 
-might imply a small performance loss if closed functions pattern match on open 
-data types}. Our work addresses exactly this problem, showing that it is not 
-only theoretically possible but also practically efficient and in application to 
-a broader problem.
+L\"{o}h and Hinze proposed to extend Haskell's type system with open data types 
+and open functions~\cite{LohHinze2006}. The solution allows top-level data types 
+and functions to be marked as open with concrete variants and overloads defined 
+anywhere in the program. The semantics of open extension is given by 
+transformation into a single module, which assumes a whole-program view and thus 
+is not an open solution unfortunately. Besides, open data types are extensible but not 
+hierarchical, which avoids the problems discussed here.
 
-Polymorphic variants in OCaml~\cite{garrigue-98} allow the addition of new variants 
-later. They are simpler, however, than object-oriented extensions, as they do not 
-form subtyping between variants themselves, but only between combinations of them. 
-This makes an important distinction between \emph{extensible sum types} like 
-polymorphic variants and \emph{extensible hierarchical sum types} like classes.
-An important property of extensible sum types is that each value of the 
-underlain algebraic data type belongs to exactly one disjoint subset, tagged with 
-a constructor. The \emph{nominative subtyping} of object-oriented languages does 
-not usually have this disjointness making classes effectively have multiple 
-types. In particular, the case of disjoint constructors can be seen as a 
-degenerated case of a flat class hierarchy among the multitude of possible class 
-hierarchies.
+Polymorphic variants in OCaml~\cite{garrigue-98} allow the addition of new 
+variants as well as define subtyping on them. The subtyping, however, is not 
+defined between the variants, but between combinations of them. 
+This maintains disjointness between values from different variants and makes an 
+important distinction between \emph{extensible sum types} like polymorphic 
+variants and \emph{extensible hierarchical sum types} like classes. Our 
+memoization device can be used to implement pattern matching on polymorphic 
+variants.
 
 \emph{Tom} is a pattern-matching compiler that can be used together with Java, C or 
 Eiffel to bring a common pattern matching and term rewriting syntax into the 
 languages~\cite{Moreau:2003}. In comparison to our approach, Tom has much bigger 
-goals. The combination of pattern matching, term rewriting and strategies turns 
-Tom into a tree-transformation language similar to Stratego/XT, XDuce and 
-others. Tom supports type patterns and its \%match statement can be used as a 
-type switch; however, similarly to other object-oriented languages, Tom's 
-handling of type switching is based on highly inefficient \code{instanceof} 
-operator and its equivalents in other languages.
+goals: the combination of pattern matching, term rewriting and strategies turns 
+Tom into a fully fledged tree-transformation language. Its type patterns and \%match 
+statement can be used as a type switch; however, Tom's handling of type 
+switching is based on decision trees and an \code{instanceof}-like predicate, 
+which are inefficient.
 
-Pattern matching in Scala~\cite{Scala2nd} also allows type patterns and thus type 
-switching. The language supports extensible and hierarchical data types, but 
+Pattern matching in Scala~\cite{Scala2nd} also support type switching through 
+type patterns. The language supports extensible and hierarchical data types, but
 their handling in a type switching constructs varies. Sealed classes are handled 
-with an efficient switch over all tags, since sealed classes cannot be extended. 
-Classes that are not sealed are similarly approached with a combination of an 
-\code{InstanceOf} operator and a decision tree~\cite{EmirThesis}.
+with an efficient switch over all tags, while extensible classes are similarly 
+approached with a combination of an \code{InstanceOf} operator and a decision 
+tree~\cite{EmirThesis}.

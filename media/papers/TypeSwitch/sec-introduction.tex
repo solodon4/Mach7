@@ -12,10 +12,10 @@ object-oriented languages are extensible and hierarchical (non-disjoint), which
 significantly complicates the addition of new functions. Existing approaches to 
 case analysis on such types are either efficient or open, but not both. Truly 
 open approaches, which allow for independent extensibility, modular 
-type-checking and dynamic linking, rely on type testing through an 
-\code{instanceof}-like predicate combined with a decision tree. Efficient 
-approaches rely on sealing either the class hierarchy or the set of functions, 
-which looses extensibility. Consider a simple expression language: 
+type-checking and dynamic linking, rely on class-membership testing combined 
+with a decision tree. Efficient approaches rely on sealing either the class 
+hierarchy or the set of functions, which looses extensibility. Consider a simple 
+expression language:
 
 \begin{lstlisting}
 @$exp$ \is{} $val$ \Alt{} $exp+exp$ \Alt{} $exp-exp$ \Alt{} $exp*exp$ \Alt{} $exp/exp$@
@@ -79,19 +79,18 @@ argument:
   \setlength{\parskip}{0pt}
   \item The techniques come close and often outperform its de facto contender -- 
         visitor design pattern -- without sacrificing extensibility (\textsection\ref{sec:eval}).
-  \item They work in the presence of multiple inheritance, including repeated and 
-        virtual inheritance, as well as in generic code (\textsection\ref{sec:vtblmem}).
+  \item They work in the presence of multiple inheritance, both repeated and 
+  shared, as well as in generic code (\textsection\ref{sec:vtblmem}).
   \item The solution is open by construction (\textsection\ref{sec:poets}), 
         non-intrusive, and avoids the control inversion typical for visitors.
   \item It applies to polymorphic (\textsection\ref{sec:vtp}-\ref{sec:vtblmem}) and 
         tagged (\textsection\ref{sec:cotc}) class hierarchies through a unified  
-        syntax~\cite{AP}.
+        syntax~\cite{TR}.
   \item Our memoization device (\textsection\ref{sec:memdev}) generalizes to 
         other languages and can be used to implement type switching 
         (\textsection\ref{sec:vtblmem}), type testing 
         (\textsection\ref{sec:poets},\cite[\textsection 4.7]{TR}), predicate dispatch 
-        (\textsection\ref{sec:memdev}), and multiple dispatch 
-        (\textsection\ref{sec:cc}) efficiently.
+        (\textsection\ref{sec:memdev}), and multiple dispatch efficiently.
   \item We list conditions under which virtual table pointers, commonly used in 
         C++ implementations, uniquely identify the exact subobject within the 
         most derived type (\textsection\ref{sec:vtp}).
@@ -112,8 +111,8 @@ concerned with efficient type testing, type identification, and type switching.
 These primitive operations are essential in providing support for type patterns 
 and constructor patterns, and their efficiency relative to the visitor design 
 pattern might become a major argument for their adoption. We refer the reader to 
-companion paper~\cite{AP} and technical report~\cite{TR} for details on the 
-rest of our pattern-matching library.
+technical report~\cite{TR} for details on the rest of our pattern-matching 
+library.
 
 %Section~\ref{sec:probl} will motivate the problem as well as discuss some 
 %existing solutions and their limitations. Section~\ref{sec:copc} will outline 

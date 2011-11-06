@@ -11,7 +11,7 @@ unsuitable to express our application logic, surprisingly hard to teach
 students, and slow. Seeing dynamic casts in many places, often nested, used to 
 answer simple structural questions, was a strong indication to us that the users 
 preferred shorter, cleaner, and more-direct code to visitors, even at a high 
-cost in performance (assuming that the programmer knew the cost).
+cost in performance.
 
 A lot has been said about visitor design pattern~\cite{DesignPatterns1993,Zenger:2001}. 
 Its advantages include \emph{extensibility of functions}, \emph{speed}, and, 
@@ -82,7 +82,7 @@ implementation technique that satisfies the following requirements:
 \noindent
 Object-oriented languages further complicate the matter with the fact that 
 data variants are not necessarily disjoint and may form subtyping relationships  
-between themselves. This made us introduce an additional requirement based on 
+between themselves. We thus introduced an additional requirement based on 
 Liskov substitution principle~\cite{Lis87}:
 
 \begin{itemize}
@@ -119,17 +119,13 @@ descriptor to a full object of a type present in the list of case
 clauses. Similar control structures exist in many programming languages and 
 date back to at least Simula's Inspect statement~\cite{Simula67}.
 
-Consider, for example, a class \code{B} and a set of classes \code{Di} directly 
+Consider a class \code{B} and a set of classes \code{Di} directly 
 or indirectly inherited from it. Having an instance of class \code{D} referenced 
 by a variable \code{base} of static type \code{B&}, a hypothetical type switch 
 statement, not currently supported by C++, can look as following:
 
-\begin{lstlisting}
-switch (base) {
-case D1: s1;
- ...
-case Dn: sn;
-}
+\begin{lstlisting}[keepspaces]
+switch (base) { case D1: s1; ... case Dn: sn; }
 \end{lstlisting}
 
 \noindent and can be given numerous plausible semantics:
@@ -142,7 +138,7 @@ case Dn: sn;
 \item \emph{Best-fit} semantics will evaluate the statement corresponding to the 
       most derived base class $D_i$ of $D$ if it is unique (subject to 
       ambiguity)
-\item \emph{The-only-fit} semantics will only evaluate statement $s_i$ if $D_i=D$.
+\item \emph{The-only-fit} semantics will evaluate statement $s_i$ if $D_i=D$.
 \item \emph{All-fit} semantics will evaluate all statements $s_i$ whose guard 
       type $D_i$ is a subtype of $D$ (order of execution has to be defined)
 \item \emph{Any-fit} semantics might choose non-deterministically one of the 
@@ -187,8 +183,8 @@ class hierarchies makes this extremely efficient approach infeasible:
 \noindent
 In some cases the substitutability requirement can be satisfied by obtaining 
 the base class' tag from a derived one first and then performing the jump. 
-This will work as long as we have only base classes in the case clauses, because 
-few derived classes that have to be treated separately from the rest of their 
+This will work as long as we have only base classes in the case clauses.
+Derived classes that have to be treated separately from the rest of their 
 siblings, will essentially be indistinguishable from them.
 
 When tags are not chosen arbitrarily but to reflect the subtyping relation of the 
@@ -237,6 +233,7 @@ last.
   \label{fig:DCastVis1}
 \end{figure}
 
+\noindent
 Seeing several solutions whose time increases with the position of the case 
 clause in the type switch, one may wonder how many such clauses a typical 
 program might have. A program dealing with abstract syntax trees in 
@@ -256,8 +253,8 @@ are close to each other. Another advantage is the possibility to fail early.
 As can be seen from Figure~\ref{fig:DCastVis1} under ``Decision-Tree + 
 dynamic\_cast'', when applicable, the optimization can be very useful. The class
 hierarchy for this timing experiment formed a perfect binary tree with 
-classes number 2*N and 2*N+1 derived from a class with number N. The structure 
-of the hierarchy also explains the repetitive pattern of timings.
+classes number 2*N and 2*N+1 derived from a class with number N. The hierarchy 
+also explains the repetitive pattern of timings.
 
 The above solution either in a form of cascading-if or as a decision tree can be 
 significantly improved by lowering the cost of a single \code{dynamic_cast}. 
@@ -268,21 +265,20 @@ seen from the graph titled ``Cascading-If + memoized\_cast'', it speeds up the
 above cascading-if solution by a factor of 18 on average, as well as outperforms 
 the decision-tree based solution with dynamic\_cast for a number of case clauses 
 way beyond those that can happen in a reasonable program. The slowest 
-implementation in the chart based on exception handling facilities of C++ is 
-discussed in \textsection\ref{sec:xpm}.
+implementation in the chart is based on exception handling facilities of C++ and 
+is described in technical report~\cite{TR}.
 
 The approach of Gibbs and Stroustrup~\cite{FastDynCast} employs divisibility of 
 numbers to obtain a tag allocation scheme capable of performing type testing in 
 constant time. Extended with a mechanism for storing offsets required for 
 this-pointer adjustments, the technique can be used for extremely fast dynamic 
-casting. For comparison purposes we handcrafted this technique on the above flat 
-and binary-tree hierarchies and then redid the timing experiments from 
-Figure~\ref{fig:DCastVis1} using the fast dynamic cast. The results are 
-presented in Figure~\ref{fig:DCastVis2}. For reference purposes we retained 
+casting. We handcrafted this technique on the above flat 
+and binary-tree hierarchies and redid the timing experiments from 
+Figure~\ref{fig:DCastVis1} for comparison. The results are 
+presented in Figure~\ref{fig:DCastVis2}. We retained 
 ``Visitor Design Pattern'' and ``Cascading-If + memoized\_cast'' timings from 
-Figure~\ref{fig:DCastVis1} unchanged. Note that the Y-axis has been scaled-up 
-140 times, which is why the slope of ``Cascading-If + memoized\_cast'' timings 
-is so much steeper.
+Figure~\ref{fig:DCastVis1} unchanged for reference. Note that the Y-axis has been scaled-up 
+140 times, making the slope of ``Cascading-If + memoized\_cast'' timings much steeper.
 
 \begin{figure}[htbp]
   \centering
@@ -302,6 +298,7 @@ is so much steeper.
 %all calls with a given type we can only claim we are asymptotically as good as 
 %fast dynamic cast.
 
+\noindent
 Unfortunately fast dynamic casting is not truly open as the structure of tags 
 required by the scheme limits the number of classes it can handle. 
 %A 32-bit integer is estimated to be able to represent 7  
@@ -321,6 +318,6 @@ To summarize, truly open and efficient type switching is a non-trivial problem.
 The approaches we found in the literature were either open or efficient, 
 but not both. Efficient implementation was typically achieved by sealing the 
 class hierarchy and using a jump table on sequential tags. Open implementations 
-were resorting to type testing and decision trees, which was not efficient. 
+were resorting to type testing and decision trees. 
 We are unaware of any efficient tag allocation scheme that can be used in a 
 truly open scenario.

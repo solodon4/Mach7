@@ -22,25 +22,24 @@
  & Random     &\glYGPn&\glYGKn&\glYSPn&\glYSKn&\gwYGPn&\gwYGKn&\gwYSPn&\gwYSKn&\VwYGPn&\VwYGKn&\VwYSPn&\VwYSKn&\VxYGPn&\VxYGKn&\VxYSPn&\VxYSKn \\
 \hline % ----------------------------------------------------------------------------------------------------------------------------------
 \hline % ----------------------------------------------------------------------------------------------------------------------------------
- &            & \multicolumn{4}{c||}{Linux Desktop} & \multicolumn{12}{c}{Windows 7 Laptop}                                                    \\
+ &            & \multicolumn{4}{c||}{Linux Desktop} & \multicolumn{12}{c}{Windows Laptop}                                                      \\
 \hline % ----------------------------------------------------------------------------------------------------------------------------------
 \end{tabular}
-\caption{Relative performance of our pattern matching versus visitors. Numbers 
-in bold font (e.g. \f{67}), indicate that our pattern matching is faster than 
+\caption{Relative performance of type switching versus visitors. Numbers 
+in bold font (e.g. \f{67}), indicate that our type switching is faster than 
 visitors by corresponding percentage. Numbers in italics font (e.g. \s{14}), 
-indicate that our solution is slower than visitors (i.e. visitors is faster than 
-our solution) by corresponding percentage.}
+indicate that visitors are faster by corresponding percentage.}
 \label{relperf}
 \end{figure*}
 
-Our evaluation methodology consists of several benchmarks that represent various 
+Our evaluation methodology consists of several benchmarks representing various 
 uses of objects inspected with either visitors or type switching.
 
-The \emph{repetitive} benchmark performs multiple calls on different objects of the 
+The \emph{repetitive} benchmark performs calls on different objects of the 
 same most derived type. This scenario happens in object-oriented setting when a 
 group of polymorphic objects is created and passed around (e.g. numerous 
 particles of a given kind in a particle simulation system). We include it 
-because double dispatch becomes about twice faster (27 vs. 53 cycles) in this 
+because double dispatch becomes twice faster (27 vs. 53 cycles) in this 
 scenario compared to others due to cache and call target prediction mechanisms. 
 
 The \emph{sequential} benchmark effectively uses an object of each derived type only 
@@ -67,13 +66,14 @@ forwarding tests had two levels of inheritance with 5 intermediate base classes
 and 95 derived ones. 
 
 Each benchmark was tested with either \emph{unified} or \emph{specialized} 
-syntax, each of which included tests on polymorphic (\emph{Open}) and tagged 
+syntax, each including tests on polymorphic (\emph{Open}) and tagged 
 (\emph{Tag}) encodings. Specialized syntax avoids generating unnecessary 
 syntactic structure used to unify syntax, and thus produces faster code. We 
-include it in our results because a compiler implementation of type switching 
+include it in results because a compiler implementation of type switching 
 will only generate the best suitable code.
 
-The benchmarks were executed in the following configurations:
+The benchmarks were executed in the following configurations refered to as 
+\emph{Linux Desktop} and \emph{Windows Laptop} respectively:
 
 \begin{itemize}
 \setlength{\itemsep}{0pt}
@@ -91,10 +91,11 @@ The benchmarks were executed in the following configurations:
       \setlength{\itemsep}{0pt}
       \setlength{\parskip}{0pt}
       \item G++ 4.5.2 / MinGW executed with -O2; x86 binaries
-      \item MS Visual C++ 2010 Professional x86/x64 binaries with Profile-Guided Optimizations
+      \item MS Visual C++ 2010 Professional x86/x64 binaries with profile-guided optimizations
       \end{itemize}
 \end{itemize}
 
+\noindent
 The code on the critical path of our type switch implementation benefits 
 significantly from branch hinting as some branches are much more likely than 
 others. We use the branch hinting in GCC to guide the compiler, but, 
@@ -112,17 +113,17 @@ found in the accompanying technical report~\cite{TR}.
 
 We compare the performance of our solution relative to the performance of visitors in 
 Figure~\ref{relperf}. The values are given as percentages of performance increase 
-against the slower technique. Numbers in bold represent cases where our type 
-switching was faster than visitors were. Numbers in italics indicate cases where 
-visitors were faster.
+against the slower technique. Numbers in bold represent cases where type 
+switching was faster, while numbers in italics indicate cases where visitors 
+were faster.
 
-We can see that type switching wins by a good margin in the presence of at least 
-one level of forwarding on visitors. Using type switching on closed hierarchies 
-is also a definite winner. Note that the numbers are relative, and thus the 
-ratio depends on both the performance of virtual calls and the performance of 
-switch statements. Visual C++ was generating faster virtual function calls, 
-while GCC was generating faster switch statements, which is why their relative 
-performance seem to be much more favorable for us in the case of GCC.
+We can see that type switching wins by a good margin on tag preceedence lists as 
+well as in the presence of at least one level of forwarding. Note that the 
+numbers are relative, and thus the ratio depends on both the performance of 
+virtual calls and the performance of switch statements. Visual C++ was 
+generating faster virtual function calls, while GCC was generating faster switch 
+statements, which is why their relative performance seem to be much more 
+favorable for us in the case of GCC.
 
 Similarly the code for x64 is only slower relatively: the actual time spent for 
 both visitors and type switching was smaller than that for x86, but it was much 
@@ -175,9 +176,9 @@ switch on tags. It is only supported through specialized syntax in our library
 as it differs from the Tag encoding only semantically.
 
 The optimized OCaml compiler \texttt{ocamlopt.opt} that we used to compile the code 
-can be based on different toolkits on some platforms, e.g. Visual C++ or GCC 
-under Windows. To make the comparison fair we thus had to make sure that the 
-same toolkit was used to compile the corresponding C++ code. We ran the tests 
+can be based on different toolsets on some platforms, e.g. Visual C++ or GCC 
+on Windows. To make the comparison fair we had to make sure that the 
+same toolset was used to compile the C++ code. We ran the tests 
 on both of the machines described above using the following configurations: 
 
 \begin{itemize}
@@ -189,6 +190,7 @@ on both of the machines described above using the following configurations:
       \texttt{ocamlopt.opt} version 3.11.2
 \end{itemize}
 
+\noindent
 The timing results presented in Figure~\ref{fig:OCamlComparison} are averaged 
 over 101 measurements and show the number of seconds it took to perform a 
 million decompositions within our sequential benchmark.

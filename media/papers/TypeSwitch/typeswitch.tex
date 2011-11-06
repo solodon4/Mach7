@@ -1,4 +1,5 @@
-\documentclass[preprint]{sigplanconf}
+%\documentclass[preprint]{sigplanconf}
+\documentclass{sigplanconf}
 
 \usepackage{amssymb}
 \usepackage{amsthm}
@@ -103,36 +104,57 @@ showstringspaces=false,
 %\copyrightdata{[to be supplied]} 
 
 \titlebanner{Draft}        % These are ignored unless
-\preprintfooter{Y.Solodkyy, G.Dos Reis, B.Stroustrup: Open and Efficient Type Switch for C++}   % 'preprint' option specified.
+%\preprintfooter{Y.Solodkyy, G.Dos Reis, B.Stroustrup: Open and Efficient Type Switch for C++}   % 'preprint' option specified.
+\preprintfooter{Open and Efficient Type Switch for C++}   % 'preprint' option specified.
 
 \title{Open and Efficient Type Switch for C++}
 %\subtitle{your \code{visit}, Jim, is not \code{accept}able anymore}
 %\subtitle{\code{accepting} aint no \code{visit}ors}
 
-\authorinfo{Yuriy Solodkyy\and Gabriel Dos Reis\and Bjarne Stroustrup}
-           {Texas A\&M University\\ Texas, USA}
-           {\{yuriys,gdr,bs\}@cse.tamu.edu}
+\authorinfo{Omitted for Submission}
+           {Affiliation}
+           {anonymous@anonymous.com}
 
 \maketitle
 
 \begin{abstract}
-We present techniques that can be used in a compiler or library setting to 
-efficiently implement type switching, type testing, pattern matching, predicate 
-dispatch, multi-methods and other facilities that depend on the run-time type 
-of an argument. The techniques cope well with multiple inheritance in C++, 
-however they are not specific to C++ and can be adapted to implement 
-similar facilities in other languages.
+Selecting operations based on a type of an object determined at run-time is key 
+to many object-oriented and functional programming techniques. We present 
+techniques that can implement efficient type switching, type testing, pattern 
+matching, predicate dispatch, multi-methods in a compiler or a library. The 
+techniques are general and cope well with C++ multiple inheritance.
 
-Our library-only implementation of a type switch based on these techniques equals 
-or outperforms the visitor design pattern, as commonly used for type-casing 
-scenarios in C++. For many use cases, it equals or outperforms equivalent 
-code in languages with built-in type-switching constructs. While remaining a 
-library-only solution, such a facility better addresses the expression problem 
-than the visitor design pattern does: it is non-intrusive and does not have 
-extensibility restrictions. It also avoids the control inversion characteristic to 
-visitors, thereby making the code significantly more concise and easier to comprehend.
+Our library-only implementation provides a functional programming style notation 
+to the programmer. It outperforms the visitor design pattern, as commonly used 
+for type-casing scenarios in C++. For many use cases it equals or outperforms 
+equivalent code in languages with built-in type switching constructs, such as 
+OCaml. We find the pattern-based library code easier to read and write and more 
+expressive than hand-coded visitors. The library is non-intrusive and does not have 
+extensibility restrictions. It also avoids control inversion characteristic to 
+visitors.
+ 
 The library was motivated by and is used for applications involving large, 
-typed abstract syntax trees.
+typed, abstract syntax trees. Being a library only solution allows us to use 
+production quality compilers and tool chains for our experiments and our 
+intended applications.
+
+%We present techniques that can be used in a compiler or library setting to 
+%efficiently implement type switching, type testing, pattern matching, predicate 
+%dispatch, multi-methods and other facilities that depend on the run-time type 
+%of an argument. The techniques cope well with multiple inheritance in C++, 
+%however they are not specific to C++ and can be adapted to implement 
+%similar facilities in other languages.
+%
+%Our library-only implementation of a type switch based on these techniques equals 
+%or outperforms the visitor design pattern, as commonly used for type-casing 
+%scenarios in C++. For many use cases, it equals or outperforms equivalent 
+%code in languages with built-in type-switching constructs. While remaining a 
+%library-only solution, such a facility better addresses the expression problem 
+%than the visitor design pattern does: it is non-intrusive and does not have 
+%extensibility restrictions. It also avoids the control inversion characteristic to 
+%visitors, thereby making the code significantly more concise and easier to comprehend.
+%The library was motivated by and is used for applications involving large, 
+%typed abstract syntax trees.
 \end{abstract}
 
 \category{CR-number}{subcategory}{third-level}
@@ -141,7 +163,7 @@ typed abstract syntax trees.
 Languages, Design
 
 \keywords
-Pattern Matching, Visitor Design Pattern, Expression Problem, C++
+Type Switching, Visitor Design Pattern, Pattern Matching, Expression Problem, C++
 
 \input{sec-introduction}
 
