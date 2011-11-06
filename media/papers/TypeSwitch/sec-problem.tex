@@ -3,17 +3,17 @@
 
 The ideas and the library were motivated by our unsatisfactory experiences 
 working with various C++ front-ends and program analysis 
-frameworks~\cite{Pivot09,Phoenix,Clang,Lise}.
+frameworks~\cite{Pivot09,Phoenix,Clang,Liz}.
 The problem was not in the frameworks per se, but in the fact that we had to use
 the \emph{visitor design pattern}~\cite{DesignPatterns1993} to inspect, traverse, and 
-elaborate abstract syntax trees of their target languages. We found visitors 
+elaborate abstract syntax trees to target languages. We found visitors 
 unsuitable to express our application logic, surprisingly hard to teach 
 students, and slow. Seeing dynamic casts in many places, often nested, used to 
 answer simple structural questions, was a strong indication to us that the users 
 preferred shorter, cleaner, and more-direct code to visitors, even at a high 
 cost in performance (assuming that the programmer knew the cost).
 
-A lot has been said about pros and cons of visitor design pattern~\cite{DesignPatterns1993,Zenger:2001}. 
+A lot has been said about visitor design pattern~\cite{DesignPatterns1993,Zenger:2001}. 
 Its advantages include \emph{extensibility of functions}, \emph{speed}, and, 
 often undervalued, \emph{being a library solution}. Nevertheless, the solution 
 is still \emph{intrusive}, \emph{specific to hierarchy}, and requires a lot of 
