@@ -13,7 +13,7 @@ answer simple structural questions, was a strong indication to us that the users
 preferred shorter, cleaner, and more-direct code to visitors, even at a high 
 cost in performance.
 
-A lot has been said about visitor design pattern~\cite{DesignPatterns1993,Zenger:2001}. 
+A lot has been said about visitor design pattern~\cite{DesignPatterns1993,Zenger:2001,Oliveira08}. 
 Its advantages include \emph{extensibility of functions}, \emph{speed}, and, 
 often undervalued, \emph{being a library solution}. Nevertheless, the solution 
 is still \emph{intrusive}, \emph{specific to hierarchy}, and requires a lot of 
@@ -52,7 +52,7 @@ the base class.  They are \emph{hierarchical} and thus typically
 and form a subtyping relation between themselves~\cite{Glew99}. 
 On the contrary, algebraic data types form \emph{closed} and \emph{disjoint}
 sets ofvariants. Some functional languages e.g. ML2000~\cite{ML2000}
-and Moby~\cite{Moby} were experimenting with 
+and its predecessor, Moby, were experimenting with 
 \emph{hierarchical extensible sum types}, which are closer to 
 object-oriented classes then algebraic data types are, but, 
 interestingly, they did not provide pattern matching facilities on them!
@@ -233,7 +233,6 @@ last.
   \label{fig:DCastVis1}
 \end{figure}
 
-\noindent
 Seeing several solutions whose time increases with the position of the case 
 clause in the type switch, one may wonder how many such clauses a typical 
 program might have. A program dealing with abstract syntax trees in 
@@ -298,7 +297,6 @@ Figure~\ref{fig:DCastVis1} unchanged for reference. Note that the Y-axis has bee
 %all calls with a given type we can only claim we are asymptotically as good as 
 %fast dynamic cast.
 
-\noindent
 Unfortunately fast dynamic casting is not truly open as the structure of tags 
 required by the scheme limits the number of classes it can handle. 
 %A 32-bit integer is estimated to be able to represent 7  
@@ -313,6 +311,13 @@ Interestingly, while suitable for type testing and type switching with decision
 trees, the fast dynamic cast approch is not suitable for type switching with 
 jump tables: computing the tag of a base class will have to decompose the 
 derived tag into primes.
+
+A number of other techniques capable of testing class-membership in constant 
+time is surveyed by Gil and Zibin~\cite[\textsection 4]{PQEncoding}. They are 
+intended for type testing, and thus will have to be combined with decision trees 
+for type switching, resulting in similar to fast dynamic cast performance. 
+Besides, they assume access to the entire class hierarchy at compile time and 
+thus are not open.
 
 To summarize, truly open and efficient type switching is a non-trivial problem. 
 The approaches we found in the literature were either open or efficient, 
