@@ -20,8 +20,7 @@ is still \emph{intrusive}, \emph{specific to hierarchy}, and requires a lot of
 \emph{boilerplate code} to be written. It also introduces \emph{control 
 inversion}, and, most importantly, -- \emph{hinders extensibility} of classes.
 Interestingly, as bad as visitors are, they are only trying to solve a larger 
-problem in the context of object-oriented languages, which was what we turned 
-our attention to.
+problem in the context of object-oriented languages.
 
 %Expression problem is a problem of supporting in a programming language modular 
 %extensibility of both data and functions at the same time. Functional languages
@@ -38,25 +37,25 @@ our attention to.
 %and understand, but nevertheless, remains the weapon of choice for interacting 
 %with numerous object-oriented libraries and frameworks. 
 
-Functional languages allow for the easy addition of new functions on existing data 
-types, but fall short in extending data types themselves (e.g. with new constructors), 
+Conventional algebraic datatypes, as found in most functional languages,
+allow for easy addition of new functions on existing data types.
+But they fall short in extending data types themselves 
+(e.g. with new constructors), 
 which requires modifying the source code. Object-oriented languages, on the 
-other hand, make data type extension trivial through inheritance, but the addition 
-of new functions that work on these classes typically requires changes to the class 
-definition. This dilemma was first discussed by Cook~\cite{Cook90} and then 
-accentuated by Wadler~\cite{exprproblem} under the name \emph{expression problem}.
-
-To better understand the problem, note that classes differ from algebraic data 
-types in two important ways: they are \emph{extensible} since new variants can 
-be added by inheriting from the base class, as well as \emph{hierarchical} and 
-thus \emph{non-disjoint} since variants can be inherited from other variants and 
-form a subtyping relation between themselves~\cite{Glew99}. This is not the case 
-with traditional algebraic data types in functional languages, where the set of 
-variants is \emph{closed}, while the variants are \emph{disjoint}. Some 
-functional languages e.g. ML2000~\cite{ML2000} and Moby~\cite{Moby} were 
-experimenting with \emph{hierarchical extensible sum types}, which are closer to 
-object-oriented classes then algebraic data types are, but, interestingly, they 
-did not provide pattern matching facilities on them!
+other hand, make data type extension trivial through inheritance;
+but the addition of new functions operating on these classes typically
+requires changes to the class definition \cite{Cook90,exprproblem}. 
+Classes differ from algebraic data  types in two important ways: they
+are \emph{extensible}, for new variants can be added by inheriting from
+the base class.  They are \emph{hierarchical} and thus typically
+\emph{non-disjoint} since variants can be inherited from other variants
+and form a subtyping relation between themselves~\cite{Glew99}. 
+On the contrary, algebraic data types form \emph{closed} and \emph{disjoint}
+sets ofvariants. Some functional languages e.g. ML2000~\cite{ML2000}
+and Moby~\cite{Moby} were experimenting with 
+\emph{hierarchical extensible sum types}, which are closer to 
+object-oriented classes then algebraic data types are, but, 
+interestingly, they did not provide pattern matching facilities on them!
 
 Zenger and Odersky later refined the expression problem in the context of 
 independently extensible solutions~\cite{fool12} as a challenge to find an 
@@ -112,15 +111,11 @@ expression problem in practice.
 
 \subsection{Type Switch}
 
-Functional languages use pattern matching to perform case analysis on a given 
-algebraic data type. In this section we will try to generalize this construct to 
-case analysis of hierarchical and extensible data types. Presence of such a
-construct will allow for external function definitions by detaching a particular 
-case analysis from the hierarchy it is performed on.
-
-By \emph{type switch} we will call a control structure taking either a pointer 
-or a reference to an object, called \emph{subject}, and capable of uncovering a 
-reference or a pointer to a full object of a type present in the list of case 
+This section generalizes pattern matching of closed algebraic datatype values
+to case analysis of hierarchical and extensible datatype values.
+We call \emph{type switch} a control structure taking either an object
+descriptor (pointer of reference), called \emph{subject}, and uncovers a 
+descriptor to a full object of a type present in the list of case 
 clauses. Similar control structures exist in many programming languages and 
 date back to at least Simula's Inspect statement~\cite{Simula67}.
 
@@ -168,11 +163,12 @@ implication can be seen as subtyping.
 \subsection{Open and Efficient Type Switching}
 \label{sec:poets}
 
-The fact that algebraic data types in functional languages are closed allows for 
-their efficient implementation. The traditional compilation scheme assigns unique 
+The closed nature of algebraic data types allows for 
+their efficient implementation. 
+The traditional compilation scheme assigns unique 
 tags to every variant of the algebraic data type and pattern matching is then 
 simply implemented with a jump table over all tags. A number of issues in 
-object-oriented languages makes this extremely efficient approach infeasible:
+class hierarchies makes this extremely efficient approach infeasible:
 
 \begin{itemize}
 \setlength{\itemsep}{0pt}
