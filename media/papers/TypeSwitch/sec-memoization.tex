@@ -79,7 +79,6 @@ type with multiple inheritance may contain several vtable pointers
 dynamic type of the complete type.  We assume that a C++ compiler provides
 access to that vtable pointer (or at least document the position of that
 pointer within an object.)  For the common vendor C++ ABI, we can state:
-
 \begin{lemma}
   In an object layout that adheres to the ``common vendor C++ ABI'', 
   an object of a polymorphic class always has a virtual table pointer
@@ -88,16 +87,15 @@ pointer within an object.)  For the common vendor C++ ABI, we can state:
 \end{lemma}
 
 \noindent
-Knowing how to extract a vtbl-pointer as well as that all the objects of the 
-same most derived type share the same vtbl-pointers, the idea is to use their 
-values to uniquely identify the type and subobject within it. Unfortunately 
-nothing in the C++ ABI states these pointers should be unique. A popular 
-optimization technique lets the compiler share the virtual table of a derived 
-class with its primary base class as long as the derived class that does not 
-override any virtual methods. Use of such optimization will violate the 
+
+With no further assumption, we cannot use a vtable to uniquely identify
+its dynamic type or those of its subobjects.  The reason is it is a popular 
+compression technique to share the virtual table of a derived 
+class with those of some of its subobjects. 
+Use of such optimization will violate the 
 uniqueness of vtbl-pointers; however, we show below that in the presense of 
-RTTI, a C++ ABI-compliant implementation is guaranteed to have different values 
-of vtbl-pointers in different subobjects.
+RTTI, an implementation compliant to the C++ common vendor ABI is guaranteed
+to have different values  of vtbl-pointers in different subobjects.
 
 %C++ standard requires an argument of \code{dynamic_cast} to be a pointer to or 
 %an lvalue of a polymorphic type when performing \emph{downcast} -- a cast from 
