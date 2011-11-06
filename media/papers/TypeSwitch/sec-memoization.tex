@@ -75,9 +75,10 @@ In addition to dispatching virtual function calls, it is used to access
 virtual base class subobjects, and to 
 access \emph{RunTime Type Identification} (RTTI) data.  An object of a class
 type with multiple inheritance may contain several vtable pointers
-(included in its subobjects) but only one such pointer points to the 
-dynamic type of the complete type.  We assume that a C++ compiler provides
-access to that vtable pointer (or at least document the position of that
+(included in its subobjects.)  We assume that for every expression of
+static type \code{T} (a dynamic class type), a C++ compiler provides
+access to the vtable pointer of the (sub)object designated by that 
+expression (or at least document the position of that
 pointer within an object.)  For the common vendor C++ ABI, we can state:
 \begin{lemma}
   In an object layout that adheres to the ``common vendor C++ ABI'', 
