@@ -2834,7 +2834,14 @@ In this section we will concentrate on the truly open type switch for
 polymorphic encoding. The type switch for tagged encoding (\textsection\ref{sec:cotc}) 
 is simpler and more efficient, however, making it open will eradicate its 
 performance advantages. The difference in performance is the price we pay for 
-keeping the solution open.
+keeping the solution open.  The core of the proposal relies on two keys
+aspects of C++ implementations:
+\begin{enumerate}
+\item a constant-time access to the virtual table pointer embedded in an object of
+  dynamic class type;
+\item injectivity of the relation between an object's inheritance path
+  and the virtual table pointer extracted from that object.
+\end{enumerate}
 
 \subsection{Virtual Table Pointers}
 \label{sec:vtp}
@@ -2967,7 +2974,7 @@ copied verbatim from the C++ ABI~\cite[\textsection 2.5.2]{C++ABI}:
 \noindent
 Given a virtual table pointer \code{vtbl}, we will refer to these fields as 
 \code{rtti(vtbl)}, \code{off2top(vtbl)} and \code{vbase(vtbl)} respectively. 
-We will also assume presence of a function $offset(\sigma)$ that defines the 
+We will also assume presence of a function $\mathit{offset}(\sigma)$ that defines the 
 offset of the base class identified by the end of the path $\sigma$ within a 
 class identified by its first element.
 
@@ -3005,18 +3012,19 @@ $l_1^j=l_2^j \forall j<k \wedge l_1^k\neq l_2^k$. Since our class $A$ is a base
 class for classes $l_1^k$ and $l_2^k$, both of which are in turn base classes of 
 $C$, the object identity requirement of C++ require that the relevant subobjects 
 of type $A$ have different offsets within class $C$: 
-$offset(\sigma_1)\neq offset(\sigma_2)$ However 
-$offset(\sigma_1)=$\code{off2top}$(a_1.vtbl_i)=$\code{off2top}$(a_2.vtbl_i)=offset(\sigma_2)$ 
+$\mathit{offset}(\sigma_1)\neq \mathit{offset}(\sigma_2)$ However 
+$\mathit{offset}(\sigma_1)=$\code{off2top}$(a_1.vtbl_i)=$\code{off2top}$(a_2.vtbl_i)=\mathit{offset}(\sigma_2)$ 
 since $a_1.vtbl_i = a_2.vtbl_i$, which contradicts that the offsets are different.
 \end{proof}
 
+\noindent
 Conjecture in the other direction is not true in general as there may be 
 duplicate virtual tables for the same type present at run-time. This happens in 
 many C++ implementations in the presence of DLLs as the same class compiled into 
 executable and into a DLL it loads may have identical virtual tables inside the 
 executable's and DLL's binaries.
 
-Note also that we required both static types to be the same. Dropping this 
+Note also that we require both static types to be the same. Dropping this 
 requirement and saying that equality of vtbl-pointers also implies equality of 
 the static types is not true in general because a derived class will share the 
 vtbl-pointer with its primary base class (see Lemma~\ref{lem:vtbl}). The theorem 
@@ -3037,21 +3045,21 @@ $\forall A,B \forall a_1, a_2 : A\ |\ a_1.vtbl_i = a_2.vtbl_i \Rightarrow$ \\
 
 \noindent
 During construction and deconstruction of 
-an object, the value of a given virtual table pointer may change. In particular, 
+an object, the value of a given vtbl-pointer may change. In particular, 
 that value will reflect the dynamic type of the object to be the type of the 
 fully constructed part only. However, this does not affect our reasoning, as during 
 such transition we also treat the object to have the type of its fully 
 constructed base only. Such interpretation is in line with the C++ semantics for 
 virtual function calls and the use of RTTI during construction and destruction of an 
-object. Once the complete object is fully constructed, the value of the virtual 
-table pointer will remain the same for the lifetime of the object.
+object. Once the complete object is fully constructed, the value of the 
+vtbl-pointer will remain the same for the lifetime of the object.
 
 \subsection{Memoization Device}
 \label{sec:memdev}
 
 Let us look at a slightly more general problem than type switching. Consider a 
 generalization of the switch statement that takes predicates on a subject as its 
-clauses and executes the first statement $s_i$ whose predicate got enabled: 
+clauses and executes the first statement $s_i$ whose predicate is enabled: 
 
 \begin{lstlisting}
 switch (x)
@@ -3074,7 +3082,7 @@ The idea is to generate a simple cascading-if statement interleaved with jump
 targets and instructions that associate the original value with enabled targed. 
 The code before the statement looks up whether the association for a given value 
 has already been established, and, if so, jumps directly to the target; otherwise 
-the sequential execution of the underlying cascading-if is started. To ensure 
+the sequential execution of the cascading-if is started. To ensure 
 that the actual code associated with the predicates remains unaware of this 
 optimization, the code preceeding it after the target must re-establish any 
 invariant guaranteed by sequential execution (\textsection\ref{sec:vtblmem}).
@@ -3209,7 +3217,7 @@ the same class do not change the predicate. The map can then associate the
 equivalence class of a value with a target instead of associating the value with 
 it. The next subsection does exactly that for polymorphic objects.
 
-\subsection{V-Table Pointer Memoization}
+\subsection{Vtable Pointer Memoization}
 \label{sec:vtblmem}
 
 The memoization device can almost immediately be used for multi-way type testing by 
@@ -3219,7 +3227,7 @@ to the uncovered type. Using a \code{static_cast<Di>} upon successful type test
 would have been a solution if we did not have multiple inheritance. It certainly 
 can be used as such in languages with only single inheritance. For the fully 
 functional C++ solution, we combine the memoization device with the properties 
-of virtual table pointers into a \emph{V-Table Pointer Memoization} technique.
+of virtual table pointers into a \emph{Vtable Pointer Memoization} technique.
 
 We saw that vtbl-pointers uniquely determine the subobject within an object 
 (Theorem~\ref{thm:vtbl}), while the result of a \code{dynamic_cast} can be reapplied 
@@ -3310,7 +3318,7 @@ design pattern.
 Note that we can apply the reasoning of \textsection\ref{sec:memdev} and change 
 the first-fit semantics of the resulting match statement into a best-fit 
 semantics simply by changing the underlain cascading-if structure with decision 
-tree. A compiler implementation of a type switch based on V-Table Pointer 
+tree. A compiler implementation of a type switch based on Vtable Pointer 
 Memoization will certainly take advantage of this optimization to cut down the 
 cost of the first run on a given vtbl-pointer, when the actual memoization happens.
 
@@ -3344,8 +3352,8 @@ For the above example it may look as \texttt{00000001001111100000X11XXXXXXX00}
 where positions marked with X represent bits that are different in some vtbl 
 pointers.
 
-When a DLL is loaded it may have its own copy of v-tables for classes also used 
-in other modules as well as v-tables for classes it introduces. Comparing 
+When a DLL is loaded it may have its own copy of vtables for classes also used 
+in other modules as well as vtables for classes it introduces. Comparing 
 similarly all vtbl pointers coming only from this DLL we can get a different 
 pattern \\ \texttt{01110011100000010111XXXXXXXXX000} and when compared over all 
 the loaded modules the pattern will likely becomes something like 
@@ -3378,8 +3386,8 @@ different.
 
 The changes in higher bits were typically due to separate compilation and 
 especially due to dynamically loaded modules. When a DLL is loaded, it may have 
-its own copies of v-tables for classes that are also used in other modules, in addition to 
-v-tables for classes it introduces. Comparing all vtbl-pointers coming only from 
+its own copies of vtables for classes that are also used in other modules, in addition to 
+vtables for classes it introduces. Comparing all vtbl-pointers coming only from 
 that DLL we can get a different pattern \texttt{01110011100000010111XXXXXXXXX000} 
 and when compared over all the loaded modules the pattern will likely become 
 something like \texttt{0XXX00X1X0XXXXXX0XXXXXXXXXXXXX00}. Overall they were not 
@@ -3397,7 +3405,7 @@ the validity of references to container elements''~\cite[\textsection
 23.2.5(13)]{C++0x}. 
 
 Depending on the number of actual collisions that happen in the cache, our 
-v-table pointer memoization technique can come close to, and even outperform, the 
+vtable pointer memoization technique can come close to, and even outperform, the 
 visitor design pattern. The numbers are, of course, averaged over many runs as 
 the first run on every vtbl-pointer will take an amount of time as shown in 
 Figure\ref{fig:DCastVis1}. We did however test our technique on real code and 
@@ -3455,7 +3463,7 @@ $A$ is the static type of all vtbl-pointers coming through a \code{vtblmap}, the
 restriction assures that reconfigurations will not happen infinitely often.
 
 To minimize the number of recomputations even further, our library communicates 
-to the \code{vtblmap<T>}, through its constructor, the number of case clauses in 
+to the \code{vtblmap}, through its constructor, the number of case clauses in 
 the underlain match statement. We use this number as an estimate of the expected 
 size of the \code{vtblmap} and pre-allocate the cache accordingly to this estimated 
 number. The cache is still allowed to grow based on the actual number of 
@@ -3472,7 +3480,7 @@ to happen on less-frequent vtbl-pointers.
 We studied the frequency of vtbl-pointers that come through various match statements
 of a C++ pretty-printer that we implemented on top of the Pivot 
 framework~\cite{Pivot09} using our pattern-matching library. We ran the 
-pretty-printer on a set of C++ standard library headers and then ranked all the 
+pretty-printer on a set of C++ standard library headers and then ranked all the  
 classes from the most-frequent to the least-frequent ones, on average. The 
 resulting probability distribution is shown with a thicker line in 
 Figure\ref{fig:PowerLaw}.
@@ -3651,7 +3659,7 @@ ReMatch:
 \end{lstlisting}
 
 \noindent
-The above structure lets us dispatch to case clauses of the most derived class 
+The above structure, which we call \emph{TPL Dispatcher}, lets us dispatch to case clauses of the most derived class 
 with an overhead of initializing two local variables, compared to a switch on a 
 sealed hierarchy. Dispatching to a case clause of a base class will take time 
 roughly proportional to the distance between the matched base class and the most 
@@ -4046,7 +4054,8 @@ syntactic structure used to unify syntax, and thus produces faster code. We
 include it in our results because a compiler implementation of type switching 
 will only generate the best suitable code.
 
-The benchmarks were executed in the following configurations:
+The benchmarks were executed in the following configurations refered to as 
+\emph{Linux Desktop} and \emph{Windows Laptop} respectively:
 
 \begin{itemize}
 \setlength{\itemsep}{0pt}
@@ -4064,10 +4073,11 @@ The benchmarks were executed in the following configurations:
       \setlength{\itemsep}{0pt}
       \setlength{\parskip}{0pt}
       \item G++ 4.5.2 / MinGW executed with -O2; x86 binaries
-      \item MS Visual C++ 2010 Professional x86/x64 binaries with Profile-Guided Optimizations
+      \item MS Visual C++ 2010 Professional x86/x64 binaries with profile-guided optimizations
       \end{itemize}
 \end{itemize}
 
+\noindent
 The code on the critical path of our type switch implementation benefits 
 significantly from branch hinting as some branches are much more likely than 
 others. We use the branch hinting facilities of GCC to tell the compiler which 
@@ -4107,16 +4117,16 @@ both visitors and type switching was smaller than that for x86, but it was much
 smaller for visitors than type switching, which resulted in worse relative 
 performance.
 
-\subsection{V-Table Pointer Memoization vs. Tag Precedence List}
+\subsection{Vtable Pointer Memoization vs. TPL Dispatcher}
 \label{sec:cmp}
 
 With a few exceptions for x64, it can be seen from Figure~\ref{relperf} 
-that the performance of the tag precedence list approach (the Tag column) dominates the 
-performance of the v-table pointer memoization approach (the Open column). We believe 
+that the performance of the TPL dispatcher (the Tag column) dominates the 
+performance of the vtable pointer memoization approach (the Open column). We believe 
 that the difference, often significant, is the price one pays for the true 
-openness of the v-table pointer memoization solution.
+openness of the vtable pointer memoization solution.
 
-Unfortunately, the tag precedence list approach is not truly open. The use of tags, 
+Unfortunately, the TPL dispatcher is not truly open. The use of tags, 
 even if they would be allocated by compiler, may require integration efforts to 
 ensure that different DLLs have not reused the same tags. Randomization of tags,
 similar to a proposal of Garrigue~\cite{garrigue-98}, will not eliminate the 
@@ -4124,17 +4134,17 @@ problem and will surely replace jump tables in switches with decision trees. Thi
 will likely significantly degrade the numbers for the Tag column of 
 Figure~\ref{relperf}, since the tags in our experiments were all sequential.
 
-Besides, the tag precedence list approach relies on static cast to obtain the 
+Besides, the TPL dispatcher approach relies on static cast to obtain the 
 proper reference once the most specific case clause has been found. As we 
 described in \textsection\ref{sec:vtblmem}, this has severe limitations in the 
 presence of multiple inheritance, and thus is not as versatile as the other 
 solution. Overcoming this problem will either require the use of 
-\code{dynamic_cast} or techniques similar to those we used in v-table pointer 
+\code{dynamic_cast} or techniques similar to those we used in vtable pointer 
 memoization. This will likely degrade performance numbers for the Tag column even further.
 
-Note also that the v-table pointer memoization approach can be used to implement both
-first-fit and best-fit semantics, while the tag precedence list is only suitable 
-for best-fit semantics. Their complexity guarantees also differ: v-table pointer 
+Note also that the vtable pointer memoization approach can be used to implement both
+first-fit and best-fit semantics, while the TPL dispatcher is only suitable 
+for best-fit semantics. Their complexity guarantees also differ: vtable pointer 
 memoization is constant on average, and slow on the first call. Tag list approach is 
 logarithmic in the size of the class hierarchy on average (assuming a balanced 
 hierarchy), including on the first call.
@@ -4142,20 +4152,20 @@ hierarchy), including on the first call.
 \subsection{Comparison with OCaml}
 \label{sec:ocaml}
 
-We now compare our solution to the built-in pattern-matching facility of OCaml. 
+We now compare our solution to the built-in pattern-matching facility of OCaml~\cite{OPM01}. 
 In this test, we timed a small OCaml application performing our sequential 
 benchmark on an algebraic data type of 100 variants. Corresponding C++ 
 applications were working with a flat class hierarchy of 100 derived classes. 
 The difference between the C++ applications lies in the encoding (Open/Tag/Kind) 
-and the syntax (Uni/Spec) used. Kind encoding is the same as Tag encoding, but 
+and the syntax (Unified/Special) used. Kind encoding is the same as Tag encoding, but 
 it does not require substitutability, and thus can be implemented with a direct 
 switch on tags. It is only supported through specialized syntax in our library 
 as it differs from the Tag encoding only semantically.
 
 The optimized OCaml compiler \texttt{ocamlopt.opt} that we used to compile the code 
-can be based on different toolkits on some platforms, e.g. Visual C++ or GCC 
-under Windows. To make the comparison fair we thus had to make sure that the 
-same toolkit was used to compile the corresponding C++ code. We ran the tests 
+can be based on different toolsets on some platforms, e.g. Visual C++ or GCC 
+on Windows. To make the comparison fair we had to make sure that the 
+same toolset was used to compile the C++ code. We ran the tests 
 on both of the machines described above using the following configurations: 
 
 \begin{itemize}
@@ -4167,6 +4177,7 @@ on both of the machines described above using the following configurations:
       \texttt{ocamlopt.opt} version 3.11.2
 \end{itemize}
 
+\noindent
 The timing results presented in Figure~\ref{fig:OCamlComparison} are averaged 
 over 101 measurements and show the number of seconds it took to perform a 
 million decompositions within our sequential benchmark.
@@ -4373,7 +4384,7 @@ implementation of our library as currently it relies heavily on static variables
 and global state, which will have problems in a multi-threaded environment. 
 
 The match statement that we presented here deals with only one subject at the 
-moment, but we believe that our memoization device, along with the v-table pointer memoization 
+moment, but we believe that our memoization device, along with the vtable pointer memoization 
 technique we presented, can cope reasonably efficiently with multiple subjects. 
 Their support will make our library more general by addressing asymmetric 
 multiple dispatch.
@@ -4411,14 +4422,14 @@ only a single indirect assignment to each of the execution paths. It can be
 combined with other compiler optimizations and is particularly suitable for use 
 in a library setting.
 
-The \emph{V-Table Pointer Memoization} is a technique based on memoization device that 
+The \emph{Vtable Pointer Memoization} is a technique based on memoization device that 
 employs uniqueness of virtual table pointers to not only speed up execution, but 
 also properly uncover the dynamic type of an object. This technique is a 
 backbone of our fast type switch as well as memoized dynamic cast optimization.
 
-The \emph{Tag Precedence List} is yet another technique that can be used to 
+The \emph{TPL Dispatcher} is yet another technique that can be used to 
 implement best-fit type switching on tagged classes. The technique has its pros 
-and cons in comparison to v-table memoization, which we discuss in the paper.
+and cons in comparison to vtable pointer memoization, which we discuss in the paper.
 
 These techniques can be used in a compiler and library setting, and support well 
 separate compilation and dynamic linking. They are open to class extensions and 
