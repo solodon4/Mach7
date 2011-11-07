@@ -8,14 +8,13 @@ The problem was not in the frameworks per se, but in the fact that we had to use
 the \emph{visitor design pattern}~\cite{DesignPatterns1993} to inspect, traverse, and 
 elaborate abstract syntax trees to target languages. We found visitors 
 unsuitable to express our application logic, surprisingly hard to teach 
-students, and slow. Seeing dynamic casts in many places, often nested, used to 
-answer simple structural questions, was a strong indication to us that the users 
-preferred shorter, cleaner, and more-direct code to visitors, even at a high 
+students, and slow. Use of dynamic casts in many places, often nested,to 
+answer simple structural questions, shows that the users 
+preferd shorter, cleaner, and more-direct code to visitors, even at a high 
 cost in performance.
 
-A lot has been said about visitor design pattern~\cite{DesignPatterns1993,Zenger:2001,Oliveira08}. 
-Its advantages include \emph{extensibility of functions}, \emph{speed}, and, 
-often undervalued, \emph{being a library solution}. Nevertheless, the solution 
+A lot has been written about the visitor design pattern~\cite{DesignPatterns1993,Zenger:2001,Oliveira08}. 
+Its advantages include \emph{extensibility of functions}, \emph{speed}, and, \emph{being a library solution}. Nevertheless, the solution 
 is still \emph{intrusive}, \emph{specific to hierarchy}, and requires a lot of 
 \emph{boilerplate code} to be written. It also introduces \emph{control 
 inversion}, and, most importantly, -- \emph{hinders extensibility} of classes.
@@ -51,7 +50,7 @@ the base class.  They are \emph{hierarchical} and thus typically
 \emph{non-disjoint} since variants can be inherited from other variants
 and form a subtyping relation between themselves~\cite{Glew99}. 
 On the contrary, algebraic data types form \emph{closed} and \emph{disjoint}
-sets ofvariants. Some functional languages e.g. ML2000~\cite{ML2000}
+sets of variants. Some functional languages e.g. ML2000~\cite{ML2000}
 and its predecessor, Moby, were experimenting with 
 \emph{hierarchical extensible sum types}, which are closer to 
 object-oriented classes then algebraic data types are, but, 
@@ -101,7 +100,7 @@ Liskov substitution principle~\cite{Lis87}:
 \noindent
 We will refer to a solution that satisfies all of the above requirements as \emph{open}. 
 Numerous solutions have been proposed to dealing with the expression problem in both 
-functional and object-oriented camps, but notably very few are truly open, while 
+functional and object-oriented camps, but very few are truly open, while 
 none has made its way into one of the mainstream languages. We refer the reader 
 to Zenger and Odersky's original manuscript for a discussion of the 
 approaches~\cite{fool12}. Interestingly, most of the discussed object-oriented 
@@ -146,8 +145,7 @@ switch (base) { case D1: s1; ... case Dn: sn; }
 \end{itemize}
 
 \noindent
-The list is not exhaustive and depending on a language, any of these semantics 
-or their combination might be a plausible choice. Functional languages, for 
+The list is not exhaustive and depending on a language; any of these semantics can be a plausible choice. Functional languages, for 
 example, often prefer first-fit, while object-oriented languages would typically 
 be inclined to best-fit semantics. The-only-fit semantics is traditionally seen 
 in procedural languages like C and Pascal to deal with discriminated union types. 
@@ -196,7 +194,7 @@ table to implement the switch. The former was consistently slower than the
 latter one in our experience, even though the opposite was noted on some 
 architectures for small number of cases~\cite[\textsection 4]{garrigue-98}.
 
-Instead of starting with an efficient solution and trying to make it open, let us 
+Instead of starting with an efficient solution and trying to make it open, we 
 start with an open solution and try to make it efficient. The following 
 cascading-if statement implements the first-fit semantics for our type switch in 
 a truly open fashion:
@@ -210,7 +208,7 @@ if (Dn* derived = dynamic_cast<Dn*>(base)) { sn; }
 
 \noindent
 Its main drawback is performance: a typical 
-implementation of \code{dynamic_cast} might take time proportional to the 
+implementation of \code{dynamic_cast} takes time proportional to the 
 distance between base and derived classes in the inheritance tree~\cite{XXXXX}.
 What is worse, is that the time to uncover the type in the $i^{th}$ case clause 
 is proportional to $i$, while failure to match will always take the longest. 
@@ -237,7 +235,7 @@ Seeing several solutions whose time increases with the position of the case
 clause in the type switch, one may wonder how many such clauses a typical 
 program might have. A program dealing with abstract syntax trees in 
 Pivot~\cite{Pivot09} that we implemented using our pattern-matching library had 
-8 match statements with 5, 7, 8, 10, 15, 17, 30 and 63 case clauses 
+8 match statements with 5, 7, 8, 10, 15, 17, 30 and 63 case clauses, 
 respectively. With Pivot having the smallest number of node kinds among the 
 compiler frameworks we had a chance to work with, we expect a similar or larger 
 number of case clauses in other compiler applications.
