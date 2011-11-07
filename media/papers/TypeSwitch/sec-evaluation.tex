@@ -103,7 +103,7 @@ unfortunately, Visual C++ does not have similar facilities. Microsoft suggests
 to use \emph{Profile-Guided Optimization} to achieve the same, which is why the 
 results for Visual C++ reported here have been obtained with profile-guided 
 optimizations enabled. The results without profile-guided optimizations can be 
-found in the accompanying technical report~\cite{TR}.
+found in the accompanying technical report~\cite[\textsection 10]{TR}.
 %The results of optimizing code created with Visual C++ by using profile 
 %guided optimizations as currently Visual C++ does not have means for branch 
 %hinting, which are supported by G++ and proven to be very effective in few 
@@ -130,16 +130,16 @@ both visitors and type switching was smaller than that for x86, but it was much
 smaller for visitors than type switching, which resulted in worse relative 
 performance.
 
-\subsection{V-Table Pointer Memoization vs. Tag Precedence List}
+\subsection{Vtable Pointer Memoization vs. TPL Dispatcher}
 \label{sec:cmp}
 
 With a few exceptions for x64, it can be seen from Figure~\ref{relperf} 
-that the performance of the tag precedence list approach (the Tag column) dominates the 
-performance of the v-table pointer memoization approach (the Open column). We believe 
+that the performance of the TPL dispatcher (the Tag column) dominates the 
+performance of the vtable pointer memoization approach (the Open column). We believe 
 that the difference, often significant, is the price one pays for the true 
-openness of the v-table pointer memoization solution.
+openness of the vtable pointer memoization solution.
 
-Unfortunately, the tag precedence list approach is not truly open. The use of tags, 
+Unfortunately, the TPL dispatcher is not truly open. The use of tags, 
 even if they would be allocated by compiler, may require integration efforts to 
 ensure that different DLLs have not reused the same tags. Randomization of tags,
 similar to a proposal of Garrigue~\cite{garrigue-98}, will not eliminate the 
@@ -147,17 +147,17 @@ problem and will surely replace jump tables in switches with decision trees. Thi
 will likely significantly degrade the numbers for the Tag column of 
 Figure~\ref{relperf}, since the tags in our experiments were all sequential.
 
-Besides, the tag precedence list approach relies on static cast to obtain the 
+Besides, the TPL dispatcher approach relies on static cast to obtain the 
 proper reference once the most specific case clause has been found. As we 
 described in \textsection\ref{sec:vtblmem}, this has severe limitations in the 
 presence of multiple inheritance, and thus is not as versatile as the other 
 solution. Overcoming this problem will either require the use of 
-\code{dynamic_cast} or techniques similar to those we used in v-table pointer 
+\code{dynamic_cast} or techniques similar to those we used in vtable pointer 
 memoization. This will likely degrade performance numbers for the Tag column even further.
 
-Note also that the v-table pointer memoization approach can be used to implement both
-first-fit and best-fit semantics, while the tag precedence list is only suitable 
-for best-fit semantics. Their complexity guarantees also differ: v-table pointer 
+Note also that the vtable pointer memoization approach can be used to implement both
+first-fit and best-fit semantics, while the TPL dispatcher is only suitable 
+for best-fit semantics. Their complexity guarantees also differ: vtable pointer 
 memoization is constant on average, and slow on the first call. Tag list approach is 
 logarithmic in the size of the class hierarchy on average (assuming a balanced 
 hierarchy), including on the first call.
@@ -165,12 +165,12 @@ hierarchy), including on the first call.
 \subsection{Comparison with OCaml}
 \label{sec:ocaml}
 
-We now compare our solution to the built-in pattern-matching facility of OCaml. 
+We now compare our solution to the built-in pattern-matching facility of OCaml~\cite{OPM01}. 
 In this test, we timed a small OCaml application performing our sequential 
 benchmark on an algebraic data type of 100 variants. Corresponding C++ 
 applications were working with a flat class hierarchy of 100 derived classes. 
 The difference between the C++ applications lies in the encoding (Open/Tag/Kind) 
-and the syntax (Uni/Spec) used. Kind encoding is the same as Tag encoding, but 
+and the syntax (Unified/Special) used. Kind encoding is the same as Tag encoding, but 
 it does not require substitutability, and thus can be implemented with a direct 
 switch on tags. It is only supported through specialized syntax in our library 
 as it differs from the Tag encoding only semantically.

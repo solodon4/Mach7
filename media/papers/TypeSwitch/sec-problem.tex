@@ -3,7 +3,7 @@
 
 The ideas and the library were motivated by our unsatisfactory experiences 
 working with various C++ front-ends and program analysis 
-frameworks~\cite{Pivot09,Phoenix,Clang,Liz}.
+frameworks~\cite{Pivot09,Phoenix,Clang}.
 The problem was not in the frameworks per se, but in the fact that we had to use
 the \emph{visitor design pattern}~\cite{DesignPatterns1993} to inspect, traverse, and 
 elaborate abstract syntax trees to target languages. We found visitors 
@@ -36,14 +36,13 @@ problem in the context of object-oriented languages.
 %and understand, but nevertheless, remains the weapon of choice for interacting 
 %with numerous object-oriented libraries and frameworks. 
 
-Conventional algebraic datatypes, as found in most functional languages,
-allow for easy addition of new functions on existing data types.
-But they fall short in extending data types themselves 
-(e.g. with new constructors), 
-which requires modifying the source code. Object-oriented languages, on the 
-other hand, make data type extension trivial through inheritance;
-but the addition of new functions operating on these classes typically
-requires changes to the class definition \cite{Cook90,exprproblem}. 
+Conventional algebraic datatypes, as found in most functional languages, allow 
+for easy addition of new functions on existing data types. But they fall short 
+in extending data types themselves (e.g. with new constructors), which requires 
+modifying the source code. Object-oriented languages, on the other hand, make 
+data type extension trivial through inheritance; but the addition of new 
+functions operating on these classes typically requires changes to the class 
+definition. This dilemma is known as the \emph{expression problem}~\cite{Cook90,exprproblem}.  
 Classes differ from algebraic data  types in two important ways: they
 are \emph{extensible}, for new variants can be added by inheriting from
 the base class.  They are \emph{hierarchical} and thus typically
@@ -112,8 +111,8 @@ expression problem in practice.
 
 This section generalizes pattern matching of closed algebraic datatype values
 to case analysis of hierarchical and extensible datatype values.
-We call \emph{type switch} a control structure taking either an object
-descriptor (pointer of reference), called \emph{subject}, and uncovers a 
+We call \emph{type switch} a control structure taking an object
+descriptor (pointer or reference), called \emph{subject}, that uncovers a 
 descriptor to a full object of a type present in the list of case 
 clauses. Similar control structures exist in many programming languages and 
 date back to at least Simula's Inspect statement~\cite{Simula67}.
@@ -187,12 +186,12 @@ siblings, will essentially be indistinguishable from them.
 
 When tags are not chosen arbitrarily but to reflect the subtyping relation of the 
 underlying hierarchy (e.g. certain bit set for certain base class), the assumed 
-structure of tags is likely to make the set of tags sparse. On one side this 
+structure of tags is likely to make the set of tags sparse. On one hand this 
 decreases the number of representable hierarchies and thus hinders openness, 
 while on the other forces the compiler to use a decision tree instead of a jump 
 table to implement the switch. The former was consistently slower than the 
 latter one in our experience, even though the opposite was noted on some 
-architectures for small number of cases~\cite[\textsection 4]{garrigue-98}.
+architectures for small number of case clauses~\cite[\textsection 4]{garrigue-98}.
 
 Instead of starting with an efficient solution and trying to make it open, we 
 start with an open solution and try to make it efficient. The following 
@@ -209,7 +208,7 @@ if (Dn* derived = dynamic_cast<Dn*>(base)) { sn; }
 \noindent
 Its main drawback is performance: a typical 
 implementation of \code{dynamic_cast} takes time proportional to the 
-distance between base and derived classes in the inheritance tree~\cite{XXXXX}.
+distance between base and derived classes in the inheritance tree.
 What is worse, is that the time to uncover the type in the $i^{th}$ case clause 
 is proportional to $i$, while failure to match will always take the longest. 
 This linear increase can be seen in the Figure~\ref{fig:DCastVis1}, where 
@@ -256,14 +255,14 @@ also explains the repetitive pattern of timings.
 The above solution either in a form of cascading-if or as a decision tree can be 
 significantly improved by lowering the cost of a single \code{dynamic_cast}. 
 We devised an asymptotically constant version of this operator, called
-\code{memoized_cast}~\cite{TR}, which memoizes the outcome of a call to 
+\code{memoized_cast}~\cite[\textsection 9]{TR}, which memoizes the outcome of a call to 
 \code{dynamic_cast} using techniques from \textsection\ref{sec:copc}. As can be 
 seen from the graph titled ``Cascading-If + memoized\_cast'', it speeds up the 
 above cascading-if solution by a factor of 18 on average, as well as outperforms 
 the decision-tree based solution with dynamic\_cast for a number of case clauses 
 way beyond those that can happen in a reasonable program. The slowest 
 implementation in the chart is based on exception handling facilities of C++ and 
-is described in technical report~\cite{TR}.
+is described in technical report~\cite[\textsection 7]{TR}.
 
 The approach of Gibbs and Stroustrup~\cite{FastDynCast} employs divisibility of 
 numbers to obtain a tag allocation scheme capable of performing type testing in 

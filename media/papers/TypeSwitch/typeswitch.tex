@@ -118,25 +118,43 @@ showstringspaces=false,
 \maketitle
 
 \begin{abstract}
-Selecting operations based on a type of an object determined at run-time is key 
-to many object-oriented and functional programming techniques. We present 
-techniques that can implement efficient type switching, type testing, pattern 
-matching, predicate dispatch, multi-methods in a compiler or a library. The 
-techniques are general and cope well with C++ multiple inheritance.
+%Selecting operations based on a type of an object determined at run-time is key 
+%to many object-oriented and functional programming techniques. We present 
+%techniques that can implement efficient type switching, type testing, pattern 
+%matching, predicate dispatch, multi-methods in a compiler or a library. The 
+%techniques are general and cope well with C++ multiple inheritance.
+%
+%Our library-only implementation provides a functional programming style notation 
+%to the programmer. It outperforms the visitor design pattern, as commonly used 
+%for type-casing scenarios in C++. For many use cases it equals or outperforms 
+%equivalent code in languages with built-in type switching constructs, such as 
+%OCaml. We find the pattern-based library code easier to read and write and more 
+%expressive than hand-coded visitors. The library is non-intrusive and does not have 
+%extensibility restrictions. It also avoids control inversion characteristic to 
+%visitors.
+% 
+%The library was motivated by and is used for applications involving large, 
+%typed, abstract syntax trees. Being a library only solution allows us to use 
+%production quality compilers and tool chains for our experiments and our 
+%intended applications.
 
-Our library-only implementation provides a functional programming style notation 
-to the programmer. It outperforms the visitor design pattern, as commonly used 
-for type-casing scenarios in C++. For many use cases it equals or outperforms 
-equivalent code in languages with built-in type switching constructs, such as 
-OCaml. We find the pattern-based library code easier to read and write and more 
-expressive than hand-coded visitors. The library is non-intrusive and does not have 
-extensibility restrictions. It also avoids control inversion characteristic to 
-visitors.
+Selecting operations based on the run-time type of an object is key to many
+object-oriented and functional programming techniques. We present techniques
+for implementing efficient type switching, type testing, pattern matching,
+predicate dispatch, and multi-methods. The techniques are general and cope
+well with C++ multiple inheritance.
  
-The library was motivated by and is used for applications involving large, 
-typed, abstract syntax trees. Being a library only solution allows us to use 
-production quality compilers and tool chains for our experiments and our 
-intended applications.
+Our library-only implementation provides a pattern-matching notation. It
+outperforms the visitor design pattern, commonly used for type-casing
+scenarios in object-oriented programs. For many uses it equals or outperforms
+equivalent code in languages with built-in type switching constructs, such as
+OCaml. The pattern-based library code is easier to use and more expressive
+than hand-coded visitors. The library is non-intrusive and does not have
+extensibility restrictions. It also avoids control inversion.
+ 
+The library was motivated by applications involving large, typed, abstract
+syntax trees. Being a library-only solution allows us to use production
+quality compilers and tool chains.
 
 %We present techniques that can be used in a compiler or library setting to 
 %efficiently implement type switching, type testing, pattern matching, predicate 
@@ -157,13 +175,13 @@ intended applications.
 %typed abstract syntax trees.
 \end{abstract}
 
-\category{CR-number}{subcategory}{third-level}
+\category{D}{3}{3}
 
 \terms
 Languages, Design
 
 \keywords
-Type Switching, Visitor Design Pattern, Pattern Matching, Expression Problem, C++
+Type Switching, Visitor Design Pattern, Pattern Matching, Memoization, C++
 
 \input{sec-introduction}
 

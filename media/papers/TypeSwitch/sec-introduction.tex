@@ -66,7 +66,7 @@ on the usage scenario, compiler and underlying hardware, comes close or
 outperforms the handcrafted C++ code based on the \emph{visitor design pattern} 
 (\textsection\ref{sec:eval}). The mapping of members to matching positions that 
 the user has to provide to make the above example fully functional is 
-omitted~\cite{TR}.
+omitted~\cite[\textsection 3.1]{TR}.
 
 %\subsection{Summary}
 
@@ -85,18 +85,18 @@ argument:
         non-intrusive, and avoids the control inversion typical for visitors.
   \item It applies to polymorphic (\textsection\ref{sec:vtp}-\ref{sec:vtblmem}) and 
         tagged (\textsection\ref{sec:cotc}) class hierarchies through a unified  
-        syntax~\cite{TR}.
+        syntax~\cite[\textsection 8]{TR}.
   \item Our memoization device (\textsection\ref{sec:memdev}) generalizes to 
         other languages and can be used to implement type switching 
         (\textsection\ref{sec:vtblmem}), type testing 
-        (\textsection\ref{sec:poets},\cite[\textsection 4.7]{TR}), predicate dispatch 
+        (\textsection\ref{sec:poets},\cite[\textsection 9]{TR}), predicate dispatch 
         (\textsection\ref{sec:memdev}), and multiple dispatch efficiently.
   \item We list conditions under which virtual table pointers, commonly used in 
         C++ implementations, uniquely identify the exact subobject within the 
         most derived type (\textsection\ref{sec:vtp}).
   \item We also build an efficient cache indexing function for virtual table 
         pointers that minimizes the amount of conflicts 
-        (\textsection\ref{sec:sovtp},\ref{sec:moc},\cite[\textsection 4.3.5]{TR}).
+        (\textsection\ref{sec:sovtp},\ref{sec:moc},\cite[\textsection 5.3.2]{TR}).
   \end{itemize}
 
 \noindent
@@ -111,7 +111,7 @@ concerned with efficient type testing, type identification, and type switching.
 These primitive operations are essential in providing support for type patterns 
 and constructor patterns, and their efficiency relative to the visitor design 
 pattern might become a major argument for their adoption. We refer the reader to 
-technical report~\cite{TR} for details on the rest of our pattern-matching 
+technical report~\cite{TR} for more details on our pattern-matching 
 library.
 
 %Section~\ref{sec:probl} will motivate the problem as well as discuss some 

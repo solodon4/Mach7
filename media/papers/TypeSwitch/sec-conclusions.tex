@@ -19,14 +19,14 @@ only a single indirect assignment to each of the execution paths. It can be
 combined with other compiler optimizations and is particularly suitable for use 
 in a library setting.
 
-The \emph{V-Table Pointer Memoization} is a technique based on memoization device that 
+The \emph{Vtable Pointer Memoization} is a technique based on memoization device that 
 employs uniqueness of virtual table pointers to not only speed up execution, but 
 also properly uncover the dynamic type of an object. This technique is a 
 backbone of our fast type switch as well as memoized dynamic cast optimization.
 
-The \emph{Tag Precedence List} is yet another technique that can be used to 
+The \emph{TPL Dispatcher} is yet another technique that can be used to 
 implement best-fit type switching on tagged classes. The technique has its pros 
-and cons in comparison to v-table memoization, which we discuss in the paper.
+and cons in comparison to vtable pointer memoization, which we discuss in the paper.
 
 These techniques can be used in a compiler and library setting, and support well 
 separate compilation and dynamic linking. They are open to class extensions and 

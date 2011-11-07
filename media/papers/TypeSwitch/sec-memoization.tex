@@ -18,10 +18,10 @@ performance advantages. The difference in performance is the price we pay for
 keeping the solution open.  The core of the proposal relies on two keys
 aspects of C++ implementations:
 \begin{enumerate}
-\item a constant-time access to the vtable pointer embedded in an object of
+\item a constant-time access to the virtual table pointer embedded in an object of
   dynamic class type;
 \item injectivity of the relation between an object's inheritance path
-  and the vtable pointer extracted from that object.
+  and the virtual table pointer extracted from that object.
 \end{enumerate}
 
 \subsection{Virtual Table Pointers}
@@ -37,14 +37,14 @@ implementation technique for virtual function dispatch.
 However, in practice, all C++ compilers use a strategy based on so-called
 virtual function tables (or vtables for short) for efficient disptach. 
 The vtable is part of the reification of a dynamic class type.  
- C++ compilers embed a pointer to a vtable in every object of
-dynamic type.  We need a constant-time access to that vtable pointer
-from an object.  CFront, the first C++ compiler puts the vtable pointer
+ C++ compilers embed a pointer to a vtable (vtbl-pointer for short) in every object of
+dynamic type.  We need a constant-time access to that vtbl-pointer
+from an object.  CFront, the first C++ compiler puts the vtbl-pointer
 at the end of an object.  The so-called ``common vendor C++ ABI''
-\cite{C++ABI} requires the vtable pointer to be at offset 0 of an object.
+\cite{C++ABI} requires the vtbl-pointer to be at offset 0 of an object.
 We do not have access to the unpublished Microsoft ABI, but we have
-experimental evidence that Microsoft's C++ compiler also puts the vtable
-pointer at the start of an object.
+experimental evidence that Microsoft's C++ compiler also puts the vtbl-pointer 
+at the start of an object.
 
 C++ supports multiple-inheritance of two kinds: repeated and virtual (shared). 
 \emph{Repeated inheritance} creates multiple independent subobjects of the same 
@@ -76,10 +76,10 @@ type $C$.
 %virtual base class subobjects, and to 
 %access \emph{RunTime Type Identification} (RTTI) data.
 An object of a class
-type with multiple inheritance may contain several vtable pointers
+type with multiple inheritance may contain several vtbl-pointers
 (included in its subobjects.)  We assume that for every expression of
 static type \code{T} (a dynamic class type), a C++ compiler provides
-access to the vtable pointer of the (sub)object designated by that 
+access to the vtbl-pointer of the (sub)object designated by that 
 expression (or at least document the position of that
 pointer within an object.)  For the common vendor C++ ABI, we can state:
 \begin{lemma}
@@ -90,14 +90,13 @@ pointer within an object.)  For the common vendor C++ ABI, we can state:
 \end{lemma}
 
 \noindent
-
 With no further assumption, we cannot use a vtable to uniquely identify
 its dynamic type or those of its subobjects.  The reason is it is a popular 
 compression technique to share compiler-generated data, and not exclusively
 between subobjects in the class hierarchy.
 Use of such optimization will violate the 
 uniqueness of vtbl-pointers; however, we show below that in the presense of 
-runtime type identification information, we have a form of injectivity
+runtime type identification information (RTTI), we have a form of injectivity
 that sufficient for our needs.
 The exact content of the virtual table \code{vtbl} 
 is immaterial for this discussion, but we mention a few fields
@@ -155,22 +154,22 @@ $l_1^j=l_2^j \forall j<k \wedge l_1^k\neq l_2^k$. Since our class $A$ is a base
 class for classes $l_1^k$ and $l_2^k$, both of which are in turn base classes of 
 $C$, the object identity requirement of C++ require that the relevant subobjects 
 of type $A$ have different offsets within class $C$: 
-$offset(\sigma_1)\neq offset(\sigma_2)$ However 
-$offset(\sigma_1)=$\code{off2top}$(a_1.vtbl_i)=$\code{off2top}$(a_2.vtbl_i)=offset(\sigma_2)$ 
+$\mathit{offset}(\sigma_1)\neq \mathit{offset}(\sigma_2)$ However 
+$\mathit{offset}(\sigma_1)=$\code{off2top}$(a_1.vtbl_i)=$\code{off2top}$(a_2.vtbl_i)=\mathit{offset}(\sigma_2)$ 
 since $a_1.vtbl_i = a_2.vtbl_i$, which contradicts that the offsets are different.
 \end{proof}
 
 \noindent
 Conjecture in the other direction is not true in general as there may be 
-duplicate v-tables for the same type present at run-time. This happens in 
+duplicate vtables for the same type present at run-time. This happens in 
 many C++ implementations in the presence of DLLs as the same class compiled into 
-executable and DLL it loads may have identical v-tables inside the 
+executable and DLL it loads may have identical vtables inside the 
 executable's and DLL's binaries.
 
 Note also that we require both static types to be the same. Dropping this 
 requirement and saying that equality of vtbl-pointers also implies equality of 
-the static types is not true in general because a derived class will share the 
-vtbl-pointer with its primary base class (see Lemma~\ref{lem:vtbl}). The theorem 
+the static types is not true in general because a derived class can share the 
+vtbl-pointer with its primary base class. The theorem 
 can be reformulated, however, stating that one static type will necessarily be a 
 subtype of the other. The current forumlation is sufficient for our purposes, 
 while reformulation will require more elaborate discussion of the algebra 
@@ -338,7 +337,7 @@ outcome of the predicate. The map can then associate the equivalence class of a
 value with a target instead of associating the value with it. The next 
 subsection does exactly that for polymorphic objects.
 
-\subsection{V-Table Pointer Memoization}
+\subsection{Vtable Pointer Memoization}
 \label{sec:vtblmem}
 
 The memoization device can almost immediately be used for multi-way type testing by 
@@ -348,7 +347,7 @@ to the uncovered type. Using a \code{static_cast<Di>} upon successful type test
 would have been a solution if we did not have multiple inheritance. It certainly 
 can be used as such in languages with only single inheritance. For the fully 
 functional C++ solution, we combine the memoization device with the properties 
-of virtual table pointers into a \emph{V-Table Pointer Memoization} technique.
+of virtual table pointers into a \emph{Vtable Pointer Memoization} technique.
 
 We saw that vtbl-pointers uniquely determine the subobject within an object 
 (Theorem~\ref{thm:vtbl}), while the result of a \code{dynamic_cast} can be reapplied 
@@ -411,7 +410,7 @@ the visitor design pattern.
 %Note that we can apply the reasoning of \textsection\ref{sec:memdev} and change 
 %the first-fit semantics of the resulting match statement into a best-fit 
 %semantics simply by changing the underlain cascading-if structure with decision 
-%tree. A compiler implementation of a type switch based on V-Table Pointer 
+%tree. A compiler implementation of a type switch based on Vtable Pointer 
 %Memoization will certainly take advantage of this optimization to cut down the 
 %cost of the first run on a given vtbl-pointer, when the actual memoization happens.
 
@@ -439,7 +438,7 @@ built on top of the hash table in order to eliminate a hash table lookup in most
 of the cases.
 
 Depending on the number of actual collisions that happen in the cache, our 
-v-table pointer memoization technique can come close to, and even outperform, the 
+vtable pointer memoization technique can come close to, and even outperform, the 
 visitor design pattern. The numbers are, of course, averaged over many runs as 
 the first run on every vtbl-pointer will take an amount of time as shown in 
 Figure\ref{fig:DCastVis1}. We did however test our technique on real code and 
@@ -447,7 +446,7 @@ can confirm that it does perform well in the real-world use cases.
 
 The information about jump targets and necessary offsets is just an example of 
 information we might want to be able to associate with, and access via, virtual 
-table pointers. Our implementation of \code{memoized_cast}~\cite{TR}, for example, 
+table pointers. Our implementation of \code{memoized_cast}~\cite[\textsection 9]{TR}, for example, 
 effectively reuses this general data structure with a different type of element 
 values. We thus created a generic reusable class \code{vtblmap<T>} that maps 
 vtbl-pointers to elements of type T. We will refer to the combined cache and 
@@ -462,9 +461,9 @@ type does not let us put too sophisticated cache indexing mechanisms into the
 critical path of execution. This is why we limit our indexing function to shifts 
 and masking operations as well as choose the size of the cache to be a power of 2.
 
-As usual, by \emph{conflict} we mean a situation in which two or more keys (virtual 
-table pointers here) are mapped to the same location in cache using a given indexing 
-function. The presence of conflicts means that accessing values of \code{vtblmap<T>} 
+As usual, by \emph{conflict} we mean a situation in which two or more keys 
+(vtbl-pointers here) are mapped to the same location in cache using a given 
+indexing function. The presence of conflicts means that accessing values of \code{vtblmap<T>} 
 associated with some vtbl-pointers may result in slower lookup of the element 
 inside the underlying hash table relative to a direct fetch from the cache.
 This `slower' lookup, as we mentioned, is constant on average and linear in the 
@@ -493,7 +492,7 @@ $A$ is the static type of all vtbl-pointers coming through a \code{vtblmap}, the
 restriction assures that reconfigurations will not happen infinitely often.
 
 To minimize the number of recomputations even further, our library communicates 
-to the \code{vtblmap<T>}, through its constructor, the number of case clauses in 
+to the \code{vtblmap}, through its constructor, the number of case clauses in 
 the underlain match statement. We use this number as an estimate of the expected 
 size of the \code{vtblmap} and pre-allocate the cache accordingly to this estimated 
 number. The cache is still allowed to grow based on the actual number of 
@@ -517,14 +516,14 @@ that for that specific application, the probability of some vtbl-pointers was mu
 higher than the probability of many other vtbl-pointers taken altogether. In 
 our case, the two most frequent classes were representing the use of a variable in 
 a program, and their combined frequency was larger than the combined frequency 
-of all the other nodes. Naturally, we would like to avoid conflicts on such 
+of all the other classes. Naturally, we would like to avoid conflicts on such 
 classes in the cache, when possible.
 
 To do this, our library provides a configuration flag that enables tracing the
-frequencies of each vtbl-pointer in a switch and uses this information to 
+frequencies of each vtbl-pointer in a match statement and uses this information to 
 minimize the number of conflicts. Due to page limitations, we refer the reader 
 to the technical report accompanying this paper for more details on our 
-experiments with the use of vtbl-pointer frequencies~\cite{TR}. Here we will only 
+experiments with the use of vtbl-pointer frequencies~\cite[\textsection 5.3.2]{TR}. Here we will only 
 mention that, by default, we do not enable frequency tracing, because the 
 significant drop in the number of actual collisions was not reflected in a 
 noticeable decrease in execution time. This was because the total 

@@ -47,14 +47,14 @@ ReMatch:
         tag = taglist[++attempt];
         goto ReMatch;
     case end_of_list: break;
-    case bindings<D1>::kind_value: s1; break;
+    case bindings<D1>::tag_value: s1; break;
     ...
-    case bindings<Dn>::kind_value: sn; break;
+    case bindings<Dn>::tag_value: sn; break;
     }
 \end{lstlisting}
 
 \noindent
-The above structure lets us dispatch to case clauses of the most derived class 
+The above structure, which we call \emph{TPL Dispatcher}, lets us dispatch to case clauses of the most derived class 
 with an overhead of initializing two local variables, compared to a switch on a 
 sealed hierarchy. Dispatching to a case clause of a base class will take time 
 roughly proportional to the distance between the matched base class and the most 
@@ -64,4 +64,4 @@ list and thus exit the loop.
 
 Our library automatically builds the function \code{get_taglist} based on 
 additional definitions that the user provides. The details can be found in 
-companion technical report~\cite{TR}.
+companion technical report~\cite[\textsection 6]{TR}.
