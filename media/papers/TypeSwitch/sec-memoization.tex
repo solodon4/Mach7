@@ -93,29 +93,15 @@ pointer within an object.)  For the common vendor C++ ABI, we can state:
 
 With no further assumption, we cannot use a vtable to uniquely identify
 its dynamic type or those of its subobjects.  The reason is it is a popular 
-compression technique to share the virtual table of a derived 
-class with those of some of its subobjects. 
+compression technique to compress compiler-generated data, and not exclusively
+between subobjects in the class hierarchy.
 Use of such optimization will violate the 
 uniqueness of vtbl-pointers; however, we show below that in the presense of 
-RTTI, an implementation compliant to the C++ common vendor ABI is guaranteed
-to have different values  of vtbl-pointers in different subobjects.
-
-%C++ standard requires an argument of \code{dynamic_cast} to be a pointer to or 
-%an lvalue of a polymorphic type when performing \emph{downcast} -- a cast from 
-%base to derived~\cite[\textsection 5.2.7-6]{C++0x}. We can thus always safely 
-%extract virtual table pointer from offset 0 of any valid argument to 
-%\code{dynamic_cast}.
-
-%Similarly, each class that has virtual member functions or virtual bases has an 
-%associated set of virtual tables. There may be multiple virtual tables for a 
-%particular class, if it is used as a base class for other classes. However, the 
-%virtual table pointers within all the objects (instances) of a particular 
-%most-derived class point to the same set of virtual tables.
-
-The exact content of the virtual table is not important for our discussion, but 
-we point out a few fields in it. The following definitions are 
+runtime type identification information, we have a form of injectivity
+that sufficient for our needs.
+The exact content of the virtual table is immaterial for this discussion, but 
+we mention a few fields in it. The following definitions are 
 copied verbatim from the C++ ABI~\cite[\textsection 2.5.2]{C++ABI}:
-
 \begin{itemize}
 \setlength{\itemsep}{0pt}
 \setlength{\parskip}{0pt}
