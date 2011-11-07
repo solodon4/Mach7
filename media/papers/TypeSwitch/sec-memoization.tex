@@ -93,39 +93,39 @@ pointer within an object.)  For the common vendor C++ ABI, we can state:
 
 With no further assumption, we cannot use a vtable to uniquely identify
 its dynamic type or those of its subobjects.  The reason is it is a popular 
-compression technique to compress compiler-generated data, and not exclusively
+compression technique to share compiler-generated data, and not exclusively
 between subobjects in the class hierarchy.
 Use of such optimization will violate the 
 uniqueness of vtbl-pointers; however, we show below that in the presense of 
 runtime type identification information, we have a form of injectivity
 that sufficient for our needs.
-The exact content of the virtual table is immaterial for this discussion, but 
-we mention a few fields in it. The following definitions are 
-copied verbatim from the C++ ABI~\cite[\textsection 2.5.2]{C++ABI}:
+The exact content of the virtual table \code{vtbl} 
+is immaterial for this discussion, but we mention a few fields
+from the common vendor C++ ABI~\cite[\textsection 2.5.2]{C++ABI}:
 \begin{itemize}
 \setlength{\itemsep}{0pt}
 \setlength{\parskip}{0pt}
-\item The \emph{typeinfo pointer} points to the typeinfo object used for RTTI. 
-      It is always present.  
-\item The \emph{offset to top} holds the displacement to the top of the object 
-      from the location within the object of the vtbl-pointer that 
-      addresses this virtual table. It is always present.
-\item \emph{Virtual Base (vbase) offsets} are used to access the virtual bases 
-      of an object. Such an entry is required for each virtual base class.
+\item \code{rtti(vtbl)}: the \emph{typeinfo pointer} points 
+  to the typeinfo object used for RTTI. It is always present.  
+\item \code{off2top(vtbl)}: the \emph{offset to top} holds 
+  the displacement to the top of the object  
+  from the location within the object of the vtbl-pointer that 
+  addresses this virtual table. It is always present.
+\item \code{vbase(vtbl)}: \emph{Virtual Base (vbase) offsets} are
+  used to access the virtual bases 
+  of an object. Such an entry is required for each virtual base class.
 \end{itemize}
-
 \noindent
-Given a virtual table pointer \code{vtbl}, we will refer to these fields as 
-\code{rtti(vtbl)}, \code{off2top(vtbl)} and \code{vbase(vtbl)} respectively. 
-We will also assume presence of a function $offset(\sigma)$ that defines the 
-offset of the base class identified by the end of the path $\sigma$ within a 
+Furthermore, we assume the existence of a function $\mathit{offset}(\sigma)$ 
+that defines the offset of the base class identified by the end
+of the path $\sigma$ within a 
 class identified by its first element.
 
 \begin{theorem}
-In an object layout that adheres to the C++ ABI with present runtime type 
-information, the equality of vtbl-pointers of two objects of the same 
+In an object layout that adheres to the common vendor C++ ABI with 
+RTTI, equality of vtbl-pointers of two objects of the same 
 static type implies that they both belong to subobjects with the same 
-inheritance path in the same most-derived type.
+inheritance path in the same most-derived class.
 
 \noindent
 $\forall a_1, a_2 : A\ |\ a_1\in C_1\leftY\sigma_1\rightY A \wedge a_2\in C_2\leftY\sigma_2\rightY A $ \\ 
