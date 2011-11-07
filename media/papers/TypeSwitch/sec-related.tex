@@ -3,8 +3,7 @@
 
 \emph{Extensible Visitors with Default Cases}~\cite[\textsection 
 4.2]{Zenger:2001} attempt to solve the extensibility problem of visitors; 
-however, the solution, after 
-remapping it onto C++, has problems of its own. The visitation interface 
+however, the solution has problems of its own. The visitation interface 
 hierarchy can easily be grown linearly, but independent extensions by different  
 authorities require developer's intervention. On top of the double dispatch the 
 solution will incur two additional virtual calls and a dynamic cast for each 
