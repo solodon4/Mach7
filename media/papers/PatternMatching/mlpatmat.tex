@@ -783,7 +783,7 @@ order to put the use of our constructs into context.
 \label{syntax}
 \end{figure}
 
-
+\noindent
 {\bf Match statement} is an analog of a switch statement that takes type 
 patterns as its case clauses. We require it to be terminated with a dedicated 
 \code{EndMatch} macro, to properly close the syntactic structure introduced with 
@@ -927,14 +927,14 @@ of fast Fibonacci algorithm taken almost verbatim from the book. Function
 \code{sqr} here returns a square of its argument.
 
 \begin{lstlisting}[keepspaces,columns=flexible]
-double fib(int n)
+int fib(int n)
 {
     variable<int> m;
     Match(n)
-      Que(int,1)     return 1;                            
-      Que(int,2)     return 1;                            
+      Que(int,1)     return 1;
+      Que(int,2)     return 1;
       Que(int,2*m)   return sqr(fib(m+1)) - sqr(fib(m-1));
-      Que(int,2*m+1) return sqr(fib(m+1)) + sqr(fib(m));  
+      Que(int,2*m+1) return sqr(fib(m+1)) + sqr(fib(m));
     EndMatch
 }
 \end{lstlisting}
@@ -1789,9 +1789,9 @@ decisions on datum that has already been seen.
 
 %xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-\emph{Extensible Visitors with Default Cases}\cite[\textsection 
-4.2]{Zenger:2001} attempt to solve the extensibility problem of visitors, 
-however the solution, after 
+\emph{Extensible Visitors with Default Cases}~\cite[\textsection 
+4.2]{Zenger:2001} attempt to solve the extensibility problem of visitors; 
+however, the solution, after 
 remapping it onto C++, has problems of its own. The visitation interface 
 hierarchy can easily be grown linearly (adding new cases for the new classes in 
 the original hierarchy each time), but independent extensions by different  
@@ -1802,18 +1802,18 @@ solution would require usage of virtual inheritance, which typically has
 an overhead of extra memory dereferencing. On top of the double dispatch already 
 present in the visitor pattern, the solution will incur two additional virtual 
 calls and a dynamic cast for each level of visitor extension. Additional double 
-dispatch is incurred by forwarding of default handling from base visitor to a 
+dispatch is incurred by forwarding of default handling from a base visitor to a 
 derived one, while the dynamic cast is required for safety and can be replaced 
-with a static case when visitation interface is guaranteed to be grown linearly 
+with a static cast when the visitation interface is guaranteed to be grown linearly 
 (extended by one authority only). Yet another virtual call is required to be 
 able to forward computations to subcomponents on tree-like structures to the 
 most derived visitor. This last function lets one avoid the necessity of using 
-heap to allocate a temporary visitor through the \emph{Factory Design 
-Pattern}\cite{DesignPatterns1993} used in \emph{Extensible Visitor} solution 
-originally proposed by Krishnamurti, Felleisen and Friedman\cite{Krishnamurthi98}.
+the heap to allocate a temporary visitor through the \emph{Factory Design 
+Pattern}~\cite{DesignPatterns1993} used in the \emph{Extensible Visitor} solution 
+originally proposed by Krishnamurti, Felleisen and Friedman~\cite{Krishnamurthi98}.
 
-In order to address expression problem in Haskell, L\"{o}h and Hinze proposed to 
-extend its type system with open data types and open functions\cite{LohHinze2006}.
+In order to address the expression problem in Haskell, L\"{o}h and Hinze proposed to 
+extend its type system with open data types and open functions~\cite{LohHinze2006}.
 Their solution allows the user to mark top-level data types and functions as 
 open and then provide concrete variants and overloads anywhere in the program. 
 The semantics of open extension is given by transformation into a single module, 
@@ -1838,13 +1838,13 @@ Our work addresses exactly this problem, showing that it is not only
 theoretically possible but also practically efficient and in application to a 
 broader problem.
 
-Polymorphic variants in OCaml\cite{garrigue-98} allow addition of new variants 
-later. They are simpler, however, than object-oriented extensions as they do not 
-form subtyping between variants themsevles, but only between combinations of them. 
-This makes an impportant distinction between \emph{extensible sum types} like 
-polymorphic variants and \emph{extensible hierarhical sum types} like classes.
+Polymorphic variants in OCaml~\cite{garrigue-98} allow the addition of new variants 
+later. They are simpler, however, than object-oriented extensions, as they do not 
+form subtyping between variants themselves, but only between combinations of them. 
+This makes an important distinction between \emph{extensible sum types} like 
+polymorphic variants and \emph{extensible hierarchical sum types} like classes.
 An important property of extensible sum types is that each value of the 
-underlain algebraic data type belongs to exactly one disjoint subset tagged with 
+underlain algebraic data type belongs to exactly one disjoint subset, tagged with 
 a constructor. The \emph{nominative subtyping} of object-oriented languages does 
 not usually have this disjointness making classes effectively have multiple 
 types. In particular, the case of disjoint constructors can be seen as a 
@@ -1885,6 +1885,13 @@ can also be used by Tom's preprocessor to implement type patterns efficiently --
 similarly to other object-oriented languages, Tom's handling of them is based on 
 highly inefficient \code{instanceof} operator and its equivalents in other 
 languages.
+
+Pattern matching in Scala~\cite{Scala2nd} also allows type patterns and thus type 
+switching. The language supports extensible and hierarchical data types, but 
+their handling in a type switching constructs varies. Sealed classes are handled 
+with an efficient switch over all tags, since sealed classes cannot be extended. 
+Classes that are not sealed are similarly approached with a combination of an 
+\code{InstanceOf} operator and a decision tree~\cite{EmirThesis}.
 
 %An example would be our generalized n+k patterns where we 
 %can turn any invertible function even user defined into a pattern.
