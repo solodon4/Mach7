@@ -310,12 +310,12 @@ trees, the fast dynamic cast approch is not suitable for type switching with
 jump tables: computing the tag of a base class will have to decompose the 
 derived tag into primes.
 
-A number of other constant-time techniques for class-membership testing is 
-surveyed by Gil and Zibin~\cite[\textsection 4]{PQEncoding}. They are intended 
-for type testing, and thus will have to be combined with decision trees 
-for type switching, resulting in similar to fast dynamic cast performance. 
-They too assume access to the entire class hierarchy at compile time and thus 
-are not open.
+%A number of other constant-time techniques for class-membership testing is 
+%surveyed by Gil and Zibin~\cite[\textsection 4]{PQEncoding}. They are intended 
+%for type testing, and thus will have to be combined with decision trees 
+%for type switching, resulting in similar to fast dynamic cast performance. 
+%They too assume access to the entire class hierarchy at compile time and thus 
+%are not open.
 
 To summarize, truly open and efficient type switching is a non-trivial problem. 
 The approaches we found in the literature were either open or efficient, 
