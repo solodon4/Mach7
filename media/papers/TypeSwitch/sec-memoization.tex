@@ -19,7 +19,7 @@ keeping the solution open.  The core of the proposal relies on two keys
 aspects of C++ implementations:
 \begin{enumerate}
 \item a constant-time access to the vtable pointer embedded in an object of
-  polymorphic class type;
+  dynamic class type;
 \item injectivity of the relation between an object's inheritance path
   and the vtable pointer extracted from that object.
 \end{enumerate}
@@ -36,9 +36,9 @@ The C++ standard~\cite{C++0x} does not prescribe any specific
 implementation technique for virtual function dispatch.
 However, in practice, all C++ compilers use a strategy based on so-called
 virtual function tables (or vtables for short) for efficient disptach. 
-The vtable is part of the reification of a polymorphic class type.  
+The vtable is part of the reification of a dynamic class type.  
  C++ compilers embed a pointer to a vtable in every object of
-polymorphic type.  We need a constant-time access to that vtable pointer
+dynamic type.  We need a constant-time access to that vtable pointer
 from an object.  CFront, the first C++ compiler puts the vtable pointer
 at the end of an object.  The so-called ``common vendor C++ ABI''
 \cite{C++ABI} requires the vtable pointer to be at offset 0 of an object.
@@ -65,15 +65,17 @@ A predicate $C\leftY\sigma\rightY A$ states that $\sigma$
 designates a subobject of static type $A$ within the most derived object of 
 type $C$.
 
-A class that declares or inherits a virtual function is called a 
-\emph{polymorphic class}~\cite[\textsection 10.3]{C++0x}.  We say that
-a class is \emph{dynamic} \cite{C++ABI} if it requires a virtual table pointer 
-(because it or its bases have one or more virtual member functions or
-virtual base classes). A \emph{virtual table pointer} (vtbl-pointer)
-is a data-member of an object pointing to the object's dynamic type vtable.
-In addition to dispatching virtual function calls, it is used to access
-virtual base class subobjects, and to 
-access \emph{RunTime Type Identification} (RTTI) data.  An object of a class
+%A class that declares or inherits a virtual function is called a 
+%\emph{polymorphic class}~\cite[\textsection 10.3]{C++0x}.  We say that
+%a class is \emph{dynamic} \cite{C++ABI} if it requires a virtual table pointer 
+%(because it or its bases have one or more virtual member functions or
+%virtual base classes). 
+%A \emph{virtual table pointer} (vtbl-pointer)
+%is a data-member of an object pointing to the object's dynamic type vtable.
+%In addition to dispatching virtual function calls, it is used to access
+%virtual base class subobjects, and to 
+%access \emph{RunTime Type Identification} (RTTI) data.
+An object of a class
 type with multiple inheritance may contain several vtable pointers
 (included in its subobjects.)  We assume that for every expression of
 static type \code{T} (a dynamic class type), a C++ compiler provides
