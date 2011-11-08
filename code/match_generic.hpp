@@ -517,6 +517,7 @@ const int* associate_kinds<D,B>::kinds = set_kinds<B>(remapped_kind<D>::value, m
                 auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset);   \
                 XTL_UNUSED(matched);
 
+//auto matched = static_cast<const target_type*>(__selector_ptr);   \
 /// Macro that defines the case statement for the above switch
 /// NOTE: If Visual C++ gives you error C2051: case expression not constant
 ///       on this CaseP label, just change the Debug Format in project setting 

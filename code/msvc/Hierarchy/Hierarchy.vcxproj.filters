@@ -15,10 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\hierarchy.cpp">
+    <ClCompile Include="..\..\hierarchy2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\hierarchy2.cpp">
+    <ClCompile Include="..\..\hierarchy2a.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\hierarchy2b.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

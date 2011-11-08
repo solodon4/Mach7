@@ -29,13 +29,7 @@
     <ClInclude Include="..\..\loop_over_numbers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\loop_over_numbers_99.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\loop_over_operators.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\match.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

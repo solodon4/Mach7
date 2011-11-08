@@ -78,7 +78,7 @@ struct Divide : Expr
 };
 
 //------------------------------------------------------------------------------
-
+#if 1
 std::string to_str(const Expr* e);
 
 struct ToStrVisitor : virtual ExprVisitor
@@ -103,6 +103,30 @@ std::string to_str(const Expr* e)
     e->accept(v);
     return v.result;
 }
+
+#else
+
+std::string to_str(const Expr* e)
+{
+    struct ToStrVisitor : virtual ExprVisitor
+    {
+        // This function is needed to allow derived visitors to override handling of subvisitors
+        virtual std::string evaluate(const Expr* e) const { return to_str(e); }
+        
+        using ExprVisitor::visit; // Bring in those we do not override for overload resolution
+        
+        void visit(const Value&  e) { result = "X"/*std::to_string(e.value)*/; }
+        void visit(const Plus&   e) { result = '(' + evaluate(e.exp1) + '+' + evaluate(e.exp2) + ')'; }
+        void visit(const Minus&  e) { result = '(' + evaluate(e.exp1) + '-' + evaluate(e.exp2) + ')'; }
+        void visit(const Times&  e) { result = '(' + evaluate(e.exp1) + '*' + evaluate(e.exp2) + ')'; }
+        void visit(const Divide& e) { result = '(' + evaluate(e.exp1) + '/' + evaluate(e.exp2) + ')'; }
+        
+        std::string result;
+    } v;
+    e->accept(v);
+    return v.result;
+}
+#endif
 
 //------------------------------------------------------------------------------
 

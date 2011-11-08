@@ -6,7 +6,7 @@
 ## Written by Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ## Version 1.0 from 30th April 2011
 ##
-## Usage: test-pm-daily.bat
+## Usage: test-pm-daily.bsh
 ##                                                                           
 ## This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
 ## Copyright (C) 2005-2011 Texas A&M University.

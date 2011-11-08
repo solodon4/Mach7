@@ -37,7 +37,7 @@ struct shape_kind : Shape
 
 size_t do_match(const Shape& s)
 {
-    MatchP_N(s,NUMBER_OF_DERIVED)
+    MatchP(s)
     {
         #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
         #define FOR_EACH_N(N) CaseP(shape_kind<N>) return N;

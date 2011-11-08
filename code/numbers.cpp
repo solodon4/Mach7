@@ -58,6 +58,19 @@ double power(double x, int n)
     //return 0.0;
 }
 
+// FIX: Make this work!
+//double power2(double x, int n)
+//{
+//    variable<int> m;
+//
+//    Match(n)
+//      Que(int,0)     return 1.0;
+//      Que(int,1)     return x;
+//      Que(int,m*2)   return sqr(power2(x,m));
+//      Que(int,m*2+1) return x*power2(x,2*m);
+//    EndMatch
+//}
+
 int fib(int n)
 {
     variable<int> m;

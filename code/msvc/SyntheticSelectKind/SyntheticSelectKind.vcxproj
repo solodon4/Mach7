@@ -142,9 +142,7 @@
     <ClInclude Include="..\..\config.hpp" />
     <ClInclude Include="..\..\exprtmpl.hpp" />
     <ClInclude Include="..\..\loop_over_numbers.hpp" />
-    <ClInclude Include="..\..\loop_over_numbers_99.hpp" />
     <ClInclude Include="..\..\loop_over_operators.hpp" />
-    <ClInclude Include="..\..\match.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
