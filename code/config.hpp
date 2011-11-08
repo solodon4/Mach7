@@ -404,9 +404,9 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
     #define XTL_DO_NOT_INLINE_BEGIN __pragma(auto_inline (off))
     /// A macro that is supposed to be put after  the function definition whose inlining should be disabled
     #define XTL_DO_NOT_INLINE_END   __pragma(auto_inline (on))
-        
+
 #else
-    
+
     /// Macros to use compiler's branch hinting. 
     /// \note These macros are only to be used in Case macro expansion, not in 
     ///       user's code since they explicitly expect a pointer argument
@@ -435,7 +435,11 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 /// note ] [ Note: As is the case with the typename prefix, the template prefix is allowed in cases where it is
 /// not strictly necessary; i.e., when the nested-name-specifier or the expression on the left of the -> or . is not
 /// dependent on a template-parameter, or the use does not appear in the scope of a template. -end note ]
-#define XTL_CPP0X_TYPENAME XTL_NON_MSC_ONLY(typename)
+#if defined(__GNUC__) && (XTL_GCC_VERSION > 40500)
+    #define XTL_CPP0X_TYPENAME typename
+#else
+    #define XTL_CPP0X_TYPENAME 
+#endif
 #define XTL_CPP0X_TEMPLATE XTL_NON_GCC_ONLY(template)
 
 //------------------------------------------------------------------------------
