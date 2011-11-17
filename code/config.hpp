@@ -48,18 +48,29 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 
 //------------------------------------------------------------------------------
 
-/// Uncomment this macro definition if you'd like to do some performance tracing
-//#define XTL_TRACE_PERFORMANCE
-/// Uncomment this macro definition if you'd like to do some performance tracing
-//#define XTL_DUMP_PERFORMANCE
-/// Uncomment to use Pearson hash
-//#define XTL_USE_PEARSON_HASH
+/// Flag enabling performance tracing
+#if !defined(XTL_TRACE_PERFORMANCE)
+#define XTL_TRACE_PERFORMANCE 0
+#endif
+#define XTL_TRACE_PERFORMANCE_ONLY(...)      UCL_PP_IF(UCL_PP_NOT(XTL_TRACE_PERFORMANCE), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+//#define XTL_NON_TRACE_PERFORMANCE_ONLY(...)  UCL_PP_IF(           XTL_TRACE_PERFORMANCE,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+
+/// Flag enabling showing results of performance tracing
+#if !defined(XTL_DUMP_PERFORMANCE)
+#define XTL_DUMP_PERFORMANCE 0
+#endif
+#define XTL_DUMP_PERFORMANCE_ONLY(...)       UCL_PP_IF(UCL_PP_NOT(XTL_DUMP_PERFORMANCE), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+//#define XTL_NON_DUMP_PERFORMANCE_ONLY(...)   UCL_PP_IF(           XTL_DUMP_PERFORMANCE,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 
 /// When this macro is defined, vtblmaps will count frequency of requests using a
 /// given vtbl pointer and will take it into account during rearranging of the map.
 /// \note This introduces a slight performance overhead to the most frequent path,
 ///       but supposedly will pay when no zero conflict is possible.
-//#define XTL_USE_VTBL_FREQUENCY
+#if !defined(XTL_USE_VTBL_FREQUENCY)
+#define XTL_USE_VTBL_FREQUENCY 0
+#endif
+#define XTL_USE_VTBL_FREQUENCY_ONLY(...)     UCL_PP_IF(UCL_PP_NOT(XTL_USE_VTBL_FREQUENCY), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+//#define XTL_NON_USE_VTBL_FREQUENCY_ONLY(...) UCL_PP_IF(           XTL_USE_VTBL_FREQUENCY,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 
 /// When this macro is defined, our library will generate additional code that 
 /// will trigger compiler to check case clauses for redundancy.
@@ -67,8 +78,30 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 ///          will effectively have a switch statement whose body is never evaluated!
 //#define XTL_REDUNDANCY_CHECKING
 
-/// When this macro is enabled the default fall-through behavior of underlying 
-/// switch is disabled by putting explicit breaks after case statements.
+/// When this macro is enabled the fall-through behavior of the underlying switch
+/// statement is enabled. It becomes up to the user to use break statements to 
+/// leave the case clause. Fall through behavior might be needed to implement 
+/// all-fit semantics of the @Match statement
+#if !defined(XTL_FALL_THROUGH)
+#define XTL_FALL_THROUGH 0
+#endif
+#define XTL_FALL_THROUGH_ONLY(...)           UCL_PP_IF(UCL_PP_NOT(XTL_FALL_THROUGH), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+#define XTL_NON_FALL_THROUGH_ONLY(...)       UCL_PP_IF(           XTL_FALL_THROUGH,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+
+/// For general syntax of Match statements, this definition only affects @MatchE
+/// and @MatchS statements. It specifies whether by default the user prefers to 
+/// use { and } to separate case clauses. These two macros can be made work 
+/// either way, but only one of them. The rest of the macros work with or 
+/// without them. There is one important reason to choose the default and stick
+/// to it for other @Match statements. Redundancy checking essentially builds 
+/// the same syntactic structure as @MatchE and thus depends on this choice. 
+/// If you'd like to be able to perform redundancy checking on your statements,
+/// please make the choice and specify it to the library with this macro.
+#if !defined(XTL_USE_BRACES)
+#define XTL_USE_BRACES 1
+#endif
+#define XTL_USE_BRACES_ONLY(...)     UCL_PP_IF(UCL_PP_NOT(XTL_USE_BRACES), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+#define XTL_NON_USE_BRACES_ONLY(...) UCL_PP_IF(           XTL_USE_BRACES,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 
 //------------------------------------------------------------------------------
 
@@ -80,8 +113,9 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 /// - 'F' - Kind switch: nearly-best-match
 /// - 'U' - Union switch
 /// - 'E' - Exception switch
+/// - 'S' - Sequential cascading-if
 #if !defined(XTL_DEFAULT_SYNTAX)
-  #define XTL_DEFAULT_SYNTAX 'G'
+  #define XTL_DEFAULT_SYNTAX 'p'
 #endif
 
 //------------------------------------------------------------------------------
@@ -116,30 +150,6 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 /// or just use dynamic_cast 
 #if !defined(XTL_USE_MEMOIZED_CAST)
   #define XTL_USE_MEMOIZED_CAST 1
-#endif
-
-//------------------------------------------------------------------------------
-
-#if defined(XTL_TRACE_PERFORMANCE)
-    #define XTL_TRACE_PERFORMANCE_ONLY(...) __VA_ARGS__
-#else
-    #define XTL_TRACE_PERFORMANCE_ONLY(...)
-#endif
-
-//------------------------------------------------------------------------------
-
-#if defined(XTL_DUMP_PERFORMANCE)
-    #define XTL_DUMP_PERFORMANCE_ONLY(...) __VA_ARGS__
-#else
-    #define XTL_DUMP_PERFORMANCE_ONLY(...)
-#endif
-
-//------------------------------------------------------------------------------
-
-#if defined(XTL_USE_VTBL_FREQUENCY)
-    #define XTL_USE_VTBL_FREQUENCY_ONLY(...) __VA_ARGS__
-#else
-    #define XTL_USE_VTBL_FREQUENCY_ONLY(...)
 #endif
 
 //------------------------------------------------------------------------------
@@ -187,7 +197,7 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 //------------------------------------------------------------------------------
 
 #if defined(_DEBUG)
-#define XTL_DEBUG_ONLY(s) s
+#define XTL_DEBUG_ONLY(...) __VA_ARGS__
 /// Our own version of assert macro because of the fact that normal assert was 
 /// not always removed in the release builds.
 #define XTL_ASSERT(x) if (!(x)) { std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'; std::exit(42); }
@@ -196,7 +206,7 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 #define XTL_VERIFY(x) if (!(x)) std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'
 
 #else
-#define XTL_DEBUG_ONLY(s)
+#define XTL_DEBUG_ONLY(...)
 /// Our own version of assert macro because of the fact that normal assert was 
 /// not always removed in the release builds.
 #define XTL_ASSERT(x)
@@ -346,13 +356,13 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 
 //------------------------------------------------------------------------------
 
-//#if !defined(_DEBUG)
+#if !defined(_DEBUG)
     #if defined(__GNUC__)
         #define XTL_SUPPORTS_VLA
     #elif defined(_MSC_VER)
         #define XTL_SUPPORTS_ALLOCA
     #endif
-//#endif
+#endif
 
 //------------------------------------------------------------------------------
 

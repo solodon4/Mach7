@@ -28,8 +28,9 @@
 #endif
 
 #if defined(XTL_TIMING_METHOD_1)
-
-    #define NOMINMAX
+    #if !defined(NOMINMAX)
+        #define  NOMINMAX
+    #endif
     #include <windows.h>
 
     /// The type used to record a time stamp. The type must have operator- defined.

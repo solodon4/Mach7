@@ -42,7 +42,7 @@ template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(
 XTL_DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s, size_t)
 {
-    MatchP_N(s,NUMBER_OF_DERIVED)
+    MatchP(s)
     {
         #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
         #define FOR_EACH_N(N) CaseP(shape_kind<N>) return N;

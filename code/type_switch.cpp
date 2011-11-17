@@ -82,7 +82,7 @@ template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(
 XTL_DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s)
 {
-    TypeMatchN(s,NUMBER_OF_DERIVED)
+    TypeMatch(s)
     {
         #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
         #define FOR_EACH_N(N) TypeCase(shape_kind<N>) return N;
@@ -298,7 +298,7 @@ int test_randomized()
             XTL_TRACE_PERFORMANCE_ONLY(distribution[n]++);
             shapes[i] = make_shape(n);
         }
-#if defined(XTL_TRACE_PERFORMANCE)
+#if XTL_TRACE_PERFORMANCE
         size_t min, max, avg, med, dev;
         statistics(distribution, min, max, avg, med, dev);
         //std::copy(distribution.begin(), distribution.end(), std::ostream_iterator<size_t>(std::cout, ":"));

@@ -188,10 +188,10 @@ int main()
         {
             Que(Circle,_,x)          std::cout << "Circle"   << std::endl; m += x;       break;
             Que(Square,_,v |= v > 5) std::cout << "Square>5" << std::endl; m += v;       break;
-             Alt(      _,v |= v > 3) std::cout << "Square>3" << std::endl; m += v;       break;
-             Alt(      _,v |= v > 1) std::cout << "Square>1" << std::endl; m += v;       break;
-             Alt(      _,v |= v > 0) std::cout << "Square>0" << std::endl; m += v;       break;
-             Alt(      _,x)          std::cout << "Square"   << std::endl; m += x;       break;
+             When(     _,v |= v > 3) std::cout << "Square>3" << std::endl; m += v;       break;
+             When(     _,v |= v > 1) std::cout << "Square>1" << std::endl; m += v;       break;
+             When(     _,v |= v > 0) std::cout << "Square>0" << std::endl; m += v;       break;
+             When(     _,x)          std::cout << "Square"   << std::endl; m += x;       break;
             Que(Triangle,l)          std::cout << "Triangle" << std::endl; m += l.first; break;
             Otherwise()              std::cout << "Other"    << std::endl; m += 2;       break;
         }
@@ -218,7 +218,7 @@ int main()
 
     std::cout << m << std::endl;
 
-// Disambiguation between value and type in first argument of Match macro is only possible when Match resolves to MatchG
+// Disambiguation between value and type in first argument of Match macro is only possible when Match resolves to generic one
 #if XTL_DEFAULT_SYNTAX == 'G'
 
     // Union case with bound variables explicitly declared
@@ -236,10 +236,10 @@ int main()
             //Otherwise()                        std::cout << "Other"       << std::endl; m += 2;       break;
             Que(ADTShape::circle,_,x)          std::cout << "ADTCircle"   << std::endl; m += x;       break;
             Que(ADTShape::square,_,v |= v > 5) std::cout << "ADTSquare>5" << std::endl; m += v;       break;
-             Alt(                _,v |= v > 3) std::cout << "ADTSquare>3" << std::endl; m += v;       break;
-             Alt(                _,v |= v > 1) std::cout << "ADTSquare>1" << std::endl; m += v;       break;
-             Alt(                _,v |= v > 0) std::cout << "ADTSquare>0" << std::endl; m += v;       break;
-             Alt(                _,x)          std::cout << "ADTSquare"   << std::endl; m += x;       break;
+             When(               _,v |= v > 3) std::cout << "ADTSquare>3" << std::endl; m += v;       break;
+             When(               _,v |= v > 1) std::cout << "ADTSquare>1" << std::endl; m += v;       break;
+             When(               _,v |= v > 0) std::cout << "ADTSquare>0" << std::endl; m += v;       break;
+             When(               _,x)          std::cout << "ADTSquare"   << std::endl; m += x;       break;
             Que(ADTShape::triangle,cl)         std::cout << "ADTTriangle" << std::endl; m += cl.first;break;
         }
         EndMatch
@@ -286,19 +286,19 @@ int main()
                 std::cout << "Square>5" << std::endl;
                 m += v;
                 break;
-              Alt(      _,v |= v > 3)
+              When(     _,v |= v > 3)
                 std::cout << "Square>3" << std::endl;
                 m += v;
                 break;
-              Alt(      _,v |= v > 1)
+              When(     _,v |= v > 1)
                 std::cout << "Square>1" << std::endl;
                 m += v;
                 break;
-              Alt(      _,v |= v > 0)
+              When(     _,v |= v > 0)
                 std::cout << "Square>0" << std::endl;
                 m += v;
                 break;
-              Alt(      _,x)
+              When(     _,x)
                 std::cout << "Square"   << std::endl;
                 m += x;
                 break;
