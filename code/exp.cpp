@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include <string>
-#include "match_generic.hpp"
+#include "match.hpp"
 
 struct Expr;
 struct Value;

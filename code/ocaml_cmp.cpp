@@ -15,7 +15,7 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
-#include "match_generic.hpp"
+#include "match.hpp"
 #include "timing.hpp"
 
 #if !defined(NUMBER_OF_VFUNCS)

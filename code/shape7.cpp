@@ -13,7 +13,7 @@
 #include <iostream>
 #include <utility>
 #include <vector>
-#include "match_generic.hpp"
+#include "match.hpp"
 
 typedef std::pair<double,double> loc;
 struct cloc { double first; double second; };
@@ -35,14 +35,14 @@ struct Shape
 {
     enum ShapeKind {SK_Shape=1,SK_Circle,SK_Square,SK_Triangle};
     ShapeKind kind;
-    const int* m_all_kinds;
+    const size_t* m_all_kinds;
     Shape(ShapeKind k) : kind(k), m_all_kinds(0) {}
     virtual void accept(ShapeVisitor& v) = 0;
 };
 
 struct Circle : Shape
 {
-    Circle(const loc& c, const double& r) : Shape(SK_Circle), center(c), radius(r) { m_all_kinds = get_kinds<Shape>(SK_Circle); }
+    Circle(const loc& c, const double& r) : Shape(SK_Circle), center(c), radius(r) { m_all_kinds = (const size_t*)get_kinds<Shape>(lbl_type(SK_Circle)); }
 
     void accept(ShapeVisitor& v) { v.visit(*this); }
 
@@ -54,7 +54,7 @@ struct Circle : Shape
 
 struct Square : Shape
 {
-    Square(const loc& c, const double& s) : Shape(SK_Square), upper_left(c), side(s) { m_all_kinds = get_kinds<Shape>(SK_Square); }
+    Square(const loc& c, const double& s) : Shape(SK_Square), upper_left(c), side(s) { m_all_kinds = (const size_t*)get_kinds<Shape>(lbl_type(SK_Square)); }
 
     void accept(ShapeVisitor& v) { v.visit(*this); }
 
@@ -64,7 +64,7 @@ struct Square : Shape
 
 struct Triangle : Shape
 {
-    Triangle(const loc& a, const loc& b, const loc& c) : Shape(SK_Triangle), first(a), second(b), third(c) { m_all_kinds = get_kinds<Shape>(SK_Triangle); }
+    Triangle(const loc& a, const loc& b, const loc& c) : Shape(SK_Triangle), first(a), second(b), third(c) { m_all_kinds = (const size_t*)get_kinds<Shape>(lbl_type(SK_Triangle)); }
 
     void accept(ShapeVisitor& v) { v.visit(*this); }
 

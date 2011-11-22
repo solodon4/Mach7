@@ -12,11 +12,9 @@
 
 #include <ostream>
 #include <utility>
-#include "match_generic.hpp"
+#include "match.hpp"
 
-typedef std::pair<double,double> loc;
-
-std::ostream& operator<<(std::ostream& os, const loc& l) { return os << '{' << l.first << ',' << l.second << '}'; }
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 
@@ -94,9 +92,12 @@ std::ostream& operator<<(std::ostream& os, const loc& l) { return os << '{' << l
 
 #if XTL_DEFAULT_SYNTAX == 'U' || XTL_DEFAULT_SYNTAX == 'u'
 
-struct cloc { double first; double second; };
-
-std::ostream& operator<<(std::ostream& os, const cloc& l) { return os << '{' << l.first << ',' << l.second << '}'; }
+struct loc 
+{
+    friend std::ostream& operator<<(std::ostream& os, const loc& l) { return os << '{' << l.first << ',' << l.second << '}'; }
+    double first; 
+    double second; 
+};
 
 enum shape_kind {UnknownShape, Circle, Square, Triangle} kind;
 
@@ -105,24 +106,24 @@ struct Shape
     shape_kind kind;
 
 #ifndef POD_ONLY
-	Shape(const cloc& c, double r) : kind(Circle), center(c), radius(r) {}
-	Shape(double s, const cloc& c) : kind(Square), upper_left(c), size(s) {}
-	Shape(const cloc& x, const cloc& y, const cloc& z) : kind(Triangle), first(x), second(y), third(z) {}
+	Shape(const loc& c, double r) : kind(Circle), center(c), radius(r) {}
+	Shape(double s, const loc& c) : kind(Square), upper_left(c), size(s) {}
+	Shape(const loc& x, const loc& y, const loc& z) : kind(Triangle), first(x), second(y), third(z) {}
 #endif
 
 #ifndef _MSC_VER
 	union
 	{
-		struct { cloc center;     double radius; }; // circle;
-		struct { cloc upper_left; double size; };   // square;
-		struct { cloc first, second, third; };      // triangle;
+		struct { loc center;     double radius; }; // circle;
+		struct { loc upper_left; double size; };   // square;
+		struct { loc first, second, third; };      // triangle;
 	};
 #else
     // MSVC doesn't seem to allow anonymous structs inside union so we just dump
     // here same members name directly to make the rest just compile at least.
-	cloc center;     double radius; // circle;
-	cloc upper_left; double size;   // square;
-	cloc first, second, third;      // triangle;
+	loc center;     double radius; // circle;
+	loc upper_left; double size;   // square;
+	loc first, second, third;      // triangle;
 #endif
 
 };
@@ -134,6 +135,10 @@ template <> struct match_members<Shape,Square>   { KV(Square);  CM(0,Shape::uppe
 template <> struct match_members<Shape,Triangle> { KV(Triangle);CM(0,Shape::first);      CM(1,Shape::second); CM(2,Shape::third); };
 
 #else
+
+typedef std::pair<double,double> loc;
+
+std::ostream& operator<<(std::ostream& os, const loc& l) { return os << '{' << l.first << ',' << l.second << '}'; }
 
 // An Algebraic Data Type implemented through inheritance
 struct Shape
@@ -187,21 +192,6 @@ template <> struct match_members<Triangle> { XTL_TAG_ONLY(KV(Shape::SK_Triangle)
 
 //------------------------------------------------------------------------------
 
-size_t do_match_1(const Shape& s, size_t)
-{
-    Match(s)
-      XTL_USE_BRACES_ONLY({)
-        Case(Circle,c,r)     std::cout << "Circle("   << c << ',' << r << ')'             << std::endl;
-        //Case(Square,c,s)     std::cout << "Square("   << c << ',' << s << ')'             << std::endl;
-        Case(Triangle,x,y,z) std::cout << "Triangle(" << x << ',' << y << ',' << z << ')' << std::endl;
-        Otherwise()          std::cout << "Other()"                                       << std::endl;
-      XTL_USE_BRACES_ONLY(})
-    EndMatch
-    return 0;
-}
-
-//------------------------------------------------------------------------------
-
 #if XTL_DEFAULT_SYNTAX == 'U' || XTL_DEFAULT_SYNTAX == 'u'
 Shape* make_shape(size_t i)
 {
@@ -210,9 +200,9 @@ Shape* make_shape(size_t i)
     Shape as = {Square,   {{{1,1}, 2}}};
     Shape at = {Triangle, {{{1,1}, 1}}};
 #else
-    cloc l00 = {0,0};
-    cloc l11 = {1,1};
-    cloc l10 = {1,0};
+    loc l00 = {0,0};
+    loc l11 = {1,1};
+    loc l10 = {1,0};
     Shape ac(l11, 7);
     Shape as(2, l11);
     Shape at(l11, l10, l00);
@@ -241,15 +231,84 @@ Shape* make_shape(size_t i)
 
 //------------------------------------------------------------------------------
 
-#define msg_prefix "SYNTAX: " syntax " ENCODING: " encoding " FORWARDING: " forwarding " TEST: "
+template <> struct match_members<loc>    { CM(0, loc::first); CM(1, loc::second); };
+
+//------------------------------------------------------------------------------
+
+size_t do_match_1(const Shape& s, size_t)
+{
+    Match(s)
+      XTL_USE_BRACES_ONLY({)
+        Case(Circle,c,r)     std::cout << "Circle("   << c << ',' << r << ')'             << std::endl;
+        Case(Square,c,s)     std::cout << "Square("   << c << ',' << s << ')'             << std::endl;
+        Case(Triangle,x,y,z) std::cout << "Triangle(" << x << ',' << y << ',' << z << ')' << std::endl;
+        Otherwise()          std::cout << "Other()"                                       << std::endl;
+      XTL_USE_BRACES_ONLY(})
+    EndMatch
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------
+
+size_t do_match_2(const Shape& s, size_t)
+{
+    variable<loc> c,x,y,z;
+    variable<double> r,w;
+
+    Match(s)
+      XTL_USE_BRACES_ONLY({)
+        Que(Circle,c,r)     std::cout << "Circle("   << c << ',' << r << ')'             << std::endl;
+        Que(Square,c,w)     std::cout << "Square("   << c << ',' << w << ')'             << std::endl;
+        Que(Triangle,x,y,z) std::cout << "Triangle(" << x << ',' << y << ',' << z << ')' << std::endl;
+        Otherwise()         std::cout << "Other()"                                       << std::endl;
+      XTL_USE_BRACES_ONLY(})
+    EndMatch
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------
+
+//size_t do_match_3(const Shape& s, size_t)
+//{
+//    wildcard _;
+//    variable<loc> c,x,y,z;
+//    variable<double> r,w;
+//
+//    Match(s)
+//      XTL_USE_BRACES_ONLY({)
+//        Que(Circle,c,r)     std::cout << "Circle("   << c << ',' << r << ')'             << std::endl;
+//            When(  _,r |= r > 3) std::cout << "-Circle>3" << std::endl;
+//            When(  _,r |= r > 1) std::cout << "-Circle>1" << std::endl;
+//            When(  _,r |= r > 0) std::cout << "-Circle>0" << std::endl;
+//            When(  _,r)          std::cout << "-Circle"   << std::endl;
+//        Que(Square,c,w)     std::cout << "Square("   << c << ',' << w << ')'             << std::endl;
+//            When(  _,w |= w > 3) std::cout << "-Square>3" << std::endl;
+//            When(  _,w |= w > 1) std::cout << "-Square>1" << std::endl;
+//            When(  _,w |= w > 0) std::cout << "-Square>0" << std::endl;
+//            When(  _,w)          std::cout << "-Square"   << std::endl;
+//        Que(Triangle,x,y,z) std::cout << "Triangle(" << x << ',' << y << ',' << z << ')' << std::endl;
+//            When(  _,_,match<loc>(r,w |= r >  w)) std::cout << "-Triangle >" << std::endl;
+//            When(  _,_,match<loc>(r,w |= r >= w)) std::cout << "-Triangle>=" << std::endl;
+//            When(  _,_,match<loc>(r,w |= r == w)) std::cout << "-Triangle==" << std::endl;
+//            When(  _,_,match<loc>(r,w |= r <= w)) std::cout << "-Triangle<=" << std::endl;
+//            When(  _,_,match<loc>(r,w |= r <  w)) std::cout << "-Triangle <" << std::endl;
+//            When(  _,_,match<loc>(r,w))           std::cout << "-Triangle"   << std::endl;
+//        Otherwise()         std::cout << "Other()"                                       << std::endl;
+//      XTL_USE_BRACES_ONLY(})
+//    EndMatch
+//
+//    return 0;
+//}
 
 //------------------------------------------------------------------------------
 
 int main()
 {
-    do_match_1(*make_shape(0), 0);
-    do_match_1(*make_shape(1), 0);
-    do_match_1(*make_shape(2), 0);
+    do_match_2(*make_shape(0), 0);
+    do_match_2(*make_shape(1), 0);
+    do_match_2(*make_shape(2), 0);
 }
 
 //------------------------------------------------------------------------------

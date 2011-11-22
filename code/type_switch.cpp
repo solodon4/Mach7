@@ -82,15 +82,15 @@ template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(
 XTL_DO_NOT_INLINE_BEGIN
 size_t do_match(const Shape& s)
 {
-    TypeMatch(s)
+    Match(s)
     {
         #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
-        #define FOR_EACH_N(N) TypeCase(shape_kind<N>) return N;
+        #define FOR_EACH_N(N) Case(shape_kind<N>) return N;
         #include "loop_over_numbers.hpp"
         #undef  FOR_EACH_N
         #undef  FOR_EACH_MAX
     }
-    EndTypeMatch
+    EndMatch
     return -1;
 }
 XTL_DO_NOT_INLINE_END

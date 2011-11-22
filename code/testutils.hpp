@@ -58,9 +58,9 @@ struct OtherBase
 
 struct Shape
 {
-    size_t     m_kind;
-    const int* m_all_kinds;
-    size_t     m_fdc_id; // Fast dynamic cast ID
+    size_t        m_kind;
+    const size_t* m_all_kinds;
+    size_t        m_fdc_id; // Fast dynamic cast ID
 
     Shape(size_t n = -1, size_t fdc_id = -1) : m_kind(n), m_all_kinds(0), m_fdc_id(fdc_id),
         m_member0(n+0),

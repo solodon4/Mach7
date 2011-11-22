@@ -13,7 +13,7 @@
 #include <iostream>
 #include <typeinfo>
 #include <utility>
-#include "match_generic.hpp"
+#include "match.hpp"
 
 #if defined(__GNUC__)
     // We need to do this workaround for this file until GCC will fix the bug 

@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include <utility>
-#include "match_generic.hpp"
+#include "match.hpp"
 
 typedef std::pair<double,double> loc;
 struct cloc { double first; double second; };
@@ -258,14 +258,14 @@ for (size_t i = 0; i < 3; ++i)
 //-----------------------------------------------------------------------------
     for (size_t i = 0; i < 3; ++i)
     {
-        TypeMatch(shapes[i])
+        MatchP(shapes[i])
         {
-        TypeCase(Circle)   std::cout << "Circle"   << std::endl; m += matched->radius;      break;
-        TypeCase(Square)   std::cout << "Square"   << std::endl; m += matched->side;        break;
-        TypeCase(Triangle) std::cout << "Triangle" << std::endl; m += matched->first.first; break;
-        TypeCase(Triangle) std::cout << "Triangle" << std::endl; m += matched->first.first; break; // NOTE: Possible to have another type case match
+        CaseP(Circle)   std::cout << "Circle"   << std::endl; m += matched->radius;      break;
+        CaseP(Square)   std::cout << "Square"   << std::endl; m += matched->side;        break;
+        CaseP(Triangle) std::cout << "Triangle" << std::endl; m += matched->first.first; break;
+        CaseP(Triangle) std::cout << "Triangle" << std::endl; m += matched->first.first; break; // NOTE: Possible to have another type case match
         }
-        EndTypeMatch
+        EndMatchP
     }
 
     std::cout << m << std::endl;
@@ -324,118 +324,6 @@ for (size_t i = 0; i < 3; ++i)
             Otherwise()       std::cout << "Other"    << std::endl; m += 2;       break;
         }
         EndMatch
-    }
-
-    std::cout << m << std::endl;
-
-    std::cout << "PREPROCESSSED" << std::endl;
-
-    m = 0.0;
-    for (size_t i = 0; i < 3; ++i)
-    {
-        //std::cout << "Selector: " << adtshapes[i]->kind << std::endl;
-        {
-            auto const __selector_ptr = addr(adtshapes[i]);
-            ;
-            enum 
-            {
-                __base_line = 171 
-            }
-            ;
-            typedef generic_switch<decltype(*__selector_ptr)> switch_traits;
-            static switch_traits::static_data_type static_data;
-            switch_traits::local_data_type local_data;
-            //int choice = switch_traits::choose(__selector_ptr,static_data,local_data);
-            //std::cout << "Choice: " << choice << std::endl;
-            switch (switch_traits::choose(__selector_ptr,static_data,local_data)) 
-            {
-            case switch_traits::CaseLabel<171-__base_line>::entry:
-                {
-                    {
-                        {
-                            {
-                            }
-                        }
-                    }
-                    {
-                        typedef switch_traits::disambiguate<sizeof(ADTShape::circle)<sizeof(switch_traits::selector_type)>::parameter<ADTShape::circle> target_specific;
-                        if (target_specific::main_condition(__selector_ptr, local_data)) 
-                        {
-                            switch_traits::on_first_pass(__selector_ptr, local_data, 174-__base_line);
-            case target_specific::CaseLabel<174-__base_line>::value:
-                            //std::cout << "Jumped to : " << target_specific::CaseLabel<174-__base_line>::value << std::endl;
-                            auto matched = target_specific::get_matched(__selector_ptr,local_data);
-                            if ((match<target_specific::target_type,target_specific::layout>(_,x)(matched))) 
-                            {
-                                std::cout << "ADTCircle"   << std::endl;
-                                m += x;
-                                break;
-                            }
-                        }
-                    }
-                    {
-                        typedef switch_traits::disambiguate<sizeof(ADTShape::square)<sizeof(switch_traits::selector_type)>::parameter<ADTShape::square> target_specific;
-                        if (target_specific::main_condition(__selector_ptr, local_data)) 
-                        {
-                            switch_traits::on_first_pass(__selector_ptr, local_data, 175-__base_line);
-            case target_specific::CaseLabel<175-__base_line>::value:
-                            //std::cout << "Jumped to : " << target_specific::CaseLabel<175-__base_line>::value << std::endl;
-                            auto matched = target_specific::get_matched(__selector_ptr,local_data);
-                            if ((match<target_specific::target_type,target_specific::layout>(_,v |= v > 5)(matched))) 
-                            {
-                                std::cout << "ADTSquare>5" << std::endl;
-                                m += v;
-                                break;
-                            }
-                            else if (match<target_specific::target_type,target_specific::layout>(_,v |= v > 3)(matched)) 
-                            {
-                                std::cout << "ADTSquare>3" << std::endl;
-                                m += v;
-                                break;
-                            }
-                            else if (match<target_specific::target_type,target_specific::layout>(_,v |= v > 1)(matched)) 
-                            {
-                                std::cout << "ADTSquare>1" << std::endl;
-                                m += v;
-                                break;
-                            }
-                            else if (match<target_specific::target_type,target_specific::layout>(_,v |= v > 0)(matched)) 
-                            {
-                                std::cout << "ADTSquare>0" << std::endl;
-                                m += v;
-                                break;
-                            }
-                            else if (match<target_specific::target_type,target_specific::layout>(_,x)(matched)) 
-                            {
-                                std::cout << "ADTSquare"   << std::endl;
-                                m += x;
-                                break;
-                            }
-                        }
-                    }
-                    {
-                        typedef switch_traits::disambiguate<sizeof(ADTShape::triangle)<sizeof(switch_traits::selector_type)>::parameter<ADTShape::triangle> target_specific;
-                        if (target_specific::main_condition(__selector_ptr, local_data)) 
-                        {
-                            switch_traits::on_first_pass(__selector_ptr, local_data, 180-__base_line);
-            case target_specific::CaseLabel<180-__base_line>::value:
-                            //std::cout << "Jumped to : " << target_specific::CaseLabel<180-__base_line>::value << std::endl;
-                            auto matched = target_specific::get_matched(__selector_ptr,local_data);
-                            if ((match<target_specific::target_type,target_specific::layout>(cl)(matched))) 
-                            {
-                                std::cout << "ADTTriangle" << std::endl;
-                                m += cl.first;
-                                break;
-                            }
-                        }
-                    }
-                }
-                switch_traits::on_end(__selector_ptr, local_data, 182-__base_line);
-            case switch_traits::CaseLabel<182-__base_line>::exit:
-                //std::cout << "Jumped to : " << switch_traits::CaseLabel<182-__base_line>::exit << std::endl;
-                ;
-            }
-        }
     }
 
     std::cout << m << std::endl;

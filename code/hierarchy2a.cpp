@@ -11,7 +11,7 @@
 ///
 
 #include "testutils.hpp"
-#include "match_generic.hpp"
+#include "match.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ template <size_t N>
 struct shape_kind;
 
 #define FOR_EACH_MAX NUMBER_OF_BASES-1
-#define FOR_EACH_N(N) template <> struct shape_kind<N> : OtherBase, Shape { typedef Shape base_type; shape_kind(size_t kind = N) : Shape(kind) { this->m_all_kinds = get_kinds<Shape>(original2remapped<Shape>(kind)); } void accept(ShapeVisitor&) const; };
+#define FOR_EACH_N(N) template <> struct shape_kind<N> : OtherBase, Shape { typedef Shape base_type; shape_kind(size_t kind = N) : Shape(kind) { this->m_all_kinds = (const size_t*)get_kinds<Shape>(original2remapped<Shape>(tag_type(kind))); } void accept(ShapeVisitor&) const; };
 #include "loop_over_numbers.hpp"
 #undef  FOR_EACH_N
 #undef  FOR_EACH_MAX
@@ -40,7 +40,7 @@ template <size_t N>
 struct shape_kind : shape_kind<N % NUMBER_OF_BASES>
 {
     typedef shape_kind<N % NUMBER_OF_BASES> base_type;
-    shape_kind() : base_type(N) { this->m_all_kinds = get_kinds<Shape>(original2remapped<Shape>(N)); }
+    shape_kind() : base_type(N) { this->m_all_kinds = (const size_t*)get_kinds<Shape>(original2remapped<Shape>(tag_type(N))); }
     void accept(ShapeVisitor&) const;
 };
 

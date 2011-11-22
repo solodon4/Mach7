@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include <utility>
-#include "match_generic.hpp"
+#include "match.hpp"
 
 typedef std::pair<double,double> loc;
 struct cloc { double first; double second; };
@@ -153,14 +153,14 @@ int main()
 
     for (size_t i = 0; i < 3; ++i)
     {
-        TypeMatch(shapes[i])
+        MatchP(shapes[i])
         {
-        TypeCase(Circle)   std::cout << "Circle"   << std::endl; m += matched->radius;      break;
-        TypeCase(Square)   std::cout << "Square"   << std::endl; m += matched->side;        break;
-        TypeCase(Triangle) std::cout << "Triangle" << std::endl; m += matched->first.first; break;
-        TypeCase(Triangle) std::cout << "Triangle" << std::endl; m += matched->first.first; break; // NOTE: Possible to have another type case match
+        CaseP(Circle)   std::cout << "Circle"   << std::endl; m += matched->radius;      break;
+        CaseP(Square)   std::cout << "Square"   << std::endl; m += matched->side;        break;
+        CaseP(Triangle) std::cout << "Triangle" << std::endl; m += matched->first.first; break;
+        CaseP(Triangle) std::cout << "Triangle" << std::endl; m += matched->first.first; break; // NOTE: Possible to have another type case match
         }
-        EndTypeMatch
+        EndMatchP
     }
 
     std::cout << m << std::endl;

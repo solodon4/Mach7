@@ -11,14 +11,14 @@
 ///
 
 #include "testutils.hpp"
-#include "match_generic.hpp"
+#include "match.hpp"
 
 //------------------------------------------------------------------------------
 
 template <size_t N>
 struct shape_kind : OtherBase, Shape
 {
-    shape_kind() : Shape(N) { this->m_all_kinds = get_kinds<Shape>(original2remapped<Shape>(N)); }
+    shape_kind() : Shape(N) { this->m_all_kinds = (const size_t*)get_kinds<Shape>(original2remapped<Shape>(tag_type(N))); }
     void accept(ShapeVisitor&) const;
 };
 

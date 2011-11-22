@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include <utility>
-#include "match_generic.hpp"
+#include "match.hpp"
 
 typedef std::pair<double,double> loc;
 struct cloc { double first; double second; };
@@ -150,11 +150,13 @@ int main()
         /// \note Unlike the rest of our Match statements, MatchE does not allow {} 
         ///       around the case clauses.
         MatchE(shapes[i])
+        {
         CaseE(Circle,_,r)    std::cout << "Circle"   << std::endl; m += r;       // break;
         CaseE(Square,_,r)    std::cout << "Square"   << std::endl; m += r;       // break;
         CaseE(Triangle,p)    std::cout << "Triangle" << std::endl; m += p.first; // break;
         // The following duplicate is warning in GCC but error in MSVC
         //CaseE(Triangle,p)    std::cout << "Triangle" << std::endl; m += p.first; // break; // NOTE: Possible to have another regular match
+        }
         EndMatchE
     }
 

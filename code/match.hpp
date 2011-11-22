@@ -26,10 +26,10 @@
 //       is derived from selector type because we may have cross cast, but we can add
 //       a configuration macro that says that hierarchy is not using multiple inheritance
 //       in which case such assertion will be valid. This can be made default too.
-// FIX:  Define logic with dedicated value used by closed matching and the way user
+// done: Define logic with dedicated value used by closed matching and the way user
 //       can override that value when it conflicts with one of its values.
-// TODO: Add static_asserts that check that case constants are not equal to dedicate value
-// TODO: Implement Otherwise for closed cases
+// n/a:  Add static_asserts that check that case constants are not equal to dedicate value
+// done: Implement Otherwise for closed cases
 // TODO: Test cases should test:
 //        - template vs. non-template context
 //        - presense and absense of Otherwise as well as when user disabled its use
@@ -55,8 +55,19 @@
 //       need to store and will simply inline adjustment.
 // TODO: Overload comma operator on patterns to handle multiple subjects
 
-#pragma once
+// NOTE: If Visual C++ gives you any of the following errors:
+//       error C2051: case expression not constant
+//       error C2057: expected constant expression
+//       on any macro that uses __LINE__ in them, just change the Debug Format 
+//       in project settings:
+//       Project -> Properties -> C/C++ -> General -> Debug Information Format 
+//       from "Program Database for Edit And Continue (/ZI)" 
+//       to   "Program Database (/Zi)", which is the default in Release builds,
+//       but not in Debug. This is a known bug of Visual C++ described here:
+//       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
 
+#pragma once
+#include "patterns.hpp"
 #include "vtblmap.hpp"   // Class implementing fast mapping of v-table pointers to T
 
 #include <cassert>
@@ -68,7 +79,6 @@
 #include <typeinfo>
 #include <iostream>
 #endif
-#include "exprtmpl.hpp"
 #include "ptrtools.hpp"  // Helper functions to work with pointers
 #include "has_member.hpp"// Meta-functions to check use of certain @match_members facilities
 
@@ -134,26 +144,6 @@ template<typename R, typename A1> R (A1::* unary(R (A1::*f)(  ) const))() const 
 
 //------------------------------------------------------------------------------
 
-enum { default_layout = size_t(~0) };
-
-/// Traits like structure that will define which members should be matched at 
-/// which positions. It is intentionally left undefined as user will have to
-/// provide specializations for his hierarchy.
-template <typename type_being_matched, size_t layout = default_layout> 
-struct match_members;
-
-//------------------------------------------------------------------------------
-
-/// A wrapper class that lets one pack a given layout and type into a view.
-template <typename type_being_matched, size_t layout = default_layout> 
-struct view
-{
-    typedef type_being_matched target_type;
-    static const size_t        target_layout = layout;
-};
-
-//------------------------------------------------------------------------------
-
 /// Helper meta-function used to obtain the first argument of a single-argument
 /// template instantiation.
 /// \note Default template does not have implementation by design to fail on 
@@ -203,7 +193,11 @@ template <typename T> inline size_t get_frequency(intptr_t vtbl) { return get_fr
 ///       argument. We are only interested with the one without argument and
 ///       putting @unary here around taking the address of it saves the user
 ///       from having to disambiguate explicitly.
-#define CM(Index,...) static inline decltype(unary(&__VA_ARGS__)) member##Index() { return unary(&__VA_ARGS__); }
+#define CM(Index,...)                                           \
+    static inline decltype(unary(&__VA_ARGS__)) member##Index() \
+    {                                                           \
+        return unary(&__VA_ARGS__);                             \
+    }
 
 /// Macro to define a kind selector - a member of the common base class that 
 /// carries a distinct integral value that uniquely identifies the derived 
@@ -213,7 +207,12 @@ template <typename T> inline size_t get_frequency(intptr_t vtbl) { return get_fr
 ///       templates, which might have commas, otherwise juse a second argument
 ///       would be sufficient.
 /// FIX: KS doesn't accept now members qualified with base class, but CM does, check why.
-#define KS(...)       static inline decltype(unary(&__VA_ARGS__)) kind_selector() { return unary(&__VA_ARGS__); } bool kind_selector_dummy() const;
+#define KS(...)                                                 \
+    static inline decltype(unary(&__VA_ARGS__)) kind_selector() \
+    {                                                           \
+        return unary(&__VA_ARGS__);                             \
+    }                                                           \
+    bool kind_selector_dummy() const;
 
 /// Macro to define an integral constant that uniquely identifies the derived 
 /// class. Used in the decomposition of a derived class.
@@ -221,7 +220,7 @@ template <typename T> inline size_t get_frequency(intptr_t vtbl) { return get_fr
 /// \note We use variadic macro parameter here in order to be able to handle 
 ///       templates, which might have commas, otherwise juse a second argument
 ///       would be sufficient.
-#define KV(...) enum { kind_value = __VA_ARGS__ };//     static const size_t kind_value = __VA_ARGS__;
+#define KV(...) enum { kind_value = __VA_ARGS__ };
 
 /// Macro to define an expected frequency of objects of a given class.
 /// The exact values are not important as they are turned into probabilities by
@@ -237,7 +236,12 @@ template <typename T> inline size_t get_frequency(intptr_t vtbl) { return get_fr
 /// The syntax of the function should be: size_t f(const selector_type&);
 /// FIX: Make sure there is no re-entrancy problems when pattern matching is
 ///      used inside of the frequency function f to uncover selector type.
-#define FQS(f) static size_t frequency(intptr_t vtbl) { return ::f(*reinterpret_cast<const XTL_CPP0X_TYPENAME get_param<match_members>::type*>(&vtbl)); } bool frequency_dummy() const;
+#define FQS(f)                                                  \
+    static size_t frequency(intptr_t vtbl)                      \
+    {                                                           \
+        return ::f(*reinterpret_cast<const XTL_CPP0X_TYPENAME get_param<match_members>::type*>(&vtbl)); \
+    }                                                           \
+    bool frequency_dummy() const;
 
 /// Macro to define a raise selector - a virtual member function of the common
 /// base class that implements a polymorphic exception idiom (\see 
@@ -249,7 +253,12 @@ template <typename T> inline size_t get_frequency(intptr_t vtbl) { return get_fr
 /// \note We use variadic macro parameter here in order to be able to handle 
 ///       templates, which might have commas, otherwise juse a second argument
 ///       would be sufficient.
-#define RS(...)       static inline decltype(unary(&__VA_ARGS__)) raise_selector() { return unary(&__VA_ARGS__); } bool raise_selector_dummy() const;
+#define RS(...)                                                 \
+    static inline decltype(unary(&__VA_ARGS__)) raise_selector()\
+    {                                                           \
+        return unary(&__VA_ARGS__);                             \
+    }                                                           \
+    bool raise_selector_dummy() const;
 
 //------------------------------------------------------------------------------
 
@@ -439,9 +448,10 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
   /// Even though normal case labels are agnostic of the block structure around them,
   /// which lets us use or not use {} around case clauses, the try-catch structure
   /// used for redundancy checking does not have this flexibility as catch handlers
-  /// should correspond to the try block. Our macros assume {} are present, but we
-  /// can probably make it configurable via macro one day should there be demand for it.
-  XTL_MESSAGE("WARNING: All Match statements except MatchE must have { and } around case clauses for redundancy checking mode!")
+  /// should correspond to the try block. To assure generation of proper try-catch 
+  /// structure, the use of {} inside @Match statement should correspond to the 
+  /// @XTL_USE_BRACES library configuration flag.
+  XTL_MESSAGE("WARNING: The use of { and } within Match-statement must match XTL_USE_BRACES setting for redundancy checking mode!")
   /// In type-checking builds we resolve it to try to start a try-catch block 
   /// that will trigger redundancy warnings by a compiler.
   #define XTL_REDUNDANCY_TRY       try
@@ -479,7 +489,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
         typedef selector_type target_type;                                                     \
         enum { target_layout = default_layout };                                               \
         XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));                      \
-        auto& matched = *__selector_ptr;                                                       \
+        auto const matched = __selector_ptr;                                                   \
         XTL_UNUSED(matched);                                                                   \
 
 //------------------------------------------------------------------------------
@@ -499,38 +509,6 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 ///   * Scope of user's statement to separate from scope of matched declaration
 //------------------------------------------------------------------------------
 
-/// Macro that starts the switch on dynamic type of a variable s that can be 
-/// either pointer or reference to a polymorphic type.
-/// \note case 0: instead of default: will work in the same way because we 
-///       initialize cache with 0, however through experiments we can see
-///       that having default here is quite a bit faster than having case 0.
-#define TypeMatch(s) {                                                                         \
-        auto const   __selector_ptr = addr(s);                                                 \
-        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type;  \
-        typedef selector_type target_type;                                                     \
-        enum { target_layout = default_layout };                                               \
-        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));                      \
-        enum { __base_counter = XTL_COUNTER };                                                 \
-        static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use TypeMatch");\
-        static vtblmap_of<selector_type, type_switch_info&> __vtbl2lines_map XTL_DUMP_PERFORMANCE_ONLY((__FILE__,__LINE__));\
-        const void*  __casted_ptr;                                                             \
-        type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);                \
-        switch (__switch_info.line) {                                                          \
-        default: {
-
-/// Macro that defines the case statement for the above switch
-/// NOTE: If Visual C++ gives you error C2051: case expression not constant
-///       on this CaseP label, just change the Debug Format in project setting 
-///       Project -> Properties -> C/C++ -> General -> Debug Information Format 
-///       from "Program Database for Edit And Continue (/ZI)" 
-///       to   "Program Database (/Zi)", which is the default in Release builds,
-///       but not in Debug. This is a known bug of Visual C++ described here:
-///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#define TypeCase(C)   } if (XTL_UNLIKELY(__casted_ptr = dynamic_cast<const C*>(__selector_ptr))) { if (__switch_info.line == 0) { __switch_info.line = __LINE__; __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); } case __LINE__: auto matched = adjust_ptr<C>(__selector_ptr,__switch_info.offset); XTL_UNUSED(matched);
-#define EndTypeMatch } if (__switch_info.line == 0) { __switch_info.line = __LINE__; } case __LINE__: ; }}
-
-//------------------------------------------------------------------------------
-
 /// Macro that starts the switch on pattern
 /// \note case 0: instead of default: will work in the same way because we 
 ///       initialize cache with 0, however through experiments we can see
@@ -548,40 +526,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
         XTL_NON_USE_BRACES_ONLY(XTL_REDUNDANCY_TRY) { XTL_USE_BRACES_ONLY(XTL_REDUNDANCY_TRY) {{ \
         XTL_NON_FALL_THROUGH_ONLY(if (false) )
 
-/// NOTE: We need this extra indirection to properly handle 0 arguments as it
-///       seems to be impossible to introduce dummy argument inside the Case 
-///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
-#define CaseP_(C,...)                                                                          \
-        XTL_NON_FALL_THROUGH_ONLY(break;) }}}                                                  \
-        XTL_REDUNDANCY_CATCH(C)                                                                \
-        {                                                                                      \
-            typedef C target_type;                                                             \
-            enum { target_label = XTL_COUNTER-__base_counter };                                \
-            if (XTL_UNLIKELY(__casted_ptr = dynamic_cast<const target_type*>(__selector_ptr))) \
-            {                                                                                  \
-                if (XTL_LIKELY((__switch_info.line == 0)))                                     \
-                {                                                                              \
-                    __switch_info.line = target_label;                                         \
-                    __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr);    \
-                }                                                                              \
-            XTL_REDUNDANCY_LABEL(case target_label:)                                           \
-                auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset);   \
-                XTL_UNUSED(matched);
-
-//auto matched = static_cast<const target_type*>(__selector_ptr);
 /// Macro that defines the case statement for the above switch
-/// NOTE: If Visual C++ gives you error C2051: case expression not constant
-///       on this CaseP label, just change the Debug Format in project setting 
-///       Project -> Properties -> C/C++ -> General -> Debug Information Format 
-///       from "Program Database for Edit And Continue (/ZI)" 
-///       to   "Program Database (/Zi)", which is the default in Release builds,
-///       but not in Debug. This is a known bug of Visual C++ described here:
-///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#ifdef _MSC_VER
-    #define CaseP(...) XTL_APPLY_VARIADIC_MACRO(CaseP_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
-#else
-    #define CaseP(...) CaseP_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
-#endif
 #define QueP(C,...)                                                                            \
         XTL_NON_FALL_THROUGH_ONLY(break;) }}}                                                  \
         XTL_REDUNDANCY_CATCH(C)                                                                \
@@ -597,11 +542,16 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
                 }                                                                              \
             XTL_REDUNDANCY_LABEL(case target_label:)                                           \
                 auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset);   \
-                if (XTL_LIKELY(match<target_type>(__VA_ARGS__)(matched))) {
+                UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), XTL_UNUSED(matched), if (XTL_LIKELY(match<target_type>(__VA_ARGS__)(matched)))) {
 
-#define WhenP(...)     } XTL_NON_FALL_THROUGH_ONLY(else) if (match<target_type>(__VA_ARGS__)(matched)) {
+/// NOTE: We need this extra indirection to properly handle 0 arguments as it
+///       seems to be impossible to introduce dummy argument inside the Case 
+///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
+#define CaseP_(C,...)   QueP(C)                                                                         
+#define CaseP(...)      XTL_APPLY_VARIADIC_MACRO(CaseP_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__))
+#define WhenP(...)      } XTL_NON_FALL_THROUGH_ONLY(else) if (match<target_type>(__VA_ARGS__)(matched)) {
 #define OtherwiseP(...) CaseP(selector_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
-#define EndMatchP    }}} enum { target_label = XTL_COUNTER-__base_counter }; deferred_value<vtbl_count_t>::set<__base_counter,target_label-1>::value; if (XTL_LIKELY((__switch_info.line == 0))) { __switch_info.line = target_label; } case target_label: ; }}
+#define EndMatchP       }}} enum { target_label = XTL_COUNTER-__base_counter }; deferred_value<vtbl_count_t>::set<__base_counter,target_label-1>::value; if (XTL_LIKELY((__switch_info.line == 0))) { __switch_info.line = target_label; } case target_label: ; }}
 
 //------------------------------------------------------------------------------
 
@@ -613,32 +563,25 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
         auto const __kind_selector = kind_selector(__selector_ptr);                            \
         switch (__kind_selector) { {{
 
-/// NOTE: We need this extra indirection to properly handle 0 arguments as it
-///       seems to be impossible to introduce dummy argument inside the Case 
-///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
-#define CaseK_(C,...)                                                                          \
+/// Macro that defines the case statement for the above switch
+#define QueK(C,...)                                                                            \
         XTL_NON_FALL_THROUGH_ONLY(break;) }}                                                   \
         if (XTL_UNLIKELY((__kind_selector == match_members<C>::kind_value)))                   \
         {                                                                                      \
         case match_members<C>::kind_value:                                                     \
             typedef C target_type;                                                             \
             auto matched = stat_cast<target_type>(__selector_ptr);                             \
-            XTL_UNUSED(matched);
+            UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), XTL_UNUSED(matched), if (XTL_LIKELY(match<target_type>(__VA_ARGS__)(matched)))) {
 
-/// Macro that defines the case statement for the above switch
-#ifdef _MSC_VER
-    #define CaseK(...) XTL_APPLY_VARIADIC_MACRO(CaseK_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
-    #define OtherwiseK(...)                                                                    \
+/// NOTE: We need this extra indirection to properly handle 0 arguments as it
+///       seems to be impossible to introduce dummy argument inside the Case 
+///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
+#define CaseK_(C,...)   QueK(C)
+#define CaseK(...)      XTL_APPLY_VARIADIC_MACRO(CaseK_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__))
+#define OtherwiseK(...)                                                                        \
         XTL_NON_FALL_THROUGH_ONLY(break;) }}                                                   \
         default: { XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
-#else
-    #define CaseK(...) CaseK_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
-    #define OtherwiseK(...)                                                                    \
-        XTL_NON_FALL_THROUGH_ONLY(break;) }}                                                   \
-        default: { DECL_BOUND_VARS(__VA_ARGS__) {
-#endif
-
-#define EndMatchK   }} }}
+#define EndMatchK       }} }}
 
 //------------------------------------------------------------------------------
 
@@ -651,7 +594,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
         switch (__kind_selector) { {{
 
 /// Macro that defines the case statement for the above switch
-#define CaseU_(L,...)                                                                          \
+#define QueU(L,...)                                                                            \
         XTL_NON_FALL_THROUGH_ONLY(break;) }}                                                   \
         if (XTL_UNLIKELY((__kind_selector == match_members<selector_type,L>::kind_value)))     \
         {                                                                                      \
@@ -659,22 +602,14 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
             typedef selector_type target_type;                                                 \
             enum { target_layout = L };                                                        \
             auto matched = __selector_ptr;                                                     \
-            XTL_UNUSED(matched);
+            UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), XTL_UNUSED(matched), if (XTL_LIKELY(match<target_type,target_layout>(__VA_ARGS__)(matched)))) {
 
-/// Macro that defines the case statement for the above switch
-#ifdef _MSC_VER
-    #define CaseU(...) XTL_APPLY_VARIADIC_MACRO(CaseU_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
-    #define OtherwiseU(...)                                                                    \
+#define CaseU_(L,...)   QueU(L)
+#define CaseU(...)      XTL_APPLY_VARIADIC_MACRO(CaseU_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__))
+#define OtherwiseU(...)                                                                        \
         XTL_NON_FALL_THROUGH_ONLY(break;) }}                                                   \
         default: { XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
-#else
-    #define CaseU(...) CaseU_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
-    #define OtherwiseU(...)                                                                    \
-        XTL_NON_FALL_THROUGH_ONLY(break;) }}                                                   \
-        default: { DECL_BOUND_VARS(__VA_ARGS__) {
-#endif
-
-#define EndMatchU   }} }}
+#define EndMatchU       }} }}
 
 //------------------------------------------------------------------------------
 
@@ -685,26 +620,22 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 #define MatchE(s) {                                                                            \
         MatchPreambula(s)                                                                      \
         static_assert(has_member_raise_selector<match_members<selector_type>>::value, "Before using MatchE, you have to specify raise selector on the selector type using RS macro");\
-        XTL_MESSAGE("WARNING: MatchE does not permit extra { and } within Match statement!")   \
+        XTL_MESSAGE("WARNING: The use of { and } within MatchE-statement must match XTL_USE_BRACES setting!") \
         try { raise_selector(__selector_ptr); XTL_NON_USE_BRACES_ONLY({)
 
 /// Macro that defines the case statement for the above switch
-#define CaseE_(L,...) }}                                                                       \
-        catch (L& matched_ref)                                                                 \
+#define QueE(C,...) }}                                                                         \
+        catch (C& __matched)                                                                   \
         {                                                                                      \
-            typedef L target_type;                                                             \
-            auto matched = &matched_ref;                                                       \
-            XTL_UNUSED(matched);
+            typedef C target_type;                                                             \
+            auto matched = &__matched;                                                         \
+            UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), XTL_UNUSED(matched), if (XTL_LIKELY(match<target_type>(__VA_ARGS__)(matched)))) {
 
-/// Macro that defines the case statement for the above switch
-#ifdef _MSC_VER
-    #define CaseE(...) XTL_APPLY_VARIADIC_MACRO(CaseE_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
-#else
-    #define CaseE(...) CaseE_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
-#endif
-
+#define CaseE_(C,...)   QueE(C)
+#define CaseE(...)      XTL_APPLY_VARIADIC_MACRO(CaseE_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__))
+#define WhenE(...)      } XTL_NON_FALL_THROUGH_ONLY(else) if (match<target_type>(__VA_ARGS__)(matched)) {
 #define OtherwiseE(...) CaseE(selector_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
-#define EndMatchE XTL_NON_USE_BRACES_ONLY(}) } catch (...) {} }
+#define EndMatchE       XTL_NON_USE_BRACES_ONLY(}) } catch (...) {} }
 
 //------------------------------------------------------------------------------
 
@@ -736,41 +667,21 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
             goto XTL_CONCAT(ReMatch,__LINE__);                                                 \
         case 0: break; {{
 
-/// Version of the above macro when kinds are stored in vtbl-like of structure.
-/// Non-forwarding: Sequential:  68% faster; Random: 37% faster
-///     Forwarding: Sequential: 425% faster; Random: 54% faster
-//#define MatchF(s) {\
-//        MatchPreambula(s)                                                                      \
-////        auto __kind_selector = original2remapped<selector_type>(tag_type(kind_selector(__selector_ptr)));\
-//        size_t __attempt = 0;\
-//        XTL_CONCAT(ReMatch,__LINE__):\
-//        switch (__kind_selector) {\
-//        default:\
-//            XTL_ASSERT(("Base classes for this kind were not specified",__selector_ptr->m_all_kinds));\
-//            XTL_ASSERT(("Invalid list of kinds",__selector_ptr->m_all_kinds[__attempt]==__kind_selector));\
-//            __kind_selector = __selector_ptr->m_all_kinds[++__attempt];\
-//            goto XTL_CONCAT(ReMatch,__LINE__);\
-//        case 0: break; {{
-
-/// NOTE: We need this extra indirection to properly handle 0 arguments as it
-///       seems to be impossible to introduce dummy argument inside the Case 
-///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
-#define CaseF_(C,...)                                                    \
+/// Macro that defines the case statement for the above switch
+#define QueF(C,...)                                                      \
         XTL_NON_FALL_THROUGH_ONLY(break;) }}                             \
         if (XTL_UNLIKELY(is_base_and_derived_kinds<selector_type>(remapped<C>::lbl, __most_derived_kind_selector))) \
         {                                                                \
         case remapped<C>::lbl:                                           \
             typedef C target_type;                                       \
             auto matched = stat_cast<target_type>(__selector_ptr);       \
-            XTL_UNUSED(matched);
+            UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), XTL_UNUSED(matched), if (XTL_LIKELY(match<target_type>(__VA_ARGS__)(matched)))) {
 
-/// Macro that defines the case statement for the above switch
-#ifdef _MSC_VER
-    #define CaseF(...) XTL_APPLY_VARIADIC_MACRO(CaseF_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
-#else
-    #define CaseF(...) CaseF_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
-#endif
-
+/// NOTE: We need this extra indirection to properly handle 0 arguments as it
+///       seems to be impossible to introduce dummy argument inside the Case 
+///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
+#define CaseF_(C,...) QueF(C)
+#define CaseF(...) XTL_APPLY_VARIADIC_MACRO(CaseF_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__))
 #define OtherwiseF(...) CaseF(selector_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
 #define EndMatchF   }} }}
 
@@ -786,32 +697,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
         enum { __base_counter = XTL_COUNTER };                                                 \
         switch (1) { XTL_NON_USE_BRACES_ONLY(XTL_REDUNDANCY_TRY) { XTL_USE_BRACES_ONLY(XTL_REDUNDANCY_TRY) {{{
 
-/// NOTE: We need this extra indirection to properly handle 0 arguments as it
-///       seems to be impossible to introduce dummy argument inside the Case 
-///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
-#define CaseS_(C,...)                                           \
-        XTL_NON_FALL_THROUGH_ONLY(break;) }}}}                  \
-        XTL_REDUNDANCY_CATCH(C)                                 \
-        {                                                       \
-            typedef C target_type; {                            \
-            enum { target_label = XTL_COUNTER-__base_counter }; \
-            XTL_REDUNDANCY_LABEL(case target_label:)            \
-            if (auto matched = match<C>()(__selector_ptr)) {    \
-            XTL_UNUSED(matched);
-
 /// Macro that defines the case statement for the above switch
-/// NOTE: If Visual C++ gives you error C2051: case expression not constant
-///       on this CaseP label, just change the Debug Format in project setting 
-///       Project -> Properties -> C/C++ -> General -> Debug Information Format 
-///       from "Program Database for Edit And Continue (/ZI)" 
-///       to   "Program Database (/Zi)", which is the default in Release builds,
-///       but not in Debug. This is a known bug of Visual C++ described here:
-///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#ifdef _MSC_VER
-    #define CaseS(...) XTL_APPLY_VARIADIC_MACRO(CaseS_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
-#else
-    #define CaseS(...) CaseS_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
-#endif
 #define QueS(C,...)                                             \
         XTL_NON_FALL_THROUGH_ONLY(break;) }}}}                  \
         XTL_REDUNDANCY_CATCH(C)                                 \
@@ -820,15 +706,23 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
             enum { target_label = XTL_COUNTER-__base_counter }; \
             XTL_REDUNDANCY_LABEL(case target_label:)            \
             if (auto matched = match<C>(__VA_ARGS__)(__selector_ptr)) { \
-            XTL_UNUSED(matched); {
+            UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), XTL_UNUSED(matched), if (XTL_LIKELY(match<target_type>(__VA_ARGS__)(matched)))) {
+
+/// NOTE: We need this extra indirection to properly handle 0 arguments as it
+///       seems to be impossible to introduce dummy argument inside the Case 
+///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
+#define CaseS_(C,...)   QueS(C)
+#define CaseS(...)      XTL_APPLY_VARIADIC_MACRO(CaseS_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__))
+
 #define WhenS(...)                                          \
         XTL_NON_FALL_THROUGH_ONLY(break;) }} {              \
         enum { target_label = XTL_COUNTER-__base_counter }; \
         XTL_REDUNDANCY_LABEL(case target_label:)            \
         if (auto matched = match<target_type>(__VA_ARGS__)(__selector_ptr)) { \
         XTL_UNUSED(matched); 
+
 #define OtherwiseS(...) CaseS(selector_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
-#define EndMatchS XTL_NON_FALL_THROUGH_ONLY(break;) }}}}}}
+#define EndMatchS       XTL_NON_FALL_THROUGH_ONLY(break;) }}}}}}
 
 #else
 
@@ -838,43 +732,27 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 ///// with n+k patterns or structural decomposition with nested patterns.
 #define MatchS(s) do {                                                                         \
         MatchPreambula(s)                                                                      \
-        XTL_MESSAGE("WARNING: Use of this version of MatchS does not permit extra { and } within Match statement!")   \
-        XTL_MESSAGE("         The code will compile but won't work, so make sure you do not have them in your code!") \
+        XTL_MESSAGE("WARNING: The use of { and } within MatchS-statement must match XTL_USE_BRACES setting!") \
         {{ if (false) XTL_NON_USE_BRACES_ONLY({)
 
-/// NOTE: We need this extra indirection to properly handle 0 arguments as it
-///       seems to be impossible to introduce dummy argument inside the Case 
-///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
-#define CaseS_(C,...)                                    \
-        XTL_NON_FALL_THROUGH_ONLY(break;) }}}{           \
-        typedef C target_type;                           \
-        if (auto matched = match<C>()(__selector_ptr)) { \
-            XTL_UNUSED(matched);
-
 /// Macro that defines the case statement for the above switch
-/// NOTE: If Visual C++ gives you error C2051: case expression not constant
-///       on this CaseP label, just change the Debug Format in project setting 
-///       Project -> Properties -> C/C++ -> General -> Debug Information Format 
-///       from "Program Database for Edit And Continue (/ZI)" 
-///       to   "Program Database (/Zi)", which is the default in Release builds,
-///       but not in Debug. This is a known bug of Visual C++ described here:
-///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#ifdef _MSC_VER
-    #define CaseS(...) XTL_APPLY_VARIADIC_MACRO(CaseS_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
-#else
-    #define CaseS(...) CaseS_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
-#endif
 #define QueS(C,...)                                                 \
         XTL_NON_FALL_THROUGH_ONLY(break;) }}}{                      \
         typedef C target_type;                                      \
         if (auto matched = match<C>(__VA_ARGS__)(__selector_ptr)) { \
-        XTL_UNUSED(matched); {
+        UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), XTL_UNUSED(matched), if (XTL_LIKELY(match<target_type>(__VA_ARGS__)(matched)))) {
+
+/// NOTE: We need this extra indirection to properly handle 0 arguments as it
+///       seems to be impossible to introduce dummy argument inside the Case 
+///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
+#define CaseS_(C,...)   QueS(C)
+#define CaseS(...)      XTL_APPLY_VARIADIC_MACRO(CaseS_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenS(...)                                                  \
         XTL_NON_FALL_THROUGH_ONLY(break;) }                         \
         if (auto matched = match<target_type>(__VA_ARGS__)(__selector_ptr)) { \
         XTL_UNUSED(matched);
 #define OtherwiseS(...) CaseS(selector_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
-#define EndMatchS XTL_NON_FALL_THROUGH_ONLY(break;) XTL_NON_USE_BRACES_ONLY(})}}} while (false);
+#define EndMatchS       XTL_NON_FALL_THROUGH_ONLY(break;) XTL_NON_USE_BRACES_ONLY(})}}} while (false);
 
 #endif
 
@@ -921,10 +799,9 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
                 goto XTL_CONCAT(ReMatch,__LINE__);                                             \
             XTL_NON_FALL_THROUGH_ONLY(if (false) )
 
-/// NOTE: We need this extra indirection to properly handle 0 arguments as it
-///       seems to be impossible to introduce dummy argument inside the Case 
-///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
-#define CaseQ_(C,...) XTL_NON_FALL_THROUGH_ONLY(break;) }}}                                    \
+/// Macro that defines the case statement for the above switch
+#define QueQ(C,...)                                                                            \
+        XTL_NON_FALL_THROUGH_ONLY(break;) }}}                                                  \
         XTL_REDUNDANCY_CATCH(C)                                                                \
         {                                                                                      \
             typedef XTL_CPP0X_TYPENAME switch_traits::                                         \
@@ -937,40 +814,16 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
                 switch_traits::on_first_pass(__selector_ptr, local_data, target_label);        \
             XTL_REDUNDANCY_LABEL(case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value:) \
                 auto matched = target_specific::get_matched(__selector_ptr,local_data);        \
-                XTL_UNUSED(matched);
+                UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), XTL_UNUSED(matched), if (XTL_LIKELY(match<target_type,target_layout>(__VA_ARGS__)(matched)))) {
 
-/// Macro that defines the case statement for the above switch
-/// NOTE: If Visual C++ gives you error C2051: case expression not constant
-///       on this CaseP label, just change the Debug Format in project setting 
-///       Project -> Properties -> C/C++ -> General -> Debug Information Format 
-///       from "Program Database for Edit And Continue (/ZI)" 
-///       to   "Program Database (/Zi)", which is the default in Release builds,
-///       but not in Debug. This is a known bug of Visual C++ described here:
-///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#ifdef _MSC_VER
-    #define CaseQ(...) XTL_APPLY_VARIADIC_MACRO(CaseQ_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__)) {
-#else
-    #define CaseQ(...) CaseQ_(__VA_ARGS__) DECL_BOUND_VARS(__VA_ARGS__) {
-#endif
-#define QueQ(C,...)                                                                            \
-        XTL_NON_FALL_THROUGH_ONLY(break;) }}}                                                  \
-        XTL_REDUNDANCY_CATCH(C)                                                                \
-        {                                                                                      \
-            typedef XTL_CPP0X_TYPENAME switch_traits::                                         \
-                    XTL_CPP0X_TEMPLATE disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>:: \
-                    XTL_CPP0X_TEMPLATE parameter<C> target_specific;                           \
-            typedef XTL_CPP0X_TYPENAME target_specific::target_type target_type;               \
-            enum { target_layout = target_specific::layout, target_label = XTL_COUNTER-__base_counter }; \
-            if (XTL_UNLIKELY(target_specific::main_condition(__selector_ptr, local_data)))  \
-            {                                                                                  \
-                switch_traits::on_first_pass(__selector_ptr, local_data, target_label);        \
-            XTL_REDUNDANCY_LABEL(case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value:) \
-                auto matched = target_specific::get_matched(__selector_ptr,local_data);        \
-                if (XTL_LIKELY(match<target_type,target_layout>(__VA_ARGS__)(matched))) {
-#define WhenQ(...) XTL_NON_FALL_THROUGH_ONLY(break;) } \
-        if (match<target_type,target_layout>(__VA_ARGS__)(matched)) {
+/// NOTE: We need this extra indirection to properly handle 0 arguments as it
+///       seems to be impossible to introduce dummy argument inside the Case 
+///       directly, so we use the type argument as a dummy argument for DECL_BOUND_VARS
+#define CaseQ_(C,...)   QueQ(C)
+#define CaseQ(...)      XTL_APPLY_VARIADIC_MACRO(CaseQ_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(DECL_BOUND_VARS,(__VA_ARGS__))
+#define WhenQ(...)      XTL_NON_FALL_THROUGH_ONLY(break;) } if (match<target_type,target_layout>(__VA_ARGS__)(matched)) {
 #define OtherwiseQ(...) CaseQ(selector_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
-#define EndMatchQ    }}} \
+#define EndMatchQ       }}} \
         enum { target_label = XTL_COUNTER-__base_counter }; \
         switch_traits::on_end(__selector_ptr, local_data, target_label); \
         case switch_traits::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::exit: ; }}
@@ -1522,1003 +1375,5 @@ public:
         };
     };
 };
-
-//------------------------------------------------------------------------------
-
-template <class T>
-struct variable;
-
-//------------------------------------------------------------------------------
-
-template <typename T, typename E>
-struct guard
-{
-    guard(const variable<T>& v, const E& e) : m_v(v), m_e(e) {}
-    guard(const variable<T>& v, E&& e) : m_v(v), m_e(e) {}
-    guard(guard&& g) : m_v(g.m_v), m_e(std::move(g.m_e)) {}
-    template <typename U>
-    bool operator()(const U& u) const { return m_v(u) && eval(m_e); }
-    const variable<T>& m_v;
-    const E            m_e;
-};
-
-//------------------------------------------------------------------------------
-
-/// A reference to a user provided variable
-template <class T>
-struct var_ref
-{
-    var_ref(T& var) : m_var(&var) {}
-    var_ref(var_ref&& v) : m_var(v.m_var) {}
-
-    typedef T result_type;
-    operator result_type() const throw() { return *m_var; }
-
-    /// We report that matching succeeded and bind the value
-    bool operator()(const T& t) const 
-    {
-        *m_var = t;
-        return true;
-    }
-
-    /// Member that will hold matching value in case of successful matching
-    T* m_var;
-};
-
-/// A reference to a user provided variable
-template <class T>
-struct var_ref<variable<T> >
-{
-    var_ref(variable<T>& var) : m_var(&var) {}
-    var_ref(var_ref&& v) : m_var(v.m_var) {}
-
-    typedef T result_type;
-    operator result_type() const throw() { return *m_var; }
-
-    /// We report that matching succeeded and bind the value
-    bool operator()(const T& t) const 
-    {
-        *m_var = t;
-        return true;
-    }
-
-    /// Member that will hold matching value in case of successful matching
-    variable<T>* m_var;
-};
-
-//------------------------------------------------------------------------------
-
-/// Variable binding for a value type
-template <class T>
-struct variable
-{
-    variable() : m_value() {}
-    variable(const T& t) : m_value(t) {}
-    variable(T&& t) : m_value(std::move(t)) {}
-    variable(variable&& v) : m_value(std::move(v.m_value)) {}
-
-    typedef T result_type;
-
-    /// We report that matching succeeded and bind the value
-    bool operator()(const T& t) const
-    {
-        m_value = t;
-        return true;
-    }
-
-    variable& operator=(const T& t) { m_value = t; return *this; }
-
-    template <typename E> 
-    auto operator|=(E&& e) -> guard<T,decltype(filter(std::forward<E>(e)))>
-    { 
-        return guard<T,decltype(filter(std::forward<E>(e)))>(*this,filter(std::forward<E>(e))); 
-    }
-
-    /// Helper conversion operator to let the variable be used in some places
-    /// where T was allowed
-    operator const T&() const throw() { return m_value; }
-
-    /// Member that will hold matching value in case of successful matching
-    mutable T m_value;
-};
-
-//------------------------------------------------------------------------------
-
-/// Variable binding for a pointer type
-template <class T>
-struct variable<const T*>
-{
-    variable() : m_value() {}
-    variable(variable&& v) : m_value(std::move(v.m_value)) {}
-
-    typedef const T* result_type;
-
-    /// We may be applied to a value of a base type, so first we have to figure
-    /// out whether they dynamic type is actually T. We report match only if it is
-    template <typename U>
-    bool operator()(const U* u) const 
-    {
-        if (const T* t = dynamic_cast<const T*>(u))
-        {
-            m_value = t; 
-            return true;
-        }
-        else
-            return false;
-    }
-
-    variable& operator=(const T* t) { m_value = t; return *this; }
-
-    template <typename E> 
-    auto operator|=(E&& e) -> guard<const T*,decltype(filter(std::forward<E>(e)))>
-    { 
-        return guard<const T*,decltype(filter(std::forward<E>(e)))>(*this,filter(std::forward<E>(e))); 
-    }
-
-
-    /// This distinguishes the case when type of the variable matches type of the member
-    bool operator()(const T* t) const 
-    {
-        // NOTE: This will also assign the null pointer. Should it?
-        m_value = t; 
-        return true;
-    }
-
-    /// Helper conversion operator to let the variable be used in some places
-    /// where T* is expected
-    operator const T*() const throw() { return m_value; }
-
-    /// A helper member to let the wrapping variable be used as a pointer
-    const T* operator->() const throw() { return m_value; }
-
-    /// A helper member to let the wrapping variable be used as a pointer
-    const T& operator*()  const throw() { return *m_value; }
-
-    /// Member that will hold matching value in case of successful matching
-    mutable const T* m_value;
-};
-
-//------------------------------------------------------------------------------
-
-/// Variable binding for a pointer type
-template <class T>
-struct variable<const T&>
-{
-    variable() : m_value() {}
-    variable(variable&& v) : m_value(std::move(v.m_value)) {}
-
-    typedef const T& result_type;
-
-    /// We may be applied to a value of a base type, so first we have to figure
-    /// out whether they dynamic type is actually T. We report match only if it is
-    template <typename U>
-    bool operator()(const U& u) const 
-    {
-        if (const T* t = dynamic_cast<const T*>(&u))
-        {
-            m_value = t; 
-            return true;
-        }
-        else
-            return false;
-    }
-
-    template <typename E> 
-    auto operator|=(E&& e) -> guard<const T&,decltype(filter(std::forward<E>(e)))>
-    { 
-        return guard<const T&,decltype(filter(std::forward<E>(e)))>(*this,filter(std::forward<E>(e))); 
-    }
-
-    /// This distinguishes the case when type of the variable matches type of the member
-    bool operator()(const T& t) const 
-    {
-        // NOTE: This will also assign the null pointer. Should it?
-        m_value = &t;
-        return true;
-    }
-
-    /// Helper conversion operator to let the variable be used in some places
-    /// where T was allowed
-    operator const T&() const throw() { XTL_ASSERT(m_value); return *m_value; }
-
-    /// Member that will hold matching value in case of successful matching
-    mutable const T* m_value;
-};
-
-//------------------------------------------------------------------------------
-
-/// Class that describes a meta variable that matches everything.
-/// This variable will match any type returned by a member, but the main 
-/// difference from just using a variable whose value is ignored is that 
-/// use of this variable will make sure the actual member is never invoked!
-struct wildcard
-{
-    //typedef void result_type;
-
-    // NOTE: We don't need the below application anymore since we have a 
-    //       specialization that never applies the actual member before
-    //       passing it to this meta variable that matches everything.
-    //template <typename U>
-    //bool operator()(const U& u) const throw() { return true; }
-};
-
-//------------------------------------------------------------------------------
-
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const variable<T>& v) { return os << v.m_value; }
-
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const variable<T*>& v) { return os << *v.m_value; }
-
-//------------------------------------------------------------------------------
-
-template <class T>
-struct value
-{
-    typedef T result_type;
-    value(const T& t) : m_value(t) {}
-    value(T&& t) : m_value(std::move(t)) {}
-    value(value&& v) : m_value(std::move(v.m_value)) {}
-    bool operator()(const T& t) const throw() { return m_value == t; }
-    operator result_type() const throw() { return m_value; }
-    T m_value;
-};
-
-template <class T> inline value<T> val(const T& t) { return value<T>(t); }
-
-//------------------------------------------------------------------------------
-
-template <typename F, typename E1 = void, typename E2 = void>
-struct expr;
-
-template <typename F, typename E1>
-struct expr<F,E1>
-{
-    expr(const E1& e1) : m_e1(e1) {}
-    expr(E1&& e1) : m_e1(std::move(e1)) {}
-    expr(expr&& e) : m_e1(std::move(e.m_e1)) {}
-    typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>()))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
-    operator result_type() const { return eval(*this); }
-    bool operator()(const result_type& t) const 
-    {
-        typename E1::result_type v;
-        return solver<F>()(v,t) && m_e1(v);
-    }
-    const E1 m_e1;
-};
-
-template <typename F, typename E1, typename E2>
-struct expr
-{
-    expr(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
-    expr(E1&& e1, E2&& e2) : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
-    expr(expr&& e) : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {}
-    typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>(),std::declval<typename E2::result_type>()))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
-    operator result_type() const { return eval(*this); }
-    bool operator()(const result_type& t) const 
-    {
-        typename E1::result_type v;
-        return solver<F>()(v,eval(m_e2),t) && m_e1(v);
-    }
-    const E1 m_e1;
-    const E2 m_e2;
-};
-
-//------------------------------------------------------------------------------
-
-template <typename E1, typename E2>
-struct expr_or
-{
-    expr_or(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
-    expr_or(E1&& e1, E2&& e2) : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
-    expr_or(expr_or&& e) : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {}
-    template <typename U> bool operator()(const U* u) const { return m_e1(u) || m_e2(u); }
-    template <typename U> bool operator()(      U* u) const { return m_e1(u) || m_e2(u); }
-    template <typename U> bool operator()(const U& u) const { return operator()(&u); }
-    template <typename U> bool operator()(      U& u) const { return operator()(&u); }
-    const E1 m_e1;
-    const E2 m_e2;
-};
-
-//------------------------------------------------------------------------------
-
-template <typename T, size_t layout, typename E1, typename E2, typename E3, typename E4> struct matcher4;
-template <typename T, size_t layout, typename E1, typename E2, typename E3>              struct matcher3;
-template <typename T, size_t layout, typename E1, typename E2>                           struct matcher2;
-template <typename T, size_t layout, typename E1>                                        struct matcher1;
-template <typename T, size_t layout>                                                     struct matcher0;
-
-//------------------------------------------------------------------------------
-
-template <typename T> inline var_ref<T> filter(T& t)        { return var_ref<T>(t); }
-template <typename T> inline value<T>   filter(const T& t)  { return value<T>(t); }
-
-template <typename T, size_t layout, typename E1, typename E2, typename E3, typename E4>
-matcher4<T,layout,E1,E2,E3,E4> inline filter(const matcher4<T,layout,E1,E2,E3,E4>& t) { return t; }
-template <typename T, size_t layout, typename E1, typename E2, typename E3>
-matcher3<T,layout,E1,E2,E3> inline filter(const matcher3<T,layout,E1,E2,E3>& t) { return t; }
-template <typename T, size_t layout, typename E1, typename E2>
-matcher2<T,layout,E1,E2> inline filter(const matcher2<T,layout,E1,E2>& t) { return t; }
-template <typename T, size_t layout, typename E1>
-matcher1<T,layout,E1> inline filter(const matcher1<T,layout,E1>& t) { return t; }
-template <typename T, size_t layout>
-matcher0<T,layout> inline filter(const matcher0<T,layout>& t) { return t; }
-
-template <typename F, typename E1, typename E2>
-expr<F,E1,E2> inline filter(const expr<F,E1,E2>& t) { return t; }
-template <typename F, typename E1>
-expr<F,E1> inline filter(const expr<F,E1>& t) { return t; }
-template <typename F>
-expr<F> inline filter(const expr<F>& t) { return t; }
-template <typename T, typename E>
-guard<T,E> inline filter(const guard<T,E>& t) { return t; }
-
-//------------------------------------------------------------------------------
-
-// Define all unary operators on variable
-#define FOR_EACH_UNARY_OPERATOR(F,S) \
-    template <typename T> \
-    inline auto XTL_CONCATENATE(operator,S)(variable<T>& v)\
-          -> expr<F,var_ref<variable<T> > >\
-    { return expr<F,var_ref<variable<T> > >(var_ref<variable<T> >(v)); }
-// Define all binary operators with first argument being variable and second whatever
-#define FOR_EACH_BINARY_OPERATOR(F,S) \
-    template <typename T, typename E> \
-    inline auto XTL_CONCATENATE(operator,S)(variable<T>& v, E&& e)\
-          -> expr<F,var_ref<variable<T> >,decltype(filter(std::forward<E>(e)))>\
-    { return expr<F,var_ref<variable<T> >,decltype(filter(std::forward<E>(e)))>(var_ref<variable<T> >(v),filter(std::forward<E>(e))); }
-#include "loop_over_operators.hpp"
-#undef  FOR_EACH_BINARY_OPERATOR
-#undef  FOR_EACH_UNARY_OPERATOR
-
-// Define all unary operators on value
-#define FOR_EACH_UNARY_OPERATOR(F,S) \
-    template <typename T> \
-    inline auto XTL_CONCATENATE(operator,S)(const value<T>& v)\
-          -> expr<F,value<T> >\
-    { return expr<F,value<T> >(v); }
-// Define all binary operators with first argument being value and second whatever
-#define FOR_EACH_BINARY_OPERATOR(F,S) \
-    template <typename T, typename E> \
-    inline auto XTL_CONCATENATE(operator,S)(const value<T>& v, E&& e)\
-          -> expr<F,value<T>,decltype(filter(std::forward<E>(e)))>\
-    { return expr<F,value<T>,decltype(filter(std::forward<E>(e)))>(v,filter(std::forward<E>(e))); }
-#include "loop_over_operators.hpp"
-#undef  FOR_EACH_BINARY_OPERATOR
-#undef  FOR_EACH_UNARY_OPERATOR
-
-// Define all unary operators on unary expressions
-#define FOR_EACH_UNARY_OPERATOR(F,S) \
-    template <typename F1, typename E1> \
-    inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1>& v)\
-          -> expr<F,expr<F1,E1> >\
-    { return expr<F,expr<F1,E1> >(v); }
-// Define all binary operators with first argument being unary expression and second whatever
-#define FOR_EACH_BINARY_OPERATOR(F,S) \
-    template <typename F1, typename E1, typename E> \
-    inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1>& v, E&& e)\
-          -> expr<F,expr<F1,E1>,decltype(filter(std::forward<E>(e)))>\
-    { return expr<F,expr<F1,E1>,decltype(filter(std::forward<E>(e)))>(v,filter(std::forward<E>(e))); }
-#include "loop_over_operators.hpp"
-#undef  FOR_EACH_BINARY_OPERATOR
-#undef  FOR_EACH_UNARY_OPERATOR
-
-// Define all unary operators on binary expressions
-#define FOR_EACH_UNARY_OPERATOR(F,S) \
-    template <typename F1, typename E1, typename E2> \
-    inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1,E2>& v)\
-          -> expr<F,expr<F1,E1,E2> >\
-    { return expr<F,expr<F1,E1,E2> >(v); }
-// Define all binary operators with first argument being binary expression and second whatever
-#define FOR_EACH_BINARY_OPERATOR(F,S) \
-    template <typename F1, typename E1, typename E2, typename E> \
-    inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1,E2>& v, E&& e)\
-          -> expr<F,expr<F1,E1,E2>,decltype(filter(std::forward<E>(e)))>\
-    { return expr<F,expr<F1,E1,E2>,decltype(filter(std::forward<E>(e)))>(v,filter(std::forward<E>(e))); }
-#include "loop_over_operators.hpp"
-#undef  FOR_EACH_BINARY_OPERATOR
-#undef  FOR_EACH_UNARY_OPERATOR
-
-//------------------------------------------------------------------------------
-
-template <typename T> T inline eval(const value<T>& e)    { return e.m_value; }
-template <typename T> T inline eval(const variable<T>& e) { return e.m_value; }
-template <typename T> T inline eval(const var_ref<T>& e)  { return *e.m_var; }
-template <typename T> T inline eval(const var_ref<variable<T> >& e) { return e.m_var->m_value; }
-template <typename F, typename E1>              typename expr<F,E1>::result_type    inline eval(const expr<F,E1>&    e) { return F()(eval(e.m_e1)); }
-template <typename F, typename E1, typename E2> typename expr<F,E1,E2>::result_type inline eval(const expr<F,E1,E2>& e) { return F()(eval(e.m_e1),eval(e.m_e2)); }
-
-//------------------------------------------------------------------------------
-
-template <typename E>                           struct is_const_expr                { static const bool value = false; };
-template <typename T>                           struct is_const_expr<value<T>>      { static const bool value = true; };
-template <typename F, typename E1>              struct is_const_expr<expr<F,E1>>    { static const bool value = is_const_expr<E1>::value; };
-template <typename F, typename E1, typename E2> struct is_const_expr<expr<F,E1,E2>> { static const bool value = is_const_expr<E1>::value && is_const_expr<E2>::value; };
-
-//------------------------------------------------------------------------------
-
-#define XTL_DEBUG_APPLY_MEMBER(what, c, f) //XTL_DEBUG_ONLY(std::clog << "\nApplying " what << c << " of type " << typeid(*c).name() << std::endl)
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(const C* c, R (T::*method)() const)
-{
-    XTL_DEBUG_APPLY_MEMBER("const member function to const instance ", c, method);
-    return (c->*method)();
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(      C* c, R (T::*method)() const)
-{
-    XTL_DEBUG_APPLY_MEMBER("const member function to non-const instance ", c, method);
-    return (c->*method)();
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(      C* c, R (T::*method)()      )
-{
-    XTL_DEBUG_APPLY_MEMBER("non-const member function to non-const instance ", c, method);
-    return (c->*method)();
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline const R& apply_member(const C* c, R T::*field) throw()
-{
-    XTL_DEBUG_APPLY_MEMBER("data member to const instance ", c, field);
-    return c->*field;
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline       R& apply_member(      C* c, R T::*field) throw()
-{
-    XTL_DEBUG_APPLY_MEMBER("data member to non-const instance ", c, field);
-    return c->*field;
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(const C* c, R (*func)(const T*))
-{
-    XTL_DEBUG_APPLY_MEMBER("external function taking const pointer to const instance ", c, func);
-    return (*func)(c);
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(      C* c, R (*func)(const T*))
-{
-    XTL_DEBUG_APPLY_MEMBER("external function taking const pointer to non-const instance ", c, func);
-    return (*func)(c);
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(      C* c, R (*func)(      T*))
-{
-    XTL_DEBUG_APPLY_MEMBER("external function taking non-const pointer to non-const instance ", c, func);
-    return (*func)(c);
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(const C* c, R (*func)(const T&))
-{
-    XTL_DEBUG_APPLY_MEMBER("external function taking const reference to const instance ", c, func);
-    return (*func)(*c);
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(      C* c, R (*func)(const T&))
-{
-    XTL_DEBUG_APPLY_MEMBER("external function taking const reference to non-const instance ", c, func);
-    return (*func)(*c);
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(      C* c, R (*func)(      T&))
-{
-    XTL_DEBUG_APPLY_MEMBER("external function taking non-const reference to non-const instance ", c, func);
-    return (*func)(*c);
-}
-
-//------------------------------------------------------------------------------
-
-/// We need this extra indirection to be able to intercept when we are trying to 
-/// match a meta variable _ of type wildcard, that matches everything of
-/// any type. In this case we don't even want to invoke the underlain member!
-template <typename E, typename C, typename M>
-inline bool apply_expression(const E& e, const C* c, M m)
-{
-    #ifdef _MSC_VER
-    #pragma warning( disable : 4800 )
-    #endif
-
-    return e(apply_member(c, m));
-}
-
-template <typename E, typename C, typename M>
-inline bool apply_expression(const E& e,       C* c, M m)
-{
-    #ifdef _MSC_VER
-    #pragma warning( disable : 4800 )
-    #endif
-
-    return e(apply_member(c, m));
-}
-
-/// This is the specialization that makes the member not to be invoked when we
-/// are matching against the meta variable _ that matches everything.
-template <typename C, typename M>
-inline bool apply_expression(const var_ref<wildcard>&, const C*, M)
-{
-    return true;
-}
-
-template <typename C, typename M>
-inline bool apply_expression(const var_ref<wildcard>&,       C*, M) throw()
-{
-    return true;
-}
-
-//------------------------------------------------------------------------------
-
-template <typename T, size_t layout>
-struct matcher0
-{
-    const T* operator()(const T* t) const throw() { return t; }
-          T* operator()(      T* t) const throw() { return t; }
-    template <typename U> const T* operator()(const U* u) const throw() { return dynamic_cast<const T*>(u); }
-    template <typename U>       T* operator()(      U* u) const throw() { return dynamic_cast<      T*>(u); }
-    template <typename U> const T* operator()(const U& u) const throw() { return operator()(&u); }
-    template <typename U>       T* operator()(      U& u) const throw() { return operator()(&u); }
-
-    template <typename E> expr_or<matcher0,E> operator|(const E& e) const throw() { return expr_or<matcher0,E>(*this,e); }
-};
-
-//------------------------------------------------------------------------------
-
-template <typename T, size_t layout, typename E1>
-struct matcher1
-{
-    matcher1(const E1& e1) : m_e1(e1) {}
-    matcher1(E1&& e1) : m_e1(std::move(e1)) {}
-    matcher1(matcher1&& src) : m_e1(std::move(src.m_e1)) {}
-    const T* operator()(const T* t) const 
-    {
-        return 
-            (t                                                             &&
-             apply_expression(m_e1, t, match_members<T,layout>::member0())
-            )
-            ? t
-            : 0;
-    }
-          T* operator()(      T* t) const 
-    {
-        return 
-            (t                                                             &&
-             apply_expression(m_e1, t, match_members<T,layout>::member0())
-            )
-            ? t
-            : 0;
-    }
-
-    template <typename U> const T* operator()(const U* u) const { return operator()(dynamic_cast<const T*>(u)); }
-    template <typename U>       T* operator()(      U* u) const { return operator()(dynamic_cast<      T*>(u)); }
-    template <typename U> const T* operator()(const U& u) const { return operator()(&u); }
-    template <typename U>       T* operator()(      U& u) const { return operator()(&u); }
-
-    template <typename E> expr_or<matcher1,E> operator|(const E& e) const throw() { return expr_or<matcher1,E>(*this,e); }
-    const E1 m_e1;
-};
-
-//------------------------------------------------------------------------------
-
-template <typename T, size_t layout, typename E1, typename E2>
-struct matcher2
-{
-    matcher2(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
-    matcher2(E1&& e1, E2&& e2) : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
-    matcher2(matcher2&& src) : m_e1(std::move(src.m_e1)), m_e2(std::move(src.m_e2)) {}
-
-    const T* operator()(const T* t) const 
-    {
-        return 
-            (t                                                             &&
-             apply_expression(m_e1, t, match_members<T,layout>::member0()) &&
-             apply_expression(m_e2, t, match_members<T,layout>::member1())
-            )
-            ? t
-            : 0;
-    }
-          T* operator()(      T* t) const 
-    {
-        return 
-            (t                                                             &&
-             apply_expression(m_e1, t, match_members<T,layout>::member0()) &&
-             apply_expression(m_e2, t, match_members<T,layout>::member1())
-            )
-            ? t
-            : 0;
-    }
-
-    template <typename U> const T* operator()(const U* u) const { return operator()(dynamic_cast<const T*>(u)); }
-    template <typename U>       T* operator()(      U* u) const { return operator()(dynamic_cast<      T*>(u)); }
-    template <typename U> const T* operator()(const U& u) const { return operator()(&u); }
-    template <typename U>       T* operator()(      U& u) const { return operator()(&u); }
-
-    template <typename E> expr_or<matcher2,E> operator|(const E& e) const throw() { return expr_or<matcher2,E>(*this,e); }
-    const E1 m_e1;
-    const E2 m_e2;
-};
-
-//------------------------------------------------------------------------------
-
-template <typename T, size_t layout, typename E1, typename E2, typename E3>
-struct matcher3
-{
-    matcher3(const E1& e1, const E2& e2, const E3& e3) : m_e1(e1), m_e2(e2), m_e3(e3) {}
-    matcher3(E1&& e1, E2&& e2, E3&& e3) : m_e1(std::move(e1)), m_e2(std::move(e2)), m_e3(std::move(e3)) {}
-    matcher3(matcher3&& src) : m_e1(std::move(src.m_e1)), m_e2(std::move(src.m_e2)), m_e3(std::move(src.m_e3)) {}
-
-    const T* operator()(const T* t) const 
-    {
-        return 
-            (t                                                             &&
-             apply_expression(m_e1, t, match_members<T,layout>::member0()) &&
-             apply_expression(m_e2, t, match_members<T,layout>::member1()) &&
-             apply_expression(m_e3, t, match_members<T,layout>::member2())
-            )
-            ? t
-            : 0;
-    }
-          T* operator()(      T* t) const 
-    {
-        return 
-            (t                                                             &&
-             apply_expression(m_e1, t, match_members<T,layout>::member0()) &&
-             apply_expression(m_e2, t, match_members<T,layout>::member1()) &&
-             apply_expression(m_e3, t, match_members<T,layout>::member2())
-            )
-            ? t
-            : 0;
-    }
-
-    template <typename U> const T* operator()(const U* u) const { return operator()(dynamic_cast<const T*>(u)); }
-    template <typename U>       T* operator()(      U* u) const { return operator()(dynamic_cast<      T*>(u)); }
-    template <typename U> const T* operator()(const U& u) const { return operator()(&u); }
-    template <typename U>       T* operator()(      U& u) const { return operator()(&u); }
-
-    template <typename E> expr_or<matcher3,E> operator|(const E& e) const throw() { return expr_or<matcher3,E>(*this,e); }
-    const E1 m_e1;
-    const E2 m_e2;
-    const E3 m_e3;
-};
-
-//------------------------------------------------------------------------------
-
-template <typename T, size_t layout, typename E1, typename E2, typename E3, typename E4>
-struct matcher4
-{
-    matcher4(const E1& e1, const E2& e2, const E3& e3, const E4& e4) : m_e1(e1), m_e2(e2), m_e3(e3), m_e4(e4) {}
-    matcher4(E1&& e1, E2&& e2, E3&& e3, E4&& e4) : m_e1(std::move(e1)), m_e2(std::move(e2)), m_e3(std::move(e3)), m_e4(std::move(e4)) {}
-    matcher4(matcher4&& src) : m_e1(std::move(src.m_e1)), m_e2(std::move(src.m_e2)), m_e3(std::move(src.m_e3)), m_e4(std::move(src.m_e4)) {}
-
-    const T* operator()(const T* t) const 
-    {
-        return 
-            (t                                                             &&
-             apply_expression(m_e1, t, match_members<T,layout>::member0()) &&
-             apply_expression(m_e2, t, match_members<T,layout>::member1()) &&
-             apply_expression(m_e3, t, match_members<T,layout>::member2()) &&
-             apply_expression(m_e4, t, match_members<T,layout>::member3())
-            )
-            ? t
-            : 0;
-    }
-          T* operator()(      T* t) const 
-    {
-        return 
-            (t                                                             &&
-             apply_expression(m_e1, t, match_members<T,layout>::member0()) &&
-             apply_expression(m_e2, t, match_members<T,layout>::member1()) &&
-             apply_expression(m_e3, t, match_members<T,layout>::member2()) &&
-             apply_expression(m_e4, t, match_members<T,layout>::member3())
-            )
-            ? t
-            : 0;
-    }
-
-    template <typename U> const T* operator()(const U* u) const { return operator()(dynamic_cast<const T*>(u)); }
-    template <typename U>       T* operator()(      U* u) const { return operator()(dynamic_cast<      T*>(u)); }
-    template <typename U> const T* operator()(const U& u) const { return operator()(&u); }
-    template <typename U>       T* operator()(      U& u) const { return operator()(&u); }
-
-    template <typename E> expr_or<matcher4,E> operator|(const E& e) const throw() { return expr_or<matcher4,E>(*this,e); }
-    const E1 m_e1;
-    const E2 m_e2;
-    const E3 m_e3;
-    const E4 m_e4;
-};
-
-//------------------------------------------------------------------------------
-
-/// 0-argument version of a helper function to @match that accepts arguments that
-/// have been already preprocessed with @filter to convert regular variables into
-/// @var_ref and constants into @value.
-/// \note This version will be called from @match with a non-@view target type
-template <typename T, size_t layout>
-inline matcher0<T,layout> match_ex(const view<T,layout>&) throw()
-{
-    return matcher0<T,layout>();
-}
-
-/// 0-argument version of a helper function to @match that accepts arguments that
-/// have been already preprocessed with @filter to convert regular variables into
-/// @var_ref and constants into @value.
-/// \note This version will be called from @match that had its target type a @view
-template <typename T, size_t layout>
-inline matcher0<T,layout> match_ex(const view<view<T,layout>>&) throw()
-{
-    return matcher0<T,layout>();
-}
-
-/// A 0-argument version of a tree-pattern constructor. Target type is allowed 
-/// to be a @view here.
-template <typename T>
-inline auto match() throw() -> XTL_RETURN(match_ex(view<T>()))
-
-/// A 0-argument version of a tree-pattern constructor that takes layout in 
-/// addition to the target type.
-/// \note @view is not supposed to be passed as a target type to this version
-///       of the function because we will then have two potentially conflicting
-///       layouts. Any layout different from @default_layout passed here will 
-///       result in a compile time error.
-template <typename T, size_t layout>
-inline auto match() throw() -> XTL_RETURN(match_ex(view<T,layout>()))
-
-//------------------------------------------------------------------------------
-
-/// 1-argument version of a helper function to @match that accepts arguments that
-/// have been already preprocessed with @filter to convert regular variables into
-/// @var_ref and constants into @value.
-/// \note This version will be called from @match with a non-@view target type
-template <typename T, size_t layout, typename E1>
-inline matcher1<T,layout,E1> match_ex(const view<T,layout>&, E1&& e1) throw()
-{
-    return matcher1<T,layout,E1>(std::forward<E1>(e1));
-}
-
-/// 1-argument version of a helper function to @match that accepts arguments that
-/// have been already preprocessed with @filter to convert regular variables into
-/// @var_ref and constants into @value.
-/// \note This version will be called from @match that had its target type a @view
-template <typename T, size_t layout, typename E1>
-inline matcher1<T,layout,E1> match_ex(const view<view<T,layout>>&, E1&& e1) throw()
-{
-    return matcher1<T,layout,E1>(std::forward<E1>(e1));
-}
-
-/// A 1-argument version of a tree-pattern constructor. Target type is allowed 
-/// to be a @view here.
-template <typename T, typename E1>
-inline auto match(E1&& e1) throw() -> XTL_RETURN
-(
-    match_ex(
-        view<T>(),
-        filter(std::forward<E1>(e1))
-    )
-)
-
-/// A 1-argument version of a tree-pattern constructor that takes layout in 
-/// addition to the target type.
-/// \note @view is not supposed to be passed as a target type to this version
-///       of the function because we will then have two potentially conflicting
-///       layouts. Any layout different from @default_layout passed here will 
-///       result in a compile time error.
-template <typename T, size_t layout, typename E1>
-inline auto match(E1&& e1) throw() -> XTL_RETURN
-(
-    match_ex(
-        view<T,layout>(),
-        filter(std::forward<E1>(e1))
-    )
-)
-
-//------------------------------------------------------------------------------
-
-/// 2-argument version of a helper function to @match that accepts arguments that
-/// have been already preprocessed with @filter to convert regular variables into
-/// @var_ref and constants into @value.
-/// \note This version will be called from @match with a non-@view target type
-template <typename T, size_t layout, typename E1, typename E2>
-inline matcher2<T,layout,E1,E2> match_ex(const view<T,layout>&, E1&& e1, E2&& e2) throw()
-{
-    return matcher2<T,layout,E1,E2>(
-            std::forward<E1>(e1),
-            std::forward<E2>(e2)
-           );
-}
-
-/// 2-argument version of a helper function to @match that accepts arguments that
-/// have been already preprocessed with @filter to convert regular variables into
-/// @var_ref and constants into @value.
-/// \note This version will be called from @match that had its target type a @view
-template <typename T, size_t layout, typename E1, typename E2>
-inline matcher2<T,layout,E1,E2> match_ex(const view<view<T,layout>>&, E1&& e1, E2&& e2) throw()
-{
-    return matcher2<T,layout,E1,E2>(
-            std::forward<E1>(e1),
-            std::forward<E2>(e2)
-           );
-}
-
-/// A 2-argument version of a tree-pattern constructor. Target type is allowed 
-/// to be a @view here.
-template <typename T, typename E1, typename E2>
-inline auto match(E1&& e1, E2&& e2) throw() -> XTL_RETURN
-(
-    match_ex(
-        view<T>(),
-        filter(std::forward<E1>(e1)), 
-        filter(std::forward<E2>(e2))
-    )
-)
-
-/// A 2-argument version of a tree-pattern constructor that takes layout in 
-/// addition to the target type.
-/// \note @view is not supposed to be passed as a target type to this version
-///       of the function because we will then have two potentially conflicting
-///       layouts. Any layout different from @default_layout passed here will 
-///       result in a compile time error.
-template <typename T, size_t layout, typename E1, typename E2>
-inline auto match(E1&& e1, E2&& e2) throw() -> XTL_RETURN
-(
-    match_ex(
-        view<T,layout>(),
-        filter(std::forward<E1>(e1)), 
-        filter(std::forward<E2>(e2))
-    )
-)
-
-//------------------------------------------------------------------------------
-
-/// 3-argument version of a helper function to @match that accepts arguments that
-/// have been already preprocessed with @filter to convert regular variables into
-/// @var_ref and constants into @value.
-/// \note This version will be called from @match with a non-@view target type
-template <typename T, size_t layout, typename E1, typename E2, typename E3>
-inline matcher3<T,layout,E1,E2,E3> match_ex(const view<T,layout>&, E1&& e1, E2&& e2, E3&& e3) throw()
-{
-    return matcher3<T,layout,E1,E2,E3>(
-            std::forward<E1>(e1),
-            std::forward<E2>(e2),
-            std::forward<E3>(e3)
-           );
-}
-
-/// 3-argument version of a helper function to @match that accepts arguments that
-/// have been already preprocessed with @filter to convert regular variables into
-/// @var_ref and constants into @value.
-/// \note This version will be called from @match that had its target type a @view
-template <typename T, size_t layout, typename E1, typename E2, typename E3>
-inline matcher3<T,layout,E1,E2,E3> match_ex(const view<view<T,layout>>&, E1&& e1, E2&& e2, E3&& e3) throw()
-{
-    return matcher3<T,layout,E1,E2,E3>(
-            std::forward<E1>(e1),
-            std::forward<E2>(e2),
-            std::forward<E3>(e3)
-           );
-}
-
-/// A 3-argument version of a tree-pattern constructor. Target type is allowed 
-/// to be a @view here.
-template <typename T, typename E1, typename E2, typename E3>
-inline auto match(E1&& e1, E2&& e2, E3&& e3) throw() -> XTL_RETURN
-(
-    match_ex(
-        view<T>(),
-        filter(std::forward<E1>(e1)), 
-        filter(std::forward<E2>(e2)), 
-        filter(std::forward<E3>(e3))
-    )
-)
-
-/// A 3-argument version of a tree-pattern constructor that takes layout in 
-/// addition to the target type.
-/// \note @view is not supposed to be passed as a target type to this version
-///       of the function because we will then have two potentially conflicting
-///       layouts. Any layout different from @default_layout passed here will 
-///       result in a compile time error.
-template <typename T, size_t layout, typename E1, typename E2, typename E3>
-inline auto match(E1&& e1, E2&& e2, E3&& e3) throw() -> XTL_RETURN
-(
-    match_ex(
-        view<T,layout>(),
-        filter(std::forward<E1>(e1)), 
-        filter(std::forward<E2>(e2)), 
-        filter(std::forward<E3>(e3))
-    )
-)
-
-//------------------------------------------------------------------------------
-
-/// 4-argument version of a helper function to @match that accepts arguments that
-/// have been already preprocessed with @filter to convert regular variables into
-/// @var_ref and constants into @value.
-/// \note This version will be called from @match with a non-@view target type
-template <typename T, size_t layout, typename E1, typename E2, typename E3, typename E4>
-inline matcher4<T,layout,E1,E2,E3,E4> match_ex(const view<T,layout>&, E1&& e1, E2&& e2, E3&& e3, E4&& e4) throw()
-{
-    return matcher4<T,layout,E1,E2,E3,E4>(
-            std::forward<E1>(e1),
-            std::forward<E2>(e2),
-            std::forward<E3>(e3),
-            std::forward<E4>(e4)
-           );
-}
-
-/// 4-argument version of a helper function to @match that accepts arguments that
-/// have been already preprocessed with @filter to convert regular variables into
-/// @var_ref and constants into @value.
-/// \note This version will be called from @match that had its target type a @view
-template <typename T, size_t layout, typename E1, typename E2, typename E3, typename E4>
-inline matcher4<T,layout,E1,E2,E3,E4> match_ex(const view<view<T,layout>>&, E1&& e1, E2&& e2, E3&& e3, E4&& e4) throw()
-{
-    return matcher4<T,layout,E1,E2,E3,E4>(
-            std::forward<E1>(e1),
-            std::forward<E2>(e2),
-            std::forward<E3>(e3),
-            std::forward<E4>(e4)
-           );
-}
-
-/// A 4-argument version of a tree-pattern constructor. Target type is allowed 
-/// to be a @view here.
-template <typename T, typename E1, typename E2, typename E3, typename E4>
-inline auto match(E1&& e1, E2&& e2, E3&& e3, E4&& e4) throw() -> XTL_RETURN
-(
-    match_ex(
-        view<T>(),
-        filter(std::forward<E1>(e1)), 
-        filter(std::forward<E2>(e2)), 
-        filter(std::forward<E3>(e3)), 
-        filter(std::forward<E4>(e4))
-    )
-)
-
-/// A 4-argument version of a tree-pattern constructor that takes layout in 
-/// addition to the target type.
-/// \note @view is not supposed to be passed as a target type to this version
-///       of the function because we will then have two potentially conflicting
-///       layouts. Any layout different from @default_layout passed here will 
-///       result in a compile time error.
-template <typename T, size_t layout, typename E1, typename E2, typename E3, typename E4>
-inline auto match(E1&& e1, E2&& e2, E3&& e3, E4&& e4) throw() -> XTL_RETURN
-(
-    match_ex(
-        view<T,layout>(),
-        filter(std::forward<E1>(e1)), 
-        filter(std::forward<E2>(e2)), 
-        filter(std::forward<E3>(e3)), 
-        filter(std::forward<E4>(e4))
-    )
-)
 
 //------------------------------------------------------------------------------

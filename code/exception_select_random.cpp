@@ -11,7 +11,7 @@
 ///
 
 #include "testutils.hpp"
-#include "match_generic.hpp"
+#include "match.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -50,11 +50,13 @@ size_t do_match(const Shape& s, size_t)
     /// \note Unlike the rest of our Match statements, MatchE does not allow {} 
     ///       around the case clauses.
     MatchE(s)
+    {
         #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
         #define FOR_EACH_N(N) CaseE(shape_kind<N>) return N;
         #include "loop_over_numbers.hpp"
         #undef  FOR_EACH_N
         #undef  FOR_EACH_MAX
+    }
     EndMatchE
 
     return -1;

@@ -11,7 +11,7 @@
 ///
 
 #include "testutils.hpp"
-#include "match_generic.hpp"
+#include "match.hpp"
 
 //------------------------------------------------------------------------------
 
