@@ -178,7 +178,7 @@ struct is_complex_and_scalar<std::complex<T>,T>
 {
     enum { value = true };
 };
-
+/*
 // Solver for algebraic decomposition of complex
 template <typename E1, typename E2, typename S>
 inline typename std::enable_if< is_complex_and_scalar<typename E1::result_type,typename E2::result_type>::value, bool>::type
@@ -195,11 +195,9 @@ inline typename std::enable_if< is_complex_and_scalar<T,typename E1::result_type
 solve(const expr<multiplication,E1,value<T>>& e, const S& r)
 {
     typedef typename E1::result_type Scalar;
-    Scalar sss;
-    T ttt;
     return true; //solve(e.m_e1,std::complex<Scalar>(0,1));
 }
-
+*/
 template <typename E1, typename E2, typename S>
 inline bool solve(
     const expr<addition,
@@ -212,8 +210,14 @@ inline bool solve(
     const S& r)
 {
     typedef typename E1::result_type Scalar;
-    Scalar sss;
-    return true; //solve(e.m_e1,std::complex<Scalar>(0,1));
+    // x + y*C = m + n*i
+    // y = n/C.imag();
+    // x = m - C.real()*y
+    //const std::complex<Scalar>& c = e.m_e1.m_e2.m_value;
+    //Scalar y = r.imag()/c.imag();
+    //Scalar x = r.real() - c.real()*y;
+    //return solve(e.m_e1,x) && solve(e.m_e2,y);
+    return false;
 }
 
 

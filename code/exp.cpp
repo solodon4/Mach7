@@ -136,15 +136,11 @@ template <> struct match_members<Minus>  { CM(0,Minus::exp1);  CM(1,Minus::exp2)
 template <> struct match_members<Times>  { CM(0,Times::exp1);  CM(1,Times::exp2);  };
 template <> struct match_members<Divide> { CM(0,Divide::exp1); CM(1,Divide::exp2); };
 
-int eval(const Expr* e)
+int myeval(const Expr* e)
 {
     Match(e)
     {
-    Case(Value, n)   return n;
-    Case(Plus,  a,b) return eval(a) + eval(b);
-    Case(Minus, a,b) return eval(a) - eval(b);
-    Case(Times, a,b) return eval(a) * eval(b);
-    Case(Divide,a,b) return eval(a) / eval(b);
+    Case(Value, n)   return n;    Case(Plus,  a,b) return myeval(a) + myeval(b);    Case(Minus, a,b) return myeval(a) - myeval(b);    Case(Times, a,b) return myeval(a) * myeval(b);    Case(Divide,a,b) return myeval(a) / myeval(b);
     }
     EndMatch
 }
@@ -166,7 +162,7 @@ const Expr* factorize(const Expr* e)
 
     return e;
 }
-
+/*
 const Expr* factorize1(const Expr* e)
 {
     variable<const Expr*> e1, e2, e3, e4;
@@ -182,7 +178,7 @@ const Expr* factorize1(const Expr* e)
     else
     return e;
 }
-
+*/
 //------------------------------------------------------------------------------
 // We now extend the class hierarchy with 2 additional classes Mod and Pow, not
 // known to the original visitation interface.
@@ -327,28 +323,28 @@ int main()
     Expr* a = new Value(17);
     Expr* b = new Value(25);
     Expr* c = new Plus(a,b);
-    std::cout << eval(c)   << std::endl;
+    std::cout << myeval(c)   << std::endl;
     std::cout << to_str(c) << std::endl;
 
     // Mix of original operations with first extension
     Expr* d1 = new Mod(b,c);
-    std::cout << eval(d1)       << std::endl;
+    std::cout << myeval(d1)       << std::endl;
     std::cout << to_str_ex1(d1) << std::endl;
     Expr* e1 = new Minus(c,d1);
-    std::cout << eval(e1)       << std::endl;
+    std::cout << myeval(e1)       << std::endl;
     std::cout << to_str_ex1(e1) << std::endl;
 
     // Mix of original operations with second extension
     Expr* d2 = new Min(b,c);
-    std::cout << eval(d2)       << std::endl;
+    std::cout << myeval(d2)       << std::endl;
     std::cout << to_str_ex2(d2) << std::endl;
     Expr* e2 = new Minus(c,d2);
-    std::cout << eval(e2)       << std::endl;
+    std::cout << myeval(e2)       << std::endl;
     std::cout << to_str_ex2(e2) << std::endl;
 
     // Mix of operations from first and second extension
     Expr* e = new Plus(d1,d2);
-    std::cout << eval(e)       << std::endl;
+    std::cout << myeval(e)       << std::endl;
     //std::cout << to_str_ex2(e) << std::endl; // WRONG!
 
     Expr* f = new Times(a,b);

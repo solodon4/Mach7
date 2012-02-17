@@ -84,7 +84,7 @@ inline std::ptrdiff_t& per_target_offset_of(const void* p)
         std::ptrdiff_t offset;
     };
 
-    static vtblmap<dyn_cast_info&> offset_map;
+    static vtblmap<dyn_cast_info&> offset_map XTL_DUMP_PERFORMANCE_ONLY((__FILE__,__LINE__));
     return offset_map.get(p).offset;
 }
 
@@ -101,7 +101,7 @@ inline std::ptrdiff_t& per_source_offset_of(const void* p, size_t ti)
     // FIX: vector here might create problems later when we implement 
     //      multi-threaded solution because of reference invalidation
     typedef std::vector<std::ptrdiff_t> dyn_cast_info;
-    static vtblmap<dyn_cast_info&> offset_map;
+    static vtblmap<dyn_cast_info&> offset_map XTL_DUMP_PERFORMANCE_ONLY((__FILE__,__LINE__));
     dyn_cast_info& sdci = offset_map.get(p);
 
     if (XTL_UNLIKELY(ti >= sdci.size()))

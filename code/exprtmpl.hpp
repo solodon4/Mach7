@@ -14,33 +14,57 @@
 
 #pragma once
 
+#include <utility>
+
 //==============================================================================
 // Functors implementing a particular operation for any pair of types
 //==============================================================================
 
-struct negation        { template <class A>          auto operator()(const A& a)             const -> decltype(-a)     { return -a; } };
-struct bit_complement  { template <class A>          auto operator()(const A& a)             const -> decltype(~a)     { return ~a; } };
-struct bool_complement { template <class A>          auto operator()(const A& a)             const -> decltype(!a)     { return !a; } };
+struct negation        { template <class A>          auto operator()(A&& a)        const -> decltype(-std::forward<A>(a))     { return -std::forward<A>(a); } };
+struct bit_complement  { template <class A>          auto operator()(A&& a)        const -> decltype(~std::forward<A>(a))     { return ~std::forward<A>(a); } };
+struct bool_complement { template <class A>          auto operator()(A&& a)        const -> decltype(!std::forward<A>(a))     { return !std::forward<A>(a); } };
 
-struct addition        { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a +  b) { return a +  b; } };
-struct subtraction     { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a -  b) { return a -  b; } };
-struct multiplication  { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a *  b) { return a *  b; } };
-struct division        { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a /  b) { return a /  b; } };
-struct modulo          { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a %  b) { return a %  b; } };
-struct bit_and         { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a &  b) { return a &  b; } };
-struct bit_or          { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a |  b) { return a |  b; } };
-struct bit_xor         { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a ^  b) { return a ^  b; } };
-struct bit_shift_left  { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a << b) { return a << b; } };
-struct bit_shift_right { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a >> b) { return a >> b; } };
-struct bool_and        { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a && b) { return a && b; } };
-struct bool_or         { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a || b) { return a || b; } };
-struct equal           { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a == b) { return a == b; } };
-struct not_equal       { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a != b) { return a != b; } };
-struct greater         { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a >  b) { return a >  b; } };
-struct greater_equal   { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a >= b) { return a >= b; } };
-struct less            { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a <  b) { return a <  b; } };
-struct less_equal      { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a <= b) { return a <= b; } };
+struct addition        { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) +  std::forward<B>(b)) { return std::forward<A>(a) +  std::forward<B>(b); } };
+struct subtraction     { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) -  std::forward<B>(b)) { return std::forward<A>(a) -  std::forward<B>(b); } };
+struct multiplication  { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) *  std::forward<B>(b)) { return std::forward<A>(a) *  std::forward<B>(b); } };
+struct division        { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) /  std::forward<B>(b)) { return std::forward<A>(a) /  std::forward<B>(b); } };
+struct modulo          { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) %  std::forward<B>(b)) { return std::forward<A>(a) %  std::forward<B>(b); } };
+struct bit_and         { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) &  std::forward<B>(b)) { return std::forward<A>(a) &  std::forward<B>(b); } };
+struct bit_or          { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) |  std::forward<B>(b)) { return std::forward<A>(a) |  std::forward<B>(b); } };
+struct bit_xor         { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) ^  std::forward<B>(b)) { return std::forward<A>(a) ^  std::forward<B>(b); } };
+struct bit_shift_left  { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) << std::forward<B>(b)) { return std::forward<A>(a) << std::forward<B>(b); } };
+struct bit_shift_right { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) >> std::forward<B>(b)) { return std::forward<A>(a) >> std::forward<B>(b); } };
+struct bool_and        { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) && std::forward<B>(b)) { return std::forward<A>(a) && std::forward<B>(b); } };
+struct bool_or         { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) || std::forward<B>(b)) { return std::forward<A>(a) || std::forward<B>(b); } };
+struct equal           { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) == std::forward<B>(b)) { return std::forward<A>(a) == std::forward<B>(b); } };
+struct not_equal       { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) != std::forward<B>(b)) { return std::forward<A>(a) != std::forward<B>(b); } };
+struct greater         { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) >  std::forward<B>(b)) { return std::forward<A>(a) >  std::forward<B>(b); } };
+struct greater_equal   { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) >= std::forward<B>(b)) { return std::forward<A>(a) >= std::forward<B>(b); } };
+struct less            { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) <  std::forward<B>(b)) { return std::forward<A>(a) <  std::forward<B>(b); } };
+struct less_equal      { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) <= std::forward<B>(b)) { return std::forward<A>(a) <= std::forward<B>(b); } };
 
+//struct negation        { template <class A>          auto operator()(const A& a)             const -> decltype(-a)     { return -a; } };
+//struct bit_complement  { template <class A>          auto operator()(const A& a)             const -> decltype(~a)     { return ~a; } };
+//struct bool_complement { template <class A>          auto operator()(const A& a)             const -> decltype(!a)     { return !a; } };
+//
+//struct addition        { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a +  b) { return a +  b; } };
+//struct subtraction     { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a -  b) { return a -  b; } };
+//struct multiplication  { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a *  b) { return a *  b; } };
+//struct division        { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a /  b) { return a /  b; } };
+//struct modulo          { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a %  b) { return a %  b; } };
+//struct bit_and         { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a &  b) { return a &  b; } };
+//struct bit_or          { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a |  b) { return a |  b; } };
+//struct bit_xor         { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a ^  b) { return a ^  b; } };
+//struct bit_shift_left  { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a << b) { return a << b; } };
+//struct bit_shift_right { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a >> b) { return a >> b; } };
+//struct bool_and        { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a && b) { return a && b; } };
+//struct bool_or         { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a || b) { return a || b; } };
+//struct equal           { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a == b) { return a == b; } };
+//struct not_equal       { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a != b) { return a != b; } };
+//struct greater         { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a >  b) { return a >  b; } };
+//struct greater_equal   { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a >= b) { return a >= b; } };
+//struct less            { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a <  b) { return a <  b; } };
+//struct less_equal      { template <class A, class B> auto operator()(const A& a, const B& b) const -> decltype(a <= b) { return a <= b; } };
 //------------------------------------------------------------------------------
 
 // There is intentionally no definition. If you get error here, it means there 

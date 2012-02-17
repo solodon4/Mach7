@@ -51,6 +51,11 @@ all: 	$(TARGETS)
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 # A rule to build all encoding/benchmark/forwarding combinations for timing
+# XTL_USE_MEMOIZED_CAST
+# XTL_USE_VTBL_FREQUENCY
+# XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM
+# XTL_PRELOAD_LOCAL_STATIC_VARIABLES
+# XTL_EXTRACTORS_MIGHT_THROW
 timing: skeleton.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_VISITOR_FORWARDING=1 -DXTL_DEFAULT_SYNTAX=\'p\' -DXTL_REP_TEST -o time-fwd-generic-poly-rep.exe skeleton.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_VISITOR_FORWARDING=1 -DXTL_DEFAULT_SYNTAX=\'p\' -DXTL_SEQ_TEST -o time-fwd-generic-poly-seq.exe skeleton.cxx

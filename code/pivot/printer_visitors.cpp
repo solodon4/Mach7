@@ -10,7 +10,10 @@
 #include "predicates.hpp"        // Helper predicates on IPR nodes
 #include "strutils.hpp"          // String utilities
 #include "precedence.hpp"
-#include "timing.hpp"            // XTL timing library
+
+/// Visitors version of C++ printer
+namespace cxxv
+{
 
 /// Set of template parameters with corresponding nesting of the currently
 /// processed template to be resolved for Rname nodes.
@@ -1170,26 +1173,16 @@ private:
 
 void print_cpp(const ipr::Node& n, std::ostream& os)
 {
-    time_stamp liStart  = get_time_stamp();
-
     ipr::execute<NodePrintVisitor>(n,os);
     os << std::endl;
-
-    time_stamp liFinish = get_time_stamp();
-    std::clog << "Time: " << liFinish-liStart << std::endl;
 }
 
 //------------------------------------------------------------------------------
 
 void print_cpp(const ipr::Node& n, std::ostream& os, comments_interface& c)
 {
-    time_stamp liStart  = get_time_stamp();
-
     ipr::execute<NodePrintVisitor>(n,os,c);
     os << std::endl;
-
-    time_stamp liFinish = get_time_stamp();
-    std::clog << "Time: " << liFinish-liStart << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -1412,3 +1405,5 @@ bool evaluate_map (const ipr::Mapping& n, const ipr::Named_map& d, std::ostream&
 }
 
 //------------------------------------------------------------------------------
+
+} // of namespace cxxv

@@ -78,6 +78,8 @@ struct ADTShape
 	ADTShape(const cloc& c, double r) : kind(circle), center(c), radius(r) {}
 	ADTShape(double s, const cloc& c) : kind(square), upper_left(c), size(s) {}
 	ADTShape(const cloc& x, const cloc& y, const cloc& z) : kind(triangle), first(x), second(y), third(z) {}
+    
+    ADTShape(const ADTShape& s) : kind(s.kind), first(s.first), second(s.second), third(s.third) {}
 	virtual ~ADTShape() {}
 #endif
 
@@ -85,15 +87,15 @@ struct ADTShape
 	union
 	{
 		struct { cloc center;     double radius; }; // as_circle;
-		struct { cloc upper_left; double size; }; //   as_square;
-		struct { cloc first, second, third; }; //    as_triangle;
+		struct { cloc upper_left; double size; };   // as_square;
+		struct { cloc first, second, third; };      // as_triangle;
 	};
 #else
     // MSVC doesn't seem to allow anonymous structs inside union so we just dump
     // here same members name directly to make the rest just compile at least.
 	cloc center;     double radius; // as_circle;
 	cloc upper_left; double size;   // as_square;
-	cloc first, second, third;    // as_triangle;
+	cloc first, second, third;      // as_triangle;
 #endif
 };
 

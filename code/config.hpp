@@ -25,6 +25,9 @@
 
 #pragma once
 
+#if defined(_DEBUG)
+#include <iostream>            // We refer to std::cerr in debug mode
+#endif
 //------------------------------------------------------------------------------
 
 /// Type capable of representing bit offsets and bit counts in intptr_t
@@ -40,8 +43,9 @@ typedef unsigned short vtbl_count_t;
 
 //------------------------------------------------------------------------------
 
-const bit_offset_t min_log_size = 3;
-const bit_offset_t max_log_size = 16;
+const bit_offset_t min_log_size = 3;  ///< Log of the smallest cache size to start from
+const bit_offset_t max_log_size = 10; ///< Log of the largest cache size to try
+const bit_offset_t max_log_inc  = 0;  ///< Log of the maximum allowed increased from the minimum requred log size (1 means twice from the min required size)
 const vtbl_count_t min_expected_size = 1<<min_log_size;
 
 //------------------------------------------------------------------------------
@@ -75,6 +79,14 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 /// \warning Do not define this macro in actual builds as the generated code 
 ///          will effectively have a switch statement whose body is never evaluated!
 //#define XTL_REDUNDANCY_CHECKING
+
+#if !defined(XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM)
+/// When this macro is 1, we use the number of clauses in the Match statements
+/// as an estimate of the number of types that will pass through that statement.
+/// This helps avoid unnecessery vtblmap-cache reconfigurations and estimates 
+/// sizes of cache and the hash table.
+#define XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM 1
+#endif
 
 /// When this macro is 1 the fall-through behavior of the underlying switch
 /// statement is enabled. It becomes up to the user to use break statements to 
@@ -158,7 +170,7 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 /// Another choice is whether library code should try to benefit from memoized_cast 
 /// or just use dynamic_cast 
 #if !defined(XTL_USE_MEMOIZED_CAST)
-  #define XTL_USE_MEMOIZED_CAST 1
+  #define XTL_USE_MEMOIZED_CAST 0
 #endif
 
 //------------------------------------------------------------------------------

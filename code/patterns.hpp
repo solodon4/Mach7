@@ -16,7 +16,6 @@
 #include "config.hpp"
 #include <ostream>
 #include <type_traits>
-#include <utility>
 
 //------------------------------------------------------------------------------
 
@@ -59,8 +58,21 @@ template <typename T, size_t L, typename E1, typename E2, typename E3, typename 
 /// @is_pattern is a helper meta-predicate capable of distinguishing all our patterns
 template <typename T> struct is_pattern : is_pattern_<typename underlying<T>::type> {};
 
+/// @is_expression_ is a helper meta-predicate that separates lazily evaluatable expressions we support
+template <typename T>                           struct is_expression_                { enum { value = false }; };
+template <typename T>                           struct is_expression_<value<T>>      { enum { value = true }; };
+template <typename T>                           struct is_expression_<variable<T>>   { enum { value = true }; };
+template <typename T>                           struct is_expression_<var_ref<T>>    { enum { value = true }; };
+template <typename F, typename E1, typename E2> struct is_expression_<expr<F,E1,E2>> { enum { value = true }; };
+
 /// @is_expression is a helper meta-predicate that separates lazily evaluatable expressions we support
-template <typename T> struct is_expression { enum { value = is_pattern<T>::value && !std::is_same<T,wildcard>::value }; };
+template <typename T> struct is_expression : is_expression_<typename underlying<T>::type> {};
+
+/// @either_is_expression is a only used to workaround a compiler stack overflow 
+/// problem in MSVC when we were overloading operator||(E1&&,E2&&) and had || in
+/// enabling condition for that overload. Now we use either_is_expression there 
+/// instead.
+template <typename E1, typename E2> struct either_is_expression { enum { value = is_expression<E1>::value || is_expression<E2>::value }; };
 
 //------------------------------------------------------------------------------
 
@@ -128,11 +140,11 @@ template <class T>
 struct value
 {
     typedef T result_type;
-    value(const T& t) : m_value(t) {}
-    value(T&& t) noexcept : m_value(std::move(t)) {}
+    explicit value(const T& t) : m_value(t) {}
+    explicit value(T&& t) noexcept : m_value(std::move(t)) {}
     value(value&& v) noexcept : m_value(std::move(v.m_value)) {}
     bool operator()(const T& t) const noexcept { return m_value == t; }
-    operator result_type() const noexcept { return m_value; }
+    operator result_type() const noexcept { return m_value; }// FIX: avoid implicit conversion in lazy expressions
     T m_value;
 };
 
@@ -145,8 +157,8 @@ template <class T>
 struct variable
 {
     variable() : m_value() {}
-    variable(const T& t) : m_value(t) {}
-    variable(T&& t) noexcept : m_value(std::move(t)) {}
+    /*explicit*/ variable(const T& t) : m_value(t) {}
+    /*explicit*/ variable(T&& t) noexcept : m_value(std::move(t)) {}
     variable(variable&& v) noexcept : m_value(std::move(v.m_value)) {}
 
     typedef T result_type;
@@ -264,11 +276,11 @@ struct variable<const T&>
 template <class T>
 struct var_ref
 {
-    var_ref(T& var) : m_var(&var) {}
+    explicit var_ref(T& var) : m_var(&var) {}
     var_ref(var_ref&& v) noexcept : m_var(v.m_var) {}
 
     typedef T result_type;
-    operator result_type() const noexcept { return *m_var; }
+    operator result_type() const noexcept { return *m_var; }// FIX: avoid implicit conversion in lazy expressions
 
     /// We report that matching succeeded and bind the value
     bool operator()(const T& t) const
@@ -285,11 +297,11 @@ struct var_ref
 template <class T>
 struct var_ref<variable<T>>
 {
-    var_ref(variable<T>& var) : m_var(&var) {}
+    explicit var_ref(variable<T>& var) : m_var(&var) {}
     var_ref(var_ref&& v) noexcept : m_var(v.m_var) {}
 
     typedef T result_type;
-    operator result_type() const noexcept { return *m_var; }
+    operator result_type() const noexcept { return *m_var; }// FIX: avoid implicit conversion in lazy expressions
 
     /// We report that matching succeeded and bind the value
     bool operator()(const T& t) const
@@ -324,18 +336,18 @@ inline bool solve(const E&, const S&) noexcept
 
 //------------------------------------------------------------------------------
 
-/// Expression pattern
+/// Expression pattern for unary operation
 template <typename F, typename E1>
 struct expr<F,E1>
 {
     static_assert(is_expression<E1>::value, "Argument E1 of a unary expression-pattern must be a lazy expression");
 
-    expr(const E1& e1) : m_e1(e1) {}
-    expr(E1&& e1) noexcept : m_e1(std::move(e1)) {}
+    explicit expr(const E1& e1) : m_e1(e1) {}
+    explicit expr(E1&& e1) noexcept : m_e1(std::move(e1)) {}
     expr(expr&& e) noexcept : m_e1(std::move(e.m_e1)) {}
 
     typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>()))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
-    operator result_type() const { return eval(*this); }
+    operator result_type() const { return eval(*this); } // FIX: avoid implicit conversion in lazy expressions
     //bool operator()(const result_type& t) const { return solve(*this,t); }
     template <typename U>
     bool operator()(const U& u) const { return solve(*this,u); }
@@ -345,9 +357,10 @@ struct expr<F,E1>
     //    return solver<F>()(v,t) && m_e1(v);
     //}
 
-    const E1 m_e1;
+    /*const*/ E1 m_e1;
 };
 
+/// Expression pattern for binary operation
 template <typename F, typename E1, typename E2>
 struct expr
 {
@@ -359,7 +372,7 @@ struct expr
     expr(expr&& e) noexcept : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {}
 
     typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>(),std::declval<typename E2::result_type>()))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
-    operator result_type() const { return eval(*this); }
+    operator result_type() const { return eval(*this); }// FIX: avoid implicit conversion in lazy expressions
     //bool operator()(const result_type& t) const { return solve(*this,t); }
     template <typename U>
     bool operator()(const U& u) const { return solve(*this,u); }
@@ -369,9 +382,38 @@ struct expr
     //    return solver<F>()(v,eval(m_e2),t) && m_e1(v);
     //}
 
-    const E1 m_e1;
-    const E2 m_e2;
+    /*const*/ E1 m_e1;
+    /*const*/ E2 m_e2;
 };
+
+//------------------------------------------------------------------------------
+
+/// This is a helper structure to define a result type of an operation.
+/// We need it because GCC chokes on decltype(filter(...)) in the enable_if's 
+/// result type when condition is false
+template <typename F, typename E1 = void, typename E2 = void, bool C = either_is_expression<E1,E2>::value>
+struct filtered_result;
+
+template <typename F, typename E1>
+struct filtered_result<F,E1,void,true>
+{
+    typedef expr<F,decltype(filter(std::declval<E1>()))> type;
+};
+
+template <typename F, typename E1, typename E2>
+struct filtered_result<F,E1,E2,true>
+{
+    typedef expr<F,decltype(filter(std::declval<E1>())), decltype(filter(std::declval<E2>()))> type;
+};
+
+template <typename F, typename E1, typename E2>
+struct filtered_result<F,E1,E2,false>
+{
+    struct  disabled_operation_result_type {};
+    typedef disabled_operation_result_type type;
+};
+
+//------------------------------------------------------------------------------
 
 template <typename F, typename E1>
     auto make_expr(E1&& e1) noexcept -> XTL_RETURN
@@ -394,15 +436,17 @@ struct guard
     static_assert(is_pattern<E1>::value,    "Argument E1 of a guard-pattern must be a pattern");
     static_assert(is_expression<E2>::value, "Argument E2 of a guard-pattern must be a lazy expression");
 
-    guard(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
-    guard(E1&& e1, E2&& e2) noexcept : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
+    guard(const E1&  e1, const E2&  e2) noexcept : m_e1(e1), m_e2(e2) {}
+    guard(const E1&  e1,       E2&& e2) noexcept : m_e1(e1), m_e2(std::move(e2)) {}
+    guard(      E1&& e1, const E2&  e2) noexcept : m_e1(std::move(e1)), m_e2(e2) {}
+    guard(      E1&& e1,       E2&& e2) noexcept : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
     guard(guard&& e) noexcept : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {}
 
     template <typename U>
     bool operator()(const U& u) const { return m_e1(u) && eval(m_e2); }
 
-    const E1 m_e1;
-    const E2 m_e2;
+    /*const*/ E1 m_e1;
+    /*const*/ E2 m_e2;
 };
 
 template <typename E1, typename E2>
@@ -428,22 +472,24 @@ struct expr_or
     template <typename U> bool operator()(const U& u) const { return operator()(&u); }
     template <typename U> bool operator()(      U& u) const { return operator()(&u); }
 
-    const E1 m_e1;
-    const E2 m_e2;
+    /*const*/ E1 m_e1;
+    /*const*/ E2 m_e2;
 };
 
 //------------------------------------------------------------------------------
 
 template <typename T>                                             var_ref<variable<T>> filter(variable<T>& t) noexcept { return var_ref<variable<T>>(t); }
-template <typename P> typename std::enable_if< is_pattern<P>::value,         P >::type filter(    const P& p) noexcept { return p; }
+//template <typename P> typename std::enable_if< is_pattern<P>::value,         P >::type filter(    const P& p) noexcept { return p; }
+template <typename P> typename std::enable_if< is_pattern<P>::value,        typename std::remove_reference<P>::type >::type filter(    P&& p) noexcept { return std::move(p); }
 template <typename T> typename std::enable_if<!is_pattern<T>::value,   value<T>>::type filter(    const T& t) noexcept { return value<T>(t); }
 template <typename T> typename std::enable_if<!is_pattern<T>::value, var_ref<T>>::type filter(          T& t) noexcept { return var_ref<T>(t); }
 
 //------------------------------------------------------------------------------
 
 template <typename E, typename T>
-auto operator|=(variable<T>& v, E&& e) noexcept -> XTL_RETURN
+auto operator|=(variable<T>& v, E&& e) noexcept -> XTL_RETURN_ENABLE_IF
 (
+    is_expression<E>::value,
     make_guard(var_ref<variable<T>>(v),filter(std::forward<E>(e)))
 )
 
@@ -455,7 +501,7 @@ auto operator|=(P&& p, E&& e) noexcept -> XTL_RETURN_ENABLE_IF
 )
 
 //------------------------------------------------------------------------------
-
+#if defined(__GNUC__)
 // NOTE: We need otherwise redundant non-const overloads to make sure that our 
 //       overloads creating expression templates based on the second argument are 
 //       not chosen!
@@ -463,6 +509,13 @@ template <typename T> std::ostream& operator<<(std::ostream& os, const variable<
 template <typename T> std::ostream& operator<<(std::ostream& os,       variable<T >& v) { return os <<  v.m_value; }
 template <typename T> std::ostream& operator<<(std::ostream& os, const variable<T*>& v) { return os << *v.m_value; }
 template <typename T> std::ostream& operator<<(std::ostream& os,       variable<T*>& v) { return os << *v.m_value; }
+#else
+template <typename E>
+inline auto operator<<(std::ostream& os, E&& e) throw() -> typename std::enable_if<is_expression<E>::value, std::ostream&>::type 
+{
+    return os << eval(e);
+}
+#endif
 
 //------------------------------------------------------------------------------
 
@@ -478,6 +531,29 @@ template <typename T> std::ostream& operator<<(std::ostream& os,       variable<
 /// - all unary operators on binary expressions as well as all binary
 ///   operators with first argument being binary expression and second whatever
 /// - the combinations making the above ones ambiguous
+/// FIX: GCC (versions 4.5.2 and 4.6.1 at least) crashes on the following definition
+///      that tries to mimic concept overloading based approach with enable_if. We thus
+///      provide an overload based workaround for GCC.
+#if !defined(__GNUC__)
+#define FOR_EACH_UNARY_OPERATOR(FF,S)                                           \
+    template <typename E1>                                                      \
+    inline auto XTL_CONCATENATE(operator,S)(E1&& e1) noexcept ->                \
+    typename std::enable_if<is_expression<E1>::value,                           \
+                            expr<FF,decltype(filter(std::forward<E1>(e1)))>     \
+                           >::type                                              \
+    {                                                                           \
+        return make_expr<FF>(filter(std::forward<E1>(e1)));                     \
+    }
+#define FOR_EACH_BINARY_OPERATOR(FF,S)                                          \
+    template <typename E1, typename E2>                                         \
+    inline auto XTL_CONCATENATE(operator,S)(E1&& e1, E2&& e2) noexcept ->       \
+    typename std::enable_if<either_is_expression<E1,E2>::value,                 \
+                            expr<FF,decltype(filter(std::forward<E1>(e1))),decltype(filter(std::forward<E2>(e2)))> \
+                           >::type                                              \
+    {                                                                           \
+        return make_expr<FF>(filter(std::forward<E1>(e1)),filter(std::forward<E2>(e2))); \
+    }
+#else
 /// FIX: As you can see one of the overloads is commented and is replaced with a
 ///      different one that follows. This is because of the bug in GCC 4.5.2 where
 ///      failure in decltype after -> does not behave as SFINAE, but fails compilation.
@@ -489,7 +565,8 @@ template <typename T> std::ostream& operator<<(std::ostream& os,       variable<
     template <typename F1, typename E1>                          inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1>&    v) noexcept -> XTL_RETURN(make_expr<FF>(v))                       \
     template <typename F1, typename E1, typename E2>             inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1,E2>& v) noexcept -> XTL_RETURN(make_expr<FF>(v))
 #define FOR_EACH_BINARY_OPERATOR(FF,S)                                          \
-    template <typename T, typename E>                            inline auto XTL_CONCATENATE(operator,S)(      variable<T>&    v,       E&&             e) noexcept -> XTL_RETURN(make_expr<FF>(var_ref<variable<T>>(v),filter(std::forward<E>(e)))) \
+  /*template <typename T, typename E>                            inline auto XTL_CONCATENATE(operator,S)(      variable<T>&    v,       E&&             e) noexcept -> XTL_RETURN(make_expr<FF>(var_ref<variable<T>>(v),filter(std::forward<E>(e))))*/ \
+    template <typename T, typename E>                            inline auto XTL_CONCATENATE(operator,S)(      variable<T>&    v,       E&&             e) noexcept -> expr<FF,var_ref<variable<T>>,decltype(filter(std::forward<E>(e)))> { return make_expr<FF>(var_ref<variable<T>>(v),filter(std::forward<E>(e))); } \
   /*template <typename T, typename E>                            inline auto XTL_CONCATENATE(operator,S)(      E&&             e,       variable<T>&    v) noexcept -> XTL_RETURN(make_expr<FF>(filter(std::forward<E>(e)),var_ref<variable<T>>(v)))*/ \
     template <typename T, typename E>                            inline auto XTL_CONCATENATE(operator,S)(      E&&             e,       variable<T>&    v) noexcept -> expr<FF,decltype(filter(std::forward<E>(e))),var_ref<variable<T>>> { return make_expr<FF>(filter(std::forward<E>(e)),var_ref<variable<T>>(v)); } \
     template <typename T, typename E>                            inline auto XTL_CONCATENATE(operator,S)(const value<T>&       v,       E&&             e) noexcept -> XTL_RETURN(make_expr<FF>(v,filter(std::forward<E>(e)))) \
@@ -508,7 +585,9 @@ template <typename T> std::ostream& operator<<(std::ostream& os,       variable<
     template <typename T, typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(      variable<T>&    v, const expr<F1,E1,E2>& e) noexcept -> XTL_RETURN(make_expr<FF>(var_ref<variable<T>>(v),e)) \
     template <typename T, typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1,E2>& e, const value<T>&       c) noexcept -> XTL_RETURN(make_expr<FF>(e,c))                       \
     template <typename T, typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(const value<T>&       c, const expr<F1,E1,E2>& e) noexcept -> XTL_RETURN(make_expr<FF>(c,e))
-#include "loop_over_operators.hpp"
+#endif
+//#include "loop_over_operators.hpp"
+#include "operators_preprocessed.hpp"
 #undef  FOR_EACH_BINARY_OPERATOR
 #undef  FOR_EACH_UNARY_OPERATOR
 ///@}
@@ -698,8 +777,8 @@ struct constr1
 {
     static_assert(is_pattern<E1>::value, "Argument E1 of constructor-pattern must be a pattern");
 
-    constr1(const E1& e1) : m_e1(e1) {}
-    constr1(E1&& e1) noexcept : m_e1(std::move(e1)) {}
+    explicit constr1(const E1& e1) : m_e1(e1) {}
+    explicit constr1(E1&& e1) noexcept : m_e1(std::move(e1)) {}
     constr1(constr1&& src) noexcept : m_e1(std::move(src.m_e1)) {}
 
     /// Helper function that does the actual structural matching once we have
@@ -742,7 +821,7 @@ struct constr1
 
     template <typename E> expr_or<constr1,E> operator|(const E& e) const noexcept { return expr_or<constr1,E>(*this,e); }
 
-    const E1 m_e1; ///< Expression representing 1st operand
+    /*const*/ E1 m_e1; ///< Expression representing 1st operand
 };
 
 /// This is a specialization of the general one-argument construction pattern
@@ -765,8 +844,8 @@ struct constr1<T,layout,E1,typename std::enable_if<std::is_same<T,typename E1::r
 {
     static_assert(is_pattern<E1>::value, "Argument E1 of constructor-pattern must be a pattern");
 
-    constr1(const E1& e1) : m_e1(e1) {}
-    constr1(E1&& e1) noexcept : m_e1(std::move(e1)) {}
+    explicit constr1(const E1& e1) : m_e1(e1) {}
+    explicit constr1(E1&& e1) noexcept : m_e1(std::move(e1)) {}
     constr1(constr1&& src) noexcept : m_e1(std::move(src.m_e1)) {}
 
     /// Helper function that does the actual structural matching once we have
@@ -803,7 +882,7 @@ struct constr1<T,layout,E1,typename std::enable_if<std::is_same<T,typename E1::r
 
     template <typename E> expr_or<constr1,E> operator|(const E& e) const noexcept { return expr_or<constr1,E>(*this,e); }
 
-    const E1 m_e1; ///< Expression representing 1st operand
+    /*const*/ E1 m_e1; ///< Expression representing 1st operand
 };
 
 //------------------------------------------------------------------------------
@@ -859,8 +938,8 @@ struct constr2
 
     template <typename E> expr_or<constr2,E> operator|(const E& e) const noexcept { return expr_or<constr2,E>(*this,e); }
 
-    const E1 m_e1; ///< Expression representing 1st operand
-    const E2 m_e2; ///< Expression representing 2nd operand
+    /*const*/ E1 m_e1; ///< Expression representing 1st operand
+    /*const*/ E2 m_e2; ///< Expression representing 2nd operand
 };
 
 //------------------------------------------------------------------------------
@@ -919,9 +998,9 @@ struct constr3
 
     template <typename E> expr_or<constr3,E> operator|(const E& e) const noexcept { return expr_or<constr3,E>(*this,e); }
 
-    const E1 m_e1; ///< Expression representing 1st operand
-    const E2 m_e2; ///< Expression representing 2nd operand
-    const E3 m_e3; ///< Expression representing 3rd operand
+    /*const*/ E1 m_e1; ///< Expression representing 1st operand
+    /*const*/ E2 m_e2; ///< Expression representing 2nd operand
+    /*const*/ E3 m_e3; ///< Expression representing 3rd operand
 };
 
 //------------------------------------------------------------------------------
@@ -983,10 +1062,10 @@ struct constr4
 
     template <typename E> expr_or<constr4,E> operator|(const E& e) const noexcept { return expr_or<constr4,E>(*this,e); }
 
-    const E1 m_e1; ///< Expression representing 1st operand
-    const E2 m_e2; ///< Expression representing 2nd operand
-    const E3 m_e3; ///< Expression representing 3rd operand
-    const E4 m_e4; ///< Expression representing 4th operand
+    /*const*/ E1 m_e1; ///< Expression representing 1st operand
+    /*const*/ E2 m_e2; ///< Expression representing 2nd operand
+    /*const*/ E3 m_e3; ///< Expression representing 3rd operand
+    /*const*/ E4 m_e4; ///< Expression representing 4th operand
 };
 
 //------------------------------------------------------------------------------

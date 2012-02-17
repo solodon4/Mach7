@@ -13,7 +13,7 @@
 #include "match.hpp"
 
 #include <cstdlib>
-#include <ostream>
+#include <iostream>
 #include <sstream>
 #include <utility>
 

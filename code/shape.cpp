@@ -132,7 +132,7 @@ void bar(ADTShape& s)
 
 int main()
 {
-    Shape* c = new Circle(loc(1,1),7);
+    Shape* c = new Circle(loc(1,1),4);
     Shape* s = new Square(loc(2,2),2);
     Shape* t = new Triangle(loc(0,0),loc(0,1),loc(1,0));
 

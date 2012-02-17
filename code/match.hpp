@@ -54,6 +54,10 @@
 //       inheritance or ambiguous base classes, while in typical case we won't 
 //       need to store and will simply inline adjustment.
 // TODO: Overload comma operator on patterns to handle multiple subjects
+// TODO: Make the following two syntaxes work:
+//        - if (match(c).with(re,im)) ...
+//        - if (match<complex<float>>(re,im) == c) ...
+// FIX:  number of clauses is only used for MatchP at the moment, not for MatchG
 
 // NOTE: If Visual C++ gives you any of the following errors:
 //       error C2051: case expression not constant
@@ -68,9 +72,12 @@
 
 #pragma once
 
+#include "vtblmap.hpp"
 #include "patterns.hpp"
 #include "has_member.hpp"// Meta-functions to check use of certain @match_members facilities
 #include <type_traits>
+#include <unordered_map>
+#include <vector>
 
 //------------------------------------------------------------------------------
 
@@ -296,7 +303,7 @@ get_frequency_ex(intptr_t)
     return 1;
 }
 
-/// We need this extra wrapper to be able to forward declare it from @vtblmap_of's header
+/// We need this extra wrapper to be able to forward declare it from @vtblmap's header
 template <typename T> inline size_t get_frequency(intptr_t vtbl) { return get_frequency_ex<T>(vtbl); }
 
 //------------------------------------------------------------------------------
@@ -528,6 +535,12 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
         static_assert(is_inside_case_clause, "Otherwise() must follow actual clauses! If you are trying to use it as a default sub-clause, use When() instead"); \
         CaseClause(selector_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
 
+#if XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM
+    #define XTL_TYPES_NUM_ESTIMATE deferred_value<vtbl_count_t>::get<__base_counter>()
+#else
+    #define XTL_TYPES_NUM_ESTIMATE min_expected_size
+#endif
+
 //------------------------------------------------------------------------------
 /// Few general rules to understand behavior of various @Match statements below:
 /// - Each Case, Que and When clauses should close as many braces as they open
@@ -553,7 +566,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
         XTL_MATCH_PREAMBULA(s)                                                 \
         enum { __base_counter = XTL_COUNTER };                                 \
         static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use MatchP");\
-        static vtblmap_of<selector_type, type_switch_info&> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)deferred_value<vtbl_count_t>::get<__base_counter>());\
+        static vtblmap<type_switch_info&> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)deferred_value<vtbl_count_t>::get<__base_counter>());\
         register const void* __casted_ptr = 0;                                 \
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
         switch (__switch_info.line)                                            \
@@ -1097,7 +1110,7 @@ public:
 
     /// Type of data that has to be statically allocated inside the block 
     /// containg extended switch
-    typedef vtblmap_of<selector_type, type_switch_info&> static_data_type;
+    typedef vtblmap<type_switch_info&> static_data_type;
 
     /// Type of data that has to be automatically allocated inside the block 
     /// containg extended switch
@@ -1196,7 +1209,6 @@ public:
             /// \note The selector is const-qualified, thus the target is also const-qualified
             static inline const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data) noexcept
             {
-                //std::cout << "Open case (const)" << std::endl;
                 return adjust_ptr<target_type>(selector_ptr,local_data.switch_info_ptr->offset);
             }
 
@@ -1205,7 +1217,6 @@ public:
             /// \note The selector is non-const, thus the target is also non-const
             static inline       target_type* get_matched(      selector_type* selector_ptr, local_data_type& local_data) noexcept
             {
-                //std::cout << "Open case (non-const)" << std::endl;
                 return adjust_ptr<target_type>(selector_ptr,local_data.switch_info_ptr->offset);
             }
         };
@@ -1351,7 +1362,6 @@ public:
             /// \note The selector is const-qualified, thus the target is also const-qualified
             static inline const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data) noexcept
             {
-                //std::cout << "Union case (const)" << std::endl;
                 return selector_ptr;
             }
 
@@ -1360,7 +1370,6 @@ public:
             /// \note The selector is non-const, thus the target is also non-const
             static inline       target_type* get_matched(      selector_type* selector_ptr, local_data_type& local_data) noexcept
             {
-                //std::cout << "Union case (non-const)" << std::endl;
                 return selector_ptr;
             }
         };
@@ -1409,7 +1418,6 @@ public:
             /// \note The selector is const-qualified, thus the target is also const-qualified
             static inline const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data) noexcept
             {
-                //std::cout << "Closed case (const)" << std::endl;
                 return stat_cast<target_type>(selector_ptr);
             }
 
@@ -1418,7 +1426,6 @@ public:
             /// \note The selector is non-const, thus the target is also non-const
             static inline       target_type* get_matched(      selector_type* selector_ptr, local_data_type& local_data) noexcept
             {
-                //std::cout << "Closed case (non-const)" << std::endl;
                 return stat_cast<target_type>(selector_ptr);
             }
         };

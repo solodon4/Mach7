@@ -266,7 +266,7 @@ public:
         //std::clog << *this << std::endl;
         return opt_shift;
     }
-#if defined(XTL_DUMP_PERFORMANCE)
+#if XTL_DUMP_PERFORMANCE
     std::ostream& operator>>(std::ostream& os) const
     {
         // FIX: G++ crashes when we use std::stringstream here, so we have to workaround it manually
@@ -406,7 +406,7 @@ public:
         optimal_shift(VTBL_IRRELEVANT_BITS),
         table(expected_size)
     {}
-#if defined(XTL_DUMP_PERFORMANCE)
+#if XTL_DUMP_PERFORMANCE
     vtblmap(const char* fl, size_t ln, const vtbl_count_t expected_size = min_expected_size) :
         m_differ(0),
         m_prev(0),
@@ -578,7 +578,7 @@ public:
         //std::clog << *this << std::endl;
         return opt_shift;
     }
-#if defined(XTL_DUMP_PERFORMANCE)
+#if XTL_DUMP_PERFORMANCE
     std::ostream& operator>>(std::ostream& os) const
     {
         // FIX: G++ crashes when we use std::stringstream here, so we have to workaround it manually

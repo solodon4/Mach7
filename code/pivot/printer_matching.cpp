@@ -7,7 +7,10 @@
 #include "strutils.hpp"          // String utilities
 #include "precedence.hpp"
 #include "match_ipr.hpp"
-#include "timing.hpp"            // XTL timing library
+
+/// Pattern-matching version of C++ printer
+namespace cxxm
+{
 
 /// Set of template parameters with corresponding nesting of the currently
 /// processed template to be resolved for Rname nodes.
@@ -186,6 +189,7 @@ std::string get_declarator(const ipr::Decl& d, bool explicit_global_scope = fals
 
 std::string eval_name(const ipr::Name& name)
 {
+    //XTL_TRACE_PERFORMANCE_ONLY(extern int match_category(const ipr::Node&); match_category(name));
     Match(name)
     {
         Case(ipr::Identifier,  str)    { return to_str(str); }
@@ -238,6 +242,7 @@ std::string eval_name(const ipr::Name& name)
 
 std::string eval_type_ex(const ipr::Type& n, const std::string& declarator) 
 {
+    //XTL_TRACE_PERFORMANCE_ONLY(extern int match_category(const ipr::Node&); match_category(n));
     MatchP(n)
     {
         CaseP(ipr::Array,        element_type, bound) { return eval_type(element_type, declarator + '[' + eval_expr(bound)+ ']', ipr::precedence<ipr::Array>::value); }
@@ -319,6 +324,7 @@ inline std::string eval_type(const ipr::Type& n, const std::string& declarator, 
 
 std::string eval_classic(const ipr::Classic& n)
 {
+    //XTL_TRACE_PERFORMANCE_ONLY(extern int match_category(const ipr::Node&); match_category(n));
     Match(n)
     {
         Case(ipr::Literal, _, s)      { return to_str(s); }
@@ -679,6 +685,7 @@ private:
 
 cxx_printer& operator<<(cxx_printer& pr, const ipr::Stmt& stmt)
 {
+    //XTL_TRACE_PERFORMANCE_ONLY(extern int match_category(const ipr::Node&); match_category(stmt));
     Match(stmt)
     {
         Case(ipr::Labeled_stmt, lbl, stm)         { pr.before(*matched) << (is_case_label(lbl) ? "case " : "") << eval_expr(lbl) << ": "; pr.forward_to(stm, false/*, !ipr::util::view<ipr::Labeled_stmt>(stm)*/); pr.after(*matched); break; }
@@ -737,6 +744,7 @@ cxx_printer& operator<<(cxx_printer& pr, const ipr::Stmt& stmt)
 
 cxx_printer& operator<<(cxx_printer& pr, const ipr::Decl& decl)
 {
+    //XTL_TRACE_PERFORMANCE_ONLY(extern int match_category(const ipr::Node&); match_category(decl));
     Match(decl)
     {
         Case(ipr::Typedecl, name, type)
@@ -955,6 +963,7 @@ cxx_printer& operator<<(cxx_printer& pr, const ipr::Decl& decl)
 
 cxx_printer& operator<<(cxx_printer& pr, const ipr::Udt& udt)
 {
+    //XTL_TRACE_PERFORMANCE_ONLY(extern int match_category(const ipr::Node&); match_category(udt));
     Match(udt)
     {
         Case(ipr::Global_scope, members)
@@ -1035,6 +1044,7 @@ cxx_printer& operator<<(cxx_printer& pr, const ipr::Udt& udt)
 
 cxx_printer& operator<<(cxx_printer& pr, const ipr::Expr& e)
 {
+    //XTL_TRACE_PERFORMANCE_ONLY(extern int match_category(const ipr::Node&); match_category(e));
     Match(e)
     {
         Case(ipr::Mapping)
@@ -1122,6 +1132,7 @@ cxx_printer& operator<<(cxx_printer& pr, const ipr::Expr& e)
 
 cxx_printer& operator<<(cxx_printer& pr, const ipr::Node& n)
 {
+    //XTL_TRACE_PERFORMANCE_ONLY(extern int match_category(const ipr::Node&); match_category(n));
     Match(n)
     {
         Case(ipr::Unit, global_scope) { pr << global_scope; break; } // This should forward to visitation of Global_scope, which is a Namespace
@@ -1141,26 +1152,16 @@ cxx_printer& operator<<(cxx_printer& pr, const ipr::Node& n)
 
 void print_cpp(const ipr::Node& n, std::ostream& os)
 {
-    time_stamp liStart  = get_time_stamp();
-
     cxx_printer cxx(os);
     cxx << n << "\n"; //std::endl; FIX: Make iomanipulators work with printer
-
-    time_stamp liFinish = get_time_stamp();
-    std::clog << "Time: " << liFinish-liStart << std::endl;
 }
 
 //------------------------------------------------------------------------------
 
 void print_cpp(const ipr::Node& n, std::ostream& os, comments_interface& c)
 {
-    time_stamp liStart  = get_time_stamp();
-
     cxx_printer cxx(os,c);
     cxx << n << "\n"; //std::endl; FIX: Make iomanipulators work with printer
-
-    time_stamp liFinish = get_time_stamp();
-    std::clog << "Time: " << liFinish-liStart << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -1347,3 +1348,180 @@ bool evaluate_map (const ipr::Mapping& n, const ipr::Named_map& d, cxx_printer& 
 }
 
 //------------------------------------------------------------------------------
+
+#include "traits.hpp"
+
+/// This is just a test function that involves a match on all IPR nodes. It is
+/// only used to test Match, do not use it for own purposes.
+int match_category(const ipr::Node& n)
+{
+    Match(n)
+    {
+        Case(Annotation)            return ipr::traits<Annotation>::category;            // node annotations
+        Case(Comment)               return ipr::traits<Comment>::category;               // C-style and BCPL-style comments
+        Case(String)                return ipr::traits<String>::category;                // literal string 
+        Case(Mapping)               return ipr::traits<Mapping>::category;               // function
+        Case(Overload)              return ipr::traits<Overload>::category;              // overload set
+        Case(Parameter_list)        return ipr::traits<Parameter_list>::category;        // function/template parameter list
+        Case(Scope)                 return ipr::traits<Scope>::category;                 // declarations in a region
+        Case(Identifier)            return ipr::traits<Identifier>::category;            // identifier                          foo
+        Case(Operator)              return ipr::traits<Operator>::category;              // C++ operator name             operator+
+        Case(Conversion)            return ipr::traits<Conversion>::category;            // conversion function name   operator int
+        Case(Scope_ref)             return ipr::traits<Scope_ref>::category;             // qualified name                     s::m
+        Case(Template_id)           return ipr::traits<Template_id>::category;           // C++ template-id                  S<int>
+        Case(Type_id)               return ipr::traits<Type_id>::category;               // C++ type-id                  const int*
+        Case(Ctor_name)             return ipr::traits<Ctor_name>::category;             // constructor name                   T::T
+        Case(Dtor_name)             return ipr::traits<Dtor_name>::category;             // destructor name                   T::~T
+        Case(Rname)                 return ipr::traits<Rname>::category;                 // de Bruijn (index, position),
+        Case(Array)                 return ipr::traits<Array>::category;                 // array type
+        Case(Class)                 return ipr::traits<Class>::category;                 // user-defined type - class
+        Case(Decltype)              return ipr::traits<Decltype>::category;              // strict type of a declaration/expression
+        Case(Enum)                  return ipr::traits<Enum>::category;                  // user-defined type - enum
+        Case(Function)              return ipr::traits<Function>::category;              // function type
+        Case(Namespace)             return ipr::traits<Namespace>::category;             // user-defined type - namespace
+        Case(Pointer)               return ipr::traits<Pointer>::category;               // pointer type
+        Case(Ptr_to_member)         return ipr::traits<Ptr_to_member>::category;         // pointer-to-member type
+        Case(Product)               return ipr::traits<Product>::category;               // product type - not ISO C++ type
+        Case(Qualified)             return ipr::traits<Qualified>::category;             // cv-qualified types
+        Case(Reference)             return ipr::traits<Reference>::category;             // reference type
+        Case(Rvalue_reference)      return ipr::traits<Rvalue_reference>::category;      // rvalue-reference type -- C++0x
+        Case(Sum)                   return ipr::traits<Sum>::category;                   // sum type - not ISO C++ type
+        Case(Template)              return ipr::traits<Template>::category;              // type of a template - Not ISO C++ type
+        Case(Union)                 return ipr::traits<Union>::category;                 // user-defined type - union
+        Case(Phantom)               return ipr::traits<Phantom>::category;               // for arrays of unknown bound
+        Case(Address)               return ipr::traits<Address>::category;               // address-of                          &a
+        Case(Array_delete)          return ipr::traits<Array_delete>::category;          // array delete-expression     delete[] p
+        Case(Complement)            return ipr::traits<Complement>::category;            // bitwise complement                  ~m
+        Case(Delete)                return ipr::traits<Delete>::category;                // delete-expression             delete p
+        Case(Deref)                 return ipr::traits<Deref>::category;                 // dereference expression              *p
+        Case(Expr_list)             return ipr::traits<Expr_list>::category;             // expression list        
+        Case(Expr_sizeof)           return ipr::traits<Expr_sizeof>::category;           // sizeof an expression         sizeof *p
+        Case(Expr_typeid)           return ipr::traits<Expr_typeid>::category;           // typeid of an expression    typeid (*p)
+        Case(Id_expr)               return ipr::traits<Id_expr>::category;               // an identifier used in an expression
+        Case(Label)                 return ipr::traits<Label>::category;                 // a label - target of a goto-statement
+        Case(Not)                   return ipr::traits<Not>::category;                   // logical negation                 !cond
+        Case(Paren_expr)            return ipr::traits<Paren_expr>::category;            // parenthesized expression           (a)
+        Case(Post_decrement)        return ipr::traits<Post_decrement>::category;        // post-increment                     p++
+        Case(Post_increment)        return ipr::traits<Post_increment>::category;        // post-decrement                     p--
+        Case(Pre_decrement)         return ipr::traits<Pre_decrement>::category;         // pre-increment                      ++p
+        Case(Pre_increment)         return ipr::traits<Pre_increment>::category;         // pre-decrement                      --p
+        Case(Throw)                 return ipr::traits<Throw>::category;                 // throw expression           throw Bad()
+        Case(Type_sizeof)           return ipr::traits<Type_sizeof>::category;           // sizeof a type             sizeof (int)
+        Case(Type_typeid)           return ipr::traits<Type_typeid>::category;           // typeidof a type           typeid (int)
+        Case(Unary_minus)           return ipr::traits<Unary_minus>::category;           // unary minus                         -a
+        Case(Unary_plus)            return ipr::traits<Unary_plus>::category;            // unary plus                          +a
+        Case(And)                   return ipr::traits<And>::category;                   // logical and                    a && b
+        Case(Array_ref)             return ipr::traits<Array_ref>::category;             // array member selection         a[i]
+        Case(Arrow)                 return ipr::traits<Arrow>::category;                 // indirect member selection      p->m
+        Case(Arrow_star)            return ipr::traits<Arrow_star>::category;            // indirect member indirection    p->*m
+        Case(Assign)                return ipr::traits<Assign>::category;                // assignment                     a = b
+        Case(Bitand)                return ipr::traits<Bitand>::category;                // bitwise and                    a & b
+        Case(Bitand_assign)         return ipr::traits<Bitand_assign>::category;         // in-place bitwise and           a &= b
+        Case(Bitor)                 return ipr::traits<Bitor>::category;                 // bitwise or                     a | b
+        Case(Bitor_assign)          return ipr::traits<Bitor_assign>::category;          // in-place bitwise or            a |= b
+        Case(Bitxor)                return ipr::traits<Bitxor>::category;                // bitwise exclusive or           a ^ b
+        Case(Bitxor_assign)         return ipr::traits<Bitxor_assign>::category;         // in-place bitwise exclusive or  a ^= b
+        Case(Call)                  return ipr::traits<Call>::category;                  // function call                  f(u, v)
+        Case(Cast)                  return ipr::traits<Cast>::category;                  // C-style class                  (T) e
+        Case(Comma)                 return ipr::traits<Comma>::category;                 // comma-operator                 a, b
+        Case(Const_cast)            return ipr::traits<Const_cast>::category;            // const-cast             const_cast<T&>(v)
+        Case(Datum)                 return ipr::traits<Datum>::category;                 // object construction             T(v)
+        Case(Div)                   return ipr::traits<Div>::category;                   // division                       a / b
+        Case(Div_assign)            return ipr::traits<Div_assign>::category;            // in-place division              a /= b
+        Case(Dot)                   return ipr::traits<Dot>::category;                   // direct member selection        x.m
+        Case(Dot_star)              return ipr::traits<Dot_star>::category;              // direct member indirection      x.*pm
+        Case(Dynamic_cast)          return ipr::traits<Dynamic_cast>::category;          // dynamic-cast         dynamic_cast<T&>(v)
+        Case(Equal)                 return ipr::traits<Equal>::category;                 // equality comparison            a == b
+        Case(Greater)               return ipr::traits<Greater>::category;               // greater comparison             a > b
+        Case(Greater_equal)         return ipr::traits<Greater_equal>::category;         // greater-or-equal comparison    a >= b
+        Case(Less)                  return ipr::traits<Less>::category;                  // less comparison                a < b
+        Case(Less_equal)            return ipr::traits<Less_equal>::category;            // less-equal comparison          a <= b
+        Case(Literal)               return ipr::traits<Literal>::category;               // literal expressions            3.14
+        Case(Lshift)                return ipr::traits<Lshift>::category;                // left shift                     a << b
+        Case(Lshift_assign)         return ipr::traits<Lshift_assign>::category;         // in-place left shift            a <<= b
+        Case(Member_init)           return ipr::traits<Member_init>::category;           // member initialization          : m(v)
+        Case(Minus)                 return ipr::traits<Minus>::category;                 // subtraction                    a - b
+        Case(Minus_assign)          return ipr::traits<Minus_assign>::category;          // in-place subtraction           a -= b
+        Case(Modulo)                return ipr::traits<Modulo>::category;                // modulo arithmetic              a % b
+        Case(Modulo_assign)         return ipr::traits<Modulo_assign>::category;         // in=place modulo arithmetic     a %= b
+        Case(Mul)                   return ipr::traits<Mul>::category;                   // multiplication                 a * b
+        Case(Mul_assign)            return ipr::traits<Mul_assign>::category;            // in-place multiplication        a *= b
+        Case(Not_equal)             return ipr::traits<Not_equal>::category;             // not-equality comparison        a != b
+        Case(Or)                    return ipr::traits<Or>::category;                    // logical or                     a || b
+        Case(Plus)                  return ipr::traits<Plus>::category;                  // addition                       a + b
+        Case(Plus_assign)           return ipr::traits<Plus_assign>::category;           // in-place addition              a += b
+        Case(Reinterpret_cast)      return ipr::traits<Reinterpret_cast>::category;      // reinterpret-cast  reinterpret_cast<T>(v)
+        Case(Rshift)                return ipr::traits<Rshift>::category;                // right shift                    a >> b
+        Case(Rshift_assign)         return ipr::traits<Rshift_assign>::category;         // in-place right shift           a >>= b
+        Case(Static_cast)           return ipr::traits<Static_cast>::category;           // static-cast            static_cast<T>(v)
+        Case(Conditional)           return ipr::traits<Conditional>::category;           // conditional                   p ? a : b
+        Case(New)                   return ipr::traits<New>::category;                   // new-expression              new (p) T(v)
+        Case(Block)                 return ipr::traits<Block>::category;                 // brace-enclosed statement sequence
+        Case(Break)                 return ipr::traits<Break>::category;                 // break-statement
+        Case(Continue)              return ipr::traits<Continue>::category;              // continue-statement
+        Case(Ctor_body)             return ipr::traits<Ctor_body>::category;             // constructor-body
+        Case(Do)                    return ipr::traits<Do>::category;                    // do-statement
+        Case(Empty_stmt)            return ipr::traits<Empty_stmt>::category;            // empty statement -- particular Expr_stmt
+        Case(Expr_stmt)             return ipr::traits<Expr_stmt>::category;             // expression-statement
+        Case(For)                   return ipr::traits<For>::category;                   // for-statement
+        Case(For_in)                return ipr::traits<For_in>::category;                // structured for-statement
+        Case(Goto)                  return ipr::traits<Goto>::category;                  // goto-statement
+        Case(Handler)               return ipr::traits<Handler>::category;               // exception handler statement
+        Case(If_then)               return ipr::traits<If_then>::category;               // if-statement
+        Case(If_then_else)          return ipr::traits<If_then_else>::category;          // if-else-statement
+        Case(Labeled_stmt)          return ipr::traits<Labeled_stmt>::category;          // labeled-statement
+        Case(Return)                return ipr::traits<Return>::category;                // return-statement
+        Case(Switch)                return ipr::traits<Switch>::category;                // switch-statement
+        Case(While)                 return ipr::traits<While>::category;                 // while-statement
+        Case(Alias)                 return ipr::traits<Alias>::category;                 // alias-declaration
+        Case(Asm)                   return ipr::traits<Asm>::category;                   // asm-declaration
+        Case(Base_type)             return ipr::traits<Base_type>::category;             // base-class in class inheritance
+        Case(Enumerator)            return ipr::traits<Enumerator>::category;            // enumerator in enumeration-declaration
+        Case(Field)                 return ipr::traits<Field>::category;                 // field in union or class declaration
+        Case(Bitfield)              return ipr::traits<Bitfield>::category;              // bitfield
+        Case(Fundecl)               return ipr::traits<Fundecl>::category;               // function-declaration
+        Case(Named_map)             return ipr::traits<Named_map>::category;             // template-declaration
+        Case(Parameter)             return ipr::traits<Parameter>::category;             // function or template parameter
+        Case(Typedecl)              return ipr::traits<Typedecl>::category;              // declaration for a type
+        Case(Var)                   return ipr::traits<Var>::category;                   // variable declaration
+      //Case(Using_directive)       return ipr::traits<Using_directive>::category;       // using-directive
+        Case(Unit)                  return ipr::traits<Unit>::category;                  // translation unit
+        //Case(Void)                  return ipr::traits<Void>::category;                  // "void"
+        //Case(Bool)                  return ipr::traits<Bool>::category;                  // "bool"
+        //Case(Char)                  return ipr::traits<Char>::category;                  // "char"
+        //Case(sChar)                 return ipr::traits<sChar>::category;                 // "signed char"
+        //Case(uChar)                 return ipr::traits<uChar>::category;                 // "unsigned char";
+        //Case(Wchar_t)               return ipr::traits<Wchar_t>::category;               // "wchar_t";
+        //Case(Short)                 return ipr::traits<Short>::category;                 // "short"
+        //Case(uShort)                return ipr::traits<uShort>::category;                // "unsigned short"
+        //Case(Int)                   return ipr::traits<Int>::category;                   // "int"
+        //Case(uInt)                  return ipr::traits<uInt>::category;                  // "unsigned int"
+        //Case(Long)                  return ipr::traits<Long>::category;                  // "long"
+        //Case(uLong)                 return ipr::traits<uLong>::category;                 // "unsigned long"
+        //Case(Long_long)             return ipr::traits<Long_long>::category;             // "long long"
+        //Case(uLong_long)            return ipr::traits<uLong_long>::category;            // "unsigned long long"
+        //Case(Float)                 return ipr::traits<Float>::category;                 // "float"
+        //Case(Double)                return ipr::traits<Double>::category;                // "double"
+        //Case(Long_double)           return ipr::traits<Long_double>::category;           // "long double"
+        //Case(Ellipsis)              return ipr::traits<Ellipsis>::category;              // "..."
+        Case(C_linkage)             return ipr::traits<C_linkage>::category;             // "C" linkage
+        //Case(Cxx_linkage)           return ipr::traits<Cxx_linkage>::category;           // "C++" linkage
+        //Case(Linkage)               return ipr::traits<Linkage>::category;               // general language linkage
+        Case(Global_scope)          return ipr::traits<Global_scope>::category;          // global namespace -- "::"
+        Case(Decl)                  return ipr::traits<Decl>::category;                  // general declarations
+        Case(Stmt)                  return ipr::traits<Stmt>::category;                  // general statements
+        Case(As_type)               return ipr::traits<As_type>::category;               // coerce-to type
+        Case(Udt)                   return ipr::traits<Udt>::category;                   // general user-defined types
+        Case(Type)                  return ipr::traits<Type>::category;                  // general types
+        //Case(Classic)               return ipr::traits<Classic>::category;               // general classic expressions
+        Case(Name)                  return ipr::traits<Name>::category;                  // general names
+        Case(Region)                return ipr::traits<Region>::category;                // declarative region
+        Case(Expr)                  return ipr::traits<Expr>::category;                  // general expressions
+        Case(Node)                  return ipr::traits<Node>::category;                  // universal base class for all IPR nodes
+    }
+    EndMatch
+}
+
+//------------------------------------------------------------------------------
+
+} // of namespace cxxm

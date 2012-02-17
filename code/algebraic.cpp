@@ -2,22 +2,41 @@
 #include <complex>
 #include <iostream>
 
+size_t gcd(size_t a, size_t b)
+{
+    if (a > b)
+        return gcd(size_t(a-b),b);
+    else
+    if (a < b)
+        return gcd(a,size_t(b-a));
+    else
+        return a;
+}
+
+int gcd(int a, int b)
+{
+    if (a > b)
+        return gcd(a-b,b);
+    else
+    if (a < b)
+        return gcd(a,b-a);
+    else
+        return a;
+}
+
 struct gcd_functor
 {
     template <class A> 
-    A operator()(const A& m, const A& n) const
+    A operator()(A&& m, A&& n) const
     { 
-        return m; 
+        return gcd(std::forward<A>(m),std::forward<A>(n)); 
     }
 };
 
 template <typename E1, typename E2> auto gcd(E1&& e1, E2&& e2) -> XTL_RETURN_ENABLE_IF
 (
-    is_expression<E1>::value && is_expression<E2>::value, 
-    make_expr<gcd_functor>(
-        filter(std::forward<E1>(e1)),
-        filter(std::forward<E2>(e2))
-    )
+    is_expression<E1>::value || is_expression<E2>::value, 
+    make_expr<gcd_functor>(filter(std::forward<E1>(e1)),filter(std::forward<E2>(e2)))
 )
 
 #include <cmath>
@@ -121,4 +140,19 @@ int main()
         When(m+5) std::cout << m << "+5" << std::endl;
     }
     EndMatch
+
+    variable<size_t> m1 = 12;
+    variable<size_t> m2 = 3;
+
+    Match(n)
+    {
+        When(m |= gcd(m,m2) == 3)   std::cout << "gcd-3"   << std::endl;
+        When(m |= gcd(m,3u) == 3)   std::cout << "gcd-3a"  << std::endl;
+        When(m |= gcd(3U,m) == 3)   std::cout << "gcd-3b"  << std::endl;
+        // When(m |= true/*gcd(3u,3u)== 3*/)   std::cout << "gcd-3c"  << std::endl; // FIX: doesn't work with true there
+        When(m |= gcd(m,m2) == 2)   std::cout << "gcd-2"   << std::endl;
+        When(m |= gcd(m,m2) == 1)   std::cout << "gcd-1"   << std::endl;
+    }
+    EndMatch
+
 }

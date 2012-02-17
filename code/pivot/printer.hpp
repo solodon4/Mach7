@@ -14,8 +14,24 @@ struct comments_interface
     virtual std::string  after(const ipr::Stmt&) { return std::string(); }
 };
 
-void print_cpp(const ipr::Node& n, std::ostream& os = std::cout);
-void print_cpp(const ipr::Node& n, std::ostream& os, comments_interface& c);
+/// Pattern-matching version of C++ printer
+namespace cxxm
+{
+    void print_cpp(const ipr::Node& n, std::ostream& os = std::cout);
+    void print_cpp(const ipr::Node& n, std::ostream& os, comments_interface& c);
+}
+
+/// Visitors version of C++ printer
+namespace cxxv
+{
+    void print_cpp(const ipr::Node& n, std::ostream& os = std::cout);
+    void print_cpp(const ipr::Node& n, std::ostream& os, comments_interface& c);
+}
+
+namespace cxx
+{
+    using cxxm::print_cpp;
+}
 
 // FIX: Figure out why for if-then-else with no {} on branches the result of merge
 //      is printed before the if-statement
