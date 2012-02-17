@@ -35,6 +35,8 @@
 
     /// The type used to record a time stamp. The type must have operator- defined.
     typedef LONGLONG  time_stamp;
+    /// The type capable of holding a difference of two time stamps.
+    typedef LONGLONG  time_stamp_diff;
     /// Returns a current time stamp.
     inline time_stamp get_time_stamp() { LARGE_INTEGER li; QueryPerformanceCounter(&li);   return li.QuadPart; }
     /// Returns how many time stamps are there in 1 second (frequency).
@@ -58,6 +60,8 @@
     }
     /// The type used to record a time stamp. The type must have operator- defined.
     typedef uint64_t  time_stamp;
+    /// The type capable of holding a difference of two time stamps.
+    typedef  int64_t  time_stamp_diff;
     /// Returns a current time stamp.
     inline time_stamp get_time_stamp() { return rdtsc(); }
     /// Returns how many time stamps are there in 1 second (frequency).
@@ -69,6 +73,8 @@
 
     /// The type used to record a time stamp. The type must have operator- defined.
     typedef clock_t   time_stamp;
+    /// The type capable of holding a difference of two time stamps.
+    typedef clock_t   time_stamp_diff;
     /// Returns a current time stamp.
     inline time_stamp get_time_stamp() { return clock(); }
     /// Returns how many time stamps are there in 1 second (frequency).
@@ -80,54 +86,17 @@
 
 #endif
 
+static const time_stamp time_stamp_frequency = get_frequency();
 
-    inline long long seconds(const long long& l)
-    {
-        static time_stamp freq = get_frequency();
-        return l/freq;
-    }
+inline long long       seconds(const long long& l) { return l/time_stamp_frequency; }
+inline long long  milliseconds(const long long& l) { return l*1000/time_stamp_frequency; }
+inline long long  microseconds(const long long& l) { return l*1000000/time_stamp_frequency; }
+inline long long   nanoseconds(const long long& l) { return l*1000000000/time_stamp_frequency; }
 
-    inline long long milliseconds(const long long& l)
-    {
-        static time_stamp freq = get_frequency();
-        return l*1000/freq;
-    }
-
-    inline long long microseconds(const long long& l)
-    {
-        static time_stamp freq = get_frequency();
-        return l*1000000/freq;
-    }
-
-    inline long long nanoseconds(const long long& l)
-    {
-        static time_stamp freq = get_frequency();
-        return l*1000000000/freq;
-    }
-
-    namespace dbl
-    {
-        inline double seconds(const long long& l)
-        {
-            static time_stamp freq = get_frequency();
-            return double(l)/freq;
-        }
-        
-        inline double milliseconds(const long long& l)
-        {
-            static time_stamp freq = get_frequency();
-            return double(l)*1000/freq;
-        }
-        
-        inline double microseconds(const long long& l)
-        {
-            static time_stamp freq = get_frequency();
-            return double(l)*1000000/freq;
-        }
-        
-        inline double nanoseconds(const long long& l)
-        {
-            static time_stamp freq = get_frequency();
-            return double(l)*1000000000/freq;
-        }
-    }
+namespace dbl
+{
+    inline double      seconds(const long long& l) { return double(l)/time_stamp_frequency; }
+    inline double milliseconds(const long long& l) { return double(l)*1000/time_stamp_frequency; }
+    inline double microseconds(const long long& l) { return double(l)*1000000/time_stamp_frequency; }
+    inline double  nanoseconds(const long long& l) { return double(l)*1000000000/time_stamp_frequency; }
+}

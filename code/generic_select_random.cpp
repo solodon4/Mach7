@@ -10,7 +10,7 @@
 /// All rights reserved.
 ///
 
-#include "testutils.hpp"
+#include "testshape.hpp"
 #include "match.hpp"
 
 //------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ template <size_t N> struct match_members<shape_kind<N>> { CM(0,shape_kind<N>::m_
 //------------------------------------------------------------------------------
 
 #if 1
-XTL_DO_NOT_INLINE_BEGIN
+XTL_TIMED_FUNC_BEGIN
 size_t do_match(const Shape& s, size_t)
 {
     Match(s)
@@ -55,16 +55,14 @@ size_t do_match(const Shape& s, size_t)
     EndMatch
     return -1;
 }
-XTL_DO_NOT_INLINE_END
+XTL_TIMED_FUNC_END
 #else
-XTL_DO_NOT_INLINE_BEGIN
 #error No preprocessed version provided
-XTL_DO_NOT_INLINE_END
 #endif
 
 //------------------------------------------------------------------------------
 
-XTL_DO_NOT_INLINE_BEGIN
+XTL_TIMED_FUNC_BEGIN
 size_t do_visit(const Shape& s, size_t)
 {
     struct Visitor : ShapeVisitor
@@ -82,7 +80,7 @@ size_t do_visit(const Shape& s, size_t)
     s.accept(v);
     return v.result;
 }
-XTL_DO_NOT_INLINE_END
+XTL_TIMED_FUNC_END
 
 //------------------------------------------------------------------------------
 
@@ -98,6 +96,10 @@ Shape* make_shape(size_t i)
     }
     return 0;
 }
+
+//------------------------------------------------------------------------------
+
+#include "testutils.hpp"    // Utilities for timing tests
 
 //------------------------------------------------------------------------------
 

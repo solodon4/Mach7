@@ -13,16 +13,8 @@
 #pragma once
 
 #include "exprtmpl.hpp"
-#include "config.hpp"
+#include "metatools.hpp"     // Utility meta-functions
 #include <ostream>
-#include <type_traits>
-
-//------------------------------------------------------------------------------
-
-/// Helper meta-function to remove reference ans const qualification from a type.
-/// Used to get an underlying selector type of Match' argument.
-template <typename T>
-struct underlying : std::remove_const<typename std::remove_reference<T>::type> {};
 
 //------------------------------------------------------------------------------
 
@@ -602,132 +594,6 @@ template <typename F, typename E1>              typename expr<F,E1>::result_type
 template <typename F, typename E1, typename E2> typename expr<F,E1,E2>::result_type inline eval(const expr<F,E1,E2>& e) { return F()(eval(e.m_e1),eval(e.m_e2)); }
 
 //------------------------------------------------------------------------------
-
-#define XTL_DEBUG_APPLY_MEMBER(what, c, f) //XTL_DEBUG_ONLY(std::clog << "\nApplying " what << c << " of type " << typeid(*c).name() << std::endl)
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(const C* c, R (T::*method)() const)
-{
-    XTL_DEBUG_APPLY_MEMBER("const member function to const instance ", c, method);
-    return (c->*method)();
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(      C* c, R (T::*method)() const)
-{
-    XTL_DEBUG_APPLY_MEMBER("const member function to non-const instance ", c, method);
-    return (c->*method)();
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(      C* c, R (T::*method)()      )
-{
-    XTL_DEBUG_APPLY_MEMBER("non-const member function to non-const instance ", c, method);
-    return (c->*method)();
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline const R& apply_member(const C* c, R T::*field) noexcept
-{
-    XTL_DEBUG_APPLY_MEMBER("data member to const instance ", c, field);
-    return c->*field;
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline       R& apply_member(      C* c, R T::*field) noexcept
-{
-    XTL_DEBUG_APPLY_MEMBER("data member to non-const instance ", c, field);
-    return c->*field;
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(const C* c, R (*func)(const T*))
-{
-    XTL_DEBUG_APPLY_MEMBER("external function taking const pointer to const instance ", c, func);
-    return (*func)(c);
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(      C* c, R (*func)(const T*))
-{
-    XTL_DEBUG_APPLY_MEMBER("external function taking const pointer to non-const instance ", c, func);
-    return (*func)(c);
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(      C* c, R (*func)(      T*))
-{
-    XTL_DEBUG_APPLY_MEMBER("external function taking non-const pointer to non-const instance ", c, func);
-    return (*func)(c);
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(const C* c, R (*func)(const T&))
-{
-    XTL_DEBUG_APPLY_MEMBER("external function taking const reference to const instance ", c, func);
-    return (*func)(*c);
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(      C* c, R (*func)(const T&))
-{
-    XTL_DEBUG_APPLY_MEMBER("external function taking const reference to non-const instance ", c, func);
-    return (*func)(*c);
-}
-
-//------------------------------------------------------------------------------
-
-template <class C, class T, typename R>
-inline R apply_member(      C* c, R (*func)(      T&))
-{
-    XTL_DEBUG_APPLY_MEMBER("external function taking non-const reference to non-const instance ", c, func);
-    return (*func)(*c);
-}
-
-//------------------------------------------------------------------------------
-
-/// We need this extra indirection to be able to intercept when we are trying to
-/// match a meta variable _ of type wildcard, that matches everything of
-/// any type. In this case we don't even want to invoke the underlain member!
-template <typename E, typename C, typename M>
-inline bool apply_expression(const E& e, const C* c, M m)
-{
-    #ifdef _MSC_VER
-    #pragma warning( disable : 4800 )
-    #endif
-
-    return e(apply_member(c, m));
-}
-
-template <typename E, typename C, typename M>
-inline bool apply_expression(const E& e,       C* c, M m)
-{
-    #ifdef _MSC_VER
-    #pragma warning( disable : 4800 )
-    #endif
-
-    return e(apply_member(c, m));
-}
 
 /// This is the specialization that makes the member not to be invoked when we
 /// are matching against the meta variable _ that matches everything.

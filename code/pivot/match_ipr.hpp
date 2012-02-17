@@ -9,6 +9,9 @@
 
 #pragma once
 
+/// At the moment some of the nodes do not have their own kind, so we use polymorphic encoding
+#define XTL_DEFAULT_SYNTAX 'P'
+
 #include "match.hpp"
 #include <ipr/interface>  // Pivot interfaces
 

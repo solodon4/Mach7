@@ -1,202 +1,31 @@
-#include <deque>
-#include <iomanip>
-#include <ipr/utility>           // Some Pivot utilities
+///
+/// \file printer_matching.cpp
+///
+/// Implementation of a C++ pretty-printer for Pivot based on pattern matching
+///
+/// \author Yuriy Solodkyy
+/// Copyright (C) 2011, Texas A&M University.  All rights reserved.
+///
 
-#include "printer.hpp"
-#include "predicates.hpp"        // Helper predicates on IPR nodes
-#include "strutils.hpp"          // String utilities
+#include "printer_matching.hpp"
 #include "precedence.hpp"
-#include "match_ipr.hpp"
+#include "match_ipr.hpp"         // Pattern-matching bindings for IPR hierarchy.
 
 /// Pattern-matching version of C++ printer
 namespace cxxm
 {
 
-/// Set of template parameters with corresponding nesting of the currently
-/// processed template to be resolved for Rname nodes.
-std::deque<const ipr::Parameter_list*> template_parameters_stack; // FIX: Make this thread local somehow
-
-//==============================================================================
-// Forward Declarations
-//==============================================================================
-
-std::string eval_name(const ipr::Name&);
-std::string eval_type(const ipr::Type&, const std::string& = "", size_t = 0);
-std::string eval_classic(const ipr::Classic&);
-std::string eval_decl(const ipr::Decl&);
-std::string eval_expr(const ipr::Expr&);
-std::string eval_params(const ipr::Parameter_list& parameters);
-
-//------------------------------------------------------------------------------
-
-inline std::string eval(const ipr::Name& n)    { return eval_name(n); }
-inline std::string eval(const ipr::Type& n)    { return eval_type(n); }
-inline std::string eval(const ipr::Classic& n) { return eval_classic(n); }
-inline std::string eval(const ipr::Decl& n)    { return eval_decl(n); }
-inline std::string eval(const ipr::Expr& n)    { return eval_expr(n); }
-
-//------------------------------------------------------------------------------
-
-template <typename T>
-std::string eval_sqnc(const ipr::Sequence<T>& s, int from = 0, const char* separator = ",")
-{
-    std::string result;
-
-    for (int i = from, n = s.size(); i < n; i++)
-    {
-        if (i != from)
-            result += separator;
-
-        result += eval(s[i]);
-    }
-
-    return result;
-}
-
-//------------------------------------------------------------------------------
-
-class cxx_printer;
-
-//------------------------------------------------------------------------------
-
-cxx_printer& operator<<(cxx_printer& pr, const ipr::Stmt&);
-cxx_printer& operator<<(cxx_printer& pr, const ipr::Decl&);
-cxx_printer& operator<<(cxx_printer& pr, const ipr::Udt&);
-cxx_printer& operator<<(cxx_printer& pr, const ipr::Expr&);
-cxx_printer& operator<<(cxx_printer& pr, const ipr::Node&);
-template <typename T> 
-inline cxx_printer& operator<<(cxx_printer& pr, const ipr::Sequence<T>& s) 
-{
-    return pr << eval_sqnc(s); 
-}
-
-bool evaluate_map(const ipr::Mapping&, const ipr::Named_map&, cxx_printer&);
-
-#define eval_classic_ex eval_expr
-
-//==============================================================================
-// Helper functions
-//==============================================================================
-
-std::vector<std::string> tokenize_with(const std::string& str, const std::string& delimiters)
-{
-    std::vector<std::string> res;
-    tokenize(str, back_inserter(res), delimiters);
-    return res;
-}
-
-//------------------------------------------------------------------------------
-
-std::ostream& indent(std::ostream& os, int indent_level = 0, bool empty_line = false)
-{
-    os << std::endl;
-
-    if (empty_line)
-        os << std::endl;
-
-    if (indent_level)
-        os << std::setw(indent_level*4) << ' ';
-
-    return os;
-}
-
-//------------------------------------------------------------------------------
-
-inline std::string postfix(const std::string& declarator)
-{
-    return !declarator.empty() && isid(declarator[0]) ? ' '+declarator : declarator;
-}
-
-inline std::string prefix(const std::string& declarator)
-{
-    return !declarator.empty() && isid(declarator[declarator.length()-1]) ? declarator+' ' : declarator;
-}
-
-//------------------------------------------------------------------------------
-
-std::string prefix_specifiers(const ipr::Decl& s, ipr::Decl::Specifier mask = ipr::Decl::Specifier(-1))
-{
-    ipr::Decl::Specifier spec = mask & s.specifiers() & ipr::applicable_specifiers(s);
-    std::string result;
-
-    if (ipr::is_in_class_declaration(s))
-    {
-        if (spec & ipr::Decl::Public)    result += "public: ";
-        if (spec & ipr::Decl::Protected) result += "protected: ";
-        if (spec & ipr::Decl::Private)   result += "private: ";
-    }
-
-    if (spec & ipr::Decl::Auto)      result += "auto ";
-    if (spec & ipr::Decl::Register)  result += "register ";
-    if (spec & ipr::Decl::Static)    result += "static ";
-    if (spec & ipr::Decl::Extern)    result += "extern ";
-    if (spec & ipr::Decl::Mutable)   result += "mutable ";
-    if (spec & ipr::Decl::Inline)    result += "inline ";
-    if (spec & ipr::Decl::Virtual)   result += "virtual ";
-    if (spec & ipr::Decl::Explicit)  result += "explicit ";
-  //if (spec & ipr::Decl::Pure)      result += "pure ";
-    if (spec & ipr::Decl::Friend)    result += "friend ";
-    if (spec & ipr::Decl::Typedef)   result += "typedef ";
-    if (spec & ipr::Decl::Export)    result += "export ";
-    if (spec & ipr::Decl::Constexpr) result += "constexpr ";
-
-    return result;
-}
-
-//------------------------------------------------------------------------------
-
-std::string get_declarator(const ipr::Decl& d, bool explicit_global_scope = false)
-{
-    std::string declarator = eval_name(d.name());
-    const ipr::Region* hr = &d.home_region();
-    const ipr::Region* lr = &d.lexical_region();
-
-    assert(lr);
-
-    while (hr != lr)
-    {
-        assert(hr);
-
-        if (ipr::util::node_has_member(*hr, &ipr::Region::enclosing))
-        {
-            if (const ipr::Udt* udt = ipr::util::view<ipr::Udt>(hr->owner()))
-			{
-				declarator = eval_name(udt->name()) + "::" + declarator;
-			}
-			else
-			if (const ipr::Mapping* map = ipr::util::view<ipr::Mapping>(hr->owner()))
-			{
-				// Do nothing, template id with parameters have already been prepended
-			}
-			else
-				assert(!"Unhandled case in get_declarator");
-
-            hr = &hr->enclosing();
-        }
-        else  // We've reached global scope whose enclosing regions is null
-		{
-			if (explicit_global_scope)
-				declarator = "::" + declarator;
-
-            break; // The following may happen on friend functions for example
-		}
-    }
-
-    return declarator;
-}
-
 //------------------------------------------------------------------------------
 
 std::string eval_name(const ipr::Name& name)
 {
-    //XTL_TRACE_PERFORMANCE_ONLY(extern int match_category(const ipr::Node&); match_category(name));
     Match(name)
     {
-        Case(ipr::Identifier,  str)    { return to_str(str); }
-        Case(ipr::Id_expr,     name)   { return eval_name(name); }
-        Case(ipr::Operator,    opname) { return "operator"  + to_str(opname); }
-        Case(ipr::Conversion,  target) { return "operator " + eval_type(target); }
-        Case(ipr::Scope_ref,   scope, member)    
+        Case(ipr::Identifier,        str) return to_str(str);
+        Case(ipr::Id_expr,          name) return eval_name(name);
+        Case(ipr::Operator,       opname) return "operator" + postfix(to_str(opname));
+        Case(ipr::Conversion,     target) return "operator" + postfix(eval_type(target));
+        Case(ipr::Scope_ref, scope, member) 
         {
             std::string result = eval_expr(scope) + "::";
 
@@ -204,8 +33,7 @@ std::string eval_name(const ipr::Name& name)
                 if (ipr::is_template_dependent(scope))
                     result += "template ";
 
-            result += eval_expr(member);
-            return result;
+            return result + eval_expr(member);
         }
         Case(ipr::Template_id, name, arguments)
         {
@@ -216,9 +44,9 @@ std::string eval_name(const ipr::Name& name)
 
             return eval_name(name) + '<' + args + '>';
         }
-        Case(ipr::Ctor_name,   object_type) { return eval_type(object_type); }
-        Case(ipr::Dtor_name,   object_type) { return "~" + eval_type(object_type); }
-        Case(ipr::Rname,       level, position)
+        Case(ipr::Ctor_name, object_type) return eval_type(object_type);
+        Case(ipr::Dtor_name, object_type) return '~' + eval_type(object_type);
+        Case(ipr::Rname, level, position)
         {
             //std::cout << template_parameters_stack.size() << ": Accessing: R[" << i << ',' << j << ']' << std::endl;
             //assert(level    < template_parameters_stack.size()); // We should have processed corresponding Named_map and put parameters on the stack
@@ -231,53 +59,57 @@ std::string eval_name(const ipr::Name& name)
             else
                 return "BUGGY_IPR_RNAME_" + to_str(level) + '_' + to_str(position);
         }
-        Case(ipr::Type_id,     type_expr)    { return eval_type(type_expr); }
+        Case(ipr::Type_id,     type_expr) return eval_type(type_expr);
     }
     EndMatch
-
-    assert(!"Inexhaustive match"); // Your case clauses don't cover all the cases!
 }
 
 //------------------------------------------------------------------------------
 
-std::string eval_type_ex(const ipr::Type& n, const std::string& declarator) 
+std::string eval_type(const ipr::Type& n, const std::string& declarator, size_t decl_precedence) 
 {
-    //XTL_TRACE_PERFORMANCE_ONLY(extern int match_category(const ipr::Node&); match_category(n));
-    MatchP(n)
+    const std::string& t = ::precedence(n) < decl_precedence ? '(' + declarator + ')' : declarator;
+    std::string result;
+
+    Match(n)
     {
-        CaseP(ipr::Array,        element_type, bound) { return eval_type(element_type, declarator + '[' + eval_expr(bound)+ ']', ipr::precedence<ipr::Array>::value); }
-        CaseP(ipr::Void          )  { return "void"               + postfix(declarator); }
-        CaseP(ipr::Bool          )  { return "bool"               + postfix(declarator); }
-        CaseP(ipr::Char          )  { return "char"               + postfix(declarator); }
-        CaseP(ipr::sChar         )  { return "signed char"        + postfix(declarator); }
-        CaseP(ipr::uChar         )  { return "unsigned char"      + postfix(declarator); }
-        CaseP(ipr::Wchar_t       )  { return "wchar_t"            + postfix(declarator); }
-        CaseP(ipr::Short         )  { return "short"              + postfix(declarator); }
-        CaseP(ipr::uShort        )  { return "unsigned short"     + postfix(declarator); }
-        CaseP(ipr::Int           )  { return "int"                + postfix(declarator); }
-        CaseP(ipr::uInt          )  { return "unsigned int"       + postfix(declarator); }
-        CaseP(ipr::Long          )  { return "long"               + postfix(declarator); }
-        CaseP(ipr::uLong         )  { return "unsigned long"      + postfix(declarator); }
-        CaseP(ipr::Long_long     )  { return "long long"          + postfix(declarator); }
-        CaseP(ipr::uLong_long    )  { return "unsigned long long" + postfix(declarator); }
-        CaseP(ipr::Float         )  { return "float"              + postfix(declarator); }
-        CaseP(ipr::Double        )  { return "double"             + postfix(declarator); }
-        CaseP(ipr::Long_double   )  { return "long double"        + postfix(declarator); }
-        CaseP(ipr::Ellipsis      )  { return "..."; }
-        CaseP(ipr::Decltype,     expr)  { return "decltype(" + eval_expr(expr) + ')'; }
-        CaseP(ipr::Function,     source, target, throws)  
+        Case(ipr::Array,        element_type, bound) 
+            result = eval_type(element_type, t + '[' + eval_expr(bound)+ ']', ipr::precedence<ipr::Array>::value); 
+            break;
+        Case(ipr::Void          )  result = "void"               + postfix(t); break;
+        Case(ipr::Bool          )  result = "bool"               + postfix(t); break;
+        Case(ipr::Char          )  result = "char"               + postfix(t); break;
+        Case(ipr::sChar         )  result = "signed char"        + postfix(t); break;
+        Case(ipr::uChar         )  result = "unsigned char"      + postfix(t); break;
+        Case(ipr::Wchar_t       )  result = "wchar_t"            + postfix(t); break;
+        Case(ipr::Short         )  result = "short"              + postfix(t); break;
+        Case(ipr::uShort        )  result = "unsigned short"     + postfix(t); break;
+        Case(ipr::Int           )  result = "int"                + postfix(t); break;
+        Case(ipr::uInt          )  result = "unsigned int"       + postfix(t); break;
+        Case(ipr::Long          )  result = "long"               + postfix(t); break;
+        Case(ipr::uLong         )  result = "unsigned long"      + postfix(t); break;
+        Case(ipr::Long_long     )  result = "long long"          + postfix(t); break;
+        Case(ipr::uLong_long    )  result = "unsigned long long" + postfix(t); break;
+        Case(ipr::Float         )  result = "float"              + postfix(t); break;
+        Case(ipr::Double        )  result = "double"             + postfix(t); break;
+        Case(ipr::Long_double   )  result = "long double"        + postfix(t); break;
+        Case(ipr::Ellipsis      )  result = "..."; break;
+        Case(ipr::Decltype,     expr)  result = "decltype(" + eval_expr(expr) + ')' + postfix(t); break;
+        Case(ipr::Function,     source, target, throws) 
         { 
-            std::string result = eval_type(target, declarator + '(' + eval_expr(source) + ')', ipr::precedence<ipr::Function>::value);
+            result = eval_type(target, t + '(' + eval_expr(source) + ')', ipr::precedence<ipr::Function>::value);
 
             if (!can_throw_everything(*matched)) // we skip throw specification when any exception can be thrown
                 result += " throw(" + eval_expr(throws) + ')';
 
-            return result;
+            break;
         }
-        CaseP(ipr::Pointer,      points_to)  { return eval_type(points_to, '*' + postfix(declarator), ipr::precedence<ipr::Pointer>::value); }
-        CaseP(ipr::Reference,    refers_to)  { return eval_type(refers_to, '&' + postfix(declarator), ipr::precedence<ipr::Reference>::value); }
-        CaseP(ipr::Ptr_to_member,containing_type, member_type) { return eval_type(member_type, eval_type(containing_type) + "::*" + postfix(declarator), ipr::precedence<ipr::Ptr_to_member>::value); }
-        CaseP(ipr::Qualified,    main_variant, quals)
+        Case(ipr::Pointer,      points_to)  result = eval_type(points_to, '*' + postfix(t), ipr::precedence<ipr::Pointer>::value);   break;
+        Case(ipr::Reference,    refers_to)  result = eval_type(refers_to, '&' + postfix(t), ipr::precedence<ipr::Reference>::value); break;
+        Case(ipr::Ptr_to_member,containing_type, member_type) 
+            result = eval_type(member_type, eval_type(containing_type) + "::*" + postfix(t), ipr::precedence<ipr::Ptr_to_member>::value); 
+            break;
+        Case(ipr::Qualified,    main_variant, quals)
         {
             std::string qualifiers;
 
@@ -294,25 +126,17 @@ std::string eval_type_ex(const ipr::Type& n, const std::string& declarator)
                 qualifiers += "__restrict__ ";
     #endif
 
-            return eval_type(main_variant, qualifiers + postfix(/*matched->main_variant()*/declarator), ::precedence(main_variant));
+            result = eval_type(main_variant, qualifiers + postfix(/*matched->main_variant()*/t), ::precedence(main_variant)); 
+            break;
         }
-    
-        CaseP(ipr::Product,      elements)       { return eval_sqnc(elements); }
-        CaseP(ipr::Sum,          elements)       { return eval_sqnc(elements); }
-        CaseP(ipr::Template,     source, target) { return "template <" + eval_type(source) + "> " + eval_type(target, postfix(declarator)); }
-        CaseP(ipr::As_type,      expr)           { return eval_expr(expr) + postfix(declarator); } // This may represent user-defined class
-        CaseP(ipr::Udt,          name)           { return eval_name(name) + postfix(declarator); } // This is analog of Decl handling in expression context - we only refer the name
+ 
+        Case(ipr::Product,      elements)       result = eval_sqnc(elements); break;
+        Case(ipr::Sum,          elements)       result = eval_sqnc(elements); break;
+        Case(ipr::Template,     source, target) result = "template <" + eval_type(source) + "> " + eval_type(target, postfix(t)); break;
+        Case(ipr::As_type,      expr)           result = eval_expr(expr) + postfix(t); break; // This may represent user-defined class
+        Case(ipr::Udt,          name)           result = eval_name(name) + postfix(t); break; // This is analog of Decl handling in expression context - we only refer the name
     }
-    EndMatchP
-
-    assert(!"Inexhaustive match"); // Your case clauses don't cover all the cases!
-}
-
-//------------------------------------------------------------------------------
-
-inline std::string eval_type(const ipr::Type& n, const std::string& declarator, size_t decl_precedence) 
-{
-    std::string result = eval_type_ex(n, ::precedence(n) < decl_precedence ? '(' + declarator + ')' : declarator);
+    EndMatch
 
     if (ipr::is_template_dependent_type(n))
         result = "typename " + result;
@@ -324,108 +148,107 @@ inline std::string eval_type(const ipr::Type& n, const std::string& declarator, 
 
 std::string eval_classic(const ipr::Classic& n)
 {
-    //XTL_TRACE_PERFORMANCE_ONLY(extern int match_category(const ipr::Node&); match_category(n));
     Match(n)
     {
-        Case(ipr::Literal, _, s)      { return to_str(s); }
+        Case(ipr::Literal,                _, str) return to_str(str);
 
         // Unary Operations
 
-        Case(ipr::Address, e)         { return "&" + eval_classic_ex(e); }
-        Case(ipr::Array_delete, e)    { return "delete[] " + eval_classic_ex(e); }
-        Case(ipr::Complement, e)      { return "~" + eval_classic_ex(e); }
-        Case(ipr::Delete, e)          { return "delete " + eval_classic_ex(e); }
-        Case(ipr::Deref, e)           { return "*" + eval_classic_ex(e); }
-        Case(ipr::Expr_sizeof, e)     { return "sizeof(" + eval_classic_ex(e) + ")"; }
-        Case(ipr::Expr_typeid, e)     { return "typeid(" + eval_classic_ex(e) + ")"; }
-        Case(ipr::Not, e)             { return "!" + eval_classic_ex(e); }
-        Case(ipr::Paren_expr, e)      { return "(" + eval_classic_ex(e) + ")"; }
-        Case(ipr::Post_decrement, e)  { return eval_classic_ex(e) + "--"; }
-        Case(ipr::Post_increment, e)  { return eval_classic_ex(e) + "++"; }
-        Case(ipr::Pre_decrement, e)   { return "--" + eval_classic_ex(e); }
-        Case(ipr::Pre_increment, e)   { return "++" + eval_classic_ex(e); }
-        Case(ipr::Throw, e)           { return "throw " + eval_classic_ex(e); }
-        Case(ipr::Type_sizeof, e)     { return "sizeof(" + eval_classic_ex(e) + ")"; }
-        Case(ipr::Type_typeid, e)     { return "typeid(" + eval_classic_ex(e) + ")"; }
-        Case(ipr::Unary_minus, e)     { return "-" + eval_classic_ex(e); }
-        Case(ipr::Unary_plus, e)      { return "+" + eval_classic_ex(e); }
+        Case(ipr::Address,               operand) return '&'         + eval_classic_ex(operand);
+        Case(ipr::Array_delete,          operand) return "delete[] " + eval_classic_ex(operand);
+        Case(ipr::Complement,            operand) return '~'         + eval_classic_ex(operand);
+        Case(ipr::Delete,                operand) return "delete "   + eval_classic_ex(operand);
+        Case(ipr::Deref,                 operand) return '*'         + eval_classic_ex(operand);
+        Case(ipr::Expr_sizeof,           operand) return "sizeof("   + eval_classic_ex(operand) + ')';
+        Case(ipr::Expr_typeid,           operand) return "typeid("   + eval_classic_ex(operand) + ')';
+        Case(ipr::Not,                   operand) return '!'         + eval_classic_ex(operand);
+        Case(ipr::Paren_expr,            operand) return '('         + eval_classic_ex(operand) + ')';
+        Case(ipr::Post_decrement,        operand) return               eval_classic_ex(operand) + "--";
+        Case(ipr::Post_increment,        operand) return               eval_classic_ex(operand) + "++";
+        Case(ipr::Pre_decrement,         operand) return "--"        + eval_classic_ex(operand);
+        Case(ipr::Pre_increment,         operand) return "++"        + eval_classic_ex(operand);
+        Case(ipr::Throw,                 operand) return "throw "    + eval_classic_ex(operand);
+        Case(ipr::Type_sizeof,           operand) return "sizeof("   + eval_classic_ex(operand) + ')';
+        Case(ipr::Type_typeid,           operand) return "typeid("   + eval_classic_ex(operand) + ')';
+        Case(ipr::Unary_minus,           operand) return '-'         + eval_classic_ex(operand);
+        Case(ipr::Unary_plus,            operand) return '+'         + eval_classic_ex(operand);
 
         // Binary Operations
 
-        Case(ipr::Plus, a, b)            { return eval_classic_ex(a) + " + "  + eval_classic_ex(b); }
-        Case(ipr::Minus, a, b)           { return eval_classic_ex(a) + " - "  + eval_classic_ex(b); }
-        Case(ipr::Mul, a, b)             { return eval_classic_ex(a) + " * "  + eval_classic_ex(b); }
-        Case(ipr::Div, a, b)             { return eval_classic_ex(a) + " / "  + eval_classic_ex(b); }
-        Case(ipr::Modulo, a, b)          { return eval_classic_ex(a) + " % "  + eval_classic_ex(b); }
-        Case(ipr::Bitand, a, b)          { return eval_classic_ex(a) + " & "  + eval_classic_ex(b); }
-        Case(ipr::Bitor, a, b)           { return eval_classic_ex(a) + " | "  + eval_classic_ex(b); }
-        Case(ipr::Bitxor, a, b)          { return eval_classic_ex(a) + " ^ "  + eval_classic_ex(b); }
-        Case(ipr::Lshift, a, b)          { return eval_classic_ex(a) + " << " + eval_classic_ex(b); }
-        Case(ipr::Rshift, a, b)          { return eval_classic_ex(a) + " >> " + eval_classic_ex(b); }
+        Case(ipr::Plus,            first, second) return eval_classic_ex(first) + " + "   + eval_classic_ex(second);
+        Case(ipr::Minus,           first, second) return eval_classic_ex(first) + " - "   + eval_classic_ex(second);
+        Case(ipr::Mul,             first, second) return eval_classic_ex(first) + " * "   + eval_classic_ex(second);
+        Case(ipr::Div,             first, second) return eval_classic_ex(first) + " / "   + eval_classic_ex(second);
+        Case(ipr::Modulo,          first, second) return eval_classic_ex(first) + " % "   + eval_classic_ex(second);
+        Case(ipr::Bitand,          first, second) return eval_classic_ex(first) + " & "   + eval_classic_ex(second);
+        Case(ipr::Bitor,           first, second) return eval_classic_ex(first) + " | "   + eval_classic_ex(second);
+        Case(ipr::Bitxor,          first, second) return eval_classic_ex(first) + " ^ "   + eval_classic_ex(second);
+        Case(ipr::Lshift,          first, second) return eval_classic_ex(first) + " << "  + eval_classic_ex(second);
+        Case(ipr::Rshift,          first, second) return eval_classic_ex(first) + " >> "  + eval_classic_ex(second);
 
-        Case(ipr::Assign, a, b)          { return eval_classic_ex(a) + " = "   + eval_classic_ex(b); }
-        Case(ipr::Plus_assign, a, b)     { return eval_classic_ex(a) + " += "  + eval_classic_ex(b); }
-        Case(ipr::Minus_assign, a, b)    { return eval_classic_ex(a) + " -= "  + eval_classic_ex(b); }
-        Case(ipr::Mul_assign, a, b)      { return eval_classic_ex(a) + " *= "  + eval_classic_ex(b); }
-        Case(ipr::Div_assign, a, b)      { return eval_classic_ex(a) + " /= "  + eval_classic_ex(b); }
-        Case(ipr::Modulo_assign, a, b)   { return eval_classic_ex(a) + " %= "  + eval_classic_ex(b); }
-        Case(ipr::Bitand_assign, a, b)   { return eval_classic_ex(a) + " &= "  + eval_classic_ex(b); }
-        Case(ipr::Bitor_assign, a, b)    { return eval_classic_ex(a) + " |= "  + eval_classic_ex(b); }
-        Case(ipr::Bitxor_assign, a, b)   { return eval_classic_ex(a) + " ^= "  + eval_classic_ex(b); }
-        Case(ipr::Lshift_assign, a, b)   { return eval_classic_ex(a) + " <<= " + eval_classic_ex(b); }
-        Case(ipr::Rshift_assign, a, b)   { return eval_classic_ex(a) + " >>= " + eval_classic_ex(b); }
+        Case(ipr::Assign,          first, second) return eval_classic_ex(first) + " = "   + eval_classic_ex(second);
+        Case(ipr::Plus_assign,     first, second) return eval_classic_ex(first) + " += "  + eval_classic_ex(second);
+        Case(ipr::Minus_assign,    first, second) return eval_classic_ex(first) + " -= "  + eval_classic_ex(second);
+        Case(ipr::Mul_assign,      first, second) return eval_classic_ex(first) + " *= "  + eval_classic_ex(second);
+        Case(ipr::Div_assign,      first, second) return eval_classic_ex(first) + " /= "  + eval_classic_ex(second);
+        Case(ipr::Modulo_assign,   first, second) return eval_classic_ex(first) + " %= "  + eval_classic_ex(second);
+        Case(ipr::Bitand_assign,   first, second) return eval_classic_ex(first) + " &= "  + eval_classic_ex(second);
+        Case(ipr::Bitor_assign,    first, second) return eval_classic_ex(first) + " |= "  + eval_classic_ex(second);
+        Case(ipr::Bitxor_assign,   first, second) return eval_classic_ex(first) + " ^= "  + eval_classic_ex(second);
+        Case(ipr::Lshift_assign,   first, second) return eval_classic_ex(first) + " <<= " + eval_classic_ex(second);
+        Case(ipr::Rshift_assign,   first, second) return eval_classic_ex(first) + " >>= " + eval_classic_ex(second);
 
-        Case(ipr::And, a, b)             { return eval_classic_ex(a) + " && "  + eval_classic_ex(b); }
-        Case(ipr::Or, a, b)              { return eval_classic_ex(a) + " || "  + eval_classic_ex(b); }
-        Case(ipr::Equal, a, b)           { return eval_classic_ex(a) + " == "  + eval_classic_ex(b); }
-        Case(ipr::Not_equal, a, b)       { return eval_classic_ex(a) + " != "  + eval_classic_ex(b); }
-        Case(ipr::Greater, a, b)         { return eval_classic_ex(a) + " > "   + eval_classic_ex(b); }
-        Case(ipr::Greater_equal, a, b)   { return eval_classic_ex(a) + " >= "  + eval_classic_ex(b); }
-        Case(ipr::Less, a, b)            { return eval_classic_ex(a) + " < "   + eval_classic_ex(b); }
-        Case(ipr::Less_equal, a, b)      { return eval_classic_ex(a) + " <= "  + eval_classic_ex(b); }
+        Case(ipr::And,             first, second) return eval_classic_ex(first) + " && "  + eval_classic_ex(second);
+        Case(ipr::Or,              first, second) return eval_classic_ex(first) + " || "  + eval_classic_ex(second);
+        Case(ipr::Equal,           first, second) return eval_classic_ex(first) + " == "  + eval_classic_ex(second);
+        Case(ipr::Not_equal,       first, second) return eval_classic_ex(first) + " != "  + eval_classic_ex(second);
+        Case(ipr::Greater,         first, second) return eval_classic_ex(first) + " > "   + eval_classic_ex(second);
+        Case(ipr::Greater_equal,   first, second) return eval_classic_ex(first) + " >= "  + eval_classic_ex(second);
+        Case(ipr::Less,            first, second) return eval_classic_ex(first) + " < "   + eval_classic_ex(second);
+        Case(ipr::Less_equal,      first, second) return eval_classic_ex(first) + " <= "  + eval_classic_ex(second);
 
-        Case(ipr::Comma, a, b)           { return eval_classic_ex(a) + " , " + eval_classic_ex(b); }
-        Case(ipr::Datum, c, s)           { return eval_classic_ex(c) + '('   + eval_sqnc(s.elements()) + ')'; }
+        Case(ipr::Comma,           first, second) return eval_classic_ex(first) + " , "   + eval_classic_ex(second);
+        Case(ipr::Datum,                    c, s) return eval_classic_ex(c) + '('   + eval_sqnc(s.elements()) + ')';
 
         // Binary Operations: Casts
 
-        Case(ipr::Cast, t, e)            { return                 "(" + eval_type(t) + ")"  + eval_classic_ex(e); }
-        Case(ipr::Const_cast, t, e)      { return       "const_cast<" + eval_type(t) + ">(" + eval_classic_ex(e) + ")"; }
-        Case(ipr::Dynamic_cast, t, e)    { return     "dynamic_cast<" + eval_type(t) + ">(" + eval_classic_ex(e) + ")"; }
-        Case(ipr::Reinterpret_cast, t, e){ return "reinterpret_cast<" + eval_type(t) + ">(" + eval_classic_ex(e) + ")"; }
-        Case(ipr::Static_cast, t, e)     { return      "static_cast<" + eval_type(t) + ">(" + eval_classic_ex(e) + ")"; }
+        Case(ipr::Cast,               type, expr) return                 '(' + eval_type(type) + ')'  + eval_classic_ex(expr);
+        Case(ipr::Const_cast,         type, expr) return       "const_cast<" + eval_type(type) + ">(" + eval_classic_ex(expr) + ')';
+        Case(ipr::Dynamic_cast,       type, expr) return     "dynamic_cast<" + eval_type(type) + ">(" + eval_classic_ex(expr) + ')';
+        Case(ipr::Reinterpret_cast,   type, expr) return "reinterpret_cast<" + eval_type(type) + ">(" + eval_classic_ex(expr) + ')';
+        Case(ipr::Static_cast,        type, expr) return      "static_cast<" + eval_type(type) + ">(" + eval_classic_ex(expr) + ')';
 
         // Binary Operations: Member selection
 
-        Case(ipr::Array_ref, b, m)       { return eval_classic_ex(b) + "["  + eval_classic_ex(m) + "]"; }    
-        Case(ipr::Arrow, b, m)           
+        Case(ipr::Array_ref,        base, member) return eval_classic_ex(base) + '['  + eval_classic_ex(member) + ']'; 
+        Case(ipr::Arrow,            base, member) 
         {
             if (matched->has_impl_decl())
             {
-                std::string result = eval_classic_ex(b) + '.' + eval_name(matched->impl_decl().name()) + "()";
+                std::string result = eval_classic_ex(base) + '.' + eval_name(matched->impl_decl().name()) + "()";
 
-                if (!is_phantom(m))
-                    result += "->" + eval_classic_ex(m);
+                if (!is_phantom(member))
+                    result += "->" + eval_classic_ex(member);
 
                 return result;
             }
             else
-                return eval_classic_ex(b) + "->" + eval_classic_ex(m); 
+                return eval_classic_ex(base) + "->" + eval_classic_ex(member); 
         }
-        Case(ipr::Dot, b, m)             { return eval_classic_ex(b) + "."   + eval_classic_ex(m); }
-        Case(ipr::Arrow_star, b, m)      { return eval_classic_ex(b) + "->*" + eval_classic_ex(m); }
-        Case(ipr::Dot_star, b, m)        { return eval_classic_ex(b) + ".*"  + eval_classic_ex(m); }
+        Case(ipr::Dot,              base, member) return eval_classic_ex(base) + '.'   + eval_classic_ex(member);
+        Case(ipr::Arrow_star,       base, member) return eval_classic_ex(base) + "->*" + eval_classic_ex(member);
+        Case(ipr::Dot_star,         base, member) return eval_classic_ex(base) + ".*"  + eval_classic_ex(member);
 
         // Ternary operations
 
-        Case(ipr::New, p, t, i)          { return "new " + eval_type(t); } // FIX: Take placement into account
-        Case(ipr::Conditional, c, t, e)  { return eval_classic_ex(c) + " ? "  + eval_classic_ex(t) + " : " + eval_classic_ex(e); }
+        Case(ipr::New,   placement, allocated_type, initializer) return "new " + eval_type(allocated_type); // FIX: Take placement into account
+        Case(ipr::Conditional,  condition, then_expr, else_expr) return eval_classic_ex(condition) + " ? "  + eval_classic_ex(then_expr) + " : " + eval_classic_ex(else_expr);
 
         // Other operations
 
-        Case(ipr::Call, f, a)
+        Case(ipr::Call, function, args)
         {
-            std::string func_name = eval_classic_ex(f);
+            std::string func_name = eval_classic_ex(function);
 
             if (const ipr::Fundecl* target = call_target(*matched)) // Call target is known
             {
@@ -434,7 +257,7 @@ std::string eval_classic(const ipr::Classic& n)
                 if (is_member_function(*target))
                 {
                     // Call to a member function
-                    assert(a.size() > 0); // There must be argument that represents this pointer
+                    assert(args.size() > 0); // There must be argument that represents this pointer
 
                     std::string result;
 
@@ -444,7 +267,7 @@ std::string eval_classic(const ipr::Classic& n)
                     // been on reference to object, in which case an ipr::Address node
                     // is artificially inserted. Here we are trying to undo that 
                     // unnecessary address to print the dot when possible.
-                    if (const ipr::Address* addr = ipr::util::view<ipr::Address>(a[0]))
+                    if (const ipr::Address* addr = ipr::util::view<ipr::Address>(args[0]))
                     {
                         // The address is artifical and the actual call is through dot
                         result = eval_classic_ex(addr->operand()) + '.';
@@ -452,26 +275,25 @@ std::string eval_classic(const ipr::Classic& n)
                     else
                     {
                         // The actual call is through this pointer
-                        result = eval_classic_ex(a[0]) + "->";
+                        result = eval_classic_ex(args[0]) + "->";
                     }
 
                     // Note that using target->name() instead of func_name might omit scope etc.
-                    result += func_name + '(' + eval_sqnc(a.elements(), 1) + ')';
-                    return result;
+                    return result + func_name + '(' + eval_sqnc(args.elements(), 1) + ')';
                 }
                 else // not a member function
                 {
                     // Call to a regular function
-                    return func_name + '(' + eval_sqnc(a.elements()) + ')';
+                    return func_name + '(' + eval_sqnc(args.elements()) + ')';
                 }
             }
             else // Call target is not known
             {
-                if (const ipr::Function* ft = ipr::util::view<ipr::Function>(f.type()))
+                if (const ipr::Function* ft = ipr::util::view<ipr::Function>(function.type()))
                     if (is_member_function_type(*ft))
                     {
                         // Call to a member function
-                        assert(a.size() > 0); // There must be argument that represents this pointer
+                        assert(args.size() > 0); // There must be argument that represents this pointer
 
                         std::string result;
 
@@ -481,7 +303,7 @@ std::string eval_classic(const ipr::Classic& n)
                         // been on reference to object, in which case an ipr::Address node
                         // is artificially inserted. Here we are trying to undo that 
                         // unnecessary address to print the dot when possible.
-                        if (const ipr::Address* addr = ipr::util::view<ipr::Address>(a[0]))
+                        if (const ipr::Address* addr = ipr::util::view<ipr::Address>(args[0]))
                         {
                             // The address is artifical and the actual call is through dot
                             result = eval_classic_ex(addr->operand()) + '.';
@@ -489,267 +311,83 @@ std::string eval_classic(const ipr::Classic& n)
                         else
                         {
                             // The actual call is through this pointer
-                            result = eval_classic_ex(a[0]) + "->";
+                            result = eval_classic_ex(args[0]) + "->";
                         }
 
                         // Note that using target->name() instead of func_name might omit scope etc.
-                        result += func_name + '(' + eval_sqnc(a.elements(), 1) + ')';
-                        return result;
+                        return result + func_name + '(' + eval_sqnc(args.elements(), 1) + ')';
                     }
 
-                return func_name + '(' + eval_sqnc(a.elements()) + ')';
+                return func_name + '(' + eval_sqnc(args.elements()) + ')';
             }
         }
     }
     EndMatch
-
-    assert(!"Inexhaustive match"); // Your case clauses don't cover all the cases!
 }
-
-//==============================================================================
-// cxx_printer
-//==============================================================================
-
-/// Class that holds context needed to pass around while printing IPR
-class cxx_printer
-{
-    const std::ostream& base() const { return m_os; }
-          std::ostream& base()       { return m_os; }
-public:
-
-    cxx_printer(
-        std::ostream&       os, 
-        bool                part_of_expression
-    ) :
-        m_os(os),
-        m_part_of_expression(part_of_expression),
-        m_indent_level(0),
-        m_commenter(0)
-    {}
-
-    cxx_printer(
-        std::ostream&       os,
-        int                 indent_level = 0
-    ) :
-        m_os(os),
-        m_part_of_expression(false),
-        m_indent_level(indent_level),
-        m_commenter(0)
-    {}
-    
-    cxx_printer(
-        std::ostream&       os,
-        comments_interface& c,
-        int                 indent_level = 0
-    ) :
-        m_os(os),
-        m_part_of_expression(false),
-        m_indent_level(indent_level),
-        m_commenter(&c)
-    {}
-
-    //cxx_printer& operator<<(cxx_printer& (*pfn)(cxx_printer&)) { base() << pfn; return *this; }
-    //cxx_printer& operator<<(basic_ios<char_type, traits_type>& (*pfn)(basic_ios<char_type, traits_type>&)) { base() << pfn; return *this; }
-    //cxx_printer& operator<<(ios_base& (*pfn)(ios_base&)) { base() << pfn; return *this; }
-
-    friend cxx_printer& operator<<(cxx_printer& pr, char c)                 { pr.base() << c;   return pr; }
-    friend cxx_printer& operator<<(cxx_printer& pr, const char* str)        { pr.base() << str; return pr; }
-    friend cxx_printer& operator<<(cxx_printer& pr, const std::string& str) { pr.base() << str; return pr; }
-
-    //template <typename T> friend cxx_printer& operator<<(cxx_printer& pr, const T& t) { pr.base() << t; return pr; }
-
-    friend cxx_printer& operator<<(cxx_printer& pr, cxx_printer& (&manipulator)(cxx_printer&)) { return manipulator(pr); }
-
-    bool is_part_of_expression() const { return m_part_of_expression; }
-
-    friend cxx_printer&    increase(cxx_printer& cxx) { ++cxx.m_indent_level; return cxx; }
-    friend cxx_printer&    decrease(cxx_printer& cxx) { --cxx.m_indent_level; return cxx; }
-    friend cxx_printer& indentation(cxx_printer& cxx) { return cxx.indent(); }
-
-//protected:
-
-    // A syntactic sugar to show the intent that we would like to forward
-    // evaluation to a subcomponent.
-    template <typename IPRNode>
-    void forward_to(const IPRNode& n, bool indent = true)
-    {
-        if (indent)
-            ++m_indent_level;
-
-        *this << n;
-
-        if (indent)
-            --m_indent_level;
-    }
-
-    template <class T>
-    void sequence_forward_to(const ipr::Sequence<T>& s, bool indent = true)
-    {
-        for (typename ipr::Sequence<T>::iterator p = s.begin(); p != s.end(); ++p)
-            forward_to(*p, indent);
-    }
-
-    cxx_printer& indent(bool empty_line = false)
-    {
-        if (!m_part_of_expression)
-        {
-            base() << std::endl;
-
-            if (empty_line)
-                base() << std::endl;
-
-            if (m_indent_level)
-                base() << std::setw(m_indent_level*4) << ' ';
-        }
-
-        return *this;
-    }
-
-    cxx_printer& before(const ipr::Stmt& s, bool empty_line = false)
-    {
-        // FIX: Add support for printing a line that shows which file the source
-        //      is coming from till that file becomes different.
-        if (m_part_of_expression)
-            return *this;
-
-        // Print comments that user generated
-        if (m_commenter)
-        {
-            // Separate into strings line-by-line
-            std::vector<std::string> tokens = tokenize_with(m_commenter->before(s), "\n");
-            // Get rid of duplicates
-            std::vector<std::string>::iterator new_end = std::unique(tokens.begin(), tokens.end());
-            tokens.resize(new_end-tokens.begin());
-            // Show each line with markers as to which statement it refers to
-            for (std::vector<std::string>::const_iterator p = tokens.begin(); p != tokens.end(); ++p)
-            {
-                indent(empty_line) << "//-> " << *p;
-                empty_line = false;
-            }
-        }
-
-        // Print comments/annotations that were in the original source file
-        const ipr::Sequence<ipr::Annotation>& annotations = s.annotation();
-
-        for (ipr::Sequence<ipr::Annotation>::iterator p = annotations.begin(); p != annotations.end(); ++p)
-        {
-            indent(empty_line) << to_str(p->name());
-            empty_line = false;
-        }
-
-        return indent(empty_line);
-    }
-
-    void after(const ipr::Stmt& s, bool new_line = false)
-    {
-        if (m_part_of_expression)
-            return;
-
-        if (m_commenter)
-        {
-            // Separate into strings line-by-line
-            std::vector<std::string> tokens = tokenize_with(m_commenter->after(s), "\n");
-            // Get rid of duplicates
-            std::vector<std::string>::iterator new_end = std::unique(tokens.begin(), tokens.end());
-            tokens.resize(new_end-tokens.begin());
-            // Show each line with markers as to which statement it refers to
-            for (std::vector<std::string>::const_iterator p = tokens.begin(); p != tokens.end(); ++p)
-            {
-                if (new_line)
-                    indent();
-
-                base() << (new_line ? "//<- " : " //<- ") << *p;
-                new_line = true;
-            }
-        }
-    }
-
-private:
-
-    /// The actual stream we are wrapping
-    std::ostream& m_os;
-
-    /// Indicates that corresponding statement is printed as part of expression
-    /// and thus trailing ; as well as new-lines and comments should be avoided.
-    const bool m_part_of_expression;
-
-    /// A level of indentation currently used.
-    int m_indent_level;
-
-    /// A user-supplied object used to generate comments to the source
-    comments_interface* m_commenter;
-
-};
 
 //------------------------------------------------------------------------------
 
-cxx_printer& operator<<(cxx_printer& pr, const ipr::Stmt& stmt)
+cxx_printer& cxx_printer::operator<<(const ipr::Stmt& stmt)
 {
-    //XTL_TRACE_PERFORMANCE_ONLY(extern int match_category(const ipr::Node&); match_category(stmt));
     Match(stmt)
     {
-        Case(ipr::Labeled_stmt, lbl, stm)         { pr.before(*matched) << (is_case_label(lbl) ? "case " : "") << eval_expr(lbl) << ": "; pr.forward_to(stm, false/*, !ipr::util::view<ipr::Labeled_stmt>(stm)*/); pr.after(*matched); break; }
+        Case(ipr::Labeled_stmt, lbl, stm)         beforeF(*matched) << (is_case_label(lbl) ? "case " : "") << lbl << ": " << stm/*, !ipr::util::view<ipr::Labeled_stmt>(stm)*/; after(*matched); break;
         Case(ipr::Block, body, handlers)
         {
             if (handlers.size())
             {
-                pr.before(*matched) << "try";
-                pr.indent()  << '{';
+                beforeF(*matched) << "try" <<
+                indentation      << '{';
             }
             else
-                pr.before(*matched) << '{';
+                beforeF(*matched) << '{';
 
-            // Print statements in the body
-            pr.sequence_forward_to(body);
+            *this << increase << body << decrease // Print statements in the body
+                  << indentation << '}' 
+                  << handlers;                    // Print catch handlers
 
-            pr.indent() << '}';
-
-            // Print catch handlers
-            pr.sequence_forward_to(handlers, false);
-
-            pr.after(*matched,true);
+            after(*matched,true);
             break;
         }
-        Case(ipr::Ctor_body,    inits, block)               { if (inits.size()) pr << " : " << eval_sqnc(inits.elements()); pr.forward_to(block,false); break; }
-        Case(ipr::If_then,      cond, then_stmt)            { pr.before(*matched,true) << "if (" << eval_classic_ex(cond) << ")"; pr.forward_to(then_stmt); pr.after(*matched,true); break; }
-        Case(ipr::If_then_else, cond, then_stmt, else_stmt) { pr.before(*matched,true) << "if (" << eval_classic_ex(cond) << ")"; pr.forward_to(then_stmt); pr.indent() << "else"; pr.forward_to(else_stmt); pr.after(*matched,true); break; }
-        Case(ipr::Switch,       cond, body)                 { pr.before(*matched,true) << "switch (" << eval_classic_ex(cond) << ')'; pr.forward_to(body,false); pr.after(*matched,true); break; }
-        Case(ipr::While,        cond, body)                 { pr.before(*matched,true) << "while (" << eval_classic_ex(cond) << ")"; pr.forward_to(body); pr.after(*matched,true); break; }
-        Case(ipr::Do,           cond, body)                 { pr.before(*matched,true) << "do "; pr.forward_to(body); pr.indent() << "while (" << eval_classic_ex(cond) << ");"; pr.after(*matched,true); break; }
-        Case(ipr::For,          init, cond, incr, body)     { pr.before(*matched,true) << "for (" << eval_classic_ex(init) << ";" << eval_classic_ex(cond) << ";" << eval_classic_ex(incr) << ")"; pr.forward_to(body); pr.after(*matched,true); break; }
-        Case(ipr::Break)                                    { pr.before(*matched)      << "break;"; pr.after(*matched); break; }
-        Case(ipr::Continue)                                 { pr.before(*matched)      << "continue;"; pr.after(*matched); break; }
+        Case(ipr::Ctor_body,    inits, block)               if (inits.size()) *this << " : " << eval_sqnc(inits.elements()); *this << block; break;
+        Case(ipr::If_then,      cond, then_stmt)            beforeT(*matched) << "if ("     << cond << ')' << increase << then_stmt << decrease; after(*matched,true); break;
+        Case(ipr::If_then_else, cond, then_stmt, else_stmt) beforeT(*matched) << "if ("     << cond << ')' << increase << then_stmt << decrease << indentation << "else" << increase << else_stmt << decrease; after(*matched,true); break;
+        Case(ipr::Switch,       cond, body)                 beforeT(*matched) << "switch (" << cond << ')' << body; after(*matched,true); break;
+        Case(ipr::While,        cond, body)                 beforeT(*matched) << "while ("  << cond << ')' << increase << body << decrease; after(*matched,true); break;
+        Case(ipr::Do,           cond, body)                 beforeT(*matched) << "do "      << increase << body << decrease << indentation << "while (" << cond << ");"; after(*matched,true); break;
+        Case(ipr::For,          init, cond, incr, body)     beforeT(*matched) << "for ("    << init << ';' << cond << ';' << incr << ')' << increase << body << decrease; after(*matched,true); break;
+        Case(ipr::Break)                                    beforeF(*matched) << "break;";    after(*matched); break;
+        Case(ipr::Continue)                                 beforeF(*matched) << "continue;"; after(*matched); break;
         Case(ipr::Goto,         target)
         {
-            const ipr::Identifier* q = ipr::util::view<ipr::Identifier>(target);
-            assert(q); // When this asserts, ipr::Goto stopped pointing to just Identifier
-            pr.before(*matched) << "goto " << (q ? eval_name(*q) : "???") << ";";
-            pr.after(*matched);
+            const ipr::Identifier* p = ipr::util::view<ipr::Identifier>(target);
+            assert(p); // When this asserts, ipr::Goto stopped pointing to just Identifier
+            beforeF(*matched) << "goto " << (p ? eval_name(*p) : "???") << ';';
+            after(*matched);
             break;
         }
-        Case(ipr::Return,       value)                      { pr.before(*matched) << "return " << eval_classic_ex(value) << ";"; pr.after(*matched); break; }
-        Case(ipr::Handler,      expt, body)                 { pr.before(*matched) << "catch(" << eval_decl(expt) << ')'; pr.forward_to(body,false); pr.after(*matched); break; }
-        Case(ipr::Empty_stmt)                               { pr.before(*matched) << ";"; pr.after(*matched); break; }
-        Case(ipr::Expr_stmt,    expr)                       { pr.before(*matched) << eval_classic_ex(expr) << ";"; pr.after(*matched); break; }
+        Case(ipr::Return,       value)                      beforeF(*matched) << "return " << value << ';'; after(*matched); break;
+        Case(ipr::Handler,      expt, body)                 beforeF(*matched) << "catch(" << eval_decl(expt) << ')' << body; after(*matched); break;
+        Case(ipr::Empty_stmt)                               beforeF(*matched) << ';'; after(*matched); break;
+        Case(ipr::Expr_stmt,    expr)                       beforeF(*matched) << expr << ';'; after(*matched); break;
 
         // Declarations
-        Case(ipr::Decl)                                     { pr << *matched; break; }
+        Case(ipr::Decl)                                     *this << *matched; break;
     }
     EndMatch
 
-    return pr;
+    return *this;
 }
 
 //------------------------------------------------------------------------------
 
-cxx_printer& operator<<(cxx_printer& pr, const ipr::Decl& decl)
+cxx_printer& cxx_printer::operator<<(const ipr::Decl& decl)
 {
-    //XTL_TRACE_PERFORMANCE_ONLY(extern int match_category(const ipr::Node&); match_category(decl));
     Match(decl)
     {
         Case(ipr::Typedecl, name, type)
         {
-            pr.before(*matched,true) << prefix_specifiers(*matched) << eval_type(type, eval_name(name));
+            beforeT(*matched) << prefix_specifiers(*matched) << eval_type(type, eval_name(name));
 
             if (is_namespace(*matched))
             {
@@ -757,32 +395,31 @@ cxx_printer& operator<<(cxx_printer& pr, const ipr::Decl& decl)
                 // initializer() would be a Namespace node, to which we forward traversal
                 const ipr::Namespace* ns = ipr::util::view<ipr::Namespace>(matched->initializer());  // dynamic_cast alternative
                 assert(ns);
-                pr.forward_to(*ns, false);
+                *this << *ns;
             }
             else
             {
                 if (matched->has_initializer())
-                    pr.forward_to(matched->initializer(), false);
+                    *this << matched->initializer();
                 else
-                if (!pr.is_part_of_expression())
-                    pr << ';';
+                    *this << semicolon;
             }
 
-            pr.after(*matched,true); // Print comment after the type declaration/namespace
+            after(*matched,true); // Print comment after the type declaration/namespace
             break;
         }
 
         Case(ipr::Fundecl, name, type, membership, parameters) // FIX: membership is not used here!
         {
-            pr.before(*matched,true) << prefix_specifiers(*matched);
+            beforeT(*matched) << prefix_specifiers(*matched);
 
             // NOTE: For some reason currently virtual member functions are not marked with
             //       virtual specifier on the Fundecl but instead with the virtual specifier
             //       on the first parameter to account for later support of multi-methods.
             if (is_virtual_member_function(*matched) && is_in_class_declaration(*matched))
-                pr << "virtual ";
+                *this << "virtual ";
 
-            // Evaluate declarator that will be used to output the p type that can
+            // Evaluate declarator that will be used to output the result type that can
             // be complicated as function can return arrays or function pointers
             //std::string declarator = eval_name(name) + '(' + eval_params(parameters) + ')';
 
@@ -800,132 +437,131 @@ cxx_printer& operator<<(cxx_printer& pr, const ipr::Decl& decl)
 
             // Print the name and return type when applicable
             if (!ipr::is_constructor(*matched) && !ipr::is_destructor(*matched) && !ipr::is_conversion(*matched))
-                pr << eval_type(ft->target(), declarator);
+                *this << eval_type(ft->target(), declarator);
             else
-                pr << declarator;
+                *this << declarator;
 
             // Check if this is a const member function
             if (is_const_member_function(*matched))
-                pr << " const";
+                *this << " const";
 
             // Print throw specification if the function has it
             if (!can_throw_everything(*ft)) // we skip throw specification when any exception can be thrown
-                pr << " throw(" + eval_type(ft->throws()) + ')';
+                *this << " throw(" + eval_type(ft->throws()) + ')';
 
             // Check if this is a pure virtual function (abstract method)
             if (matched->specifiers() & ipr::Decl::Pure)
-                pr << " = 0";
+                *this << " = 0";
 
             // Print body if present
             if (matched->has_initializer())
             {
                 const ipr::Stmt* body = ipr::util::view<ipr::Stmt>(matched->initializer());
                 assert(body);
-                pr << *body;
+                *this << *body;
             }
             else
-            if (!pr.is_part_of_expression())
-                pr << ';';
+                *this << semicolon;
 
-            pr.after(*matched,true); // Print comment after the function definition
+            after(*matched,true); // Print comment after the function definition
             break;
         }
 
         Case(ipr::Alias, name, type)
         {
-            pr.before(*matched,true) << prefix_specifiers(*matched);
+            beforeT(*matched) << prefix_specifiers(*matched);
 
             assert(matched->has_initializer());
 
             const ipr::Expr& init = matched->initializer();
 
-	        // This is the case of: typedef T U;
-            if (const ipr::Type* q = ipr::util::view<ipr::Type>(init))
+            // This is the case of: typedef T U;
+            if (const ipr::Type* p = ipr::util::view<ipr::Type>(init))
             {
-                pr << /*"typedef " <<*/ eval_type(*q,/*get_declarator(*matched)*/eval_name(name)) << ';'; // Since EDG front-end now sets up the Typedef specifier on ipr::Decl
-                return pr;
+                *this << /*"typedef " <<*/ eval_type(*p,/*get_declarator(*matched)*/eval_name(name)) << ';'; // Since EDG front-end now sets up the Typedef specifier on ipr::Decl
+                return *this;
             }
 
-	        // This is the case of: namespace N = A::B::C::D;
+            // This is the case of: namespace N = A::B::C::D;
             if (const ipr::Id_expr* id = ipr::util::view<ipr::Id_expr>(init))
             {
                 if (const ipr::Typedecl* td = ipr::util::view<ipr::Typedecl>(id->resolution()))
                     if (ipr::is_namespace(*td))
                     {
-                        pr << "namespace " << eval_name(name) << '=' << eval_name(id->name()) << ';';
-                        return pr;
+                        *this << "namespace " << name << '=' << id->name() << ';';
+                        return *this;
                     }
             }
 
-	        // This is the case of: using namespace A::B::C::D;
+            // This is the case of: using namespace A::B::C::D;
             if (const ipr::Typedecl* d = ipr::util::view<ipr::Typedecl>(init))
             {
                 if (is_namespace(*d))
                 {
-                    pr << "using namespace " << eval_expr(matched->initializer()) << ';';
-                    return pr;
+                    *this << "using namespace " << matched->initializer() << ';';
+                    return *this;
                 }
             }
 
-	        pr << "using " << get_declarator(*matched,true) << ';';
-            pr.after(*matched);
+            *this << "using " << get_declarator(*matched,true) << ';';
+            after(*matched);
             break;
         }
 
         Case(ipr::Bitfield, name, type, membership, precision) // FIX: membership is not used here!
         {
-            pr.before(*matched) << prefix_specifiers(*matched) << eval_type(type, eval_name(name)) << ':' << eval_classic_ex(precision);
+            beforeF(*matched) << prefix_specifiers(*matched) << eval_type(type, eval_name(name)) << ':' << precision;
 
             if (matched->has_initializer())
-                pr << " = " << eval_classic_ex(matched->initializer());
+                *this << " = " << matched->initializer();
 
-            if (!pr.is_part_of_expression())
-                pr << ';';
-
-            pr.after(*matched);
+            *this << semicolon;
+            after(*matched);
             break;
         }
 
         Case(ipr::Enumerator, name)
         {
-            pr.before(*matched) << prefix_specifiers(*matched) << eval_name(name);
+            beforeF(*matched) << prefix_specifiers(*matched) << name;
 
             if (matched->has_initializer())
-                pr << " = " << eval_classic_ex(matched->initializer());
+                *this << " = " << matched->initializer();
 
-            pr.after(*matched);
+            after(*matched);
             break;
         }
 
         Case(ipr::Named_map, name, type, parameters, mapping) // FIX: Only parameters is used here
         {
-            const ipr::Decl::Specifier prefix_mask = ipr::Decl::AccessProtection
-                                  | ipr::Decl::StorageClass
-                                  | ipr::Decl::Friend
-                                  | ipr::Decl::Typedef
-                                  | ipr::Decl::Constexpr
-                                  | ipr::Decl::Export;
+            extern bool evaluate_map (const ipr::Mapping&, const ipr::Named_map&, cxx_printer&);
 
-            //pr.indent() << template_parameters_stack.size() << ": Pushing: " << eval_params(parameters) << std::endl;
+            const ipr::Decl::Specifier prefix_mask = ipr::Decl::AccessProtection
+                                                   | ipr::Decl::StorageClass
+                                                   | ipr::Decl::Friend
+                                                   | ipr::Decl::Typedef
+                                                   | ipr::Decl::Constexpr
+                                                   | ipr::Decl::Export;
+
+            //indent() << template_parameters_stack.size() << ": Pushing: " << eval_params(parameters) << std::endl;
 
             //template_parameters_stack.push_back(&parameters); // Make current set of parameters available for referring to by Rname nodes
 
             // Print comment before the function definition
-            pr.before(*matched,true) << prefix_specifiers(*matched, prefix_mask)/* 
+            beforeT(*matched) << prefix_specifiers(*matched, prefix_mask)/* 
                            << "template <" << eval_params(parameters) << '>';
-            pr.indent()       << prefix_specifiers(*matched, ipr::Decl::FunctionSpecifier) 
+            indent()       << prefix_specifiers(*matched, ipr::Decl::FunctionSpecifier) 
                            << eval_type(mapping.result_type(), eval_name(name))*/;
 
             //if (matched->has_initializer())
-            //    pr.forward_to(matched->initializer(), false);
+            //    forward_to(matched->initializer(), false);
 
-            evaluate_map(mapping, *matched, pr);
+            evaluate_map(mapping, *matched, *this);
 
             //template_parameters_stack.pop_back(); // FIX: Make this RAII
 
-            //pr.indent() << template_parameters_stack.size() << ": Popping: " << eval_params(parameters) << std::endl;
+            //indent() << template_parameters_stack.size() << ": Popping: " << eval_params(parameters) << std::endl;
 
-            pr.after(*matched,true); // Print comment after the function definition
+            after(*matched,true); // Print comment after the function definition
             break;
         }
 
@@ -940,122 +576,88 @@ cxx_printer& operator<<(cxx_printer& pr, const ipr::Decl& decl)
                 declarator = eval_name(udt->name()) + "::" + declarator; // FIX: This won't work for general case of namespaces, specializations etc., just a quick hack
             }
         */
-            pr.before(*matched) << prefix_specifiers(*matched) << eval_type(matched->type(), declarator);
+            beforeF(*matched) << prefix_specifiers(*matched) << eval_type(matched->type(), declarator);
 
             if (matched->has_initializer())
-                pr << " = " << eval_expr(matched->initializer());
+                *this << " = " << matched->initializer();
 
-            if (!pr.is_part_of_expression())
-                pr << ';';
-
-            pr.after(*matched);
+            *this << semicolon;
+            after(*matched);
             break;
         }
 
-        Case(ipr::Expr)         { pr << eval_expr(*matched); break; } // TODO: Discuss why we had it in visitors!
+        Case(ipr::Expr)         *this << *matched; break; // TODO: Discuss why we had it in visitors!
     }
     EndMatch
 
-    return pr;
+    return *this;
 }
 
 //------------------------------------------------------------------------------
 
-cxx_printer& operator<<(cxx_printer& pr, const ipr::Udt& udt)
+cxx_printer& cxx_printer::operator<<(const ipr::Udt& udt)
 {
-    //XTL_TRACE_PERFORMANCE_ONLY(extern int match_category(const ipr::Node&); match_category(udt));
     Match(udt)
     {
-        Case(ipr::Global_scope, members)
-        {
-            pr.sequence_forward_to(members, false);
-            break;
-        }
-
-        Case(ipr::Namespace, members)
-        {
-            pr.indent() << '{';
-            pr.sequence_forward_to(members);
-            pr.indent() << '}';
-            break;
-        }
-
+        Case(ipr::Global_scope, members) *this << members; break;
+        Case(ipr::Namespace,    members) *this << indentation << '{' << increase << members << decrease << indentation << '}'; break;
         Case(ipr::Class, members, bases)
         {
             // Print base classes
             if (bases.size())
             {
-                pr << " : ";
+                *this << " : ";
 
                 for (ipr::Sequence<ipr::Base_type>::iterator p = bases.begin(); p != bases.end(); ++p)
                 {
                     if (p != bases.begin())
-                        pr << ", ";
+                        *this << ", ";
 
-                    pr << eval_name(p->name());
+                    *this << p->name();
                 }
             }
 
-            pr.indent() << '{';
-            pr.sequence_forward_to(members);
-            pr.indent() << '}';
-
-            if (!pr.is_part_of_expression())
-                pr << ';';
+            *this << indentation << '{' << increase << members << decrease << indentation << '}' << semicolon;
             break;
         }
 
-        Case(ipr::Union, members)
+        Case(ipr::Union,        members) *this << indentation << '{' << increase << members << decrease << indentation << '}' << semicolon; break;
+        Case(ipr::Enum,         members)
         {
-            pr.indent() << '{';
-            pr.sequence_forward_to(members);
-            pr.indent() << '}';
-
-            if (!pr.is_part_of_expression())
-                pr << ';';
-            break;
-        }
-
-        Case(ipr::Enum, members)
-        {
-            pr.indent() << '{';
+            *this << indentation << '{' << increase;
 
             for (ipr::Sequence<ipr::Enumerator>::iterator p = members.begin(); p != members.end(); ++p)
             {
                 if (p != members.begin())
-                    pr << ',';
+                    *this << ',';
 
-                pr.forward_to(*p);
+                *this << *p;
             }
 
-            pr.indent() << '}';
-
-            if (!pr.is_part_of_expression())
-                pr << ';';
+            *this << decrease << indentation << '}' << semicolon;
             break;
         }
     }
     EndMatch
 
-    return pr;
+    return *this;
 }
 
 //------------------------------------------------------------------------------
 
-cxx_printer& operator<<(cxx_printer& pr, const ipr::Expr& e)
+cxx_printer& cxx_printer::operator<<(const ipr::Expr& e)
 {
-    //XTL_TRACE_PERFORMANCE_ONLY(extern int match_category(const ipr::Node&); match_category(e));
     Match(e)
     {
         Case(ipr::Mapping)
         {
             if (ipr::util::node_has_member(*matched, &ipr::Mapping::result))
-                pr << matched->result();
+                *this << matched->result();
             else
-                pr << ';';
+                *this << ';';
             break;
         }
-        Case(ipr::Overload) { break; }
+        Case(ipr::Overload) break;
         Case(ipr::Scope, decls)
         {
             // Scope can be in place of expression when expression is also a declaration
@@ -1070,26 +672,26 @@ cxx_printer& operator<<(cxx_printer& pr, const ipr::Expr& e)
                 std::string s = eval_decl(*p); // Evaluate declaration without trailing ;
 
                 if (p != decls.begin())
-                    pr << ',';
+                    *this << ',';
 
-                pr << s;
+                *this << s;
             }
 
             break;
         }
 
-        Case(ipr::Classic)   { pr << eval_classic(*matched); break; }
-        Case(ipr::Name)      { pr << eval_name(*matched); break; }
-        Case(ipr::Phantom)   { break; }
-        Case(ipr::Expr_list, operand) { pr << '{' << eval_sqnc(operand) << '}'; break; }
-        Case(ipr::Label)     { break; }
+        Case(ipr::Classic)   *this << *matched; break;
+        Case(ipr::Name)      *this << *matched; break;
+        Case(ipr::Phantom)   break;
+        Case(ipr::Expr_list, operand) *this << '{' << eval_sqnc(operand) << '}'; break;
+        Case(ipr::Label)     break;
         Case(ipr::Member_init, member, initializer) 
         {
             // FIX: This is workaround for now as it should become Expr_list statically
             if (const ipr::Expr_list* p = ipr::util::view<ipr::Expr_list>(initializer))
-                pr << eval_expr(member)+'('+eval_sqnc(p->elements())+')';
+                *this << member << '(' << eval_sqnc(p->elements()) << ')';
             else
-                pr << eval_expr(member)+'('+eval_classic_ex(initializer)+')'; 
+                *this << member << '(' << initializer << ')'; 
             break;
         }
 
@@ -1101,7 +703,7 @@ cxx_printer& operator<<(cxx_printer& pr, const ipr::Expr& e)
         // Declaration might happen in expression context when IPR refers to the use
         // of the name but whoever generated IPR forgot to mark such use properly with
         // Id_expr and pointed directly to the declaration instead.
-        Case(ipr::Decl, name) { pr.forward_to(name,false); break; }
+        Case(ipr::Decl, name)      *this << name; break;
 
         // Expr_stmt can happen in the initializer of the following loop:
         // int i; for (i=1; i < 10; i++)
@@ -1109,417 +711,41 @@ cxx_printer& operator<<(cxx_printer& pr, const ipr::Expr& e)
         // moment to simply handle this case here rather then all of the
         // cases of ClassicExprPrintVisitor inside StatementPrintVisitor when
         // forwarding evaluation to the initializer.
-        Case(ipr::Expr_stmt, expr) { pr.forward_to(expr,false); break; }
+        Case(ipr::Expr_stmt, expr) *this << expr; break;
 
-        // And this hack counter measure the bugs introduced by the above Udt hack
+        // And this hack counter measure the bugs introduced by the Udt hack below
         // as references to Namespace should be just treated as names and not dumping
         // of their content that the above hack will do.
-        Case(ipr::Namespace) { pr.forward_to(matched->name(),false); break; }
+        Case(ipr::Namespace)       *this << matched->name(); break;
 
-        // This shouldn't be here at all, but it'*matched a quick hack right now to handle
+        // This shouldn't be here at all, but it's a quick hack right now to handle
         // template class definitions as mapping will forward here.
-        Case(ipr::Udt) { pr << *matched; break; }
-
-        Case(ipr::Type)      { pr << eval_type(*matched); break; }
-        Case(ipr::Stmt)      { pr << *matched; break; }
+        Case(ipr::Udt)             *this << *matched; break;
+        Case(ipr::Type)            *this << *matched; break;
+        Case(ipr::Stmt)            *this << *matched; break;
     }
     EndMatch
 
-    return pr;
+    return *this;
 }
 
 //------------------------------------------------------------------------------
 
-cxx_printer& operator<<(cxx_printer& pr, const ipr::Node& n)
-{
-    //XTL_TRACE_PERFORMANCE_ONLY(extern int match_category(const ipr::Node&); match_category(n));
-    Match(n)
-    {
-        Case(ipr::Unit, global_scope) { pr << global_scope; break; } // This should forward to visitation of Global_scope, which is a Namespace
-        Case(ipr::Udt)  { pr << *matched; break; }
-        Case(ipr::Decl) { pr << *matched; break; }
-        Case(ipr::Stmt) { pr << *matched; break; }
-        Case(ipr::Type) { pr << eval_type(*matched); break; }
-        Case(ipr::Name) { pr << eval_name(*matched); break; }
-        Case(ipr::Expr) { pr << *matched; break; }
-    }
-    EndMatch
-
-    return pr;
-}
-
-//------------------------------------------------------------------------------
-
-void print_cpp(const ipr::Node& n, std::ostream& os)
-{
-    cxx_printer cxx(os);
-    cxx << n << "\n"; //std::endl; FIX: Make iomanipulators work with printer
-}
-
-//------------------------------------------------------------------------------
-
-void print_cpp(const ipr::Node& n, std::ostream& os, comments_interface& c)
-{
-    cxx_printer cxx(os,c);
-    cxx << n << "\n"; //std::endl; FIX: Make iomanipulators work with printer
-}
-
-//------------------------------------------------------------------------------
-
-std::string eval_expr(const ipr::Expr& n)                                          
-{
-    // Because in IPR everything is Expr, we have to figure out first what are 
-    // we dealing with. To do this, we forward it to general dispatcher of Expr,
-    // and we assume here that only the cases that won't print newlines etc. can
-    // happen there.
-
-    std::stringstream ss;
-    cxx_printer cxx(ss);
-    cxx << n;
-    return ss.str();
-}
-
-//------------------------------------------------------------------------------
-
-std::string eval_decl(const ipr::Decl& n)
-{
-    std::stringstream ss;
-    cxx_printer cxx(ss,true);
-    cxx << n;
-    return ss.str();
-}
-
-//------------------------------------------------------------------------------
-
-std::string eval_params(const ipr::Parameter_list& parameters)
-{
-    std::string result;
-    bool        print_comma = false;
-
-    for (ipr::Parameter_list::iterator p = parameters.begin(); p != parameters.end(); ++p)
-    {
-        if (print_comma)
-            result += ", ";
-
-        if (ipr::is_this_pointer(*p)) // parameter represent implicit this pointer, skip it
-            print_comma = false;
-        else
-        if (ipr::is_ellipsis(*p))     // parameter represents variable argument list ...
-            result += "...";
-        else
-        {
-            result += eval_type(p->type(), eval_name(p->name()));
-
-            if (p->has_initializer())
-                result += " = " + eval_classic_ex(p->default_value());
-
-            print_comma = true;
-        }
-    }
-
-    return result;
-}
-
-//------------------------------------------------------------------------------
-
-bool evaluate_map (const ipr::Mapping& n, const ipr::Named_map& d, cxx_printer& pr)
-{
-    if (const ipr::Function* ft = ipr::util::view<ipr::Function>(n.type()))
-    {
-        // Mapping represents regular function
-
-        pr << prefix_specifiers(d, ipr::Decl::FunctionSpecifier);
-
-        const ipr::Parameter_list& parameters = n.params();
-
-        // NOTE: For some reason currently virtual member functions are not marked with
-        //       virtual specifier on the Fundecl but instead with the virtual specifier
-        //       on the first parameter to account for later support of multi-methods.
-        if (is_virtual_member_function(n) && is_in_class_declaration(d))
-            pr << "virtual ";
-
-        // Evaluate declarator that will be used to output the result type that can
-        // be complicated as function can return arrays or function pointers
-        std::string declarator = eval_name(d.name()) + '(' + eval_params(parameters) + ')';
-
-        //std::string declarator = get_declarator(d) + '(' + eval_params(parameters) + ')';
-
-        // Prepend class name to the name when declaration/definition is made outside
-        // of class and refers to a member function
-        // Apparently we don't need this for templated functions
-        //if (is_member_function(n) && !is_in_class_declaration(d))
-        //    declarator = eval_name(parameters[0].type().name()) + "::" + declarator; // FIX: This won't work for general case of namespaces, specializations etc., just a quick hack
-
-        // Print the name and return type when applicable
-        if (!ipr::is_constructor(d) && !ipr::is_destructor(d) && !ipr::is_conversion(d))
-            pr << eval_type(ft->target(), declarator);
-        else
-            pr << declarator;
-
-        // Check if this is a const member function
-        if (is_const_member_function(n))
-            pr << " const";
-
-        // Print throw specification if the function has it
-        if (!can_throw_everything(*ft)) // we skip throw specification when any exception can be thrown
-            pr << " throw(" + eval_type(ft->throws()) + ')';
-
-        // Check if this is a pure virtual function (abstract method)
-        if (d.specifiers() & ipr::Decl::Pure)
-            pr << " = 0";
-    }
-    else
-    if (ipr::util::view<ipr::Template>(n.type()))
-    {
-        // Mapping represents a template
-
-        const ipr::Parameter_list& parameters = n.params();
-
-        template_parameters_stack.push_back(&parameters); // Make current set of parameters available for referring to by Rname nodes
-
-        //std::cout << template_parameters_stack.size() << ": Pushing: " << eval_params(parameters) << std::endl;
-        //pr.indent();
-
-        std::string args = eval_params(parameters);
-
-        if (args.length() > 0 && args[args.length()-1] == '>')
-            args += ' ';
-
-        // Print name and formal arguments
-        pr << "template <" << args << '>';
-
-        if (ipr::util::node_has_member(n, &ipr::Mapping::result))
-        {
-            if (const ipr::Mapping* q = ipr::util::view<ipr::Mapping>(n.result()))
-            {
-                // The whole thing is a parametrized function
-                pr.indent();
-
-                // Forward to ourselves to print declaration
-                // NOTE: In case of nested templates, all their result will point
-                //       to the same body, but only the last one is allowed to
-                //       print as only it know all the Rnames
-                // We essentially check here if body has already been printed by
-                // the recursive call.
-                if (!evaluate_map(*q, d, pr))
-                    if (ipr::util::node_has_member(*q, &ipr::Mapping::result))
-                        pr << q->result(); // The result is going to be the body of the parameterized function
-                    else
-                        pr << ';'; // Parameterized function forward declaration
-
-                //pr.indent() << template_parameters_stack.size() << ": Popping: " << eval_params(parameters) << std::endl;
-
-                template_parameters_stack.pop_back(); // FIX: Make this RAII
-                return true;
-            }
-            else
-            if (const ipr::Classic* q = ipr::util::view<ipr::Classic>(n.result()))
-            {
-                // The whole thing is a parameterized variable declaration with initializer
-                // FIX: For some reasons result points to initializer
-                pr.indent() << eval_type(n.result_type(), eval_name(d.name())) << " = " << eval_classic(*q) << ';';
-            }
-            else
-            {
-                // The whole thing is a parametrized class declaration
-                pr.indent() << eval_type(n.result_type(), eval_name(d.name()));
-                pr << n.result();
-            }
-        }
-        else
-        {
-            pr.indent() << eval_type(n.result_type(), eval_name(d.name()));
-
-            if (d.has_initializer())
-                pr << " = " << eval_expr(d.initializer());
-
-            //if (!m_part_of_expression)
-                pr << ';';
-        }
-
-        //pr.indent() << template_parameters_stack.size() << ": Popping: " << eval_params(parameters) << std::endl;
-
-        template_parameters_stack.pop_back(); // FIX: Make this RAII
-    }
-    else
-        assert(!"Invalid mapping");
-
-    return false;
-}
-
-//------------------------------------------------------------------------------
-
-#include "traits.hpp"
-
-/// This is just a test function that involves a match on all IPR nodes. It is
-/// only used to test Match, do not use it for own purposes.
-int match_category(const ipr::Node& n)
+cxx_printer& cxx_printer::operator<<(const ipr::Node& n)
 {
     Match(n)
     {
-        Case(Annotation)            return ipr::traits<Annotation>::category;            // node annotations
-        Case(Comment)               return ipr::traits<Comment>::category;               // C-style and BCPL-style comments
-        Case(String)                return ipr::traits<String>::category;                // literal string 
-        Case(Mapping)               return ipr::traits<Mapping>::category;               // function
-        Case(Overload)              return ipr::traits<Overload>::category;              // overload set
-        Case(Parameter_list)        return ipr::traits<Parameter_list>::category;        // function/template parameter list
-        Case(Scope)                 return ipr::traits<Scope>::category;                 // declarations in a region
-        Case(Identifier)            return ipr::traits<Identifier>::category;            // identifier                          foo
-        Case(Operator)              return ipr::traits<Operator>::category;              // C++ operator name             operator+
-        Case(Conversion)            return ipr::traits<Conversion>::category;            // conversion function name   operator int
-        Case(Scope_ref)             return ipr::traits<Scope_ref>::category;             // qualified name                     s::m
-        Case(Template_id)           return ipr::traits<Template_id>::category;           // C++ template-id                  S<int>
-        Case(Type_id)               return ipr::traits<Type_id>::category;               // C++ type-id                  const int*
-        Case(Ctor_name)             return ipr::traits<Ctor_name>::category;             // constructor name                   T::T
-        Case(Dtor_name)             return ipr::traits<Dtor_name>::category;             // destructor name                   T::~T
-        Case(Rname)                 return ipr::traits<Rname>::category;                 // de Bruijn (index, position),
-        Case(Array)                 return ipr::traits<Array>::category;                 // array type
-        Case(Class)                 return ipr::traits<Class>::category;                 // user-defined type - class
-        Case(Decltype)              return ipr::traits<Decltype>::category;              // strict type of a declaration/expression
-        Case(Enum)                  return ipr::traits<Enum>::category;                  // user-defined type - enum
-        Case(Function)              return ipr::traits<Function>::category;              // function type
-        Case(Namespace)             return ipr::traits<Namespace>::category;             // user-defined type - namespace
-        Case(Pointer)               return ipr::traits<Pointer>::category;               // pointer type
-        Case(Ptr_to_member)         return ipr::traits<Ptr_to_member>::category;         // pointer-to-member type
-        Case(Product)               return ipr::traits<Product>::category;               // product type - not ISO C++ type
-        Case(Qualified)             return ipr::traits<Qualified>::category;             // cv-qualified types
-        Case(Reference)             return ipr::traits<Reference>::category;             // reference type
-        Case(Rvalue_reference)      return ipr::traits<Rvalue_reference>::category;      // rvalue-reference type -- C++0x
-        Case(Sum)                   return ipr::traits<Sum>::category;                   // sum type - not ISO C++ type
-        Case(Template)              return ipr::traits<Template>::category;              // type of a template - Not ISO C++ type
-        Case(Union)                 return ipr::traits<Union>::category;                 // user-defined type - union
-        Case(Phantom)               return ipr::traits<Phantom>::category;               // for arrays of unknown bound
-        Case(Address)               return ipr::traits<Address>::category;               // address-of                          &a
-        Case(Array_delete)          return ipr::traits<Array_delete>::category;          // array delete-expression     delete[] p
-        Case(Complement)            return ipr::traits<Complement>::category;            // bitwise complement                  ~m
-        Case(Delete)                return ipr::traits<Delete>::category;                // delete-expression             delete p
-        Case(Deref)                 return ipr::traits<Deref>::category;                 // dereference expression              *p
-        Case(Expr_list)             return ipr::traits<Expr_list>::category;             // expression list        
-        Case(Expr_sizeof)           return ipr::traits<Expr_sizeof>::category;           // sizeof an expression         sizeof *p
-        Case(Expr_typeid)           return ipr::traits<Expr_typeid>::category;           // typeid of an expression    typeid (*p)
-        Case(Id_expr)               return ipr::traits<Id_expr>::category;               // an identifier used in an expression
-        Case(Label)                 return ipr::traits<Label>::category;                 // a label - target of a goto-statement
-        Case(Not)                   return ipr::traits<Not>::category;                   // logical negation                 !cond
-        Case(Paren_expr)            return ipr::traits<Paren_expr>::category;            // parenthesized expression           (a)
-        Case(Post_decrement)        return ipr::traits<Post_decrement>::category;        // post-increment                     p++
-        Case(Post_increment)        return ipr::traits<Post_increment>::category;        // post-decrement                     p--
-        Case(Pre_decrement)         return ipr::traits<Pre_decrement>::category;         // pre-increment                      ++p
-        Case(Pre_increment)         return ipr::traits<Pre_increment>::category;         // pre-decrement                      --p
-        Case(Throw)                 return ipr::traits<Throw>::category;                 // throw expression           throw Bad()
-        Case(Type_sizeof)           return ipr::traits<Type_sizeof>::category;           // sizeof a type             sizeof (int)
-        Case(Type_typeid)           return ipr::traits<Type_typeid>::category;           // typeidof a type           typeid (int)
-        Case(Unary_minus)           return ipr::traits<Unary_minus>::category;           // unary minus                         -a
-        Case(Unary_plus)            return ipr::traits<Unary_plus>::category;            // unary plus                          +a
-        Case(And)                   return ipr::traits<And>::category;                   // logical and                    a && b
-        Case(Array_ref)             return ipr::traits<Array_ref>::category;             // array member selection         a[i]
-        Case(Arrow)                 return ipr::traits<Arrow>::category;                 // indirect member selection      p->m
-        Case(Arrow_star)            return ipr::traits<Arrow_star>::category;            // indirect member indirection    p->*m
-        Case(Assign)                return ipr::traits<Assign>::category;                // assignment                     a = b
-        Case(Bitand)                return ipr::traits<Bitand>::category;                // bitwise and                    a & b
-        Case(Bitand_assign)         return ipr::traits<Bitand_assign>::category;         // in-place bitwise and           a &= b
-        Case(Bitor)                 return ipr::traits<Bitor>::category;                 // bitwise or                     a | b
-        Case(Bitor_assign)          return ipr::traits<Bitor_assign>::category;          // in-place bitwise or            a |= b
-        Case(Bitxor)                return ipr::traits<Bitxor>::category;                // bitwise exclusive or           a ^ b
-        Case(Bitxor_assign)         return ipr::traits<Bitxor_assign>::category;         // in-place bitwise exclusive or  a ^= b
-        Case(Call)                  return ipr::traits<Call>::category;                  // function call                  f(u, v)
-        Case(Cast)                  return ipr::traits<Cast>::category;                  // C-style class                  (T) e
-        Case(Comma)                 return ipr::traits<Comma>::category;                 // comma-operator                 a, b
-        Case(Const_cast)            return ipr::traits<Const_cast>::category;            // const-cast             const_cast<T&>(v)
-        Case(Datum)                 return ipr::traits<Datum>::category;                 // object construction             T(v)
-        Case(Div)                   return ipr::traits<Div>::category;                   // division                       a / b
-        Case(Div_assign)            return ipr::traits<Div_assign>::category;            // in-place division              a /= b
-        Case(Dot)                   return ipr::traits<Dot>::category;                   // direct member selection        x.m
-        Case(Dot_star)              return ipr::traits<Dot_star>::category;              // direct member indirection      x.*pm
-        Case(Dynamic_cast)          return ipr::traits<Dynamic_cast>::category;          // dynamic-cast         dynamic_cast<T&>(v)
-        Case(Equal)                 return ipr::traits<Equal>::category;                 // equality comparison            a == b
-        Case(Greater)               return ipr::traits<Greater>::category;               // greater comparison             a > b
-        Case(Greater_equal)         return ipr::traits<Greater_equal>::category;         // greater-or-equal comparison    a >= b
-        Case(Less)                  return ipr::traits<Less>::category;                  // less comparison                a < b
-        Case(Less_equal)            return ipr::traits<Less_equal>::category;            // less-equal comparison          a <= b
-        Case(Literal)               return ipr::traits<Literal>::category;               // literal expressions            3.14
-        Case(Lshift)                return ipr::traits<Lshift>::category;                // left shift                     a << b
-        Case(Lshift_assign)         return ipr::traits<Lshift_assign>::category;         // in-place left shift            a <<= b
-        Case(Member_init)           return ipr::traits<Member_init>::category;           // member initialization          : m(v)
-        Case(Minus)                 return ipr::traits<Minus>::category;                 // subtraction                    a - b
-        Case(Minus_assign)          return ipr::traits<Minus_assign>::category;          // in-place subtraction           a -= b
-        Case(Modulo)                return ipr::traits<Modulo>::category;                // modulo arithmetic              a % b
-        Case(Modulo_assign)         return ipr::traits<Modulo_assign>::category;         // in=place modulo arithmetic     a %= b
-        Case(Mul)                   return ipr::traits<Mul>::category;                   // multiplication                 a * b
-        Case(Mul_assign)            return ipr::traits<Mul_assign>::category;            // in-place multiplication        a *= b
-        Case(Not_equal)             return ipr::traits<Not_equal>::category;             // not-equality comparison        a != b
-        Case(Or)                    return ipr::traits<Or>::category;                    // logical or                     a || b
-        Case(Plus)                  return ipr::traits<Plus>::category;                  // addition                       a + b
-        Case(Plus_assign)           return ipr::traits<Plus_assign>::category;           // in-place addition              a += b
-        Case(Reinterpret_cast)      return ipr::traits<Reinterpret_cast>::category;      // reinterpret-cast  reinterpret_cast<T>(v)
-        Case(Rshift)                return ipr::traits<Rshift>::category;                // right shift                    a >> b
-        Case(Rshift_assign)         return ipr::traits<Rshift_assign>::category;         // in-place right shift           a >>= b
-        Case(Static_cast)           return ipr::traits<Static_cast>::category;           // static-cast            static_cast<T>(v)
-        Case(Conditional)           return ipr::traits<Conditional>::category;           // conditional                   p ? a : b
-        Case(New)                   return ipr::traits<New>::category;                   // new-expression              new (p) T(v)
-        Case(Block)                 return ipr::traits<Block>::category;                 // brace-enclosed statement sequence
-        Case(Break)                 return ipr::traits<Break>::category;                 // break-statement
-        Case(Continue)              return ipr::traits<Continue>::category;              // continue-statement
-        Case(Ctor_body)             return ipr::traits<Ctor_body>::category;             // constructor-body
-        Case(Do)                    return ipr::traits<Do>::category;                    // do-statement
-        Case(Empty_stmt)            return ipr::traits<Empty_stmt>::category;            // empty statement -- particular Expr_stmt
-        Case(Expr_stmt)             return ipr::traits<Expr_stmt>::category;             // expression-statement
-        Case(For)                   return ipr::traits<For>::category;                   // for-statement
-        Case(For_in)                return ipr::traits<For_in>::category;                // structured for-statement
-        Case(Goto)                  return ipr::traits<Goto>::category;                  // goto-statement
-        Case(Handler)               return ipr::traits<Handler>::category;               // exception handler statement
-        Case(If_then)               return ipr::traits<If_then>::category;               // if-statement
-        Case(If_then_else)          return ipr::traits<If_then_else>::category;          // if-else-statement
-        Case(Labeled_stmt)          return ipr::traits<Labeled_stmt>::category;          // labeled-statement
-        Case(Return)                return ipr::traits<Return>::category;                // return-statement
-        Case(Switch)                return ipr::traits<Switch>::category;                // switch-statement
-        Case(While)                 return ipr::traits<While>::category;                 // while-statement
-        Case(Alias)                 return ipr::traits<Alias>::category;                 // alias-declaration
-        Case(Asm)                   return ipr::traits<Asm>::category;                   // asm-declaration
-        Case(Base_type)             return ipr::traits<Base_type>::category;             // base-class in class inheritance
-        Case(Enumerator)            return ipr::traits<Enumerator>::category;            // enumerator in enumeration-declaration
-        Case(Field)                 return ipr::traits<Field>::category;                 // field in union or class declaration
-        Case(Bitfield)              return ipr::traits<Bitfield>::category;              // bitfield
-        Case(Fundecl)               return ipr::traits<Fundecl>::category;               // function-declaration
-        Case(Named_map)             return ipr::traits<Named_map>::category;             // template-declaration
-        Case(Parameter)             return ipr::traits<Parameter>::category;             // function or template parameter
-        Case(Typedecl)              return ipr::traits<Typedecl>::category;              // declaration for a type
-        Case(Var)                   return ipr::traits<Var>::category;                   // variable declaration
-      //Case(Using_directive)       return ipr::traits<Using_directive>::category;       // using-directive
-        Case(Unit)                  return ipr::traits<Unit>::category;                  // translation unit
-        //Case(Void)                  return ipr::traits<Void>::category;                  // "void"
-        //Case(Bool)                  return ipr::traits<Bool>::category;                  // "bool"
-        //Case(Char)                  return ipr::traits<Char>::category;                  // "char"
-        //Case(sChar)                 return ipr::traits<sChar>::category;                 // "signed char"
-        //Case(uChar)                 return ipr::traits<uChar>::category;                 // "unsigned char";
-        //Case(Wchar_t)               return ipr::traits<Wchar_t>::category;               // "wchar_t";
-        //Case(Short)                 return ipr::traits<Short>::category;                 // "short"
-        //Case(uShort)                return ipr::traits<uShort>::category;                // "unsigned short"
-        //Case(Int)                   return ipr::traits<Int>::category;                   // "int"
-        //Case(uInt)                  return ipr::traits<uInt>::category;                  // "unsigned int"
-        //Case(Long)                  return ipr::traits<Long>::category;                  // "long"
-        //Case(uLong)                 return ipr::traits<uLong>::category;                 // "unsigned long"
-        //Case(Long_long)             return ipr::traits<Long_long>::category;             // "long long"
-        //Case(uLong_long)            return ipr::traits<uLong_long>::category;            // "unsigned long long"
-        //Case(Float)                 return ipr::traits<Float>::category;                 // "float"
-        //Case(Double)                return ipr::traits<Double>::category;                // "double"
-        //Case(Long_double)           return ipr::traits<Long_double>::category;           // "long double"
-        //Case(Ellipsis)              return ipr::traits<Ellipsis>::category;              // "..."
-        Case(C_linkage)             return ipr::traits<C_linkage>::category;             // "C" linkage
-        //Case(Cxx_linkage)           return ipr::traits<Cxx_linkage>::category;           // "C++" linkage
-        //Case(Linkage)               return ipr::traits<Linkage>::category;               // general language linkage
-        Case(Global_scope)          return ipr::traits<Global_scope>::category;          // global namespace -- "::"
-        Case(Decl)                  return ipr::traits<Decl>::category;                  // general declarations
-        Case(Stmt)                  return ipr::traits<Stmt>::category;                  // general statements
-        Case(As_type)               return ipr::traits<As_type>::category;               // coerce-to type
-        Case(Udt)                   return ipr::traits<Udt>::category;                   // general user-defined types
-        Case(Type)                  return ipr::traits<Type>::category;                  // general types
-        //Case(Classic)               return ipr::traits<Classic>::category;               // general classic expressions
-        Case(Name)                  return ipr::traits<Name>::category;                  // general names
-        Case(Region)                return ipr::traits<Region>::category;                // declarative region
-        Case(Expr)                  return ipr::traits<Expr>::category;                  // general expressions
-        Case(Node)                  return ipr::traits<Node>::category;                  // universal base class for all IPR nodes
+        Case(ipr::Unit, global_scope) *this << global_scope; break; // This should forward to visitation of Global_scope, which is a Namespace
+        Case(ipr::Udt)                *this << *matched; break;
+        Case(ipr::Decl)               *this << *matched; break;
+        Case(ipr::Stmt)               *this << *matched; break;
+        Case(ipr::Type)               *this << *matched; break;
+        Case(ipr::Name)               *this << *matched; break;
+        Case(ipr::Expr)               *this << *matched; break;
     }
     EndMatch
+
+    return *this;
 }
 
 //------------------------------------------------------------------------------

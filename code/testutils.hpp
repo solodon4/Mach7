@@ -10,6 +10,11 @@
 /// All rights reserved.
 ///
 
+#pragma once
+
+//------------------------------------------------------------------------------
+
+#include "testshape.hpp"
 #include <algorithm>
 #include <cmath>
 #include <fstream>
@@ -21,18 +26,6 @@
 #include <vector>
 #include "config.hpp"
 #include "timing.hpp"
-
-#pragma once
-
-//------------------------------------------------------------------------------
-
-#if !defined(NUMBER_OF_VFUNCS)
-#define NUMBER_OF_VFUNCS  1
-#endif
-
-#if !defined(NUMBER_OF_DERIVED)
-#define NUMBER_OF_DERIVED 100
-#endif
 
 //------------------------------------------------------------------------------
 
@@ -48,65 +41,7 @@ const size_t K = NUMBER_OF_DERIVED; // The amount of cases we have in hierarchy
 
 //------------------------------------------------------------------------------
 
-struct ShapeVisitor;
-
-//------------------------------------------------------------------------------
-
-struct OtherBase
-{
-    OtherBase() : m_foo(0xAAAAAAAA) {}
-    virtual int foo() { return m_foo; };
-
-    int m_foo;
-};
-
-//------------------------------------------------------------------------------
-
-struct Shape
-{
-    size_t        m_kind;
-    const size_t* m_all_kinds;
-    size_t        m_fdc_id; // Fast dynamic cast ID
-
-    Shape(size_t n = -1, size_t fdc_id = -1) : m_kind(n), m_all_kinds(0), m_fdc_id(fdc_id),
-        m_member0(n+0),
-        m_member1(n+1),
-        m_member2(n+2),
-        m_member3(n+3),
-        m_member4(n+4),
-        m_member5(n+5),
-        m_member6(n+6),
-        m_member7(n+7),
-        m_member8(n+8),
-        m_member9(n+9)
-    {}
-
-    virtual ~Shape() {}
-    virtual void accept(ShapeVisitor&) const = 0;
-    virtual void raise() const {} // Polymorphic exception idiom: http://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Polymorphic_Exception
-    #define FOR_EACH_MAX NUMBER_OF_VFUNCS-2
-    #define FOR_EACH_N(N) virtual void foo ## N() {}
-    #include "loop_over_numbers.hpp"
-    #undef  FOR_EACH_N
-    #undef  FOR_EACH_MAX
-
-    int m_member0;
-    int m_member1;
-    int m_member2;
-    int m_member3;
-    int m_member4;
-    int m_member5;
-    int m_member6;
-    int m_member7;
-    int m_member8;
-    int m_member9;
-};
-
-//------------------------------------------------------------------------------
-
 extern Shape* make_shape(size_t);
-extern size_t do_visit(const Shape&, size_t);
-extern size_t do_match(const Shape&, size_t);
 
 //------------------------------------------------------------------------------
 
@@ -215,7 +150,37 @@ long long display(const char* name, std::vector<long long>& timings)
 
 //------------------------------------------------------------------------------
 
-inline void run_timings(
+/// Just a table of numbers that would prevent compiler from optimizing too much
+static int some_numbers[256] = {
+   2,   3,   5,   7,  11,  13,  17,  19,  23,  29, 
+  31,  37,  41,  43,  47,  53,  59,  61,  67,  71, 
+  73,  79,  83,  89,  97, 101, 103, 107, 109, 113, 
+ 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 
+ 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 
+ 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 
+ 283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 
+ 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 
+ 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 
+ 467, 479, 487, 491, 499, 503, 509, 521, 523, 541, 
+ 547, 557, 563, 569, 571, 577, 587, 593, 599, 601, 
+ 607, 613, 617, 619, 631, 641, 643, 647, 653, 659, 
+   2,   3,   5,   7,  11,  13,  17,  19,  23,  29, 
+  31,  37,  41,  43,  47,  53,  59,  61,  67,  71, 
+  73,  79,  83,  89,  97, 101, 103, 107, 109, 113, 
+ 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 
+ 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 
+ 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 
+ 283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 
+ 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 
+ 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 
+ 467, 479, 487, 491, 499, 503, 509, 521, 523, 541, 
+ 547, 557, 563, 569, 571, 577, 587, 593, 599, 601, 
+ 607, 613, 617, 619, 631, 641, 643, 647, 653, 659, 
+   2,   3,   5,   7,  11,  13,  17,  19,  23,  29, 
+  31,  37,  41,  43,  47,  53 
+};
+
+void run_timings(
         std::vector<Shape*>&    shapes, 
         std::vector<long long>& timingsV, 
         std::vector<long long>& timingsM,
@@ -230,17 +195,20 @@ inline void run_timings(
 
     for (size_t m = 0; m < M; ++m)
     {
+        unsigned char j = 0;
         time_stamp liStart1 = get_time_stamp();
 
         for (size_t i = 0; i < N; ++i)
-            aV += do_visit(*shapes[i],i);
+            aV += do_visit(*shapes[i],some_numbers[j++]);
 
         time_stamp liFinish1 = get_time_stamp();
+
+        j = 0;
 
         time_stamp liStart2 = get_time_stamp();
 
         for (size_t i = 0; i < N; ++i)
-            aM += do_match(*shapes[i],i);
+            aM += do_match(*shapes[i],some_numbers[j++]);
 
         time_stamp liFinish2 = get_time_stamp();
 

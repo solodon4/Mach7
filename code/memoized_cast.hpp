@@ -11,8 +11,7 @@
 /// All rights reserved.
 ///
 
-#include "vtblmap.hpp"
-#include <vector>
+#pragma once
 
 // TODO: 
 // 1. vtbl with pointers directly to table instead of indecies - slows
@@ -27,6 +26,10 @@
 // 5. Preallocate vtbl map - improves sequential but slows down random, 
 //    probably because of locality.
 
+#include "vtblmap.hpp"
+#include "metatools.hpp"     // Utility meta-functions
+#include <vector>
+
 //------------------------------------------------------------------------------
 
 /// A class that keeps a run-time instantiation counter of different types. 
@@ -38,7 +41,7 @@ struct specific_to
     template <typename T>
     static inline size_t type_index_of()
     {
-        static const size_t ti = ++type_counter; // will be executed once upone first entry
+        static const size_t ti = ++type_counter; // will be executed once upon first entry
         return ti;
     }
 
@@ -84,7 +87,7 @@ inline std::ptrdiff_t& per_target_offset_of(const void* p)
         std::ptrdiff_t offset;
     };
 
-    static vtblmap<dyn_cast_info&> offset_map XTL_DUMP_PERFORMANCE_ONLY((__FILE__,__LINE__));
+    XTL_PRELOADABLE_LOCAL_STATIC(vtblmap<dyn_cast_info&>,offset_map,T);
     return offset_map.get(p).offset;
 }
 
@@ -101,7 +104,7 @@ inline std::ptrdiff_t& per_source_offset_of(const void* p, size_t ti)
     // FIX: vector here might create problems later when we implement 
     //      multi-threaded solution because of reference invalidation
     typedef std::vector<std::ptrdiff_t> dyn_cast_info;
-    static vtblmap<dyn_cast_info&> offset_map XTL_DUMP_PERFORMANCE_ONLY((__FILE__,__LINE__));
+    XTL_PRELOADABLE_LOCAL_STATIC(vtblmap<dyn_cast_info&>,offset_map,S);
     dyn_cast_info& sdci = offset_map.get(p);
 
     if (XTL_UNLIKELY(ti >= sdci.size()))

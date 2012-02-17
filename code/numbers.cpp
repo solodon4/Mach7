@@ -25,7 +25,7 @@ fib (2*n+1) = (fib(n+1))^2 + (fib n   )^2
 #include "match.hpp"
 #include <math.h>
 #include <iostream>
-#include "testutils.hpp"
+#include "testshape.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -157,23 +157,23 @@ struct ShapeVisitor {};
 
 //------------------------------------------------------------------------------
 
-XTL_DO_NOT_INLINE_BEGIN
+XTL_TIMED_FUNC_BEGIN
 size_t do_match(const Shape& s, size_t n)
 {
     //return power2(1.01,n);
     return fib2(n%100+1);
 }
-XTL_DO_NOT_INLINE_END
+XTL_TIMED_FUNC_END
 
 //------------------------------------------------------------------------------
 
-XTL_DO_NOT_INLINE_BEGIN
+XTL_TIMED_FUNC_BEGIN
 size_t do_visit(const Shape& s, size_t n)
 {
     //return power_opt(1.01,n);
     return fib_opt(n%100+1);
 }
-XTL_DO_NOT_INLINE_END
+XTL_TIMED_FUNC_END
 
 //------------------------------------------------------------------------------
 
@@ -181,6 +181,10 @@ Shape* make_shape(size_t)
 {
     return new DummyShape;
 }
+
+//------------------------------------------------------------------------------
+
+#include "testutils.hpp"    // Utilities for timing tests
 
 //------------------------------------------------------------------------------
 

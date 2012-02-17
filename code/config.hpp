@@ -7,19 +7,28 @@
 ///
 /// Here are some of the library configuration options that can be set:
 ///
-/// - Default syntax
-/// - Redundancy checking
-/// - Use of vtbl frequencies to optimize vtblmap performance
-/// - Use of memoized_cast
-/// - Fallthrough behavior
-/// - Whether extractors might throw
-/// - Trace of performance
-/// - Certain types used under the hood
+/// Options with performance impact:
+/// - Default syntax                   \see @XTL_DEFAULT_SYNTAX
+/// - Use of vtbl frequencies          \see @XTL_USE_VTBL_FREQUENCY
+/// - Use of memoized_cast             \see @XTL_USE_MEMOIZED_CAST
+/// - Whether extractors might throw   \see @XTL_EXTRACTORS_MIGHT_THROW
+/// - Use of static local variables    \see @XTL_PRELOAD_LOCAL_STATIC_VARIABLES
+/// - Use number of case clauses init  \see @XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM
+/// - Certain under-the-hood types     \see @vtbl_count_t
+/// - Certain under-the-hood constants \see @XTL_MIN_LOG_SIZE, @XTL_MAX_LOG_SIZE, @XTL_MAX_LOG_INC, @XTL_LOCAL_CACHE_LOG_SIZE, @XTL_IRRELEVANT_VTBL_BITS
+/// Most of the combinations of from this set are built with: make timing
+///
+/// Options with semantic or convenience impact
+/// - Redundancy checking              \see @XTL_REDUNDANCY_CHECKING
+/// - Fallthrough behavior             \see @XTL_FALL_THROUGH
+/// - Use of { & } around case clauses \see @XTL_USE_BRACES
+/// - Trace of performance             \see @XTL_TRACE_PERFORMANCE
+/// Most of the combinations of from this set are built with: make syntax
 ///
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -28,160 +37,178 @@
 #if defined(_DEBUG)
 #include <iostream>            // We refer to std::cerr in debug mode
 #endif
-//------------------------------------------------------------------------------
-
-/// Type capable of representing bit offsets and bit counts in intptr_t
-typedef unsigned char  bit_offset_t;
-//typedef size_t  bit_offset_t;
-
-/// The smallest integral type capable of representing the amount N of different 
-/// vtbl pointers in the program. Roughly N should be equal to some constant c
-/// multiplied by the amount of different classes polymorphic classes in the 
-/// program. Constant c accounts for potential multiple inheritance.
-typedef unsigned short vtbl_count_t;
-//typedef size_t vtbl_count_t;
 
 //------------------------------------------------------------------------------
 
-const bit_offset_t min_log_size = 3;  ///< Log of the smallest cache size to start from
-const bit_offset_t max_log_size = 10; ///< Log of the largest cache size to try
-const bit_offset_t max_log_inc  = 0;  ///< Log of the maximum allowed increased from the minimum requred log size (1 means twice from the min required size)
-const vtbl_count_t min_expected_size = 1<<min_log_size;
-
-//------------------------------------------------------------------------------
-
-/// Flag enabling performance tracing
 #if !defined(XTL_TRACE_PERFORMANCE)
-#define XTL_TRACE_PERFORMANCE 0
+    /// Flag enabling performance tracing
+    #define XTL_TRACE_PERFORMANCE 0
 #endif
-#define XTL_TRACE_PERFORMANCE_ONLY(...)      UCL_PP_IF(UCL_PP_NOT(XTL_TRACE_PERFORMANCE), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
-//#define XTL_NON_TRACE_PERFORMANCE_ONLY(...)  UCL_PP_IF(           XTL_TRACE_PERFORMANCE,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+#define XTL_TRACE_PERFORMANCE_ONLY(...)  UCL_PP_IF(UCL_PP_NOT(XTL_TRACE_PERFORMANCE), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 
-/// Flag enabling showing results of performance tracing
 #if !defined(XTL_DUMP_PERFORMANCE)
-#define XTL_DUMP_PERFORMANCE 0
+    /// Flag enabling showing results of performance tracing
+    #define XTL_DUMP_PERFORMANCE 0
 #endif
-#define XTL_DUMP_PERFORMANCE_ONLY(...)       UCL_PP_IF(UCL_PP_NOT(XTL_DUMP_PERFORMANCE), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
-//#define XTL_NON_DUMP_PERFORMANCE_ONLY(...)   UCL_PP_IF(           XTL_DUMP_PERFORMANCE,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+#define XTL_DUMP_PERFORMANCE_ONLY(...)   UCL_PP_IF(UCL_PP_NOT(XTL_DUMP_PERFORMANCE), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 
-/// When this macro is defined, vtblmaps will count frequency of requests using a
-/// given vtbl pointer and will take it into account during rearranging of the map.
-/// \note This introduces a slight performance overhead to the most frequent path,
-///       but supposedly will pay when no zero conflict is possible.
 #if !defined(XTL_USE_VTBL_FREQUENCY)
-#define XTL_USE_VTBL_FREQUENCY 0
+    /// When this macro is defined, vtblmaps will count frequency of requests using a
+    /// given vtbl pointer and will take it into account during rearranging of the map.
+    /// \note This introduces a slight performance overhead to the most frequent path,
+    ///       but supposedly will pay when no zero conflict is possible.
+    #define XTL_USE_VTBL_FREQUENCY 0
 #endif
-#define XTL_USE_VTBL_FREQUENCY_ONLY(...)     UCL_PP_IF(UCL_PP_NOT(XTL_USE_VTBL_FREQUENCY), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
-//#define XTL_NON_USE_VTBL_FREQUENCY_ONLY(...) UCL_PP_IF(           XTL_USE_VTBL_FREQUENCY,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+#define XTL_USE_VTBL_FREQUENCY_ONLY(...) UCL_PP_IF(UCL_PP_NOT(XTL_USE_VTBL_FREQUENCY), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 
-/// When this macro is defined, our library will generate additional code that 
-/// will trigger compiler to check case clauses for redundancy.
-/// \warning Do not define this macro in actual builds as the generated code 
-///          will effectively have a switch statement whose body is never evaluated!
-//#define XTL_REDUNDANCY_CHECKING
+#if !defined(XTL_REDUNDANCY_CHECKING)
+    /// When this macro is defined, our library will generate additional code that 
+    /// will trigger compiler to check case clauses for redundancy.
+    /// \warning Do not define this macro in actual builds as the generated code 
+    ///          will effectively have a switch statement whose body is never evaluated!
+    #define XTL_REDUNDANCY_CHECKING 0
+#endif
 
 #if !defined(XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM)
-/// When this macro is 1, we use the number of clauses in the Match statements
-/// as an estimate of the number of types that will pass through that statement.
-/// This helps avoid unnecessery vtblmap-cache reconfigurations and estimates 
-/// sizes of cache and the hash table.
-#define XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM 1
+    /// When this macro is 1, we use the number of clauses in the Match statements
+    /// as an estimate of the number of types that will pass through that statement.
+    /// This helps avoid unnecessery vtblmap-cache reconfigurations and estimates 
+    /// sizes of cache and the hash table.
+    #define XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM 1
 #endif
 
-/// When this macro is 1 the fall-through behavior of the underlying switch
-/// statement is enabled. It becomes up to the user to use break statements to 
-/// leave the case clause. Fall through behavior might be needed to implement 
-/// all-fit semantics of the @Match statement.
-/// When this macro is 0 the fall-through behavior is disabled and break 
-/// statements are implicitly inserted at the end of each case-clause, while
-/// sub-clauses are made exclusive with the use of else between the ifs.
-/// There are several reasons we enable fall-through by default:
-///  - it follows the current semantics of C/C++ switch
-///  - there are certain semantic awkwardnesses when fall through is disabled. 
-///    They are solely due to library implementation and are easy to avoid in a
-///    language solution, however, making them the default will be hard to 
-///    explain to novices. 
-///    An example of such awkwardness is the fact that When-sub-clauses will 
-///    only work with refutable Que-clauses, and thus cannot be used in Case-clauses.
+#if !defined(XTL_PRELOAD_LOCAL_STATIC_VARIABLES)
+    /// In many cases we use local static variables not because we need to initialize
+    /// some global state upon first entry, but because we would like to introduce it
+    /// within a macro that is used in a local scope. Such global state will only be
+    /// used from within the local scope, however we don't care that it is initialized
+    /// on the first entry. Using static to declare such local state may introduce an
+    /// if statement implementing initialization on first entry, in those cases when 
+    /// compiler will not be able to figure out that initialization does not depend on
+    /// the function's arguments. This is the case at the moment for all the user-defined
+    /// types (e.g. vtblmap<T>), so in the allowed cases we use a trick to take the
+    /// initialization outside to save some CPU cycles during actual execution.
+    /// By default we enable preloading as it makes the code smaller and somewhat faster,
+    /// but one should understand that preloading default initializes the object, so 
+    /// passing additional arguments or deferred constatnt values is not possible.
+    #define XTL_PRELOAD_LOCAL_STATIC_VARIABLES 1
+#endif
+
+#if XTL_PRELOAD_LOCAL_STATIC_VARIABLES
+    /// In this case we simply introduce a local reference Name to the globally
+    /// preallocated variable of type Type.
+    #define XTL_PRELOADABLE_LOCAL_STATIC(Type,Name,UID,...) Type& Name = preallocated<Type,UID>::value
+#else
+    /// In this case we simply declare a function-local static variable Name of type Type
+    #define XTL_PRELOADABLE_LOCAL_STATIC(Type,Name,UID,...) static Type Name UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), (UCL_PP_EXPAND(__VA_ARGS__)))
+#endif
+
 #if !defined(XTL_FALL_THROUGH)
-#define XTL_FALL_THROUGH 1
+    /// When this macro is 1 the fall-through behavior of the underlying switch
+    /// statement is enabled. It becomes up to the user to use break statements to 
+    /// leave the case clause. Fall through behavior might be needed to implement 
+    /// all-fit semantics of the @Match statement.
+    /// When this macro is 0 the fall-through behavior is disabled and break 
+    /// statements are implicitly inserted at the end of each case-clause, while
+    /// sub-clauses are made exclusive with the use of else between the ifs.
+    /// There are several reasons we enable fall-through by default:
+    ///  - it follows the current semantics of C/C++ switch
+    ///  - there are certain semantic awkwardnesses when fall through is disabled. 
+    ///    They are solely due to library implementation and are easy to avoid in a
+    ///    language solution, however, making them the default will be hard to 
+    ///    explain to novices. 
+    ///    An example of such awkwardness is the fact that When-sub-clauses will 
+    ///    only work with refutable Que-clauses, and thus cannot be used in Case-clauses.
+    #define XTL_FALL_THROUGH 1
 #endif
 #define XTL_FALL_THROUGH_ONLY(...)           UCL_PP_IF(UCL_PP_NOT(XTL_FALL_THROUGH), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 #define XTL_NON_FALL_THROUGH_ONLY(...)       UCL_PP_IF(           XTL_FALL_THROUGH,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 
-/// For general syntax of Match statements, this definition only affects @MatchE
-/// and @MatchS statements. It specifies whether by default the user prefers to 
-/// use { and } to separate case clauses. These two macros can be made work 
-/// either way, but only one of them. The rest of the macros work with or 
-/// without them. There is one important reason to choose the default and stick
-/// to it for other @Match statements. Redundancy checking essentially builds 
-/// the same syntactic structure as @MatchE and thus depends on this choice. 
-/// If you'd like to be able to perform redundancy checking on your statements,
-/// please make the choice and specify it to the library with this macro.
 #if !defined(XTL_USE_BRACES)
-#define XTL_USE_BRACES 1
+    /// For general syntax of Match statements, this definition only affects @MatchE
+    /// and @MatchS statements. It specifies whether by default the user prefers to 
+    /// use { and } to separate case clauses. These two macros can be made work 
+    /// either way, but only one of them. The rest of the macros work with or 
+    /// without them. There is one important reason to choose the default and stick
+    /// to it for other @Match statements. Redundancy checking essentially builds 
+    /// the same syntactic structure as @MatchE and thus depends on this choice. 
+    /// If you'd like to be able to perform redundancy checking on your statements,
+    /// please make the choice and specify it to the library with this macro.
+    #define XTL_USE_BRACES 1
 #endif
 #define XTL_USE_BRACES_ONLY(...)     UCL_PP_IF(UCL_PP_NOT(XTL_USE_BRACES), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 #define XTL_NON_USE_BRACES_ONLY(...) UCL_PP_IF(           XTL_USE_BRACES,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 
 //------------------------------------------------------------------------------
 
-/// Several choices for configuring syntax:
-/// Default syntax Match,Case,Que,Or,Otherwise,EndMatch are resolved to
-/// - 'G' - Generic switch (default)
-/// - 'P' - Polymorphic switch
-/// - 'K' - Kind switch: the-only-match
-/// - 'F' - Kind switch: nearly-best-match
-/// - 'U' - Union switch
-/// - 'E' - Exception switch
-/// - 'S' - Sequential cascading-if
 #if !defined(XTL_DEFAULT_SYNTAX)
-  #define XTL_DEFAULT_SYNTAX 'G'
+    /// Several choices for configuring syntax:
+    /// Default syntax Match,Case,Que,Or,Otherwise,EndMatch are resolved to
+    /// - 'G' - Generic switch (default)
+    /// - 'P' - Polymorphic switch
+    /// - 'K' - Kind switch: the-only-match
+    /// - 'F' - Kind switch: nearly-best-match
+    /// - 'U' - Union switch
+    /// - 'E' - Exception switch
+    /// - 'S' - Sequential cascading-if
+    #define XTL_DEFAULT_SYNTAX 'G'
 #endif
 
 //------------------------------------------------------------------------------
 
-/// Another choice is whether user would like to have Otherwise statement, as if
-/// she doesn't, we can use default: to enter the cascading-if, which accordingly
-/// to our measurements gives about 5% performance benefit than entering via a
-/// dedicated constant.
-
-/// Choice of exception handling strategies:
-/// - Assume extractors won't throw and thus generate not exception wrappers
-/// - Assume extractors might throw, in which case:
-///    * Propagate throw further
-///    * Treat it as failed match
-/// Note that in any case exceptions inside statements associated with case 
-/// clauses are not intercepted in any way.
 #if !defined(XTL_EXTRACTORS_MIGHT_THROW)
-  /// By default we assume that for a given code using our library extractors 
-  /// won't throw and thus we do not generate the necessary exception handling code
-  #define XTL_EXTRACTORS_MIGHT_THROW 0
+    /// Choice of exception handling strategies:
+    /// - Assume extractors won't throw and thus generate not exception wrappers
+    /// - Assume extractors might throw, in which case:
+    ///    * Propagate throw further
+    ///    * Treat it as failed match
+    /// Note that in any case exceptions inside statements associated with case 
+    /// clauses are not intercepted in any way.
+    /// By default we assume that for a given code using our library extractors 
+    /// won't throw and thus we do not generate the necessary exception handling code
+    #define XTL_EXTRACTORS_MIGHT_THROW 0
 #endif
 
 #if XTL_EXTRACTORS_MIGHT_THROW
-  #if !defined(EXTRACTORS_PROPAGATE_THROW)
-  #define EXTRACTORS_PROPAGATE_THROW 0
-  #endif
+    #if !defined(EXTRACTORS_PROPAGATE_THROW)
+    #define EXTRACTORS_PROPAGATE_THROW 0
+    #endif
 #endif
 
 //------------------------------------------------------------------------------
 
-/// Another choice is whether library code should try to benefit from memoized_cast 
-/// or just use dynamic_cast 
 #if !defined(XTL_USE_MEMOIZED_CAST)
-  #define XTL_USE_MEMOIZED_CAST 0
+    /// Another choice is whether library code should try to benefit from memoized_cast 
+    /// or just use dynamic_cast 
+    #define XTL_USE_MEMOIZED_CAST 1
 #endif
 
 //------------------------------------------------------------------------------
 
-#if !defined(VTBL_DEFAULT_CACHE_BITS)
-    #define VTBL_DEFAULT_CACHE_BITS 7
+#if !defined(XTL_MIN_LOG_SIZE)
+    /// Log of the smallest cache size to start from
+    #define XTL_MIN_LOG_SIZE 3
+#endif
+
+#if !defined(XTL_MAX_LOG_SIZE)
+    /// Log of the largest cache size to try
+    #define XTL_MAX_LOG_SIZE 10
+#endif
+
+#if !defined(XTL_MAX_LOG_INC)
+    /// Log of the maximum allowed increased from the minimum requred log size (1 means twice from the min required size)
+    #define XTL_MAX_LOG_INC 0
+#endif
+
+#if !defined(XTL_LOCAL_CACHE_LOG_SIZE)
+    /// Log of the size of the local cache - the one we use to avoid allocating
+    /// memory from heap in early stages
+    #define XTL_LOCAL_CACHE_LOG_SIZE 7
 #endif
 
 //------------------------------------------------------------------------------
 
-#if !defined(VTBL_IRRELEVANT_BITS)
+#if !defined(XTL_IRRELEVANT_VTBL_BITS)
 /// \note The following section is compiler and platform specific for 
 ///       optimization purposes.
 /// \note As subsequent experiments showed, this value may depend on the number
@@ -193,48 +220,46 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
     #if defined(_WIN64)
         #if defined(_DEBUG)
             /// vtbl in MSVC in x64 Debug   builds seem to be alligned by 8 bytes
-            #define VTBL_IRRELEVANT_BITS 3
+            #define XTL_IRRELEVANT_VTBL_BITS 3
         #else
             /// vtbl in MSVC in x64 Release builds seem to be alligned by 16 bytes
-            #define VTBL_IRRELEVANT_BITS 4
+            #define XTL_IRRELEVANT_VTBL_BITS 4
         #endif
     #else
         #if defined(_DEBUG)
             /// vtbl in MSVC in x86 Debug   builds seem to be alligned by 4 bytes
-            #define VTBL_IRRELEVANT_BITS 2
+            #define XTL_IRRELEVANT_VTBL_BITS 2
         #else
             /// vtbl in MSVC in x86 Release builds seem to be alligned by 8 bytes
-            #define VTBL_IRRELEVANT_BITS 3
+            #define XTL_IRRELEVANT_VTBL_BITS 3
         #endif
     #endif
 #else
     /// vtbl in G++ seem to be alligned by 16 bytes
-    #define VTBL_IRRELEVANT_BITS 4
+    #define XTL_IRRELEVANT_VTBL_BITS 4
     /// When i defined more virtual functions it became 3 for some reason
-    //#define VTBL_IRRELEVANT_BITS 3
+    //#define XTL_IRRELEVANT_VTBL_BITS 3
 #endif
 #endif
 
 //------------------------------------------------------------------------------
 
 #if defined(_DEBUG)
-#define XTL_DEBUG_ONLY(...) __VA_ARGS__
-/// Our own version of assert macro because of the fact that normal assert was 
-/// not always removed in the release builds.
-#define XTL_ASSERT(x) if (!(x)) { std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'; std::abort(); }
-/// Our own version of assert macro because of the fact that normal assert was 
-/// not always removed in the release builds.
-#define XTL_VERIFY(x) if (!(x)) std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'
-
+    #define XTL_DEBUG_ONLY(...) __VA_ARGS__
+    /// Our own version of assert macro because of the fact that normal assert was 
+    /// not always removed in the release builds.
+    #define XTL_ASSERT(x) if (!(x)) { std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'; std::abort(); }
+    /// Our own version of assert macro because of the fact that normal assert was 
+    /// not always removed in the release builds.
+    #define XTL_VERIFY(x) if (!(x)) std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'
 #else
-#define XTL_DEBUG_ONLY(...)
-/// Our own version of assert macro because of the fact that normal assert was 
-/// not always removed in the release builds.
-#define XTL_ASSERT(x)
-/// Our own version of assert macro because of the fact that normal assert was 
-/// not always removed in the release builds.
-#define XTL_VERIFY(x) if (!(x)) std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'
-
+    #define XTL_DEBUG_ONLY(...)
+    /// Our own version of assert macro because of the fact that normal assert was 
+    /// not always removed in the release builds.
+    #define XTL_ASSERT(x)
+    /// Our own version of assert macro because of the fact that normal assert was 
+    /// not always removed in the release builds.
+    #define XTL_VERIFY(x) if (!(x)) std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'
 #endif
 
 //------------------------------------------------------------------------------
@@ -265,13 +290,13 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 
 //------------------------------------------------------------------------------
 
-/// When the compiler supports Visual C++ like __COUNTER__ macro that is resolved 
-/// to consequitive number each time it is used, we use it, otherwise we approximate 
-/// it with line number. This means that multiple uses of this macro within the same
-/// line should be memoized in a constant to avoid differences in behavior as well as
-/// the user cannot rely on consequitiveness of numbers even when the counter is 
-/// supported because other macros may use the counter as well.
 #if defined(_MSC_VER) || defined(__GNUC__)
+    /// When the compiler supports Visual C++ like __COUNTER__ macro that is resolved 
+    /// to consequitive number each time it is used, we use it, otherwise we approximate 
+    /// it with line number. This means that multiple uses of this macro within the same
+    /// line should be memoized in a constant to avoid differences in behavior as well as
+    /// the user cannot rely on consequitiveness of numbers even when the counter is 
+    /// supported because other macros may use the counter as well.
     #define XTL_COUNTER __COUNTER__
 #else
     #define XTL_COUNTER __LINE__
@@ -447,6 +472,10 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
     /// A macro that is supposed to be put after  the function definition whose inlining should be disabled
     #define XTL_DO_NOT_INLINE_END   __pragma(auto_inline (on))
 
+    /// A macro that is supposed to be put before the function definition whose body must be inlined
+    #define XTL_FORCE_INLINE_BEGIN __forceinline
+    /// A macro that is supposed to be put after  the function definition whose body must be inlined
+    #define XTL_FORCE_INLINE_END
 #else
 
     /// Macros to use compiler's branch hinting. 
@@ -462,6 +491,11 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
     /// A macro that is supposed to be put after  the function definition whose inlining should be disabled
     #define XTL_DO_NOT_INLINE_END
 
+
+    /// A macro that is supposed to be put before the function definition whose body must be inlined
+    #define XTL_FORCE_INLINE_BEGIN __attribute__ ((always_inline)) static inline 
+    /// A macro that is supposed to be put after  the function definition whose body must be inlined
+    #define XTL_FORCE_INLINE_END
 #endif
 
 //------------------------------------------------------------------------------

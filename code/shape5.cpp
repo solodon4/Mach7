@@ -144,8 +144,9 @@ int main()
 for (size_t i = 0; i < 3; ++i)
 {
     {
+        struct match_uid_type {};
         enum {__base_counter = 0 };
-        static vtblmap<type_switch_info&> __vtbl2lines_map(deferred_value<vtbl_count_t>::get<__base_counter>());
+        static vtblmap<type_switch_info&> __vtbl2lines_map(deferred_constant<vtbl_count_t>::get<match_uid_type>::value);
         auto const __selector_ptr = addr(shapes[i]);
         ;
         const void* __casted_ptr;
@@ -244,7 +245,7 @@ for (size_t i = 0; i < 3; ++i)
                 }
             }
             enum { target_label = 5-__base_counter };
-            deferred_value<vtbl_count_t>::set<__base_counter,target_label>::value;
+            deferred_constant<vtbl_count_t>::set<match_uid_type,target_label>::value_ptr;
             if (((__switch_info.line == 0))) 
             {
                 __switch_info.line = target_label;

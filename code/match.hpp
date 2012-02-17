@@ -11,6 +11,8 @@
 /// All rights reserved.
 ///
 
+#pragma once
+
 //  FIX: Big question: should null pointers match pointer variables??? NO
 //  n/a: Replace all MatchX_N versions of the macro with variadic macro 
 //       taking either 1 or 2 arguments
@@ -70,12 +72,9 @@
 //       but not in Debug. This is a known bug of Visual C++ described here:
 //       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
 
-#pragma once
-
 #include "vtblmap.hpp"
 #include "patterns.hpp"
-#include "has_member.hpp"// Meta-functions to check use of certain @match_members facilities
-#include <type_traits>
+#include "has_member.hpp"    // Meta-functions to check use of certain @match_members facilities
 #include <unordered_map>
 #include <vector>
 
@@ -86,11 +85,6 @@
   #define dynamic_cast memoized_cast
 #else
   #define memoized_cast dynamic_cast
-#endif
-
-#if defined(_MSC_VER) || defined(__GNUC__) && XTL_GCC_VERSION < 40500
-/// Visual C++ 2010 does not include declval
-namespace std { template <typename T> typename std::add_rvalue_reference<T>::type declval(); }
 #endif
 
 //------------------------------------------------------------------------------
@@ -109,10 +103,10 @@ namespace std { template <typename T> typename std::add_rvalue_reference<T>::typ
     ///       putting @unary here around taking the address of it saves the user
     ///       from having to disambiguate explicitly.
     #define CM(Index,...)                                           \
-    static inline decltype(unary(&__VA_ARGS__)) member##Index() noexcept \
-    {                                                           \
-        return unary(&__VA_ARGS__);                             \
-    }
+        static inline decltype(unary(&__VA_ARGS__)) member##Index() noexcept \
+        {                                                           \
+            return unary(&__VA_ARGS__);                             \
+        }
 #else
     #error Macro CM used by the pattern-matching library has already been defined
 #endif
@@ -127,11 +121,11 @@ namespace std { template <typename T> typename std::add_rvalue_reference<T>::typ
     ///       would be sufficient.
     /// FIX: KS doesn't accept now members qualified with base class, but CM does, check why.
     #define KS(...)                                                 \
-    static inline decltype(unary(&__VA_ARGS__)) kind_selector() noexcept \
-    {                                                           \
-        return unary(&__VA_ARGS__);                             \
-    }                                                           \
-    bool kind_selector_dummy() const noexcept;
+        static inline decltype(unary(&__VA_ARGS__)) kind_selector() noexcept \
+        {                                                           \
+            return unary(&__VA_ARGS__);                             \
+        }                                                           \
+        bool kind_selector_dummy() const noexcept;
 #else
     #error Macro KS used by the pattern-matching library has already been defined
 #endif
@@ -200,10 +194,6 @@ namespace std { template <typename T> typename std::add_rvalue_reference<T>::typ
 
 //------------------------------------------------------------------------------
 
-template <typename T> inline T& identity(T& t) noexcept { return t; }
-
-//------------------------------------------------------------------------------
-
 /// By default a value of any type is not decomposable i.e. the whole value is 
 /// the only value it can be decomposed into.
 /// NOTE: We should not need this anymore since we provide a specialization of 
@@ -232,42 +222,20 @@ inline auto raise_selector(const T* p) -> XTL_RETURN
 
 //------------------------------------------------------------------------------
 
-/// A class representing a set of locations of type T, indexed by a compile-time
-/// value N. The class is used to implicitly introduce global variables in block
-/// scopes, whose initializer will only be known later in the lexical scope. 
-/// Initialization of such variables will happen before main() and thus accesses
-/// to these locations from within any function that was called after main can
-/// rely on the value of initializer to be known.
-template <typename T>
-struct deferred_value
+/// FIX: This specialization doesn't actually help/work as expected as get<UID>
+///      at the time of this instantiation is not yet set<UID>.
+template <typename T, typename UID>
+struct preallocated<vtblmap<T&>,UID>
 {
-    /// Accessor to location N of type T
-    template <size_t N>      static T& get() noexcept { static T location; return location; }
-    /// A way to associate initializer with location.
-    /// \note This may happen later in the lexical scope with the net effect 
-    ///       that the result of the association will be available in an earlier
-    ///       access to the location through get() without having to execute any
-    ///       code at the program point where association has been made.
-    template <size_t N, T V> struct set { static T* value; };
+    static vtblmap<T&> value;
 };
 
-/// The trick that makes the above possible: instantiation of set will introduce
-/// another static variable, whose dynamic initialization (before main) will 
-/// force the initializer to be properly set.
-template <class T> template <size_t N, T V> T* deferred_value<T>::set<N,V>::value = &(deferred_value<T>::get<N>() = V);
-
-//------------------------------------------------------------------------------
-
-/// Helper function to help disambiguate a unary version of a given function when 
-/// overloads with different arity are available.
-/// All of the members we work with so far through @match_members are unary:
-/// they are either unary function, nullary member function (implicit argument 
-/// this makes them unary effectively) or a data member (which can be treated
-/// in the same way as nullary member function).
-template <typename R, typename A1> inline R (    * unary(R (    *f)(A1)      ))(A1)     { return f; }
-template <typename R, typename A1> inline R (A1::* unary(R  A1::*f           ))         { return f; }
-template <typename R, typename A1> inline R (A1::* unary(R (A1::*f)(  )      ))()       { return f; }
-template <typename R, typename A1> inline R (A1::* unary(R (A1::*f)(  ) const))() const { return f; }
+template <typename T, typename UID>
+vtblmap<T&> preallocated<vtblmap<T&>,UID>::value(
+    deferred_constant<vtbl_count_t>::get<UID>::value 
+        ? deferred_constant<vtbl_count_t>::get<UID>::value 
+        : min_expected_size
+);
 
 //------------------------------------------------------------------------------
 
@@ -368,8 +336,8 @@ typedef std::unordered_map<lbl_type, const lbl_type*> kind_to_kinds_map;
 template <typename T>
 inline kind_to_kinds_map& get_kind_to_kinds_map() noexcept 
 {
-    static kind_to_kinds_map result;
-    return result;
+    static kind_to_kinds_map k2k;
+    return k2k;
 }
 
 /// Gets all the kinds of a class with static type T and dynamic type represented 
@@ -378,15 +346,13 @@ inline kind_to_kinds_map& get_kind_to_kinds_map() noexcept
 template <typename T>
 inline const lbl_type* get_kinds(lbl_type kind) noexcept
 {
-    static kind_to_kinds_map& k2k = get_kind_to_kinds_map<T>();
-    return k2k[kind];
+    return get_kind_to_kinds_map<T>()[kind];
 }
 
 template <typename T>
 inline const lbl_type* set_kinds(lbl_type kind, const lbl_type* kinds) noexcept
 {
-    static kind_to_kinds_map& k2k = get_kind_to_kinds_map<T>();
-    return k2k[kind] = kinds;
+    return get_kind_to_kinds_map<T>()[kind] = kinds;
 }
 
 template <typename D, typename B>
@@ -470,7 +436,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 /// will trigger compiler to check case clauses for redundancy.
 /// \warning Do not define this macro in actual builds as the generated code 
 ///          will effectively have a switch statement whose body is never evaluated!
-#if defined(XTL_REDUNDANCY_CHECKING)
+#if XTL_REDUNDANCY_CHECKING
   /// During redundancy checking mode all case labels are removed from the 
   /// underlying switch statement, making it effectively empty. Your code will
   /// still compile, but during execution no switching will happen until you
@@ -508,6 +474,8 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 #endif
 
 /// This is a common prefix of every Match statement that ensures the following:
+/// - a local type match_uid_type that uniquely identifies this match statement
+///   is introduced. We use it to associate global resources with this statement.
 /// - a pointer value __selector_ptr referencing the subject is introduced, 
 ///   regardless of whether the actual subject was passed by pointer, reference
 ///   or value.
@@ -517,6 +485,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 /// - matched refers the subject by default (used for When sub-clauses)
 /// - the subject cannot be a nullptr - we assert at run-time (debug) if it is
 #define XTL_MATCH_PREAMBULA(s)                                                 \
+        struct match_uid_type {};                                              \
         auto const __selector_ptr = addr(s);                                   \
         typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type; \
         typedef selector_type target_type;                                     \
@@ -536,9 +505,11 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
         CaseClause(selector_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
 
 #if XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM
-    #define XTL_TYPES_NUM_ESTIMATE deferred_value<vtbl_count_t>::get<__base_counter>()
+    #define XTL_GET_TYPES_NUM_ESTIMATE   (deferred_constant<vtbl_count_t>::get<match_uid_type>::value)
+    #define XTL_SET_TYPES_NUM_ESTIMATE(N) deferred_constant<vtbl_count_t>::set<match_uid_type,(N)>::value_ptr
 #else
-    #define XTL_TYPES_NUM_ESTIMATE min_expected_size
+    #define XTL_GET_TYPES_NUM_ESTIMATE   (min_expected_size)
+    #define XTL_SET_TYPES_NUM_ESTIMATE(N)
 #endif
 
 //------------------------------------------------------------------------------
@@ -566,7 +537,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
         XTL_MATCH_PREAMBULA(s)                                                 \
         enum { __base_counter = XTL_COUNTER };                                 \
         static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use MatchP");\
-        static vtblmap<type_switch_info&> __vtbl2lines_map(XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)deferred_value<vtbl_count_t>::get<__base_counter>());\
+        XTL_PRELOADABLE_LOCAL_STATIC(vtblmap<type_switch_info&>,__vtbl2lines_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM);\
         register const void* __casted_ptr = 0;                                 \
         type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
         switch (__switch_info.line)                                            \
@@ -606,7 +577,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 #define EndMatchP                                                              \
         XTL_SUBCLAUSE_LAST }}                                                  \
         enum { target_label = XTL_COUNTER-__base_counter };                    \
-        deferred_value<vtbl_count_t>::set<__base_counter,target_label-1>::value; \
+        XTL_SET_TYPES_NUM_ESTIMATE(target_label-1);                            \
         if (XTL_UNLIKELY((__casted_ptr == 0 && __switch_info.line == 0))) { __switch_info.line = target_label; } \
         case target_label: ; }}
 
@@ -719,7 +690,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
             if (XTL_LIKELY(!__kinds))                                          \
             {                                                                  \
                 __attempt = 0;                                                 \
-                static std::vector<const lbl_type*> __kinds_cache;             \
+                XTL_PRELOADABLE_LOCAL_STATIC(std::vector<const lbl_type*>,__kinds_cache,match_uid_type); \
                 if (XTL_UNLIKELY(__kind_selector >= __kinds_cache.size()))     \
                     __kinds_cache.resize(__kind_selector+1);                   \
                 if (!(__kinds = __kinds_cache[__kind_selector]))               \
@@ -853,8 +824,8 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
         XTL_MATCH_PREAMBULA(s)                                                 \
         enum { __base_counter = XTL_COUNTER };                                 \
         typedef unified_switch<selector_type> switch_traits;                   \
-        static XTL_CPP0X_TYPENAME switch_traits::static_data_type static_data; \
-               XTL_CPP0X_TYPENAME switch_traits::local_data_type  local_data;  \
+        XTL_PRELOADABLE_LOCAL_STATIC(XTL_CPP0X_TYPENAME switch_traits::static_data_type,static_data,match_uid_type); \
+        XTL_CPP0X_TYPENAME switch_traits::local_data_type  local_data;  \
         register bool processed = false;                                       \
         size_t jump_target = switch_traits::choose(__selector_ptr,static_data,local_data); \
         XTL_CONCAT(ReMatch,__LINE__):                                          \

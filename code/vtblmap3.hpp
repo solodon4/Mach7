@@ -13,28 +13,6 @@
 
 #pragma once
 
-#include <cmath>
-#include <cstdint>
-#include <cstring>
-#include <unordered_map>
-#include "ptrtools.hpp"  // Helper functions to work with pointers
-#include "config.hpp"    // Various compiler/platform dependent macros
-
-#if XTL_DUMP_PERFORMANCE
-// For print out purposes only
-#include <algorithm>
-#include <bitset>
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <vector>
-#endif
-
-const int initial_collisions_before_update = 1;
-const int renewed_collisions_before_update = 16;
-
-template <typename T> size_t get_frequency(intptr_t);
-
 // --------------------[ Collisions Management ]--------------------
 // Definition: Collision is condition in which cache cell for a
 //             given vtbl is occupied by a different vtbl.
@@ -66,6 +44,46 @@ template <typename T> size_t get_frequency(intptr_t);
 //   when that vtbl conflicts with some that was not in conflict before.
 //------------------------------------------------------------------------------
 
+#include <cmath>
+#include <cstdint>
+#include <cstring>
+#include <unordered_map>
+#include "ptrtools.hpp"  // Helper functions to work with pointers
+#include "config.hpp"    // Various compiler/platform dependent macros
+
+#if XTL_DUMP_PERFORMANCE
+// For print out purposes only
+#include <algorithm>
+#include <bitset>
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include <vector>
+#endif
+
+//------------------------------------------------------------------------------
+
+/// Type capable of representing bit offsets and bit counts in intptr_t
+typedef unsigned char  bit_offset_t;
+//typedef size_t  bit_offset_t;
+
+/// The smallest integral type capable of representing the amount N of different 
+/// vtbl pointers in the program. Roughly N should be equal to some constant c
+/// multiplied by the amount of different classes polymorphic classes in the 
+/// program. Constant c accounts for potential multiple inheritance.
+typedef unsigned short vtbl_count_t;
+//typedef size_t vtbl_count_t;
+
+//------------------------------------------------------------------------------
+
+const bit_offset_t min_log_size      = XTL_MIN_LOG_SIZE; ///< Log of the smallest cache size to start from
+const bit_offset_t max_log_size      = XTL_MAX_LOG_SIZE; ///< Log of the largest cache size to try
+const bit_offset_t max_log_inc       = XTL_MAX_LOG_INC;  ///< Log of the maximum allowed increased from the minimum requred log size (1 means twice from the min required size)
+const vtbl_count_t min_expected_size = 1 << min_log_size;
+const bit_offset_t irrelevant_bits   = XTL_IRRELEVANT_VTBL_BITS;
+const int initial_collisions_before_update = 1;
+const int renewed_collisions_before_update = 16;
+
 /// Natural logarithm of 2 needed for conversion into log base 2.
 const double ln2 = 0.69314718055994528622676398299518041312694549560546875;
 
@@ -81,7 +99,7 @@ class vtblmap<T&>
 {
 private:
 
-    enum { local_cache_bits = VTBL_DEFAULT_CACHE_BITS, local_cache_size = 1 << local_cache_bits };
+    enum { local_cache_bits = XTL_LOCAL_CACHE_LOG_SIZE, local_cache_size = 1 << local_cache_bits };
 
 #if XTL_USE_VTBL_FREQUENCY
     struct stored_type
@@ -132,7 +150,7 @@ public:
         collisions(0),
         cache_mask((1<<std::min(max_log_size,bit_offset_t(req_bits(expected_size-1))))-1),
         cache(cache_mask < local_cache_size ? local_cache : new cache_entry[cache_mask+1]),
-        optimal_shift(VTBL_IRRELEVANT_BITS),
+        optimal_shift(irrelevant_bits),
         table(expected_size),
         last_table_size(0),
         collisions_before_update(initial_collisions_before_update)
@@ -143,7 +161,7 @@ public:
     vtblmap(const vtbl_count_t expected_size = min_expected_size) : XTL_DUMP_PERFORMANCE_ONLY(file("unspecified"), line(0), updates(0), clauses(expected_size), hits(0), misses(0), collisions(0),)
         cache_mask((1<<std::min(max_log_size,bit_offset_t(req_bits(expected_size-1))))-1),
         cache(cache_mask < local_cache_size ? local_cache : new cache_entry[cache_mask+1]),
-        optimal_shift(VTBL_IRRELEVANT_BITS),
+        optimal_shift(irrelevant_bits),
         table(expected_size),
         last_table_size(0),
         collisions_before_update(initial_collisions_before_update)
@@ -689,22 +707,5 @@ struct type_switch_info
     //int offset; ///< FIX: We assume here offsets within object can only be ints
     //int    line;   ///< We can choose smaller type for line to give more space to offset
 };
-
-//------------------------------------------------------------------------------
-
-/// This class is an alternative to static variables inside functions, allowing 
-/// it to be preallocated and thus avoid if in the function body. Parameter N is
-/// differentiating parameter that can be set to e.g. __LINE__ to make it "unique".
-/// The disadvantage of using this class might be worse locality as the static 
-/// variable inside this class, even though preallocated will most likely be 
-/// elsewhere.
-template <typename T, size_t N>
-struct preallocated
-{
-    static T value;
-};
-
-template <typename T, size_t N>
-T preallocated<T,N>::value;
 
 //------------------------------------------------------------------------------

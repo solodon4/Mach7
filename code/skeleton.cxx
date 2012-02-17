@@ -10,7 +10,7 @@
 /// All rights reserved.
 ///
 
-#include "testutils.hpp"
+#include "testshape.hpp"
 #include "match.hpp"
 
 //------------------------------------------------------------------------------
@@ -132,7 +132,7 @@ template <>         struct match_members<Shape>         { KS(Shape::m_kind); KV(
 
 //------------------------------------------------------------------------------
 
-XTL_DO_NOT_INLINE_BEGIN
+XTL_TIMED_FUNC_BEGIN
 size_t do_match(const Shape& s, size_t)
 {
     #if XTL_VISITOR_FORWARDING
@@ -154,11 +154,11 @@ size_t do_match(const Shape& s, size_t)
 
     return -1;
 }
-XTL_DO_NOT_INLINE_END
+XTL_TIMED_FUNC_END
 
 //------------------------------------------------------------------------------
 
-XTL_DO_NOT_INLINE_BEGIN
+XTL_TIMED_FUNC_BEGIN
 size_t do_visit(const Shape& s, size_t)
 {
     struct Visitor : ShapeVisitor
@@ -180,7 +180,7 @@ size_t do_visit(const Shape& s, size_t)
     s.accept(v);
     return v.result;
 }
-XTL_DO_NOT_INLINE_END
+XTL_TIMED_FUNC_END
 
 //------------------------------------------------------------------------------
 
@@ -200,38 +200,42 @@ Shape* make_shape(size_t i)
 //------------------------------------------------------------------------------
 
 #if XTL_VISITOR_FORWARDING
-    #define forwarding "Yes"
+    #define XTL_FORWARDING_STR "Yes"
 #else
-    #define forwarding "No "
+    #define XTL_FORWARDING_STR "No "
 #endif
 
 //------------------------------------------------------------------------------
 
 #if XTL_DEFAULT_SYNTAX == 'P' || XTL_DEFAULT_SYNTAX == 'K' || XTL_DEFAULT_SYNTAX == 'F' || XTL_DEFAULT_SYNTAX == 'U' || XTL_DEFAULT_SYNTAX == 'E'
-    #define syntax "Special"
+    #define XTL_SYNTAX_STR "Special"
 #else
-    #define syntax "Generic"
+    #define XTL_SYNTAX_STR "Generic"
 #endif
 
 //------------------------------------------------------------------------------
 
 #if   XTL_DEFAULT_SYNTAX == 'P' || XTL_DEFAULT_SYNTAX == 'p'
-    #define encoding "Polymorphic"
+    #define XTL_ENCODING_STR "Polymorphic"
 #elif XTL_DEFAULT_SYNTAX == 'K' || XTL_DEFAULT_SYNTAX == 'k'
-    #define encoding "Kind       "
+    #define XTL_ENCODING_STR "Kind       "
 #elif XTL_DEFAULT_SYNTAX == 'F' || XTL_DEFAULT_SYNTAX == 'f'
-    #define encoding "KindAdvanced"
+    #define XTL_ENCODING_STR "KindAdvanced"
 #elif XTL_DEFAULT_SYNTAX == 'U' || XTL_DEFAULT_SYNTAX == 'u'
-    #define encoding "Union      "
+    #define XTL_ENCODING_STR "Union      "
 #elif XTL_DEFAULT_SYNTAX == 'E' || XTL_DEFAULT_SYNTAX == 'e'
-    #define encoding "Exception  "
+    #define XTL_ENCODING_STR "Exception  "
 #else
-    #define encoding "Unknown    "
+    #define XTL_ENCODING_STR "Unknown    "
 #endif
 
 //------------------------------------------------------------------------------
 
-#define msg_prefix "SYNTAX: " syntax " ENCODING: " encoding " FORWARDING: " forwarding " TEST: "
+#define XTL_PREFIX_STR "SYNTAX: " XTL_SYNTAX_STR " ENCODING: " XTL_ENCODING_STR " FORWARDING: " XTL_FORWARDING_STR " TEST: "
+
+//------------------------------------------------------------------------------
+
+#include "testutils.hpp"    // Utilities for timing tests
 
 //------------------------------------------------------------------------------
 
@@ -239,13 +243,13 @@ int main()
 {
 #if   defined(XTL_REP_TEST)
     int pr = test_repetitive();
-    std::cout << msg_prefix "Repetitive: " << abs(pr) << (pr >= 0 ? "% slower" : "% faster") << std::endl; 
+    std::cout << XTL_PREFIX_STR "Repetitive: " << abs(pr) << (pr >= 0 ? "% slower" : "% faster") << std::endl; 
 #elif defined(XTL_SEQ_TEST)
     int ps = test_sequential();
-    std::cout << msg_prefix "Sequential: " << abs(ps) << (ps >= 0 ? "% slower" : "% faster") << std::endl; 
+    std::cout << XTL_PREFIX_STR "Sequential: " << abs(ps) << (ps >= 0 ? "% slower" : "% faster") << std::endl; 
 #elif defined(XTL_RND_TEST)
     int pn = test_randomized();
-    std::cout << msg_prefix "Randomized: " << abs(pn) << (pn >= 0 ? "% slower" : "% faster") << std::endl; 
+    std::cout << XTL_PREFIX_STR "Randomized: " << abs(pn) << (pn >= 0 ? "% slower" : "% faster") << std::endl; 
 #else
     #error Test scenario REP, SEQ or RND has not been chosen.
 #endif
