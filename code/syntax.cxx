@@ -10,11 +10,22 @@
 /// All rights reserved.
 ///
 
-#include <ostream>
-#include <utility>
 #include "match.hpp"
 
+#include <cstdlib>
+#include <ostream>
+#include <sstream>
+#include <utility>
+
 //------------------------------------------------------------------------------
+
+#if XTL_DEFAULT_SYNTAX == 'u' && defined(XTL_REDUNDANCY_CHECKING)
+// We do this as we will be using tags as first argument for unified code of 
+// Match in this case, which will render wrong catch handlers. So we workaround
+// it with just some different types in catch handlers to let it compile.
+#undef  XTL_REDUNDANCY_CATCH
+#define XTL_REDUNDANCY_CATCH(L) catch(int (*)[XTL_COUNTER])
+#endif
 
 //------------------------------------------------------------------------------
 
@@ -235,7 +246,24 @@ template <> struct match_members<loc>    { CM(0, loc::first); CM(1, loc::second)
 
 //------------------------------------------------------------------------------
 
-size_t do_match_1(const Shape& s, size_t)
+/// Tests Case-clauses without Otherwise-clause
+size_t do_match_1_case(const Shape& s, size_t)
+{
+    Match(s)
+      XTL_USE_BRACES_ONLY({)
+        Case(Circle,c,r)     std::cout << "Circle("   << c << ',' << r << ')'             << std::endl;
+        Case(Square,c,s)     std::cout << "Square("   << c << ',' << s << ')'             << std::endl;
+        Case(Triangle,x,y,z) std::cout << "Triangle(" << x << ',' << y << ',' << z << ')' << std::endl;
+      XTL_USE_BRACES_ONLY(})
+    EndMatch
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------
+
+/// Tests Case-clauses with Otherwise-clause
+size_t do_match_2_case(const Shape& s, size_t)
 {
     Match(s)
       XTL_USE_BRACES_ONLY({)
@@ -251,7 +279,29 @@ size_t do_match_1(const Shape& s, size_t)
 
 //------------------------------------------------------------------------------
 
-size_t do_match_2(const Shape& s, size_t)
+/// Tests Que-clauses without Otherwise-clause
+/// \note Results should always match those of do_match_1_case
+size_t do_match_1_que(const Shape& s, size_t)
+{
+    variable<loc> c,x,y,z;
+    variable<double> r,w;
+
+    Match(s)
+      XTL_USE_BRACES_ONLY({)
+        Que(Circle,c,r)     std::cout << "Circle("   << c << ',' << r << ')'             << std::endl;
+        Que(Square,c,w)     std::cout << "Square("   << c << ',' << w << ')'             << std::endl;
+        Que(Triangle,x,y,z) std::cout << "Triangle(" << x << ',' << y << ',' << z << ')' << std::endl;
+      XTL_USE_BRACES_ONLY(})
+    EndMatch
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------
+
+/// Tests Que-clauses with Otherwise-clause
+/// \note Results should always match those of do_match_2_case
+size_t do_match_2_que(const Shape& s, size_t)
 {
     variable<loc> c,x,y,z;
     variable<double> r,w;
@@ -270,45 +320,233 @@ size_t do_match_2(const Shape& s, size_t)
 
 //------------------------------------------------------------------------------
 
-//size_t do_match_3(const Shape& s, size_t)
-//{
-//    wildcard _;
-//    variable<loc> c,x,y,z;
-//    variable<double> r,w;
-//
-//    Match(s)
-//      XTL_USE_BRACES_ONLY({)
-//        Que(Circle,c,r)     std::cout << "Circle("   << c << ',' << r << ')'             << std::endl;
-//            When(  _,r |= r > 3) std::cout << "-Circle>3" << std::endl;
-//            When(  _,r |= r > 1) std::cout << "-Circle>1" << std::endl;
-//            When(  _,r |= r > 0) std::cout << "-Circle>0" << std::endl;
-//            When(  _,r)          std::cout << "-Circle"   << std::endl;
-//        Que(Square,c,w)     std::cout << "Square("   << c << ',' << w << ')'             << std::endl;
-//            When(  _,w |= w > 3) std::cout << "-Square>3" << std::endl;
-//            When(  _,w |= w > 1) std::cout << "-Square>1" << std::endl;
-//            When(  _,w |= w > 0) std::cout << "-Square>0" << std::endl;
-//            When(  _,w)          std::cout << "-Square"   << std::endl;
-//        Que(Triangle,x,y,z) std::cout << "Triangle(" << x << ',' << y << ',' << z << ')' << std::endl;
-//            When(  _,_,match<loc>(r,w |= r >  w)) std::cout << "-Triangle >" << std::endl;
-//            When(  _,_,match<loc>(r,w |= r >= w)) std::cout << "-Triangle>=" << std::endl;
-//            When(  _,_,match<loc>(r,w |= r == w)) std::cout << "-Triangle==" << std::endl;
-//            When(  _,_,match<loc>(r,w |= r <= w)) std::cout << "-Triangle<=" << std::endl;
-//            When(  _,_,match<loc>(r,w |= r <  w)) std::cout << "-Triangle <" << std::endl;
-//            When(  _,_,match<loc>(r,w))           std::cout << "-Triangle"   << std::endl;
-//        Otherwise()         std::cout << "Other()"                                       << std::endl;
-//      XTL_USE_BRACES_ONLY(})
-//    EndMatch
-//
-//    return 0;
-//}
+/// Tests When-subclauses inside Que-clauses without Otherwise-clause
+size_t do_match_3(const Shape& s, size_t)
+{
+    variable<loc> c,x,y,z;
+    variable<double> r,w;
+
+    Match(s)
+      XTL_USE_BRACES_ONLY({)
+        Que(Circle,c,r |= r > 5) std::cout << "Circle(" << c << ',' << r << ">5" << ')' << std::endl;
+            When(  c,r |= r > 3) std::cout << "Circle(" << c << ',' << r << ">3" << ')' << std::endl;
+            When(  c,r |= r > 1) std::cout << "Circle(" << c << ',' << r << ">1" << ')' << std::endl;
+            When(  c,r |= r > 0) std::cout << "Circle(" << c << ',' << r << ">0" << ')' << std::endl;
+            When(  c,r)          std::cout << "Circle(" << c << ',' << r << "$$" << ')' << std::endl;
+        Que(Square,c,w |= w > 5) std::cout << "Square(" << c << ',' << w << ">5" << ')' << std::endl;
+            When(  c,w |= w > 3) std::cout << "Square(" << c << ',' << w << ">3" << ')' << std::endl;
+            When(  c,w |= w > 1) std::cout << "Square(" << c << ',' << w << ">1" << ')' << std::endl;
+            When(  c,w |= w > 0) std::cout << "Square(" << c << ',' << w << ">0" << ')' << std::endl;
+            When(  c,w)          std::cout << "Square(" << c << ',' << w << "$$" << ')' << std::endl;
+        Que(Triangle,x,y,match<loc>(r,w |= r != w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "!=" << w << ')' << std::endl;
+            When(    x,y,match<loc>(r,w |= r >  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "> " << w << ')' << std::endl;
+            When(    x,y,match<loc>(r,w |= r >= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << ">=" << w << ')' << std::endl;
+            When(    x,y,match<loc>(r,w |= r == w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "==" << w << ')' << std::endl;
+            When(    x,y,match<loc>(r,w |= r <= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "<=" << w << ')' << std::endl;
+            When(    x,y,match<loc>(r,w |= r <  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "< " << w << ')' << std::endl;
+            When(    x,y,match<loc>(r,w))           std::cout << "Triangle(" << x << ',' << y << ',' << r << "$$" << w << ')' << std::endl;
+      XTL_USE_BRACES_ONLY(})
+    EndMatch
+
+    return 0;
+}
 
 //------------------------------------------------------------------------------
 
-int main()
+/// Tests When-subclauses inside Que-clauses with Otherwise-clause
+size_t do_match_4(const Shape& s, size_t)
 {
-    do_match_2(*make_shape(0), 0);
-    do_match_2(*make_shape(1), 0);
-    do_match_2(*make_shape(2), 0);
+    variable<loc> c,x,y,z;
+    variable<double> r,w;
+
+    Match(s)
+      XTL_USE_BRACES_ONLY({)
+        Que(Circle,c,r |= r > 5) std::cout << "Circle(" << c << ',' << r << ">5" << ')' << std::endl;
+            When(  c,r |= r > 3) std::cout << "Circle(" << c << ',' << r << ">3" << ')' << std::endl;
+            When(  c,r |= r > 1) std::cout << "Circle(" << c << ',' << r << ">1" << ')' << std::endl;
+            When(  c,r |= r > 0) std::cout << "Circle(" << c << ',' << r << ">0" << ')' << std::endl;
+            When(  c,r)          std::cout << "Circle(" << c << ',' << r << "$$" << ')' << std::endl;
+        Que(Square,c,w |= w > 5) std::cout << "Square(" << c << ',' << w << ">5" << ')' << std::endl;
+            When(  c,w |= w > 3) std::cout << "Square(" << c << ',' << w << ">3" << ')' << std::endl;
+            When(  c,w |= w > 1) std::cout << "Square(" << c << ',' << w << ">1" << ')' << std::endl;
+            When(  c,w |= w > 0) std::cout << "Square(" << c << ',' << w << ">0" << ')' << std::endl;
+            When(  c,w)          std::cout << "Square(" << c << ',' << w << "$$" << ')' << std::endl;
+        Que(Triangle,x,y,match<loc>(r,w |= r != w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "!=" << w << ')' << std::endl;
+            When(    x,y,match<loc>(r,w |= r >  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "> " << w << ')' << std::endl;
+            When(    x,y,match<loc>(r,w |= r >= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << ">=" << w << ')' << std::endl;
+            When(    x,y,match<loc>(r,w |= r == w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "==" << w << ')' << std::endl;
+            When(    x,y,match<loc>(r,w |= r <= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "<=" << w << ')' << std::endl;
+            When(    x,y,match<loc>(r,w |= r <  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "< " << w << ')' << std::endl;
+            When(    x,y,match<loc>(r,w))           std::cout << "Triangle(" << x << ',' << y << ',' << r << "$$" << w << ')' << std::endl;
+        Otherwise()              std::cout << "Other()"                                 << std::endl;
+      XTL_USE_BRACES_ONLY(})
+    EndMatch
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------
+
+/// Tests When-subclauses used witihout Que-clauses.
+/// \note The use of Otherwise-clauses is not permitted in this case
+size_t do_match_5(const Shape& s, size_t)
+{
+    variable<loc> c,x,y,z;
+    variable<double> r,w;
+
+    Match(s)
+      XTL_USE_BRACES_ONLY({)
+        When()      std::cout << "1" << std::endl;
+        When()      std::cout << "2" << std::endl;
+        When()      std::cout << "3" << std::endl;
+      XTL_USE_BRACES_ONLY(})
+    EndMatch
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------
+
+template <typename T> inline T sqr(const T& x) { return x*x; }
+
+//------------------------------------------------------------------------------
+
+#if XTL_DEFAULT_SYNTAX != 'P' && XTL_DEFAULT_SYNTAX != 'E' && XTL_DEFAULT_SYNTAX != 'F' && XTL_DEFAULT_SYNTAX != 'U' && XTL_DEFAULT_SYNTAX != 'K'
+int fib(int n)
+{
+    variable<int> m;
+
+    Match(n)
+    XTL_USE_BRACES_ONLY({)
+      When(1)     return 1;
+      When(2)     return 1;
+      When(m*2)   return sqr(fib(m+1)) - sqr(fib(m-1));
+      When(m*2+1) return sqr(fib(m+1)) + sqr(fib(m));
+    XTL_USE_BRACES_ONLY(})
+    EndMatch
+}
+#else
+int fib(int n)
+{
+    variable<int> m;
+
+    if (match<int>(1)(n))     return 1;
+    if (match<int>(2)(n))     return 1;
+    if (match<int>(m*2)(n))   return sqr(fib(m+1)) - sqr(fib(m-1));
+    if (match<int>(m*2+1)(n)) return sqr(fib(m+1)) + sqr(fib(m));
+}
+#endif
+
+//------------------------------------------------------------------------------
+
+typedef size_t test_func(const Shape&, size_t);
+
+//------------------------------------------------------------------------------
+
+void test(test_func f, const Shape& s)
+{
+    std::streambuf* buf = std::cout.rdbuf(); // Save output buffer of std::cout
+    std::stringstream ss1;                   // Create temporary string stream
+    std::cout.rdbuf(ss1.rdbuf());            // Redirect output to string stream
+    size_t r1 = f(s,0);                      // 1st call
+    std::stringstream ss2;                   // Create temporary string stream
+    std::cout.rdbuf(ss2.rdbuf());            // Redirect output to string stream
+    size_t r2 = f(s,0);                      // 2nd call
+    std::cout.rdbuf(buf);                    // Restore old output buffer of the passed stream
+
+    if (r1 != r2 || ss1.str() != ss2.str())
+    {
+        std::cerr << "ERROR: Different outputs on the same arguments! " << r1 << '~' << r2 << std::endl;
+        std::cerr << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+        std::cerr << ss1.str();
+        std::cerr << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+        std::cerr << ss2.str();
+        std::cerr << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+    }
+    else
+        std::cout << ss1.str();
+}
+
+//------------------------------------------------------------------------------
+
+template <test_func f1, test_func f2>
+size_t must_be_same(const Shape& s, size_t)
+{
+    std::streambuf* buf = std::cout.rdbuf(); // Save output buffer of std::cout
+    std::stringstream ss1;                   // Create temporary string stream
+    std::cout.rdbuf(ss1.rdbuf());            // Redirect output to string stream
+    size_t r1 = f1(s,0);                     // 1st call
+    std::stringstream ss2;                   // Create temporary string stream
+    std::cout.rdbuf(ss2.rdbuf());            // Redirect output to string stream
+    size_t r2 = f2(s,0);                     // 2nd call
+    std::cout.rdbuf(buf);                    // Restore old output buffer of the passed stream
+
+    if (r1 != r2 || ss1.str() != ss2.str())
+    {
+        std::cerr << "ERROR: Outputs that must be the same are different! " << r1 << '~' << r2 << std::endl;
+        std::cerr << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+        std::cerr << ss1.str();
+        std::cerr << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+        std::cerr << ss2.str();
+        std::cerr << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+    }
+    else
+        std::cout << ss1.str();
+
+    return r1;
+}
+
+//------------------------------------------------------------------------------
+
+size_t do_match_all(const Shape&, size_t);
+struct { test_func* func; const char* name; } funcs[] = {
+    { &do_match_all,                                 "do_match_all"}, 
+    { &must_be_same<do_match_1_case,do_match_1_que>, "Case/Que No  Otherwise"}, 
+    { &must_be_same<do_match_2_case,do_match_2_que>, "Case/Que Yes Otherwise"}, 
+    { &do_match_3,                                   "When     No  Otherwise"}, 
+    { &do_match_4,                                   "When     Yes Otherwise"}, 
+    { &do_match_5,                                   "When     Empty"}
+};
+const int N = XTL_ARR_SIZE(funcs);
+
+//------------------------------------------------------------------------------
+
+size_t do_match_all(const Shape& s, size_t)
+{
+    for (int i = 1; i < N; ++i)
+    {
+        std::cout << "------------------- " << funcs[i].name << " -------------------" << std::endl;
+        test(funcs[i].func,s);
+    }
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------
+
+int main(int argc, const char* argv[])
+{
+    if (fib(7) != 13) std::cout << "Fibonacci failed";
+    if (fib(7) != 13) std::cout << "Fibonacci failed";
+    if (fib(9) != 34) std::cout << "Fibonacci failed";
+
+    Shape* shapes[] = {make_shape(0),make_shape(1),make_shape(2)};
+    int i = argc > 1 ? std::atoi(argv[1]) : 0;
+
+    if (i > 0 && i < N)
+    {
+        test(funcs[i].func,*shapes[0]);
+        test(funcs[i].func,*shapes[1]);
+        test(funcs[i].func,*shapes[2]);
+    }
+    else
+    for (int i = 1; i < N; ++i)
+    {
+        std::cout << "------------------- " << funcs[i].name << " -------------------" << std::endl;
+        test(funcs[i].func,*shapes[0]);
+        test(funcs[i].func,*shapes[1]);
+        test(funcs[i].func,*shapes[2]);
+    }
 }
 
 //------------------------------------------------------------------------------

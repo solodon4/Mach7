@@ -78,12 +78,23 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 ///          will effectively have a switch statement whose body is never evaluated!
 //#define XTL_REDUNDANCY_CHECKING
 
-/// When this macro is enabled the fall-through behavior of the underlying switch
+/// When this macro is 1 the fall-through behavior of the underlying switch
 /// statement is enabled. It becomes up to the user to use break statements to 
 /// leave the case clause. Fall through behavior might be needed to implement 
-/// all-fit semantics of the @Match statement
+/// all-fit semantics of the @Match statement.
+/// When this macro is 0 the fall-through behavior is disabled and break 
+/// statements are implicitly inserted at the end of each case-clause, while
+/// sub-clauses are made exclusive with the use of else between the ifs.
+/// There are several reasons we enable fall-through by default:
+///  - it follows the current semantics of C/C++ switch
+///  - there are certain semantic awkwardnesses when fall through is disabled. 
+///    They are solely due to library implementation and are easy to avoid in a
+///    language solution, however, making them the default will be hard to 
+///    explain to novices. 
+///    An example of such awkwardness is the fact that When-sub-clauses will 
+///    only work with refutable Que-clauses, and thus cannot be used in Case-clauses.
 #if !defined(XTL_FALL_THROUGH)
-#define XTL_FALL_THROUGH 0
+#define XTL_FALL_THROUGH 1
 #endif
 #define XTL_FALL_THROUGH_ONLY(...)           UCL_PP_IF(UCL_PP_NOT(XTL_FALL_THROUGH), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 #define XTL_NON_FALL_THROUGH_ONLY(...)       UCL_PP_IF(           XTL_FALL_THROUGH,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
@@ -115,7 +126,7 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 /// - 'E' - Exception switch
 /// - 'S' - Sequential cascading-if
 #if !defined(XTL_DEFAULT_SYNTAX)
-  #define XTL_DEFAULT_SYNTAX 'p'
+  #define XTL_DEFAULT_SYNTAX 'G'
 #endif
 
 //------------------------------------------------------------------------------
@@ -200,7 +211,7 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 #define XTL_DEBUG_ONLY(...) __VA_ARGS__
 /// Our own version of assert macro because of the fact that normal assert was 
 /// not always removed in the release builds.
-#define XTL_ASSERT(x) if (!(x)) { std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'; std::exit(42); }
+#define XTL_ASSERT(x) if (!(x)) { std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'; std::abort(); }
 /// Our own version of assert macro because of the fact that normal assert was 
 /// not always removed in the release builds.
 #define XTL_VERIFY(x) if (!(x)) std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'

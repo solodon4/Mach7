@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <ostream>
 #include "exprtmpl.hpp"
 #include "config.hpp"
 

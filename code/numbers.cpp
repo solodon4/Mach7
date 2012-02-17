@@ -29,14 +29,6 @@ fib (2*n+1) = (fib(n+1))^2 + (fib n   )^2
 
 //------------------------------------------------------------------------------
 
-template <typename T> T& identity(T& t) { return t; }
-
-int my(int* n) { return *n; }
-
-template <> struct match_members<int>    { CM(0,my); };
-
-//------------------------------------------------------------------------------
-
 int factorial(int n)
 {
     variable<int> m;
@@ -118,10 +110,12 @@ int fib2(int n)
     variable<int> m;
 
     Match(n)
+    {
       When(1)     return 1;
       When(2)     return 1;
       When(m*2)   return sqr(fib2(m+1)) - sqr(fib2(m-1));
       When(m*2+1) return sqr(fib2(m+1)) + sqr(fib2(m));
+    }
     EndMatch
 }
 
