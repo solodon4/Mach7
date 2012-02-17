@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{3E4BBCDF-422B-4B37-AB9B-2554E4DE8C2B}</ProjectGuid>
+    <ProjectGuid>{68A3833B-5B0A-4D39-A67B-4A29BE73D1C2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Syntax</RootNamespace>
+    <RootNamespace>Guards</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -48,8 +48,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);XTL_REDUNDANCY_CHECKING_XXX;XTL_FALL_THROUGH=1;XTL_USE_BRACES=0;XTL_DEFAULT_SYNTAX='S'</PreprocessorDefinitions>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -74,7 +73,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\syntax.cxx" />
+    <ClCompile Include="..\..\guards.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

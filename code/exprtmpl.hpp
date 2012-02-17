@@ -178,3 +178,132 @@ template <> struct solver<division>
 };
 
 //------------------------------------------------------------------------------
+
+template <typename F, typename A1>
+inline bool do_solve(F f, A1& a1, const decltype(f(a1))& r)
+{
+    return false;
+}
+
+template <typename F, typename A1, typename A2>
+inline bool do_solve(F f, A1& a1, const A2& a2, const decltype(f(a1,a2))& r)
+{
+    return false;
+}
+
+template <typename F, typename A1, typename A2>
+inline bool do_solve(F f, const A1& a1, A2& a2, const decltype(f(a1,a2))& r)
+{
+    return false;
+}
+
+//------------------------------------------------------------------------------
+
+// Solver for negation operation
+// Solver for the first argument: -a == r => a == -r
+template <class A>
+inline bool do_solve(negation, A& a, const decltype(-a)& r)
+{
+    a = -r;
+    return -a == r;
+}
+
+//------------------------------------------------------------------------------
+
+// Solver for bit_complement operation
+// Solver for the first argument: ~a == r => a == ~r
+template <class A> 
+inline bool do_solve(bit_complement, A& a, const decltype(~a)& r)
+{
+    a = ~r;
+    return ~a == r;
+}
+
+//------------------------------------------------------------------------------
+
+// Solver for bool_complement operation
+// Solver for the first argument: !a == r => a == !r
+template <class A> 
+inline bool do_solve(bool_complement, A& a, const decltype(!a)& r)
+{
+    a = !r;
+    return !a == r;
+}
+
+//------------------------------------------------------------------------------
+
+// Solver for addition operation
+// Solver for the first argument: a+b == r => a == r-b
+template <class A, class B> 
+inline bool do_solve(addition,      A& a, const B& b, const decltype(a+b)& r)
+{
+    a = r - b;
+    return a + b == r; // Actually will always be true, even with overflows
+}
+
+// Solver for the second argument: a+b == r => b == r-a
+template <class A, class B> 
+inline bool do_solve(addition,const A& a,       B& b, const decltype(a+b)& r)
+{
+    b = r - a;
+    return a + b == r; // Actually will always be true, even with overflows
+}
+
+//------------------------------------------------------------------------------
+
+// Solver for subtraction operation
+// Solver for the first argument: a-b == r => a == r+b
+template <class A, class B> 
+inline bool do_solve(subtraction,      A& a, const B& b, const decltype(a-b)& r)
+{
+    a = r + b;
+    return a - b == r; // Actually will always be true, even with overflows
+}
+
+// Solver for the second argument: a-b == r => b == a-r
+template <class A, class B> 
+inline bool do_solve(subtraction,const A& a,       B& b, const decltype(a-b)& r)
+{
+    b = a - r;
+    return a - b == r; // Actually will always be true, even with overflows
+}
+
+//------------------------------------------------------------------------------
+
+// Solver for multiplication operation
+// Solver for the first argument: a*b == r => a == r/b
+template <class A, class B> 
+inline bool do_solve(multiplication,      A& a, const B& b, const decltype(a*b)& r)
+{
+    a = r/b;
+    return a*b == r; // We need this as for integer division several numbers divided by b will give same result
+}
+
+// Solver for the second argument: a*b == r => b == r/a
+template <class A, class B> 
+inline bool do_solve(multiplication,const A& a,       B& b, const decltype(a*b)& r)
+{
+    b = r/a;
+    return a*b == r; // We need this as for integer division several numbers divided by b will give same result
+}
+
+//------------------------------------------------------------------------------
+
+// Solver for division operation
+// Solver for the first argument: a/b == r => a == r*b
+template <class A, class B> 
+inline bool do_solve(division,      A& a, const B& b, const decltype(a/b)& r)
+{
+    a = r*b;
+    return a/b == r; // We need this as for integer division several numbers divided by b will give same result
+}
+
+// Solver for the second argument: a/b == r => b == a/r
+template <class A, class B> 
+inline bool do_solve(division,const A& a,       B& b, const decltype(a/b)& r)
+{
+    b = a/r;
+    return a/b == r; // We need this as for integer division several numbers divided by b will give same result
+}
+
+//------------------------------------------------------------------------------

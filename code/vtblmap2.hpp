@@ -135,7 +135,7 @@ public:
     /// the vtbl of a given pointer.
     /// \note The function returns the value "by value" to indicate that you 
     ///       may not try to take address of it as it may be from the cache!
-    inline T get(const void* p, const T dflt = T()) throw()
+    inline T get(const void* p, const T dflt = T()) noexcept
     {
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
     #if defined(XTL_USE_PEARSON_HASH)
@@ -186,7 +186,7 @@ public:
         return ce.value;
     }
 
-    inline bool get_ex(const void* p, T& val) throw()
+    inline bool get_ex(const void* p, T& val) noexcept
     {
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
         const intptr_t key  = vtbl>>optimal_shift;     // We do this as we rely that hash function is identity
@@ -446,7 +446,7 @@ public:
     /// container elements, but may invalidate all iterators to the container. 
     /// The erase members shall invalidate only iterators and references to 
     /// the erased elements. 
-    inline T& get(const void* p, const T& dflt = T()) throw()
+    inline T& get(const void* p, const T& dflt = T()) noexcept
     {
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
     #if defined(XTL_USE_PEARSON_HASH)
@@ -498,7 +498,7 @@ public:
         return *ce.ptr;
     }
 
-    inline bool get_ex(const void* p, T& val) throw()
+    inline bool get_ex(const void* p, T& val) noexcept
     {
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
         const intptr_t key  = vtbl>>optimal_shift;     // We do this as we rely that hash function is identity
@@ -694,7 +694,7 @@ class vtbl2lines : public vtblmap<type_switch_info&,N>
 private:
     typedef vtblmap<type_switch_info,N> base_type;
 public:
-    inline void update(size_t ln, const void* base, const void* derived) throw()
+    inline void update(size_t ln, const void* base, const void* derived) noexcept
     {
         typename base_type::mapped_type& x = this->get(base);
 
@@ -717,7 +717,7 @@ public:
 
     vtbl2indecies() : indecies(0) {}
 
-    inline size_t get(const void* p) throw()
+    inline size_t get(const void* p) noexcept
     {
         size_t c = indecies;
 
@@ -810,13 +810,13 @@ public:
 
     vtbl2offsets(std::ptrdiff_t dflt) : offsets(104,104,dflt) {} // FIX: Hardcoded for now
 
-    inline std::ptrdiff_t& get(const void* p, size_t j) throw()
+    inline std::ptrdiff_t& get(const void* p, size_t j) noexcept
     {
         size_t i = base::get(p);
         return offsets(i,j);
     }
 
-    inline void update(size_t ln, const void* t, size_t j) throw()
+    inline void update(size_t ln, const void* t, size_t j) noexcept
     {
         std::ptrdiff_t& line = get(t,j);
 

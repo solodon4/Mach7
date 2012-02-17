@@ -5,7 +5,7 @@
 ///
 /// \author Yuriy Solodkyy
 ///
-/// \note This file is a part of XTL libryary http://parasol.tamu.edu/xtl/
+/// \note This file is a part of XTL library http://parasol.tamu.edu/xtl/
 ///
 /// Copyright (C) 2011, Texas A&M University.  All rights reserved.
 ///

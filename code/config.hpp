@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include <cassert>
-
 //------------------------------------------------------------------------------
 
 /// Type capable of representing bit offsets and bit counts in intptr_t
@@ -237,6 +235,10 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 ///       containing comma as argument. Essentially this is a one arg macro
 #define XTL_RETURN(...) decltype(__VA_ARGS__) { return (__VA_ARGS__); }
 
+/// The same as @XTL_RETURN but additionally takes a compile-time condition under
+/// which the whole function is enabled.
+#define XTL_RETURN_ENABLE_IF(C,...) typename std::enable_if<C,decltype(__VA_ARGS__)>::type { return (__VA_ARGS__); }
+
 //------------------------------------------------------------------------------
 
 /// The code that our macros generate may produce some variables that are not
@@ -407,6 +409,13 @@ const vtbl_count_t min_expected_size = 1<<min_log_size;
 #else
     #define XTL_GCC_ONLY(...)
     #define XTL_NON_GCC_ONLY(...) __VA_ARGS__
+#endif
+
+//------------------------------------------------------------------------------
+
+#if defined(_MSC_VER) || defined(__GNUC__) && (XTL_GCC_VERSION < 40600)
+    #define noexcept throw()
+    //#define noexcept 
 #endif
 
 //------------------------------------------------------------------------------

@@ -22,10 +22,10 @@ fib 2       = 1
 fib (2*n)   = (fib(n+1))^2 - (fib(n-1))^2
 fib (2*n+1) = (fib(n+1))^2 + (fib n   )^2
 */
+#include "match.hpp"
 #include <math.h>
 #include <iostream>
 #include "testutils.hpp"
-#include "match.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -56,6 +56,18 @@ double power(double x, int n)
 
 //------------------------------------------------------------------------------
 
+double power_opt(double x, int n)
+{
+	if (n == 0) return 1.0;
+	if (n == 1) return x;
+	return 
+        n%2 == 0
+            ?   sqr(power_opt(x,n/2)) 
+            : x*sqr(power_opt(x,n/2));
+}
+
+//------------------------------------------------------------------------------
+
 double power1(double x, int n)
 {
 	variable<int> m;
@@ -76,8 +88,8 @@ double power2(double x, int n)
     {
       When(0)     return 1.0;
       When(1)     return x;
-      When(m*2)   return sqr(power2(x,m));
-      When(m*2+1) return x*power2(x,2*m);
+      When(2*m)   return   sqr(power2(x,m));
+      When(2*m+1) return x*sqr(power2(x,m));
     }
     EndMatch
 }
@@ -89,6 +101,19 @@ int fib(int n)
 	if (n == 1 || n == 2) return 1;
 	if (n % 2 == 0) return sqr(fib(n/2+1)) - sqr(fib(n/2-1));
 	if (n % 2 == 1) return sqr(fib(n/2+1)) + sqr(fib(n/2));
+}
+
+//------------------------------------------------------------------------------
+
+int fib_opt(int n)
+{
+	if (n == 1 || n == 2) 
+        return 1;
+
+    return 
+        n%2 == 0 
+            ? sqr(fib_opt(n/2+1)) - sqr(fib_opt(n/2-1))
+            : sqr(fib_opt(n/2+1)) + sqr(fib_opt(n/2));
 }
 
 //------------------------------------------------------------------------------
@@ -113,8 +138,8 @@ int fib2(int n)
     {
       When(1)     return 1;
       When(2)     return 1;
-      When(m*2)   return sqr(fib2(m+1)) - sqr(fib2(m-1));
-      When(m*2+1) return sqr(fib2(m+1)) + sqr(fib2(m));
+      When(2*m)   return sqr(fib2(m+1)) - sqr(fib2(m-1));
+      When(2*m+1) return sqr(fib2(m+1)) + sqr(fib2(m));
     }
     EndMatch
 }
@@ -145,8 +170,8 @@ XTL_DO_NOT_INLINE_END
 XTL_DO_NOT_INLINE_BEGIN
 size_t do_visit(const Shape& s, size_t n)
 {
-    //return power(1.01,n);
-    return fib(n%100+1);
+    //return power_opt(1.01,n);
+    return fib_opt(n%100+1);
 }
 XTL_DO_NOT_INLINE_END
 
@@ -164,10 +189,10 @@ int main()
 	double x = 2.0;
 
 	for (int i = 0; i < 10; ++i)
-		std::cout << x << '^' << i << '=' << power2(x,i) << std::endl;
+		std::cout << x << '^' << i << '=' << power_opt(x,i) << (power_opt(x,i) == power2(x,i) ? "" : "WRONG") << std::endl;
 
 	for (int i = 1; i < 10; ++i)
-		std::cout << "fib(" << i << ")=" << fib2(i) << std::endl;
+		std::cout << "fib(" << i << ")=" << fib_opt(i) << (fib_opt(i) == fib2(i) ? "" : "WRONG") << std::endl;
 
 	for (int i = 1; i < 10; ++i)
 		std::cout << "factorial(" << i << ")=" << factorial(i) << std::endl;

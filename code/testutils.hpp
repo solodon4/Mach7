@@ -36,8 +36,14 @@
 
 //------------------------------------------------------------------------------
 
+#if defined(XTL_PROFILING)
+const size_t N = 1000; // The amount of times visitor and matching procedure is invoked in one time measuring
+const size_t M = 11;   // The amount of times time measuring is done
+#else
 const size_t N = 10000; // The amount of times visitor and matching procedure is invoked in one time measuring
 const size_t M = 101;   // The amount of times time measuring is done
+#endif
+
 const size_t K = NUMBER_OF_DERIVED; // The amount of cases we have in hierarchy
 
 //------------------------------------------------------------------------------
