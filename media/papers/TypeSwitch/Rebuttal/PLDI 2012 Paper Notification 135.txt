@@ -1,0 +1,459 @@
+From:	Frank Tip <pldi2012-papers-chair@borbala.com>
+Sent:	Tuesday, January 31, 2012 3:48 PM
+To:	yuriys@cse.tamu.edu; gdr@cse.tamu.edu; bs@cse.tamu.edu
+Cc:	pldi2012-papers-chair@borbala.com; pldi2012-papers-webadmin@borbala.com
+Subject:	PLDI 2012 Paper Notification [135]
+
+Dear Yuriy, Gabriel and Bjarne,
+
+I regret to inform you that your paper
+
+"Open and Efficient Type Switch for C++"
+
+has NOT been selected for publication at PLDI 2012. There were
+255 submissions to PLDI, of which 48 were accepted. The reviews are appended below. Thank you very much 
+for your submission.
+
+Frank Tip
+Program Chair, PLDI 2012
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=
+Meaning of Classification:
+A: I will champion this paper at the PC meeting (Advocate/Accept).
+B: I can accept this paper, but I will not champion it (accept,
+   but could reject).
+C: This paper should be rejected, though I will not fight strongly
+   against it (reject, but could accept)
+D: Serious problems. I will argue to reject this paper (Detractor).
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=
+
+First reviewer's review:
+
+          >>> Classification <<<
+
+B: I can accept this paper, but I will not champion it (accept, but could reject).
+
+          >>> Summary of the submission <<<
+
+This paper tackles the problem of providing an efficient type-switch (or type-case if you prefer) for C++. The 
+development is comprehensive and provides some intriguing insights as it develops an efficient 
+implementation via careful refinement and ingenious use of underlying artifacts of C++ vtable 
+implementations, evolving from a simple, but inefficient, starting point. The resulting implementation 
+outperforms visitor dispatch. Moreover, it is implemented as a library so requires no change to existing 
+implementations (though it does rely on artefacts of their object ABI representations). The techniques are open 
+to class extension (requiring no re-compilation nor
+re-linking) and fit with existing language features including multiple inheritance and templates. The current 
+implementation relies heavily on static variables and global state, making it problematic for multi-threaded 
+applications.
+
+          >>> Evaluation <<<
+
+This is an interesting paper, addressing a glaring omission in C++ (and Java for that matter): the lack of an 
+efficient type-switch construct. As a result programmers frequently must use the visitor pattern in ways that 
+are sometimes overkill. The logic would be more concisely expressed as a type-switch, easing development and 
+maintenance. The solutions proposed are novel and insightful, with some ingenious reuse of existing structure 
+such as vtable pointers, and memoization and caching. The only caveat is the quiet point made at the end of 
+the paper regarding of problems for multi-threaded applications. This is an ominous place to end, given the 
+increasing use of threading by applications to exploit multi-cores. It would have been good to offer at least 
+some insights as to how the acknowledged problems that arise with concurrency might be overcome. This is 
+not a show-stopper, but it certainly rains on the parade at that point.
+
+Also, I wanted to see some sense as to how the programmer uses the type-case mechanisms. What effort is 
+required to enumerate the types to be tested?
+What is the tool flow?
+
+Typos and formatting:
+
+page 2: "descent support" => "decent support"
+
+page 2: "preferd" => "preferred"
+
+page 2: "more-direct" => "more direct"
+
+page 2: "Liskov substitution principle" => "the Liskove substitution principle"
+
+page 3: "Substitutability requirement implies that" => Substitutability implies that"
+
+page 3: "their siblings, will" => "their siblings will"
+
+page 3: "while on the other forces" => "while on the other it forces"
+
+page 3: "regardless of the case. \footnote" => "regardless of the case.\footnote" (no space between period and 
+\footnote command in LaTeX)
+
+page 4: "approch" => "approach"
+
+page 4: "two keys aspects" => "two key aspects"
+
+page 4: "CFront, the first C++ compiler puts" => "CFront, the first C++ compiler, puts"
+
+page 4: $Repeated$ and $Shared$ format with strange math spacing between the letters. If you want text 
+formatted properly in math mode make sure to use an
+mbox: $\mbox{Repeated}$.
+
+page 4: "document the position" => "documents the position"
+
+page 4: "The reason is it is a popular compression technique to share" is awkward. How about: "The reason is 
+that a popular compression technique is to share".
+
+page 4: "that sufficient" => "that is sufficient"
+
+page 5: math mode usage looks weird the way you have it formatted in many places. For example, there are 
+weird spaces in places. Consider the math in the first proof on this page. It should look something like:
+$a_1.\textit{vtbl}_i = a_2.\textit{vtbl}_i$ but $C_1 \neq C_2$.
+What you have does not render the same way. Take care to make your math look nice.
+
+page 5: "We have thus" => "We thus have"
+
+page 5: "$Shared$ again should be $\mbox{Shared}$ or $\mathit{Shared}$ or something similar.
+
+page 5: "C++ require that" => "C++ requires that"
+
+page 5: "default case will be taken" => "the default case will be taken".
+
+page 5: strange spacing in your \lstinline
+
+page 5: "clause result" => "clause results"
+
+page 6: "accordingly to" => "according to"
+
+page 6: listing is too long and bleeds into right column.
+
+page 7: "underlain" => "underlying"
+
+page 7: "accordingly to" => "according to"
+
+page 8: "in companion technical report" => "in the companion technical report"
+
+page 9: ditch the colors in Figure 3. Just use bold and italics.
+
+page 9: Figure 4 x-axis labels are cropped
+
+page 9: "also support type switching" => "also supports..."
+
+Summary of PC discussion: The PC was generally impressed by the directions of this work, but the lack of a crisp 
+presentation served only to obscure its contributions, and hide its relationship to the state of the art. Heavy 
+revision (beyond simple shepherding) is needed to correct these problems.
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*
+
+Second reviewer's review:
+
+          >>> Classification <<<
+
+C: This paper should be rejected, though I will not fight strongly against it (reject, but could accept).
+
+          >>> Summary of the submission <<<
+
+The paper presents a library implementation of run-time type testing for C++, which enables a type switch 
+construct similar to what functional languages provide via pattern matching on algebraic datatypes. The paper 
+describes several implementation techniques which differ in their generality (e.g., whether they support 
+extensibility or not, whether they support multiple inheritance or not). The paper then presents an 
+experimental evaluation illustrating that the described approaches typically outperform use of the visitor 
+design pattern, which is the standard solution in OO languages.
+
+          >>> Evaluation <<<
+
+The paper appears to be technically sound and the experimental evidence is solid. However, I found it hard to 
+understand what exactly was achieved, what the key novelties are, and how the approaches described here 
+compare with the state of the art. Specifically:
+
+* The paper does not describe the API of the pattern matching library that was created by the authors, but 
+instead only the low-level mechanisms like type testing. This makes it hard to get the big picture regarding 
+exactly what has been achieved, e.g., how general the mechanisms are, what kinds of functionality they 
+support, etc.
+
+* The above issue is exacerbated by the fact that even these low-level mechanisms are never defined precisely 
+(formally or informally). This made understanding Section 3 quite difficult. E.g., There are multiple kinds of type 
+testing (polymorphic and tagged) which aren't clearly explained. Further, things are organized by optimization 
+(vtable equivalence, memoization, etc.), which I found too low level and hard to relate back to the higher-level 
+goals (e.g., which optimizations apply to which primitives).
+
+* It's not clear what the key advance is over the state of the art. Is it the vtable equivalence trick? Other aspects 
+do not seem as novel. E.g., memoization seems based on a similar idea as the polymorphic inline caches used 
+by Self (Holzle et al, ECOOP 91) and later OO languages, and the cascaded ifs is a common implementation 
+technique for multimethods (e.g., Clifton et al., OOPSLA 2000). You should be clear on what the novelty is here.
+
+* Finally, there is a large literature on this problem area, and the authors do not compare with some pieces of 
+related work, for example Chambers and Chen's work on efficient multiple and predicate dispatch (OOPSLA 
+99), various papers by Joseph Gil on efficient dispatch and type testing (e.g., OOPSLA 01 and 02), and Grothoff's 
+work on a Java library for efficient multi-dispatch (ECOOP 03).
+Although less directly related, there's also been a lot of work on the language design side of things, for example 
+the hierarchical, extensible datatypes of Extensible ML (Millstein et al, ICFP 02).
+
+Small comments:
+
+* End of Sec 2: "Open implementations were resorting to type testing and decision trees." I don't understand 
+the point here -- why is that bad?
+
+* 3.1: An explicit algorithm for type testing based on vtables would have helped make things concrete.
+
+* 3.2: The way you implement the most-specific semantics seems to do a lot of unnecessary work potentially, 
+since often P_2i can be very redundant with P_i (e.g., they are identical but P_2i has one extra conjunct).
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*
+
+Third reviewer's review:
+
+          >>> Classification <<<
+
+B: I can accept this paper, but I will not champion it (accept, but could reject).
+
+          >>> Summary of the submission <<<
+
+This paper presents a library based approach to run-time type testing (and several related features including 
+type switching, pattern matching, and predicate and multi-method dispatch). The core elements are the 
+following
+four: A 'memoization device' which is a particular C++ coding idiom (inspired by Duff's device, exploiting the 
+cases of a switch statement to enable jumping to a flexible set of locations); the discovery of a certain type of 
+injectivity associated with vtable pointers (which ensures that certain type switching results may be reused for 
+subobjects with identical vtable points); 'vtable pointer memoization' which is a memoization optimization 
+based on the injectivity property; and the 'TPL dispatcher' which helps implementing type switching on tagged 
+classes. The paper presents the ideas and techniques using an implementation oriented approach, but 
+expressing a couple of properties (esp. injectivity) as theorems. The performance properties of these 
+techniques are investigated mainly by comparing type switching to the use of the visitor design pattern (where 
+type switching is often somewhat faster, due to a large number of optimizations), but also by comparing to 
+code generated by an OCaml compiler, where the proposed library solution is again roughly as fast as or faster 
+than OCaml.
+
+          >>> Evaluation <<<
+
+The most interesting contribution in this paper is the set of new techniques for type switching mentioned in 
+the summary, along with the highly developed set of 'other' optimizations (such as cache entry conflict 
+avoidance) that enable these techniques to compete with the visitor design pattern in terms of performance. 
+The injectivity property may be considered to be very specialized (I'm not sure where it works at all except for 
+the common vendor
+C++ ABI), but it is still quite useful because it applies in a situation 
+C++ that
+frequently exists in real world C++ software.
+
+The availability of fast type switching enables a programming style which is similar to SML or Haskell style 
+functions where pattern matching is used to associate a specific shape of data with a specific behavior, though 
+somewhat more general because of the possible choice of first/next/best/...-fit semantics.
+
+It is claimed that the resulting programming style is much simpler than visitors, which is quite convincing.
+
+It is also claimed that the proposal is a solution to the expression problem (most explicitly on page 1, in the 
+sentence 'Our solution overcomes extensibility problems of both functions and types'; but also more indirectly 
+in connection with the discussion about the expression problem in Sect. 2).
+However, the contribution seems to be much more accurately described just before Sect. 3 as 'truly open and 
+efficient type switching'.
+
+In other words, most of the discussion about the expression problem is essentially just creating confusion and 
+misdirecting the expectations about the paper. The paper should be adjusted accordingly; either by focusing 
+directly and explicitly on open and efficient type switching, or (if possible) by better supporting the claims 
+relating to the expression problem.
+
+It should be noted that the rather surprising C++ code in the Memoization Device (similar to Duff's device, but 
+still unusual in this reviewer's eyes) is quite interesting in its own right (and it is actually usable also without the 
+C++11 extensions that are used in the code fragments in the paper).
+
+All in all, this paper contributes a very interesting set of techniques (I learned several things along the way..) 
+that enable efficient and open type switching as a C++ library, and shows that it is a viable alternative to the 
+visitor pattern that may help simplifying programs without losing the extensibility of visitors.
+
+Detailed comments:
+
+- page 1, column 1, typo: 'which lo[o]ses extensibility'
+
+- p1c2, 'intrusive' .. 'open': For the expression problem (which is what you are dealing with here) it is common 
+to talk about extensibility along two
+dimensions: operations and data. For instance, adding a new virtual function to Expr and implementing it in all 
+its subclasses extends the set of operations, whereas a new type of data may be added by simply writing a new 
+subclass of Expr. With visitors, adding an operation simply amounts to adding one more visitor, but a new type 
+of data can only be added if all existing visitors are extended with a new case. This is of course very well-
+known, but still it makes sense to mention it here: When you talk about 'intrusive'
+and 'open' it hides the high degree of regularity of the setup (two dimensions of extensibility addressed by 
+virtual methods or visitors, each having one "easy" and one "hard" dimension). It may seem more innovative to 
+do it your way, but I think that the standard point of view (i.e., two dimensions + two
+approaches) brings more clarity. Please think about it. In any case it is surprising that you get this far without 
+saying 'the expression problem'.
+[Searching ahead in the paper I can see that you get there later on, but it would still be nice to mention it up 
+front in order to avoid confusion among readers who know about the expression problem.]
+
+- p1c2, 'Our solution overcomes extensibility problems': That sounds really surprising. The type switch does not 
+seem to do anything which is not already very well-known from languages like SML and Haskell (apart from the 
+fact that it is impressive that you can express it so smoothly using plain C++), and this certainly does not solve 
+the extensibility problems. It just provides a choice where addition of new operations is easy, but every 
+function written in this style must be extended, intrusively, if another type of data is added.
+(I haven't yet read the rest of the paper, so maybe I'll change my mind on this, but at this point it is still useful 
+for you to know that your claim looks plain wrong as stated here, for a first-time reader).
+
+- p1-2, bullet list: This list is not described as a list of contributions, but as a list of techniques that you 'present'. 
+Couldn't you rather easily change the wording of this list and its surroundings such that it becomes a proper list 
+of contributions? In fact, the entire paper does not seem to contain the word 'contribution' (or several variants 
+thereof that I also searched for), and I would expect an explicit description of the contributions around this 
+point in the paper.
+
+- p2c1, typo: 'descent support' --> 'decent support', probably; 'prefer[re]d'
+
+- p2c1, 'A lot has been written about .. visitor': Here we have 'intrusive'
+again, and here again it does not provide optimal clarity. Do you mean that it requires intrusion when making 
+extensions along one of the dimensions (so we need to edit all visitors when adding a new type of data), or that 
+it is an intrusive operation to start using visitors with any given (pristine) hierarchy because we need to add an 
+'accept' method for each traversal order we may wish to use? In any case, even if you are thinking about both 
+issues it leaves too many guesses to the reader. It is also unclear why there are _so_ many occurrences of 
+\emph{} here.
+
+- p2-3: The reference to C and Pascal is not a very good match here, because they do not support subtyping, 
+which is used in the introduction of B and D_i. Maybe you could refer to exact types (@D_i) as in LOOM.
+
+- p3c1, paragraph 'In some cases..': This does not seem to make sense. There are no 'base classes' and 'derived 
+classes' per se, but each (non-top,
+non-leaf) class may be seen as either a base class or a derived class. So how could you ever hope to detect that 
+"class D is a derived class here, so we look up its base class" before you have considered the concrete set of 
+cases to switch among? And if you do consider those cases before choosing whether to look up a base class 
+(and choosing which base class to look up, in case of MI) then how can you claim that you are using a jump 
+table based approach (if most of the work is done during the "lookup the right base class" phase)? I can't see 
+what you mean by the last sentence in this paragraph, either. Are you saying that the idea that you just hinted 
+at will not work anyway? Maybe you should simply turn the argument around and argue that the 
+substitutability requirement cannot be satisfied without moving beyond jump table based approaches (to 
+something less efficient).
+
+- p3c2, 'wonder how many .. [case] clauses [are typical]': This is just one example, surely you could rather easily 
+come up with something more substantial. Maybe even grepping for 'switch' and 'case' in a few open source 
+projects would be better.
+
+- p4c2, 'vbase(vtbl)': It is confusing that you use a specific notation for something which is obviously going to 
+require several concrete notational variants in order to be well-defined. Why not use something like 
+'vbase(B_i,vtbl)' where B_i for i \in {1..k} enumerates the virtual base classes?
+
+- p4c2, 'the path \sigma': Apparently you use 'path' to denote a path and also to denote the pair which is 
+described when the meta-variable \sigma is introduced about 35 lines earlier. It would be helpful if you 
+introduce this terminology explicitly rather than just jumping into phrases like 'the path \sigma'..
+
+- p5c1, type: '\emph{Shared} than' --> '.. then' (there was another typo on the form '..then..' --> '..than..', but I 
+forgot to write it down when I saw it; searching for all 'then' should bring it up, though)
+
+- p5c2, typo: 'targe[d]'
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*
+
+Fourth reviewer's review:
+
+          >>> Classification <<<
+
+C: This paper should be rejected, though I will not fight strongly against it (reject, but could accept).
+
+          >>> Summary of the submission <<<
+
+The paper revisits the expression problem in the context of C++. The problem, well studied in both object-
+oriented and functional languages alike, is how to make both data types and processing phases extensible. The 
+familiar visitor design pattern for object-oriented languages falls short: it only makes processing phases 
+extensible. Pattern matching for functional languages has the same short-coming. The key observation of the 
+paper is that vtable pointers for the common vendor C++ ABI is unique per class, even in the presence of 
+multiple inheritance, and thus can be used as a key for caching method look-ups at call sites. The unexpected 
+result of the paper is that this technique shows performance close to the visitor design pattern, at least for 
+several micro-benchmarks.
+
+          >>> Evaluation <<<
+
+Overall, the paper made for a frustrating reading for this reviewer.
+
+On the plus side:
+- The paper tackles an important problem which keeps popping up for a great many applications
+- The problem description (at least up to 2.2) is accessible and well-written
+- The main enabling technical observation (vtable pointers are unique per
+class) is interesting
+- The overall result that call-site method lookup caching based on vtable pointers is competitive with visitors is 
+surprising and welcome
+
+On the minus side:
+- Much of the paper is inaccessible, even if the reader is familiar with the expression problem and C++
+- The evaluation is incomplete: micro-benchmarks are necessary and welcome but end-to-end benchmarks and 
+cache size benchmarks are needed as well
+
+The inaccessibility of the paper, at least in this reviewer's opinion, stems from a number of sources. First, the 
+authors simply tried to cram too much material into the paper. Notably, I would omit the discussion of tagged 
+classes altogether from the conference paper --- besides mentioning that you also have a solution that is 
+discussed in the technical report. I would probably also omit the formalization in Section 3. I found it tedious to 
+decipher and didn't really learn anything. Second, some of the critical material simply isn't given enough 
+attention and paper space. In particular, multiple inheritance with its repeated and shared variation, pointer 
+offset adjustments, etc really needs background, examples, and illustration. I would strongly suggest adding 
+figures and code examples and paying careful attention that this material is accessible to readers who are not 
+thinking about data and vtable layout in C++ every day (or even month). Third, the paper contains discussion 
+that really isn't that informative but clearly necessary. I found 3.3.2 particularly frustrating in this context b/c 
+cache size clearly is important but the discussion is rather abstract. Finally, the paper would benefit from a 
+more careful and LINEAR staging. The fact that the intro points to 4, 3.3, 2.2, 3.1-3.4, 3.2, 3.3, 3.2, 3.1, 3.3 in 
+that order illustrates this rather nicely. There also are too many forward references and technical report 
+references sprinkled through-out the paper. Simpler writing and less material with more background would go 
+a very long way towards giving your result the proper stage!!
+
+As to evaluation: The micro-benchmarks presented in the paper are a good first step and the fact that you 
+compared to OCaml is especially nice. But what about end-to-end-performance? Your technique works best 
+when the same types are encountered by the call site cache over and over again and, with many processing 
+phases, there also will be many call site caches that need to be initialized. I for one would like to see a more 
+comprehensive evaluation, which, even if it considers only synthetic benchmarks (e.g., which do not perform 
+actual work or only have configurable busy wait loops to simulate work), considers larger and more complex 
+code. Furthermore, cache size configuration needs to be evaluated as well, e.g., how large do the call-site 
+caches need to be in practice and how do they add up in total memory pressure.
+Finally, the paper mentions that you have experimental evidence that the Microsoft ABI also puts the vtable 
+pointer at the beginning of the object. It would be interesting to see if it maintains the invariant necessary for 
+call-site caching as well. Can you construct such experiments (I'd think so)?
+Either way, presenting data on other ABIs that are not publicly specified would strengthen the evaluation and 
+reach of the work.
+
+Re your response: I appreciate that fitting a lot of material into 10 pages can be difficult (I've certainly been in a 
+similar situation) but the material, as presented, simply is not accessible, i.e., too dense, while spending 
+valuable page real estate on discussion that does not help, e.g., the high-level and uninformative discussion of 
+cache size. Without a significant rewrite and additional experimental results, the paper simply is not ready for 
+publication.
+
+Several more detailed comments:
+
+p1: The syntax of your typeswitch is odd, to be kind
+
+"The mapping of members to matching positions... is omitted" made no sense to this reader
+
+The list of of techniques jumps around, which is bad enough, but does not even articulate the key insights 
+behind the paper, which really is too bad.
+
+p3: The paragraph starting with "When tags are not chosen arbitrarily..." is obscure and hard too understand.
+
+Next paragraph: "first-fit semantics" comes out of the blue, since you earlier ack-ed that OOP languages and 
+best-fit are a better match.
+
+Figure 1 and 2 are nearly impossible to read in b/w print-out
+
+"this operator, called memoized cast, ... from $3" makes little sense at this point
+
+The last paragraph on p3 needs a lot more explanation. The discussion is ill-motivated and Gibbs & Stroustrup 
+should be introduced earlier.
+
+p4: "injectivity of the relation between... " Huh? You need to explain more carefully what you mean here.
+
+"that IS sufficient for our needs"
+
+p5:
+
+"forumlation" Spelling!
+
+"decltype(x)" Explain this C++0x feature. Many readers haven't seen this before
+
+p6:
+
+"Using a static_cast..." made no sense
+
+The code references variable p, yet it was x before. Please ensure consistency and walk readers through the 
+examples. This is particularly important for the most-specific match on the top of the first column
+
+The "auto" keyword for type inference in C++0x should be explained as well.
+
+p7:
+
+"in the underlain match statement" ???
+
+p8:
+
+"either unified or specialized syntax" Huh? You never mentioned this before.
+
+Figure 3 is a bit odd in its presentation. It might be more accessible if you picked one case as the baseline and 
+then reported all other cases as speedups.
+
+The Related Work section should probably also discuss DYNAMIC languages that use call-site caching. In 
+particular, Objective-C comes to mind. Apple has tweaked the core dispatch performance for many years and 
+has a pretty fast implementation at this point. Microsoft's Dynamic Language Runtime for the CLR also has a 
+call-site caching feature. It should be discussed and compared to.
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*
+

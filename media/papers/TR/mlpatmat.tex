@@ -12,10 +12,6 @@
 \usepackage{multirow}
 \usepackage{rotating}
 
-\lstdefinestyle{Caml}{language=Caml,%
-  literate={when}{{{\bf when}}}4
-}
-
 \lstdefinestyle{C++}{language=C++,%
 showstringspaces=false,
   columns=fullflexible,
@@ -23,6 +19,7 @@ showstringspaces=false,
   basicstyle=\sffamily,
 %  commentstyle=\rmfamily\itshape,
   moredelim=**[is][\color{white}]{~}{~},
+  morekeywords={concept,requires,noexcept},
   literate={[<]}{{\textless}}1      {[>]}{{\textgreater}}1 %
            {<}{{$\langle$}}1        {>}{{$\rangle$}}1 %
            {<=}{{$\leq$}}1          {>=}{{$\geq$}}1          
@@ -38,12 +35,32 @@ showstringspaces=false,
            {Divide}{{Divide}}6 %
            {Match}{{\emph{Match}}}5 %
            {Case}{{\emph{Case}}}4 %
-           {Que}{{\emph{Que}}}3 %
+           {Qua}{{\emph{Qua}}}3 %
+           {When}{{\emph{When}}}4 %
            {Otherwise}{{\emph{Otherwise}}}9 %
            {EndMatch}{{\emph{EndMatch}}}8 %
-           {CM}{{\emph{CM}}}2 {KS}{{\emph{KS}}}2 {KV}{{\emph{KV}}}2 
+           {CM}{{\emph{CM}}}2 {KS}{{\emph{KS}}}2 {KV}{{\emph{KV}}}2 %
+           {EuclideanDomain}{\concept{EuclideanDomain}}{15}  %
+           {LazyExpression}{\concept{LazyExpression}}{14}    %
+           {Polymorphic}{\concept{Polymorphic}}{11}          %
+           {Convertible}{\concept{Convertible}}{11}          %
+           {Integral}{\concept{Integral}}8                   %
+           {SameType}{\concept{SameType}}8                   %
+           {Pattern}{\concept{Pattern}}7                     %
+           {Regular}{\concept{Regular}}7                     %
+           {Object}{\concept{Object}}6                       %
+           {Field}{\concept{Field}}5                         %
 }
 \lstset{style=C++}
+
+\lstdefinestyle{Caml}{language=Caml,%
+  morekeywords={when}
+}
+
+\lstdefinestyle{Haskell}{language=Haskell,%
+  morekeywords={out,view,real}
+}
+
 \DeclareRobustCommand{\Cpp}{C\texttt{++}}
 \DeclareRobustCommand{\code}[1]{{\lstinline[breaklines=false,escapechar=@]{#1}}}
 \DeclareRobustCommand{\codebr}[1]{{\lstinline[breaklines=true]{#1}}}
@@ -62,10 +79,22 @@ showstringspaces=false,
 \newcommand{\Alt}{\ensuremath{|}}
 \newcommand{\is}{$::=$}
 \newcommand{\subtype}{\textless:}
+\newcommand{\lazyevals}{\Downarrow}
 \newcommand{\evals}{\Rightarrow}
 \newcommand{\evalspp}{\Rightarrow^+}
 \newcommand{\DynCast}[2]{\ensuremath{dc\langle{#1}\rangle({#2})}}
 \newcommand{\nullptr}{\ensuremath{\bot}}
+\newcommand{\True}{\ensuremath{\mathsf{true}}}
+\newcommand{\False}{\ensuremath{\mathsf{false}}}
+
+\newcommand{\Wildcard}{\ensuremath{\mathit{\bf wildcard}}}
+\newcommand{\Value}[1]{\ensuremath{\mathit{\bf value}\langle{#1}\rangle}}
+\newcommand{\Variable}[1]{\ensuremath{\mathit{\bf variable}\langle{#1}\rangle}}
+\newcommand{\ExprU}[2]{\ensuremath{\mathit{\bf expr}\langle{#1},{#2}\rangle}}
+\newcommand{\ExprB}[3]{\ensuremath{\mathit{\bf expr}\langle{#1},{#2},{#3}\rangle}}
+\newcommand{\ExprK}[3]{\ensuremath{\mathit{\bf expr}\langle{#1},{#2},\cdots,{#3}\rangle}}
+\newcommand{\Guard}[2]{\ensuremath{\mathit{\bf guard}\langle{#1},{#2}\rangle}}
+\newcommand{\Cnstr}[3]{\ensuremath{\mathit{\bf ctor}\langle{#1},{#2},\cdots,{#3}\rangle}}
 
 \newcommand{\f}[1]{{ {\bf \textcolor{blue}{#1\%}}}}
 \newcommand{\s}[1]{{ {\em \textcolor{cyan}{#1\%}}}}
@@ -168,17 +197,18 @@ equivalent predicate spelled out as imperative code.
 
 Popularized by functional programming community, most notably Hope\cite{BMS80}, 
 ML\cite{ML90}, Miranda\cite{Miranda85} and Haskell\cite{Haskell98Book}, for 
-providing syntax very close to mathematical notations, pattern matching has 
+providing syntax very close to mathematical notations.
+From there, it has 
 found its way into many imperative programming languages e.g. 
 Pizza\cite{Odersky97pizzainto}, Scala\cite{Scala2nd}, Fortress\cite{RPS10}, as 
 well as dialects of Java\cite{Liu03jmatch:iterable,HydroJ2003}, C++\cite{Prop96}, 
-Eiffel\cite{Moreau:2003} and others. It is relatively easy to provide pattern 
+Eiffel\cite{Moreau:2003} and others. It is relatively easy to provide a form of pattern 
 matching when designing a new language, but to introduce it into a language in 
 widespread use is a challenge. The obvious utility of the feature may be 
 compromised by the need to fit into the language's syntax, semantics, and tool 
 chains. A prototype implementation requires more effort than for an experimental 
 language and is harder to get into use because mainstream users are unwilling 
-to try non-portable, non-standard, unoptimized features.
+to try non-portable, non-standard, and unoptimized features.
 
 To balance the utility and effort we decided to take the Semantically 
 Enhanced Library Language (SELL) approach\cite{SELL}. We provide the
@@ -187,7 +217,7 @@ support. This will typically (as in this case) not provide you 100\% of the func
 language extension would do, but it allows experimentation and special-purpose use
 with existing compilers and tool chains. With pattern matching, we managed to avoid 
 external tool support by relying on some pretty nasty macro hacking to provide a
-conventional and convenient interface to our efficient library implementation.
+conventional and convenient interface to an efficient library implementation.
 
 Our current solution is a proof of concept that sets a minimum threshold for 
 performance, brevity, clarity and usefulness of a language solution for pattern 
@@ -586,7 +616,7 @@ object and depending on the actual type constructor the object was created with,
 calls first or second function on the embedded value, encoding the result 
 correspondingly.
 
-Its equivalent in C++ is not straightforward. The idiomatic handling of 
+Its equivalent in C++ is not straightforward. Idiomatic, type-safe, handling of 
 discriminated unions in C++ typically assumes use of the \emph{Visitor Design 
 Pattern}\cite{DesignPatterns1993}.
 
@@ -632,7 +662,7 @@ invoking a visitor:
 
 \begin{lstlisting}
 template <class X, class Y, class S, class T>
-const Either<S,T>& lift(const Either<X,Y>& e, S f(X), T g(Y))
+const Either<S,T>& eitherLift(const Either<X,Y>& e, S f(X), T g(Y))
 {
     typedef S (*F)(X);
     typedef T (*G)(Y);
@@ -734,9 +764,10 @@ type switching efficiently based on the run-time type of the argument.
   \item Can be applied retroactively to any polymorphic or tagged class hierarchy.
   \item Provides a unified syntax for various encodings of extensible 
         hierarchycal datatypes in C++.
-  \item Generalizes n+k patterns, leaving the controversial semantic choices to the user.
+  \item Generalizes the controversial n+k patterns by leaving semantic choices to the user.
   \item Supports a limited form of views.
-  \item We provide performance and ease of use comparison based on real code.
+  \item Is simpler to use than conventional object-oriented or union-based alternatives.
+  \item Improves performance compared to alternatives in real applications.
   \end{itemize}
 \end{itemize}
 
@@ -840,7 +871,7 @@ find i (Node key item left right) =
 \end{lstlisting}
 
 \noindent
-The set of values described by a given algebraic data type is defined 
+The set of values described by such an algebraic data type is defined 
 inductively as the least set closed under constructor functions of its variants.
 Algebraic data types draw their name from the practice of using case distinction 
 in mathematical function definitions and proofs that involve \emph{algebraic 
@@ -868,31 +899,39 @@ this disjointness making classes effectively have multiple types. In particular,
 the case of disjoint constructors can be seen as a degenerated case of a flat 
 class hierarchy among the multitude of possible class hierarchies.
 
-Closeness of algebraic data types is particularly useful in reasoning about 
+Closeness of algebraic data types is particularly useful for reasoning about 
 programs by case analysis and allows the compiler to perform an automatic 
-\emph{incompleteness} check -- test of whether a given match expression covers all 
-possible cases. A related notion of \emph{redundancy} checking arises from the 
+\emph{incompleteness} check -- test of whether a given \emph{match statement} 
+covers all possible cases. Similar reasoning about programs involving extensible 
+data types is more involved as we are dealing with potentially open set of 
+variants. \emph{Completness} check in such scenario reduces to checking presence 
+of a case that handles the static type of the subject. Absence of such a case,
+however, does not necessarily imply incompletness, only potential incompletness, 
+as the answer will depend on the actual set of variants available at run-time.
+
+A related notion of \emph{redundancy} checking arises from the 
 tradition of using \emph{first-fit} strategy in pattern matching. It warns the 
-user of any \emph{case clause} inside a \emph{matching expression} that will 
-never be entered because of preceding one being more general. Object-oriented 
+user of any \emph{case clause} inside a match statement that will 
+never be entered because of a preceding one being more general. Object-oriented 
 languages, especially C++, typically prefer \emph{best-fit} strategy (e.g. for 
 overload resolution and class template specialization) because it is not prone 
 to errors where semantics of a statement might change depending on the ordering 
 of preceding definitions. The notable exception in C++ semantics that prefers 
 the \emph{first-fit} strategy is ordering of \code{catch} handlers of a 
-try-block. Similarly to functional languages the C++ compiler will perform 
+\code{try}-block. Similarly to functional languages the C++ compiler will perform 
 \emph{redundancy} checking on catch handlers and issue a warning that lists the 
-redundant cases. We use this property of C++ type system to perform redundancy 
+redundant cases. We use this property of the C++ type system to perform redundancy 
 checking of our match statements in \textsection\ref{sec:redun}.
 
 The patterns that work with algebraic data types we have seen so far are 
-generally called \emph{tree patterns} or \emph{data constructor patterns}. 
-Special cases of these patterns are \emph{list patterns} and \emph{tuple 
-patterns}. The former lets one split a list into a sequence of elements in its 
-beginning and a tail with the help of list constructor \codehaskell{:} and an 
-empty list constructor \codehaskell{[]} e.g. \codehaskell{[x:y:rest]}. The 
-latter does the same with tuples using tuple constructor 
-\codehaskell{(,,...,)} e.g. \codehaskell{([x:xs],'b',(1,2.0),"hi",True)}.
+generally called \emph{tree patterns} or \emph{constructor patterns}. Their 
+analog in object-oriented languages is often referred to as \emph{type pattern} 
+since it may involve type testing and type casting. Special cases of these patterns 
+are \emph{list patterns} and \emph{tuple patterns}. The former lets one split a 
+list into a sequence of elements in its beginning and a tail with the help of 
+list constructor \codehaskell{:} and an empty list constructor \codehaskell{[]} 
+e.g. \codehaskell{[x:y:rest]}. The latter does the same with tuples using tuple
+constructor \codehaskell{(,,...,)} e.g. \codehaskell{([x:xs],'b',(1,2.0),"hi",True)}.
 
 Pattern matching is not used solely with algebraic data types and can equally 
 well be applied to built-in types. The following Haskell code defines factorial 
@@ -910,9 +949,9 @@ match when the actual argument passed to the function factorial is 0. The
 \emph{variable pattern} \codehaskell{n} (also referred to as \emph{identifier 
 pattern}) in the left hand side of the second equation will match any value, 
 \emph{binding} variable \codehaskell{n} to that value in the right hand side of 
-equation. Similarly to variable pattern, \emph{wildcard pattern} \codehaskell{_} 
-will match any value with the exception that the matched value will not be bound 
-to any variable. Value patterns, variable patterns and wildcard patterns are 
+equation. Similarly to variable pattern, the \emph{wildcard pattern} \codehaskell{_} 
+will match any value, neither binding it to a variable nor even obtaining it. 
+Value patterns, variable patterns and wildcard patterns are  
 generally called \emph{primitive patterns}. Patterns like variable and wildcard 
 patterns that never fail to match are called \emph{irrefutable}, in contrast to 
 \emph{refutable} patterns like value patterns, which may fail to match.
@@ -944,7 +983,9 @@ Moreover, numerous debates over semantics and usefulness of the feature
 resulted in n+k patterns being removed from the language altogether in Haskell 
 2010 standard\cite{haskell2010}. Generalization of n+k patterns, called 
 \emph{application patterns} has been studied by Nikolaas N. Oosterhof in his 
-Master's thesis\cite{OosterhofThesis}.
+Master's thesis\cite{OosterhofThesis}. Application patterns essentially treat 
+n+k patterns as equations, while matching against them attempts to solve or 
+validate the equation.
 
 While n+k patterns were something very few languages had, another common feature of 
 many programming languages with pattern matching are guards. A \emph{guard} 
@@ -974,7 +1015,7 @@ permit use of the same variable in them multiple times are called
 \emph{equivalence patterns}, while the requirement of absence of such patterns 
 in a language is called \emph{linearity}. Neither OCaml nor Haskell support such 
 patterns, while Miranda\cite{Miranda85} as well as Tom's pattern matching 
-extension to C, Java and Eiffel\cite{Moreau:2003} support \emph{non-linear 
+extension to C, Java and Eiffel\cite{Moreau:2003} supports \emph{non-linear 
 patterns}.
 
 The example above illustrates yet another common pattern-matching facility -- 
@@ -997,13 +1038,13 @@ a part of a hypothetical rewriting system in OCaml similar to the one above. Its
 intention is to rewrite expressions of the form $\frac{e_1/e_2}{e_3/e_4}$ into 
 $\frac{e_1}{e_2}\frac{e_4}{e_3} \wedge e_2\neq0 \wedge e_3\neq0 \wedge e_4\neq0$.
 
-\begin{lstlisting}[language=Caml,keepspaces,columns=flexible]
-    | Divide(Divide(_,e2) as numerator, Divide(e3,e4))
-          -> Times(numerator, Divide(e4, e3))
+\begin{lstlisting}[language=Caml]
+    | Divide(Divide(_,e2) as x, Divide(e3,e4))
+          -> Times(x, Divide(e4, e3))
 \end{lstlisting}
 
 \noindent
-We introduced a name ``numerator'' as a synonym of the result of matching the 
+We introduced a name ``x'' as a synonym of the result of matching the 
 entire sub-expression \codeocaml{Divide(_,e2)} in order to refer it without 
 recomposing in the right-hand side of the case clause. We omitted the 
 conjunction of relevant non-zero checks for brevity, one can see that we will 
@@ -1694,7 +1735,7 @@ several meta-variables introduced in the previous grammar}
 
 \begin{figure}
 \begin{center}
-\begin{tabular}{rp{0em}cl}
+\begin{tabular}{lp{1em}cl}
 \Rule{bindings}                &           & \is{}  & $\delta^*$ \\
 \Rule{binding definition}      & $\delta$  & \is{}  & \code{template <}$\left[\vec{p}\right]$\code{>} \\
                                &           &        & \code{struct bindings<} $\tau[$\code{<}$\vec{p}$\code{>}$]\left[,l\right]$\code{>} \\
@@ -1703,8 +1744,8 @@ several meta-variables introduced in the previous grammar}
 \Rule{kind selector}           & $ks$      & \is{}  & \code{KS(}$q$\code{);}    \\
 \Rule{kind value}              & $kv$      & \is{}  & \code{KV(}$c$\code{);}    \\
 \Rule{base class}              & $bc$      & \is{}  & \code{BC(}$\tau$\code{);} \\
-\Rule{template-parameter-list} & $\vec{p}$ &        & C++\cite[\textsection A.12]{C++0x} \\
-\Rule{qualified-id}            & $q$       &        & C++\cite[\textsection A.4]{C++0x} \\
+\Rule{template-parameter-list} & $\vec{p}$ &        & C++\cite[\textsection A.12]{C++11} \\
+\Rule{qualified-id}            & $q$       &        & C++\cite[\textsection A.4]{C++11} \\
 \end{tabular}
 \end{center}
 \caption{Syntax used to provide bindings to concrete class hierarchy}
@@ -1712,14 +1753,13 @@ several meta-variables introduced in the previous grammar}
 \end{figure}
 
 \noindent
-Any given class $\tau$ may have an arbitrary amount of {\bf bindings} associated 
-with it. These bindings are distinguished through the \emph{layout} parameter 
-$l$, with \emph{default binding} having the possibility to omit it entirely. 
-Default binding is implicitly associated with layout whose value is equal to 
-predefined constant \code{default_layout = size_t(}$\sim$\code{0)}. User-defined 
-layouts should not reuse this dedicated value.
+Any type $\tau$ may have arbitrary amount of \emph{bindings} associated with it 
+and distinguished through the \emph{layout} parameter $l$. The \emph{default 
+binding} which omits layout papameter is implicitly associated with layout whose
+value is equal to predefined constant \code{default_layout = size_t(}$\sim$\code{0)}. 
+User-defined layouts should not reuse this dedicated value.
 
-{\bf Binding definition} consists of either full or partial specialization of a 
+A \emph{Binding definition} consists of either full or partial specialization of a 
 template-class:
 
 \begin{lstlisting}
@@ -1728,11 +1768,14 @@ template <typename T, size_t l = default_layout>
 \end{lstlisting}
 
 \noindent
-The body of the class should consist of optional \code{KS} and \code{KV} 
-specifiers as well as a sequence of \code{CM} specifiers. These specifiers 
-generate the necessary definitions for querying bindings by the library code.
+The body of the class consists a sequence of specifiers, which generate the 
+necessary definitions for querying bindings by the library code. Note that 
+binding definitions made this way are \emph{non-intrusive} since the original 
+class definition is not touched. They also respect \emph{encapsulation} since 
+only the public members of the target type will be accessible from within 
+\code{bindings} specialization.
 
-{\bf Class Member} specifier \code{CM(}$c,q$\code{)} that takes (zero-based) binding 
+A \emph{Class Member} specifier \code{CM(}$c,q$\code{)} that takes (zero-based) binding 
 position $c$ and a qualified identifier $q$, specifies a member, whose value will 
 be used to bind variable in position $c$ of $\tau$'s decomposition with this 
 \emph{binding definition}. Qualified identifier is allowed to be of one of the 
@@ -1774,7 +1817,7 @@ Note that the binding definition above is made once for all instantiations of
 interest. Non-parameterized classes will fully specialize the \code{bindings} 
 trait to define their own bindings.
 
-Using \code{CM} specifier a user defines the family of function 
+Using \code{CM} specifier a user defines the semantic functor 
 $\Delta_i^{\tau,l},i=1..k$ we introduced in \textsection\ref{sec:semme} as 
 following:
 
@@ -1791,22 +1834,22 @@ original class definition is not touched. They also respect \emph{encapsulation}
 since only the public members of the target type will be accessible from within 
 \code{bindings} specialization.
 
-{\bf Kind Selector} specifier \code{KS(}$q$\code{)} is used to specify a member 
+A \emph{Kind Selector} specifier \code{KS(}$q$\code{)} is used to specify a member 
 of the subject type that will uniquely identify the variant for \emph{tagged} 
 and \emph{union} encodings. The member $q$ can be of any of the three categories 
 listed for \code{CM}, but is required to return an \emph{integral type}.
 
-{\bf Kind Value} specifier \code{KV(}$c$\code{)} is used by \emph{tagged} and 
+A \emph{Kind Value} specifier \code{KV(}$c$\code{)} is used by \emph{tagged} and 
 \emph{union} encodings to specify a constant $c$ that uniquely identifies the 
 variant.
 
-{\bf Base Class} specifier \code{BC(}$\tau$\code{)} is used by the \emph{tagged}
+A \emph{Base Class} specifier \code{BC(}$\tau$\code{)} is used by the \emph{tagged}
 encoding to specify an immediate base class of the class whose bindings we 
 define. A helper \code{BCS(}$\tau*$\code{)} specifier can also be used to 
 specify the exact topologically sorted list of base classes 
 (\textsection\ref{sec:cotc}).
 
-{\bf Layout} parameter $l$, as we mentioned, can be used to define multiple bindings for the same 
+A \emph{Layout} parameter $l$ can be used to define multiple bindings for the same 
 target type. This is particularly essential for \emph{union} encoding where the 
 types of the variants are the same as the type of subject and thus layouts 
 become the only way to associate variants with position bindings. For this 
@@ -2266,85 +2309,158 @@ of n+k patterns seem to agree on the following rules:
       pattern and binding of corresponding variables to the solution.
 \end{itemize}
 
-\noindent As to the case when multiple solutions are possible, several 
-alternatives can be viable:
+\noindent When multiple solutions are possible, returning a set or an enumerator 
+is not usually considered due to differences in types: variable $x$ representing 
+a solution to $f(x)=c$ is intuitively expected to have the same type as the 
+argument of $f$, so that it can be applied to $x$. Rejecting the pattern might be 
+a plausible approach in some applications where multiple solutions are treated as 
+ambiguity. It is incapable of distinguishing absence of a solution from ambigous 
+solution however, which is often desired.
+
+Binding to an arbitrary solution in case of multiple ones might be sensitive as 
+to which solution is chosen: some applications might prefer the 
+smallest/largest one, some the smallest positive etc.
+We believe that depending on application, different semantic choices can be 
+valid, which is why we prefer not to make such choice for the user, but rather 
+provide him with means to decide. In fact we go even further and do not require 
+the values bound by our generalized n+k pattern to be a solution to the 
+corresponding equation. We do this for several reasons:
 
 \begin{itemize}
-\setlength{\itemsep}{0pt}
-\setlength{\parskip}{0pt}
-\item Reject the pattern.
-\item Accept, binding to either an arbitrary or some normalized solution.
-\item When set of solutions is guaranteed to be finite -- accept, binding 
-      solutions to a set variable.
-\item When set of solutions is guaranteed to be enumerable -- accept, binding 
-      solutions to a generator capable of enumerating them all.
+\item Due to numeric errors, truncation and integer overflow we will rarely 
+      obtain the exact algebraic solution.
+\item Curve fitting can be seen as pattern matching in some application domains. 
+\item Sometimes we might be interested in matching against a projection of a 
+      value onto some base and the obtained result may not necessarily yield a 
+      solution to matching against the original value.
 \end{itemize}
 
-\noindent
-We believe that depending on application, any of these semantic choices can be 
-valid, which is why we prefer not to make such choice for the user, but rather 
-provide him with means to decide himself. This is why our semantics for matching 
-against generalized n+k pattern depends on a family of user-defined functions 
+Consider matching an expression $x+1$ with variable $x$ of type \code{char} 
+ranging over $[-128,127]$ against a value -128. Should the value 127 be 
+considered a solution since 127+1 overflows in char resulting in -128? From the 
+mathematical point of view it should not, but a particular application might 
+accept such a solution for the sake of performance. Similarly, matching $3*y$ 
+against 1.0 with a variable $y$ of type \code{double} will result in a number 
+that is slightly different from $\frac{1}{3}$. Should such match be accepted the 
+next logical request a user might have is to be able to match an expression of 
+the form $n/m$ for integer variables $n$ and $m$ against a value 3.1415926 and 
+get the closest fraction to it. Matching against such pattern does not have to 
+be imprecise as one can match it against an object of a class representing 
+rational numbers.
 
-\begin{lstlisting}
-@$\Psi_f^\tau:\tau_r\times\tau_1\times...\times1\times...\times\tau_k\rightarrow bool\times\tau$@
-\end{lstlisting} 
-
-\noindent
-such that $\Psi_f^\tau[r](c_1,...,\bullet,...,c_k)$ for a given function 
-
-\begin{lstlisting}
-@$f:\tau_1,...,\tau,...,\tau_k\rightarrow\tau_r$@
-\end{lstlisting} 
-
-\noindent should return a pair composed of a boolean indicating acceptance of a 
-pattern $f(c_1,...,x^\tau,...,c_k)=r$ and a solution with respect to $x$ 
-when the match was reported successful. Symbol $\bullet$ indicates a position in 
-the argument list for which a solution is sought, the rest of the arguments are 
-known values.
-
-Each (possibly overloaded) operation in the library is represented with a class 
-whose purpose is to communicate to the library the semantics of the operation. 
-Multiplication, for example, is represented with:
+Taking the argument of precision even further one may want to be able to do 
+curve fitting with generalized n+k patterns for the sake of expressive syntax. 
+Consider an object that contains sampling of some random variable. A hypotetical 
+match statement might be querying:
 
 \begin{lstlisting}[keepspaces,columns=flexible]
-struct multiplication  { 
-  template <class A, class B> 
-  auto operator()(const A& a, const B& b) const 
-       -> decltype(a*b) { return a*b; }   
-};
+match (random_variable) { 
+    case Gaussian(@$\mu,\sigma^2$@): ... case Poisson(@$\lambda$@): ... case Bernoulli(@$p$@): ... 
+}
+\end{lstlisting} 
+
+Fitting error threshold in such scenario can either be global or passed 
+as a parameter into expressions we are matching against: e.g. 
+\code{case Gaussian(}$0.01,\mu,\sigma^2$\code{):}.
+Again the fitting does not have to be imprecise. Consider a library dealing with 
+polynomials of arbitrary degree. Given a general polynomial we might want to be 
+able to check a few special cases for which analytical solutions to some larger 
+question exist:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+match (polynomial) { case a*X^1 + 1: ... case 2*X^2 + b*X^1 + c: ... }
+\end{lstlisting} 
+
+X in such scenario is not a variable but a placeholder value of a kind that lets 
+us identify the degree, whose coefficient is sought. 
+
+A simpler example of this kind is decomposition of a complex number with Euler's 
+notation $a+b*i$ for scalar variables $a$ and $b$. With variables, such a 
+generalized n+k pattern is irrefutable for all complex numbers, but when a more 
+specific form is queried (e.g. $3+b*i$) a given complex number may fail to match 
+such a pattern. While matching, we will project such a complex number along its 
+real and imaginary components and will try matching the operands of addition 
+using those projections. Solutions obtained along each projection may not 
+necessarily combine into the final solution.
+
+What all these examples have in common is not necessarily solving the equation 
+that generalized n+k patterns represent, but the fact that we associate certain 
+notations with certain mathematical entities they represent. Parameters of 
+those expressions are typically associated with the parameterns of the 
+underlying mathematical object and we perform decomposition of that object into 
+parts. The structure of the expression tree is an analog of a constructor symbol in 
+structural decomposition, while its leaves are placeholders for parameters to be 
+matched against or inferred from the mathematical object in question.
+
+Algebraic decomposition to mathematical entities is what views are to algebraic 
+data types. Consider for example an object representing a 2D line. At different 
+parts of the program we might need to decompose that line differently (hypothetical syntax):
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+if (line matches m*X + c) ...                       // slope-intercept form
+if (line matches a*X + b*Y = c) ...                 // linear equation form
+if (line matches (Y-y0)*(x1-x0)=(y1-y0)*(X-x0)) ... // two-points form
 \end{lstlisting}
 
-\noindent
-Unlike similar classes in STL, our representation of operations is not 
-parameterized since we would like to represent the entire overload set. Instead, 
-we parameterize application operator inside the class. The library uses these 
-definitions to implement lazily evaluated expressions as seen in guard patterns 
-etc.
+As before, X and Y are not variables, but some syntactic entities that let us 
+properly decompose parts. Matching against the slope-intercept notation will not 
+be able to decompose a line of the form $y=c$, but otherwise still looks like 
+solving an equation (even though quantified over all X). The other two notations 
+include equality sign in their expression, which makes our argument that we 
+decompose against a known notation (as opposed to solving some equation) 
+stronger.
+
+\subsubsection{Solvers}
 
 The above class esssentially defines forward semantics of a family of 
 operations. To define backward semantics of it for the use in n+k patterns, the 
-user defines \emph{solvers} by specializing \code{template <typename F> struct 
-solver;} class:
+user defines \emph{solvers} by overloading a function 
 
-\begin{lstlisting}[keepspaces,columns=flexible]
-template <> struct solver<multiplication>
-{
-  template <class A, class B> // Solver for 1st arg
-  bool operator()(A& a, const B& b, const decltype(a*b)& r) 
-    { a = r/b; return a*b == r; } // a*b==r => a==r/b
+\begin{lstlisting}
+template <LazyExpression E, typename S> bool solve(const E&, const S&);
+\end{lstlisting}
+
+The first argument of a function takes an expression template representing an 
+expression we are matched against, while the second argument represents the 
+expected result. The following example defines a generic solver for 
+multiplication by a constant:
+
+\begin{lstlisting}
+template <LazyExpression E, typename T> requires Field<E::result_type>
+bool solve(const expr<multiplication,E,value<T>>& e, const E::result_type& r) {
+    return solve(e.m_e1,r/eval(e.m_e2));
+}
 @\halfline@
-  template <class A, class B> // Solver for 2nd arg
-  bool operator()(const A& a, B& b, const decltype(a*b)& r)
-    { b = r/a; return a*b == r; } // a*b==r => b==r/a
-};
+template <LazyExpression E, typename T> requires Integral<E::result_type>
+bool solve(const expr<multiplication,E,value<T>>& e, const E::result_type& r) {
+    T t = eval(e.m_e2);
+    return r%t == 0 && solve(e.m_e1,r/t);
+}
 \end{lstlisting}
 
 \noindent
-Each of the application operators in a solver takes arguments and the expected 
-result of the operation and then adjust the value of the only non-constant 
-argument to satisfy the equality $f(c_1,...,x^\tau,...,c_k)=r$. The failure to 
-find such a solution is reported with returning \code{false}.
+Note that we overload not only on the structure of the expression, but also on 
+the properties of their result type (or any other type involved). In particular 
+when the type of the result of the sub-expression models \code{Field} concept, 
+we can rely on presence of unique inverse and simply call division without any 
+additional checks. A similar overload for integral multiplication additionally 
+checks that result is divisible by the constant, before generically forwarding 
+the matching to the first argument of multiplication. This last overload 
+combined with a similar solver for addition of integral types is everything the 
+library needs to properly handle the definition of the \code{fib} function from 
+\textsection\ref{sec:syn}.
+
+A solver capable of decomposing a complex value using the Euler's notation is 
+very easy to define by fixing the structure of expression:
+
+\begin{lstlisting}
+template <LazyExpression E1, LazyExpression E2> requires SameType<E1::result_type,E2::result_type>
+bool solve(const expr<addition,
+                      expr<multiplication,E1,value<complex<E1::result_type>>>,
+                      E2
+                     >& e, 
+           const complex<E1::result_type>& r);
+\end{lstlisting}
 
 \section{Views}
 \label{sec:view}
@@ -2381,7 +2497,7 @@ template <typename T>
 
 \noindent
 The C++ standard effectively enforces the standard library to use cartesian 
-representation\cite[\textsection26.4-4]{C++0x}. Knowing that, we choose the 
+representation\cite[\textsection26.4-4]{C++11}. Knowing that, we choose the 
 \code{cartesian} layout to be default, with \code{polar} being an alternative 
 layout for complex numbers. We then define bindings for each of these layouts as 
 well as introduce template aliases (an analog of typedefs for parameterized 
