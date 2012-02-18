@@ -7,7 +7,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -23,7 +23,7 @@
 // done: Preallocate cache for number of case clauses
 // done: Add probabilities on classes to be taken into account for collisions
 // TODO: Add support for multiple scrutinies
-// TODO: Add static assert that verifies types in clauses to be related to selector type
+// done: Add static assert that verifies types in clauses to be related to selector type
 //       in the same way dynamic_cast does. This cannot always be check that target type
 //       is derived from selector type because we may have cross cast, but we can add
 //       a configuration macro that says that hierarchy is not using multiple inheritance

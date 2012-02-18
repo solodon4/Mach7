@@ -6,7 +6,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -24,7 +24,11 @@
 #define NUMBER_OF_DERIVED 100
 #endif
 
-#if 1
+#if !defined(XTL_INLINE_TIMED_FUNCS)
+#define XTL_INLINE_TIMED_FUNCS 0
+#endif
+
+#if XTL_INLINE_TIMED_FUNCS
 #define XTL_TIMED_FUNC_BEGIN XTL_FORCE_INLINE_BEGIN
 #define XTL_TIMED_FUNC_END   XTL_FORCE_INLINE_END
 #else

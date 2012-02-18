@@ -180,7 +180,7 @@
 #if !defined(XTL_USE_MEMOIZED_CAST)
     /// Another choice is whether library code should try to benefit from memoized_cast 
     /// or just use dynamic_cast 
-    #define XTL_USE_MEMOIZED_CAST 1
+    #define XTL_USE_MEMOIZED_CAST 0
 #endif
 
 //------------------------------------------------------------------------------

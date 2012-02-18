@@ -6,7 +6,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -35,6 +35,25 @@ struct ShapeVisitor
 //------------------------------------------------------------------------------
 
 template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(*this); }
+
+//------------------------------------------------------------------------------
+
+size_t frequency(const Shape& s)
+{
+    MatchP(s)
+    {
+        #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
+        #define FOR_EACH_N(N) CaseP(shape_kind<N>) return 10*N+7;
+        #include "loop_over_numbers.hpp"
+        #undef  FOR_EACH_N
+        #undef  FOR_EACH_MAX
+    }
+    EndMatchP
+    return -1;
+}
+
+//size_t frequency(intptr_t vtbl) { return frequency(*reinterpret_cast<const Shape*>(&vtbl)); }
+template <> struct match_members<Shape> { FQS(frequency); };
 
 //------------------------------------------------------------------------------
 
@@ -105,13 +124,13 @@ Shape* make_shape(size_t i)
 
 int main()
 {
-//  int pp = test_repetitive();
-    int ps = test_sequential();
-    int pr = test_randomized();
+//    verdict pp = test_repetitive();
+    verdict ps = test_sequential();
+    verdict pr = test_randomized();
     std::cout << "OVERALL: "
-//            << "Repetitive: " << abs(pp) << (pp >= 0 ? "% slower" : "% faster") << "; "
-              << "Sequential: " << abs(ps) << (ps >= 0 ? "% slower" : "% faster") << "; "
-              << "Random: "     << abs(pr) << (pr >= 0 ? "% slower" : "% faster") 
+//              << "Repetitive: " << pp << "; "
+              << "Sequential: " << ps << "; "
+              << "Random: "     << pr 
               << std::endl; 
 }
 

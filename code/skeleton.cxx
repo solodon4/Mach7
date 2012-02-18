@@ -6,7 +6,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -242,14 +242,14 @@ Shape* make_shape(size_t i)
 int main()
 {
 #if   defined(XTL_REP_TEST)
-    int pr = test_repetitive();
-    std::cout << XTL_PREFIX_STR "Repetitive: " << abs(pr) << (pr >= 0 ? "% slower" : "% faster") << std::endl; 
+    verdict pr = test_repetitive();
+    std::cout << XTL_PREFIX_STR "Repetitive: " << pr << std::endl; 
 #elif defined(XTL_SEQ_TEST)
-    int ps = test_sequential();
-    std::cout << XTL_PREFIX_STR "Sequential: " << abs(ps) << (ps >= 0 ? "% slower" : "% faster") << std::endl; 
+    verdict ps = test_sequential();
+    std::cout << XTL_PREFIX_STR "Sequential: " << ps << std::endl; 
 #elif defined(XTL_RND_TEST)
-    int pn = test_randomized();
-    std::cout << XTL_PREFIX_STR "Randomized: " << abs(pn) << (pn >= 0 ? "% slower" : "% faster") << std::endl; 
+    verdict pn = test_randomized();
+    std::cout << XTL_PREFIX_STR "Randomized: " << pn << std::endl; 
 #else
     #error Test scenario REP, SEQ or RND has not been chosen.
 #endif

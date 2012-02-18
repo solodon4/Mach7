@@ -6,7 +6,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -26,6 +26,15 @@
 #include <vector>
 #include "config.hpp"
 #include "timing.hpp"
+
+#if defined(XTL_TIMING_METHOD_1)
+    XTL_MESSAGE("Timing method 1: based on QueryPerformanceCounter()")
+#elif defined(XTL_TIMING_METHOD_2)
+    XTL_MESSAGE("Timing method 2: based on rdtsc register")
+#elif defined(XTL_TIMING_METHOD_3)
+    XTL_MESSAGE("Timing method 3: based on clock()")
+#endif
+
 
 //------------------------------------------------------------------------------
 
@@ -81,30 +90,6 @@ void statistics(std::vector<T>& measurements, T& min, T& max, T& avg, T& med, T&
 
 //------------------------------------------------------------------------------
 
-int relative_performance(long long v, long long m)
-{
-    if (XTL_UNLIKELY(v <= 0 || m <= 0))
-    {
-        std::cout << "ERROR: Insufficient timer resolution. Increase number of iterations N" << std::endl;
-        exit(42);
-    }
-    else
-    if (XTL_UNLIKELY(v <= m))
-    {
-        int percent = int(m*100/v-100);
-        std::cout << "\t\t" << percent << "% slower" << std::endl;
-        return +percent; // Positive number indicates how many percents slower we are 
-    }
-    else
-    {
-        int percent = int(v*100/m-100);
-        std::cout << "\t\t" << percent << "% faster" << std::endl;
-        return -percent; // Negative number indicates how many percents faster we are 
-    }
-}
-
-//------------------------------------------------------------------------------
-
 long long display(const char* name, std::vector<long long>& timings)
 {
     long long min, max, avg, med, dev;
@@ -117,7 +102,12 @@ long long display(const char* name, std::vector<long long>& timings)
 
     if (file)
     {
-        std::copy(timings.begin(), timings.end(), std::ostream_iterator<long long>(file, ", "));
+        std::transform(
+            timings.begin(), 
+            timings.end(), 
+            std::ostream_iterator<long long>(file, ", "), 
+            [](long long t) { return cycles(t)/N; }
+        );
         file << "End" << std::endl;
     }
 
@@ -129,19 +119,12 @@ long long display(const char* name, std::vector<long long>& timings)
               << std::setw(4) << microseconds(med) << " -- "
               << std::setw(4) << microseconds(max) << "] Dev = " 
               << std::setw(4) << microseconds(dev)
-#if   defined(XTL_TIMING_METHOD_1)
-              // FIX: 1000 is heuristic here for my laptop. QueryPerformanceCounter doesn't specify how it is related to cycles!
+#if   defined(XTL_TIMING_METHOD_1) || defined(XTL_TIMING_METHOD_2)
               << " Cycles/iteration: ["
-              << std::setw(4) << min*1000/N << " -- " 
-              << std::setw(4) << avg*1000/N << "/" 
-              << std::setw(4) << med*1000/N << " -- "
-              << std::setw(4) << max*1000/N << "]"
-#elif defined(XTL_TIMING_METHOD_2)
-              << " Cycles/iteration: ["
-              << std::setw(4) << min/N << " -- " 
-              << std::setw(4) << avg/N << "/" 
-              << std::setw(4) << med/N << " -- "
-              << std::setw(4) << max/N << "]"
+              << std::setw(4) << cycles(min)/N << " -- " 
+              << std::setw(4) << cycles(avg)/N << "/" 
+              << std::setw(4) << cycles(med)/N << " -- "
+              << std::setw(4) << cycles(max)/N << "]"
 #endif
               << std::endl;
 
@@ -179,6 +162,8 @@ static int some_numbers[256] = {
    2,   3,   5,   7,  11,  13,  17,  19,  23,  29, 
   31,  37,  41,  43,  47,  53 
 };
+
+//------------------------------------------------------------------------------
 
 void run_timings(
         std::vector<Shape*>&    shapes, 
@@ -221,12 +206,42 @@ void run_timings(
 
 //------------------------------------------------------------------------------
 
-int test_sequential()
+struct verdict
+{
+    verdict(long long v = 0, long long m = 0) : vis_time(v), mat_time(m) {}
+    long long vis_time;
+    long long mat_time;
+};
+
+//------------------------------------------------------------------------------
+
+inline std::ostream& operator<<(std::ostream& os, const verdict& r)
+{
+    long long v = r.vis_time;
+    long long m = r.mat_time;
+
+    if (XTL_UNLIKELY(v <= 0 || m <= 0))
+        return os << "ERROR: Insufficient timer resolution. Increase number of iterations N";
+    else
+    if (XTL_UNLIKELY(v <= m))
+        return os << std::setw(3) << int(m*100/v-100) << "% slower" 
+                  << " V=" << std::setw(3) << cycles(v)/N 
+                  << " M=" << std::setw(3) << cycles(m)/N;
+    else
+        return os << std::setw(3) << int(v*100/m-100) << "% faster"
+                  << " V=" << std::setw(3) << cycles(v)/N 
+                  << " M=" << std::setw(3) << cycles(m)/N;
+}
+
+//------------------------------------------------------------------------------
+
+verdict test_sequential()
 {
     std::cout << "=================== Sequential Test ===================" << std::endl;
 
     size_t a1 = 0, a2 = 0;
-    std::vector<int>       percentages(K); // Final verdict of medians for each of the K experiments
+    std::vector<long long> mediansV(K); // Final verdict of medians for each of the K experiments with visitors
+    std::vector<long long> mediansM(K); // Final verdict of medians for each of the K experiments with matching
     std::vector<long long> timingsV(M);
     std::vector<long long> timingsM(M);
     std::vector<Shape*>    shapes(N);
@@ -234,12 +249,12 @@ int test_sequential()
     for (size_t i = 0; i < N; ++i)
         shapes[i] = make_shape(i%K);
 
-    for (size_t n = 0; n < K; ++n)
+    for (size_t k = 0; k < K; ++k)
     {
         run_timings(shapes, timingsV, timingsM, a1, a2);
-        long long avgV = display("AreaVisSeq", timingsV);
-        long long avgM = display("AreaMatSeq", timingsM);
-        percentages[n] = relative_performance(avgV, avgM);
+        mediansV[k] = display("AreaVisSeq", timingsV);
+        mediansM[k] = display("AreaMatSeq", timingsM);
+        std::cout << "\t\t" << verdict(mediansV[k], mediansM[k]) << std::endl;
     }
 
     for (size_t i = 0; i < N; ++i)
@@ -254,13 +269,14 @@ int test_sequential()
         exit(42);
     }
 
-    std::sort(percentages.begin(), percentages.end());
-    return percentages[percentages.size()/2];
+    std::sort(mediansV.begin(), mediansV.end());
+    std::sort(mediansM.begin(), mediansM.end());
+    return verdict(mediansV[K/2],mediansM[K/2]);
 }
 
 //------------------------------------------------------------------------------
 
-int test_randomized()
+verdict test_randomized()
 {
 #if !defined(NO_RANDOMIZATION)
     srand (unsigned(get_time_stamp()/get_frequency())); // Randomize pseudo random number generator
@@ -268,21 +284,21 @@ int test_randomized()
     std::cout << "=================== Randomized Test ===================" << std::endl;
 
     size_t a1 = 0, a2 = 0;
-    std::vector<int>       percentages(K); // Final verdict of medians for each of the K experiments
+    std::vector<long long> mediansV(K); // Final verdict of medians for each of the K experiments with visitors
+    std::vector<long long> mediansM(K); // Final verdict of medians for each of the K experiments with matching
     std::vector<long long> timingsV(M);
     std::vector<long long> timingsM(M);
     std::vector<Shape*>    shapes(N);
 
-    for (size_t n = 0; n < K; ++n)
+    for (size_t k = 0; k < K; ++k)
     {
         for (size_t i = 0; i < N; ++i)
             shapes[i] = make_shape(rand()%K);
 
         run_timings(shapes, timingsV, timingsM, a1, a2);
-
-        long long avgV = display("AreaVisRnd", timingsV);
-        long long avgM = display("AreaMatRnd", timingsM);
-        percentages[n] = relative_performance(avgV, avgM);
+        mediansV[k] = display("AreaVisRnd", timingsV);
+        mediansM[k] = display("AreaMatRnd", timingsM);
+        std::cout << "\t\t" << verdict(mediansV[k], mediansM[k]) << std::endl;
 
         for (size_t i = 0; i < N; ++i)
         {
@@ -297,31 +313,33 @@ int test_randomized()
         exit(42);
     }
 
-    std::sort(percentages.begin(), percentages.end());
-    return percentages[percentages.size()/2];
+    std::sort(mediansV.begin(), mediansV.end());
+    std::sort(mediansM.begin(), mediansM.end());
+    return verdict(mediansV[K/2],mediansM[K/2]);
 }
 
 //------------------------------------------------------------------------------
 
-int test_repetitive()
+verdict test_repetitive()
 {
     std::cout << "=================== Repetitive Test ===================" << std::endl;
 
     size_t a1 = 0, a2 = 0;
-    std::vector<int>       percentages(K); // Final verdict of medians for each of the K experiments
+    std::vector<long long> mediansV(K); // Final verdict of medians for each of the K experiments with visitors
+    std::vector<long long> mediansM(K); // Final verdict of medians for each of the K experiments with matching
     std::vector<long long> timingsV(M);
     std::vector<long long> timingsM(M);
     std::vector<Shape*>    shapes(N);
 
-    for (size_t n = 0; n < K; ++n)
+    for (size_t k = 0; k < K; ++k)
     {
         for (size_t i = 0; i < N; ++i)
-            shapes[i] = make_shape((n+i)*2-n-2*i);
+            shapes[i] = make_shape((k+i)*2-k-2*i);
 
         run_timings(shapes, timingsV, timingsM, a1, a2);
-        long long avgV = display("AreaVisRep", timingsV);
-        long long avgM = display("AreaMatRep", timingsM);
-        percentages[n] = relative_performance(avgV, avgM);
+        mediansV[k] = display("AreaVisRep", timingsV);
+        mediansM[k] = display("AreaMatRep", timingsM);
+        std::cout << "\t\t" << verdict(mediansV[k], mediansM[k]) << std::endl;
 
         for (size_t i = 0; i < N; ++i)
         {
@@ -336,8 +354,9 @@ int test_repetitive()
         exit(42);
     }
 
-    std::sort(percentages.begin(), percentages.end());
-    return percentages[percentages.size()/2];
+    std::sort(mediansV.begin(), mediansV.end());
+    std::sort(mediansM.begin(), mediansM.end());
+    return verdict(mediansV[K/2],mediansM[K/2]);
 }
 
 //------------------------------------------------------------------------------

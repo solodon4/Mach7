@@ -6,7 +6,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -201,9 +201,9 @@ int main()
 	for (int i = 1; i < 10; ++i)
 		std::cout << "factorial(" << i << ")=" << factorial(i) << std::endl;
 
-    int pp = test_repetitive();
+    verdict pp = test_repetitive();
     std::cout << "OVERALL: "
-              << "Repetitive: " << abs(pp) << (pp >= 0 ? "% slower" : "% faster") << "; "
+              << "Repetitive: " << pp << "; "
               << std::endl; 
 }
 

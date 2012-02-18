@@ -1,266 +1,29 @@
 #
-# This is a common Makefile for code examples from the book
-# "Programming -- Principles and Practice Using C++" by Bjarne Stroustrup
+# \file
+#
+# Makefile for building and testing pattern matching library.
+#
+# \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+#
+# This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
+# Copyright (C) 2005-2012 Texas A&M University.
+# All rights reserved.
 #
 
 #
 # Usage:
-#     make        - Build all examples
-#     make clean  - Clean all examples
+#     make        - Build all .cpp files in the current folder
+#     make syntax - Build all supported library options combination for syntax variations
+#     make timing - Build all supported configurations for timing the library
+#     make clean  - Clean all targets
 #     make test   - Run the test suite
 #
-
-OPTFLAGS452 = \
--falign-labels \
--falign-loops \
--fargument-alias \
--fauto-inc-dec \
--fbranch-count-reg \
--fcaller-saves \
--fcommon \
--fcprop-registers \
--fcrossjumping \
--fcse-follow-jumps \
--fdefer-pop \
--fdelete-null-pointer-checks \
--fearly-inlining \
--feliminate-unused-debug-types \
--fexceptions \
--fexpensive-optimizations \
--fforward-propagate \
--ffunction-cse \
--fgcse \
--fgcse-lm \
--fguess-branch-probability \
--fident \
--fif-conversion \
--fif-conversion2 \
--findirect-inlining \
--finline \
--finline-functions-called-once \
--finline-small-functions \
--fipa-cp \
--fipa-pure-const \
--fipa-reference \
--fipa-sra \
--fira-share-save-slots \
--fira-share-spill-slots \
--fivopts \
--fkeep-static-consts \
--fleading-underscore \
--fmath-errno \
--fmerge-constants \
--fmerge-debug-strings \
--fmove-loop-invariants \
--foptimize-register-move \
--foptimize-sibling-calls \
--fpeephole \
--fpeephole2 \
--freg-struct-return \
--fregmove \
--freorder-blocks \
--freorder-functions \
--frerun-cse-after-loop \
--fsched-critical-path-heuristic \
--fsched-dep-count-heuristic \
--fsched-group-heuristic \
--fsched-interblock \
--fsched-last-insn-heuristic \
--fsched-rank-heuristic \
--fsched-spec \
--fsched-spec-insn-heuristic \
--fsched-stalled-insns-dep \
--fset-stack-executable \
--fshow-column \
--fsigned-zeros \
--fsplit-ivs-in-unroller \
--fsplit-wide-types \
--fstrict-aliasing \
--fstrict-overflow \
--fthread-jumps \
--ftoplevel-reorder \
--ftrapping-math \
--ftree-builtin-call-dce \
--ftree-ccp \
--ftree-ch \
--ftree-copy-prop \
--ftree-copyrename \
--ftree-cselim \
--ftree-dce \
--ftree-dominator-opts \
--ftree-dse \
--ftree-forwprop \
--ftree-fre \
--ftree-loop-im \
--ftree-loop-ivcanon \
--ftree-loop-optimize \
--ftree-phiprop \
--ftree-pre \
--ftree-pta \
--ftree-reassoc \
--ftree-scev-cprop \
--ftree-sink \
--ftree-slp-vectorize \
--ftree-sra \
--ftree-switch-conversion \
--ftree-ter \
--ftree-vect-loop-version \
--ftree-vrp \
--funit-at-a-time \
--fvar-tracking \
--fvar-tracking-assignments \
--fvect-cost-model \
--fzero-initialized-in-bss \
--m32 \
--m80387 \
--m96bit-long-double \
--maccumulate-outgoing-args \
--malign-double \
--malign-stringops \
--mfancy-math-387 \
--mfp-ret-in-387 \
--mfused-madd \
--mieee-fp \
--mno-red-zone \
--mno-sse4 \
--mpush-args \
--msahf \
--mstack-arg-probe
-
-OPTFLAGS461 = \
--falign-labels \
--fasynchronous-unwind-tables \
--fauto-inc-dec \
--fbranch-count-reg \
--fcaller-saves \
--fcombine-stack-adjustments \
--fcommon \
--fcompare-elim \
--fcprop-registers \
--fcrossjumping \
--fcse-follow-jumps \
--fdefer-pop \
--fdelete-null-pointer-checks \
--fdevirtualize \
--fdwarf2-cfi-asm \
--fearly-inlining \
--feliminate-unused-debug-types \
--fexceptions \
--fexpensive-optimizations \
--fforward-propagate \
--ffunction-cse \
--fgcse \
--fgcse-lm \
--fguess-branch-probability \
--fident \
--fif-conversion \
--fif-conversion2 \
--findirect-inlining \
--finline \
--finline-functions-called-once \
--finline-small-functions \
--fipa-cp \
--fipa-profile \
--fipa-pure-const \
--fipa-reference \
--fipa-sra \
--fira-share-save-slots \
--fira-share-spill-slots \
--fivopts \
--fkeep-inline-dllexport \
--fkeep-static-consts \
--fleading-underscore \
--fmath-errno \
--fmerge-constants \
--fmerge-debug-strings \
--fmove-loop-invariants \
--fomit-frame-pointer \
--foptimize-register-move \
--foptimize-sibling-calls \
--fpartial-inlining \
--fpeephole \
--fpeephole2 \
--fprefetch-loop-arrays \
--freg-struct-return \
--fregmove \
--freorder-blocks \
--freorder-functions \
--frerun-cse-after-loop \
--fsched-critical-path-heuristic \
--fsched-dep-count-heuristic \
--fsched-group-heuristic \
--fsched-interblock \
--fsched-last-insn-heuristic \
--fsched-rank-heuristic \
--fsched-spec \
--fsched-spec-insn-heuristic \
--fsched-stalled-insns-dep \
--fset-stack-executable \
--fshow-column \
--fsigned-zeros \
--fsplit-ivs-in-unroller \
--fsplit-wide-types \
--fstrict-aliasing \
--fstrict-overflow \
--fstrict-volatile-bitfields \
--fthread-jumps \
--ftoplevel-reorder \
--ftrapping-math \
--ftree-bit-ccp \
--ftree-builtin-call-dce \
--ftree-ccp \
--ftree-ch \
--ftree-copy-prop \
--ftree-copyrename \
--ftree-cselim \
--ftree-dce \
--ftree-dominator-opts \
--ftree-dse \
--ftree-forwprop \
--ftree-fre \
--ftree-loop-if-convert \
--ftree-loop-im \
--ftree-loop-ivcanon \
--ftree-loop-optimize \
--ftree-parallelize-loops= \
--ftree-phiprop \
--ftree-pre \
--ftree-pta \
--ftree-reassoc \
--ftree-scev-cprop \
--ftree-sink \
--ftree-slp-vectorize \
--ftree-sra \
--ftree-switch-conversion \
--ftree-ter \
--ftree-vect-loop-version \
--ftree-vrp \
--funit-at-a-time \
--funwind-tables \
--fvar-tracking \
--fvar-tracking-assignments \
--fvect-cost-model \
--fzero-initialized-in-bss \
--m32 \
--m80387 \
--m96bit-long-double \
--maccumulate-outgoing-args \
--malign-double \
--malign-stringops \
--mfancy-math-387 \
--mfp-ret-in-387 \
--mieee-fp \
--mno-red-zone \
--mno-sse4 \
--mpush-args \
--msahf \
--mstack-arg-probe
 
 OPTFLAGS = $(OPTFLAGS452)
 INCLUDES = 
 LIBS     = -lstdc++
-CXXFLAGS = $(INCLUDES) -Wall -time -O -DNDEBUG -std=c++0x \
--fno-omit-frame-pointer \
+CXXFLAGS = $(INCLUDES) -Wall -time -O2 -DNDEBUG -std=c++0x \
+#-fno-omit-frame-pointer \
 #-fno-devirtualize \
 #-fno-combine-stack-adjustments \
 #-fno-compare-elim \
@@ -289,6 +52,9 @@ TARGETS = ${SOURCES:.cpp=.exe}
 
 # Build all targets by default
 all: 	$(TARGETS)
+
+ver:
+	@$(CXX) --version
 
 # Files with extension .no-link.cpp are not intended for linking
 %.no-link.exe: %.no-link.o

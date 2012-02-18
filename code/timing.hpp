@@ -6,7 +6,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -28,6 +28,7 @@
 #endif
 
 #if defined(XTL_TIMING_METHOD_1)
+
     #if !defined(NOMINMAX)
         #define  NOMINMAX
     #endif
@@ -41,14 +42,26 @@
     inline time_stamp get_time_stamp() { LARGE_INTEGER li; QueryPerformanceCounter(&li);   return li.QuadPart; }
     /// Returns how many time stamps are there in 1 second (frequency).
     inline time_stamp get_frequency()  { LARGE_INTEGER li; QueryPerformanceFrequency(&li); return li.QuadPart; }
+    /// Estimates the number of cycles in a given time_stamp_diff value
+    /// FIX: 1000 is heuristic here for my laptop. QueryPerformanceCounter doesn't specify how it is related to cycles!
+    inline time_stamp_diff cycles(time_stamp_diff tsd)  { return tsd*1000; }
 
 #elif defined(XTL_TIMING_METHOD_2)
 
     #include <stdint.h>
+    #include <unistd.h>
 
     // The following code is taken from: http://en.wikipedia.org/wiki/Time_Stamp_Counter
     extern "C" {
-      __inline__ uint64_t rdtsc() {
+#if 1
+        inline unsigned long long int rdtsc(void)
+        {
+            unsigned long long int x;
+            __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
+            return x;
+        }
+#else
+        inline uint64_t rdtsc() {
         uint32_t lo, hi;
         __asm__ __volatile__ (      // serialize
         "xorl %%eax,%%eax \n        cpuid"
@@ -57,6 +70,7 @@
         __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
         return (uint64_t)hi << 32 | lo;
       }
+#endif
     }
     /// The type used to record a time stamp. The type must have operator- defined.
     typedef uint64_t  time_stamp;
@@ -65,7 +79,17 @@
     /// Returns a current time stamp.
     inline time_stamp get_time_stamp() { return rdtsc(); }
     /// Returns how many time stamps are there in 1 second (frequency).
-    inline time_stamp get_frequency()  { return 2530000000; } // FIX: This ideally has to be MGz of computer we are running on
+    inline time_stamp get_frequency()
+    {
+        return 2530000000; // FIX: This ideally has to be MGz of computer we are running on as approximated below
+        unsigned long long int cycles[2];
+        cycles[0] = rdtsc();
+        usleep(100000); // Sleep for 1/10th of a second
+        cycles[1] = rdtsc();
+        return 10*(cycles[1]-cycles[0]);
+    }
+    /// Estimates the number of cycles in a given time_stamp_diff value
+    inline time_stamp_diff cycles(time_stamp_diff tsd)  { return tsd; }
 
 #elif defined(XTL_TIMING_METHOD_3)
 

@@ -6,7 +6,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -493,6 +493,15 @@ auto operator|=(P&& p, E&& e) noexcept -> XTL_RETURN_ENABLE_IF
 )
 
 //------------------------------------------------------------------------------
+
+template <typename T> 
+std::istream& operator>>(std::istream& is, variable<T>& v)
+{
+    return is >> v.m_value;
+}
+
+//------------------------------------------------------------------------------
+
 #if defined(__GNUC__)
 // NOTE: We need otherwise redundant non-const overloads to make sure that our 
 //       overloads creating expression templates based on the second argument are 
