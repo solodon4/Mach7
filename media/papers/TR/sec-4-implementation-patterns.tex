@@ -1,0 +1,225 @@
+\section{Generalized n+k Patterns}
+\label{sec:slv}
+
+Intuitively n+k patterns like $f(x,y)=v$ relate a known result of a given 
+function application to its arguments. The case where multiple unknown arguments 
+are matched against a single result should not be immediately discarded as there 
+are known n-ary functions whose inverse is unique. An example of such function 
+is Cantor pairing function that defines bijection between 
+$\mathbb{N}\times\mathbb{N}$ and $\mathbb{N}$. Even when such mappings are not 
+one-to-one, their restriction to a given argument often is. Most generalizations 
+of n+k patterns seem to agree on the following rules:
+
+\begin{itemize}
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+\item Absence of solution that would result in a given value should be indicated 
+      through rejection of the pattern.
+\item Presence of a unique solution should be indicated with acceptance of the 
+      pattern and binding of corresponding variables to the solution.
+\end{itemize}
+
+\noindent When multiple solutions are possible, returning a set or an enumerator 
+is not usually considered due to differences in types: variable $x$ representing 
+a solution to $f(x)=c$ is intuitively expected to have the same type as the 
+argument of $f$, so that it can be applied to $x$. Rejecting the pattern might be 
+a plausible approach in some applications where multiple solutions are treated as 
+ambiguity. It is incapable of distinguishing absence of a solution from ambigous 
+solution however, which is often desired.
+
+Binding to an arbitrary solution in case of multiple ones might be sensitive as 
+to which solution is chosen: some applications might prefer the 
+smallest/largest one, some the smallest positive etc.
+We believe that depending on application, different semantic choices can be 
+valid, which is why we prefer not to make such choice for the user, but rather 
+provide him with means to decide. In fact we go even further and do not require 
+the values bound by our generalized n+k pattern to be a solution to the 
+corresponding equation. We do this for several reasons:
+
+\begin{itemize}
+\item Due to numeric errors, truncation and integer overflow we will rarely 
+      obtain the exact algebraic solution.
+\item Curve fitting can be seen as pattern matching in some application domains. 
+\item Sometimes we might be interested in matching against a projection of a 
+      value onto some base and the obtained result may not necessarily yield a 
+      solution to matching against the original value.
+\end{itemize}
+
+Consider matching an expression $x+1$ with variable $x$ of type \code{char} 
+ranging over $[-128,127]$ against a value -128. Should the value 127 be 
+considered a solution since 127+1 overflows in char resulting in -128? From the 
+mathematical point of view it should not, but a particular application might 
+accept such a solution for the sake of performance. Similarly, matching $3*y$ 
+against 1.0 with a variable $y$ of type \code{double} will result in a number 
+that is slightly different from $\frac{1}{3}$. Should such match be accepted the 
+next logical request a user might have is to be able to match an expression of 
+the form $n/m$ for integer variables $n$ and $m$ against a value 3.1415926 and 
+get the closest fraction to it. Matching against such pattern does not have to 
+be imprecise as one can match it against an object of a class representing 
+rational numbers.
+
+Taking the argument of precision even further one may want to be able to do 
+curve fitting with generalized n+k patterns for the sake of expressive syntax. 
+Consider an object that contains sampling of some random variable. A hypotetical 
+match statement might be querying:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+match (random_variable) { 
+    case Gaussian(@$\mu,\sigma^2$@): ... case Poisson(@$\lambda$@): ... case Bernoulli(@$p$@): ... 
+}
+\end{lstlisting} 
+
+Fitting error threshold in such scenario can either be global or passed 
+as a parameter into expressions we are matching against: e.g. 
+\code{case Gaussian(}$0.01,\mu,\sigma^2$\code{):}.
+Again the fitting does not have to be imprecise. Consider a library dealing with 
+polynomials of arbitrary degree. Given a general polynomial we might want to be 
+able to check a few special cases for which analytical solutions to some larger 
+question exist:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+match (polynomial) { case a*X^1 + 1: ... case 2*X^2 + b*X^1 + c: ... }
+\end{lstlisting} 
+
+X in such scenario is not a variable but a placeholder value of a kind that lets 
+us identify the degree, whose coefficient is sought. 
+
+A simpler example of this kind is decomposition of a complex number with Euler's 
+notation $a+b*i$ for scalar variables $a$ and $b$. With variables, such a 
+generalized n+k pattern is irrefutable for all complex numbers, but when a more 
+specific form is queried (e.g. $3+b*i$) a given complex number may fail to match 
+such a pattern. While matching, we will project such a complex number along its 
+real and imaginary components and will try matching the operands of addition 
+using those projections. Solutions obtained along each projection may not 
+necessarily combine into the final solution.
+
+What all these examples have in common is not necessarily solving the equation 
+that generalized n+k patterns represent, but the fact that we associate certain 
+notations with certain mathematical entities they represent. Parameters of 
+those expressions are typically associated with the parameterns of the 
+underlying mathematical object and we perform decomposition of that object into 
+parts. The structure of the expression tree is an analog of a constructor symbol in 
+structural decomposition, while its leaves are placeholders for parameters to be 
+matched against or inferred from the mathematical object in question.
+
+Algebraic decomposition to mathematical entities is what views are to algebraic 
+data types. Consider for example an object representing a 2D line. At different 
+parts of the program we might need to decompose that line differently (hypothetical syntax):
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+if (line matches m*X + c) ...                       // slope-intercept form
+if (line matches a*X + b*Y = c) ...                 // linear equation form
+if (line matches (Y-y0)*(x1-x0)=(y1-y0)*(X-x0)) ... // two-points form
+\end{lstlisting}
+
+As before, X and Y are not variables, but some syntactic entities that let us 
+properly decompose parts. Matching against the slope-intercept notation will not 
+be able to decompose a line of the form $y=c$, but otherwise still looks like 
+solving an equation (even though quantified over all X). The other two notations 
+include equality sign in their expression, which makes our argument that we 
+decompose against a known notation (as opposed to solving some equation) 
+stronger.
+
+\subsubsection{Solvers}
+
+The above class esssentially defines forward semantics of a family of 
+operations. To define backward semantics of it for the use in n+k patterns, the 
+user defines \emph{solvers} by overloading a function 
+
+\begin{lstlisting}
+template <LazyExpression E, typename S> bool solve(const E&, const S&);
+\end{lstlisting}
+
+The first argument of a function takes an expression template representing an 
+expression we are matched against, while the second argument represents the 
+expected result. The following example defines a generic solver for 
+multiplication by a constant:
+
+\begin{lstlisting}
+template <LazyExpression E, typename T> requires Field<E::result_type>
+bool solve(const expr<multiplication,E,value<T>>& e, const E::result_type& r) {
+    return solve(e.m_e1,r/eval(e.m_e2));
+}
+@\halfline@
+template <LazyExpression E, typename T> requires Integral<E::result_type>
+bool solve(const expr<multiplication,E,value<T>>& e, const E::result_type& r) {
+    T t = eval(e.m_e2);
+    return r%t == 0 && solve(e.m_e1,r/t);
+}
+\end{lstlisting}
+
+\noindent
+Note that we overload not only on the structure of the expression, but also on 
+the properties of their result type (or any other type involved). In particular 
+when the type of the result of the sub-expression models \code{Field} concept, 
+we can rely on presence of unique inverse and simply call division without any 
+additional checks. A similar overload for integral multiplication additionally 
+checks that result is divisible by the constant, before generically forwarding 
+the matching to the first argument of multiplication. This last overload 
+combined with a similar solver for addition of integral types is everything the 
+library needs to properly handle the definition of the \code{fib} function from 
+\textsection\ref{sec:syn}.
+
+A solver capable of decomposing a complex value using the Euler's notation is 
+very easy to define by fixing the structure of expression:
+
+\begin{lstlisting}
+template <LazyExpression E1, LazyExpression E2> requires SameType<E1::result_type,E2::result_type>
+bool solve(const expr<addition,
+                      expr<multiplication,E1,value<complex<E1::result_type>>>,
+                      E2
+                     >& e, 
+           const complex<E1::result_type>& r);
+\end{lstlisting}
+
+\section{Views}
+\label{sec:view}
+
+Support of multiple bindings through layouts in our library effectively enables 
+a facility similar to Wadler's \emph{views}. Reconsider example from 
+\textsection\ref{sec:bg} that discusses cartesian and polar representations of 
+complex numbers, demonstrating the notion of view. The same example recoded with 
+our SELL looks as following:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+// Introduce layouts
+enum { cartesian = default_layout, polar };
+@\halfline@
+// Define bindings with them
+template <typename T> struct bindings<std::complex<T>>
+  { CM(0,std::real<T>); CM(1,std::imag<T>); };
+template <typename T> struct bindings<std::complex<T>, polar>
+  { CM(0,std::abs<T>);  CM(1,std::arg<T>); };
+@\halfline@
+// Define views
+template <typename T> 
+  using Cartesian = view<std::complex<T>>;
+template <typename T> 
+  using Polar     = view<std::complex<T>, polar>;
+@\halfline@
+  std::complex<double> c;
+  double a,b,r,f;
+@\halfline@
+  if (match<std::complex<double>>(a,b)(c)) // default
+  if (match<   Cartesian<double>>(a,b)(c)) // same as above
+  if (match<       Polar<double>>(r,f)(c)) // view
+\end{lstlisting}
+
+\noindent
+The C++ standard effectively enforces the standard library to use cartesian 
+representation\cite[\textsection26.4-4]{C++11}. Knowing that, we choose the 
+\code{cartesian} layout to be default, with \code{polar} being an alternative 
+layout for complex numbers. We then define bindings for each of these layouts as 
+well as introduce template aliases (an analog of typedefs for parameterized 
+classes) for each of the views. Template class \code{view<T,l>} defined by the 
+library provides a way to bind together a target type with one of its layouts 
+into a single type. This type can be used everywhere in the library where an 
+original target type was expected, while the library will take care of decoding 
+the type and layout from the view and passing them along where needed.
+
+The first two match expressions are the same and incur no run-time overhead 
+since they use default layout of the underlying type. The third match expression 
+will implicitly convert cartesian representation into polar, thus incurring some 
+overhead. This overhead would have been present in code that depends on polar 
+coordinates anyways, since the user would have had to invoke the corresponding 
+functions manually.

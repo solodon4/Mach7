@@ -1,0 +1,132 @@
+\section{Introduction} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:intro}
+
+Conventional object-oriented programming practice suggests \emph{Visitor Design 
+Pattern}~\cite{DesignPatterns} for principled traversal of structured data such 
+as those manipulated by compilers, GUI frameworks, etc. However, our experience 
+with various C++ front-ends and program analysis frameworks~\cite{Pivot09,Phoenix,Clang} 
+have been rather unsatisfactory. We found visitors unsuitable to express our 
+application logic, surprisingly hard to teach students, and slow. We found 
+dynamic casts in many places, often nested. This suggested that users preferred 
+shorter, cleaner, and more direct codes to visitors, even at the high cost in 
+performance. Most of the dynamic cast usage mimicked the moral equivalent of 
+pattern matching as found in modern functional programming languages.
+
+Pattern matching is an abstraction mechanism popular in the functional
+programming community, and recently adopted by several object-oriented
+programming languages such as Scala~\cite{Scala2nd}, Fortress~\cite{RPS10},
+and dialects of Java~\cite{Odersky97pizzainto,Liu03jmatch:iterable,HydroJ2003}, 
+C++\cite{Prop96} and Eiffel~\cite{Moreau:2003}. It is relatively easy to add 
+support for pattern matching in a new language. However, introducing one into an
+existing language in widespread use is a challenge. The obvious utility of the 
+feature is easily compromised by the need to fit into the language's syntax, 
+semantics, and tool chains. A prototype implementation requires more effort than 
+for an experimental language and is harder to get into use because mainstream 
+users are unwilling to try non-portable, non-standard, and unoptimized features. 
+
+To balance utility and effort we took the Semantically 
+Enhanced Library Language (SELL) approach\cite{SELL} and extend a
+general-purpose programming language with a library, aided by tool 
+support. With pattern matching, we (somewhat surprisingly) managed to avoid 
+external tool support by relying on some pretty nasty macro hacking to provide a
+conventional and convenient interface to an efficient library implementation.
+By efficient, we mean about as fast as functional languages for closed cases and
+much better than code generated for visitor patterns by commercial optimizers 
+for open cases\cite{TypeSwitch}.
+
+\subsection{Summary}
+
+We present a functional style pattern matching for C++ built as a library. Our solution:
+
+\begin{compactitem}
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+  \item Is open, non-intrusive and avoids the control inversion typical for visitors~\cite{TypeSwitch}.
+  \item Can be retroactively applied to any polymorphic or tagged classes (\textsection\ref{sec:bnd}).
+  \item Generalizes the controversial n+k patterns in a non-equational way by 
+        leaving the choice of semantics to the user (\textsection\ref{sec:slv}). 
+  \item Supports a limited form of views (\textsection\ref{sec:view}).
+  \item Provides a unified syntax for various encodings of extensible 
+        hierarchical datatypes in C++ (\textsection\ref{sec:unisyn}).
+  \item Is simpler than conventional object-oriented or union-based alternatives.
+  \item Improves performance compared to alternatives in real applications~\cite{TypeSwitch}.
+\end{compactitem}
+
+\noindent
+Our library solution sets a minimum threshold for performance, brevity, clarity 
+and usefulness of a language solution for pattern matching in C++. It provides 
+full functionality, so we can experiment with use of pattern matching in C++ and 
+with language alternatives. A practical benefit of our solution is that it can 
+be used right away given current support of C++11 (e.g., GCC and Microsoft C++)  
+without additional tool support.
+
+\subsection{Motivating Example}
+\label{sec:xmpl}
+
+While comparing generic programming facilities in functional and 
+imperative languages (mainly Haskell and C++), Dos Reis and J\"arvi
+present a Haskell sum functor\cite{DRJ05}:
+
+\begin{lstlisting}[language=Haskell,keepspaces]
+data Either a b = Left a | Right b
+eitherLift :: (a -> c) -> (b -> d) -> Either a b -> Either c d
+eitherLift f g (Left  x) = Left  (f x)
+eitherLift f g (Right y) = Right (g y)
+\end{lstlisting}
+
+\noindent
+The function \codehaskell{eitherLift} takes two functions and an 
+object and depending on the actual type constructor the object was created with, 
+calls first or second function on the embedded value, encoding the result 
+correspondingly.
+
+Its equivalent in C++ is not straightforward. Idiomatic, type-safe, handling of 
+discriminated unions in C++ uses the \emph{Visitor Design Pattern}\cite{DesignPatterns}, 
+which in this case amounts to 25 lines of ``boiler plate code'' plus 14 lines 
+of the specific functionality. Using our 
+pattern-matching facility, we get logically close to the original Haskell definition:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+template<class X,class Y> class Either{ virtual @$\sim$@Either(){}};
+template<class X,class Y> class Left :Either<X,Y>{const X& x; Left (const X&);};
+template<class X,class Y> class Right:Either<X,Y>{const Y& y; Right(const Y&);};
+@\halfline@
+template <class X,class Y,class S,class T>
+const Either<S,T>* eitherLift(const Either<X,Y>& e, S f(X), T g(Y))
+{
+    Match(e) {
+      Case(( Left<X,Y>), x) return new  Left<S,T>(f(x));
+      Case((Right<X,Y>), y) return new Right<S,T>(g(y));
+    } EndMatch
+}
+\end{lstlisting}
+
+\noindent
+To make the example fully functional, our library-based approach requires us to 
+be explicit about binding of members in each matching position:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+template<class X,class Y> struct bindings<Left<X,Y>> {CM(0, Left<X,Y>::x);};
+template<class X,class Y> struct bindings<Right<X,Y>>{CM(0,Right<X,Y>::y);};
+\end{lstlisting}
+
+\noindent
+These two definitions can be avoided through the use of less elegant syntax
+or through a compiler implementation.
+They are introduced retroactively however, and made once for all 
+possible instantiations using C++ partial template specialization. 
+
+The syntax is provided without any external tool support. Instead we rely on a 
+few C++11 features\cite{C++11}, template meta-programming, and macros. As shown 
+in our companion paper~\cite{TypeSwitch}, it runs about as fast as the OCaml 
+version and up to 80\% faster (depending on the usage scenario, compiler and 
+underlying hardware) than a handcrafted C++ code using the visitor 
+design pattern.
+
+The rest of this paper is structured as following. Section~\ref{sec:bg} goes 
+over some terminology and compares examples written with our library and in 
+other languages. Section~\ref{sec:pm} goes over the syntax and semantics of our 
+SELL independently of our host language -- C++. Section~\ref{sec:impl} discusses 
+some implementation details that make our extension possible. 
+Section~\ref{sec:rw} discusses related work, while section~\ref{sec:cc} 
+concludes by discussing some future directions and possible improvements.

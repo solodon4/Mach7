@@ -1,0 +1,139 @@
+\section{Related Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:rw}
+
+There are two main approaches to compiling pattern matching code: the first is 
+based on \emph{backtracking automata} and was introduced by Augustsson\cite{}, 
+the second is based on \emph{decision trees} and is attributed in the literature 
+to Dave MacQueen and Gilles Kahn in their implementation of Hope compiler \cite{}.
+Backtracking approach usually generates smaller code, while decision tree 
+approach produces faster code by ensuring that each primitive test is only 
+performed once. Neither of the approaches addresses specifically type patterns 
+or type switching and simply assumes presence of a primitive operation capable 
+of performing type tests.
+
+Memoization device we proposed is not specifically concerned with compiling 
+pattern matching and can be used independently. In particular it can be combined 
+with either backtracking or decision tree approaches to avoid subsequent 
+decisions on datum that has already been seen.
+
+%xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+\emph{Extensible Visitors with Default Cases}~\cite[\textsection 
+4.2]{Zenger:2001} attempt to solve the extensibility problem of visitors; 
+however, the solution, after 
+remapping it onto C++, has problems of its own. The visitation interface 
+hierarchy can easily be grown linearly (adding new cases for the new classes in 
+the original hierarchy each time), but independent extensions by different  
+authorities require developer's intervention to unify them all, before they can 
+be used together. This may not be feasible in environments that use dynamic 
+linking. To avoid writing even more boilerplate code in new visitors, the 
+solution would require usage of virtual inheritance, which typically has 
+an overhead of extra memory dereferencing. On top of the double dispatch already 
+present in the visitor pattern, the solution will incur two additional virtual 
+calls and a dynamic cast for each level of visitor extension. Additional double 
+dispatch is incurred by forwarding of default handling from a base visitor to a 
+derived one, while the dynamic cast is required for safety and can be replaced 
+with a static cast when the visitation interface is guaranteed to be grown linearly 
+(extended by one authority only). Yet another virtual call is required to be 
+able to forward computations to subcomponents on tree-like structures to the 
+most derived visitor. This last function lets one avoid the necessity of using 
+the heap to allocate a temporary visitor through the \emph{Factory Design 
+Pattern}~\cite{DesignPatterns1993} used in the \emph{Extensible Visitor} solution 
+originally proposed by Krishnamurti, Felleisen and Friedman~\cite{Krishnamurthi98}.
+
+In order to address the expression problem in Haskell, L\"{o}h and Hinze proposed to 
+extend its type system with open data types and open functions~\cite{LohHinze2006}.
+Their solution allows the user to mark top-level data types and functions as 
+open and then provide concrete variants and overloads anywhere in the program. 
+Open data types are extensible but not hierarchical, which largely avoids the 
+problems discussed here. The semantics of open extension is given by 
+transformation into a single module, where all the definitions are seen in one 
+place. This is a significant limitation of their approach that prevents it from 
+being truly open, since it essentially assumes a whole-program view, which 
+excludes any extension via DLLs. As is the case with many other implementations 
+of open extensions, the authors rely on the closed world for efficient 
+implementation: in their implementation, \emph{``data types can only be entirely 
+abstract (not allowing pattern matching) or concrete with all constructors with 
+the reason being that pattern matching can be compiled more efficiently if the 
+layout of the data type is known completely''}. The authors also believe that 
+\emph{there are no theoretical difficulties in lifting this restriction, but it 
+might imply a small performance loss if closed functions pattern match on open 
+data types}. Our work addresses exactly this problem, showing that it is not 
+only theoretically possible but also practically efficient and in application to 
+a broader problem.
+
+Polymorphic variants in OCaml~\cite{garrigue-98} allow the addition of new variants 
+later. They are simpler, however, than object-oriented extensions, as they do not 
+form subtyping between variants themselves, but only between combinations of them. 
+This makes an important distinction between \emph{extensible sum types} like 
+polymorphic variants and \emph{extensible hierarchical sum types} like classes.
+An important property of extensible sum types is that each value of the 
+underlying algebraic data type belongs to exactly one disjoint subset, tagged with 
+a constructor. The \emph{nominative subtyping} of object-oriented languages does 
+not usually have this disjointness making classes effectively have multiple 
+types. In particular, the case of disjoint constructors can be seen as a 
+degenerated case of a flat class hierarchy among the multitude of possible class 
+hierarchies.
+
+\emph{Tom} is a pattern-matching compiler that can be used together with Java, C or 
+Eiffel to bring a common pattern matching and term rewriting syntax into the 
+languages\cite{Moreau:2003}. It works as a preprocessor that transforms 
+syntactic extensions into imperative code in the target language. Tom is quite 
+transparent as to the concrete target language used and can potentially be 
+extended to other target languages besides the three supported now. In 
+particular, it never uses any semantic information of the target language during 
+the compilation process and it does not inspect nor modify the source language 
+part (their preprocessor is only aware of parenthesis and block delimiters of 
+the source language). Tom has a sublanguage called Gom that can be used to 
+define algebraic data types in a uniform mannaer, which their preprocessor then 
+transforms into conrete definitions in the target language. Alternatively, the 
+user can provide mappings to his own data structures that the preprocessor will 
+use to generate the code.
+
+In comparison to our approach Tom has much bigger goals. The combination of 
+pattern matching, term rewriting and strategies turns Tom into a 
+tree-transformation language similar to Stratego/XT, XDuce and others. 
+The main accent is made on expressivity and the speed of development, which 
+makes one often wonder about the run-time complexity of the generated code.
+Tom's approach is also prone to general problems of any preprocessor based 
+solution\cite[\textsection 4.3]{SELL}. For example, when several preprocessors 
+have to be used together, each independent extension may not be able to 
+understand the other's syntax, making it impossible to form a toolchain.
+A library approach we follow avoids most of these problems by relying only on a 
+standard C++ compiler. It also lets us employ semantics of the language within 
+patterns: e.g. our patterns work directly on underlying user-defined data 
+structures, largely avoiding abstraction penalties. A tighter integration with 
+the language semantics also makes our patterns first-class citizens that can be 
+composed and passed to other functions. The approach we take to type switching 
+can also be used by Tom's preprocessor to implement type patterns efficiently -- 
+similarly to other object-oriented languages, Tom's handling of them is based on 
+highly inefficient \code{instanceof} operator and its equivalents in other 
+languages.
+
+Pattern matching in Scala~\cite{Scala2nd} also allows type patterns and thus type 
+switching. The language supports extensible and hierarchical data types, but 
+their handling in a type switching constructs varies. Sealed classes are handled 
+with an efficient switch over all tags, since sealed classes cannot be extended. 
+Classes that are not sealed are similarly approached with a combination of an 
+\code{InstanceOf} operator and a decision tree~\cite{EmirThesis}.
+
+%An example would be our generalized n+k patterns where we 
+%can turn any invertible function even user defined into a pattern.
+
+There has been previous attempts to use pattern matching with the Pivot 
+framework that we used to experiment with our library. In his dissertation, 
+Pirkelbauer devised a pattern language capable of representing various entities 
+in a C++ program. The patterns were then translated with a tool into a set of 
+visitors implementing the underlying pattern matching 
+semantics\cite{PirkelbauerThesis}. Earlier, Cook et al used expression templates 
+to implement a query language for Pivot's Internal Program Representation 
+\cite{iql04}. While their work was built around a concrete class hierarchy 
+letting them put some semantic knowledge about concrete classes into the 
+The principal difference of their work from this work is that 
+authors were essentially creating a pattern matcher for a given class hierarchy 
+and thus could take the semantics of the entities represented by classes in the 
+hierarchy into account. Our approach is parametrized over class hierarchy and 
+thus provides a rather lower level pattern-matching functionality that lets one 
+simplify work with that hierarchy.  One can think of it as a generalized 
+dynamic\_cast. To be continued...
+

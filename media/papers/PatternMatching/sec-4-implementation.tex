@@ -1,0 +1,526 @@
+\section{Implementation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:impl}
+
+The \code{Match}-statement has been implemented so as to be as efficient as or 
+more efficient than conventional object-oriented and union-based 
+alternatives\cite{TypeSwitch}. Our implementation of patterns and lazy 
+evaluation of expressions is based on \emph{Expression Templates} 
+\cite{Veldhuizen95expressiontemplates,vandevoorde2003c++}. It encodes 
+expression trees with types, which are hidden from the user through the use of 
+overloading.
+
+There are 6 kinds of expression templates in our library: \code{wildcard}, 
+\code{value<T>}, \code{variable<T>}, \code{expr<F,E...>}, \code{guard<E1,E2>}, 
+\code{ctor<T,E...>}. Each models a \code{Pattern} concept.
+Using the notation from C++0x\cite{C++0xConcepts}:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+concept Pattern<typename T> 
+{
+    typename R; // the return type of () isconvertible to bool
+    Convertible<R,bool>;
+    template <typename U> R operator()(const U& u) const; // application operator
+};
+\end{lstlisting}
+
+Each of our six pattern kinds 
+implements the application operator accordingly to the semantics presented in 
+Figure~\ref{exprsem}. The application operator's result has to be 
+convertible to bool;
+\code{true} indicates a successful match. A class might have several overloads of 
+the above operator that distinguish cases of interest. We summarize the requirements on template parameters of each of our 
+pattern in Figure~\ref{xt-reqs}.
+
+\begin{figure}[h]
+\centering
+\begin{tabular}{llll}
+{\bf Pattern}       & {\bf Parameters}          & {\bf Argument of application operator U}         \\ \hline
+\code{wildcard}     & --                        & --                                               \\
+\code{value<T>}     & \code{Regular<T>}         & \code{Convertible<U,T>}                          \\
+\code{variable<T>}  & \code{Regular<T>}         & \code{Convertible<U,T>}                          \\
+\code{expr<F,E...>} & \code{LazyExpression<E>}  & \code{Convertible<U,expr<F,E...>::result_type>}  \\
+\code{guard<E1,E2>} & \code{LazyExpression<Ei>} & any type accepted by \code{E1::operator()}       \\
+\code{ctor<T,E...>} & \code{Polymorphic<T>}     & \code{Polymorphic<U>} for open encoding          \\
+                    & \code{Object<T>}          & \code{is_base_and_derived<U,T>} for tag encoding \\
+\end{tabular}
+\caption{Requirements on parameters and argument type of an application operator}
+\label{xt-reqs}
+\end{figure}
+
+To support lazily evaluated expressions, classes \code{value<T>}, 
+\code{variable<T>} and \code{expr<F,E...>} also model a \code{LazyExpression} 
+concept:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+concept LazyExpression<typename T> 
+{
+    typename result_type;
+    operator result_type(const T&); // conversion operator (to result_type)
+};
+\end{lstlisting}
+
+\noindent
+The \code{result_type} defines the type of the result of an argument expression.
+It is \code{T} for \code{value<T>} and \code{variable<T>}. 
+For \code{expr<F,E...>} it is defined to be \code{decltype(F()(E...))}, 
+indicating the result of applying \code{F} to arguments of type 
+\code{E...} .
+The conversion operator invokes the evaluation of the 
+lazy expression. The evaluation is performed accordingly to the semantics 
+presented in Figure~\ref{evaluation}.
+
+Concepts were not included in C++11, so we emulate them using overloading and 
+\code{enable_if}~\cite{jarvi:03:cuj_arbitrary_overloading}.
+
+Each (possibly overloaded) operator and function that can be evaluated lazily 
+and matched against in generalized n+k patterns are represented with a class whose 
+only purpose is to transparently forward the call to an overloaded function that 
+implements the semantics of the operation. We refer to such a class together with 
+the overloaded function it forwards the calls to as a \emph{semantic functor}.
+For example, this functor defines semantics of multiplication:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+struct mult 
+{
+  template <class A, class B> 
+  auto operator()(A&& a, B&& b) const -> decltype(a*b) 
+  { return std::forward<A>(a) * std::forward<B>(b); }   
+};
+\end{lstlisting}
+
+\noindent
+Unlike similar classes in STL, our representation of operations is not 
+parameterized with argument types. This simplifies defining overloads of 
+\code{solve} as shown below, reflecting the structure of the 
+expression.
+
+Variables of types \code{variable<T>} and \code{wildcard} as well as values 
+wrapped into \code{value<T>} (implicitly by the library or explicitly with a 
+call to function \code{val()}) constitute simple expressions in our pattern 
+sub-language. Complex expressions are built by applying C++ operators 
+listed in Figure~\ref{syntax} and functions overloaded on our lazy expressions. 
+To support that, for every unary operator $\ominus$ and binary operator $\oplus$ 
+and the semantic functors $F_\ominus$ and $F_\oplus$ we define for them, the 
+library introduces:
+
+\begin{lstlisting}[keepspaces]
+template <LazyExpression E1>
+    expr<@$F_\ominus$@,E1> operator@$\ominus$@(E1&& e1) noexcept 
+    { return expr<@$F_\ominus$@,E1>(std::forward<E1>(e1)); }
+template <LazyExpression E1, LazyExpression E2>
+    expr<@$F_\oplus$@,E1,E2> operator@$\oplus$@(E1&& e1, E2&& e2) noexcept 
+    { return expr<@$F_\oplus$@,E1,E2>(std::forward<E1>(e1),std::forward<E2>(e2)); }
+template <Pattern P1, LazyExpression E2>
+    guard<P1,E2> operator@$\models$@(P1&& p1, E2&& e2) noexcept 
+    { return guard<P1,E2>(std::forward<P1>(p1),std::forward<E2>(e2)); }
+template <typename T, LazyExpression... E>
+    ctor<T,E...> match(E&&... e) noexcept 
+    { return ctor<T,E...>(std::forward<E>(e)...); }
+\end{lstlisting}
+
+\subsection{Structural Decomposition}
+\label{sec:bnd}
+
+We use compile-time reflection to let the user specify information about 
+a class hierarchy to the library. The information is provided as a specialization of a 
+class-template \emph{bindings}. Among other things, bindings let the 
+user define the semantic functor $\Delta_i^{\tau,l}$ we introduced in 
+\textsection\ref{sec:sem}. The grammar in Figure~\ref{bind-syntax} defines the 
+entities that may constitute a binding definition.
+
+\begin{figure}[h]
+\centering
+\begin{tabular}{lp{1em}cl}
+\Rule{bindings}                &           & \is{}  & $\delta^*$ \\
+\Rule{binding definition}      & $\delta$  & \is{}  & \code{template <}$\left[\vec{p}\right]$\code{>} \\
+                               &           &        & \code{struct bindings<} $\tau[$\code{<}$\vec{p}$\code{>}$]\left[,l\right]$\code{>} \\
+                               &           &        & \code{\{} $\left[ks\right]\left[kv\right]\left[bc\right]\left[cm^*\right]$ \code{\};} \\
+\Rule{class member}            & $cm$      & \is{}  & \code{CM(}$c^{size\_t},q$\code{);} \\
+\Rule{kind selector}           & $ks$      & \is{}  & \code{KS(}$q$\code{);}    \\
+\Rule{kind value}              & $kv$      & \is{}  & \code{KV(}$c$\code{);}    \\
+\Rule{base class}              & $bc$      & \is{}  & \code{BC(}$\tau$\code{);} \\
+\Rule{template-parameter-list} & $\vec{p}$ &        & C++\cite[\textsection A.12]{C++11} \\
+\Rule{qualified-id}            & $q$       &        & C++\cite[\textsection A.4]{C++11} \\
+\end{tabular}
+\caption{Syntax for defining bindings}
+\label{bind-syntax}
+\end{figure}
+
+\noindent
+Any type $\tau$ may have arbitrary number of \emph{bindings} associated with it 
+and distinguished through the \emph{layout} parameter $l$. The \emph{default 
+binding} which omits layout parameter is implicitly associated with the layout whose
+value is equal to predefined constant \code{default_layout = size_t(}$\sim$\code{0)}. 
+A \emph{Binding definition} is a specialization of
+\code{template <typename T, size_t l = default_layout> struct bindings;}
+The body of the class consists of a sequence of specifiers, which generate the 
+necessary definitions for querying bindings by the library code. Note that 
+binding definitions made this way are \emph{non-intrusive} since the original 
+class definition is not touched. They also respect \emph{encapsulation} since 
+only the public members of the target type will be accessible from within 
+\code{bindings} specialization.
+
+A \emph{Class Member} specifier \code{CM(}$c,q$\code{)} takes a (zero-based) binding 
+position $c$ and a member $q$, whose value will be matched against in $\tau$'s 
+construction pattern. Qualified identifier is allowed to be of one of the 
+following kinds:
+
+\begin{compactitem}
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+\item Data member of the target type
+\item Nullary member-function of the target type
+\item Unary external function taking the target type by pointer, reference or value.
+\end{compactitem}
+
+\noindent
+Using \code{CM} specifier a user defines the semantic functor 
+$\Delta_i^{\tau,l},i=1..k$ we introduced in \textsection\ref{sec:sem} as 
+following:
+
+\begin{lstlisting}[keepspaces]
+template <typename... T> struct bindings<@$\tau$@<T...>> 
+    { CM(0, @$\tau$@<T...>::member@$_0$@); ... CM(@$k$@, @$\tau$@<T...>::member@$_k$@); };
+\end{lstlisting}
+
+\noindent
+A \emph{Kind Selector} specifier \code{KS(}$q$\code{)} is used to specify a member 
+of the subject type that will uniquely identify the variant for \emph{tagged} 
+and \emph{union} encodings. The member $q$ can be of any of the three categories 
+listed for \code{CM}, but is required to return an \emph{integral type}.
+A \emph{Kind Value} specifier \code{KV(}$c$\code{)} is used by \emph{tagged} and 
+\emph{union} encodings to specify a constant $c$ that uniquely identifies given 
+variant. 
+A \emph{Base Class} specifier \code{BC(}$\tau$\code{)} is used by the \emph{tagged}
+encoding to specify an immediate base class of the class whose bindings we 
+define.
+
+A \emph{Layout} parameter $l$ can be used to define multiple bindings for the same 
+target type. This is particularly essential for \emph{union} encoding where the 
+types of the variants are the same as the type of subject and thus layouts 
+become the only way to associate variants with position bindings. For this 
+reason, we require binding definitions for \emph{union} encoding always use the 
+same constant $l$ as a kind value specified with \code{KV(l)} and the layout 
+parameter $l$!
+
+\subsection{Algebraic Decomposition}
+\label{sec:slv}
+
+Traditional approaches to generalizing n+k patterns treat matching a pattern 
+$f(x,y)$ against a value $v$ as solving an equation $f(x,y)=v$\cite{OosterhofThesis}. 
+Such an interpretation is well defined when there are zero or one solutions,
+but alternative interpretations are possible when there are multiple solutions. 
+We handle n+k patterns by 
+associating the mathematical notation with the mathematical objects it 
+represents. 
+We associate elements of such notation with 
+sub-components of the matched mathematical entity, which 
+effectively lets us decompose it into parts. The structure of the expression 
+tree used in the notion is an analog of a constructor symbol in structural 
+decomposition, while its leaves are placeholders for parameters to be matched 
+against or inferred from the mathematical object in question. In essence,
+algebraic decomposition is to mathematical objects what views are to algebraic 
+data types. We demonstrate with examples.
+
+\begin{compactitem}
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+\item An expression $n/m$ is often used to decompose a rational number into 
+      numerator and denominator.
+\item Euler notation $a+bi$ with $i$ being an imaginary unit is used to 
+      decompose a complex number into real and imaginary parts. Similarly, 
+      expressions $r(cos \phi + i\mathrm{sin} \phi)$ and $re^{i\phi}$ are used to 
+      decompose it into polar form.
+\item An object representing 2D line can be decomposed with slope-intercept form 
+      $mX+c$, linear equation form $aX+bY=c$ or two-points form 
+      $(Y-y_0)(x_1-x_0)=(y_1-y_0)(X-x_0)$.
+\item An object representing polynomial can be decomposed for a specific degree: 
+      $a_0$, $a_1X^1+a_0$, $a_2X^2+a_1X^1+a_0$ etc.
+\item An element of a vector space can be decomposed along some sub-spaces of 
+      interest. For example a 2D vector can be matched against $(0,0)$, $aX$, 
+      $bY$, $aX+bY$ to separate the general case from those when one or both
+      components of vector are $0$.
+\end{compactitem}
+
+\noindent
+Expressions $i$, $X$ and $Y$ in these examples are not variables, but named 
+constants of some dedicated type that lets the expression be generically 
+decomposed into orthogonal parts. Note also that linear equation and two-point 
+form for decomposing lines already include an equality sign, which makes it 
+hard to give them semantics in an equational approach. It turns out that the 
+equational approach can be generically expressed in our framework for many 
+interesting cases of interest.
+
+Applying equational approach to floating point arithmetic creates even more 
+problems. Even when the solution is unique, it may not be representable by 
+a given floating-point type and thus not satisfy the equation. Once we settle 
+for an approximation, we open ourselves to even more decompositions that become 
+possible with our approach.
+
+\begin{compactitem}
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+\item Matching $n/m$ with integer variables $n$ and $m$ against a floating point 
+      value can be given semantics of finding the closest fraction to the 
+      value.
+\item Matching an object representing sampling of some random variable against
+      expressions like $Gaussian(\mu,\sigma^2)$, $Poisson(\lambda)$ or 
+      $Binomial(n,p)$ can be seen as distribution fitting. 
+\item Any curve fitting in this sense becomes an application of pattern 
+      matching. Precision in this case can be a global constant or explicitly 
+      passed parameter of the matching expression.
+\end{compactitem}
+
+%\noindent
+%We can make several observations from these examples:
+
+%\begin{compactitem}
+%\setlength{\itemsep}{0pt}
+%\setlength{\parskip}{0pt}
+%\item We might need to have the entire expression available to us in order to 
+%      decompose its parts.
+%\item Matching the same expression can have different meanings depending on 
+%      types of objects composing the expression and the expected result. 
+%\item An algorithm to decompose a given expression may depend on the types of 
+%      objects in it and the type of the result. 
+%\end{compactitem}
+
+%\subsubsection{Solvers}
+
+\noindent
+The user of our library defines the semantics of decomposing a value of a given 
+type \code{S} against an expression of shape \code{E} by overloading a function: 
+\\ \code{template <LazyExpression E, typename S> bool solve(const E&, const S&);}
+
+The first argument of the function takes an expression template representing an 
+expression we are matching against, while the second argument represents the 
+expected result. The following example defines a generic solver for 
+multiplication by a constant:
+
+\begin{lstlisting}[keepspaces]
+template <LazyExpression E, typename T> requires Field<E::result_type>
+bool solve(const expr<mult,E,value<T>>& e, const E::result_type& r) {
+    return solve(e.m_e1,r/eval(e.m_e2));
+}
+@\halfline@
+template <LazyExpression E, typename T> requires Integral<E::result_type>
+bool solve(const expr<mult,E,value<T>>& e, const E::result_type& r) {
+    T t = eval(e.m_e2);
+    return r%t == 0 && solve(e.m_e1,r/t);
+}
+\end{lstlisting}
+
+\noindent
+The first overload is only applicable when the type of the result of the 
+sub-expression models the \code{Field} concept. In this case, we can rely on the presence 
+of a unique inverse and simply call division without any additional checks. The 
+second overload uses integer division, which does not guarantee the unique 
+inverse, and thus we have to verify that the result is divisible by the constant 
+first. This last overload combined with a similar solver for addition of 
+integral types is everything the library needs to properly handle the definition 
+of the \code{fib} function from \textsection\ref{sec:syn}. It also demonstrates 
+how an equational approach can be generically implemented for a number of 
+expressions.
+
+A generic solver capable of decomposing a complex value using the Euler 
+notation is very easy to define by fixing the structure of expression:
+
+\begin{lstlisting}[keepspaces]
+template <LazyExpression E1, LazyExpression E2> 
+    requires SameType<E1::result_type,E2::result_type>
+bool solve(
+        const expr<plus,expr<mult,E1,value<complex<E1::result_type>>>,E2>& e, 
+        const complex<E1::result_type>& r);
+\end{lstlisting}
+
+\noindent
+Note that the template facilities of C++ resemble pattern-matching facilities of 
+other languages. We essentially use these compile-time patterns to describe the 
+structure of the expression this solver is applicable to: $e_1*c+e_2$ with types 
+of $e_1$ and $e_2$ being the same as type on which a complex value $c$ is 
+defined. The actual value of the complex constant $c$ will not be known until 
+run-time, but assuming its imaginary part is not $0$, we will be able to 
+generically obtain the values for sub-expressions.
+
+Our approach is largely possible due to the fact that the library only serves as 
+an interface between expressions and functions defining their semantics and 
+algebraic decomposition. The fact that the user explicitly defines the variables 
+she would like to use in patterns is also a key as it lets us specialize not 
+only on the structure of the expression, but also on the types involved. 
+Inference of such types in functional languages would be hard or impossible as the 
+expression may have entirely different semantics depending on the types of 
+arguments involved. Concept-based overloading simplifies significantly the case 
+analysis on the properties of types, making the solvers generic and composable.
+The approach is also viable as expressions are decomposed at compile-time and 
+not at run-time, letting the compiler inline the entire composition of solvers. 
+
+An obvious disadvantage of this approach is that the more complex expression 
+becomes, the more overloads the user will have to provide to cover all 
+expressions of interest. The set of overloads will also have to be made 
+unambiguous for any given expression, which may be challenging for novices. An 
+important restriction of this approach is its inability to detect multiple uses 
+of the same variable in an expression at compile time. This happens because 
+expression templates remember the form of an expression in a type, so use of two 
+variables of the same type is indistinguishable from the use of the same 
+variable twice. This can be worked around by giving different variables 
+(slightly) different types or making additional checks as to the structure of 
+expression at run-time, but that will make the library even more verbose or 
+incur a significant run-time overhead.
+
+\subsection{Views}
+\label{sec:view}
+
+Support of multiple bindings through layouts in our library effectively enables 
+a facility similar to Wadler's \emph{views}\cite{Wadler87}. The example from 
+\textsection\ref{sec:bg} can be recoded in our SELL:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+enum { cartesian = default_layout, polar }; // Layouts
+@\halfline@
+template <typename T> struct bindings<std::complex<T>>
+  { CM(0,std::real<T>); CM(1,std::imag<T>); };
+template <typename T> struct bindings<std::complex<T>, polar>
+  { CM(0,std::abs<T>);  CM(1,std::arg<T>); };
+@\halfline@
+template <typename T> using Cartesian = view<std::complex<T>>;
+template <typename T> using Polar     = view<std::complex<T>, polar>;
+@\halfline@
+  std::complex<double> c; double a,b,r,f;
+  if (match<std::complex<double>>(a,b)(c)) // default
+  if (match<   Cartesian<double>>(a,b)(c)) // same as above
+  if (match<       Polar<double>>(r,f)(c)) // view
+\end{lstlisting}
+
+\noindent
+The C++ standard effectively enforces the standard library to use cartesian 
+representation\cite[\textsection26.4-4]{C++11}, which is why we choose the 
+\code{cartesian} layout to be the default. We then define bindings for each 
+layout and introduce template aliases (an analog of typedefs for parameterized 
+classes) for each of the views. Library class \code{view<T,l>} binds together a 
+target type with one of its layouts, which can be used everywhere where an 
+original target type was expected.
+
+The important difference from Wadler's solution is that our views can only be 
+used in a match expression and not as a constructor or arguments of a function 
+etc.
+
+\subsection{Unified Syntax}
+\label{sec:unisyn}
+
+C++ does not have direct support for algebraic data types, but they can be 
+emulated in a number of ways. A general pattern-matching solution must be able 
+to elegantly and efficiently deal with all of them. Consider an ML data type: 
+
+\begin{lstlisting}[language=ML,escapechar=@]
+datatype DT = @$C_1$@of{@$L_{11}:T_{11},...,L_{1m}:T_{1m}$@}|...|@$C_k$@of{@$L_{k1}:T_{k1},...,L_{kn}:T_{kn}$@}
+\end{lstlisting}
+
+\noindent There are at least 3 different ways to represent it in C++. Following 
+Emir, we will refer to them as \emph{encodings}~\cite{EmirThesis}:
+
+\begin{compactitem}
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+\item Polymorphic Base Class (or \emph{polymorphic encoding} for short)
+\item Tagged Class (or \emph{tagged encoding} for short)
+\item Discriminated Union (or \emph{union encoding} for short)
+\end{compactitem}
+
+\noindent
+In polymorphic and tagged encodings, base class \code{DT} represents algebraic 
+data type, while derived classes represent variants. The only difference between 
+the two is that in polymorphic encoding the base class has virtual functions, while 
+in tagged encoding it has a dedicated member of integral type  (a ``type field'')  that uniquely 
+identifies the variant -- derived class. 
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+struct DT { virtual @$\sim$@DT{} };                 // polymorhpic
+struct DT { enum kinds {@$c_1, ..., c_k$@} m_kind; }; // tagged
+struct @$C_1$@ : DT{@$T_{11} L_{11};...T_{1m} L_{1m};$@} @$...$@ struct @$C_k$@ : DT{@$T_{k1} L_{k1};...T_{kn} L_{kn};$@} 
+\end{lstlisting}
+
+\noindent
+Union encoding is similar to tagged encoding in using a dedicated member to 
+distinguish the variant, but the variants are encoded as a union:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+struct DT {
+  enum kinds {@$c_1, \cdots, c_k$@} m_kind;
+  union {struct @$C_1\{T_{11} L_{11};...T_{1m} L_{1m};\} C_1;...$@struct @$C_k\{T_{k1} L_{k1};...T_{kn} L_{kn};\} C_k;$@};
+};
+\end{lstlisting}
+
+\noindent
+To uncover the actual variant in a polymorphic encoding, the user might use 
+\code{dynamic_cast} (an approach used by ROSE\cite{SQ03}) or employ a visitor 
+design pattern (an approach used by 
+the Pivot\cite{Pivot09} and Phoenix\cite{Phoenix}). In case of tagged and union 
+encodings, the user might use a simple switch statement to uncover the variant 
+(approaches used by Clang\cite{Clang} and EDG\cite{EDG} respectively, as well as 
+many others).
+
+Polymorphic encoding is inherently \emph{open} as it can also be used to encode 
+extensible and hierarchical datatypes. It is also type safe. Union encoding is inherently 
+\emph{closed} as it cannot be used for either. Tagged encoding is suitable for 
+extensible datatypes, but without additional support it is not useful for 
+encoding hierarchical datatypes since it does not provide a way of checking 
+whether two variants with given tags are disjoint.
+Tagged and union encodings are not inherently type safe in the hands of 
+programmers, but they are when a compiler generates them.
+
+The syntactic structure that supports our match statement is generated by the 
+C++ preprocessor from macros \code{Match}, \code{Case}, \code{Qua}, \code{When}, 
+\code{Otherwise} and \code{EndMatch}. This happens before type analysis,
+so we must make 
+decisions based on a position of an argument in a macro, the number of arguments 
+in a macro or postpone the decision untill later by generating some compile-time 
+code that will be evaluated by C++ compiler or a run-time code executed by the 
+program. Once a compiler is invoked, we can specialize the code based on 
+properties of the types involved: e.g. subject type is polymorphic, the binding 
+on subject type defines kind selector with \code{KS} etc. Using this information, 
+we further specialize a class template that provides the necessary functions and 
+meta programs to generate the support of an encoding used by the user in the 
+most optimal way.
+
+The unified syntax allows automatic 
+redundancy checking (\textsection\ref{sec:bg}) on case clauses of a match statement.
+C++ catch-handlers use first-fit 
+semantics in handling exceptions, so we turn an entire match statement into a 
+try-catch block with handlers accepting the target types. 
+The compiler then warns if a more general catch handler precedes a more 
+specific one, effectively performing redundancy checking for us.
+
+%\subsection{Qualitative Comparison}
+%\label{sec:qualcmp}
+%
+%For this experiment we have reimplemented a visitor based C++ pretty printer for 
+%Pivot\cite{Pivot09} using our pattern-matching library. Pivot's class hierarchy 
+%consists of 154 node kinds representing various entities in the C++ program. The 
+%original code had 8 visitor classes each handling 5, 7, 8, 10, 15, 17, 30 and 63 
+%cases, which we turned into 8 match statements with corresponding numbers of 
+%case clauses. Most of the rewrite was performed by sed-like replaces that 
+%converted visit methods into respective case-clauses. In several cases we had to 
+%manually reorder case-clauses to avoid redundancy due to the first-fit semantics 
+%of our match statement and automatic redundancy checking was invaluable for this 
+%refactoring.
+%
+%During this refactoring we have made several simplifications that became obvious 
+%in pattern-matching code, but were not in visitors code because of control 
+%inversion. Simplifications that were applicable to visitors code were eventually 
+%integrated into visitors code as well to make sure we do not compare 
+%drastically different code. In any case we were making sure that both 
+%approaches regardless of simplifications were producing byte-to-byte the same 
+%output as the original pretty printer we started from.
+%
+%The size of executable for pattern-matching approach was smaller than that for 
+%visitors. So was the source code. 
+%
+%%Listing parameter for a case clause always causes access to member. Best hope is 
+%%that compiler will eliminate it if it is not needed. At the moment we do not 
+%%have means to detect empty macro arguments or \_.
+%
+%In general from our rewriting experience we will not recommend rewriting 
+%existing visitor code with pattern matching for the simple reason that pattern 
+%matching code will likely follow the structure already set by the visitors. 
+%Pattern matching was most effective when writing new code, where we could design 
+%the structure of the code having the pattern-matching facility in our toolbox.

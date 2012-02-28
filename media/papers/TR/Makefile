@@ -46,7 +46,7 @@ DVIPS		= dvips
 NAME		= mlpatmat
 DISTNAME	= solodkyy_et_al
 
-OTHER_TEX	=
+OTHER_TEX	= $(shell ls sec-*.tex)
 
 default: $(NAME).pdf
 

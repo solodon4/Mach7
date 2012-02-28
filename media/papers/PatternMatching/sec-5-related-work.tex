@@ -1,0 +1,70 @@
+\section{Related Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:rw}
+
+Language support for pattern matching was first introduced for string 
+manipulation in SNOBOL\cite{SNOBOL64}. SNOBOL4 had patterns as first-class data 
+types providing operations of concatenation and alternation\cite{SNOBOL71}. The 
+first reference to a modern pattern-matching constructs seen in functional 
+languages is usually attributed to Burstall's work on structural 
+induction\cite{Burstall69provingproperties}. Pattern matching was further 
+developed by the functional programming community, most notably 
+Hope\cite{BMS80}, ML\cite{ML90}, Miranda\cite{Miranda85} and 
+Haskell\cite{Haskell98Book}. In the context of object-oriented programming, 
+pattern matching has been first explored in Pizza\cite{Odersky97pizzainto} and 
+Scala\cite{Scala2nd,EmirThesis}.
+
+There are two main approaches to compiling pattern-matching code: the first is 
+based on \emph{backtracking automata} and was introduced by Augustsson\cite{Augustsson85}, 
+the second is based on \emph{decision trees} and was first described by 
+Cardelli\cite{Cardelli84}, though he attributes the technique to Dave MacQueen 
+and Gilles Kahn in their implementation of the Hope compiler \cite{BMS80}.
+Backtracking approach usually generates smaller code, while decision tree 
+approach produces faster code by ensuring that each primitive test is only 
+performed once. With respect to matching a single expression our library 
+approach follows the naive backtracking approach, however our match statement is 
+based on a highly efficient type switching technique we developed\cite{TypeSwitch} 
+that outperforms similar solutions based on decision trees or visitor design pattern.
+
+Tom is a pattern-matching compiler that can be used together with Java, C or 
+Eiffel to bring a common pattern matching and term rewriting syntax into the 
+languages\cite{Moreau:2003}. It works as a preprocessor that transforms 
+syntactic extensions into imperative code in the target language. Tom is quite 
+transparent as to the concrete target language used and can potentially be 
+extended to other target languages besides the three supported now.
+Tom's  goals differ from ours in aiming to be a
+tree-transformation language similar to Stratego/XT, XDuce and others. 
+Tom's approach is prone to general problems of any preprocessor based 
+solution\cite[\textsection 4.3]{SELL}. In particular, it is part of a dedicated toolchain.
+Our library approach avoids that and lets us employ the C++ semantics within 
+patterns: e.g. our patterns work directly on underlying user-defined data 
+structures, avoiding abstraction penalties. The tight integration with 
+the language semantics makes our patterns first-class citizens that can be 
+composed and passed to other functions. 
+
+Prop is another language extension that brings pattern matching into 
+C++~\cite{Prop96}. This extension is not focused on pattern 
+matching, but is intended for building high performance 
+compiler and language transformation systems. It supports value-, variable-, 
+wildcard-, constructor-, nested-, as-, type- and numerous sequence patterns.
+
+Functional C\# is similar to our approach in trying to bring pattern matching 
+into the C\# as a library\cite{FuncCSharp}. The approach uses lambda functions 
+and chaining of method calls to create a structure that is then interpreted at 
+run-time for the first successful predicate. The approach supports a form of 
+active patterns, simple n+k patterns, list and tuple patterns as well as type 
+patterns (without structural decomposition). 
+However, an approach based on sequential type tests 
+scales very poorly for match statements with more than two case clauses, making 
+it unreasonably slower than the visitor design pattern~\cite{TypeSwitch}. Besides, the approach 
+seems to be ill suited for tests involving nesting of patterns.
+
+When the class hierarchy is fixed, one can design a pattern language that involves 
+semantic notions represented by the hierarchy. Pirkelbauer devised a pattern 
+language for Pivot capable of representing various entities in a C++ program using syntax very close to the C++ itself. 
+Interestingly, the patterns were translated with a tool into a set of visitors 
+implementing the underlying pattern-matching semantics\cite{PirkelbauerThesis}. 
+Earlier, Cook et al used expression templates to implement a query language for 
+Pivot's class hierarchy~\cite{iql04}. Our current work is the result of a series 
+of experimental designs. The library approach was essential to provide 
+relatively quick turnaround for experiments and for maintaining and improving 
+performance for our applications.

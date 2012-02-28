@@ -1,0 +1,24 @@
+\section{Future Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:fw}
+
+In the future we would like to provide an efficient multi-threaded 
+implementation of our library as currently it relies heavily on static variables 
+and global state, which will have problems in a multi-threaded environment. 
+
+The match statement that we presented here deals with only one subject at the 
+moment, but we believe that our memoization device, along with the vtable pointer memoization 
+technique we presented, can cope reasonably efficiently with multiple subjects. 
+Their support will make our library more general by addressing asymmetric 
+multiple dispatch.
+
+We would also like to experiment with other kinds of cache indexing functions in 
+order to decrease the frequency of conflicts, especially those coming from the use 
+of dynamically-linked libraries.
+
+Containers as described by the standard C++ library do not have the implicit 
+recursive structure present in lists, sequences and other recursive data 
+structures of functional languages. Viewing them as such with view will likely 
+have a significant performance overhead, not usually affordable in the kind of 
+applications C++ is used for. We therefore would like to experiment with some 
+pattern matching alternatives that will let us work with STL containers 
+efficiently yet expressively as in functional languages.

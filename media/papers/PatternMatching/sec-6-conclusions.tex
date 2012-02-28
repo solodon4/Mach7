@@ -1,0 +1,47 @@
+\section{Conclusions and Future Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:cc}
+
+We present a pattern-matching library for C++ provides fairly standard
+pattern-matching facilities. Our solution is 
+non-intrusive and can be retroactively applied to any polymorphic or tagged 
+class hierarchy. It also provides a uniform notation to these different 
+encodings of algebraic and extensible hierarchical data types in C++.
+
+We generalize n+k patterns to arbitrary expressions by letting the user define 
+the exact semantics of such patterns. Our approach is more general than traditional approaches 
+as it does not require an
+equational view of such patterns. It also avoids hardcoding the 
+exact semantics of n+k patterns into the language. 
+
+We used the library to rewrite existing code that relied heavily on the 
+visitor design pattern.
+Our pattern matching code was much shorter (both source and object code), 
+simpler, easier to maintain, comprehend, and faster. 
+This confirmed our view of the visitor pattern as a clever workaround,
+rather than a good solution to a fundamental problem.
+The library approach was essential 
+for experimentation in the context of real programs and for delivering 
+performance comparable with or superior to conventional techniques in the 
+context of industrial compilers.
+
+The work presented here is only the beginning of our research on pattern 
+matching for C++. We would like to experiment with other kinds of patterns, 
+including those defined by the user; look at the interaction of patterns with 
+other facilities in the language and the standard library; make
+views less ad hoc etc. For example, standard containers in C++ do not have the 
+implicit recursive structure present in data types of functional languages and 
+viewing them as such with views would incur significant overheads. We will
+experiment with very general patterns as first-class citizens.
+
+Our generalization of n+k patterns depends on the properties of types involved 
+in the expression. This should let us experiment not only with generic 
+functions, but also with their generic inversions in the form of solvers. As 
+more C++11 features become available in compilers it will also be interesting to 
+look at how use of these features affects the ease of use, performance, 
+readability, writability and debugging of the library and the user code that 
+uses it.
+
+In the nearest future, we would like to make our library to be safe and efficient 
+in a multi-threaded environment. We would also like to look into providing an 
+equally efficient and expressive support to multiple subjects, which in turn 
+would allow us to address asymmetric multiple dispatch.

@@ -1,0 +1,460 @@
+\section{Background} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:bg}
+
+Pattern matching in the context of a programming language was first introduced 
+in a string manipulation language SNOBOL\cite{SNOBOL64}. Its fourth 
+reincarnation SNOBOL4 had patterns as first-class data types providing 
+operations of concatenation and alternation on them\cite{SNOBOL71}. The first 
+reference to a pattern-matching construct that resembles the one found in 
+statically typed functional languages today is usually attributed to Burstall 
+and his work on structural induction\cite{Burstall69provingproperties}.
+
+In the context of object-oriented programming, pattern matching has been first 
+explored in Pizza programming language\cite{Odersky97pizzainto}. These efforts 
+have been continued in Scala\cite{Scala2nd} and together with notable work of 
+Burak Emir on \emph{Object-Oriented Pattern Matching}\cite{EmirThesis} have 
+resulted in incorporation of pattern matching into the language.
+
+%The first tree based pattern matching methods were found in Fred McBride's 
+%extension of LISP in 1970.
+
+%ML and Haskell further popularized pattern matching ...
+
+Pattern matching has been closely related to \emph{algebraic data types} and 
+\emph{equational reasoning} since the early days of functional programming.
+In languages like ML and Haskel an \emph{Algebraic Data Type} is a data type 
+each of whose values is picked from a disjoint sum of (possibly recursive) data 
+types, called \emph{variants}. Each of the variants is marked with a unique 
+symbolic constant called \emph{constructor}, while the set of all constructors 
+of a given type is called \emph{signature}. Constructors provide a convenient 
+way of creating a value of its variant type as well as a way of discriminating 
+its variant type from the algebraic data type through pattern matching.
+
+Algebraic data type \codeocaml{expr} from Section~\ref{sec:intro} consists of 5 
+variants, marked with constructors \codeocaml{Value}, \codeocaml{Plus}, 
+\codeocaml{Minus}, \codeocaml{Times} and \codeocaml{Divide} respectively. 
+Constructor \codeocaml{Value} expects a value of type \codeocaml{int} during 
+construction, as well as any pattern that admits values of type \codeocaml{int} 
+during decomposition through pattern matching. Similarly, the other four 
+constructors expect a value of a cartesian product of two \codeocaml{expr} 
+types during construction, as well as any pattern that would admit a value of 
+such type during decomposition.
+
+Algebraic data types can be parameterized and recursive, as demonstrated by the 
+following Haskell code that defines a binary tree parameterized on type 
+\codehaskell{k} of keys and type \codehaskell{d} of data stored in the nodes:
+
+\begin{lstlisting}[language=Haskell]
+data Tree k d = Node k d (Tree k d) (Tree k d) | Leaf
+\end{lstlisting}
+
+\noindent
+Naturally, they can be decomposed in a generic algorithm like the function 
+\code{find} below, defined through case analysis on the tree's structure:
+
+\begin{lstlisting}[language=Haskell]
+find :: (Ord k) => k -> Tree k d -> Maybe d
+find i Leaf = Nothing
+find i (Node key item left right) = 
+    if i == key 
+    then Just item 
+    else 
+        if i [<] key 
+        then find i left 
+        else find i right
+\end{lstlisting}
+
+\noindent
+The set of values described by such an algebraic data type is defined 
+inductively as the least set closed under constructor functions of its variants.
+Algebraic data types draw their name from the practice of using case distinction 
+in mathematical function definitions and proofs that involve \emph{algebraic 
+terms}.
+
+One of the main differences of algebraic data types from classes in 
+object-oriented languages is that an algebraic data type definition is 
+\emph{closed} because it fixes the structure of its instances once and for all. 
+Once we have listed all the variants a given algebraic data type may have we 
+cannot extend it with new variants without modifying its definition. This is not 
+the case in object-oriented languages, where classes are \emph{open} to 
+extension through subclassing. Notable exceptions to this restriction in 
+functional community are \emph{polymorphic variants} in OCaml\cite{garrigue-98} 
+and \emph{open data types} in Haskell\cite{LohHinze2006}, which allow addition 
+of new variants later. These extensions, however, are simpler than object-oriented 
+extensions as neither polymorphic variants nor open data types form subtyping 
+relation between themselves: open data types do not introduce any subtyping 
+relation, while the subtyping relation on polymorphic variants is a 
+\emph{semantic subtyping} similar to that of XDuce\cite{HosoyaPierce2000}, which 
+is based on the subset relation between values of the type. In either case they 
+maintain the important property that each value of the underlying algebraic data 
+type belongs to exactly one disjoint subset tagged with a constructor. The 
+\emph{nominative subtyping} of object-oriented languages does not usually have 
+this disjointness making classes effectively have multiple types. In particular, 
+the case of disjoint constructors can be seen as a degenerated case of a flat 
+class hierarchy among the multitude of possible class hierarchies.
+
+Closedness of algebraic data types is particularly useful for reasoning about 
+programs by case analysis and allows the compiler to perform an automatic 
+\emph{incompleteness} check -- test of whether a given \emph{match statement} 
+covers all possible cases. Similar reasoning about programs involving extensible 
+data types is more involved as we are dealing with potentially open set of 
+variants. \emph{Completness} check in such scenario reduces to checking presence 
+of a case that handles the static type of the subject. Absence of such a case,
+however, does not necessarily imply incompletness, only potential incompletness, 
+as the answer will depend on the actual set of variants available at run-time.
+
+A related notion of \emph{redundancy} checking arises from the 
+tradition of using \emph{first-fit} strategy in pattern matching. It warns the 
+user of any \emph{case clause} inside a match statement that will 
+never be entered because of a preceding one being more general. Object-oriented 
+languages, especially C++, typically prefer \emph{best-fit} strategy (e.g. for 
+overload resolution and class template specialization) because it is not prone 
+to errors where semantics of a statement might change depending on the ordering 
+of preceding definitions. The notable exception in C++ semantics that prefers 
+the \emph{first-fit} strategy is ordering of \code{catch} handlers of a 
+\code{try}-block. Similarly to functional languages the C++ compiler will perform 
+\emph{redundancy} checking on catch handlers and issue a warning that lists the 
+redundant cases. We use this property of the C++ type system to perform redundancy 
+checking of our match statements in \textsection\ref{sec:redun}.
+
+The patterns that work with algebraic data types we have seen so far are 
+generally called \emph{tree patterns} or \emph{constructor patterns}. Their 
+analog in object-oriented languages is often referred to as \emph{type pattern} 
+since it may involve type testing and type casting. Special cases of these patterns 
+are \emph{list patterns} and \emph{tuple patterns}. The former lets one split a 
+list into a sequence of elements in its beginning and a tail with the help of 
+list constructor \codehaskell{:} and an empty list constructor \codehaskell{[]} 
+e.g. \codehaskell{[x:y:rest]}. The latter does the same with tuples using tuple
+constructor \codehaskell{(,,...,)} e.g. \codehaskell{([x:xs],'b',(1,2.0),"hi",True)}.
+
+Pattern matching is not used solely with algebraic data types and can equally 
+well be applied to built-in types. The following Haskell code defines factorial 
+function in the form of equations:
+
+\begin{lstlisting}[language=Haskell]
+factorial 0 = 1
+factorial n = n * factorial (n-1)
+\end{lstlisting}
+
+\noindent
+Here 0 in the left hand side of the first \emph{equation} is an example of a 
+\emph{value pattern} (also known as \emph{constant pattern}) that will only 
+match when the actual argument passed to the function factorial is 0. The 
+\emph{variable pattern} \codehaskell{n} (also referred to as \emph{identifier 
+pattern}) in the left hand side of the second equation will match any value, 
+\emph{binding} variable \codehaskell{n} to that value in the right hand side of 
+equation. Similarly to variable pattern, the \emph{wildcard pattern} \codehaskell{_} 
+will match any value, neither binding it to a variable nor even obtaining it. 
+Value patterns, variable patterns and wildcard patterns are  
+generally called \emph{primitive patterns}. Patterns like variable and wildcard 
+patterns that never fail to match are called \emph{irrefutable}, in contrast to 
+\emph{refutable} patterns like value patterns, which may fail to match.
+
+In Haskell 98\cite{Haskell98Book} the above definition of factorial could also 
+be written as:
+
+\begin{lstlisting}[language=Haskell]
+factorial 0 = 1
+factorial (n+1) = (n+1) * factorial n
+\end{lstlisting}
+
+\noindent
+The \codehaskell{(n+1)} pattern in the left hand side of equation is an example of 
+\emph{n+k pattern}. According to its informal semantics ``Matching an $n+k$ 
+pattern (where $n$ is a variable and $k$ is a positive integer literal) against 
+a value $v$ succeeds if $v \ge k$, resulting in the binding of $n$ to $v-k$, and 
+fails otherwise''\cite{haskell98}. n+k patterns were introduced into Haskel to 
+let users express inductive functions on natural numbers in much the same way as 
+functions defined through case analysis on algebraic data types. Besides 
+succinct notation, such language feature could facilitate automatic proof of 
+termination of such functions by compiler. Peano numbers, used as an analogy to 
+algebraic data type representation of natural numbers, is not always the best 
+abstraction for representing other mathematical operations however. This,  
+together with numerous ways of defining semantics of generalized n+k patterns 
+were some of the reasons why the feature was never generalized in Haskell to 
+other kinds of expressions, even though there were plenty of known applications. 
+Moreover, numerous debates over semantics and usefulness of the feature 
+resulted in n+k patterns being removed from the language altogether in Haskell 
+2010 standard\cite{haskell2010}. Generalization of n+k patterns, called 
+\emph{application patterns} has been studied by Nikolaas N. Oosterhof in his 
+Master's thesis\cite{OosterhofThesis}. Application patterns essentially treat 
+n+k patterns as equations, while matching against them attempts to solve or 
+validate the equation.
+
+While n+k patterns were something very few languages had, another common feature of 
+many programming languages with pattern matching are guards. A \emph{guard} 
+is a predicate attached to a pattern that may make use of the variables bound in 
+it. The result of its evaluation will determine whether the case clause and the 
+body associated with it will be \emph{accepted} or \emph{rejected}. The 
+following OCaml code for $exp$ language from Section~\ref{sec:intro} defines the 
+rules for factorizing expressions $e_1e_2+e_1e_3$ into $e_1(e_2+e_3)$ and 
+$e_1e_2+e_3e_2$ into $(e_1+e_3)e_2$ with the help of guards spelled out after 
+keyword \codeocaml{when}:
+
+\begin{lstlisting}[language=Caml,keepspaces,columns=flexible]
+let factorize e =
+    match e with
+      Plus(Times(e1,e2), Times(e3,e4)) when e1 = e3 
+          -> Times(e1, Plus(e2,e4))
+    | Plus(Times(e1,e2), Times(e3,e4)) when e2 = e4 
+          -> Times(Plus(e1,e3), e4)
+    |   e -> e
+    ;;
+\end{lstlisting}
+
+\noindent
+One may wonder why we could not simply write the above case clause as 
+\codeocaml{Plus(Times(e,e2), Times(e,e4))} to avoid the guard? Patterns that 
+permit use of the same variable in them multiple times are called 
+\emph{equivalence patterns}, while the requirement of absence of such patterns 
+in a language is called \emph{linearity}. Neither OCaml nor Haskell support such 
+patterns, while Miranda\cite{Miranda85} as well as Tom's pattern matching 
+extension to C, Java and Eiffel\cite{Moreau:2003} supports \emph{non-linear 
+patterns}.
+
+The example above illustrates yet another common pattern-matching facility -- 
+\emph{nesting of patterns}. In general, a constructor pattern composed of a 
+linear vector of (distinct) variables is called a \emph{simple pattern}. The 
+same pattern composed not only of variables is called \emph{nested pattern}.
+Using nested patterns, with a simple expression in the case clause we could
+define a predicate that tests the top-level expression to be tagged with a
+\codeocaml{Plus} constructor, while both of its arguments to be marked with 
+\codeocaml{Times} constructor, binding their arguments (or potentially pattern 
+matching further) respectively. Note that the visitor design pattern does not 
+provide this level of flexibility and each of the nested tests might have 
+required a new visitor to be written. Nesting of patterns like the one above is 
+typically where users resort to \emph{type tests} and \emph{type casts} that in 
+case of C++ can be combined into a single call to \code{dynamic_cast}.
+
+Related to nested patterns are \emph{as-patterns} that help one take a value 
+apart while still maintaining its integrity. The following rule could have been 
+a part of a hypothetical rewriting system in OCaml similar to the one above. Its 
+intention is to rewrite expressions of the form $\frac{e_1/e_2}{e_3/e_4}$ into 
+$\frac{e_1}{e_2}\frac{e_4}{e_3} \wedge e_2\neq0 \wedge e_3\neq0 \wedge e_4\neq0$.
+
+\begin{lstlisting}[language=Caml]
+    | Divide(Divide(_,e2) as x, Divide(e3,e4))
+          -> Times(x, Divide(e4, e3))
+\end{lstlisting}
+
+\noindent
+We introduced a name ``x'' as a synonym of the result of matching the 
+entire sub-expression \codeocaml{Divide(_,e2)} in order to refer it without 
+recomposing in the right-hand side of the case clause. We omitted the 
+conjunction of relevant non-zero checks for brevity, one can see that we will 
+need access to \codeocaml{e2} in it however.
+
+Decomposing algebraic data types through pattern matching has an important 
+drawback that was originally spotted by Wadler\cite{Wadler87}: they expose 
+concrete representation of an abstract data type, which conflicts with the 
+principle of \emph{data abstraction}. To overcome the problem he proposed the 
+notion of \emph{views} that represent conversions between different 
+representations that are implicitly applied during pattern matching. As an 
+example, imagine polar and cartesian representations of complex numbers. A user 
+might choose polar representation as a concrete representation for the abstract 
+data type \codeocaml{complex}, treating cartesian representation as view or vice 
+versa:\footnote{We use syntax from Wadler's original paper for this example}
+
+\begin{lstlisting}[language=Haskell,columns=flexible]
+complex ::= Pole real real
+view complex ::= Cart real real
+  in  (Pole r t) = Cart (r * cos t) (r * sin t)
+  out (Cart x y) = Pole (sqrt(x^2 + y^2)) (atan2 x y)
+\end{lstlisting}
+
+\noindent
+The operations then might be implemented in whatever representation is the most 
+suitable, while the compiler will implicitly convert representation if needed:
+
+\begin{lstlisting}[language=Haskell,columns=flexible]
+  add  (Cart x1 y1) (Cart x2 y2) = Cart (x1 + x2) (y1 + y2)
+  mult (Pole r1 t1) (Pole r2 t2) = Pole (r1 * r2) (t1 + t2)
+\end{lstlisting}
+
+\noindent
+The idea of views were later adopted in various forms in several languages: 
+Haskell\cite{views96}, Standard ML\cite{views98}, Scala (in the form of 
+\emph{extractors}\cite{EmirThesis}) and F$\sharp$ (under the name of 
+\emph{active patterns}\cite{Syme07}).
+
+%Views in functional programming languages [92, 71] are conversions from one data type to
+%another that are implicitly applied in pattern matching. They play a role similar to extractors
+%in Scala, in that they permit to abstract from the concrete data-type of the matched objects.
+%However, unlike extractors, views are anonymous and are tied to a particular target data
+%type.
+
+Logic programming languages like Prolog take pattern matching to even greater 
+level. The main difference between pattern matching in logic languages and 
+functional languages is that functional pattern matching is a ``one-way'' 
+matching where patterns are matched against values, possibly binding some 
+variables in the pattern along the way. Pattern matching in logic programming is 
+``two-way'' matching based on \emph{unification} where patterns can be matched 
+against other patterns, possibly binding some variables in both patterns and 
+potentially leaving some variables \emph{unbound} or partially bound -- i.e. 
+bound to patterns. A hypothetical example of such functionality can be matching 
+a pattern \codeocaml{Plus(x,Times(x,1))} against another pattern 
+\codeocaml{Plus(Divide(y,2),z)}, which will result in binding \codeocaml{x} to a 
+\codeocaml{Divide(y,2)} and \codeocaml{z} to \codeocaml{Times(Divide(y,2),1)} 
+with \codeocaml{y} left unbound, leaving both \codeocaml{x} and \codeocaml{z} 
+effectively a pattern.
+
+\subsection{Expression Templates}
+
+Interestingly enough C++ has a pure functional sublanguage in it that has a 
+striking similarity to ML and Haskell. The sublanguage in question is template 
+facilities of C++ that has been shown to be Turing 
+complete\cite{veldhuizen:templates_turing_complete}. 
+
+Haskell definition of \code{factorial} we saw earlier can be rewritten in 
+template sublanguage of C++ as following:
+
+\begin{lstlisting}
+template <int N> 
+    struct factorial { enum { result = N*factorial<N-1>::result }; };
+template <>
+    struct factorial<0> { enum { result = 1 }; };
+\end{lstlisting}
+
+\noindent
+One can easily see similarity with equational definitions in Haskell, with the 
+exception that more specific cases (specialization for 0) have to follow the 
+general definition in C++. The main difference between Haskell definition and 
+its C++ counterpart is that the former describes computations on \emph{run-time 
+values}, while the latter can only work with \emph{compile-time values}.
+
+Turns out we can even express our $exp$ language using this functional 
+sublanguage:
+
+\begin{lstlisting}
+template <class T>
+struct value {
+    value(const T& t) : m_value(t) {}
+    T m_value;
+};
+
+template <class T>
+struct variable {
+    variable() : m_value() {}
+    T m_value;
+};
+
+template <typename E1, typename E2>
+struct plus {
+    plus(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
+    const E1 m_e1; const E2 m_e2;
+};
+
+// ... definitions of other expressions
+\end{lstlisting}
+
+\noindent The idea is that expressions can be composed out of subexpressions, 
+whose shape (type) is passed as arguments to above templates. Explicit 
+description of such expressions is very tedious however and is thus never 
+expressed directly, but as a result of corresponding operations: 
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+template <typename T>
+    value<T> val(const T& t) { return value<T>(t); }
+template <typename E1, typename E2>
+    plus<E1,E2> operator+(const E1& e1, const E2& e2)
+    { return plus<E1,E2>(e1,e2); }
+\end{lstlisting}
+
+\noindent With this, one can now capture various expressions as following:
+
+\begin{lstlisting}
+variable<int> v;
+auto x = v + val(3);
+\end{lstlisting}
+
+\noindent The type of variable \code{x} -- \code{plus<variable<int>,value<int>>}
+ -- captures the structure of the expression, while the values inside of it 
+represent various subexpressions the expression was created with. Such an 
+expression can be arbitrarily, but finitely nested. Note that value 3 is not 
+added to the value of variable \code{v} here, but the expression \code{v+3} is 
+recorded, while the meaning to such expression can be given differently in 
+different contexts. A general observation is that only the shape of the 
+expression becomes fixed at compile time, while the values of variables involved 
+in it can be changed arbitrarily at run time, allowing for \emph{lazy 
+evaluation} of the expression. Polymorphic function \code{eval} below implements 
+just that:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+template <typename T> 
+    T eval(const value<T>& e) { return e.m_value; }
+template <typename T> 
+    T eval(const variable<T>& e) { return e.m_value; }
+template <typename E1, typename E2> 
+    auto eval(const plus<E1,E2>& e) 
+         -> decltype(eval(e.m_e1) + eval(e.m_e2))
+            { return eval(e.m_e1) + eval(e.m_e2); }
+\end{lstlisting}
+
+\noindent One can now modify value of the variable \code{v} and re-evaluate 
+expression as following:
+
+\begin{lstlisting}
+v = 7;           // assumes overloading of assignment
+int r = eval(x); // returns 10
+\end{lstlisting}
+
+\noindent The above technique for lazy evaluation of expressions was 
+independently invented by Todd Veldhuizen and David Vandevoorde and is generally 
+known in the C++ community by the name \emph{Expression Templates} that Todd 
+coined\cite{Veldhuizen95expressiontemplates, vandevoorde2003c++}.  
+
+Note again how implementation of \code{eval} resembles equations in Haskell that 
+decompose an algebraic data type. The similarities are so striking that there 
+were attempts to use Haskell as a pseudo code language for template 
+metaprogramming in C++\cite{Milewski11}. A key observation in this analogy is 
+that partial and explicit template specialization of C++ class templates are 
+similar to defining equations for Haskell functions. Variables introduced via 
+template clause of each equation serve as \emph{variable patterns}, while the 
+names of actual templates describing arguments serve as \emph{variant 
+constructors}. An important difference between the two is that Haskell's 
+equations use \emph{first-fit} strategy making order of equations important, 
+while C++ uses \emph{best-fit} strategy, thus making the order irrelevant.
+
+Patterns expressed this way can be arbitrarily nested as long as they can be 
+expressed in terms of the types involved and not the values they store. Using 
+the above example, for instance, it is very easy to specialize \code{eval} for 
+an expression of form $c_1*x+c_2$ where $c_i$ are some (not known) constant 
+values and $x$ is any variable. Specializing for a concrete instance of that 
+expression $2*x+3$ will be much harder, because in the representation we chose 
+values 2 and 3 become run-time values and thus cannot participate in 
+compile-time computations anymore. In this case we could have devised a template 
+that allocates a dedicated type for each constant making such value part of the 
+type:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+template <class T, T t> struct constant {};
+
+template <typename T, T t>
+    T eval(const constant<T,t>& e) { return t; }
+template <typename E>
+    auto eval(const times<constant<int,0>,E>& e) 
+        -> decltype(eval(e.m_e2)) 
+            { return (decltype(eval(e.m_e2)))(0); }
+template <typename E>
+    auto eval(const times<E,constant<int,0>>& e) 
+        -> decltype(eval(e.m_e1)) 
+            { return (decltype(eval(e.m_e1)))(0); }
+\end{lstlisting}
+
+\noindent Here the first equation for \code{eval} describes the necessary general 
+case for handling expressions of type \code{constant<T,t>}, while the other two 
+are redundant cases that can be seen as an optimization detecting expressions of 
+the form $e*0$ and $0*e$ for any arbitrary expression $e$ and returning 0 
+without actually computing $e$.
+
+Unfortunately, a similar pattern to detect expressions of the form $x-x$ for any 
+variable $x$ cannot be expressed because expression templates are blind to 
+object identity and can only see their types. This means that expression 
+templates of the form $x-y$ are indisthinguishable at compile time from 
+expressions of the form $x-x$ because their types are identical.
+
+Nevertheless, with all the limitations, expression templates provide an 
+extremely powerful abstraction mechanism, which we use to express a 
+pattern-language for our SELL. Coincidentally, we employ the compile-time 
+pattern-matching facility already supported by C++ as a meta-language to 
+implement its run-time counterpart.
