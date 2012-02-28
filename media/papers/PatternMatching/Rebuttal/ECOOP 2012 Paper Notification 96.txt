@@ -1,0 +1,237 @@
+From:	James Noble (via CyberChairPRO) <kjx@ecs.vuw.ac.nz>
+Sent:	Saturday, February 25, 2012 10:22 AM
+To:	yuriys@cse.tamu.edu; gdr@cse.tamu.edu; bs@cse.tamu.edu
+Cc:	kjx@ecs.vuw.ac.nz; ecoop2012-papers-webadmin@borbala.com
+Subject:	ECOOP 2012 Paper Notification [96]
+
+Dear Yuriy, Gabriel and Bjarne
+
+I regret to inform you that your paper
+
+"An Elegant and Efficient Pattern Matching Library for C++"
+
+has not been accepted for publication in ECOOP 2012.
+
+
+The conference received 140 submissions this year, a significant increase on previous years, and we were able 
+to accept only 30.
+Consequently a number of very good papers were not able to be included in this year's conference.
+
+I want to thank you for submitting your work to the conference.  I hope you find the referee's comments 
+helpful in improving your paper, and I hope to see it in some other venue, or in a future conference.
+
+I hope you might still come to ECOOP and PLDI in Beijing and look forwards to seeing you soon.
+
+regards
+
+James Noble
+ECOOP 2012 Programme Chair
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=
+
+First reviewer's review:
+
+          >>> Summary of the submission <<<
+
+This paper describes a pattern-matching form (in the sense of ML's pattern matching on values) that is added 
+to C++ via templates and macros. The pattern-matcher core supports nested patterns, n+k patterns, and view-
+like patterns. Programmers connect existing classes to pattern matching with declarations that introduce 
+pattern forms and provide the needed compile-time information for rewriting a pattern-matching form.
+
+          >>> Evaluation <<<
+
+The pattern matcher for C++ shares much in common with previous extensible pattern matchers for Java, C#, 
+and F#. The novelty here is illustrating how to integrate such a pattern matcher into C++ using only the 
+extension mechanisms that C++ tool chains provide: templates and preprocessor macros.
+
+Overall, the paper could be improved by a more in-depth explanation of how templates and preprocessing are 
+used to implement support for patterns. Section 4 is a good start, but many details remain unclear to me, such 
+as the role of the preprocessor and the kinds of error messages that will appear when a programmer makes 
+mistakes. Along similar lines, the paper could use a discussion of what worked well and what could be better; 
+for example, the paper might discuss more the need for the four case-clause forms and the contrast between 
+"Case" at the top level of a "Match" and "match<>" for nested patterns.
+
+For the grammar in figure 1, is the "guard pattern" production missing xi (which is otherwise unreachable in the 
+grammar) after the double turnstyle? For what it's worth, I find the typing and evaluation rules in 3.2 and 3.3 
+more confusing than helpful; they seem to be partial, approximate, and perhaps buggy. For example, the typing 
+rules in figure 2 do not seem to cover the grammar of figure 1; is a "Case"
+form converted to a "match" construction? In figure 3, I thought from figure 1 that Chi is variable, but here it 
+seems to be a value; should the rule say "Sigma(Chi)", but it doesn't because the "Sigma"s are consistently 
+omitted? In figure 4 for the P-Value rule, is the "v"
+supposed to always have an "e" subscript?
+
+For related work, consider adding a comparison to "Matchete: Paths through the Pattern-Matching Jungle" by 
+Hirzel et al. (PADL'08) and "Extensible Pattern Matching in an Extensible Language" by Tobin-Hochstadt 
+(IFL'10).
+
+Here are some suggestions for further streamlining the presentation:
+
+ * Merge sections 1.2 and 2, but then split the whole back out into
+  "background" and "patterns in C++" parts. That way, someone who is
+  already familiar with pattern-matching concepts can move along to
+  the C++ part.
+
+ * In the "patterns in C++" part, consistently supply examples for
+  each feature that you want to discuss in the paper. Also,
+  specifically answer questions that are implicitly asked, such as
+  whether C++ patterns perform redundancy and completeness checking;
+  those answers appear later in the paper, but they are slightly
+  buried.
+
+ * Introduce the four kinds of patterns --- Qua, When, Case, and
+  Otherwise --- in the "patterns in C++" part instead of in the
+  semantics section.
+
+ * In section 4, the presentation seems to start by jumping into the
+  middle of the implementation. Take a step back and first explain
+  all the names that are bound by the library. Separate them into
+  names that are intended to be used by programmers who write
+  pattern-matching statements, programmers who implement patterns,
+  and names that are internal to the match implementation. Explain in
+  a little more detail the role of the preprocessor in the
+  implementation.
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*
+
+Second reviewer's review:
+
+          >>> Summary of the submission <<<
+
+The paper describes a C++ library providing powerful pattern-matching facilities. The paper focuses on the 
+language syntax and semantics, and suggests that the power and extensibility of this library should be a 
+baseline for future pattern-matching extensions to the C++ language.
+
+          >>> Evaluation <<<
+
+The work described in this paper seems pretty cool, but I see a few issues. One issue is the lack of evaluation. In 
+the conclusions the authors say they converted some existing visitor-based code to use their pattern-matching 
+library and it was a great improvement. Unfortunately this is just one paragraph with no hard data. If there was 
+a lot more detail about this experiment, that would really help the paper (even if it's not a full user study).
+
+Another issue is that the split between this paper and the submitted PLDI paper (on implementation) is 
+awkward. The efficiency of this library approach is a key differentiator from previous work such as the 
+"Functional C#" library cited, but the details of that implementation are not present in this paper, only the PLDI 
+paper. Then there are aspects like the motivation for the use of macros, which are relevant to this paper, but 
+not explained.
+
+The co-submission of the PLDI paper also means it's hard to judge how much this paper would overlap the PLDI 
+submission. It's not a good situation, and one the authors could have avoided by submitting both papers to the 
+same conference or not submitting them at the same time.
+
+One more issue is that this paper really needs to be reviewed by a C++ guru to catch potential issues, and 
+although I have a pretty good working knowledge of
+C++, I am by no means a guru, especially when it comes to C++11 features.
+
+I'm concerned that there's no attention to how easy it would be to use this library, especially when a user 
+makes a mistake and needs to understand their error. See below for more details.
+
+Minor comments:
+
+The code after "To make the example fully functional" is completely mysterious this early in the paper. It needs 
+to be explained.
+
+In "Object-oriented languages, typically prefer best- fit strategy because it is not prone to errors where 
+semantics of a statement might change depending on the ordering of preceding de finitions.", there should be 
+no comma. Also, this sentence is quite unclear about what is meant by a "best-fit strategy". An example would 
+be useful. Though it seems to me that the system in this paper actually uses a first-fit strategy? That should be 
+mentioned.
+
+Section 3 has a lot of forward references to section 4 that make section 3 difficult to read. Is there a way to 
+ameliorate this? Possibly the implementation and semantics sections could be fused, subdividing instead by the 
+features that are being presented. Or, we could have the implementation overview appear before the 
+presentation of the formal semantics. I certainly think section 4.4 on how algebraic data type encodings are 
+matched could be brought forward.
+
+On page XII, the pattern application judgements in Figure 4 are said to yield an environment and a value, but 
+the text does not point out that the "value" is always a boolean indicating if pattern application succeeded. This 
+should be made clear.
+
+The rule in figure 4 titled "P-CONSTRUCTOR-NULLPTR" is oddly named. Surely it has nothing to do with null 
+pointers? Call it P-CONSTRUCTOR-NO-VALUE or something like that?
+
+In figure 4, the P-CONSTRUCTOR-REJECT rule returns \Sigma_i+1 as the outgoing environment. It seems odd to 
+use the environment returned by a failure to match. Now it probably doesn't matter since this rule fails to 
+match and (I
+think) environments from failed matches are always *eventually* ignored, but it would be cleaner to have the 
+rules return environment-or-failure so we don't have to worry about the environment returned for failures.
+
+In a number of places, readers not familiar with C++11 will be confused by uncommented usage of C++11 
+features, such as is_base_and_derived, aliased templates and and decltype. Even experienced C++ developers 
+may not have encountered these yet, so they should be noted.
+
+What's the motivation for using size_t as the type of the layout label? That should be explained.
+
+The roles of the "Kind Selector", "Kind Value" and "Base Class" specifiers need to be better explained. An 
+example would be helpful.
+
+Section 4.2 points out that matching a function application is ambiguous when there are multiple solutions. 
+The paper does not explicitly say how it resolves this issue, but it should. (It seems to me that the paper simply 
+makes the issue user-defined.)
+
+The use of templates to resolve algebraic decomposition patterns is clever but I'm worried about what happens 
+when a user specifies a pattern that can't be solved. It seems likely that they will be swamped by 
+incomprehensible errors about failed template instantiations. That may limit the usability of the library, but the 
+authors don't discuss such issues.
+
+I have many smaller editorial comments:
+
+The sentence "Idiomatic, type-safe, handling of discriminated unions in C++ using the Visitor Design 
+Pattern[16], which in this case is 25 lines of "boiler plate code" plus 14 lines of the specifi c functionality." has 
+no verb.
+
+In several places the word "underlain" is used. I think "underlying" would be a better choice in most of those 
+places.
+
+On page V, "Closeness" should be "Closedness".
+
+In "An Otherwise clause, is an irrefutable clause", there should be no comma.
+
+On page XV, "patters" should be "patterns". "such class" should be "such a class" and "as semantic functor" 
+should be "as a semantic functor".
+
+On page XVII, "decomposing line already includes an equality sign" should be "decomposing lines already 
+include an equality sign".
+
+On page XVIII, "semantics in equational approach" should be "semantics in an equational approach". "The first 
+argument of a function" should be "The first argument of the function". "models FIELD concept" should be 
+"models the FIELD concept". the Euler's notation" should be "Euler notation".
+
+"would be hard if possible" should be "would be hard or impossible".
+
+"C++ does not have a direct support of" should be "C++ does not have direct support for".
+
+"In polymorphic and tagged encoding," should be "In polymorphic and tagged encodings,". "in polymorphic 
+encoding, base class has" should be "in polymorphic encodings, the base class has".
+
+"implementation of Hope compiler" should be "implementation of the Hope compiler".
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*
+
+Third reviewer's review:
+
+          >>> Summary of the submission <<<
+
+The paper describes a pattern matching library for C++, which supports pattern matching in the style of 
+functional programming languages such as Haskell. In addition to constructor matching, the library supports 
+n+k patterns, and limited form of views. 
+
+          >>> Evaluation <<<
+
+It is a tribute to the power of C++ templates that it is possible to encode pattern matching as a library. 
+However, the result is underwhelming. The pattern matching features discussed in the paper are well known. 
+And the result is not quite as general as one would want. It works for simple cases, but does not generalize. For 
+example, nested patterns are not proper nested patterns; patterns degrade to application of match functions. 
+The implementation with C++ templates is not illuminating either.
+
+PRO
+- a library providing efficient pattern matching to C++ programmers without changing the language
+
+CON
+- encoding of pattern matching library in C++ templates and concepts
+- the resulting library requires considerable syntactic overhead in order to encode simple pattern matching 
+
+See also: Joost Visser: "Matching Objects Without Language Extension", in Journal of Object Technology, vol. 5, 
+no. 8, November-December 2006, pages 81-100, http://www.jot.fm/issues/issue_2006_11/article2
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*
+

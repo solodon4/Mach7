@@ -18,7 +18,7 @@ list can be stored inside the virtual table of a class, while in our library
 solution it is shared between all the instances with the same most derived tag 
 in a less efficient global map, associating the tag to its tag list.
 
-The list of tags is topologically sorted accordingly to the subtyping relation 
+The list of tags is topologically sorted according to the subtyping relation 
 and terminates with a dedicated value distinct from all the tags. We call such a 
 list a \emph{Tag Precedence List} (TPL) as it resembles the \emph{Class 
 Precedence List} (CPL) of object-oriented descendants of Lisp (e.g. Dylan, 
@@ -63,5 +63,5 @@ matched, we will necessarily reach the end\_of\_list marker in the tag precedenc
 list and thus exit the loop.
 
 Our library automatically builds the function \code{get_taglist} based on 
-additional definitions that the user provides. The details can be found in 
+additional definitions that the user provides. The details can be found in the 
 companion technical report~\cite[\textsection 6]{TR}.

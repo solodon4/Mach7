@@ -141,7 +141,7 @@ showstringspaces=false,
 \frontmatter          % for the preliminaries
 %
 \pagestyle{headings}  % switches on printing of running heads
-\addtocmark{Hamiltonian Mechanics} % additional mark in the TOC
+%\addtocmark{Hamiltonian Mechanics} % additional mark in the TOC
 
 %\conferenceinfo{PLDI 2012}{Beijing, China} 
 %\copyrightyear{2012} 
@@ -276,8 +276,8 @@ calls first or second function on the embedded value, encoding the result
 correspondingly.
 
 Its equivalent in C++ is not straightforward. Idiomatic, type-safe, handling of 
-discriminated unions in C++ using the \emph{Visitor Design Pattern}\cite{DesignPatterns}, 
-which in this case is 25 lines of ``boiler plate code'' plus 14 lines 
+discriminated unions in C++ uses the \emph{Visitor Design Pattern}\cite{DesignPatterns}, 
+which in this case amounts to 25 lines of ``boiler plate code'' plus 14 lines 
 of the specific functionality. Using our 
 pattern-matching facility, we get logically close to the original Haskell definition:
 
@@ -315,7 +315,7 @@ The syntax is provided without any external tool support. Instead we rely on a
 few C++11 features\cite{C++11}, template meta-programming, and macros. As shown 
 in our companion paper~\cite{TypeSwitch}, it runs about as fast as the OCaml 
 version and up to 80\% faster (depending on the usage scenario, compiler and 
-underlain hardware) than a handcrafted C++ code using the visitor 
+underlying hardware) than a handcrafted C++ code using the visitor 
 design pattern.
 
 The rest of this paper is structured as following. Section~\ref{sec:bg} goes 
@@ -373,7 +373,7 @@ let rec eval e = match e with
 \noindent
 There are two critical differences between algebraic data types and classes in 
 object-oriented languages: definition of an algebraic data type is \emph{closed}, 
-while its variants are \emph{disjoint}. Closeness means that once we have listed 
+while its variants are \emph{disjoint}. Closedness means that once we have listed 
 all the variants a given algebraic data type may have we cannot extend it with 
 new variants without modifying its definition. Disjointedness means that a value 
 of an algebraic data type belongs to exactly one of its variants. Neither is 
@@ -421,7 +421,7 @@ combinations of variants and not the variants themselves. In contrast,
 the \emph{nominative subtyping} of object-oriented languages does not maintain 
 the disjointness property, making objects effectively belong to multiple classes. 
 
-Closeness of algebraic data types is particularly useful for reasoning about 
+Closedness of algebraic data types is particularly useful for reasoning about 
 programs by case analysis and allows the compiler to perform an automatic 
 \emph{incompleteness} check -- test of whether a given match statement 
 covers all possible cases. Similar reasoning about programs involving extensible 
@@ -666,7 +666,7 @@ only accepts simple patterns, conveniently introducing all the variables into th
 clause's scope. 
 A \code{When}-clause takes only patterns while its target type is 
 the subject type.
-An \code{Otherwise} clause, is an irrefutable clause that is 
+An \code{Otherwise} clause is an irrefutable clause that is 
 semantically equivalent to \code{Case}-clause with subject type used as a target 
 type. When used it should be the last clause of the match statement.
 
@@ -1106,11 +1106,11 @@ Concepts were not included in C++11, so we emulate them using overloading and
 \code{enable_if}~\cite{jarvi:03:cuj_arbitrary_overloading}.
 
 Each (possibly overloaded) operator and function that can be evaluated lazily 
-and matched against in generalized n+k patters are represented with a class whose 
+and matched against in generalized n+k patterns are represented with a class whose 
 only purpose is to transparently forward the call to an overloaded function that 
-implements the semantics of the operation. We refer to such class together with 
-the overloaded function it forwards the calls to as \emph{semantic functor}.
-For example,this functor defines semantics of multiplication:
+implements the semantics of the operation. We refer to such a class together with 
+the overloaded function it forwards the calls to as a \emph{semantic functor}.
+For example, this functor defines semantics of multiplication:
 
 \begin{lstlisting}[keepspaces,columns=flexible]
 struct mult 
@@ -1260,7 +1260,7 @@ data types. We demonstrate with examples.
 \setlength{\parskip}{0pt}
 \item An expression $n/m$ is often used to decompose a rational number into 
       numerator and denominator.
-\item Euler's notation $a+bi$ with $i$ being an imaginary unit is used to 
+\item Euler notation $a+bi$ with $i$ being an imaginary unit is used to 
       decompose a complex number into real and imaginary parts. Similarly, 
       expressions $r(cos \phi + i\mathrm{sin} \phi)$ and $re^{i\phi}$ are used to 
       decompose it into polar form.
@@ -1279,8 +1279,8 @@ data types. We demonstrate with examples.
 Expressions $i$, $X$ and $Y$ in these examples are not variables, but named 
 constants of some dedicated type that lets the expression be generically 
 decomposed into orthogonal parts. Note also that linear equation and two-point 
-forms for decomposing line already includes an equality sign, which makes it 
-hard to give them semantics in equational approach. It turns out that the 
+form for decomposing lines already include an equality sign, which makes it 
+hard to give them semantics in an equational approach. It turns out that the 
 equational approach can be generically expressed in our framework for many 
 interesting cases of interest.
 
@@ -1325,7 +1325,7 @@ The user of our library defines the semantics of decomposing a value of a given
 type \code{S} against an expression of shape \code{E} by overloading a function: 
 \\ \code{template <LazyExpression E, typename S> bool solve(const E&, const S&);}
 
-The first argument of a function takes an expression template representing an 
+The first argument of the function takes an expression template representing an 
 expression we are matching against, while the second argument represents the 
 expected result. The following example defines a generic solver for 
 multiplication by a constant:
@@ -1345,7 +1345,7 @@ bool solve(const expr<mult,E,value<T>>& e, const E::result_type& r) {
 
 \noindent
 The first overload is only applicable when the type of the result of the 
-sub-expression models \code{Field} concept. In this case, we can rely on the presence 
+sub-expression models the \code{Field} concept. In this case, we can rely on the presence 
 of a unique inverse and simply call division without any additional checks. The 
 second overload uses integer division, which does not guarantee the unique 
 inverse, and thus we have to verify that the result is divisible by the constant 
@@ -1355,7 +1355,7 @@ of the \code{fib} function from \textsection\ref{sec:syn}. It also demonstrates
 how an equational approach can be generically implemented for a number of 
 expressions.
 
-A generic solver capable of decomposing a complex value using the Euler's 
+A generic solver capable of decomposing a complex value using the Euler 
 notation is very easy to define by fixing the structure of expression:
 
 \begin{lstlisting}[keepspaces]
@@ -1380,7 +1380,7 @@ an interface between expressions and functions defining their semantics and
 algebraic decomposition. The fact that the user explicitly defines the variables 
 she would like to use in patterns is also a key as it lets us specialize not 
 only on the structure of the expression, but also on the types involved. 
-Inference of such types in functional languages would be hard if possible as the 
+Inference of such types in functional languages would be hard or impossible as the 
 expression may have entirely different semantics depending on the types of 
 arguments involved. Concept-based overloading simplifies significantly the case 
 analysis on the properties of types, making the solvers generic and composable.
@@ -1440,7 +1440,7 @@ etc.
 \subsection{Unified Syntax}
 \label{sec:unisyn}
 
-C++ does not have a direct support of algebraic data types, but they can be 
+C++ does not have direct support for algebraic data types, but they can be 
 emulated in a number of ways. A general pattern-matching solution must be able 
 to elegantly and efficiently deal with all of them. Consider an ML data type: 
 
@@ -1460,9 +1460,9 @@ Emir, we will refer to them as \emph{encodings}~\cite{EmirThesis}:
 \end{compactitem}
 
 \noindent
-In polymorphic and tagged encoding, base class \code{DT} represents algebraic 
+In polymorphic and tagged encodings, base class \code{DT} represents algebraic 
 data type, while derived classes represent variants. The only difference between 
-the two is that in polymorphic encoding base class has virtual functions, while 
+the two is that in polymorphic encoding the base class has virtual functions, while 
 in tagged encoding it has a dedicated member of integral type  (a ``type field'')  that uniquely 
 identifies the variant -- derived class. 
 
@@ -1577,7 +1577,7 @@ There are two main approaches to compiling pattern-matching code: the first is
 based on \emph{backtracking automata} and was introduced by Augustsson\cite{Augustsson85}, 
 the second is based on \emph{decision trees} and was first described by 
 Cardelli\cite{Cardelli84}, though he attributes the technique to Dave MacQueen 
-and Gilles Kahn in their implementation of Hope compiler \cite{BMS80}.
+and Gilles Kahn in their implementation of the Hope compiler \cite{BMS80}.
 Backtracking approach usually generates smaller code, while decision tree 
 approach produces faster code by ensuring that each primitive test is only 
 performed once. With respect to matching a single expression our library 
@@ -1622,7 +1622,7 @@ When the class hierarchy is fixed, one can design a pattern language that involv
 semantic notions represented by the hierarchy. Pirkelbauer devised a pattern 
 language for Pivot capable of representing various entities in a C++ program using syntax very close to the C++ itself. 
 Interestingly, the patterns were translated with a tool into a set of visitors 
-implementing the underlain pattern-matching semantics\cite{PirkelbauerThesis}. 
+implementing the underlying pattern-matching semantics\cite{PirkelbauerThesis}. 
 Earlier, Cook et al used expression templates to implement a query language for 
 Pivot's class hierarchy~\cite{iql04}. Our current work is the result of a series 
 of experimental designs. The library approach was essential to provide 

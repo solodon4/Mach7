@@ -36,7 +36,7 @@ statement can be used as a type switch; however, Tom's handling of type
 switching is based on decision trees and an \code{instanceof}-like predicate, 
 which are inefficient.
 
-Pattern matching in Scala~\cite{Scala2nd} also support type switching through 
+Pattern matching in Scala~\cite{Scala2nd} also supports type switching through 
 type patterns. The language supports extensible and hierarchical data types, but
 their handling in a type switching constructs varies. Sealed classes are handled 
 with an efficient switch over all tags, while extensible classes are similarly 

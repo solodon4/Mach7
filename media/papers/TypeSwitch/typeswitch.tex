@@ -13,10 +13,6 @@
 \usepackage{multirow}
 \usepackage{rotating}
 
-\lstdefinestyle{Caml}{language=Caml,%
-  literate={when}{{{\bf when}}}4
-}
-
 \lstdefinestyle{C++}{language=C++,%
 showstringspaces=false,
   columns=fullflexible,
@@ -24,6 +20,7 @@ showstringspaces=false,
   basicstyle=\sffamily,
 %  commentstyle=\rmfamily\itshape,
   moredelim=**[is][\color{white}]{~}{~},
+  morekeywords={concept,requires,noexcept},
   literate={[<]}{{\textless}}1      {[>]}{{\textgreater}}1 %
            {<}{{$\langle$}}1        {>}{{$\rangle$}}1 %
            {<=}{{$\leq$}}1          {>=}{{$\geq$}}1          
@@ -39,12 +36,32 @@ showstringspaces=false,
            {Divide}{{Divide}}6 %
            {Match}{{\emph{Match}}}5 %
            {Case}{{\emph{Case}}}4 %
-           {Que}{{\emph{Que}}}3 %
+           {Qua}{{\emph{Qua}}}3 %
+           {When}{{\emph{When}}}4 %
            {Otherwise}{{\emph{Otherwise}}}9 %
            {EndMatch}{{\emph{EndMatch}}}8 %
-           {CM}{{\emph{CM}}}2 {KS}{{\emph{KS}}}2 {KV}{{\emph{KV}}}2 
+           {CM}{{\emph{CM}}}2 {KS}{{\emph{KS}}}2 {KV}{{\emph{KV}}}2 %
+           {EuclideanDomain}{\concept{EuclideanDomain}}{15}  %
+           {LazyExpression}{\concept{LazyExpression}}{14}    %
+           {Polymorphic}{\concept{Polymorphic}}{11}          %
+           {Convertible}{\concept{Convertible}}{11}          %
+           {Integral}{\concept{Integral}}8                   %
+           {SameType}{\concept{SameType}}8                   %
+           {Pattern}{\concept{Pattern}}7                     %
+           {Regular}{\concept{Regular}}7                     %
+           {Object}{\concept{Object}}6                       %
+           {Field}{\concept{Field}}5                         %
 }
 \lstset{style=C++}
+
+\lstdefinestyle{Caml}{language=Caml,%
+  morekeywords={when}
+}
+
+\lstdefinestyle{Haskell}{language=Haskell,%
+  morekeywords={out,view,real}
+}
+
 \DeclareRobustCommand{\Cpp}{C\texttt{++}}
 \DeclareRobustCommand{\code}[1]{{\lstinline[breaklines=false,escapechar=@]{#1}}}
 \DeclareRobustCommand{\codebr}[1]{{\lstinline[breaklines=true]{#1}}}
@@ -63,13 +80,14 @@ showstringspaces=false,
 \newcommand{\Alt}{\ensuremath{|}}
 \newcommand{\is}{$::=$}
 \newcommand{\subtype}{\textless:}
+\newcommand{\lazyevals}{\Downarrow}
 \newcommand{\evals}{\Rightarrow}
 \newcommand{\evalspp}{\Rightarrow^+}
 \newcommand{\DynCast}[2]{\ensuremath{dc\langle{#1}\rangle({#2})}}
 \newcommand{\nullptr}{\ensuremath{\bot}}
 
-\newcommand{\f}[1]{{ {\bf \textcolor{blue}{#1\%}}}}
-\newcommand{\s}[1]{{ {\em \textcolor{cyan}{#1\%}}}}
+\newcommand{\f}[1]{{ {{#1\%}}}}
+\newcommand{\s}[1]{{ {\bf \underline{#1\%}}}}
 \newcommand{\n}[1]{{ {\bf ~ ~ ~ ~ }}}
 \newcommand{\Opn}{{\scriptsize {\bf Open}}}
 \newcommand{\Cls}{{\scriptsize {\bf Tag}}}
@@ -103,7 +121,7 @@ showstringspaces=false,
 %\copyrightyear{2012} 
 %\copyrightdata{[to be supplied]} 
 
-\titlebanner{Technical Report}        % These are ignored unless
+\titlebanner{Draft rejected from PLDI 2012} % These are ignored unless
 \preprintfooter{Y.Solodkyy, G.Dos Reis, B.Stroustrup: Open and Efficient Type Switch for C++}   % 'preprint' option specified.
 
 \title{Open and Efficient Type Switch for C++}

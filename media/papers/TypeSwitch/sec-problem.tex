@@ -10,7 +10,7 @@ elaborate abstract syntax trees to target languages. We found visitors
 unsuitable to express our application logic, surprisingly hard to teach 
 students, and slow. Use of dynamic casts in many places, often nested,to 
 answer simple structural questions, shows that the users 
-preferd shorter, cleaner, and more-direct code to visitors, even at a high 
+preferred shorter, cleaner, and more direct code to visitors, even at a high 
 cost in performance.
 
 A lot has been written about the visitor design pattern~\cite{DesignPatterns1993,Zenger:2001,Oliveira08}. 
@@ -80,7 +80,7 @@ implementation technique that satisfies the following requirements:
 \noindent
 Object-oriented languages further complicate the matter with the fact that 
 data variants are not necessarily disjoint and may form subtyping relationships  
-between themselves. We thus introduced an additional requirement based on 
+between themselves. We thus introduced an additional requirement based on the
 Liskov substitution principle~\cite{Lis87}:
 
 \begin{itemize}
@@ -169,7 +169,7 @@ class hierarchies makes this extremely efficient approach infeasible:
 \item \emph{Extensibility} implies that the compiler may not know the exact set 
       of all derived classes till link-time (due to \emph{separate compilation}) 
       or even run-time (due to \emph{dynamic linking}).
-\item \emph{Substitutability} requirement implies that we should be able to 
+\item \emph{Substitutability} implies that we should be able to 
       match tags of derived classes against case labels representing tags of 
       base classes.
 \item Presence of \emph{multiple inheritance} might require pointer adjustments 
@@ -182,13 +182,13 @@ In some cases the substitutability requirement can be satisfied by obtaining
 the base class' tag from a derived one first and then performing the jump. 
 This will work as long as we have only base classes in the case clauses.
 Derived classes that have to be treated separately from the rest of their 
-siblings, will essentially be indistinguishable from them.
+siblings will essentially be indistinguishable from them.
 
 When tags are not chosen arbitrarily but to reflect the subtyping relation of the 
 underlying hierarchy (e.g. certain bit set for certain base class), the assumed 
 structure of tags is likely to make the set of tags sparse. On one hand this 
 decreases the number of representable hierarchies and thus hinders openness, 
-while on the other forces the compiler to use a decision tree instead of a jump 
+while on the other it forces the compiler to use a decision tree instead of a jump 
 table to implement the switch. The former was consistently slower than the 
 latter one in our experience, even though the opposite was noted on some 
 architectures for small number of case clauses~\cite[\textsection 4]{garrigue-98}.
@@ -214,8 +214,8 @@ is proportional to $i$, while failure to match will always take the longest.
 This linear increase can be seen in the Figure~\ref{fig:DCastVis1}, where 
 the above cascading-if was applied to a flat hierarchy encoding an algebraic 
 data type with 100 variants. The same type-switching functionality implemented 
-with the visitor design pattern took only 28 cycles regardless of the case.
-\footnote{Each case $i$ was timed multiple times, thus turning the experiment 
+with the visitor design pattern took only 28 cycles regardless of the 
+case.\footnote{Each case $i$ was timed multiple times, thus turning the experiment 
 into a repetitive benchmark described in \textsection\ref{sec:eval}. In a more
 realistic setting, represented by random and sequential benchmarks, the cost of 
 double dispatch was varying between 52 and 55 cycles.}
@@ -305,7 +305,7 @@ The presence of class extensions in \emph{Dynamically Linked Libraries} (DLLs)
 will also require an integration effort to make sure different DLLs are not 
 reusing prime numbers in a way that might result in an incorrect dynamic cast.
 Interestingly, while suitable for type testing and type switching with decision 
-trees, the fast dynamic cast approch is not suitable for type switching with 
+trees, the fast dynamic cast approach is not suitable for type switching with 
 jump tables: computing the tag of a base class will have to decompose the 
 derived tag into primes.
 

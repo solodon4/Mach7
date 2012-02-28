@@ -67,8 +67,8 @@ showstringspaces=false,
 \newcommand{\DynCast}[2]{\ensuremath{dc\langle{#1}\rangle({#2})}}
 \newcommand{\nullptr}{\ensuremath{\bot}}
 
-\newcommand{\f}[1]{{ {\bf \textcolor{blue}{#1\%}}}}
-\newcommand{\s}[1]{{ {\em \textcolor{cyan}{#1\%}}}}
+\newcommand{\f}[1]{{ {    {#1\%}}}}
+\newcommand{\s}[1]{{ {\bf \underline{#1\%}}}}
 \newcommand{\n}[1]{{ {\bf ~ ~ ~ ~ }}}
 \newcommand{\Opn}{{\scriptsize {\bf Open}}}
 \newcommand{\Cls}{{\scriptsize {\bf Tag}}}
@@ -279,7 +279,7 @@ unsuitable to express our application logic, surprisingly hard to teach
 students, and slow. We found dynamic casts in many places, often nested, 
 because users wanted to answer simple structural 
 questions without having to resort to visitors. Users preferred shorter, cleaner, 
-and more-direct code to visitors, even at a high cost in performance (assuming 
+and more direct code to visitors, even at a high cost in performance (assuming 
 that the programmer knew the cost). The usage of \code{dynamic\_cast} resembled 
 the use of pattern matching in functional languages to unpack algebraic data 
 types. Thus, our initial goal was to develop a domain-specific library for C++ 
@@ -369,7 +369,7 @@ implementation technique that satisfies the following requirements:
 \noindent
 Object-oriented languages further complicate the matter with the fact that 
 data variants are not necessarily disjoint and may form subtyping relationships  
-between themselves. We thus introduced an additional requirement based on 
+between themselves. We thus introduced an additional requirement based on the
 Liskov substitution principle~\cite{Lis87}:
 
 \begin{itemize}
@@ -597,7 +597,7 @@ data types in C++ and present a unified pattern-matching syntax that works
 uniformly with all of them. 
 
 A practical benefit of our solution is that it can be used right away with any 
-compiler with a descent support of C++0x without requiring the installation of 
+compiler with a decent support of C++0x without requiring the installation of 
 any additional tools or preprocessors. The solution is a proof of concept that 
 sets a minimum threshold for the performance, brevity, clarity and usefulness of 
 a language solution for open type switching in C++.
@@ -752,11 +752,11 @@ struct DT
 
 As before, the user can use a switch statement to identify the variant $c_i$ and 
 then access its members via $C_i$ union member. This approach is truly closed, as 
-we cannot add new variants to the underlain union without modifying class 
+we cannot add new variants to the underlying union without modifying class 
 definition. 
 
 Note also that in this case both subject type and target types are the same and 
-we use an integral constant to distinguish which member(s) of the underlain union 
+we use an integral constant to distinguish which member(s) of the underlying union 
 is active now. In the other two cases the type of a subject is a base class of 
 the target type and we use either run-time type information or the integral 
 constant associated by the user with the target type to uncover the target type. 
@@ -1220,8 +1220,8 @@ is proportional to $i$, while failure to match will always take the longest.
 This linear increase can be seen in the Figure~\ref{fig:DCastVis1}, where 
 the above cascading-if was applied to a flat hierarchy encoding an algebraic 
 data type with 100 variants. The same type-switching functionality implemented 
-with the visitor design pattern took only 28 cycles regardless of the case.
-\footnote{Each case $i$ was timed multiple times, thus turning the experiment 
+with the visitor design pattern took only 28 cycles regardless of the 
+case.\footnote{Each case $i$ was timed multiple times, thus turning the experiment 
 into a repetitive benchmark described in \textsection\ref{sec:eval}. In a more
 realistic setting, represented by random and sequential benchmarks, the cost of 
 double dispatch was varying between 52 and 55 cycles.}
@@ -1346,7 +1346,7 @@ knowledge of all the classes and thus fails extensibility through DLLs.
 
 In practical implementations hand crafted for a specific class hierarchy, tags 
 often are not chosen arbitrarily, but to reflect the subtyping relation of the 
-underlain hierarchy. Switching on base classes in such a setting will typically 
+underlying hierarchy. Switching on base classes in such a setting will typically 
 involve a call to some function $f$ that converts derived class' tag into a base 
 class' tag. An example of such a scheme would be having a certain bit in the tag 
 set for all the classes derived from a given base class. Unfortunately this 
@@ -1418,7 +1418,7 @@ In this section we will concentrate on the truly open type switch for
 polymorphic encoding. The type switch for tagged encoding (\textsection\ref{sec:cotc}) 
 is simpler and more efficient, however, making it open will eradicate its 
 performance advantages. The difference in performance is the price we pay for 
-keeping the solution open.  The core of the proposal relies on two keys
+keeping the solution open.  The core of the proposal relies on two key
 aspects of C++ implementations:
 \begin{enumerate}
 \item a constant-time access to the virtual table pointer embedded in an object of
@@ -1474,8 +1474,8 @@ The notion of subobject has been formalized before~\cite{RF95,WNST06,RDL11}.
 We follow here the presentation of Ramamanandro et al~\cite{RDL11}.
 
 A base class subobject of a given complete object is represented by a pair 
-$\sigma = \langle h,l\rangle$ with $h \in \{Repeated,Shared\}$ representing the 
-kind of inheritance (single inheritance is $Repeated$ with one base class) and $l$ 
+$\sigma = \langle h,l\rangle$ with $h \in \{\mathrm{Repeated},\mathrm{Shared}\}$ representing the 
+kind of inheritance (single inheritance is $\mathrm{Repeated}$ with one base class) and $l$ 
 representing the path in a non-virtual inheritance graph.
 
 A predicate $C\leftY\sigma\rightY A$ they introduce means that $\sigma$ 
@@ -1588,13 +1588,13 @@ has to be defined inside the vtable according to the ABI, while
 \code{vbase}$(a_2.vtbl_i)$ -- should not. This would contradict again that both 
 $vtbl_i$ refer to the same virtual table.
 
-We have thus $h_1 = h_2 = h$. If $h = Shared$ than there is only one path to 
+We thus have $h_1 = h_2 = h$. If $h = \mathrm{Shared}$ then there is only one path to 
 such $A$ in $C$, which would contradict $\sigma_1 \neq \sigma_2$. 
-If $h = Repeated$ then we must have that $l_1 \neq l_2$. In this case let $k$ be 
+If $h = \mathrm{Repeated}$ then we must have that $l_1 \neq l_2$. In this case let $k$ be 
 the first position in which they differ: 
 $l_1^j=l_2^j \forall j<k \wedge l_1^k\neq l_2^k$. Since our class $A$ is a base 
 class for classes $l_1^k$ and $l_2^k$, both of which are in turn base classes of 
-$C$, the object identity requirement of C++ require that the relevant subobjects 
+$C$, the object identity requirement of C++ requires that the relevant subobjects 
 of type $A$ have different offsets within class $C$: 
 $\mathit{offset}(\sigma_1)\neq \mathit{offset}(\sigma_2)$ However 
 $\mathit{offset}(\sigma_1)=$\code{off2top}$(a_1.vtbl_i)=$\code{off2top}$(a_2.vtbl_i)=\mathit{offset}(\sigma_2)$ 
@@ -1613,7 +1613,7 @@ requirement and saying that equality of vtbl-pointers also implies equality of
 the static types is not true in general because a derived class will share the 
 vtbl-pointer with its primary base class (see Lemma~\ref{lem:vtbl}). The theorem 
 can be reformulated, however, stating that one static type will necessarily have 
-to be a subtype of the other. The current forumlation is sufficient for our 
+to be a subtype of the other. The current formulation is sufficient for our 
 purposes, while reformulation would have required more elaborate discussion of 
 the algebra of subobjects~\cite{RDL11}, which we touch only briefly.
 
@@ -1663,7 +1663,7 @@ the statement it guards. In a way we would like the switch to  memoize which
 case is enabled for a given value of $x$.
 
 The idea is to generate a simple cascading-if statement interleaved with jump 
-targets and instructions that associate the original value with enabled targed. 
+targets and instructions that associate the original value with enabled target. 
 The code before the statement looks up whether the association for a given value 
 has already been established, and, if so, jumps directly to the target; otherwise 
 the sequential execution of the cascading-if is started. To ensure 
@@ -1678,9 +1678,9 @@ that in standard C++:
 
 \begin{lstlisting}
 typedef decltype(x) T;
-static std::unordered_map<T,int> jump_target_map;
+static std::unordered_map<T,int> jump_targets;
 
-switch (int& target = jump_target_map[x])
+switch (int& target = jump_targets[x])
 {
 default: // entered when we have not seen x yet
     if (P1(x)) { target = 1;   case 1: s1; } else 
@@ -1693,21 +1693,21 @@ case @$n+1$@: // none of the predicates is true on x
 \end{lstlisting}
 
 \noindent
-The static \code{jump_target_map} hash table will be allocated upon first entry 
-to the function. The map is initially empty and accordingly to its logic, 
+The static \code{jump_targets} hash table will be allocated upon first entry 
+to the function. The map is initially empty and according to its logic, 
 request for a key $x$ not yet in the map will result in allocation of a 
 new entry with its associated data default initialized (to 0 for int). Since 
-there is no case label 0 in the switch, default case will be taken, which, in 
+there is no case label 0 in the switch, the default case will be taken, which, in 
 turn, will initiate sequential execution of the interleaved cascading-if 
 statement. Assignments to \code{target} effectively establish association 
 between value $x$ and corresponding predicate, since \code{target} is just a 
-reference to \code{jump_target_map[x]}. The last assignment records absence of 
+reference to \code{jump_targets[x]}. The last assignment records absence of 
 enabled predicates for the value.
 
 The sequential execution of the cascading-if statement will keep checking 
 predicates $P_j(x)$ until the first predicate $P_i(x)$ that returns true. By 
 assigning $i$ to \code{target} we will effectively associate $i$ with $x$ since 
-\code{target} is just a reference to \code{jump_target_map[x]}. This association 
+\code{target} is just a reference to \code{jump_targets[x]}. This association 
 will make sure that the next time we are called with the value $x$ we will jump 
 directly to the label $i$. When none of the predicates returns true, we will 
 record it by associating $x$ with $N+1$, so that the next time we can jump 
@@ -1731,7 +1731,7 @@ Note that the protocol that has to be maintained by this structure does not
 depend on the actual values of case labels. We only require them to be 
 different and include a predefined default value. The default clause can be 
 replaced with a case clause for the predefined value, however keeping the default  
-clause result in a faster code. A more important performance consideration is to 
+clause results in a faster code. A more important performance consideration is to 
 keep the values close to each other. Not following this rule might result in a 
 compiler choosing a decision tree over a jump table implementation of the 
 switch, which in our experience significantly degrades the performance.
@@ -1743,7 +1743,7 @@ can build a decision-tree-based memoization device that will effectively have
 dispatching~\cite{ErnstKC98}.
 
 Imagine that the predicates with the numbers $2i$ and $2i+1$ are mutually exclusive and 
-each imply the value of the predicate with number $i$ i.e. $\forall x \in Domain(P)$
+each imply the value of the predicate with number $i$ i.e. $\forall x \in \mathsf{Domain}(P)$
 \begin{eqnarray*}
 P_{2i+1}(x)\rightarrow P_i(x) \wedge P_{2i}(x)\rightarrow P_i(x) \wedge \neg(P_{2i+1}(x) \wedge P_{2i}(x))
 \end{eqnarray*}
@@ -1754,7 +1754,7 @@ predicate that implies all other predicates true on $x$) that evaluates to true 
 skip the entire statement if none of the predicates is true on $x$.
 
 \begin{lstlisting}
-switch (int& target = jump_target_map[x])
+switch (int& target = jump_targets[x])
 {
 default:
     if (P1(x)) {
@@ -1816,21 +1816,21 @@ of virtual table pointers into a \emph{Vtable Pointer Memoization} technique.
 We saw that vtbl-pointers uniquely determine the subobject within an object 
 (Theorem~\ref{thm:vtbl}), while the result of a \code{dynamic_cast} can be reapplied 
 from the same subobject (Corollary~\ref{crl:vtbl}). The idea is thus to group 
-all the objects accordingly to the value of their vtbl-pointer and associate both 
+all the objects according to the value of their vtbl-pointer and associate both 
 target and the required offset with it through memoization device:
 
 \begin{lstlisting}
 typedef std::pair<ptrdiff_t,size_t> type_switch_info;
-static std::unordered_map<intptr_t, type_switch_info> jump_target_map;
-intptr_t          vtbl = *reinterpret_cast<const intptr_t*>(p);
-type_switch_info& info = jump_target_map[vtbl];
+static std::unordered_map<intptr_t, type_switch_info> jump_targets;
+intptr_t          vtbl = *reinterpret_cast<const intptr_t*>(x);
+type_switch_info& info = jump_targets[vtbl];
 const void*       tptr; 
 switch (info.second) ...
 \end{lstlisting}
 
 \noindent
 We use the virtual table pointer extracted from a polymorphic object pointed to 
-by \code{p} as a key for association. The value stored along the key in 
+by \code{x} as a key for association. The value stored along the key in 
 association now keeps both: the target for the switch as well as a memoized 
 offset for dynamic cast. 
 
@@ -1838,19 +1838,19 @@ The code for the $i^{th}$ case now evaluates the required offset on the first
 entry and associates it along the target with the vtbl-pointer of the subject.
 The call to \code{adjust_ptr<Di>} re-establishes the invariant that 
 \code{matched} is a properly-casted reference to type \code{Di} of the subject 
-\code{p}.
+\code{x}.
 %The condition of the inner if-statement is only needed to implement the 
 %sequential all-fit semantics and can be removed when fall-through behavior is 
 %not required.
 
 \begin{lstlisting}
-    if (tptr = dynamic_cast<const Di*>(p)) {
+    if (tptr = dynamic_cast<const Di*>(x)) {
         if (info.second == 0) { // supports fall-through
-            info.first  = intptr_t(tptr)-intptr_t(p); // offset
+            info.first  = intptr_t(tptr)-intptr_t(x); // offset
             info.second = @$i$@; // jump target
         }
 case @$i$@: // @$i$@ is a constant here - clause's position in switch
-        auto matched = adjust_ptr<Di>(p,info.first); 
+        auto matched = adjust_ptr<Di>(x,info.first); 
         si;
     }
 \end{lstlisting}
@@ -1901,7 +1901,7 @@ design pattern.
 
 Note that we can apply the reasoning of \textsection\ref{sec:memdev} and change 
 the first-fit semantics of the resulting match statement into a best-fit 
-semantics simply by changing the underlain cascading-if structure with decision 
+semantics simply by changing the underlying cascading-if structure with decision 
 tree. A compiler implementation of a type switch based on Vtable Pointer 
 Memoization will certainly take advantage of this optimization to cut down the 
 cost of the first run on a given vtbl-pointer, when the actual memoization happens.
@@ -2048,8 +2048,8 @@ restriction assures that reconfigurations will not happen infinitely often.
 
 To minimize the number of recomputations even further, our library communicates 
 to the \code{vtblmap}, through its constructor, the number of case clauses in 
-the underlain match statement. We use this number as an estimate of the expected 
-size of the \code{vtblmap} and pre-allocate the cache accordingly to this estimated 
+the underlying match statement. We use this number as an estimate of the expected 
+size of the \code{vtblmap} and pre-allocate the cache according to this estimated 
 number. The cache is still allowed to grow based on the actual number of 
 vtbl-pointers that comes through a \code{vtblmap}, but it never shrinks from the
 initial value. This improvement significantly minimizes the number of collisions 
@@ -2126,7 +2126,7 @@ formula. They can be approximated in many different ways.
 
 Besides probability distribution on all the tests, Figure~\ref{fig:PowerLaw} 
 shows probabilities of a given node on each of the tests. The X-Axis in this 
-case represents the ordering of all the nodes accordingly to their overall rank 
+case represents the ordering of all the nodes according to their overall rank 
 of all the tests combined. As can be seen from the picture, the shape of each 
 specific test's distribution still mimics the overal probability distribution. 
 With this in mind we can simply let the user assign probabilities to each of the 
@@ -2144,7 +2144,7 @@ cascading-if.
 A simpler and likely more precise way of estimating $p_i$ would be to count 
 frequencies of each vtbl pointers directly inside the \code{vtblmap}. This 
 introduces an overhead of an increment into the critical path of execution, but 
-accordingly to our tests was only degrading the overal performance by 1-2\%.
+according to our tests was only degrading the overal performance by 1-2\%.
 Instead, it was compensating with a smaller amount of conflicts and thus a 
 potential gain of performance. We leave the choice of whether the library should 
 count frequencies of each vtbl pointer to the user of the library as the 
@@ -2204,7 +2204,7 @@ of a class, while in our library solution it is shared between all the instances
 with the same most derived tag in a less efficient global map, associating the 
 tag to its tag list.
 
-The list of tags is topologically sorted accordingly to the subtyping relation 
+The list of tags is topologically sorted according to the subtyping relation 
 and terminates with a dedicated value distinct from all the tags. We call such a 
 list a \emph{Tag Precedence List} (TPL) as it resembles the \emph{Class 
 Precedence List} (CPL) of object-oriented descendants of Lisp (e.g. Dylan, 
@@ -2426,7 +2426,7 @@ We mimic the syntax of \code{dynamic_cast} by defining:
 
 \begin{lstlisting}
 template <typename T, typename S>
-inline T memoized_cast(S* p);
+inline T memoized_cast(S*);
 \end{lstlisting}
 
 \noindent
@@ -2457,7 +2457,7 @@ unnecessarily large amount of vtblmap structures, many of which will be
 duplicating information and repeating the work already done. This will happen 
 because instantiations of \code{memoized_cast} with same target but different 
 source types can share their vtblmap structures since vtbl pointers of different 
-source types are necessarily different accordingly to Theorem~\ref{thm:vtbl}. 
+source types are necessarily different according to Theorem~\ref{thm:vtbl}. 
 
 Even though the above solution can be easily improved to allocates a single 
 vtblmap per target type, an average application might have a lot of different 
@@ -2571,8 +2571,8 @@ casting without any refactoring overhead.
 \hline % ----------------------------------------------------------------------------------------------------------------------------------
 \end{tabular}
 \caption{Relative performance of type switching versus visitors. Numbers 
-in bold font (e.g. \f{67}), indicate that our type switching is faster than 
-visitors by corresponding percentage. Numbers in italics font (e.g. \s{14}), 
+in regular font (e.g. \f{67}), indicate that our type switching is faster than 
+visitors by corresponding percentage. Numbers in bold font (e.g. \s{14}), 
 indicate that visitors are faster by corresponding percentage.}
 \label{relperf}
 \end{figure*}
@@ -2668,8 +2668,8 @@ in the accompanying technical report~\cite{TR}.
 
 We compare the performance of our solution relative to the performance of visitors in 
 Figure~\ref{relperf}. The values are given as percentages of performance increase 
-against the slower technique. Numbers in bold represent cases where our type 
-switching was faster than visitors were. Numbers in italics indicate cases where 
+against the slower technique. Numbers in regular font represent cases where our type 
+switching was faster than visitors were. Numbers in bold indicate cases where 
 visitors were faster.
 
 From the numbers, we can see that type switching wins by a good margin in 
@@ -2878,7 +2878,7 @@ form subtyping between variants themselves, but only between combinations of the
 This makes an important distinction between \emph{extensible sum types} like 
 polymorphic variants and \emph{extensible hierarchical sum types} like classes.
 An important property of extensible sum types is that each value of the 
-underlain algebraic data type belongs to exactly one disjoint subset, tagged with 
+underlying algebraic data type belongs to exactly one disjoint subset, tagged with 
 a constructor. The \emph{nominative subtyping} of object-oriented languages does 
 not usually have this disjointness making classes effectively have multiple 
 types. In particular, the case of disjoint constructors can be seen as a 
@@ -2931,7 +2931,7 @@ There has been previous attempts to use pattern matching with the Pivot
 framework that we used to experiment with our library. In his dissertation, 
 Pirkelbauer devised a pattern language capable of representing various entities 
 in a C++ program. The patterns were then translated with a tool into a set of 
-visitors implementing the underlain pattern matching 
+visitors implementing the underlying pattern matching 
 semantics\cite{PirkelbauerThesis}. Earlier, Cook et al used expression templates 
 to implement a query language for Pivot's Internal Program Representation 
 \cite{iql04}. While their work was built around a concrete class hierarchy 
