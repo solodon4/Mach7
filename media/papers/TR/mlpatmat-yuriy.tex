@@ -34,7 +34,7 @@ showstringspaces=false,
            {m_e1}{{$m\_e_1$}}4 {m_e2}{{$m\_e_2$}}4 {m_e3}{{$m\_e_3$}}4 {m_e4}{{$m\_e_4$}}4%
            {Match}{{\emph{Match}}}5 %
            {Case}{{\emph{Case}}}4 %
-           {Que}{{\emph{Que}}}3 %
+           {Qua}{{\emph{Qua}}}3 %
            {Otherwise}{{\emph{Otherwise}}}9 %
            {EndMatch}{{\emph{EndMatch}}}8 %
            {CM}{{\emph{CM}}}2 {KS}{{\emph{KS}}}2 {KV}{{\emph{KV}}}2 
@@ -1404,7 +1404,7 @@ standard\cite{C++0x}.
 \begin{tabular}{rp{0em}cl}
 \Rule{match statement}     & $M$       & \is{}  & \code{Match(}$e$\code{)} $\left[C s^*\right]^*$ \code{EndMatch} \\
 \Rule{case clause}         & $C$       & \is{}  & \code{Case(}$T\left[,x\right]^*$\code{)} \\
-                           &           & \Alt{} & \code{Que(} $T\left[,\omega\right]^*$\code{)} \\
+                           &           & \Alt{} & \code{Qua(} $T\left[,\omega\right]^*$\code{)} \\
                            &           & \Alt{} & \code{Otherwise(}$\left[,x\right]^*$\code{)} \\
 \Rule{target expression}   & $T$       & \is{}  & $\tau$ \Alt{} $l$ \Alt{} $\nu$ \\
 \Rule{view}                & $\nu$     & \is{}  & \code{view<}$\tau,l$\code{>} \\
@@ -1436,7 +1436,7 @@ standard\cite{C++0x}.
 {\bf Match statement} is an analog of a switch statement that allows case 
 clauses to be used as its case statements. We require it to be terminated with a 
 dedicated \code{EndMatch} macro, to properly close the syntactic structure 
-introduced with \code{Match} and followed by \code{Case},\code{Que} and 
+introduced with \code{Match} and followed by \code{Case},\code{Qua} and 
 \code{Otherwise} macros. Match statement will accept selectors of pointer and 
 reference types, treating them uniformly in case clauses. This means that user 
 does not have to mention \code{*,&} or any of the \code{const,volatile}-qualifiers
@@ -1446,14 +1446,14 @@ Examples of match statement has already been presented in
 \textsection\ref{sec:intro} and \textsection\ref{sec:xmpl}.
 
 We support three kinds of {\bf case clauses}: \code{Case}-\emph{clause}, 
-\code{Que}-\emph{clause} and \code{Otherwise}-\emph{clause} also called 
-\emph{default clause}. \code{Case} and \code{Que} clauses are refutable and both 
+\code{Qua}-\emph{clause} and \code{Otherwise}-\emph{clause} also called 
+\emph{default clause}. \code{Case} and \code{Qua} clauses are refutable and both 
 take a target expression as their first argument. \code{Otherwise} clause is 
 irrefutable and can occur at most once among the clauses. Its target type is 
 the selector type. \code{Case} and \code{Otherwise} clauses take additionally a 
 list of identifiers that will be treated as variable patterns implicitly 
 introduced into the clause's scope and bound to corresponding members of their 
-target type. \code{Que} clause permits nested patterns as its arguments, but 
+target type. \code{Qua} clause permits nested patterns as its arguments, but 
 naturally requires all the variables used in the patterns to be explicitly 
 pre-declared. Even though our default clause is not required to be the last 
 clause of the match statement, we strongly encourage the user to place it 
@@ -1486,7 +1486,7 @@ original combination of target type and layout. Views are discussed in details
 in~\textsection\ref{sec:view}.
 
 {\bf Match expression} can be seen as an inline version of match statement with 
-a single \code{Que} clause. Once a pattern is created, it can be applied to an 
+a single \code{Qua} clause. Once a pattern is created, it can be applied to an 
 expression in order to check whether that expression matches the pattern, 
 possibly binding some variables in it. The result of application is always of 
 type \code{bool} except for the tree pattern, where it is a value convertible to 
@@ -1500,7 +1500,7 @@ library be composable.
 {\bf Pattern} summarizes \emph{applicative patterns} -- patterns that can be 
 used in a match expression described above. For convenience reasons this 
 category is extended with $c$ and $x$ to form an {\bf extended pattern} -- a
-pattern that can be used as an argument of \emph{tree pattern} and \code{Que} 
+pattern that can be used as an argument of \emph{tree pattern} and \code{Qua} 
 clause. Extended pattern lets us use constants as a \emph{value pattern} and 
 regular C++ variables as a \emph{variable pattern} inside these constructs. The 
 library implicitly recognizes them and transforms into $\varsigma$ and $\iota$ 
@@ -1926,24 +1926,24 @@ along from the match statement onto the clauses.
 \end{mathpar}
 
 \begin{mathpar}
-\inferrule[Que-Type]
+\inferrule[Qua-Type]
 {\Gamma \vdash $match$\langle\tau\rangle(\vec{\omega})(v) \evals u,\Gamma' \\
  \Gamma'' = (u \neq \nullptr\ ?\ \Gamma'[$matched$^\tau\rightarrow u] : \Gamma')}
-{\Gamma \vdash_v        Que(\tau,\vec{\omega}) \evals u,\Gamma''}
+{\Gamma \vdash_v        Qua(\tau,\vec{\omega}) \evals u,\Gamma''}
 \end{mathpar}
 
 \begin{mathpar}
-\inferrule[Que-Layout]
+\inferrule[Qua-Layout]
 {\Gamma \vdash $match$\langle\tau,l\rangle(\vec{\omega})(v) \evals u,\Gamma' \\
  \Gamma'' = (u \neq \nullptr\ ?\ \Gamma'[$matched$^\tau\rightarrow u] : \Gamma')}
-{\Gamma \vdash_{v^\tau} Que(l,\vec{\omega})    \evals u,\Gamma''}
+{\Gamma \vdash_{v^\tau} Qua(l,\vec{\omega})    \evals u,\Gamma''}
 \end{mathpar}
 
 \begin{mathpar}
-\inferrule[Que-View]
+\inferrule[Qua-View]
 {\Gamma \vdash $match$\langle\tau,l\rangle(\vec{\omega})(v) \evals u,\Gamma' \\
  \Gamma'' = (u \neq \nullptr\ ?\ \Gamma'[$matched$^\tau\rightarrow u] : \Gamma')}
-{\Gamma \vdash_v        Que(view\langle\tau,l\rangle,\vec{\omega}) \evals u,\Gamma''}
+{\Gamma \vdash_v        Qua(view\langle\tau,l\rangle,\vec{\omega}) \evals u,\Gamma''}
 \end{mathpar}
 
 \begin{mathpar}
@@ -1988,17 +1988,17 @@ resulting environment might still be different from the initial environment
 because of variables bound in partial matches during evaluation of clauses 
 (\RefTirName{Match-False}).
 
-Evaluation of a \code{Que}-clause with a type is equivalent to evaluation of a 
-corresponding match expression on a tree pattern (\RefTirName{Que-Type}). The 
-same happens when evaluating \code{Que}-clause with layout, but now selector 
+Evaluation of a \code{Qua}-clause with a type is equivalent to evaluation of a 
+corresponding match expression on a tree pattern (\RefTirName{Qua-Type}). The 
+same happens when evaluating \code{Qua}-clause with layout, but now selector 
 type is used as target type of the tree pattern as well as layout is passed 
-over (\RefTirName{Que-Layout}). Similarly, \code{Que}-clause with a view passes 
+over (\RefTirName{Qua-Layout}). Similarly, \code{Qua}-clause with a view passes 
 target type and layout from the view into corresponding matching expression 
-(\RefTirName{Que-View}). In all three cases, \code{Que}-clause will introduce a 
+(\RefTirName{Qua-View}). In all three cases, \code{Qua}-clause will introduce a 
 variable \code{matched} of type $\tau\&$ that is bound to selector properly 
 casted to the target type $\tau$ into the local scope of the clause.
 
-Similarly to rules for \code{Que}-clause, the three rules for \code{Case}-clause 
+Similarly to rules for \code{Qua}-clause, the three rules for \code{Case}-clause 
 only differ between themselves on the form of the target expression. Evaluation 
 of the \code{Case}-clause begins with lookup for each of its $k$ arguments 
 following target expression, the type of the value returned in the position $i$. 
@@ -2392,10 +2392,10 @@ and give more control to the library user. For example, we fix the order of
 evaluation, but let guard-patterns be placed directly on the arguments of a 
 constructor-pattern to let the user benefit from the consciesness of expression, 
 while holding a grip on performance. Similarly, we added \code{Alt} sub-clauses 
-to \code{Que}-clause to syntactically separate fast type switching from slow 
+to \code{Qua}-clause to syntactically separate fast type switching from slow 
 sequential evaluation of pattern matching expressions. The fall-through behavior 
 of the \code{Match}-statement allows the user to achieve the same effect 
-directly with \code{Que}-clauses, however the performance overhead involved 
+directly with \code{Qua}-clauses, however the performance overhead involved 
 justified the addition of otherwise syntactic sugar.
 
 The interpretation of pattern matching expressions with expression templates follows 

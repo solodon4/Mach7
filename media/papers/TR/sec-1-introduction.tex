@@ -34,6 +34,9 @@ language extension would do, but it allows experimentation and special-purpose u
 with existing compilers and tool chains. With pattern matching, we managed to avoid 
 external tool support by relying on some pretty nasty macro hacking to provide a
 conventional and convenient interface to an efficient library implementation.
+By efficient, we mean about as fast as functional languages for closed cases and
+much better than code generated for visitor patterns by commercial optimizers 
+for open cases\cite{TypeSwitch}.
 
 Our current solution is a proof of concept that sets a minimum threshold for 
 performance, brevity, clarity and usefulness of a language solution for pattern 
@@ -418,7 +421,7 @@ While comparing generic programming facilities available to functional and
 imperative languages (mainly Haskell and C++), Dos Reis and J\"arvi present the 
 following example in Haskell describing a sum functor\cite{DRJ05}:
 
-\begin{lstlisting}[language=Haskell]
+\begin{lstlisting}[language=Haskell,keepspaces]
 data Either a b = Left a | Right b
 @\halfline@
 eitherLift :: (a -> c) -> (b -> d) -> Either a b -> Either c d
@@ -433,8 +436,9 @@ calls first or second function on the embedded value, encoding the result
 correspondingly.
 
 Its equivalent in C++ is not straightforward. Idiomatic, type-safe, handling of 
-discriminated unions in C++ typically assumes use of the \emph{Visitor Design 
-Pattern}\cite{DesignPatterns1993}.
+discriminated unions in C++ typically assumes use of the \emph{Visitor Design Pattern}\cite{DesignPatterns}, 
+which in this case amounts to 25 lines of ``boiler plate code'' plus 14 lines 
+of the specific functionality.
 
 \begin{lstlisting}
 template <class X, class Y> class Either;

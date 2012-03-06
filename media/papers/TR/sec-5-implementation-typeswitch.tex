@@ -16,10 +16,10 @@ and give more control to the library user. For example, we fix the order of
 evaluation, but let guard-patterns be placed directly on the arguments of a 
 constructor-pattern to let the user benefit from the consciesness of expression, 
 while holding a grip on performance. Similarly, we added \code{Alt} sub-clauses 
-to \code{Que}-clause to syntactically separate fast type switching from slow 
+to \code{Qua}-clause to syntactically separate fast type switching from slow 
 sequential evaluation of pattern matching expressions. The fall-through behavior 
 of the \code{Match}-statement allows the user to achieve the same effect 
-directly with \code{Que}-clauses, however the performance overhead involved 
+directly with \code{Qua}-clauses, however the performance overhead involved 
 justified the addition of otherwise syntactic sugar.
 
 The interpretation of pattern matching expressions with expression templates follows 

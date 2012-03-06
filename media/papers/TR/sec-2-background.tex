@@ -98,9 +98,9 @@ programs by case analysis and allows the compiler to perform an automatic
 \emph{incompleteness} check -- test of whether a given \emph{match statement} 
 covers all possible cases. Similar reasoning about programs involving extensible 
 data types is more involved as we are dealing with potentially open set of 
-variants. \emph{Completness} check in such scenario reduces to checking presence 
+variants. \emph{Completeness} check in such scenario reduces to checking presence 
 of a case that handles the static type of the subject. Absence of such a case,
-however, does not necessarily imply incompletness, only potential incompletness, 
+however, does not necessarily imply incompleteness, only potential incompleteness, 
 as the answer will depend on the actual set of variants available at run-time.
 
 A related notion of \emph{redundancy} checking arises from the 
@@ -163,7 +163,7 @@ The \codehaskell{(n+1)} pattern in the left hand side of equation is an example 
 \emph{n+k pattern}. According to its informal semantics ``Matching an $n+k$ 
 pattern (where $n$ is a variable and $k$ is a positive integer literal) against 
 a value $v$ succeeds if $v \ge k$, resulting in the binding of $n$ to $v-k$, and 
-fails otherwise''\cite{haskell98}. n+k patterns were introduced into Haskel to 
+fails otherwise''\cite{haskell98}. n+k patterns were introduced into Haskell to 
 let users express inductive functions on natural numbers in much the same way as 
 functions defined through case analysis on algebraic data types. Besides 
 succinct notation, such language feature could facilitate automatic proof of 
@@ -253,7 +253,7 @@ representations that are implicitly applied during pattern matching. As an
 example, imagine polar and cartesian representations of complex numbers. A user 
 might choose polar representation as a concrete representation for the abstract 
 data type \codeocaml{complex}, treating cartesian representation as view or vice 
-versa:\footnote{We use syntax from Wadler's original paper for this example}
+versa:\footnote{We use the syntax from Wadler's original paper for this example}
 
 \begin{lstlisting}[language=Haskell,columns=flexible]
 complex ::= Pole real real
@@ -275,7 +275,8 @@ suitable, while the compiler will implicitly convert representation if needed:
 The idea of views were later adopted in various forms in several languages: 
 Haskell\cite{views96}, Standard ML\cite{views98}, Scala (in the form of 
 \emph{extractors}\cite{EmirThesis}) and F$\sharp$ (under the name of 
-\emph{active patterns}\cite{Syme07}).
+\emph{active patterns}\cite{Syme07}). We demonstrate our support of views in 
+\textsection\ref{sec:view}.
 
 %Views in functional programming languages [92, 71] are conversions from one data type to
 %another that are implicitly applied in pattern matching. They play a role similar to extractors
@@ -297,6 +298,157 @@ a pattern \codeocaml{Plus(x,Times(x,1))} against another pattern
 \codeocaml{Divide(y,2)} and \codeocaml{z} to \codeocaml{Times(Divide(y,2),1)} 
 with \codeocaml{y} left unbound, leaving both \codeocaml{x} and \codeocaml{z} 
 effectively a pattern.
+
+\subsection{Algebraic Data Types in C++}
+\label{sec:adt}
+
+C++ does not have a direct support of algebraic data types, but they can usually 
+be emulated in a number of ways. A pattern-matching solution that strives to be 
+general will have to account for different encodings and be applicable to all of 
+them.
+
+Consider an ML data type of the form:
+
+\begin{lstlisting}[language=ML,keepspaces,columns=flexible,escapechar=@]
+datatype DT = @$C_1$@ of {@$L_{11}:T_{11},...,L_{1m}:T_{1m}$@} 
+              | ...
+              | @$C_k$@ of {@$L_{k1}:T_{k1},...,L_{kn}:T_{kn}$@}
+\end{lstlisting}
+
+\noindent There are at least 3 different ways to represent it in C++. Following 
+Emir, we will refer to them as \emph{encodings}~\cite{EmirThesis}:
+
+\begin{itemize}
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+\item Polymorphic Base Class (or \emph{polymorphic encoding} for short)
+\item Tagged Class (or \emph{tagged encoding} for short)
+\item Discriminated Union (or \emph{union encoding} for short)
+\end{itemize}
+
+\noindent
+In polymorphic and tagged encoding, base class \code{DT} represents algebraic 
+data type, while derived classes represent variants. The only difference between 
+the two is that in polymorphic encoding base class has virtual functions, while 
+in tagged encoding it has a dedicated member of integral type that uniquely 
+identifies the variant -- derived class. 
+
+The first two encodings are inherently \emph{open} because the classes can be 
+arbitrarily extended through subclassing. The last encoding is inherently 
+\emph{closed} because we cannot add more members to the union without modifying 
+its definition.
+
+%In order to be able to provide a common syntax for these representations, we 
+%need to understand better similarities and differences between them. Before we 
+%look into them let's fix some terminology.
+
+When we deal with pattern matching, the static type of the original expression 
+we are matching may not necessarily be the same as the type of expression we 
+match it with. We call the original expression a \emph{subject} and its static 
+type -- \emph{subject type}. We call the type we are trying to match subject 
+against -- a \emph{target type}.
+
+In the simplest case, detecting that the target type is a given type or a type 
+derived from it, is everything we want to know. We refer to such a use-case as 
+\emph{type testing}. In the next simplest case, besides testing we might want to 
+get a pointer or a reference to the target type of subject as casting it to such 
+a type may involve a non-trivial computation only a compiler can safely 
+generate. We refer to such a use-case as \emph{type identification}. Type 
+identification of a given subject against multiple target types is typically 
+referred to as \emph{type switching}.
+
+Once we uncovered the target type, we may want to be able to decompose it 
+\emph{structurally} (when the target type is a \emph{structured} data type like 
+array, tuple or class) or \emph{algebraically} (when the target type is a scalar 
+data type like \code{int} or \code{double}). Structural decomposition in our 
+library can be performed with the help of \emph{tree patterns}, while algebraic 
+decomposition can be done with the help of \emph{generalized n+k patterns}.
+
+\subsubsection{Polymorphic Base Class}
+\label{sec:pbc}
+
+In this encoding user declares a polymorphic base class \code{DT} that will 
+be extended by classes representing all the variants. Base class might declare 
+several virtual functions that will be overridden by derived classes, for example 
+\code{accept} used in a Visitor Design Pattern.
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+class DT { virtual @$\sim$@DT{} };
+class @$C_1$@ : public DT {@$T_{11} L_{11}; ... T_{1m} L_{1m};$@} 
+...
+class @$C_k$@ : public DT {@$T_{k1} L_{k1}; ... T_{kn} L_{kn};$@} 
+\end{lstlisting}
+
+The uncover the actual variant of such an algebraic data type, the user might 
+use \code{dynamic_cast} to query one of the $k$ expected run-time types (an 
+approach used by Rose\cite{SQ03}) or she might employ a visitor design pattern 
+devised for this algebraic data type (an approach used by Pivot\cite{Pivot09} 
+and Phoenix\cite{Phoenix}). The most attractive feature of this approach is that 
+it is truly open as we can extend classes arbitrarily at will (leaving the 
+orthogonal issues of visitors aside).
+
+\subsubsection{Tagged Class}
+\label{sec:tc}
+
+This encoding is similar to the \emph{Polymorphic Base Class} in that we use 
+derived classes to encode the variants. The main difference is that the user 
+designates a member in the base class, whose value will uniquely 
+determine the most derived class a given object is an instance of. Constructors 
+of each variant $C_i$ are responsible for properly initializing the dedicated 
+member with a unique value $c_i$ associated with that variant. Clang\cite{Clang} 
+among others uses this approach.
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+class DT { enum kinds {@$c_1, ..., c_k$@} m_kind; };
+class @$C_1$@ : public DT {@$T_{11} L_{11}; ... T_{1m} L_{1m};$@} 
+...
+class @$C_k$@ : public DT {@$T_{k1} L_{k1}; ... T_{kn} L_{kn};$@} 
+\end{lstlisting}
+
+In such scenario the user might use a simple switch statement to uncover the 
+type of the variant combined with a \code{static_cast} to properly cast the 
+pointer or reference to an object. People might prefer this encoding to the one 
+above for performance reasons as it is possible to avoid virtual dispatch with 
+it altogether. Note, however, that once we allow for extensions and not limit 
+ourselves with encoding algebraic data types only it also has a significant 
+drawback in comparison to the previous approach: we can easily check that given 
+object belongs to the most derived class, but we cannot say much about whether 
+it belongs to one of its base classes. A visitor design pattern can be 
+implemented to take care of this problem, but control inversion that comes along 
+with it will certainly diminish the convenience of having just a switch 
+statement. Besides, forwarding overhead might lose some of the performance 
+benefits gained originally by putting a dedicated member into the base class.
+
+\subsubsection{Discriminated Union}
+\label{sec:du}
+
+This encoding is popular in projects that are either implemented in C or 
+originated from C before coming to C++. It involves a type that contains a union 
+of its possible variants, discriminated with a dedicated value stored as a part 
+of the structure. The approach is used by EDG front-end\cite{EDG} and many others.
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+struct DT
+{
+    enum kinds {@$c_1, ..., c_k$@} m_kind;
+    union {
+        struct @$C_1$@ {@$T_{11} L_{11}; ... T_{1m} L_{1m};$@} @$C_1$@;
+        ...
+        struct @$C_k$@ {@$T_{k1} L_{k1}; ... T_{kn} L_{kn};$@} @$C_k$@; 
+    };
+};
+\end{lstlisting}
+
+As before, the user can use a switch statement to identify the variant $c_i$ and 
+then access its members via $C_i$ union member. This approach is truly closed, as 
+we cannot add new variants to the underlying union without modifying class 
+definition. 
+
+Note also that in this case both subject type and target types are the same and 
+we use an integral constant to distinguish which member(s) of the underlying union 
+is active now. In the other two cases the type of a subject is a base class of 
+the target type and we use either run-time type information or the integral 
+constant associated by the user with the target type to uncover the target type. 
 
 \subsection{Expression Templates}
 

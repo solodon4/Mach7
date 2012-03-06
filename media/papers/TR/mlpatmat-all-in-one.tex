@@ -904,9 +904,9 @@ programs by case analysis and allows the compiler to perform an automatic
 \emph{incompleteness} check -- test of whether a given \emph{match statement} 
 covers all possible cases. Similar reasoning about programs involving extensible 
 data types is more involved as we are dealing with potentially open set of 
-variants. \emph{Completness} check in such scenario reduces to checking presence 
+variants. \emph{Completeness} check in such scenario reduces to checking presence 
 of a case that handles the static type of the subject. Absence of such a case,
-however, does not necessarily imply incompletness, only potential incompletness, 
+however, does not necessarily imply incompleteness, only potential incompleteness, 
 as the answer will depend on the actual set of variants available at run-time.
 
 A related notion of \emph{redundancy} checking arises from the 
@@ -969,7 +969,7 @@ The \codehaskell{(n+1)} pattern in the left hand side of equation is an example 
 \emph{n+k pattern}. According to its informal semantics ``Matching an $n+k$ 
 pattern (where $n$ is a variable and $k$ is a positive integer literal) against 
 a value $v$ succeeds if $v \ge k$, resulting in the binding of $n$ to $v-k$, and 
-fails otherwise''\cite{haskell98}. n+k patterns were introduced into Haskel to 
+fails otherwise''\cite{haskell98}. n+k patterns were introduced into Haskell to 
 let users express inductive functions on natural numbers in much the same way as 
 functions defined through case analysis on algebraic data types. Besides 
 succinct notation, such language feature could facilitate automatic proof of 
@@ -1059,7 +1059,7 @@ representations that are implicitly applied during pattern matching. As an
 example, imagine polar and cartesian representations of complex numbers. A user 
 might choose polar representation as a concrete representation for the abstract 
 data type \codeocaml{complex}, treating cartesian representation as view or vice 
-versa:\footnote{We use syntax from Wadler's original paper for this example}
+versa:\footnote{We use the syntax from Wadler's original paper for this example}
 
 \begin{lstlisting}[language=Haskell,columns=flexible]
 complex ::= Pole real real
@@ -1441,7 +1441,7 @@ order to put the use of our constructs into context.
 \begin{tabular}{rp{0em}cl}
 \Rule{match statement}     & $M$       & \is{}  & \code{Match(}$e$\code{)} $\left[C s^*\right]^*$ \code{EndMatch} \\
 \Rule{case clause}         & $C$       & \is{}  & \code{Case(}$T\left[,x\right]^*$\code{)} \\
-                           &           & \Alt{} & \code{Que(} $T\left[,\omega\right]^*$\code{)} \\
+                           &           & \Alt{} & \code{Qua(} $T\left[,\omega\right]^*$\code{)} \\
                            &           & \Alt{} & \code{Otherwise(}$\left[,x\right]^*$\code{)} \\
 \Rule{target expression}   & $T$       & \is{}  & $\tau$ \Alt{} $l$ \Alt{} $\nu$ \\
 \Rule{view}                & $\nu$     & \is{}  & \code{view<}$\tau,l$\code{>} \\
@@ -1476,7 +1476,7 @@ order to put the use of our constructs into context.
 {\bf Match statement} is an analog of a switch statement that allows case 
 clauses to be used as its case statements. We require it to be terminated with a 
 dedicated \code{EndMatch} macro, to properly close the syntactic structure 
-introduced with \code{Match} and followed by \code{Case},\code{Que} and 
+introduced with \code{Match} and followed by \code{Case},\code{Qua} and 
 \code{Otherwise} macros. Match statement will accept subjects of pointer and 
 reference types, treating them uniformly in case clauses. This means that user 
 does not have to mention \code{*,&} or any of the \code{const,volatile}-qualifiers
@@ -1486,14 +1486,14 @@ Examples of match statement has already been presented in
 \textsection\ref{sec:intro} and \textsection\ref{sec:xmpl}.
 
 We support three kinds of {\bf case clauses}: \code{Case}-\emph{clause}, 
-\code{Que}-\emph{clause} and \code{Otherwise}-\emph{clause} also called 
-\emph{default clause}. \code{Case} and \code{Que} clauses are refutable and both 
+\code{Qua}-\emph{clause} and \code{Otherwise}-\emph{clause} also called 
+\emph{default clause}. \code{Case} and \code{Qua} clauses are refutable and both 
 take a target expression as their first argument. \code{Otherwise} clause is 
 irrefutable and can occur at most once among the clauses. Its target type is 
 the subject type. \code{Case} and \code{Otherwise} clauses take additionally a 
 list of identifiers that will be treated as variable patterns implicitly 
 introduced into the clause's scope and bound to corresponding members of their 
-target type. \code{Que} clause permits nested patterns as its arguments, but 
+target type. \code{Qua} clause permits nested patterns as its arguments, but 
 naturally requires all the variables used in the patterns to be explicitly 
 pre-declared. Even though our default clause is not required to be the last 
 clause of the match statement, we strongly encourage the user to place it 
@@ -1526,7 +1526,7 @@ original combination of target type and layout. Views are discussed in details
 in~\textsection\ref{sec:view}.
 
 {\bf Match expression} can be seen as an inline version of match statement with 
-a single \code{Que}-clause. Once a pattern is created, it can be applied to an 
+a single \code{Qua}-clause. Once a pattern is created, it can be applied to an 
 expression in order to check whether that expression matches the pattern, 
 possibly binding some variables in it. The result of application is always of 
 type \code{bool} except for the tree pattern, where it is a value convertible to 
@@ -1540,7 +1540,7 @@ library be composable.
 {\bf Pattern} summarizes \emph{applicative patterns} -- patterns that can be 
 used in a match expression described above. For convenience reasons this 
 category is extended with $c$ and $x$ to form an {\bf extended pattern} -- a
-pattern that can be used as an argument of \emph{tree pattern} and \code{Que} 
+pattern that can be used as an argument of \emph{tree pattern} and \code{Qua} 
 clause. Extended pattern lets us use constants as a \emph{value pattern} and 
 regular C++ variables as a \emph{variable pattern} inside these constructs. The 
 library implicitly recognizes them and transforms into $\varsigma$ and $\iota$ 
@@ -1642,10 +1642,10 @@ int fib(int n)
 {
     variable<int> m;
     Match(n)
-      Que(int,1)     return 1;
-      Que(int,2)     return 1;
-      Que(int,2*m)   return sqr(fib(m+1)) - sqr(fib(m-1));
-      Que(int,2*m+1) return sqr(fib(m+1)) + sqr(fib(m));
+      Qua(int,1)     return 1;
+      Qua(int,2)     return 1;
+      Qua(int,2*m)   return sqr(fib(m+1)) - sqr(fib(m-1));
+      Qua(int,2*m+1) return sqr(fib(m+1)) + sqr(fib(m));
     EndMatch
 }
 \end{lstlisting}
@@ -2181,15 +2181,15 @@ case.
 }
 {\Gamma\vdash Match(e) \left[C_i \vec{s}_i\right]^*_{i=1..n} EndMatch \evals false,\Gamma_{n+1}}
 
-\inferrule[Que]
+\inferrule[Qua]
 {TL(t,\sigma)=\langle \tau,l \rangle \\
  \Gamma \vdash $match$\langle\tau,l\rangle(\vec{\omega})(v) \evals u,\Gamma' \\
  \Gamma'' = (u \neq \nullptr\ ?\ \Gamma'[$matched$^\tau\rightarrow u] : \Gamma')}
-{\Gamma \vdash_{v^\sigma} Que(t,\vec{\omega})    \evals u,\Gamma''}
+{\Gamma \vdash_{v^\sigma} Qua(t,\vec{\omega})    \evals u,\Gamma''}
 
 \inferrule[Case]
 {\Delta_i^t : \tau \rightarrow \tau_i, i=1..k \\
- \Gamma[x_i^{\tau_i}\rightarrow\tau_i()]_{i=1..k} \vdash_v Que(t,x_1,...,x_k)(v) \evals u,\Gamma' \\
+ \Gamma[x_i^{\tau_i}\rightarrow\tau_i()]_{i=1..k} \vdash_v Qua(t,x_1,...,x_k)(v) \evals u,\Gamma' \\
  \Gamma'' = (u \neq \nullptr\ ?\ \Gamma' : \Gamma'$\textbackslash$\{x_i | i=1..k\})}
 {\Gamma \vdash_v Case(t,x_1,...,x_k) \evals u,\Gamma''}
 
@@ -2214,12 +2214,12 @@ resulting environment might still be different from the initial environment
 because of variables bound in partial matches during evaluation of clauses 
 (\RefTirName{Match-False}).
 
-Evaluation of a \code{Que}-clause is equivalent to evaluation of a corresponding 
+Evaluation of a \code{Qua}-clause is equivalent to evaluation of a corresponding 
 match-expression on a tree pattern. Successful match will introduce a variable 
 \code{matched} of type $\tau\&$ that is bound to subject properly casted to the 
 target type $\tau$ into the local scope of the clause.
 
-Evaluation of \code{Case}-clauses amounts of evaluation of \code{Que}-clauses in 
+Evaluation of \code{Case}-clauses amounts of evaluation of \code{Qua}-clauses in 
 the environment extended with variables passed as arguments to the clause. The 
 variables introduced by the \code{Case}-clause have the static type of values 
 bound in corresponding positions, which ensures that variable patterns will be 
@@ -2532,10 +2532,10 @@ and give more control to the library user. For example, we fix the order of
 evaluation, but let guard-patterns be placed directly on the arguments of a 
 constructor-pattern to let the user benefit from the consciesness of expression, 
 while holding a grip on performance. Similarly, we added \code{Alt} sub-clauses 
-to \code{Que}-clause to syntactically separate fast type switching from slow 
+to \code{Qua}-clause to syntactically separate fast type switching from slow 
 sequential evaluation of pattern matching expressions. The fall-through behavior 
 of the \code{Match}-statement allows the user to achieve the same effect 
-directly with \code{Que}-clauses, however the performance overhead involved 
+directly with \code{Qua}-clauses, however the performance overhead involved 
 justified the addition of otherwise syntactic sugar.
 
 The interpretation of pattern matching expressions with expression templates follows 

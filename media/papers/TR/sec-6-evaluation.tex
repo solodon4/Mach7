@@ -271,11 +271,15 @@ the native OCaml compiler. Once we go for an open solution, we become about
 \label{sec:qualcmp}
 
 For this experiment we have reimplemented a visitor based C++ pretty printer for 
-Pivot's IPR using our pattern matching library. Most of the rewrite was 
-performed by sed-like replaces that converted visit methods into respective 
-case-clauses. In several cases we had to manually reorder case-clauses to avoid 
-redundancy as visit-methods for base classes were typically coming before the 
-same for derived, while for pattern matching we needed them to come after. 
+Pivot\cite{Pivot09} using our pattern-matching library. Pivot's class hierarchy 
+consists of 154 node kinds representing various entities in the C++ program. The 
+original code had 8 visitor classes each handling 5, 7, 8, 10, 15, 17, 30 and 63 
+cases, which we turned into 8 match statements with corresponding numbers of 
+case clauses. Most of the rewrite was performed by sed-like replaces that 
+converted visit methods into respective case-clauses. In several cases we had to 
+manually reorder case-clauses to avoid redundancy as visit-methods for base classes 
+were typically coming before the same for derived, while for pattern matching we 
+needed them to come after. 
 Redundancy checking support in the library discussed in \textsection\ref{sec:redun}
 was invaluable in finding out all such cases.
 
@@ -287,7 +291,7 @@ algorithmically different code. In any case we were making sure that both
 approaches regardless of simplifications were producing byte-to-byte the same 
 output as the original pretty printer we started from.
 
-The size of executable for pattern matching approach was smaller than that for 
+The size of executable for pattern-matching approach was smaller than that for 
 visitors. So was also the source code. We extracted from both sources the 
 functionality that was common to them and placed it in a separate translation 
 unit to make sure it does not participate in the comparison. We kept all the 
@@ -302,10 +306,8 @@ type of the argument.
 %that compiler will eliminate it if it is not needed. At the moment we do not 
 %have means to detect empty macro arguments or \_.
 
-%To be continued...
-
 In general from our rewriting experience we will not recommend rewriting 
 existing visitor code with pattern matching for the simple reason that pattern 
 matching code will likely follow the structure already set by the visitors. 
 Pattern matching was most effective when writing new code, where we could design 
-the structure of the code having the pattern matching facility in our toolbox.
+the structure of the code having the pattern-matching facility in our toolbox.

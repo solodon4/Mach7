@@ -1,15 +1,29 @@
 \section{Related Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:rw}
 
-There are two main approaches to compiling pattern matching code: the first is 
-based on \emph{backtracking automata} and was introduced by Augustsson\cite{}, 
-the second is based on \emph{decision trees} and is attributed in the literature 
-to Dave MacQueen and Gilles Kahn in their implementation of Hope compiler \cite{}.
+Language support for pattern matching was first introduced for string 
+manipulation in SNOBOL\cite{SNOBOL64}. SNOBOL4 had patterns as first-class data 
+types providing operations of concatenation and alternation\cite{SNOBOL71}. The 
+first reference to a modern pattern-matching constructs seen in functional 
+languages is usually attributed to Burstall's work on structural 
+induction\cite{Burstall69provingproperties}. Pattern matching was further 
+developed by the functional programming community, most notably 
+Hope\cite{BMS80}, ML\cite{ML90}, Miranda\cite{Miranda85} and 
+Haskell\cite{Haskell98Book}. In the context of object-oriented programming, 
+pattern matching has been first explored in Pizza\cite{Odersky97pizzainto} and 
+Scala\cite{Scala2nd,EmirThesis}.
+
+There are two main approaches to compiling pattern-matching code: the first is 
+based on \emph{backtracking automata} and was introduced by Augustsson\cite{Augustsson85}, 
+the second is based on \emph{decision trees} and was first described by 
+Cardelli\cite{Cardelli84}, though he attributes the technique to Dave MacQueen 
+and Gilles Kahn in their implementation of the Hope compiler \cite{BMS80}.
 Backtracking approach usually generates smaller code, while decision tree 
 approach produces faster code by ensuring that each primitive test is only 
-performed once. Neither of the approaches addresses specifically type patterns 
-or type switching and simply assumes presence of a primitive operation capable 
-of performing type tests.
+performed once. With respect to matching a single expression our library 
+approach follows the naive backtracking approach, however our match statement is 
+based on a highly efficient type switching technique we developed\cite{TypeSwitch} 
+that outperforms similar solutions based on decision trees or visitor design pattern.
 
 Memoization device we proposed is not specifically concerned with compiling 
 pattern matching and can be used independently. In particular it can be combined 
@@ -75,7 +89,7 @@ types. In particular, the case of disjoint constructors can be seen as a
 degenerated case of a flat class hierarchy among the multitude of possible class 
 hierarchies.
 
-\emph{Tom} is a pattern-matching compiler that can be used together with Java, C or 
+Tom is a pattern-matching compiler that can be used together with Java, C or 
 Eiffel to bring a common pattern matching and term rewriting syntax into the 
 languages\cite{Moreau:2003}. It works as a preprocessor that transforms 
 syntactic extensions into imperative code in the target language. Tom is quite 
@@ -100,9 +114,9 @@ solution\cite[\textsection 4.3]{SELL}. For example, when several preprocessors
 have to be used together, each independent extension may not be able to 
 understand the other's syntax, making it impossible to form a toolchain.
 A library approach we follow avoids most of these problems by relying only on a 
-standard C++ compiler. It also lets us employ semantics of the language within 
+standard C++ compiler. It also lets us employ the C++ semantics within 
 patterns: e.g. our patterns work directly on underlying user-defined data 
-structures, largely avoiding abstraction penalties. A tighter integration with 
+structures, largely avoiding abstraction penalties. The tight integration with 
 the language semantics also makes our patterns first-class citizens that can be 
 composed and passed to other functions. The approach we take to type switching 
 can also be used by Tom's preprocessor to implement type patterns efficiently -- 
@@ -120,6 +134,23 @@ Classes that are not sealed are similarly approached with a combination of an
 %An example would be our generalized n+k patterns where we 
 %can turn any invertible function even user defined into a pattern.
 
+Prop is another language extension that brings pattern matching into 
+C++~\cite{Prop96}. This extension is not focused on pattern 
+matching, but is intended for building high performance 
+compiler and language transformation systems. It supports value-, variable-, 
+wildcard-, constructor-, nested-, as-, type- and numerous sequence patterns.
+
+Functional C\# is similar to our approach in trying to bring pattern matching 
+into the C\# as a library\cite{FuncCSharp}. The approach uses lambda functions 
+and chaining of method calls to create a structure that is then interpreted at 
+run-time for the first successful predicate. The approach supports a form of 
+active patterns, simple n+k patterns, list and tuple patterns as well as type 
+patterns (without structural decomposition). 
+However, an approach based on sequential type tests 
+scales very poorly for match statements with more than two case clauses, making 
+it unreasonably slower than the visitor design pattern~\cite{TypeSwitch}. Besides, the approach 
+seems to be ill suited for tests involving nesting of patterns.
+
 There has been previous attempts to use pattern matching with the Pivot 
 framework that we used to experiment with our library. In his dissertation, 
 Pirkelbauer devised a pattern language capable of representing various entities 
@@ -135,5 +166,133 @@ and thus could take the semantics of the entities represented by classes in the
 hierarchy into account. Our approach is parametrized over class hierarchy and 
 thus provides a rather lower level pattern-matching functionality that lets one 
 simplify work with that hierarchy.  One can think of it as a generalized 
-dynamic\_cast. To be continued...
+dynamic\_cast.
 
+Citation\cite{padl08}:
+Very good reference that I have never seen somehow. They have some good usage 
+examples that might be interesting to recreate in our library. It's not a 
+library solution since they modify the language, but it has a lot of 
+similarities to our work in goals. They are only concerned with composability in 
+this work however as I'm sure their implementation as is has a lot of virtual 
+function call overhead, which they plan to optimize in the future work.  
+
+Another interesting thing about this paper is that they coin the term 
+"deconstructor" that I was trying to coin for what we call "bindings", but which 
+Dr. Stroustrup rejected as such that is commonly confused with destructor on the 
+C++ discussion boards. Interestingly, Google didn't show me this paper when I 
+was searching word "deconstructor" on the internet back then. 
+
+Citation\cite{Tobin-Hochstadt_2010}:
+This is the paper that i think Xavier Leroy was talking about on Scheme's 
+pattern matching library. Well, there is another similar work by Wright from 96 
+that is cited elsewhere, but i'm not sure which of them Dr. Leroy was talking 
+about and what is the relationship between these two papers.
+
+Citation\cite{Visser06matchingobjects}:
+We should probably quote it as another library approach, but the amount of 
+syntactic and run-time overhead there is overwhelming, which is why i don't 
+understand how can he possibly complain about our syntactic overhead.
+
+Citation\cite{Holzle:Chambers:Ungar:91}:
+There is indeed similarity between Polymorphic Inline Caches (PICs) of Holzle 
+and our memoization approach, but that's a similarity of any memoization 
+technique I guess, we should probably cite them in any case.
+
+PICs generate code at run-time (function stub that does type testing with ifs) 
+and require the source code of the entire program be available at run-time. Our 
+approach, as reviewer 1 points out, neither needs re-compilation, nor re-linking 
+nor even any computations at dynamic linking time. Our setting is quite 
+different from theirs though - they are mapping arbitrary number of receiver 
+types to arbitrary number of implementations of a specific dynamically looked up 
+method, called at that call site. We are mapping an arbitrary number of 
+receivers to a fixed amount of jump targets! We are thus able to generate code 
+at compile time that can be executed two ways: sequentially and directly with a 
+jump. The code executed sequentially memoizes its own target jumps for next 
+execution as well as prepares any data that would be needed to re-establish any 
+invariants guaranteed by sequential execution. The novelty of specifically 
+memoization device is thus in a code layout that can memoize its own sequential 
+execution. 
+
+Also a small observation about Inline Caches (IC) that PICs are based on. 
+Virtual function calls on modern architectures are essentially executed with IC, 
+because of the hardware call target prediction. That can be easilty seen from 
+our repetitive benchmark where calls on different objects of the same reciever 
+type are twice faster than virtual calls on objects of different reciever types. 
+Our repetitive benchmark was specifically designed to compare our performance 
+for this specific case. Nevertheless we are still faster than visitors in this 
+case. Holzle himself writes that inline caches are effective only if the 
+receiver type (and thus the call target) remains relatively constant at a call 
+site. 
+
+Now, the PIC they design to overcome the IC problem does a 
+sequence/decision-tree of type tests, which we show is much slower than visitors 
+in Figure 2. Any decision-tree based implementation will suffer from numerous 
+ifs and won't be able to compete with 2 indirect calls of visitor design 
+pattern.  In contrast, our approach performs well regardless of whether the 
+target type remains the same (our repetitive benchmark, monomorphic calls in 
+their terms) or picked from a small group of equally possible reciever types 
+(our random benchmark, their polymorphic calls case) or picked from a large 
+group of different receiver types (our random benchmark, their megamorphic 
+case). In PICs they are mentioning that specific PIC can be optimized by 
+rearranging order of tests, making tests with decision trees or even a hashed 
+approach. In our approach we use the compactness of vtbl-pointers that we 
+observe and the adaptive caching function we build to achieve almost perfect 
+caching.
+
+Citation\cite{Clifton:2000:MMO:353171.353181}:
+The cascading-if (or decision tree) implementation was only a starting point for 
+our approach because it is open to class extensions. We then optimized it to be 
+open and fast with the help of memoization device.  
+
+As to multi-methods, we should probably remove any reference to multiple 
+dispatch we have as it became a way for people to jump off the topic. 
+
+Citation\cite{Chambers:1999:EMP:320384.320407}:
+We refer to work of Ernst, Kaplan, and Chambers on unified theory of predicate 
+dispatching, but should probably refer to this citation instead as it talks not 
+only about the theory of predicate dispatch but also efficient implementation. 
+The techniques discussed here however are orthogonal to ours: they decide how to 
+layout the code best for any execution, while we can still apply memoization 
+device on top of whatever they layed out to jump directly to the chosen branch 
+on subsequent runs. The discussion they have in section 4 on approaches to 
+implementing multiway-type-testing exactly stresses our point - they are 
+efficient when Class IDs are sequential and they have to resort to their 
+decision tree generation otherwise. We can probably refer to that in discussion 
+of why efficient type switching is not straightforward (and by efficient we mean 
+comparable to visitors).
+
+Citation\cite{PQEncoding,Zibin:2002:FAC:582419.582434}:
+We reference the work of Joseph Gil in section 4.1 of technical report. The 
+paragraph got out at last moment because of the page limit cuttings. These works 
+however are all falling into the category of type testing based implementation 
+of the type switch, which we show is slower than visitors based on approach of 
+Gibbs and Stroustrup, which has an overhead of a single integer division in our 
+tests. 
+
+Besides, most of the approaches discussed in that work are not open - they 
+usually either assume a certain structure of class ids or whole program view 
+(whole class hierarchy view).
+
+Citation\cite{runabout}:
+The Runabout approach of Grothoff is, quoting the author, "only 2-10 times 
+slower than visitors", and thus is not efficient accordingly to our definition 
+of efficient. The approach uses reflection mechanisms of Java to lockate the 
+visit method, but then does optimization over the previous Walkabout approach in 
+generating a verified byte-code at run-time to call visit method instead of 
+calling it with reflection.
+
+Citation\cite{Millstein:2002:MTH:581478.581489}:
+I have been looking at the TOPLAS version of that work before and could not 
+directly relate it to ours because the work gives syntax and semantics of 
+features, but not how to efficiently implement those. I think the work is closer 
+to our multi-methods work than to type switching.
+
+The Related Work section should probably also discuss DYNAMIC languages that
+use call-site caching. In particular, Objective-C comes to mind. Apple has
+tweaked the core dispatch performance for many years and has a pretty fast
+
+Mentioned here: http://cs.swan.ac.uk/~csdavec/libobjc/libobjc.pdf 
+implementation at this point. Microsoft's Dynamic Language Runtime for the CLR
+also has a call-site caching feature. It should be discussed and compared to.
+
+Mentioned here:  http://msdn.microsoft.com/en-us/library/dd233052.aspx search for "call site"

@@ -24,7 +24,7 @@ concept Pattern<typename T>
 \end{lstlisting}
 
 Each of our six pattern kinds 
-implements the application operator accordingly to the semantics presented in 
+implements the application operator according to the semantics presented in 
 Figure~\ref{exprsem}. The application operator's result has to be 
 convertible to bool;
 \code{true} indicates a successful match. A class might have several overloads of 
@@ -66,7 +66,7 @@ For \code{expr<F,E...>} it is defined to be \code{decltype(F()(E...))},
 indicating the result of applying \code{F} to arguments of type 
 \code{E...} .
 The conversion operator invokes the evaluation of the 
-lazy expression. The evaluation is performed accordingly to the semantics 
+lazy expression. The evaluation is performed according to the semantics 
 presented in Figure~\ref{evaluation}.
 
 Concepts were not included in C++11, so we emulate them using overloading and 

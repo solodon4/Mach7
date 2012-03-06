@@ -11,6 +11,10 @@
 \usepackage{MnSymbol}
 \usepackage{multirow}
 \usepackage{rotating}
+\usepackage{paralist}
+
+\setlength{\parskip}{0cm}
+%\setlength{\parindent}{1em}
 
 \lstdefinestyle{C++}{language=C++,%
 showstringspaces=false,
@@ -19,7 +23,7 @@ showstringspaces=false,
   basicstyle=\sffamily,
 %  commentstyle=\rmfamily\itshape,
   moredelim=**[is][\color{white}]{~}{~},
-  morekeywords={concept,requires,noexcept},
+  morekeywords={concept,decltype,noexcept,nullptr,requires},
   literate={[<]}{{\textless}}1      {[>]}{{\textgreater}}1 %
            {<}{{$\langle$}}1        {>}{{$\rangle$}}1 %
            {<=}{{$\leq$}}1          {>=}{{$\geq$}}1          
@@ -30,9 +34,9 @@ showstringspaces=false,
            {P1}{{$P_1$}}2 {P2}{{$P_2$}}2 {P3}{{$P_3$}}2 {P4}{{$P_4$}}2 {P5}{{$P_5$}}2 {P6}{{$P_6$}}2 {P7}{{$P_7$}}2 {Pn}{{$P_n$}}2 {Pi}{{$P_i$}}2%
            {D1}{{$D_1$}}2 {D2}{{$D_2$}}2 {D3}{{$D_3$}}2 {D4}{{$D_4$}}2 {D5}{{$D_5$}}2 {D6}{{$D_6$}}2 {D7}{{$D_7$}}2 {Dn}{{$D_n$}}2 {Di}{{$D_i$}}2%
            {e1}{{$e_1$}}2 {e2}{{$e_2$}}2 {e3}{{$e_3$}}2 {e4}{{$e_4$}}2%
-           {E1}{{$E_1$}}2 {E2}{{$E_2$}}2 {E3}{{$E_3$}}2 {E4}{{$E_4$}}2%
+           {E1}{{$E_1$}}2 {E2}{{$E_2$}}2 {E3}{{$E_3$}}2 {E4}{{$E_4$}}2 {Ei}{{$E_i$}}2%
            {m_e1}{{$m\_e_1$}}4 {m_e2}{{$m\_e_2$}}4 {m_e3}{{$m\_e_3$}}4 {m_e4}{{$m\_e_4$}}4%
-           {Divide}{{Divide}}6 %
+           {Divide}{{Divide}}6 {Either}{Either}6 %
            {Match}{{\emph{Match}}}5 %
            {Case}{{\emph{Case}}}4 %
            {Qua}{{\emph{Qua}}}3 %
@@ -62,7 +66,7 @@ showstringspaces=false,
 }
 
 \DeclareRobustCommand{\Cpp}{C\texttt{++}}
-\DeclareRobustCommand{\code}[1]{{\lstinline[breaklines=false,escapechar=@]{#1}}}
+\DeclareRobustCommand{\code}[1]{{\lstinline[keepspaces,breaklines=false,escapechar=@]{#1}}}
 \DeclareRobustCommand{\codebr}[1]{{\lstinline[breaklines=true]{#1}}}
 \DeclareRobustCommand{\codehaskell}[1]{{\lstinline[breaklines=false,language=Haskell]{#1}}}
 \DeclareRobustCommand{\codeocaml}[1]{{\lstinline[breaklines=false,language=Caml]{#1}}}
@@ -82,19 +86,26 @@ showstringspaces=false,
 \newcommand{\lazyevals}{\Downarrow}
 \newcommand{\evals}{\Rightarrow}
 \newcommand{\evalspp}{\Rightarrow^+}
-\newcommand{\DynCast}[2]{\ensuremath{dc\langle{#1}\rangle({#2})}}
+\newcommand{\DynCast}[2]{\ensuremath{\mathsf{dyn\_cast}\langle{#1}\rangle({#2})}}
 \newcommand{\nullptr}{\ensuremath{\bot}}
 \newcommand{\True}{\ensuremath{\mathsf{true}}}
 \newcommand{\False}{\ensuremath{\mathsf{false}}}
 
-\newcommand{\Wildcard}{\ensuremath{\mathit{\bf wildcard}}}
-\newcommand{\Value}[1]{\ensuremath{\mathit{\bf value}\langle{#1}\rangle}}
-\newcommand{\Variable}[1]{\ensuremath{\mathit{\bf variable}\langle{#1}\rangle}}
-\newcommand{\ExprU}[2]{\ensuremath{\mathit{\bf expr}\langle{#1},{#2}\rangle}}
-\newcommand{\ExprB}[3]{\ensuremath{\mathit{\bf expr}\langle{#1},{#2},{#3}\rangle}}
-\newcommand{\ExprK}[3]{\ensuremath{\mathit{\bf expr}\langle{#1},{#2},\cdots,{#3}\rangle}}
-\newcommand{\Guard}[2]{\ensuremath{\mathit{\bf guard}\langle{#1},{#2}\rangle}}
-\newcommand{\Cnstr}[3]{\ensuremath{\mathit{\bf ctor}\langle{#1},{#2},\cdots,{#3}\rangle}}
+\newcommand{\CWildcard}{\ensuremath{\mathit{\bf wildcard}}}
+\newcommand{\CValue}   {\ensuremath{\mathit{\bf value}}}
+\newcommand{\CVariable}{\ensuremath{\mathit{\bf variable}}}
+\newcommand{\CExpr}    {\ensuremath{\mathit{\bf expr}}}
+\newcommand{\CGuard}   {\ensuremath{\mathit{\bf guard}}}
+\newcommand{\CCnstr}   {\ensuremath{\mathit{\bf ctor}}}
+
+\newcommand{\Wildcard}   {\ensuremath{\CWildcard}}
+\newcommand{\Value}[1]   {\ensuremath{\CValue\langle{#1}\rangle}}
+\newcommand{\Variable}[1]{\ensuremath{\CVariable\langle{#1}\rangle}}
+\newcommand{\ExprU}[2]   {\ensuremath{\CExpr\langle{#1},{#2}\rangle}}
+\newcommand{\ExprB}[3]   {\ensuremath{\CExpr\langle{#1},{#2},{#3}\rangle}}
+\newcommand{\ExprK}[3]   {\ensuremath{\CExpr\langle{#1},{#2},\cdots,{#3}\rangle}}
+\newcommand{\Guard}[2]   {\ensuremath{\CGuard\langle{#1},{#2}\rangle}}
+\newcommand{\Cnstr}[3]   {\ensuremath{\CCnstr\langle{#1},{#2},\cdots,{#3}\rangle}}
 
 \newcommand{\f}[1]{{ {{#1\%}}}}
 \newcommand{\s}[1]{{ {\bf \underline{#1\%}}}}
