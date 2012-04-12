@@ -1,4 +1,4 @@
-\documentclass[preprint]{sigplanconf}
+\documentclass[preprint,10pt]{sigplanconf}
 %\documentclass{sigplanconf}
 
 \usepackage{amssymb}
@@ -30,10 +30,12 @@ showstringspaces=false,
            {s1;}{{$s_1$;}}3 {s2;}{{$s_2$;}}3 {s3;}{{$s_3$;}}3 {s4;}{{$s_4$;}}3 {s5;}{{$s_5$;}}3 {s6;}{{$s_6$;}}3 {s7;}{{$s_7$;}}3 {sn;}{{$s_n$;}}3 {si;}{{$s_i$;}}3%
            {P1}{{$P_1$}}2 {P2}{{$P_2$}}2 {P3}{{$P_3$}}2 {P4}{{$P_4$}}2 {P5}{{$P_5$}}2 {P6}{{$P_6$}}2 {P7}{{$P_7$}}2 {Pn}{{$P_n$}}2 {Pi}{{$P_i$}}2%
            {D1}{{$D_1$}}2 {D2}{{$D_2$}}2 {D3}{{$D_3$}}2 {D4}{{$D_4$}}2 {D5}{{$D_5$}}2 {D6}{{$D_6$}}2 {D7}{{$D_7$}}2 {Dn}{{$D_n$}}2 {Di}{{$D_i$}}2%
+           {T1}{{$T_1$}}2 {T2}{{$T_2$}}2 {T3}{{$T_3$}}2 {T4}{{$T_4$}}2 {T5}{{$T_5$}}2 {T6}{{$T_6$}}2 {T7}{{$T_7$}}2 {Tn}{{$T_n$}}2 {Ti}{{$T_i$}}2 {Tm}{{$T_m$}}2%
            {e1}{{$e_1$}}2 {e2}{{$e_2$}}2 {e3}{{$e_3$}}2 {e4}{{$e_4$}}2%
            {E1}{{$E_1$}}2 {E2}{{$E_2$}}2 {E3}{{$E_3$}}2 {E4}{{$E_4$}}2%
            {m_e1}{{$m\_e_1$}}4 {m_e2}{{$m\_e_2$}}4 {m_e3}{{$m\_e_3$}}4 {m_e4}{{$m\_e_4$}}4%
            {Divide}{{Divide}}6 %
+           {Times}{{Times}}5 %
            {Match}{{\emph{Match}}}5 %
            {Case}{{\emph{Case}}}4 %
            {Qua}{{\emph{Qua}}}3 %
@@ -62,6 +64,7 @@ showstringspaces=false,
   morekeywords={out,view,real}
 }
 
+\DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareRobustCommand{\Cpp}{C\texttt{++}}
 \DeclareRobustCommand{\code}[1]{{\lstinline[breaklines=false,escapechar=@]{#1}}}
 \DeclareRobustCommand{\codebr}[1]{{\lstinline[breaklines=true]{#1}}}
@@ -79,7 +82,7 @@ showstringspaces=false,
 \newcommand{\Rule}[1]{{\rmfamily\itshape{#1}}}
 \newcommand{\Alt}{\ensuremath{|}}
 \newcommand{\is}{$::=$}
-\newcommand{\subtype}{\textless:}
+\newcommand{\subtype}{\ensuremath{<:}}
 \newcommand{\lazyevals}{\Downarrow}
 \newcommand{\evals}{\Rightarrow}
 \newcommand{\evalspp}{\Rightarrow^+}
@@ -121,7 +124,7 @@ showstringspaces=false,
 %\copyrightyear{2012} 
 %\copyrightdata{[to be supplied]} 
 
-\titlebanner{Draft rejected from PLDI 2012} % These are ignored unless
+\titlebanner{Draft for OOPSLA 2012} % These are ignored unless
 \preprintfooter{Y.Solodkyy, G.Dos Reis, B.Stroustrup: Open and Efficient Type Switch for C++}   % 'preprint' option specified.
 
 \title{Open and Efficient Type Switch for C++}
@@ -156,22 +159,22 @@ showstringspaces=false,
 %intended applications.
 
 Selecting operations based on the run-time type of an object is key to many
-object-oriented and functional programming techniques. We present techniques
-for implementing efficient type switching, type testing, pattern matching,
-predicate dispatch, and multi-methods. The techniques are general and cope
-well with C++ multiple inheritance.
+object-oriented and functional programming techniques. We present a technique
+for implementing open and efficient type-switching for hierarchical extensible 
+data types. The technique is general and copes well with C++ multiple 
+inheritance.
  
-Our library-only implementation provides a pattern-matching notation. It
+To simplify experimentation and gain realistic preformance using production-quality
+compilers and tool chains, we implement our type swich constructs as an ISO C++11 library.
+Our library-only implementation provides concise notation and
 outperforms the visitor design pattern, commonly used for type-casing
-scenarios in object-oriented programs. For many uses it equals or outperforms
-equivalent code in languages with built-in type switching constructs, such as
-OCaml. The pattern-based library code is easier to use and more expressive
-than hand-coded visitors. The library is non-intrusive and does not have
-extensibility restrictions. It also avoids control inversion.
- 
-The library was motivated by applications involving large, typed, abstract
-syntax trees. Being a library-only solution allows us to use production
-quality compilers and tool chains.
+scenarios in object-oriented programs. For many uses, it equals or outperforms
+equivalent code in languages with built-in type-switching constructs, such as
+OCaml and Haskell. The type-switching code is easier to use and is more expressive 
+than hand-coded visitors. The library is non-intrusive and circumvents most of
+extensibility restrictions typical of visitor design pattern. 
+It was motivated by applications involving large, typed, abstract
+syntax trees. 
 
 %We present techniques that can be used in a compiler or library setting to 
 %efficiently implement type switching, type testing, pattern matching, predicate 
@@ -192,21 +195,20 @@ quality compilers and tool chains.
 %typed abstract syntax trees.
 \end{abstract}
 
+\category{D}{1}{5}
 \category{D}{3}{3}
 
 \terms
 Languages, Design
 
 \keywords
-Type Switching, Visitor Design Pattern, Pattern Matching, Memoization, C++
+Type Switch, Typecase, Visitor Design Pattern, Memoization, C++
 
 \input{sec-introduction}
 
 \input{sec-problem}
 
 \input{sec-memoization}
-
-\input{sec-tagged}
 
 %\input{sec-exceptions}
 
@@ -219,6 +221,17 @@ Type Switching, Visitor Design Pattern, Pattern Matching, Memoization, C++
 \input{sec-conclusions}
 
 \input{sec-future}
+
+\acks
+
+We would like to thank Xavier Leroy and Luc Maranget for valuable feedback and 
+suggestions for improvements on the initial idea, Gregory Berkolaiko for ideas 
+related to minimization of conflicts, Jaakko Jarvi for assistance in comparison 
+to other languages, Andrew Sutton, Peter Pirkelbauer and Abe Skolnik for helpful 
+discussions and comments to numerous rewrites of this paper. 
+We also benefitted greatly from insightful comments by anonymous reviewers on 
+earlier revisions of this work. We would also like to thank Karel Driesen for 
+letting us use his class hierarchies benchmark for this work.
 
 \bibliographystyle{abbrvnat}
 \bibliography{mlpatmat}

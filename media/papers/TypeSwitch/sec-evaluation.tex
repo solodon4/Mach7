@@ -1,76 +1,84 @@
 \section{Evaluation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:eval}
 
-\begin{figure*}
-\begin{tabular}{@{}c@{ }l||@{ }r@{}@{ }r@{}|@{ }r@{}@{ }r@{}||@{ }r@{}@{ }r@{}|@{ }r@{}@{ }r@{}||@{ }r@{}@{ }r@{}|@{ }r@{}@{ }r@{}||@{ }r@{}@{ }r@{}|@{ }r@{}@{ }r@{}}
-\hline % -----------------------------------------------------------------------------------------------------------------------------------------
-\hline % -----------------------------------------------------------------------------------------------------------------------------------------
- &            & \multicolumn{4}{c||}{G++/32}  & \multicolumn{4}{c||}{G++/32}  & \multicolumn{4}{c||}{MS Visual C++/32} & \multicolumn{4}{c}{MS Visual C++/64} \\
-\hline % -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- & Syntax     & \multicolumn{2}{c|}{Unified} & \multicolumn{2}{c||}{Special} & \multicolumn{2}{c|}{Unified} & \multicolumn{2}{c||}{Special} & \multicolumn{2}{c|}{Unified} & \multicolumn{2}{c||}{Special} & \multicolumn{2}{c|}{Unified} & \multicolumn{2}{c}{Special} \\
-\hline % -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- & Encoding   & \Opn  & \Cls  & \Opn  & \Cls  & \Opn  & \Cls  & \Opn  & \Cls  & \Opn  & \Cls  & \Opn  & \Cls  & \Opn  & \Cls  & \Opn  & \Cls   \\
-\hline % ----------------------------------------------------------------------------------------------------------------------------------
-\hline % ----------------------------------------------------------------------------------------------------------------------------------
- & Repetitive &\glNGPp&\glNGKp&\glNSPp&\glNSKp&\gwNGPp&\gwNGKp&\gwNSPp&\gwNSKp&\VwNGPp&\VwNGKp&\VwNSPp&\VwNSKp&\VxNGPp&\VxNGKp&\VxNSPp&\VxNSKp \\
- & Sequential &\glNGPq&\glNGKq&\glNSPq&\glNSKq&\gwNGPq&\gwNGKq&\gwNSPq&\gwNSKq&\VwNGPq&\VwNGKq&\VwNSPq&\VwNSKq&\VxNGPq&\VxNGKq&\VxNSPq&\VxNSKq \\
- & Random     &\glNGPn&\glNGKn&\glNSPn&\glNSKn&\gwNGPn&\gwNGKn&\gwNSPn&\gwNSKn&\VwNGPn&\VwNGKn&\VwNSPn&\VwNSKn&\VxNGPn&\VxNGKn&\VxNSPn&\VxNSKn \\
-\hline % ----------------------------------------------------------------------------------------------------------------------------------
-\multirow{3}{*}{\begin{sideways}{\tiny Forward}\end{sideways}}
- & Repetitive &\glYGPp&\glYGKp&\glYSPp&\glYSKp&\gwYGPp&\gwYGKp&\gwYSPp&\gwYSKp&\VwYGPp&\VwYGKp&\VwYSPp&\VwYSKp&\VxYGPp&\VxYGKp&\VxYSPp&\VxYSKp \\
- & Sequential &\glYGPq&\glYGKq&\glYSPq&\glYSKq&\gwYGPq&\gwYGKq&\gwYSPq&\gwYSKq&\VwYGPq&\VwYGKq&\VwYSPq&\VwYSKq&\VxYGPq&\VxYGKq&\VxYSPq&\VxYSKq \\
- & Random     &\glYGPn&\glYGKn&\glYSPn&\glYSKn&\gwYGPn&\gwYGKn&\gwYSPn&\gwYSKn&\VwYGPn&\VwYGKn&\VwYSPn&\VwYSKn&\VxYGPn&\VxYGKn&\VxYSPn&\VxYSKn \\
-\hline % ----------------------------------------------------------------------------------------------------------------------------------
-\hline % ----------------------------------------------------------------------------------------------------------------------------------
- &            & \multicolumn{4}{c||}{Linux Desktop} & \multicolumn{12}{c}{Windows Laptop}                                                      \\
-\hline % ----------------------------------------------------------------------------------------------------------------------------------
-\end{tabular}
-\caption{Relative performance of type switching versus visitors. Numbers 
-in regular font (e.g. \f{67}), indicate that our type switching is faster than 
-visitors by corresponding percentage. Numbers in bold font (e.g. \s{14}), 
-indicate that visitors are faster by corresponding percentage.}
-\label{relperf}
-\end{figure*}
+Our evaluation methodology consisted of several independent studies of the 
+technique in order to achieve a better confidence in its validity. Our first 
+study involved comparison of relative performance of our approach against the 
+visitor design pattern. The second study did a similar comparison with built-in 
+facilities of Haskell and OCaml. In the third study we looked at how well our 
+caching mechanisms deal with some large real-world class hierarchies. In the 
+last study we did rewrite an existing application that was based on visitors 
+using our approach and compared the two.
+
+\subsection{Comparison with Visitor Design Pattern}
+\label{sec:viscmp}
+
+%\begin{figure*}
+%\begin{tabular}{@{}c@{ }l||@{ }r@{}@{ }r@{}|@{ }r@{}@{ }r@{}||@{ }r@{}@{ }r@{}|@{ }r@{}@{ }r@{}||@{ }r@{}@{ }r@{}|@{ }r@{}@{ }r@{}||@{ }r@{}@{ }r@{}|@{ }r@{}@{ }r@{}}
+%\hline % -----------------------------------------------------------------------------------------------------------------------------------------
+%\hline % -----------------------------------------------------------------------------------------------------------------------------------------
+% &            & \multicolumn{4}{c||}{G++/32}  & \multicolumn{4}{c||}{G++/32}  & \multicolumn{4}{c||}{MS Visual C++/32} & \multicolumn{4}{c}{MS Visual C++/64} \\
+%\hline % -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+% & Syntax     & \multicolumn{2}{c|}{Unified} & \multicolumn{2}{c||}{Special} & \multicolumn{2}{c|}{Unified} & \multicolumn{2}{c||}{Special} & \multicolumn{2}{c|}{Unified} & \multicolumn{2}{c||}{Special} & \multicolumn{2}{c|}{Unified} & \multicolumn{2}{c}{Special} \\
+%\hline % -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+% & Encoding   & \Opn  & \Cls  & \Opn  & \Cls  & \Opn  & \Cls  & \Opn  & \Cls  & \Opn  & \Cls  & \Opn  & \Cls  & \Opn  & \Cls  & \Opn  & \Cls   \\
+%\hline % ----------------------------------------------------------------------------------------------------------------------------------
+%\hline % ----------------------------------------------------------------------------------------------------------------------------------
+% & Repetitive &\glNGPp&\glNGKp&\glNSPp&\glNSKp&\gwNGPp&\gwNGKp&\gwNSPp&\gwNSKp&\VwNGPp&\VwNGKp&\VwNSPp&\VwNSKp&\VxNGPp&\VxNGKp&\VxNSPp&\VxNSKp \\
+% & Sequential &\glNGPq&\glNGKq&\glNSPq&\glNSKq&\gwNGPq&\gwNGKq&\gwNSPq&\gwNSKq&\VwNGPq&\VwNGKq&\VwNSPq&\VwNSKq&\VxNGPq&\VxNGKq&\VxNSPq&\VxNSKq \\
+% & Random     &\glNGPn&\glNGKn&\glNSPn&\glNSKn&\gwNGPn&\gwNGKn&\gwNSPn&\gwNSKn&\VwNGPn&\VwNGKn&\VwNSPn&\VwNSKn&\VxNGPn&\VxNGKn&\VxNSPn&\VxNSKn \\
+%\hline % ----------------------------------------------------------------------------------------------------------------------------------
+%\multirow{3}{*}{\begin{sideways}{\tiny Forward}\end{sideways}}
+% & Repetitive &\glYGPp&\glYGKp&\glYSPp&\glYSKp&\gwYGPp&\gwYGKp&\gwYSPp&\gwYSKp&\VwYGPp&\VwYGKp&\VwYSPp&\VwYSKp&\VxYGPp&\VxYGKp&\VxYSPp&\VxYSKp \\
+% & Sequential &\glYGPq&\glYGKq&\glYSPq&\glYSKq&\gwYGPq&\gwYGKq&\gwYSPq&\gwYSKq&\VwYGPq&\VwYGKq&\VwYSPq&\VwYSKq&\VxYGPq&\VxYGKq&\VxYSPq&\VxYSKq \\
+% & Random     &\glYGPn&\glYGKn&\glYSPn&\glYSKn&\gwYGPn&\gwYGKn&\gwYSPn&\gwYSKn&\VwYGPn&\VwYGKn&\VwYSPn&\VwYSKn&\VxYGPn&\VxYGKn&\VxYSPn&\VxYSKn \\
+%\hline % ----------------------------------------------------------------------------------------------------------------------------------
+%\hline % ----------------------------------------------------------------------------------------------------------------------------------
+% &            & \multicolumn{4}{c||}{Linux Desktop} & \multicolumn{12}{c}{Windows Laptop}                                                      \\
+%\hline % ----------------------------------------------------------------------------------------------------------------------------------
+%\end{tabular}
+%\caption{Relative performance of type switching versus visitors. Numbers 
+%in regular font (e.g. \f{67}), indicate that our type switching is faster than 
+%visitors by corresponding percentage. Numbers in bold font (e.g. \s{14}), 
+%indicate that visitors are faster by corresponding percentage.}
+%\label{relperf}
+%\end{figure*}
 
 Our evaluation methodology consists of several benchmarks representing various 
 uses of objects inspected with either visitors or type switching.
 
-The \emph{repetitive} benchmark performs calls on different objects of the 
-same most derived type. This scenario happens in object-oriented setting when a 
+The \emph{repetitive} benchmark (REP) performs calls on different objects of the 
+same most-derived type. This scenario happens in object-oriented setting when a 
 group of polymorphic objects is created and passed around (e.g. numerous 
 particles of a given kind in a particle simulation system). We include it 
 because double dispatch becomes twice faster (27 vs. 53 cycles) in this 
 scenario compared to others due to cache and call target prediction mechanisms. 
 
-The \emph{sequential} benchmark effectively uses an object of each derived type only 
+The \emph{sequential} benchmark (SEQ) effectively uses an object of each derived type only 
 once and then moves on to an object of a different type. The cache is typically 
 reused the least in this scenario, which is typical of lookup tables, where each 
 entry is implemented with a different derived class.
 
-The \emph{random} benchmark is the most representative as it randomly makes calls on 
+The \emph{random} benchmark (RND) is the most representative as it randomly makes calls on 
 random objects, which will probably be the most common usage scenario in the 
 real world.
 
-The \emph{forwarding} benchmark is not a benchmark on its own, but rather a 
-combinator that can be applied to any of the above scenarios. It refers to the 
+Presence of \emph{forwarding} in any of these benchmarks refers to the 
 common technique used by visitors where, for class hierarchies with multiple 
 levels of inheritance, the \code{visit} method of a derived class will provide a 
 default implementation of forwarding to its immediate base class, which, in turn, 
 may forward it to its base class, etc. The use of forwarding in visitors is a 
-way to achieve substitutability, which in type switches corresponds to the use 
+way to achieve substitutability, which in type switch corresponds to the use 
 of base classes in the case clauses.
 
 The class hierarchy for non-forwarding test was a flat hierarchy with 100 
 derived classes, encoding an algebraic data type. The class hierarchy for 
 forwarding tests had two levels of inheritance with 5 intermediate base classes 
-and 95 derived ones. 
-
-Each benchmark was tested with either \emph{unified} or \emph{specialized} 
-syntax, each including tests on polymorphic (\emph{Open}) and tagged 
-(\emph{Tag}) encodings. Specialized syntax avoids generating unnecessary 
-syntactic structure used to unify syntax, and thus produces faster code. We 
-include it in results because a compiler implementation of type switching 
-will only generate the best suitable code.
+and 95 derived ones. While we do not advocate here for the closed solution of 
+\textsection\ref{sec:cotc}, we included it in our tests to show the performance 
+gains a closed solution might have over the open one. Our library supports both 
+solutions with the same surface syntax, which is why we believe many users will 
+try them both before settling on one. 
 
 The benchmarks were executed in the following configurations refered to as 
 \emph{Linux Desktop} and \emph{Windows Laptop} respectively:
@@ -78,19 +86,19 @@ The benchmarks were executed in the following configurations refered to as
 \begin{itemize}
 \setlength{\itemsep}{0pt}
 \setlength{\parskip}{0pt}
-\item Dell Dimension\textsuperscript{\textregistered} desktop with Intel\textsuperscript{\textregistered} Pentium\textsuperscript{\textregistered} 
+\item \emph{Lnx}: Dell Dimension\textsuperscript{\textregistered} desktop with Intel\textsuperscript{\textregistered} Pentium\textsuperscript{\textregistered} 
       D (Dual Core) CPU at 2.80 GHz; 1GB of RAM; Fedora Core 13  
       \begin{itemize}
       \setlength{\itemsep}{0pt}
       \setlength{\parskip}{0pt}
       \item G++ 4.4.5 executed with -O2
       \end{itemize}
-\item Sony VAIO\textsuperscript{\textregistered} laptop with Intel\textsuperscript{\textregistered} Core\texttrademark i5 460M 
+\item \emph{Win}: Sony VAIO\textsuperscript{\textregistered} laptop with Intel\textsuperscript{\textregistered} Core\texttrademark i5 460M 
       CPU at 2.53 GHz; 6GB of RAM; Windows 7 Professional
       \begin{itemize}
       \setlength{\itemsep}{0pt}
       \setlength{\parskip}{0pt}
-      \item G++ 4.5.2 / MinGW executed with -O2; x86 binaries
+      \item G++ 4.5.2 and 4.6.1 / MinGW executed with -O2; x86 binaries
       \item MS Visual C++ 2010 Professional x86/x64 binaries with profile-guided optimizations
       \end{itemize}
 \end{itemize}
@@ -117,80 +125,114 @@ against the slower technique. Numbers in regular font represent cases where type
 switching was faster, while numbers in bold indicate cases where visitors 
 were faster.
 
-We can see that type switching wins by a good margin on tag preceedence lists as 
+\begin{figure}[htbp]
+\begin{tabular}{@{}c@{ }@{}l@{ }||@{}r@{}|@{}r@{}|@{}r@{}|@{}r@{}||@{}r@{}|@{}r@{}|@{}r@{}|@{}r@{}}
+\hline % ---------------------------------------------------------------
+ &     & \multicolumn{4}{c||}{Open}    & \multicolumn{4}{c}{Closed}     \\
+\hline % ---------------------------------------------------------------
+ &     & \multicolumn{2}{@{}c@{}|}{G++} & \multicolumn{2}{@{}c@{}||}{MS VC++} & \multicolumn{2}{@{}c@{}|}{G++} & \multicolumn{2}{@{}c@{}}{MS VC++} \\
+\hline % ---------------------------------------------------------------
+ &     &\tiny{x86-32}&\tiny{x86-32}&\tiny{x86-32}&\tiny{x86-64}&\tiny{x86-32}&\tiny{x86-32}&\tiny{x86-32}&\tiny{x86-64} \\
+\hline % ---------------------------------------------------------------
+ & REP &\glNSPp&\gwNSPp&\VwNSPp&\VxNSPp&\glNSKp&\gwNSKp&\VwNSKp&\VxNSKp \\
+ & SEQ &\glNSPq&\gwNSPq&\VwNSPq&\VxNSPq&\glNSKq&\gwNSKq&\VwNSKq&\VxNSKq \\
+ & RND &\glNSPn&\gwNSPn&\VwNSPn&\VxNSPn&\glNSKn&\gwNSKn&\VwNSKn&\VxNSKn \\
+\hline % ---------------------------------------------------------------
+\multirow{3}{*}{\begin{sideways}{\tiny Forward}\end{sideways}}
+ & REP &\glYSPp&\gwYSPp&\VwYSPp&\VxYSPp&\glYSKp&\gwYSKp&\VwYSKp&\VxYSKp \\
+ & SEQ &\glYSPq&\gwYSPq&\VwYSPq&\VxYSPq&\glYSKq&\gwYSKq&\VwYSKq&\VxYSKq \\
+ & RND &\glYSPn&\gwYSPn&\VwYSPn&\VxYSPn&\glYSKn&\gwYSKn&\VwYSKn&\VxYSKn \\
+\hline % ---------------------------------------------------------------
+ &     & \multicolumn{1}{@{}c@{}|}{Lnx}& \multicolumn{3}{@{}c@{}||}{Win} & \multicolumn{1}{@{}c@{}|}{Lnx} & \multicolumn{3}{c}{Win} \\
+\hline % ---------------------------------------------------------------
+\end{tabular}
+\caption{Relative performance of type switching versus visitors. Numbers 
+in regular font (e.g. \f{67}), indicate that our type switching is faster than 
+visitors by corresponding percentage. Numbers in bold font (e.g. \s{18}), 
+indicate that visitors are faster by corresponding percentage.}
+\label{relperf}
+\end{figure}
+
+We can see that type switching wins by a good margin when implemented with tag switch as 
 well as in the presence of at least one level of forwarding. Note that the 
 numbers are relative, and thus the ratio depends on both the performance of 
-virtual calls and the performance of switch statements. Visual C++ was 
+virtual function calls and the performance of switch statements. Visual C++ was 
 generating faster virtual function calls, while GCC was generating faster switch 
 statements, which is why their relative performance seem to be much more 
 favorable for us in the case of GCC.
-
 Similarly the code for x64 is only slower relatively: the actual time spent for 
 both visitors and type switching was smaller than that for x86, but it was much 
 smaller for visitors than type switching, which resulted in worse relative 
 performance.
 
-\subsection{Vtable Pointer Memoization vs. TPL Dispatcher}
+\subsection{Open vs. Closed Type Switch}
 \label{sec:cmp}
 
 With a few exceptions for x64, it can be seen from Figure~\ref{relperf} 
-that the performance of the TPL dispatcher (the Tag column) dominates the 
-performance of the vtable pointer memoization approach (the Open column). We believe 
-that the difference, often significant, is the price one pays for the true 
-openness of the vtable pointer memoization solution.
+that the performance of the closed tag switch dominates the performance of the 
+open type switch. We believe that the difference, often significant, is the 
+price one pays for the true openness of the vtable pointer memoization solution. 
 
-Unfortunately, the TPL dispatcher is not truly open. The use of tags, 
-even if they would be allocated by compiler, may require integration efforts to 
-ensure that different DLLs have not reused the same tags. Randomization of tags,
-similar to a proposal of Garrigue~\cite{garrigue-98}, will not eliminate the 
-problem and will surely replace jump tables in switches with decision trees. This 
-will likely significantly degrade the numbers for the Tag column of 
-Figure~\ref{relperf}, since the tags in our experiments were all sequential.
+As we mentioned in \textsection\ref{sec:cotc}, the use of tags, even allocated 
+by compiler, may require integration efforts to ensure that different DLLs have 
+not reused the same tags. Randomization of tags, similar to a proposal of 
+Garrigue~\cite{garrigue-98}, will not eliminate the problem and will surely 
+replace jump tables in switches with decision trees. This will likely 
+significantly degrade the numbers for the part of Figure~\ref{relperf} 
+representing closed tag switch, since the tags in our experiments were all 
+sequential. 
 
-Besides, the TPL dispatcher approach relies on static cast to obtain the 
-proper reference once the most specific case clause has been found. As we 
-described in \textsection\ref{sec:vtblmem}, this has severe limitations in the 
-presence of multiple inheritance, and thus is not as versatile as the other 
-solution. Overcoming this problem will either require the use of 
-\code{dynamic_cast} or techniques similar to those we used in vtable pointer 
-memoization. This will likely degrade performance numbers for the Tag column even further.
+The reliance of a tag switch on static cast has severe limitations in the 
+presence of multiple inheritance, and thus is not as versatile as open type 
+switch. Overcoming this problem will either require the use of 
+\code{dynamic_cast} or techniques similar to those used for vtable pointer 
+memoization, which will likely degrade tag switch'es performance numbers even 
+further.
 
-Note also that the vtable pointer memoization approach can be used to implement both
-first-fit and best-fit semantics, while the TPL dispatcher is only suitable 
-for best-fit semantics. Their complexity guarantees also differ: vtable pointer 
-memoization is constant on average, and slow on the first call. Tag list approach is 
-logarithmic in the size of the class hierarchy on average (assuming a balanced 
-hierarchy), including on the first call.
+Note also that the approach used to implement open type switch can be used to 
+implement both first-fit and best-fit semantics, while the tag switch is only suitable 
+for best-fit semantics. Their complexity guarantees also differ: open type 
+switch is constant on average, but slow on the first call with given subobject. 
+Tag switch is logarithmic in the size of the class hierarchy 
+(assuming a balanced hierarchy), including the first call. This last point can 
+very well be seen in Figure~\ref{relperf}, where the performance of a closed 
+degrades significantly in the presence of forwarding, while the performance of 
+open solution improves.
 
-\subsection{Comparison with OCaml}
+\subsection{Comparison with OCaml and Haskell}
 \label{sec:ocaml}
 
-We now compare our solution to the built-in pattern-matching facility of OCaml~\cite{OPM01}. 
-In this test, we timed a small OCaml application performing our sequential 
+We now compare our solution to the built-in pattern-matching facility of 
+OCaml~\cite{OPM01} and Haskell~\cite{Haskell98Book}.  
+In this test, we timed small OCaml and Haskell applications performing our sequential 
 benchmark on an algebraic data type of 100 variants. Corresponding C++ 
 applications were working with a flat class hierarchy of 100 derived classes. 
-The difference between the C++ applications lies in the encoding (Open/Tag/Kind) 
-and the syntax (Unified/Special) used. Kind encoding is the same as Tag encoding, but 
-it does not require substitutability, and thus can be implemented with a direct 
-switch on tags. It is only supported through specialized syntax in our library 
-as it differs from the Tag encoding only semantically.
+The difference between the C++ applications lies in the encoding used. Kind 
+encoding is the same as Tag encoding, but it does not require substitutability, 
+and thus can be implemented with a direct switch on tags. It is only supported 
+through specialized syntax in our library as it differs from the Tag encoding 
+only semantically.
 
-The optimized OCaml compiler \texttt{ocamlopt.opt} that we used to compile the code 
-can be based on different toolsets on some platforms, e.g. Visual C++ or GCC 
-on Windows. To make the comparison fair we had to make sure that the 
-same toolset was used to compile the C++ code. We ran the tests 
-on both of the machines described above using the following configurations: 
+%The optimized OCaml compiler \texttt{ocamlopt.opt} that we used to compile the code 
+%can be based on different toolsets on some platforms, e.g. Visual C++ or GCC 
+%on Windows. To make the comparison fair we had to make sure that the 
+%same toolset was used to compile the C++ code. We ran the tests 
+%on both of the machines described above using the following configurations: 
 
-\begin{itemize}
-\setlength{\itemsep}{0pt}
-\setlength{\parskip}{0pt}
-\item The tests on a Windows 7 laptop were all based on the \emph{Visual C++ toolset} 
-      and used \texttt{ocamlopt.opt} version 3.11.0.
-\item The tests on a Linux desktop were all based on the \emph{GCC toolset} and used 
-      \texttt{ocamlopt.opt} version 3.11.2
-\end{itemize}
+%\begin{itemize}
+%\setlength{\itemsep}{0pt}
+%\setlength{\parskip}{0pt}
+%\item The tests on a Windows 7 laptop were all based on the \emph{Visual C++ toolset} 
+%      and used \texttt{ocamlopt.opt} version 3.11.0.
+%\item The tests on a Linux desktop were all based on the \emph{GCC toolset} and used 
+%      \texttt{ocamlopt.opt} version 3.11.2
+%\end{itemize}
 
-\noindent
+%\noindent
+We used optimizing OCaml compiler \texttt{ocamlopt.opt} version 3.11.0 working 
+under the Visual C++ toolset as well as the Glasgow Haskell Compiler version 
+7.0.3 (with -O switch) working under the MinGW toolset. All the tests were 
+performed on the Windows 7 laptop.
 The timing results presented in Figure~\ref{fig:OCamlComparison} are averaged 
 over 101 measurements and show the number of seconds it took to perform a 
 million decompositions within our sequential benchmark.
@@ -202,7 +244,253 @@ million decompositions within our sequential benchmark.
   \label{fig:OCamlComparison}
 \end{figure}
 
-We can see that the use of specialized syntax on a closed/sealed hierarchy can 
-match the speed of, and even be four times faster than, the code generated by 
-the native OCaml compiler. Once we go for an open solution, we become about 
-30-50\% slower. 
+%We can see that the use of specialized syntax on a closed/sealed hierarchy can 
+%match the speed of, and even be four times faster than, the code generated by 
+%the native OCaml compiler. Once we go for an open solution, we become about 
+%30-50\% slower. 
+
+\subsection{Dealing with real-world class hierarchies}
+\label{sec:hierarchies}
+
+We used a class hierarchy benchmark used before to study efficiency of type 
+inclusion testing and dispatching techniques~\cite{Vitek97,Krall97nearoptimal,PQEncoding,Ducournau08}. 
+We use the names of the benchmarks from Vitek et al~\cite[Table 2]{Vitek97}, 
+since the set of benchmarks we were working with was closest to that work.
+
+While not all class hierarchies originated from C++, for this experiment it 
+was more important for us that the hierarchies were man-made. While converting 
+the hierachies into C++, we had to prune inaccessible base classes (direct base  
+class that is already an indirect base class) when used with repeated 
+inheritance in order to satisfy semantic requirements of the C++. We maintained 
+the same number of virtual functions present in each class as well as the number 
+of data members. The benchmarks, however, did not preserve the types of those.
+The data in Figure~\ref{fig:benchmarks} shows various parameters of the class 
+hierarchies in each benchmark, after their adoption to C++. 
+
+\begin{figure}[htbp]
+\footnotesize
+\begin{tabular}{@{ }l@{ }||@{ }l@{ }|@{ }r@{ }|@{ }r@{ }|@{ }r@{ }|@{ }r@{ }|@{ }r@{ }|@{ }r@{ }|@{ }l@{ }|@{ }r@{ }|@{ }r@{ }|@{ }r@{ }}
+\hline % --------------------------------------------------------------------------------------------------
+\multicolumn{1}{@{}c@{}||}{\multirow{2}{*}{\tiny{\textsc{Library}}}} & 
+\multicolumn{1}{@{ }c@{ }|}{\multirow{2}{*}{\tiny{\textsc{Language}}}} & 
+\multicolumn{1}{@{ }c@{ }|}{\multirow{2}{*}{\tiny{\textsc{Classes}}}} &
+\multicolumn{1}{@{ }c@{ }|}{\multirow{2}{*}{\tiny{\textsc{Paths}}}} & 
+\multicolumn{1}{@{ }c@{ }|}{\multirow{2}{*}{\tiny{\textsc{Height}}}} & 
+\multicolumn{1}{@{ }c@{ }|}{\multirow{2}{*}{\tiny{\textsc{Roots}}}} & 
+\multicolumn{1}{@{ }c@{ }|}{\multirow{2}{*}{\tiny{\textsc{Leafs}}}} & 
+\multicolumn{1}{@{ }c@{ }|}{\multirow{2}{*}{\tiny{\textsc{Both}}}} & 
+\multicolumn{2}{@{}c@{}|}{\tiny{\textsc{Parents}}} & 
+\multicolumn{2}{@{}c@{}}{\tiny{\textsc{Children}}} \\ \cline{9-12}
+     &                             &      &       &    &     &      &     & \multicolumn{1}{@{}c@{}|}{\tiny{\textsc{avg}}} & \multicolumn{1}{@{}c@{}|}{\tiny{\textsc{max}}} & \multicolumn{1}{@{}c@{}|}{\tiny{\textsc{avg}}} & \multicolumn{1}{@{}c@{}}{\tiny{\textsc{max}}} \\
+\hline % --------------------------------------------------------------------------------------------------
+ DG2 & \tiny{\textsc{Smalltalk}}   &  534 &   534 & 11 &   2 &  381 &   1 & 1    &  1 & 3.48 &  59 \\ % digitalk2         
+ DG3 & \tiny{\textsc{Smalltalk}}   & 1356 &  1356 & 13 &   2 &  923 &   1 & 1    &  1 & 3.13 & 142 \\ % digitalk3         
+ ET+ & \tiny{\textsc{C++}}         &  370 &   370 &  8 &  87 &  289 &  79 & 1    &  1 & 3.49 &  51 \\ % et++              
+ GEO & \tiny{\textsc{Eiffel}}      & 1318 & 13798 & 14 &   1 &  732 &   0 & 1.89 & 16 & 4.75 & 323 \\ % geode             
+ JAV & \tiny{\textsc{Java}}        &  604 &   792 & 10 &   1 &  445 &   0 & 1.08 &  3 & 4.64 & 210 \\ % java              
+ LOV & \tiny{\textsc{Eiffel}}      &  436 &  1846 & 10 &   1 &  218 &   0 & 1.72 & 10 & 3.55 &  78 \\ % lov-object-editor 
+ NXT & \tiny{\textsc{Objective-C}} &  310 &   310 &  7 &   2 &  246 &   1 & 1    &  1 & 4.81 & 142 \\ % nextstep          
+ SLF & \tiny{\textsc{Self}}        & 1801 & 36420 & 17 &  51 & 1134 &   0 & 1.05 &  9 & 2.76 & 232 \\ % self              
+ UNI & \tiny{\textsc{C++}}         &  613 &   633 &  9 & 147 &  481 & 117 & 1.02 &  2 & 3.61 &  39 \\ % unidraw           
+%    &                             &   51 &    51 &  7 &   1 &   29 &   0 & 1.00 &  1 & 2.27 &   5 \\ % v1-collection     
+%    &                             &   18 &    18 &  5 &   1 &   11 &   0 & 1.00 &  1 & 2.43 &   5 \\ % v1-magnitude      
+%    &                             &  383 &   383 &  9 &   1 &  244 &   0 & 1.00 &  1 & 2.75 &  86 \\ % v1-object-nometa  
+%    &                             &    9 &     9 &  5 &   1 &    4 &   0 & 1.00 &  1 & 1.60 &   2 \\ % v1-set            
+%    &                             &   16 &    16 &  7 &   1 &    7 &   0 & 1.00 &  1 & 1.67 &   2 \\ % v1-stream         
+%    &                             &   53 &    53 &  8 &   1 &   31 &   0 & 1.00 &  1 & 2.36 &   7 \\ % v1-visualcomponent
+ VA2 & \tiny{\textsc{??}}          & 3241 &  3241 & 14 &   1 & 2582 &   0 & 1    &  1 & 4.92 & 249 \\ % visualage2.all    
+ VA2 & \tiny{\textsc{??}}          & 2320 &  2320 & 13 &   1 & 1868 &   0 & 1    &  1 & 5.13 & 240 \\ % visualage2.kern   
+ VW1 & \tiny{\textsc{Smalltalk}}   &  387 &   387 &  9 &   1 &  246 &   0 & 1    &  1 & 2.74 &  87 \\ % visualworks1      
+ VW2 & \tiny{\textsc{Smalltalk}}   & 1956 &  1956 & 15 &   1 & 1332 &   0 & 1    &  1 & 3.13 & 181 \\ % visualworks2      
+%    &                             &    6 &     9 &  4 &   2 &    1 &   0 & 1.50 &  2 & 1.20 &   2 \\ % vtbl              
+\hline % --------------------------------------------------------------------------------------------------
+\multicolumn{2}{r|}{\tiny{\textsc{Overalls}}} &15246 & 63963 & 17 & 298 &10877 & 199 & 1.11 & 16 & 3.89 & 323 \\ % Overalls
+\hline % --------------------------------------------------------------------------------------------------
+\end{tabular}
+\caption{Benchmarks Class Hierarchies}
+\label{fig:benchmarks}
+\end{figure}
+
+The number of paths represents the number of distinct inheritance paths from the 
+classes in the hierarchy to the roots of the hiearchy. As we showed in 
+\textsection\ref{} this number reflects the number of possible subobjects in the 
+hierarchy. The roots listed in the table are classes with no base classes. We 
+will subsequently use the term \emph{non-leaf} to refer to the possible root of 
+a subhierarchy. Leafs are classes with no children, while \emph{both} refers to 
+utility classes that are both roots and leafs and thus neiter have base nor 
+derived classes. The average for the number of parents and the number of 
+children were computed only among the classes having at least one parent or at 
+least one children correspondingly.
+
+With few useful exceptions, it generally makes sence to only apply type switch 
+to non-leaf nodes of the class hierarchy. 71\% of the classes in the entire 
+benchmarks suite were leaf classes. Out of the 4369 non-leaf classes 36\% were 
+spawning a subhierarchy of only 2 classes (including the root), 15\% -- a 
+subhierarchy of 3 classes, 10\% of 4, 7\% of 5 and so forth. 
+Turning this into a cumulative distribution, $a\%$ of subhierarchies had more 
+than $b$ classes in them, where:
+
+\begin{tabular}
+{l||@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }}
+%{l||c|c|c|c|c|c|c|c|c}
+$a$ & 1\% & 3\% & 5\% & 10\% & 20\% & 25\% & 50\% & 64\% & 100\% \\
+\hline % --------------------------------------------------------------------------------------------------
+$b$ & 700 & 110 & 50  & 20   & 10   & 7    & 3    & 2    & 1
+\end{tabular}
+
+%1\% of subhierarchies had more than 700 classes in them, 3\% of subhierarchies 
+%had more than 110 classes, 5\% of subhierarchies had more than 50 classes, 10\% 
+%of subhierarchies had more than 20 classes, 20\% of subhierarchies had more than 
+%10 classes, 25\% of hierarchies had more than 7 classes, only 50\% of 
+%hierarchies had more than 3 classes and 64\% -- more than 2.
+
+\noindent
+These numbers reflect the percentage of use cases one may expect in the real 
+word that have a given number of case clauses in them.
+
+For each non-leaf class $A$ we created a function performing a type switch on 
+every possible derived class $D_i$ of it as well as itself. The function was 
+then executed with every possible subobject $D_i\leftY\sigma_j\rightY A$ it can  
+possibly be applied to, given the static type $A$ of the subject. It was 
+executed multiple but the same number of times on each subobject to ensure 
+uniformity on one side (since we do not have the data about the actual 
+probabilities of each subobject the benchmark hierarchies) as well as let the 
+type switch infer the optimal parameters $k$ and $l$ of its cache indexing 
+function $H_{kl}$. We then plotted the result of each of the 4396 experiments as 
+a point in chart of Figure~\ref{fig:prob} relating the optimal probability of 
+conflict $p$ achieved by the type switch and the number of subobjects $n$ that 
+came through that type switch. To account for the fact that multiple experiments
+could have resulted in the same pair $(n,p)$, we use a shadow of each point to 
+reflect somewhat the number of experiments yielding it.
+
+\begin{figure}[htbp]
+  \centering
+    \includegraphics[width=0.49\textwidth]{ClassHierarchies.pdf}
+  \caption{Probability of Conflict vs. Number of Subobjects in Hierarchy}
+  \label{fig:prob}
+\end{figure}
+
+The curves on which the results of experiments line up correspond to the fact 
+that under uniform distribution of $n$ subobjects, only a finite number of 
+different values representing the probability of conflict $p$ are possible. In 
+particular, all such values $p=\frac{m}{n}$, where $0 \le m < n$. The number $m$ 
+reflects the number of subobjects an optimal cache indexing function $H_{kl}$ 
+could not allocate their own entry for. We showed in \textsection\ref{sec:moc} 
+that the probability of conflict under uniform distribution of $n$ subobjects 
+depends only on $m$. The points on the same curve (which becomes a line on a
+log-log plot) all share the same number $m$ of ``extra'' vtbl-pointers that optimal 
+cache indexing function could not allocate individual entries for.
+
+While it is hard to see from the chart, 87.5\% of all the points on the chart 
+lay on the X-axis, which means that the optimal hash function for the 
+corresponding type switches had no conflicts at all. In other words, only in 12.5\% 
+of cases the optimal $H_{kl}^V$ for the set of vtbl-pointers $V$ coming through 
+a given type switch had non-zero probability of conflict. This is why the 
+average probability of conflict for the entire set is only 1.17. Experiments 
+laying on the first curve amount to 5.58\% of subhierarchies and represent the 
+cases in which optimal $H_{kl}^V$ had only one ``extra'' vtbl-pointer. 2.63\% 
+experiments had $H_{kl}^V$ with 2 conflicts, 0.87\% with 3 etc.
+
+\subsection{Refactoring an existing visitors based application}
+\label{sec:qualcmp}
+
+For this experiment we have reimplemented a visitor based C++ pretty printer for 
+Pivot\cite{Pivot09} using our pattern-matching library. Pivot's class hierarchy 
+consists of 154 node kinds representing various entities in the C++ program. The 
+original code had 8 visitor classes each handling 5, 7, 8, 10, 15, 17, 30 and 63 
+cases, which we turned into 8 match statements with corresponding numbers of 
+case clauses. Most of the rewrite was performed by sed-like replaces that 
+converted visit methods into respective case-clauses. In several cases we had to 
+manually reorder case-clauses to avoid redundancy as visit-methods for base classes 
+were typically coming before the same for derived, while for type switching we 
+needed them to come after. Redundancy checking support provided by our library 
+was invaluable in finding out all such cases.
+
+Both pretty printers were executed on a set of header files from the C++ 
+standard library and the produced output of both program was byte-to-byte the same. 
+We timed execution of the pretty printing phase (not including loading and termination 
+of the application or parsing of the input file) and observed that on small 
+files (e.g. those from C run-time library and few small C++ files) 
+visitors-based implementation was faster because the total number of nodes in 
+AST and thus calls did not justify our set-up calls. In particular, 
+visitor-based implementation of pretty printer was faster on files of 44--588  
+lines of code, with average 136 lines per those inputs, where visitors win. On 
+these input files it is faster by 1.17\%--21.42\% with an average speed-up of 
+8.75\%. Open type switch based implementation of pretty printer was faster on 
+files of 144--9851 lines of code, with average 3497 lines per those input files, 
+where open type switch wins. On these inputs it is faster by 0.18\% -- 32.99\% 
+with an average speed-up of 5.53\%.
+
+Figure~\ref{fig:mem} shows memory usage as well as cache hits and misses for 
+the run of our pretty printer on 'queue' standard library header (it has the 
+largest LOC after preprocessing in our test set).
+
+\begin{figure}[htbp]
+  \centering
+    \includegraphics[width=0.49\textwidth]{Memory.png}
+  \caption{Memory usage in real application}
+  \label{fig:mem}
+\end{figure}
+
+The bars represent the total amount of memory in bytes each of the 8 match 
+statements (marked A-H) used. The info $[N/M]$ next to the letter indicates the 
+actual number of different subobjects (i.e. vtbl-pointers) $N$ that came through 
+that match statement, and the number of case clauses $M$ the match statement had 
+(the library uses it as an estimate of $N$). $N$ is also the number of cases the 
+corresponding match statement had to be executed sequentially (instead of a 
+direct jump).
+
+The blue part of each bar corresponds to the memory used by cache, while the 
+maroon -- to the memory used by the hash table. Transparent parts of both colors 
+indicate the allocated extra memory that is not holding any data.  The black box 
+within the blue part also indicates the amount of entries in the cache that are 
+allocated for only one vtbl pointer and thus never result in a cache miss. The 
+non-transparent part without black box represents the percentage of 
+vtbl-pointers that have to share their cache entry with at least one other 
+vtbl-pointer and thus may result in collisions during access. 
+
+The actual number of hits and misses for each of the match statements is 
+indicated on top of the corresponding column. The sum of them is the total 
+amount of calls made. Hits indicate situation when we found entry in cache and 
+didn't have to make roundtrip to the hash-table to get it. Misses indicate the 
+number of cases during actual run we had to pick the entry from the hash table 
+and update the cache with it. The number of misses is always larger then or 
+equal to $N$.
+
+The library always preallocates memory for at least 8 subobjects to avoid 
+unnecessery recomputations of optimal parameters $k$ and $l$ -- this is the case 
+with the last 3 match statements. In all other cases it allocate the amount of 
+memory proportional to the smallest power of 2 that is greater of equal than  
+$\max(M,N)$. The table does not have to be hash table and can be implemented with 
+any other container i.e. sorted vector, map etc. that let us find quickly by a given 
+vtbl-pointer the data associated with it. If we implement it with sorted vector, 
+the red part will shrink to only the non-transparent part.
+
+%During this refactoring we have made several simplifications that became obvious 
+%in pattern-matching code, but were not in visitors code because of control 
+%inversion. Simplifications that were applicable to visitors code were eventually 
+%integrated into visitors code as well to make sure we do not compare 
+%algorithmically different code. In any case we were making sure that both 
+%approaches regardless of simplifications were producing byte-to-byte the same 
+%output as the original pretty printer we started from.
+
+%The size of executable for pattern-matching approach was smaller than that for 
+%visitors. So was also the source code. We extracted from both sources the 
+%functionality that was common to them and placed it in a separate translation 
+%unit to make sure it does not participate in the comparison. We kept all the 
+%comments however that were eqaully applicable to code in either approach.
+%
+%Note that the visitors involved in the pretty printer above did not use 
+%forwarding: since all the C++ constructs were handled by the printer, every 
+%visit-method was overriden from those statically possible based on the static 
+%type of the argument.
+
+%Listing parameter for a case clause always causes access to member. Best hope is 
+%that compiler will eliminate it if it is not needed. At the moment we do not 
+%have means to detect empty macro arguments or \_.
+
+%In general from our rewriting experience we will not recommend rewriting 
+%existing visitor code with pattern matching for the simple reason that pattern 
+%matching code will likely follow the structure already set by the visitors. 
+%Pattern matching was most effective when writing new code, where we could design 
+%the structure of the code having the pattern-matching facility in our toolbox.
