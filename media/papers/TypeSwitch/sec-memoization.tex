@@ -376,7 +376,7 @@ $D$ if $B$ is mentioned in the list of base classes of $D$ without the
 shared base class} of $D$ if $B$ is mentioned in the list of base classes of $D$ 
 with the \code{virtual} keyword ($D \prec_S B$). A reflexive transitive closure 
 of these relationships $\preceq^*=(\prec_R \cup \prec_S)^*$ defines the 
-\emph{inheritance} relation on types of program $P$.
+\emph{subtyping} relation on types of program $P$.
 A base class \emph{subobject} of a given \emph{complete object} is represented by a pair 
 $\sigma = (h,l)$ with $h \in \{\mathsf{Repeated},\mathsf{Shared}\}$ representing the 
 kind of inheritance (single inheritance is $\mathsf{Repeated}$ with one base class) and $l$ 
@@ -401,9 +401,9 @@ type $C$. More formally:
 
 \noindent
 $\epsilon$ indicates an empty path, but we will generally omit it in writing 
-when understood from the context. In the example from Figure~\ref{fig:objlayout}(2), 
-an object of the most-derived class \code{D} has the following 
-$\mathsf{Repeated}$ subobjects:
+when understood from the context. In case of repeated inheritance in 
+Figure~\ref{fig:inheritance}(1), an object of the most-derived class \code{D} 
+will have the following $\mathsf{Repeated}$ subobjects:
 \code{D::C::Y}, 
 \code{D::B::A::Z}, 
 \code{D::C::A::Z}, 
@@ -412,8 +412,8 @@ $\mathsf{Repeated}$ subobjects:
 \code{D::B}, 
 \code{D::C}, 
 \code{D}.
-Similarly, in the example from Figure~\ref{fig:objlayout}(3), an object of the 
-most-derived class \code{D} has the following $\mathsf{Repeated}$ subobjects:  
+Similarly, in case of virtual inheritance in the same expample, an object of the 
+most-derived class \code{D} will have the following $\mathsf{Repeated}$ subobjects:
 \code{D::C::Y}, 
 \code{D::B}, 
 \code{D::C}, 
