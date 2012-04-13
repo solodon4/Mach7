@@ -389,7 +389,10 @@ a given type switch had non-zero probability of conflict. This is why the
 average probability of conflict for the entire set is only 1.17. Experiments 
 laying on the first curve amount to 5.58\% of subhierarchies and represent the 
 cases in which optimal $H_{kl}^V$ had only one ``extra'' vtbl-pointer. 2.63\% 
-experiments had $H_{kl}^V$ with 2 conflicts, 0.87\% with 3 etc.
+experiments had $H_{kl}^V$ with 2 conflicts, 0.87\% with 3 etc. These numbers do 
+not indicate that the hash function we used is better than other hash functions, 
+they do indicate instead that the set of vtbl-pointers present in many 
+applications is particularly suitable for such a hash function.
 
 \subsection{Refactoring an existing visitors based application}
 \label{sec:qualcmp}

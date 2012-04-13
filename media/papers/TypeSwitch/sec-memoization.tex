@@ -26,7 +26,7 @@ and cons of each approach in \textsection\ref{sec:cmp}.
 
 \input{sec-tagged}
 
-\subsection{Open Type Switching}
+\subsection{Open but Inefficient Solution}
 \label{sec:poets}
 
 Instead of starting with an efficient solution and trying to make it open, we 
@@ -47,24 +47,31 @@ implementation of \code{dynamic_cast} takes time proportional to the
 distance between base and derived classes in the inheritance tree.
 What is worse, is that the time to uncover the type in the $i^{th}$ case clause 
 is proportional to $i$, while failure to match will always take the longest. 
-This linear increase can be seen in the Figure~\ref{fig:DCastVis1}, where 
-the above cascading-if was applied to a flat hierarchy encoding an algebraic 
-data type with 100 variants. The same type-switching functionality implemented 
-with the visitor design pattern took only 28 cycles regardless of the 
-case.\footnote{Each case $i$ was timed multiple times, thus turning the experiment 
-into a repetitive benchmark described in \textsection\ref{sec:eval}. In a more
-realistic setting, represented by random and sequential benchmarks, the cost of 
-double dispatch was varying between 52 and 55 cycles.}
-This is more than 3 times faster than the 93 cycles it took to uncover even the 
-first case with \code{dynamic_cast}, while it took 22760 cycles to uncover the 
-last.
+%This linear increase can be seen in the Figure~\ref{fig:DCastVis1}, where 
+%the above cascading-if was applied to a flat hierarchy encoding an algebraic 
+%data type with 100 variants. The same type-switching functionality implemented 
+%with the visitor design pattern took only 28 cycles regardless of the 
+%case.\footnote{Each case $i$ was timed multiple times, thus turning the experiment 
+%into a repetitive benchmark described in \textsection\ref{sec:eval}. In a more
+%realistic setting, represented by random and sequential benchmarks, the cost of 
+%double dispatch was varying between 52 and 55 cycles.}
+%This is more than 3 times faster than the 93 cycles it took to uncover even the 
+%first case with \code{dynamic_cast}, while it took 22760 cycles to uncover the 
+%last.
+In a test involving a flat hierarchy of 100 variants it took 93 cycles to 
+discover the first type and 22760 to discover the last (with linear combination 
+of those times to discover the types in between). A visitor design pattern could 
+uncover any type in about 55 cycles, regardless of its position among the case 
+clauses, while a switch based on sequential tags could achieve the same in less 
+than 20 cycles. The idea is thus to combine the openness of the above structure 
+with the efficiency of a jump table on small sequential values.
 
-\begin{figure}[htbp]
-  \centering
-    \includegraphics[width=0.47\textwidth]{DCast-vs-Visitors1.png}
-  \caption{Type switching based on na\"ive techniques}
-  \label{fig:DCastVis1}
-\end{figure}
+%\begin{figure}[htbp]
+%  \centering
+%    \includegraphics[width=0.47\textwidth]{DCast-vs-Visitors1.png}
+%  \caption{Type switching based on na\"ive techniques}
+%  \label{fig:DCastVis1}
+%\end{figure}
 
 %Seeing several solutions whose time increases with the position of the case 
 %clause in the type switch, one may wonder how many such clauses a typical 
@@ -75,26 +82,26 @@ last.
 %compiler frameworks we had a chance to work with, we expect a similar or larger 
 %number of case clauses in other compiler applications.
 
-When the class hierarchy is not flat, the above cascading-if can be replaced 
-with a decision tree that tests base classes first and thus eliminates many of 
-the derived classes from consideration -- an approach used by Emir to deal with 
-type patterns in Scala~\cite[\textsection 4.2]{EmirThesis}. The intent is to 
-replace a sequence of independent dynamic casts between classes that are far 
-from each other in the hierarchy with nested dynamic casts between classes that 
-are close to each other. Another advantage is the possibility to fail early. 
-As can be seen from Figure~\ref{fig:DCastVis1} under ``Decision-Tree + 
-dynamic\_cast'', when applicable, the optimization can be very useful. The class
-hierarchy for this timing experiment formed a perfect binary tree with 
-classes number 2*N and 2*N+1 derived from a class with number N. The hierarchy 
-also explains the repetitive pattern of timings.
-
-Several authors had noted the relationship between exception handling and type 
-switching before~\cite{Glew99,ML2000}. Not surprisingly, the exception handling 
-mechanism of C++ can be abused to implement the first-fit semantics of a type 
-switch statement. The idea is to harness the fact that catch-handlers in C++ 
-essentially use first-fit semantics to decide which one is going to handle a 
-given exception. Unfortunately the approach is even slower than the use of 
-\code{dynamic_cast} and we only list it here for comparison.
+%When the class hierarchy is not flat, the above cascading-if can be replaced 
+%with a decision tree that tests base classes first and thus eliminates many of 
+%the derived classes from consideration -- an approach used by Emir to deal with 
+%type patterns in Scala~\cite[\textsection 4.2]{EmirThesis}. The intent is to 
+%replace a sequence of independent dynamic casts between classes that are far 
+%from each other in the hierarchy with nested dynamic casts between classes that 
+%are close to each other. Another advantage is the possibility to fail early. 
+%As can be seen from Figure~\ref{fig:DCastVis1} under ``Decision-Tree + 
+%dynamic\_cast'', when applicable, the optimization can be very useful. The class
+%hierarchy for this timing experiment formed a perfect binary tree with 
+%classes number 2*N and 2*N+1 derived from a class with number N. The hierarchy 
+%also explains the repetitive pattern of timings.
+%
+%Several authors had noted the relationship between exception handling and type 
+%switching before~\cite{Glew99,ML2000}. Not surprisingly, the exception handling 
+%mechanism of C++ can be abused to implement the first-fit semantics of a type 
+%switch statement. The idea is to harness the fact that catch-handlers in C++ 
+%essentially use first-fit semantics to decide which one is going to handle a 
+%given exception. Unfortunately the approach is even slower than the use of 
+%\code{dynamic_cast} and we only list it here for comparison.
 
 \subsection{Memoization Device}
 \label{sec:memdev}
@@ -131,9 +138,9 @@ that in standard C++:
 
 \begin{lstlisting}
 typedef decltype(x) T;
-static std::unordered_map<T,int> jump_targets;
+static std::unordered_map<T,size_t> jump_targets;
 
-switch (int& jump_to = jump_targets[x]) {
+switch (size_t& jump_to = jump_targets[x]) {
 default: // entered when we have not seen x yet
     if (P1(x)) { jump_to = 1; case 1: s1; } else 
     if (P2(x)) { jump_to = 2; case 2: s2; } else
@@ -148,7 +155,7 @@ case @$n+1$@: // none of the predicates is true on x
 The static \code{jump_targets} hash table will be allocated upon first entry 
 to the function. The map is initially empty and according to its logic, 
 request for a key $x$ not yet in the map will allocate a 
-new entry with its associated data default initialized (to 0 for int). Since 
+new entry with its associated data default initialized (to 0 for \code{size_t}). Since 
 there is no case label 0 in the switch, the default case will be taken, which, in 
 turn, will initiate sequential execution of the interleaved cascading-if 
 statement. Assignments to \code{jump_to} effectively establish association 
@@ -197,7 +204,7 @@ predicate that implies all other predicates true on $x$) that evaluates to true
 or will skip the entire statement if none of the predicates is true on $x$.
 
 \begin{lstlisting}
-switch (int& jump_to = jump_targets[x]) {
+switch (size_t& jump_to = jump_targets[x]) {
 default:
     if (P1(x)) {
         if (P2(x)) {
