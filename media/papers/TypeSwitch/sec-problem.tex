@@ -23,17 +23,19 @@ as given by the static semantics, i.e. the typing rule of expressions.
 %to case analysis of hierarchical and extensible datatype values.
 In general, \emph{type switch} or \emph{typecase} is a multiway branch statement 
 that distinguishes values based on their type. In a multi-paradigm programming 
-language like C++ that supports in various forms parametric, ad-hoc and 
-subtyping polymorphism, such a broad definition subsumes numerous different type 
-casing constructs studied in the literature~\cite{Intensional95,Glew99,OpenShutTypecase05}. 
-In this work we only look at type casing scenarios based on dynamic polymorphism 
-of C++ (nominative subtyping polymorphism based on inheritance), similar to 
-those studied by Glew~\cite{Glew99}. It is possible to generalize type casing 
-(the notion, not our implementation) to static polymorphism of C++ (ad-hoc and 
-parametric polymorphism enabled by overloading and templates) along the line of 
-work introduced by Harper and Morrisett~\cite{Intensional95} and studied in the
-context of closed and extensible solutions by Vytiniotis et 
-al~\cite{OpenShutTypecase05}, but we do not address such a generalization here. 
+language like C++ that supports parametric, ad-hoc, and 
+subtyping polymorphism, such a broad definition subsumes numerous different
+type switch constructs studied in the literature~\cite{Intensional95,Glew99,OpenShutTypecase05}. 
+In this work we only look at type switch scenarios based on dynamic polymorphism 
+of C++, similar to 
+those studied by Glew~\cite{Glew99}. 
+% It is possible to generalize type switch
+% (the notion, not our implementation) to static polymorphism of C++ (ad-hoc and 
+% parametric polymorphism enabled by overloading and templates) along the line of 
+% work introduced by Harper and Morrisett~\cite{Intensional95} and studied in the
+% context of closed and extensible solutions by Vytiniotis et 
+% al~\cite{OpenShutTypecase05}, but we do not address such a generalization here.
+ 
 We use the term \emph{type switch} instead of a broader \emph{typecase} to 
 stress the run-time nature of the type analysis similar to how regular 
 \code{switch}-statement of C++ performs case analysis of values at run time.
