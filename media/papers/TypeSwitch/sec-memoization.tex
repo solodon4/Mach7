@@ -262,12 +262,12 @@ the case when dynamic linking is involved, is not a problem as we would
 effectively split a single equivalence class into multiple ones. 
 
 This could have been a solution if we were only interested in class membership. 
-More often than not, however, we will be interesting in obtaining a reference to 
+More often than not, however, we will be interested in obtaining a reference to 
 the target type of the subject and we saw in \textsection\ref{sec:specifics} 
 that the cast between the source and target subobjects additionally depends on 
 the position of the source subobject in the most-derived type's subobject graph. 
 Ideally we would like to have different equivalence classes per different 
-subobjects, but there seem to be no easy way of identifying them given just an 
+subobjects, but there seems to be no easy way of identifying them given just an 
 object descriptor.
 
 \subsection{Virtual Table Pointers}

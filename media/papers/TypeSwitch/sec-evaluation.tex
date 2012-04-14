@@ -215,8 +215,8 @@ for best-fit semantics. Their complexity guarantees also differ: open type
 switch is constant on average, but slow on the first call with given subobject. 
 Tag switch is logarithmic in the size of the class hierarchy 
 (assuming a balanced hierarchy), including the first call. This last point can 
-very well be seen in Figure~\ref{relperf}, where the performance of a closed 
-degrades significantly in the presence of forwarding, while the performance of 
+very well be seen in Figure~\ref{relperf}, where the performance of a closed solution
+degrades significantly in the presence of forwarding, while the performance of an
 open solution improves.
 
 \subsection{Comparison with OCaml and Haskell}

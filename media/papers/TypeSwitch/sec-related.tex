@@ -2,10 +2,10 @@
 \label{sec:rw}
 
 \emph{Extensible Visitors with Default Cases}~\cite[\textsection 
-4.2]{Zenger:2001} attempt to solve the extensibility problem of visitors; 
+4.2]{Zenger:2001} attempts to solve the extensibility problem of visitors; 
 however, the solution has problems of its own. The visitation interface 
 hierarchy can easily be grown linearly, but independent extensions by different  
-authorities require developer's intervention. On top of the double dispatch the 
+authorities require a developer's intervention. On top of the double dispatch the 
 solution will incur two additional virtual calls and a dynamic cast for each 
 level of visitor extension. The solution is simpler with virtual inheritance, 
 which adds even more indirections.
@@ -15,11 +15,11 @@ and open functions~\cite{LohHinze2006}. The solution allows top-level data types
 and functions to be marked as open with concrete variants and overloads defined 
 anywhere in the program. The semantics of open extension is given by 
 transformation into a single module, which assumes a whole-program view and thus 
-is not an open solution unfortunately. Besides, open data types are extensible but not 
+is not an open solution. Besides, open data types are extensible but not 
 hierarchical, which avoids the problems discussed here.
 
 Polymorphic variants in OCaml~\cite{garrigue-98} allow the addition of new 
-variants as well as define subtyping on them. The subtyping, however, is not 
+variants and also define subtyping on them. The subtyping, however, is not 
 defined between the variants, but between combinations of them. 
 This maintains disjointness between values from different variants and makes an 
 important distinction between \emph{extensible sum types} like polymorphic 
@@ -31,14 +31,14 @@ variants.
 Eiffel to bring a common pattern matching and term rewriting syntax into the 
 languages~\cite{Moreau:2003}. In comparison to our approach, Tom has much bigger 
 goals: the combination of pattern matching, term rewriting and strategies turns 
-Tom into a fully fledged tree-transformation language. Its type patterns and \%match 
-statement can be used as a type switch; however, Tom's handling of type 
+Tom into a fully fledged tree-transformation language. Its type patterns and \code{\%match}
+statement can be used as a type switch; however, the Tom language's handling of type 
 switching is based on decision trees and an \code{instanceof}-like predicate, 
 which are inefficient.
 
 Pattern matching in Scala~\cite{Scala2nd} also supports type switching through 
 type patterns. The language supports extensible and hierarchical data types, but
 their handling in a type switching constructs varies. Sealed classes are handled 
-with an efficient switch over all tags, while extensible classes are similarly 
-approached with a combination of an \code{InstanceOf} operator and a decision 
+with an efficient switch over all tags, while extensible classes are  
+handled with a combination of an \code{InstanceOf} operator and a decision 
 tree~\cite{EmirThesis}.
