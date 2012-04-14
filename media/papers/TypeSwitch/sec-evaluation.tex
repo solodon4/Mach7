@@ -51,7 +51,7 @@ The \emph{repetitive} benchmark (REP) performs calls on different objects of the
 same most-derived type. This scenario happens in object-oriented setting when a 
 group of polymorphic objects is created and passed around (e.g. numerous 
 particles of a given kind in a particle simulation system). We include it 
-because double dispatch becomes twice faster (27 vs. 53 cycles) in this 
+because double dispatch becomes twice faster (20 vs. 53 cycles) in this 
 scenario compared to others due to cache and call target prediction mechanisms. 
 
 The \emph{sequential} benchmark (SEQ) effectively uses an object of each derived type only 
@@ -74,7 +74,9 @@ of base classes in the case clauses.
 The class hierarchy for non-forwarding test was a flat hierarchy with 100 
 derived classes, encoding an algebraic data type. The class hierarchy for 
 forwarding tests had two levels of inheritance with 5 intermediate base classes 
-and 95 derived ones. While we do not advocate here for the closed solution of 
+and 95 derived ones. 
+
+While we do not advocate here for the closed solution of 
 \textsection\ref{sec:cotc}, we included it in our tests to show the performance 
 gains a closed solution might have over the open one. Our library supports both 
 solutions with the same surface syntax, which is why we believe many users will 
@@ -110,8 +112,8 @@ others. We use the branch hinting in GCC to guide the compiler, but,
 unfortunately, Visual C++ does not have similar facilities. Microsoft suggests 
 to use \emph{Profile-Guided Optimization} to achieve the same, which is why the 
 results for Visual C++ reported here have been obtained with profile-guided 
-optimizations enabled. The results without profile-guided optimizations can be 
-found in the accompanying technical report~\cite[\textsection 10]{TR}.
+optimizations enabled. %The results without profile-guided optimizations can be 
+%found in the accompanying technical report~\cite[\textsection 10]{TR}.
 %The results of optimizing code created with Visual C++ by using profile 
 %guided optimizations as currently Visual C++ does not have means for branch 
 %hinting, which are supported by G++ and proven to be very effective in few 
@@ -119,11 +121,29 @@ found in the accompanying technical report~\cite[\textsection 10]{TR}.
 %out experimentally what we would have otherwise hinted, even though this 
 %includes other optimizations as well.
 
-We compare the performance of our solution relative to the performance of visitors in 
-Figure~\ref{relperf}. The values are given as percentages of performance increase 
-against the slower technique. Numbers in regular font represent cases where type 
-switching was faster, while numbers in bold indicate cases where visitors 
-were faster.
+To give an idea about absolute timings of each of the benchmarks, 
+Figure~\ref{fig:VisitorsComparison} presents a sample of performance numbers 
+achieved by visitor design pattern and our open type switch on Windows Laptop 
+under GCC 4.6.1. The actual bars show the timings without forwarding, while the 
+black lines above and below each bar show where the corresponding bar would be 
+in the presence of forwarding. It is easy to see that visitors generally become 
+slower in the presence of forwarding due to extra call, while type switch 
+becomes faster due to smaller jump table. As discussed, both timings are much 
+smaller for repetitive benchmark due to hardware cache.
+
+\begin{figure}[htbp]
+  \centering
+    \includegraphics[width=0.47\textwidth]{VisitorsCompare.png}
+  \caption{Sample timings for different benchmarks}
+  \label{fig:VisitorsComparison}
+\end{figure}
+
+To give a broader view of how both techniques compare under different 
+compiler/platform configurations, we also compare the performance of our 
+solution relative to the performance of visitors in Figure~\ref{relperf}. The 
+values are given as percentages of performance increase against the slower 
+technique. Numbers in regular font represent cases where type switching was 
+faster, while numbers in bold indicate cases where visitors were faster.
 
 \begin{figure}[htbp]
 \begin{tabular}{@{}c@{ }@{}l@{ }||@{}r@{}|@{}r@{}|@{}r@{}|@{}r@{}||@{}r@{}|@{}r@{}|@{}r@{}|@{}r@{}}
@@ -252,7 +272,7 @@ million decompositions within our sequential benchmark.
 \subsection{Dealing with real-world class hierarchies}
 \label{sec:hierarchies}
 
-We used a class hierarchy benchmark used before to study efficiency of type 
+We used a class hierarchy benchmark used previously in the literature to study efficiency of type 
 inclusion testing and dispatching techniques~\cite{Vitek97,Krall97nearoptimal,PQEncoding,Ducournau08}. 
 We use the names of the benchmarks from Vitek et al~\cite[Table 2]{Vitek97}, 
 since the set of benchmarks we were working with was closest to that work.
@@ -312,8 +332,7 @@ hierarchies in each benchmark, after their adoption to C++.
 \end{figure}
 
 The number of paths represents the number of distinct inheritance paths from the 
-classes in the hierarchy to the roots of the hiearchy. As we showed in 
-\textsection\ref{} this number reflects the number of possible subobjects in the 
+classes in the hierarchy to the roots of the hiearchy. This number reflects the number of possible subobjects in the 
 hierarchy. The roots listed in the table are classes with no base classes. We 
 will subsequently use the term \emph{non-leaf} to refer to the possible root of 
 a subhierarchy. Leafs are classes with no children, while \emph{both} refers to 
@@ -354,14 +373,17 @@ then executed with every possible subobject $D_i\leftY\sigma_j\rightY A$ it can
 possibly be applied to, given the static type $A$ of the subject. It was 
 executed multiple but the same number of times on each subobject to ensure 
 uniformity on one side (since we do not have the data about the actual 
-probabilities of each subobject the benchmark hierarchies) as well as let the 
+probabilities of each subobject in the benchmark hierarchies) as well as let the 
 type switch infer the optimal parameters $k$ and $l$ of its cache indexing 
-function $H_{kl}$. We then plotted the result of each of the 4396 experiments as 
-a point in chart of Figure~\ref{fig:prob} relating the optimal probability of 
-conflict $p$ achieved by the type switch and the number of subobjects $n$ that 
-came through that type switch. To account for the fact that multiple experiments
-could have resulted in the same pair $(n,p)$, we use a shadow of each point to 
-reflect somewhat the number of experiments yielding it.
+function $H_{kl}$. We then plotted a point in chart of Figure~\ref{fig:prob} 
+relating 2 characteristics of each of the 4396 type switches tested: the optimal 
+computed probability of conflict $p$ achieved by the type switch and the number 
+of subobjects $n$ that came through that type switch. The actual frequencies of 
+collisions were withing one tenth of a percentage point of the computed 
+probabilities, which is why we did not use them in the chart. To account for the 
+fact that multiple experiments could have resulted in the same pair $(n,p)$, we 
+use a shadow of each point to reflect somewhat the number of experiments 
+yielding it.
 
 \begin{figure}[htbp]
   \centering
@@ -375,24 +397,28 @@ that under uniform distribution of $n$ subobjects, only a finite number of
 different values representing the probability of conflict $p$ are possible. In 
 particular, all such values $p=\frac{m}{n}$, where $0 \le m < n$. The number $m$ 
 reflects the number of subobjects an optimal cache indexing function $H_{kl}$ 
-could not allocate their own entry for. We showed in \textsection\ref{sec:moc} 
+could not allocate their own entry for and we showed in \textsection\ref{sec:moc} 
 that the probability of conflict under uniform distribution of $n$ subobjects 
-depends only on $m$. The points on the same curve (which becomes a line on a
-log-log plot) all share the same number $m$ of ``extra'' vtbl-pointers that optimal 
-cache indexing function could not allocate individual entries for.
+depends only on $m$. The curves thus correspond to graphs of functions 
+$y=\frac{m}{x}$ for different values of $m$. The points on the same curve (which 
+becomes a line on a log-log plot) all share the same number $m$ of ``extra'' 
+vtbl-pointers that optimal cache indexing function could not allocate individual 
+entries for.
 
 While it is hard to see from the chart, 87.5\% of all the points on the chart 
 lay on the X-axis, which means that the optimal hash function for the 
-corresponding type switches had no conflicts at all. In other words, only in 12.5\% 
+corresponding type switches had no conflicts at all ($m=0$). In other words, only in 12.5\% 
 of cases the optimal $H_{kl}^V$ for the set of vtbl-pointers $V$ coming through 
 a given type switch had non-zero probability of conflict. This is why the 
 average probability of conflict for the entire set is only 1.17. Experiments 
 laying on the first curve amount to 5.58\% of subhierarchies and represent the 
-cases in which optimal $H_{kl}^V$ had only one ``extra'' vtbl-pointer. 2.63\% 
-experiments had $H_{kl}^V$ with 2 conflicts, 0.87\% with 3 etc. These numbers do 
-not indicate that the hash function we used is better than other hash functions, 
-they do indicate instead that the set of vtbl-pointers present in many 
-applications is particularly suitable for such a hash function.
+cases in which optimal $H_{kl}^V$ had only one ``extra'' vtbl-pointer ($m=1$). 2.63\% 
+experiments had $H_{kl}^V$ with 2 conflicts, 0.87\% with 3 etc. 
+
+It is important to understand that these numbers do not indicate that the hash 
+function we used is better than other hash functions, they do indicate instead 
+that the set of vtbl-pointers present in many applications is particularly 
+suitable for such a hash function.
 
 \subsection{Refactoring an existing visitors based application}
 \label{sec:qualcmp}
