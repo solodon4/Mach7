@@ -349,6 +349,7 @@ subhierarchy of 3 classes, 10\% of 4, 7\% of 5 and so forth.
 Turning this into a cumulative distribution, $a\%$ of subhierarchies had more 
 than $b$ classes in them, where:
 
+\noindent
 \begin{tabular}
 {l||@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }}
 %{l||c|c|c|c|c|c|c|c|c}
@@ -409,16 +410,40 @@ While it is hard to see from the chart, 87.5\% of all the points on the chart
 lay on the X-axis, which means that the optimal hash function for the 
 corresponding type switches had no conflicts at all ($m=0$). In other words, only in 12.5\% 
 of cases the optimal $H_{kl}^V$ for the set of vtbl-pointers $V$ coming through 
-a given type switch had non-zero probability of conflict. This is why the 
-average probability of conflict for the entire set is only 1.17. Experiments 
-laying on the first curve amount to 5.58\% of subhierarchies and represent the 
-cases in which optimal $H_{kl}^V$ had only one ``extra'' vtbl-pointer ($m=1$). 2.63\% 
-experiments had $H_{kl}^V$ with 2 conflicts, 0.87\% with 3 etc. 
+a given type switch had non-zero probability of conflict. Experiments laying on 
+the first curve amount to 5.58\% of subhierarchies and represent the cases in 
+which optimal $H_{kl}^V$ had only one ``extra'' vtbl-pointer ($m=1$). 2.63\% of 
+experiments had $H_{kl}^V$ with 2 conflicts, 0.87\% with 3 and so forth as shown 
+in Figure~\ref{fig:size}($K+1$).
 
-It is important to understand that these numbers do not indicate that the hash 
-function we used is better than other hash functions, they do indicate instead 
-that the set of vtbl-pointers present in many applications is particularly 
-suitable for such a hash function.
+\begin{figure}[htbp]
+\begin{tabular}
+{@{}c@{}||@{}c@{}|@{}c@{}|@{}c@{}|@{}c@{}|@{}c@{}|@{}c@{}|@{}c@{}|@{}c@{}}
+\hline % -------------------------------------------------------------------------
+  $m$ &       0 &       1 &      2 &      3 &      4 &        5 &      6 & \textgreater 6 \\
+\hline % -------------------------------------------------------------------------
+  $K$ & 72.55\% & 12.27\% & 4.87\% & 2.61\% & 1.42\% & 0.94\% & 0.80\% & 4.55\% \\
+\hline % -------------------------------------------------------------------------
+$K+1$ & 87.50\% &  5.58\% & 2.63\% & 0.87\% & 0.69\% & 0.69\% & 0.30\% & 1.76\% 
+\end{tabular}
+\caption{Number of conflicts under different size constraints}
+\label{fig:size}
+\end{figure}
+
+\noindent
+In cases when the user is willing to trade performance for better space 
+efficiency she may restrict $k$ to $[K,K]$ instead of $[K,K+1]$ as discussed in 
+\textsection\ref{sec:moc}. We redid all the 4396 experiments under this 
+restriction and obtained a similar histogram shown in Figure~\ref{fig:size}($K$).
+The average probability of conflict over the entire set increased from 0.011 to 
+0.049, while the maximum probability of conflict increased from 0.333 to 0.375. 
+The average load factor of the cache increased from 75.45\% to 82.47\%. 
+
+It is important to understand that the high ratio of cases in which the hash 
+function could deliver perfect indexing does not indicate that the hash function 
+we used is better than other hash functions. It does indicate instead that the 
+values representing vtbl-pointers in a given application are not very random and 
+are particularly suitable for such a hash function.
 
 \subsection{Refactoring an existing visitors based application}
 \label{sec:qualcmp}
@@ -451,8 +476,8 @@ where open type switch wins. On these inputs it is faster by 0.18\% -- 32.99\%
 with an average speed-up of 5.53\%.
 
 Figure~\ref{fig:mem} shows memory usage as well as cache hits and misses for 
-the run of our pretty printer on 'queue' standard library header (it has the 
-largest LOC after preprocessing in our test set).
+the run of our pretty printer on \code{<queue>} standard library 
+header (it has the largest LOC after preprocessing in our test set).
 
 \begin{figure}[htbp]
   \centering
@@ -462,35 +487,42 @@ largest LOC after preprocessing in our test set).
 \end{figure}
 
 The bars represent the total amount of memory in bytes each of the 8 match 
-statements (marked A-H) used. The info $[N/M]$ next to the letter indicates the 
-actual number of different subobjects (i.e. vtbl-pointers) $N$ that came through 
-that match statement, and the number of case clauses $M$ the match statement had 
-(the library uses it as an estimate of $N$). $N$ is also the number of cases the 
+statements (marked A-H) used. The info $[n/c]$ next to the letter indicates the 
+actual number of different subobjects (i.e. vtbl-pointers) $n$ that came through 
+that match statement, and the number of case clauses $c$ the match statement had 
+(the library uses it as an estimate of $n$). $n$ is also the number of cases the 
 corresponding match statement had to be executed sequentially (instead of a 
 direct jump).
 
 The blue part of each bar corresponds to the memory used by cache, while the 
-maroon -- to the memory used by the hash table. Transparent parts of both colors 
-indicate the allocated extra memory that is not holding any data.  The black box 
-within the blue part also indicates the amount of entries in the cache that are 
-allocated for only one vtbl pointer and thus never result in a cache miss. The 
-non-transparent part without black box represents the percentage of 
-vtbl-pointers that have to share their cache entry with at least one other 
-vtbl-pointer and thus may result in collisions during access. 
+maroon -- to the memory used by the hash table. The ratio of the non-opaque 
+parts of both colors to the entire part of that color indicate the load factors 
+of cache and hash-table respectively. The black box additionally indicates the 
+amount of entries in the cache that are allocated for only one vtbl-pointer and 
+thus never result in a cache miss. %The non-transparent part without black box 
+%represents the percentage of vtbl-pointers that have to share their cache entry 
+%with at least one other vtbl-pointer and thus may result in collisions during 
+%access.
 
 The actual number of hits and misses for each of the match statements is 
 indicated on top of the corresponding column. The sum of them is the total 
-amount of calls made. Hits indicate situation when we found entry in cache and 
-didn't have to make roundtrip to the hash-table to get it. Misses indicate the 
-number of cases during actual run we had to pick the entry from the hash table 
-and update the cache with it. The number of misses is always larger then or 
-equal to $N$.
+amount of calls made. %Hits indicate situation when we found entry in cache and 
+%didn't have to make roundtrip to the hash-table to get it. Misses indicate the 
+%number of cases during actual run we had to pick the entry from the hash table 
+%and update the cache with it. 
+The number of misses is always larger then or equal to $n$ since we need to 
+execute the switch sequentially on each of them once in order to memoize the 
+outcome.
 
 The library always preallocates memory for at least 8 subobjects to avoid 
 unnecessery recomputations of optimal parameters $k$ and $l$ -- this is the case 
 with the last 3 match statements. In all other cases it allocate the amount of 
-memory proportional to the smallest power of 2 that is greater of equal than  
-$\max(M,N)$. The table does not have to be hash table and can be implemented with 
+memory proportional to $2^{K+1}$ where $2^{K-1} < \max(n,c) \le 2^{K}$. We make 
+$c$ a parameter, because in a library setting $n$ is not known up front and 
+estimating it with $c$ allows us to avoid unnecessary recomputations of $l$ and 
+$k$ even further. 
+
+The table does not have to be hash table and can be implemented with 
 any other container i.e. sorted vector, map etc. that let us find quickly by a given 
 vtbl-pointer the data associated with it. If we implement it with sorted vector, 
 the red part will shrink to only the non-transparent part.
