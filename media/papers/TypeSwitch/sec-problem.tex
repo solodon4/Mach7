@@ -431,10 +431,11 @@ There are two main approaches to implementing case analysis on extensible
 hierarchical data types, discussed in the literature.
 
 The first approach is based on either explicit or implicit sealing of the class 
-hierarchy, on which type switching can be performed. In Scala, for example, the 
-user can forbid future extensions from a given class hierarchy through the use 
-of a \code{sealed} keyword~\cite[\textsection 4.3.2]{EmirThesis}. The compiler 
-then uses the above tag allocation over all variants to implement type analysis.
+hierarchy, on which type switching can be performed. C++11, for example, allows 
+the user to prohibit further derivation by specifying a class to be ``final''~\cite{C++11}, 
+similar to Scala and Java's facilities. The compiler then may use the above tag 
+allocation over all variants to implement type analysis~\cite[\textsection 
+4.3.2]{EmirThesis}. 
 In some cases the sealing may happen implicitly. For example, languages that 
 allow names with internal and external linkage may employ the fact that classes 
 with internal linkage will not be externally accessible and thus effectively 
@@ -460,20 +461,26 @@ trees~\cite{Cardelli84} to avoid duplicate checks. The efficiency of the
 approach is then entirely focused on the efficiency of type inclusion 
 tests~\cite{Schubert83,Wirth88,Cohen91,Caseau93,Vortex96,Krall97nearoptimal,Vitek97,PQEncoding,FastDynCast,Ducournau08}.
 
-Type inclusion tests for single inheritance were initially implemented by 
-traversing a linked list of types, as proposed by Wirth~\cite{Wirth88}. Such 
-encoding requires little space, but runs in time proportional to the distance 
-between the two types in the class hierarchy. A trivial constant-time type 
-inclusion test can be achieved with a \emph{binary matrix}, encoding the 
-subtyping relation on the class hierarchy~\cite{Vortex96}. While efficient in 
-time, it has quadratic space requirements, which makes it expensive for use on 
-large class hierarchies. In response to Wirth' original publication, Cohen 
+%"A couple of years later, Nikolaus With published an approach based on type 
+%inclusion. However, that approach does not work well in the presence of multiple 
+%inheritance and separates the single logical operation of gaining type-safe 
+%access to an object into two, implying the possibility of a programmer error." 
+
+C++ handled the general dynamic casting since 1987 when the multiple inheritance 
+was added to the language~\cite{Str87}. Wirth later presented a technique that 
+can be used to implement subtype tests by traversing a linked list of 
+types~\cite{Wirth88}. His encoding required little space, but ran in time 
+proportional to the distance between the two types in the class hierarchy. 
+A trivial constant-time type inclusion test can be implemented with a 
+\emph{binary matrix}, encoding the subtyping relation on the class 
+hierarchy~\cite{Vortex96}. While efficient in time, it has quadratic space 
+requirements, which makes it expensive for use on large class hierarchies. Cohen 
 proposed the first space-efficient constant-time algorithm, which, howver, could 
 only deal with single inheritance~\cite{Cohen91}. \emph{Hierarchical encoding} 
 is another constant-time test that maps subtype queries into subset queries on 
 bit-vectors~\cite{Caseau93,Krall97nearoptimal}. The approach can handle multiple
 inheritance, but the space and time required for a subtype test in this encoding 
-increases with the size of the class hierarchy, also Caseau's approach is 
+increases with the size of the class hierarchy, also Caseau's approach~\cite{Caseau93} is 
 limited to class hierarchies that are lattices. Schubert's \emph{relative 
 numbering}~\cite{Schubert83} encodes each type with an interval $[l,r]$, 
 effectivelly making type inclusion tests isomorphic to a simple range checking. 
@@ -493,9 +500,9 @@ open solution a class has known amount of base classes and thus perfect hashes
 can be used to map them to this-pointer offsets typically used to implement 
 subobject casts\cite{Ducournau08}. Unfortunately the approach addresses only 
 virtual multiple inheritance and similarly to other approaches relies on 
-load-time computations that may be costly. Detailed analysis and explanation of 
-existing constant-time type inclusion tests can be found in \cite{Vitek97} and 
-\cite{PQEncoding}.
+load-time computations that may be costly. Excelent introduction and detailed 
+analysis of existing constant-time type inclusion tests can be found in 
+\cite{Vitek97} and \cite{PQEncoding}.
 
 With the exception of work by Gibbs and Stroustrup~\cite{FastDynCast}, all the 
 approaches to efficient type-inclusion testing we found in the literature were 
@@ -523,15 +530,23 @@ set of tags.
 
 \begin{figure}[htbp]
   \centering
-    \includegraphics[width=0.47\textwidth]{DCast-vs-Visitors2.png}
-  \caption{Type switch based on const-time type inclusion tests}
+    \includegraphics[width=0.47\textwidth]{DCast-vs-Visitors.pdf}
+  \caption{Type switch based on const-time subtype tests}
   \label{fig:DCastVis2}
 \end{figure}
 
-The chart in Figure~\ref{fig:DCastVis2} shows the time (Y-axis) each technique 
-took to recognize an object of the most-derived type $i$ (X-axis). It is easy to 
-see that the logarithmic cost associated with the decision tree very quickly 
-surpasses the constant overhead of double dispatch present in the visitor design
-pattern or the jump-table implementation of the switch on all tags. The edgy 
-shape of timing results reflects the shape of the binary tree class hierarchy 
-used for this experiment.
+The chart in Figure~\ref{fig:DCastVis2} shows the number of cycles (Y-axis) each 
+technique took to recognize an object of the most-derived type $i$ (X-axis). It 
+is easy to see that the logarithmic cost associated with the decision tree very 
+quickly surpasses the constant overhead of double dispatch (20 cycles) present 
+in the visitor design pattern or the jump-table implementation of the switch on 
+all tags (11 cycles). The edgy shape of timing results reflects the shape of the
+binary tree class hierarchy used for this experiment. Regardless of their 
+limitations, Binary matrix and Cohen's algorithm are known to be some of the 
+fastest known type inclusion tests for single inheritance~\cite{Vitek97}. We 
+expect the cost of techniques capable of handling multiple inheritance be even 
+higher, especially those addressing casting between subobjects (e.g. fast 
+dynamic cast as seen in the picture). 
+%We show in \textsection{sec:viscmp} that 
+%our open solution is capable of delivering an amortized constant-time type 
+%switching wi
