@@ -308,7 +308,6 @@ Under non-virtual inheritance members of the base class are typically layed out
 before the members of derived class resulting in the base class being at the 
 same offset as the derived class itself. In our example, the offset of \code{A} 
 in \code{B} under regular (non-virtual) inheritance of \code{A} is 0.
-
 Under multiple inheritance, different base classes might be at different offsets 
 in the most-derived class, which is why pointers of a given static type may only 
 be pointing to certain subobjects in it. These positions are marked in the 
@@ -330,21 +329,20 @@ classes due to layout independence). CFront, the first C++ compiler, puts the
 vtbl-pointer 
 at the end of an object. The so-called ``common vendor C++ ABI''\cite{C++ABI}, 
 further referred to as \emph{C++ ABI} when not indicated otherwise, requires the 
-vtbl-pointer to be at offset 0 of an object.~\footnote{The following compilers 
+vtbl-pointer to be at offset 0 of an object~\footnote{The following compilers 
 are known to comply with the C++ ABI: GCC (3.x and up); Clang and llvm-g++; 
-Linux versions of Intel and HP compilers, and compilers from ARM.} % Phrase from http://morpher.com/documentation/articles/abi/  
-We do not have access to the unpublished Microsoft ABI, but we have
-experimental evidence that Microsoft's C++ compiler also puts the vtbl-pointer 
-at the start of an object.
+Linux versions of Intel and HP compilers, and compilers from ARM. See 
+http://morpher.com/documentation/articles/abi/ for details.}. We do not have 
+access to the unpublished Microsoft ABI, but we have experimental evidence that 
+Microsoft's C++ compiler also puts the vtbl-pointer at the start of an object.
 
 While the exact offset of the vtbl-pointer within the (sub)object is not important 
-for this discussion, it is important to realize that every (sub)object of a 
+for this discussion, because of layout independence every (sub)object of a 
 polymorphic type \code{S} will have a vtbl-pointer at a predefined offset. 
 Such offset may be different for different static types \code{S}, in which case 
 the compiler will know at which offset in type \code{S} the vtbl-pointer is 
-located, but because of layout independence such an offset is going to be the 
-same within any subobject of effective type \code{S}. For a library 
-implementation we assume presence of a function 
+located, but it will be the same within any subobject of an effective type 
+\code{S}. For a library implementation we assume presence of a function 
 \code{template <typename S> intptr_t vtbl(const S* s);} 
 that returns the address of the virtual table corresponding to the subobject 
 pointed to by \code{s}. Such a function can be trivially implemented for the 
@@ -357,11 +355,11 @@ template <typename S> std::intptr_t vtbl(const S* s) {
 }
 \end{lstlisting}
 
-Each of the \code{vtbl} fields shown in 
-Figure~\ref{fig:objlayout}(2) will hold a vtbl-pointer referencing a group of 
-virtual methods known in object's static type. Figure~\ref{fig:vtbl}(1) shows a 
-typical layout of virtual function tables together with objects it points to for 
-classes \code{B} and \code{D}.
+\noindent
+Each of the \code{vtbl} fields shown in Figure~\ref{fig:objlayout} holds a 
+vtbl-pointer referencing a group of virtual methods known in object's static 
+type. Figure~\ref{fig:vtbl}(1) shows a typical layout of virtual function tables 
+together with objects it points to for classes \code{B} and \code{D}.
 
 \begin{figure}[htbp]
   \centering
@@ -378,21 +376,21 @@ adjustments required to properly dispatch the call were stored in the vtable
 along with function pointers. Today most of the implementations prefer to use 
 \emph{thunks} or \emph{trampolines} -- additional entry points to a function, 
 that adjust this-pointer before transferring the control to the function, -- 
-which was shown to be more efficient~\cite{}. Thunks in general may only be 
+which was shown to be more efficient~\cite{Driesen96}. Thunks in general may only be 
 needed when its virtual function gets overriden. In such case the overriden 
 function may be called via pointer to base class or a pointer to derived class, 
 which may not be at the same offset in the actual object.
 
 The intuition behind our proposal is to use the values of vtbl-pointers stored 
 inside the object to uniquely identify the subobject in it. There are several 
-problems with the approach however. First of all the same vtbl-pointer is 
-usually shared by multiple types, for example, the first vtbl-pointer in 
-Figure~\ref{fig:objlayout}(2) will be shared by objects of static type 
-\code{Z*}, \code{A*}, \code{B*} and \code{D*}. This is not a problem for our 
-purpose, because the subobjects of these types will be at the same offset in the 
-most-derived object. Secondly, and more importantly, however, there are legitimate 
-optimizations that let the compiler share the same vtable among multiple 
-subobjects of often unrelated types.
+problems with the approach, however. First of all, the same vtbl-pointer is 
+usually shared by multiple subobjects when one of them contains the other. For 
+example, the first vtbl-pointer in Figure~\ref{fig:objlayout}(1) will be shared 
+by objects of static type \code{Z*}, \code{A*}, \code{B*} and \code{D*}. This is 
+not a problem for our purpose, because the subobjects of these types will be at 
+the same offset in the most-derived object. Secondly, and more importantly, 
+however, there are legitimate optimizations that let the compiler share the same 
+vtable among multiple subobjects of often unrelated types.
 
 Generation of the \emph{Run-Time Type Information} (or RTTI for short) can 
 typically be disabled with a compiler switch and the Figure~\ref{fig:vtbl}(2) 
@@ -417,7 +415,7 @@ classes (e.g. when virtual functions are empty).
 
 We now would like to show more formally that in the presence of RTTI, a C++ ABI 
 compliant implementation will always have all the vtbl-pointers different. To do 
-so, we need look closer at the notion of subobject, which has been formalized 
+so, we need a closer look at the notion of subobject, which has been formalized 
 before~\cite{RF95,WNST06,RDL11}. We follow here the presentation of Ramamanandro 
 et al~\cite{RDL11}.
 
@@ -475,13 +473,13 @@ most-derived class \code{D} will have the following $\mathsf{Repeated}$ subobjec
 as well as the following $\mathsf{Shared}$ subobjects: 
 \code{D::A::Z}, 
 \code{D::Z}, 
-\code{D::A}.
+\code{D::A}. See Figure~\ref{fig:inheritance} for illustration.
 
 It is easy to show by structural induction on the above definition, that 
 $C\leftY\sigma\rightY A \implies \sigma=(h,C::l_1) \wedge \sigma=(h,l_2::A::\epsilon)$, 
 which simply means that any path to a subobject of static type $A$ within the 
 most-derived object of type $C$ starts with $C$ and ends with $A$. This 
-objservation shows that $\sigma_\bot = (\mathsf{Shared},\epsilon)$ does not 
+observation shows that $\sigma_\bot = (\mathsf{Shared},\epsilon)$ does not 
 represent a valid subobject. If $\Sigma_P$ is the domain of all subobjects in 
 the program $P$ extended with $\sigma_\bot$, then a \emph{cast} operation can be 
 understood as a function $\delta : \Sigma_P \rightarrow \Sigma_P$. We use 
@@ -495,18 +493,19 @@ condition:
 \end{eqnarray*}
 \noindent
 i.e. the most-derived type of the value does not change during casting, only the way 
-we reference it does. We refer to $A$ as the \emph{source type} and $\sigma_1$ 
-as the \emph{source subobject} of the cast, while to $B$ as the \emph{target 
-type} and to $\sigma_2$ as the \emph{target subobject} of it. The type $C$ is 
-the most-derived type of the value being casted.
-The C++ semantics states more requirement to the implementation of $\delta$: 
-e.g. $\delta(\sigma_\bot) = \sigma_\bot$ etc. but their precise modeling is out 
-of the scope of this discussion. We would only like to point out here that since 
+we reference it does. Following the definitions from 
+\textsection\ref{sec:specifics}, $A$ is the \emph{source type} and $\sigma_1$ is 
+the \emph{source subobject} of the cast, while $B$ is the \emph{target type} and 
+$\sigma_2$ is the \emph{target subobject} of it. The type $C$ is the 
+most-derived type of the value being casted. The C++ semantics states more 
+requirement to the implementation of $\delta$: e.g. 
+$\delta(\sigma_\bot) = \sigma_\bot$ etc. but their precise modeling is out of 
+the scope of this discussion. We would only like to point out here that since 
 the result of the cast does not depend on the actual value and only on the 
 source subobject and the target type, we can memoize the outcome of a cast on 
 one instance in order to apply its results to another.
 
-%Figure~\ref{fig:objlayout}(2)
+%Figure~\ref{fig:objlayout}(1)
 %$Z\leftY(\mathsf{Repeated},      [Z])\rightY Z$,
 %$A\leftY(\mathsf{Repeated},    [A,Z])\rightY Z$,
 %$B\leftY(\mathsf{Repeated},  [B,A,Z])\rightY Z$,
@@ -527,7 +526,7 @@ one instance in order to apply its results to another.
 %$D\leftY(\mathsf{Repeated},    [D,C])\rightY C$,
 %$D\leftY(\mathsf{Repeated},      [D])\rightY D$,
 %
-%Figure~\ref{fig:objlayout}(3)
+%Figure~\ref{fig:objlayout}(2)
 %$Z\leftY(\mathsf{Repeated},      [Z])\rightY Z$,
 %$A\leftY(\mathsf{Repeated},    [A,Z])\rightY Z$,
 %$B\leftY(\mathsf{Shared},    [B,A,Z])\rightY Z$,
@@ -601,7 +600,7 @@ mention a few fields that are important for the reasoning~\cite[\textsection 2.5
       vtbl-pointer that addresses this virtual table. It is always present and 
       is shown as the second field to the left of any vtbl-pointer in 
       Figure~\ref{fig:vtbl}(1). The numeric value shown indicates the actual 
-      offset based on the object layout from Figure~\ref{fig:objlayout}(2).
+      offset based on the object layout from Figure~\ref{fig:objlayout}(1).
 \item \code{vbase(a.vtbl)}: \emph{Virtual Base (vbase) offsets} are used to access 
       the virtual bases of an object. Such an entry is required for each virtual 
       base class. None are shown in our example in Figure~\ref{fig:vtbl}(1) 
@@ -610,7 +609,7 @@ mention a few fields that are important for the reasoning~\cite[\textsection 2.5
 \end{itemize}
 
 \noindent
-We also use the notation $\mathit{offset}(\sigma)$ to refer to the offset of the 
+We also use the notation $\mathit{offset}(\sigma)$ to refer to the offset of a 
 given subobject $\sigma$ within $C$, known by the compiler.
 
 \begin{theorem}
@@ -661,11 +660,11 @@ may have identical vtables inside the executable's and DLL's binaries.
 Note also that we require both static types to be the same. Dropping this 
 requirement and saying that equality of vtbl-pointers also implies equality of 
 the static types is not true in general because a derived class can share the 
-vtbl-pointer with its primary base class. The theorem 
-can be reformulated, however, stating that one static type will necessarily be a 
-subtype of the other. The current formulation is sufficient for our purposes, 
-while reformulation will require more elaborate discussion of the algebra 
-of subobjects~\cite{RDL11}, which we touch only briefly.
+vtbl-pointer with its primary base class. The theorem can be reformulated, 
+however, stating that one subobject will necessarily have to be contained inside 
+the other, but that would require bringing in the formalism for subobject 
+containtment~\cite{WNST06}. The current formulation is sufficient for our 
+purposes.
 
 %\begin{corollary}
 %In an object layout that adheres to the common vendor C++ ABI with enabled RTTI, 
@@ -730,7 +729,7 @@ Since all the objects that will be coming through a particular type switch will
 have the same static type, the theorem guarantees that different vtbl-pointers 
 will correspond to different subobjects. The idea is thus to group them 
 accordingly to the value of their vtbl-pointer and associate both jump target 
-and the required offset with it through memoization device:
+and the required offset through the memoization device:
 
 \begin{lstlisting}
 typedef pair<ptrdiff_t,size_t> type_switch_info;
