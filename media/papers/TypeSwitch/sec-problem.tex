@@ -35,7 +35,6 @@ those studied by Glew~\cite{Glew99}.
 % work introduced by Harper and Morrisett~\cite{Intensional95} and studied in the
 % context of closed and extensible solutions by Vytiniotis et 
 % al~\cite{OpenShutTypecase05}, but we do not address such a generalization here.
- 
 We use the term \emph{type switch} instead of a broader \emph{typecase} to 
 stress the run-time nature of the type analysis similar to how regular 
 \code{switch}-statement of C++ performs case analysis of values at run time.
@@ -60,8 +59,10 @@ switch (subject) { case T1: s1; ... case Tn: sn; }
 There is no need for an explicit \emph{default clause} in our setting because 
 such a clause is semantically equivalent to a case clause guarded by the 
 subject type: \code{case S: s}. The only semantic difference such a choice 
-makes is in the treatment of null-pointers, which, one may argue, should be 
-handled by the default clause. We disagree, because not distinguishing between 
+makes is in the treatment of null-pointers.
+% , which, one may argue, should be 
+% handled by the default clause. We disagree,
+This is because not distinguishing between 
 invalid object and valid object of a known static but unknown dynamic type may 
 lead to some nasty run-time errors.
 
@@ -89,7 +90,7 @@ The statement in general can be given numerous plausible semantics:
 
 \noindent
 The list is not exhaustive and depending on a language, any of these semantics 
-can be a plausible choice. Functional languages, for example, often prefer 
+is a plausible choice. Functional languages, for example, often prefer 
 first-fit semantics because it is similar to case analysis in mathematics. 
 Object-oriented languages would typically be inclined to best-fit semantics due 
 to its similarity to overload resolution and virtual dispatch, however, some 
@@ -104,7 +105,7 @@ implication can be seen as subtyping.
 
 \subsection{Expression Problem}
 
-Type switching is related to a more general problem manifesting the differences 
+Type switch is related to a more general problem manifesting the differences 
 in functional and object-oriented programming styles.
 
 %The ideas and the library were motivated by our unsatisfactory experiences 
@@ -230,7 +231,7 @@ be written. It also introduces \emph{control inversion}, and, most importantly,
 
 \subsection{Open Type Switch}
 
-Note that the presence of a type switch in an object-oriented language alone 
+Type switch in an object-oriented language alone 
 does not solve the expression problem because the existing code may have to be 
 modified to take new variants into account. Relying on default clause is not 
 considered to be an acceptable solution in this context, because often times the 
@@ -238,7 +239,7 @@ only reasonable default behavior is to raise an exception. Zenger and Odersky
 note that in such cases defaults will transform type errors that should manifest 
 statically into runtime exceptions that are thrown dynamically~\cite{fool12}.
 
-While we generally agree with this observation, we would like to point out that 
+While we generally agree with this observation, 
 in our experience newly added variants were more often extending an existing 
 variant than creating an entirely disjoint one. In a hypothetical compiler, for 
 example, a new kind of type expression will typically extend a 
@@ -304,7 +305,7 @@ inheritance) by specifying how \code{B} and \code{C} are inherited from
 property of an inheritance relation between derived and base class and it is 
 possible to mix the two in an object of the most-derived type. 
 
-A class hierarchy, i.e. an inheritance graph gives rise to a subobject graph, 
+A class hierarchy gives rise to a subobject graph, 
 where a given class node may be replicated when inherited repeatedly or left 
 shared when inherited virtually. The edges in such a graph represent subobject 
 containment and are marked with whether such containment is shared or 
