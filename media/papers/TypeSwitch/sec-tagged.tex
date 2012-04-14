@@ -31,14 +31,10 @@ most-derived type of the object, while its end is marked with a dedicated
 \code{end_of_list} marker distinct from all the tags. The tags in between are 
 topologically sorted according to the subtyping relation with incomparable 
 siblings listed in \emph{local precedence order} -- the order of the direct base 
-classes used in the class definition. We call such a list a \emph{Tag Precedence 
-List} (TPL) as it resembles the \emph{Class Precedence List} (CPL) of 
-object-oriented descendants of Lisp (e.g. Dylan, Flavors, LOOPS, and CLOS) used 
-there for \emph{linearization} of class hierarchies. TPL is just an implementation 
-detail and the only reason we distinguish TPL from CPL is that in C++ classes 
-are often separated into interface and implementation classes and it might so 
-happen that the same tag is associated by the user with an interface and several 
-implementation classes. We also assume the tag-constant associated with a class 
+classes used in the class definition. The list resembles the \emph{class 
+precedence list} of object-oriented descendants of Lisp (e.g. Dylan, Flavors, 
+LOOPS, and CLOS) used there for \emph{linearization} of class hierarchies.
+We also assume the tag-constant associated with a class 
 \code{Di} be accessible through a static constant \code{Di::class_tag}. These 
 simplifications are not essential and the library does not rely on any of these 
 assumptions. Instead the user can retroactively narrate to the library the 
@@ -46,9 +42,8 @@ specific tag encoding used throught a trait-like classes.
 
 A type switch below, built on top of a hierarchy of tagged classes, proceeds as 
 a regular switch on the subject's tag. If the jump succeeds, we found an exact 
-match; otherwise, we get into a default clause that obtains the next tag in the 
-tag precedence list and jumps back to the beginning of the switch statement for a 
-rematch:
+match; otherwise, we get into a default clause that obtains the next tag in the
+list and jumps back to the beginning of the switch statement for a rematch:
 
 \begin{lstlisting}
     size_t attempt = 0; 
@@ -78,7 +73,7 @@ Dispatching to a case clause of a base class will take time roughly proportional
 to the distance between the matched base class and the most-derived class in the 
 inheritance graph, thus the technique is not constant. When none of the base 
 class tags were matched, we will necessarily reach the end\_of\_list marker in 
-the tag precedence list and exit the loop. As mentioned before, the default 
+the list and exit the loop. As mentioned before, the default 
 clause of the type switch can be implemented with a case clause on subject 
 type's tag: \code{case S::class_tag:}
 
