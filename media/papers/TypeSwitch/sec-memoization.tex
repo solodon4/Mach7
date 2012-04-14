@@ -292,15 +292,17 @@ of the corresponding subobject graphs from Figures \ref{fig:inheritance}(2a) and
 \end{figure}
 
 Due to extensibility of classes, the layout decisions for classes have to be 
-made independently of their derived classes. In turn, the layout of derived 
+made independently of their derived classes -- a property of the C++ object 
+model that we will refer to as \emph{layout independence}. In turn, the layout of derived   
 classes must conform to the layout of its base classes relatively to the offset 
 of the base class within derived. For example, the layout of \code{A} within 
 \code{C} is exactly the same as the layout of \code{A} in \code{B} and is simply 
 the layout of \code{A}. Base classes inherited virtually do not contribute to 
-the fixed layout because they are looked up indirectly at run-time to ensure 
-that only one shared instance of such a base class exists in the derived class. 
-Because of this indirection, the use of virtual inheritance incures slight 
-overhead at run-time.
+the fixed layout because they are looked up indirectly at run-time, however, 
+they are not excempt from the layout independence, since their lookup rules are 
+agnostic of the concrete most-derived type.
+%Because of this indirection, the use of virtual inheritance incures slight 
+%overhead at run-time. 
 
 Under non-virtual inheritance members of the base class are typically layed out 
 before the members of derived class resulting in the base class being at the 
@@ -324,7 +326,8 @@ virtual function tables (or vtables for short) for efficient disptach.
 The vtable is part of the reification of a polymorphic class type.  
 C++ compilers embed a pointer to a vtable (vtbl-pointer for short) in every object of
 polymorphic class type (and thus every subobject of that type inside other 
-classes). CFront, the first C++ compiler, puts the vtbl-pointer 
+classes due to layout independence). CFront, the first C++ compiler, puts the 
+vtbl-pointer 
 at the end of an object. The so-called ``common vendor C++ ABI''\cite{C++ABI}, 
 further referred to as \emph{C++ ABI} when not indicated otherwise, requires the 
 vtbl-pointer to be at offset 0 of an object.~\footnote{The following compilers 
