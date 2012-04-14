@@ -774,6 +774,7 @@ case @$i$@: // @$i$@ is a constant here - clause's position in switch
 %reflects possibly multiple vtbl-pointers in derived classes due to multiple 
 %inheritance.
 
+\noindent
 Class \code{std::unordered_map} provides amortized constant time access on 
 average and linear in the amount of elements in the worst case. We show in the 
 next section that most of the time we will be bypassing traditional access to 
@@ -808,9 +809,9 @@ pointing to them to be the same.
 These assumptions, supported by actual observations, has made virtual table 
 pointers of classes related by inheritance ideally suitable for hashing -- the 
 values obtained by throwing away the common bits on the right were compactly 
-distributed in small disjoint ranges. We use them to address a cache 
-built on top of the hash table in order to eliminate a hash table lookup in most 
-of the cases.
+distributed in small disjoint ranges (\textsection\ref{sec:hierarchies}). We use 
+them to address a cache built on top of the hash table in order to eliminate a 
+hash table lookup in most of the cases.
 
 Let $\Xi$ be the domain of integral representations of pointers. Given a cache 
 with $2^k$ entries, we use a family of hash functions $H_{kl} : \Xi \rightarrow [0..2^k-1]$ 
@@ -862,14 +863,18 @@ above probability of conflict on $V$.
 Probabilities $p_i$ can be estimated in a compiler settings through profiling, 
 while in a library setting we let the user enable tracing of frequencies of 
 each vtbl-pointer. This introduces an overhead of an increment into the critical 
-path of execution, and according to our tests degrades the overal performance by 1-2\%. 
-By default, we do not enable frequency tracing, however, because the significant 
-drop in the number of actual collisions was not reflected in a noticeable 
-decrease in execution time. This was because the total number of actual 
-collisions, even in non-frequency based caching, was much smaller than the 
-number of successful cache hits.
+path of execution, and according to our tests degrades the performance by 1-2\%. 
+This should not be a problem as long as the overal performance gains from 
+smaller probability of a conflicts happening at run time. Unfortunately, in our 
+tests the significant drop in the number of actual collisions was not reflected 
+in a noticeable decrease in execution time, which is why we do not enable 
+frequency tracing by default. As we will see in \textsection\ref{sec:hierarchies}, 
+this was happening because the hash function $H_{kl}^V$ renders no conflicts on 
+vtbl-pointers in most of the cases and the few collisions we were getting before 
+inferring the optimal $k$ and $l$ even in non-frequency based caching where 
+incomparably smaller than the number of successful cache hits.
 
-Assuming the uniform distribution of $v_i$ and substituting the probability 
+Assuming the uniform distribution of $v_i$ in $V$ and substituting the probability 
 $p_i=\frac{1}{n}$, where $n=|V|$, into the above formula we will get:
 
 \begin{eqnarray*}
@@ -877,13 +882,20 @@ P_{kl}(V)=\sum\limits_{j=0}^{2^k-1}[|V^j_{kl}| \neq 0]\frac{|V^j_{kl}|-1}{n}
 \end{eqnarray*}
 
 \noindent
-The value $|V^j_{kl}|-1$ represents the amount of ``extra'' pointers mapped into 
-the entry $j$ in cache and thus $H_{kl}^V$ obtained by minimization of 
-probability of conflict is the same as our original $H_{kl}^V$ minimizing the 
-number of conflicts. An important observation here is that the exact location of 
-these ``extra'' vtbl-pointers is not important, only the total number $m$ of 
-them is. The probability of conflict under uniform distribution of $v_i$ is thus 
-always going to have form $\frac{m}{n}$, where $0 \le m < n$.
+We use the notation $[\pi]$ to refer to the outcome of a predicate $\pi$ as numbers $0$ or $1$.
+The value $|V^j_{kl}|$ represents the number of vtbl-pointers $v_i$ from a given 
+set $V$ that are mapped to the same location $j$ in cache with $H_{kl}^V$. Only 
+one such vtbl-pointer will actually be present in that cache location at any given 
+time, which is why the value $|V^j_{kl}|-1$ represents the number of ``extra'' 
+pointers mapped into the entry $j$ on which a collision will happen. The overal 
+probability of conflict thus only depends on the total number of these ``extra'' 
+or conflicting vtbl-pointers. The $H_{kl}^V$ obtained by minimization of 
+probability of conflict under uniform distribution is thus the same as our 
+original $H_{kl}^V$ that was minimizing the number of conflicts. An important 
+observation here is that since the exact location of these ``extra'' 
+vtbl-pointers is not important and only the total number $m$ is, the probability 
+of conflict under uniform distribution of $v_i$ in $V$ is always going to be of 
+discrete form $\frac{m}{n}$, where $0 \le m < n$.
 
 %Depending on the number of actual collisions that happen in the cache, our 
 %vtable pointer memoization technique can come close to, and even outperform, the 
