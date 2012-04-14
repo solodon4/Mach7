@@ -10,13 +10,13 @@ variants are disjoint, which allows for efficient implementation of case analysi
 on such types. Data types in object-oriented languages are extensible
 and hierarchical (implying that variants are not necessarily 
 disjoint). 
-To be general, an type-switching construct must be \emph{open} -- 
+On one hand, to be general, a type-switch construct must be \emph{open} -- 
 allow for independent extensions, modular type-checking and dynamic linking. 
-On the other, in order to be accepted for production code, the implementation of
-such a construct must equal or outperform all known workarounds. However, 
+On the other hand, in order to be accepted for production code, the implementation of
+construct must equal or outperform all known workarounds. However, 
 existing approaches to case analysis on hierarchical extensible data types are 
 either efficient or open, but not both.
-Truly open approaches rely on expensive class-membership testing combined with 
+Truly open approaches rely on expensive class-membership tests combined with 
 decision trees~\cite{}. Efficient approaches rely on sealing either the class 
 hierarchy or the set of functions, which loses 
 extensibility~\cite{Cohen91,DesignPatterns1993,Vitek97,PQEncoding}.  
