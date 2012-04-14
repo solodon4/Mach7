@@ -1,9 +1,9 @@
 \section{Overview} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:over}
 
-A \emph{heterarchy} is a partially ordered set $(H,\subtype)$ where $H$ is a set 
+A \emph{class hierarchy} is a partially ordered set $(H,\subtype)$ where $H$ is a set 
 of classes and $\subtype$ is reflexive, transitive and anti-symmetric 
-\emph{subtyping relation} on $H$. We are going to use terms \emph{class} and \emph{type}  
+\emph{subtyping relation} on $H$. We use \emph{class} and \emph{type}  
 interchangeably as the exact distinction is not important for this discussion. 
 Given two types in a subtyping relation $D \subtype B$, the type $D$ is said to be a 
 \emph{subtype} or a \emph{derived class} of $B$, which in turn is said to be a 
@@ -11,11 +11,11 @@ Given two types in a subtyping relation $D \subtype B$, the type $D$ is said to 
 $\subtypeD$ of $\subtype$ is a function, $H$ is usually referred to as 
 \emph{hierarchy} to indicate single inheritance.
 
-Subtyping effectively makes objects belong to multiple types. We call by the 
-\emph{most-derived type} the type used to create an object (before any 
-conversions). By \emph{static type} we call the type of an object as known to 
-the compiler based on its declaration as well as any supertype of it. By 
-\emph{dynamic type} of an object we call any base class of the most-derived type.
+The \emph{most-derived type of an object} is the type used to create it.
+The \emph{static type of an expression} is the type of an that expression
+as given by the static semantics, i.e. the typing rule of expressions.
+%  By 
+% \emph{dynamic type} of an object we call any base class of the most-derived type.
 
 \subsection{Type Switch}
 
