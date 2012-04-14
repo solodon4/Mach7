@@ -4,7 +4,7 @@
 A \emph{heterarchy} is a partially ordered set $(H,\subtype)$ where $H$ is a set 
 of classes and $\subtype$ is reflexive, transitive and anti-symmetric 
 \emph{subtyping relation} on $H$. We are going to use terms \emph{class} and \emph{type}  
-interchangibly as the exact distinction is not important for this discussion. 
+interchangeably as the exact distinction is not important for this discussion. 
 Given two types in a subtyping relation $D \subtype B$, the type $D$ is said to be a 
 \emph{subtype} or a \emph{derived class} of $B$, which in turn is said to be a 
 \emph{supertype} or a \emph{base class} of $D$. When the transitive reduction 
@@ -24,13 +24,13 @@ the compiler based on its declaration as well as any supertype of it. By
 In general, \emph{type switch} or \emph{typecase} is a multiway branch statement 
 that distinguishes values based on their type. In a multi-paradigm programming 
 language like C++ that supports in various forms parametric, ad-hoc and 
-subtyping polymorphisms, such a broad definition subsumes numerous different type 
+subtyping polymorphism, such a broad definition subsumes numerous different type 
 casing constructs studied in the literature~\cite{Intensional95,Glew99,OpenShutTypecase05}. 
 In this work we only look at type casing scenarios based on dynamic polymorphism 
 of C++ (nominative subtyping polymorphism based on inheritance), similar to 
 those studied by Glew~\cite{Glew99}. It is possible to generalize type casing 
 (the notion, not our implementation) to static polymorphism of C++ (ad-hoc and 
-parametric polymorphisms enabled by overloading and templates) along the line of 
+parametric polymorphism enabled by overloading and templates) along the line of 
 work introduced by Harper and Morrisett~\cite{Intensional95} and studied in the
 context of closed and extensible solutions by Vytiniotis et 
 al~\cite{OpenShutTypecase05}, but we do not address such a generalization here. 
@@ -43,7 +43,7 @@ Given an object descriptor, called \emph{subject}, of static type \code{S}
 \emph{target types} \code{Ti} associated with the branches, a type switch 
 statement needs to identify a suitable clause $m$ (or absence of such) based on 
 the most-derived type \code{D <: S} of the subject as well as suitable 
-conversion that csts the subject to the target type \code{Tm}.  
+conversion that coerces the subject to the target type \code{Tm}.  
 Due to multiple inheritance, types \code{Ti} in general may or may not be 
 derived from \code{S}, however, because of the strong static type safety 
 requirement, the type of applicable clause \code{Tm} will necessarily have to be 
@@ -238,7 +238,7 @@ statically into runtime exceptions that are thrown dynamically~\cite{fool12}.
 
 While we generally agree with this observation, we would like to point out that 
 in our experience newly added variants were more often extending an existing 
-variant than creating an entirely disjoint one. In a hypotetical compiler, for 
+variant than creating an entirely disjoint one. In a hypothetical compiler, for 
 example, a new kind of type expression will typically extend a 
 \code{TypeExpression} variant, while a new form of annotation will extend an 
 \code{Annotation} variant, thus not extending the root \code{ASTNode} directly. 
@@ -305,7 +305,7 @@ possible to mix the two in an object of the most-derived type.
 A class hierarchy, i.e. an inheritance graph gives rise to a subobject graph, 
 where a given class node may be replicated when inherited repeatedly or left 
 shared when inherited virtually. The edges in such a graph represent subobject 
-containtment and are marked with whether such containtment is shared or 
+containment and are marked with whether such containment is shared or 
 exclusive. Every class $C$ in the class hierarchy will have its own subobject 
 graph representing the subobject of an object of the most-derived type $C$.
 Figure~\ref{fig:inheritance}(2) shows subobject graph for class \code{D} 
@@ -315,7 +315,7 @@ containment is indicated with the dashed arrows, while exclusive with the solid
 ones.
 
 We will use term \emph{object descriptor} to mean either pointer or reference to 
-an object, which we will use interchangably when not explicitly specified. 
+an object, which we will use interchangeably when not explicitly specified. 
 An object descriptor of static type $A$ referencing an object of the most-derived 
 type $C$ can be understood as any \code{*::}$A$-node in the subobject graph of $C$. Rosie 
 and Friedman call $A$ an \emph{effective type} of object, while the node in the 
@@ -323,7 +323,7 @@ subobject graph representing it -- its \emph{effective subobject}.
 Casts in such a model can be understood as a change from one effective subobject 
 to another. We will use terms \emph{source subobject} and \emph{target 
 subobject} to refer to effective subobjects before and after the cast. Their 
-static types will be refered to as as \emph{source type} and \emph{target type} 
+static types will be referred to as as \emph{source type} and \emph{target type} 
 respectively. C++ distinguishes 3 kinds of casts: upcasts, downcasts and 
 crosscasts.
 
@@ -337,7 +337,7 @@ in which case the user needs to explicitly cast the object to \code{B} or
 In some cases, however, introduction of such an explicit cast is not possible: 
 e.g. in implicit conversions generated by the compiler to implement covariant 
 return types, cross casts or conversions in generic code. This does not mean 
-that in such cases we violate the Liskov subtitution principle though -- the 
+that in such cases we violate the Liskov substitution principle though -- the 
 classes are still in subtyping relation, but an implicit conversion is not 
 available.
 
@@ -475,7 +475,7 @@ A trivial constant-time type inclusion test can be implemented with a
 \emph{binary matrix}, encoding the subtyping relation on the class 
 hierarchy~\cite{Vortex96}. While efficient in time, it has quadratic space 
 requirements, which makes it expensive for use on large class hierarchies. Cohen 
-proposed the first space-efficient constant-time algorithm, which, howver, could 
+proposed the first space-efficient constant-time algorithm, which, however, could 
 only deal with single inheritance~\cite{Cohen91}. \emph{Hierarchical encoding} 
 is another constant-time test that maps subtype queries into subset queries on 
 bit-vectors~\cite{Caseau93,Krall97nearoptimal}. The approach can handle multiple
@@ -483,7 +483,7 @@ inheritance, but the space and time required for a subtype test in this encoding
 increases with the size of the class hierarchy, also Caseau's approach~\cite{Caseau93} is 
 limited to class hierarchies that are lattices. Schubert's \emph{relative 
 numbering}~\cite{Schubert83} encodes each type with an interval $[l,r]$, 
-effectivelly making type inclusion tests isomorphic to a simple range checking. 
+effectively making type inclusion tests isomorphic to a simple range checking. 
 The encoding is optimal in space and time, however it is limited to single 
 inheritance. \emph{PQ-Encoding} of Zibin and Gil employs PQ-trees to improve 
 further space and time efficiency of the constant-time inclusion 
@@ -500,7 +500,7 @@ open solution a class has known amount of base classes and thus perfect hashes
 can be used to map them to this-pointer offsets typically used to implement 
 subobject casts\cite{Ducournau08}. Unfortunately the approach addresses only 
 virtual multiple inheritance and similarly to other approaches relies on 
-load-time computations that may be costly. Excelent introduction and detailed 
+load-time computations that may be costly. Excellent introduction and detailed 
 analysis of existing constant-time type inclusion tests can be found in 
 \cite{Vitek97} and \cite{PQEncoding}.
 
@@ -516,7 +516,7 @@ in C++.
 \subsection{The Source of Inefficiency}
 
 While constant-time type inclusion tests are invaluable in optimizing subtype 
-tests in programing languages, their use in implementing a type switch is 
+tests in programming languages, their use in implementing a type switch is 
 inferior to some workaround techniques. This may prevent wide adoption of a 
 language implementation of such a feature due to its inferior performance. 
 We implemented 3 constant-time type inclusion tests: binary 
