@@ -84,7 +84,7 @@ XTL_TIMED_FUNC_END
 
 Shape* make_shape(size_t i)
 {
-    switch (i)
+    switch (i % NUMBER_OF_DERIVED)
     {
         #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
         #define FOR_EACH_N(N) case N: return new shape_kind<N>;
@@ -97,7 +97,7 @@ Shape* make_shape(size_t i)
 
 //------------------------------------------------------------------------------
 
-#include "testutils.hpp"    // Utilities for timing tests
+#include "testvismat.hpp"    // Utilities for timing tests
 
 //------------------------------------------------------------------------------
 

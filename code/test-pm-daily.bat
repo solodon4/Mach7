@@ -7,7 +7,7 @@
 :: Usage: test-pm-daily.bat
 ::                                                                           
 :: This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-:: Copyright (C) 2005-2011 Texas A&M University.
+:: Copyright (C) 2005-2012 Texas A&M University.
 :: All rights reserved.
 :: 
 
@@ -43,7 +43,7 @@ devenv PatternMatching.2010.sln /build "Release|x64"   >> %logfile% 2>&1
 echo Building OCaml sources ...
 echo [ OCaml ] ======================================= >> %logfile%
 set PATH=%PATH%C:\Program Files (x86)\flexdll;         >> %logfile% 2>&1
-ocamlopt.opt unix.cmxa -o ocaml_cmp_ml.exe ocaml_cmp.ml>> %logfile% 2>&1
+ocamlopt.opt unix.cmxa -o cmp_ocaml.exe cmp_ocaml.ml   >> %logfile% 2>&1
 
 rem -----------------------------------------------------------------------------
 

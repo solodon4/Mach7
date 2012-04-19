@@ -7,7 +7,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -140,9 +140,10 @@ private:
 public:
     
 #if XTL_DUMP_PERFORMANCE
-    vtblmap(const char* fl, size_t ln, const vtbl_count_t expected_size = min_expected_size) : 
+    vtblmap(const char* fl, size_t ln, const char* fn, const vtbl_count_t expected_size = min_expected_size) : 
         file(fl), 
-        line(ln), 
+        line(ln),
+        func(fn),
         updates(0), 
         clauses(expected_size),
         hits(0),
@@ -158,7 +159,7 @@ public:
         std::memset(cache,0,(cache_mask+1)*sizeof(cache_entry)); // Reset cache
     }
 #endif
-    vtblmap(const vtbl_count_t expected_size = min_expected_size) : XTL_DUMP_PERFORMANCE_ONLY(file("unspecified"), line(0), updates(0), clauses(expected_size), hits(0), misses(0), collisions(0),)
+    vtblmap(const vtbl_count_t expected_size = min_expected_size) : XTL_DUMP_PERFORMANCE_ONLY(file("unspecified"), line(0), func("unspecified"), updates(0), clauses(expected_size), hits(0), misses(0), collisions(0),)
         cache_mask((1<<std::min(max_log_size,bit_offset_t(req_bits(expected_size-1))))-1),
         cache(cache_mask < local_cache_size ? local_cache : new cache_entry[cache_mask+1]),
         optimal_shift(irrelevant_bits),
@@ -273,6 +274,7 @@ private:
 #if XTL_DUMP_PERFORMANCE
     const char* file;      ///< File in which this vtblmap_of is instantiated
     size_t      line;      ///< Line in the file where it is instantiated
+    const char* func;      ///< Function in which this vtblmap_of is instantiated
     size_t      updates;   ///< Amount of reconfigurations performed at run time
     size_t      clauses;   ///< Size of the table expected from the number of clauses
     size_t      hits;      ///< The amount of cache hits
@@ -491,10 +493,27 @@ size_t vtblmap<T&>::get_stats_for(bit_offset_t log_size, bit_offset_t offset, do
 //------------------------------------------------------------------------------
 
 #if XTL_DUMP_PERFORMANCE
+
+template <typename T>
+size_t last_non_zero_count(const T arr[/*n*/], size_t n, size_t m) // arr[i] <= m
+{
+    size_t result = 0;
+
+    for (size_t i = 0; i <= m; ++i)
+        if (std::count(arr,arr+n,i) > 0) 
+            result = i;
+
+    return result; // [0..m]
+}
+
+//------------------------------------------------------------------------------
+
 template <typename T>
 std::ostream& vtblmap<T&>::operator>>(std::ostream& os) const
 {
-    os << file << '[' << line << ']' << std::endl;
+    std::ios::fmtflags fmt = os.flags(); // store flags
+
+    os << file << '[' << line << ']' << ' ' << func << std::endl;
 
     size_t vtbl_count = table.size();
     size_t log_size   = req_bits(cache_mask);
@@ -516,7 +535,7 @@ std::ostream& vtblmap<T&>::operator>>(std::ostream& os) const
 
     intptr_t diff = 0;
     intptr_t prev = 0;
-    size_t   sum = 0;
+    size_t   sum  = 0;
 
     for (typename vtbl_to_t_map::const_iterator p = table.begin(); p != table.end(); ++p)
     {
@@ -576,13 +595,15 @@ std::ostream& vtblmap<T&>::operator>>(std::ostream& os) const
         else
             os << "   ";
 #endif
-        os << '\t' << vtbl_typeid(vtbl).name() XTL_MSC_ONLY(+sizeof("class")) << std::endl; // Show name of the class of this vtbl
+        os << '\t' << vtbl_typeid(vtbl).name()  << std::endl; // Show name of the class of this vtbl
     }
+
+    os.flags(fmt);
 
     // FIX: G++ crashes when we use std::stringstream here, so we have to workaround it manually
     std::string str(8*sizeof(prev),'0');
 
-    for(size_t j = 1, i = 8*sizeof(prev); i; --i, j<<=1)
+    for (size_t j = 1, i = 8*sizeof(prev); i; --i, j<<=1)
         if (diff & j)
             str[i-1] = 'X';
         else
@@ -593,25 +614,27 @@ std::ostream& vtblmap<T&>::operator>>(std::ostream& os) const
     double conflict;
     size_t entries = get_stats_for(log_size, optimal_shift, entropy, conflict);
 
-    XTL_ASSERT(sum == hits+misses);
+    XTL_USE_VTBL_FREQUENCY_ONLY(XTL_ASSERT(sum == hits+misses));
 
     os  << "VTBLS:  "     << str
-        << " clauses="    << std::setw(3) << clauses      // Number of case clauses in the match statement
-        << " total="      << std::setw(3) << vtbl_count   // Total amount of vtbl pointers seen
-        << " log_size="   << log_size                     // log2 size required
+        << " clauses="    << std::setw(4) << clauses      // Number of case clauses in the match statement
+        << " total="      << std::setw(5) << vtbl_count   // Total amount of vtbl pointers seen
+        << " log_size="   << std::setw(2) << log_size     // log2 size required
         << " shift="      << std::setw(2) << optimal_shift// optimal shift used
         << " width="      << std::setw(2) << str.find_last_of("X")-str.find_first_of("X")+1 // total spread of different bits
         << " updates="    << std::setw(2) << updates      // how many updates have been performed on the cache
-        << " hits="       << std::setw(4) << hits         // how many hits have we had
-        << " misses="     << std::setw(4) << misses       // how many misses have we had
-        << " collisions=" << std::setw(4) << collisions   // how many misses were actual collisions
-        << " entries: "   << std::setw(3) << entries      // how many entires in the cache are used
+        << " hits="       << std::setw(8) << hits         // how many hits have we had
+        << " misses="     << std::setw(8) << misses       // how many misses have we had
+        << " collisions=" << std::setw(8) << collisions   // how many misses were actual collisions
+        << " entries: "   << std::setw(5) << entries      // how many entires in the cache are used
         XTL_USE_VTBL_FREQUENCY_ONLY(<< " calls=" << std::setw(5) << sum) // Total amount of calls to this vtblmap
         XTL_USE_VTBL_FREQUENCY_ONLY(<< " collisions/calls: " << std::setw(9) << std::fixed << std::setprecision(7) << double(collisions)/sum) << "\t " // Actual frequency of collisions
         << " Entropy: "   << std::setw(9) << std::fixed << std::setprecision(7) << entropy  // Entropy
         << " Conflict: "  << std::setw(9) << std::fixed << std::setprecision(7) << conflict // Probability of conflict
-        << "; ";
-#if 0
+        << " Stmt: "      << file << '[' << line << ']' << ' ' << func
+        << ";\n";
+    os.flags(fmt);
+#if 1
     bit_offset_t k  = req_bits(cache_mask);     // current log_size
     bit_offset_t n  = req_bits(vtbl_count-1);   // needed  log_size
     bit_offset_t m  = req_bits(diff);           // highest bit in which vtbls differ
@@ -625,76 +648,122 @@ std::ostream& vtblmap<T&>::operator>>(std::ostream& os) const
         {
             double e, p;
             size_t t = get_stats_for(i,j,e,p);
-            os  << "\tlog_size=" << int(i) 
+            os  << "\tlog_size=" << std::setw(2) << int(i) 
                 << " shift="     << std::setw(2) << int(j) 
-                << " Entropy="   << std::setw(9) << std::fixed << std::setprecision(7) << e 
+                << " Entropy="   << std::setw(10)<< std::fixed << std::setprecision(7) << e 
                 << " Conflict="  << std::setw(9) << std::fixed << std::setprecision(7) << p << (t == vtbl_count ? " \t*" : "") 
                 << std::endl;
         }
     }
+    os.flags(fmt);
 #endif
-    bool show = false;
-    size_t  d = 0;
 
-    os  << "\nTable:"
-        << " buckets="     << std::setw(3) << table_size
-        << " load_factor=" << table.load_factor()
-        << " perfect="     << std::setw(3) << std::count(table_histogram,table_histogram+table_size,1)*100/vtbl_count << '%'
-        << " sizeof(val)=" << std::setw(2) << sizeof(vtbl_to_t_map::value_type)
-        << "; ";
+    double table_conflict = 0.0;
 
-    for (size_t i = vtbl_count; i != ~0; --i)
+    // Compute table's probability of conflict
+    for (size_t j = 0; j < table_size; ++j)
     {
-        d = std::count(table_histogram,table_histogram+table_size,i);
-
-        if (show = show || d > 0)
-            os << i << "->" << d << "; ";
+        size_t c = table_histogram[j];
+        if (c >  1) table_conflict += double(c-1)/vtbl_count;
     }
 
-    os << d*100/table_size << "% unused " << '[' << line << ']';
+    // Show table's parameters
+    os  << "\nTable:"
+        << " buckets="     << std::setw(4) << table_size
+        << " load_factor=" << std::setw(4) << std::fixed << std::setprecision(2) << table.load_factor()
+        << " perfect="     << std::setw(3) << std::count(table_histogram,table_histogram+table_size,1)*100/vtbl_count << '%'
+        << " sizeof(val)=" << std::setw(2) << sizeof(typename vtbl_to_t_map::value_type)
+        << " conflict="    << std::setw(9) << std::fixed << std::setprecision(7) << table_conflict // Probability of conflict in table
+        << " Stmt: "       << file << '[' << line << ']' << ' ' << func
+        << "; ";
 
-    size_t d1 = 0;
-    show = false;
-    d = 0;
+    size_t table_last_non_zero_count = last_non_zero_count(table_histogram,table_size,vtbl_count);
 
+    // Print table histogram
+    for (size_t i = 0; i <= table_last_non_zero_count; ++i)
+    {
+        size_t d = std::count(table_histogram,table_histogram+table_size,i);
+        if (!i) os << std::setw(3) << d*100/table_size << "% unused " << '[' << line << ']';
+        os << std::setw(2) << i << "->" << d << "; ";
+    }
+
+    os.flags(fmt);
+
+    size_t d0 = 0, d1 = 0;
+    double cache_conflict = 0.0;
+
+    // Compute cache's probability of conflict
     for (size_t j = 0; j < cache_size; ++j)
     {
 #if XTL_USE_VTBL_FREQUENCY
-        if (cache_histogram[j].count == 0)
-            ++d;
-        if (cache_histogram[j].count == 1)
-            ++d1;
+        size_t c = cache_histogram[j].count;
 #else
-        if (cache_histogram[j] == 0)
-            ++d;
-        if (cache_histogram[j] == 1)
-            ++d1;
+        size_t c = cache_histogram[j];
 #endif
+        if (c == 0) ++d0;
+        if (c == 1) ++d1;
+        if (c >  1) cache_conflict += double(c-1)/vtbl_count;
     }
-
+    
+    // Show cache's parameters
     os  << "\nCache:"
-        << " buckets="     << std::setw(3) << cache_size
-        << " load_factor=" << double(cache_size-d)/cache_size
+        << " buckets="     << std::setw(4) << cache_size
+        << " load_factor=" << std::setw(4) << std::fixed << std::setprecision(2) << double(cache_size-d0)/cache_size
         << " perfect="     << std::setw(3) << d1*100/vtbl_count << '%'
         << " sizeof(ent)=" << std::setw(2) << sizeof(cache_entry)
+        << " conflict="    << std::setw(9) << std::fixed << std::setprecision(7) << cache_conflict // Probability of conflict in cache
+        << " Stmt: "       << file << '[' << line << ']' << ' ' << func
         << "; ";
 
-    for (size_t i = vtbl_count; i != ~0; --i)
+    size_t cache_last_non_zero_count = last_non_zero_count(cache_histogram,cache_size,vtbl_count);
+
+    // Print cache histogram
+    for (size_t i = 0; i <= cache_last_non_zero_count; ++i)
     {
 #if XTL_USE_VTBL_FREQUENCY
-        d = 0;
+        size_t d = 0;
 
         for (size_t j = 0; j < cache_size; ++j)
             if (cache_histogram[j].count == i)
                 ++d;
 #else
-        d = std::count(cache_histogram,cache_histogram+cache_size,i);
+        size_t d = std::count(cache_histogram,cache_histogram+cache_size,i);
 #endif
-        if (show = show || d > 0)
-            os << i << "->" << d << "; ";
+        if (!i) os << std::setw(3) << d*100/cache_size << "% unused " << '[' << line << ']';
+        os << std::setw(2) << i << "->" << d << "; ";
     }
 
-    os << d*100/cache_size << "% unused " << '[' << line << ']';
+    os.flags(fmt);
+
+    // Print map of cache entries occupation
+    for (size_t j = 0; j < cache_size; ++j)
+    {
+        const size_t entries_per_row = 64;
+
+        if (j % entries_per_row == 0)
+            os << std::endl << std::setw(4) << std::hex << j << ": ";
+#if XTL_USE_VTBL_FREQUENCY
+        size_t n = cache_histogram[j].count;
+#else
+        size_t n = cache_histogram[j];
+#endif
+        char c;
+
+        switch (n)
+        {
+        case 0:  c = '.'; break;
+        case 1:  c = '1'; break;
+        case 2:  c = '2'; break;
+        case 3:  c = '3'; break;
+        case 4:  c = '4'; break;
+        case 5:  c = '5'; break;
+        default: c = 'X'; break;
+        }
+        
+        os << c;
+    }
+
+    os.flags(fmt);
     return os << std::endl;
 }
 #endif

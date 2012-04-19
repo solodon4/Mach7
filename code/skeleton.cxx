@@ -34,7 +34,7 @@ struct shape_kind;
 
 #define FOR_EACH_MAX NUMBER_OF_BASES-1
 #if XTL_DEFAULT_SYNTAX == 'K' || XTL_DEFAULT_SYNTAX == 'k' || XTL_DEFAULT_SYNTAX == 'F' || XTL_DEFAULT_SYNTAX == 'f'
-#define FOR_EACH_N(N) template <> struct shape_kind<N> : OtherBase, Shape { typedef Shape base_type; void accept(ShapeVisitor&) const; shape_kind(size_t k = N) : base_type(k) {} };
+#define FOR_EACH_N(N) template <> struct shape_kind<N> : OtherBase, Shape { typedef Shape base_type; void accept(ShapeVisitor&) const; shape_kind(size_t k = tag<N>::value) : base_type(k) {} };
 #else
 #define FOR_EACH_N(N) template <> struct shape_kind<N> : OtherBase, Shape { typedef Shape base_type; void accept(ShapeVisitor&) const; };
 #endif
@@ -49,7 +49,7 @@ struct shape_kind : shape_kind<N % NUMBER_OF_BASES>
 {
     typedef shape_kind<N % NUMBER_OF_BASES> base_type;
 #if XTL_DEFAULT_SYNTAX == 'K' || XTL_DEFAULT_SYNTAX == 'k' || XTL_DEFAULT_SYNTAX == 'F' || XTL_DEFAULT_SYNTAX == 'f'
-    shape_kind() : base_type(N) {}
+    shape_kind() : base_type(tag<N>::value) {}
 #endif
     void accept(ShapeVisitor&) const;
 };
@@ -60,7 +60,7 @@ template <size_t N>
 struct shape_kind : OtherBase, Shape
 {
 #if XTL_DEFAULT_SYNTAX == 'K' || XTL_DEFAULT_SYNTAX == 'k' || XTL_DEFAULT_SYNTAX == 'F' || XTL_DEFAULT_SYNTAX == 'f'
-    shape_kind() : Shape(N) {}
+    shape_kind() : Shape(tag<N>::value) {}
 #endif
     void accept(ShapeVisitor& v) const;
 };
@@ -101,12 +101,12 @@ template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(
 
 #if XTL_DEFAULT_SYNTAX == 'K' || XTL_DEFAULT_SYNTAX == 'k'
 template <>         struct match_members<Shape>         { KS(Shape::m_kind); };
-template <size_t N> struct match_members<shape_kind<N>> { KV(N); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
+template <size_t N> struct match_members<shape_kind<N>> { KV(tag<N>::value); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
 
 #elif XTL_DEFAULT_SYNTAX == 'F' || XTL_DEFAULT_SYNTAX == 'f'
 
 SKV(Shape,0); // Declare the smallest kind value for Shape hierarchy
-template <>         struct match_members<Shape>         { KS(Shape::m_kind); KV(NUMBER_OF_DERIVED+1); };
+template <>         struct match_members<Shape>         { KS(Shape::m_kind); KV(tag<NUMBER_OF_DERIVED+1>::value); };
 
 // NOTE: We need to explicitly instantiate all match_members as otherwise our kinds 
 //       associations don't get instantiated and recorded. This happens because
@@ -114,7 +114,7 @@ template <>         struct match_members<Shape>         { KS(Shape::m_kind); KV(
 // FIX:  Wonder though why it didn't instantiate them for base cases at least since
 //       we instantiate them explicitly in Case statements
 #define FOR_EACH_MAX NUMBER_OF_BASES-1
-#define FOR_EACH_N(N) template <> struct match_members<shape_kind<N>> { KV(N);  BCS(shape_kind<N>,Shape); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
+#define FOR_EACH_N(N) template <> struct match_members<shape_kind<N>> { KV(tag<N>::value);  BCS(shape_kind<N>,Shape); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
 #include "loop_over_numbers.hpp"
 #undef  FOR_EACH_N
 #undef  FOR_EACH_MAX
@@ -123,7 +123,7 @@ template <>         struct match_members<Shape>         { KS(Shape::m_kind); KV(
 //       associations don't get instantiated and recorded. This happens because
 //       now that match_members with specific N > base cases is never instantiated
 #define FOR_EACH_MAX NUMBER_OF_DERIVED-NUMBER_OF_BASES-1
-#define FOR_EACH_N(N) template <> struct match_members<shape_kind<NUMBER_OF_BASES+N>> { KV(NUMBER_OF_BASES+N);  BCS(shape_kind<NUMBER_OF_BASES+N>,shape_kind<NUMBER_OF_BASES+N>::base_type,Shape); CM(0,shape_kind<NUMBER_OF_BASES+N>::m_member0); CM(1,shape_kind<NUMBER_OF_BASES+N>::m_member1); };
+#define FOR_EACH_N(N) template <> struct match_members<shape_kind<NUMBER_OF_BASES+N>> { KV(tag<NUMBER_OF_BASES+N>::value);  BCS(shape_kind<NUMBER_OF_BASES+N>,shape_kind<NUMBER_OF_BASES+N>::base_type,Shape); CM(0,shape_kind<NUMBER_OF_BASES+N>::m_member0); CM(1,shape_kind<NUMBER_OF_BASES+N>::m_member1); };
 #include "loop_over_numbers.hpp"
 #undef  FOR_EACH_N
 #undef  FOR_EACH_MAX
@@ -186,7 +186,7 @@ XTL_TIMED_FUNC_END
 
 Shape* make_shape(size_t i)
 {
-    switch (i)
+    switch (i % NUMBER_OF_DERIVED)
     {
         #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
         #define FOR_EACH_N(N) case N: return new shape_kind<N>;
@@ -235,7 +235,7 @@ Shape* make_shape(size_t i)
 
 //------------------------------------------------------------------------------
 
-#include "testutils.hpp"    // Utilities for timing tests
+#include "testvismat.hpp"    // Utilities for timing tests
 
 //------------------------------------------------------------------------------
 

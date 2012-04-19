@@ -1,3 +1,15 @@
+///
+/// \file
+///
+/// This file is a part of pattern matching testing suite.
+///
+/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+///
+/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
+/// Copyright (C) 2005-2012 Texas A&M University.
+/// All rights reserved.
+///
+
 #include "match.hpp"
 #include <complex>
 #include <iostream>
@@ -115,16 +127,16 @@ int main()
 
     std::cout << a << "+"    << b << "*i" << std::endl;
 
-    //if (match<std::complex<double>>(b*i)(i))   std::cout << b << "*i" << std::endl;
-    if (match<std::complex<double>>(b*i+a)(i)) std::cout << a << "+"    << b << "*i" << std::endl;
-    if (match<double>(sqrt(a))(4.0))   std::cout << "sqrt("  << a << ")=4" << std::endl;
-    if (match<double>(a/b)(3.1415926)) std::cout << "3.1415926=" << a << "/" << b << std::endl;
-    if (match<double>(-a)(3.1415926))  std::cout << "-3.1415926=" << a << std::endl;
+    //if (cons<std::complex<double>>(b*i)(i))   std::cout << b << "*i" << std::endl;
+    if (cons<std::complex<double>>(b*i+a)(i)) std::cout << a << "+"    << b << "*i" << std::endl;
+    if (cons<double>(sqrt(a))(4.0))   std::cout << "sqrt("  << a << ")=4" << std::endl;
+    if (cons<double>(a/b)(3.1415926)) std::cout << "3.1415926=" << a << "/" << b << std::endl;
+    if (cons<double>(-a)(3.1415926))  std::cout << "-3.1415926=" << a << std::endl;
 
-//    if (match<std::complex<double>>(i*a)(c)) std::cout << "(2,2) + " << a << " * i" << std::endl;
-    if (match<std::complex<double>>(d*i)(c)) std::cout << d << " * i" << std::endl;
-	if (match<std::complex<double>>(i)(c))   std::cout << "i" << std::endl;
-    if (match<std::complex<double>>(d)(c))   std::cout << d << std::endl;
+//    if (cons<std::complex<double>>(i*a)(c)) std::cout << "(2,2) + " << a << " * i" << std::endl;
+    if (cons<std::complex<double>>(d*i)(c)) std::cout << d << " * i" << std::endl;
+	if (cons<std::complex<double>>(i)(c))   std::cout << "i" << std::endl;
+    if (cons<std::complex<double>>(d)(c))   std::cout << d << std::endl;
 
     int n = 3;
     variable<size_t> m;

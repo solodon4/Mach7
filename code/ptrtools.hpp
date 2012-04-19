@@ -7,19 +7,23 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include <typeinfo>
+#ifdef _MSC_VER
+#include <excpt.h>
+#endif
 
 //------------------------------------------------------------------------------
 
-template <typename T> inline const T* adjust_ptr(const void* p, ptrdiff_t offset) { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
-template <typename T> inline       T* adjust_ptr(      void* p, ptrdiff_t offset) { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)+offset); }
+template <typename T> inline const T* adjust_ptr(const void* p, std::ptrdiff_t offset) { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
+template <typename T> inline       T* adjust_ptr(      void* p, std::ptrdiff_t offset) { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)+offset); }
 
 //------------------------------------------------------------------------------
 
@@ -35,18 +39,36 @@ template <typename T, typename U> inline       T* stat_cast(      U* p) { return
 
 //------------------------------------------------------------------------------
 
-template <typename T> inline const std::type_info& vtbl_typeid(intptr_t vtbl) { return typeid(*reinterpret_cast<const T*>(&vtbl)); }
-template <typename T> inline const std::type_info& vtbl_typeid(const void* p) { return vtbl_typeid<T>(*reinterpret_cast<const intptr_t*>(p)); }
+template <typename T> const std::type_info& vtbl_typeid(std::intptr_t vtbl) 
+{
+#ifdef _MSC_VER
+    // FIX: The SEH handler below works in debug but not in release builds
+    //__try { return typeid(*reinterpret_cast<const T*>(&vtbl)); }
+    //__except(EXCEPTION_EXECUTE_HANDLER) { return typeid(int); }
+    return typeid(void);
+#else
+    try { return typeid(*reinterpret_cast<const T*>(&vtbl)); }
+    catch (...) { return typeid(int); }
+#endif
+}
+
+template <typename T> inline const std::type_info& vtbl_typeid(const void* p) { return vtbl_typeid<T>(*reinterpret_cast<const std::intptr_t*>(p)); }
 
 struct polymorphic_dummy { virtual ~polymorphic_dummy(){} };
 
-inline const std::type_info& vtbl_typeid(intptr_t vtbl) { return vtbl_typeid<polymorphic_dummy>(vtbl); }
+inline const std::type_info& vtbl_typeid(std::intptr_t vtbl) { return vtbl_typeid<polymorphic_dummy>(vtbl); }
 inline const std::type_info& vtbl_typeid(const void* p) { return vtbl_typeid<polymorphic_dummy>(p); }
 
 //------------------------------------------------------------------------------
 
-template <int N> struct requires_bits    { enum { value = requires_bits<(N+1)/2>::value+1 }; };
-template <>      struct requires_bits<1> { enum { value = 0 }; };
+template <size_t N> struct requires_bits_    { enum { value = requires_bits_<(N+1)/2>::value+1 }; };
+template <>         struct requires_bits_<1> { enum { value = 0 }; };
+template <>         struct requires_bits_<0> { enum { value = 0 }; };
+
+/// Returns the amount of bits required to represent a given number.
+/// Compile-time version of @req_bits
+template <size_t N> struct requires_bits     { enum { value = requires_bits_<(N+1)>::value }; };
+template <>         struct requires_bits<0>  { enum { value = 1 }; };
 
 //------------------------------------------------------------------------------
 
@@ -71,7 +93,7 @@ inline unsigned int trailing_zeros(unsigned int v)
 /// Counts the number of bits set in v (the Brian Kernighan's way)
 /// The following code to count set bits was taken from:
 /// http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan
-inline unsigned int bits_set(intptr_t v)
+inline unsigned int bits_set(std::intptr_t v)
 {
     unsigned int c = 0; // c accumulates the total bits set in v
 
@@ -82,7 +104,9 @@ inline unsigned int bits_set(intptr_t v)
 }
 
 //------------------------------------------------------------------------------
-// FIX: Optimize this draft function
+
+/// Returns the amount of bits required to represent a given number.
+/// FIX: Optimize this draft function
 inline size_t req_bits(size_t v)
 {
     size_t r = 1;   // r-1 will be lg(v)

@@ -296,3 +296,19 @@ implementation at this point. Microsoft's Dynamic Language Runtime for the CLR
 also has a call-site caching feature. It should be discussed and compared to.
 
 Mentioned here:  http://msdn.microsoft.com/en-us/library/dd233052.aspx search for "call site"
+
+A number of constant-time type inclusion techniques have been proposed. 
+Binary Matrix generates very sparce quadratic table that will have to be updated 
+at load time to account for loaded class extensions. Cohen's algorithm depends 
+on unique identifiers assigned to each class and it doesn't support multiple 
+inheritance. 
+Hierarchical Encoding requires to see the entire class hierarchy and may incure 
+prohibitively expensive computations at load time due to NP-hard problem that 
+has to be solved to find optimal bit vector encoding. 
+Relative Numbering used in Modula-3 doesn't have an obvious way of supporting 
+multiple inheritance.
+
+The advantage of our technique is that it localizes entire implementation to 
+type switch only - no modifications of global compiler tables/virtual tables is 
+needed. Unlike IC or PIC no changes to executable code is required either, which 
+makes it attractive for todays OS often enforcing no changes to code.

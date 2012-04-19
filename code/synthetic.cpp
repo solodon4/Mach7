@@ -43,7 +43,7 @@ XTL_TIMED_FUNC_BEGIN
 size_t do_match(const Shape& s, size_t)
 {
     #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
-    #define FOR_EACH_N(N) if (match<shape_kind<N>>()(s)) return N;
+    #define FOR_EACH_N(N) if (cons<shape_kind<N>>()(s)) return N;
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_N
     #undef  FOR_EACH_MAX
@@ -80,7 +80,7 @@ XTL_TIMED_FUNC_END
 
 Shape* make_shape(size_t i)
 {
-    switch (i)
+    switch (i % NUMBER_OF_DERIVED)
     {
         #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
         #define FOR_EACH_N(N) case N: return new shape_kind<N>;
@@ -93,7 +93,7 @@ Shape* make_shape(size_t i)
 
 //------------------------------------------------------------------------------
 
-#include "testutils.hpp"    // Utilities for timing tests
+#include "testvismat.hpp"    // Utilities for timing tests
 
 //------------------------------------------------------------------------------
 

@@ -1,3 +1,15 @@
+///
+/// \file
+///
+/// This file is a part of pattern matching testing suite.
+///
+/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+///
+/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
+/// Copyright (C) 2005-2012 Texas A&M University.
+/// All rights reserved.
+///
+
 #include "match.hpp"
 #include <complex>
 #include <iostream>
@@ -35,7 +47,8 @@ int main()
      When(r*2 |= r > 0.6,f*2) std::cout << r << "*2>1.2,"  << f << "*2" << std::endl;
      When(r*2,f*2 |= f > 0.6) std::cout << r << "*2,"  << f << "*2>1.2" << std::endl;
      When(r*2,  _)            std::cout << r << "*2, ???" << std::endl;
-     When(r*2,  _ |= r < 0.6) std::cout << r << "*2<1.2, ???" << std::endl;
+   //When(r*2,  _ |= r < 0.6) std::cout << r << "*2<1.2, ???" << std::endl;
+     When(r*2,  f |= r < 0.6) std::cout << r << "*2<1.2, ???" << std::endl; // FIX: Replaced _ with f in the above as currently we don't have guard specialization
     }
     EndMatch
 }

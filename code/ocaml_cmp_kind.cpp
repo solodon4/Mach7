@@ -6,7 +6,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -57,7 +57,7 @@ size_t do_match(const Shape& s)
 
 Shape* make_shape(int i)
 {
-    switch (i)
+    switch (i % NUMBER_OF_DERIVED)
     {
     #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
     #define FOR_EACH_N(N) case N: return new shape_kind<N>;

@@ -6,7 +6,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -109,10 +109,10 @@ const Either<S, T>* lift_ex(const Either<X, Y>& e, S f(X), T g(Y))
 	X x;
 	Y y;
 
-	if (match<Left<X, Y> >(x)(e))
+	if (cons<Left<X, Y> >(x)(e))
 		return left<S, T>(f(x));
 	else
-	if (match<Right<X, Y> >(y)(e))
+	if (cons<Right<X, Y> >(y)(e))
 		return right<S, T>(g(y));
 	else
 		return 0;
@@ -162,8 +162,8 @@ void test(const C& c)
 	typedef type_variable<1> T;
 	typedef type_variable<2> A;
 
-	if (match<std::vector<T,A> >(c))
+	if (cons<std::vector<T,A> >(c))
 	else
-	if (match<std::list<T,A> >(c))
+	if (cons<std::list<T,A> >(c))
 }
 */

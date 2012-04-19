@@ -6,7 +6,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -149,9 +149,9 @@ const Expr* factorize(const Expr* e)
 {
     const Expr *e1, *e2, *e3, *e4;
 
-    if (match<Plus>(
-            match<Times>(e1,e2),
-            match<Times>(e3,e4)
+    if (cons<Plus>(
+            cons<Times>(e1,e2),
+            cons<Times>(e3,e4)
         )(e))
     {
         if (e1 == e3)
@@ -166,14 +166,14 @@ const Expr* factorize(const Expr* e)
 const Expr* factorize1(const Expr* e)
 {
     variable<const Expr*> e1, e2, e3, e4;
-    if (match<Plus>(
-            match<Times>(e1,e2), 
-            match<Times>(e3 |= e1 == e3,e4)
+    if (cons<Plus>(
+            cons<Times>(e1,e2), 
+            cons<Times>(e3 |= e1 == e3,e4)
         )(e)) return new Times(e1, new Plus(e2,e4));
     else
-    if (match<Plus>(
-            match<Times>(e1,e2), 
-            match<Times>(e3,e4 |= e2 == e4)
+    if (cons<Plus>(
+            cons<Times>(e1,e2), 
+            cons<Times>(e3,e4 |= e2 == e4)
         )(e)) return new Times(new Plus(e1,e3), e4);
     else
     return e;

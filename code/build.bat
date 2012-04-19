@@ -10,6 +10,7 @@
 ::     build clean  - Clean all examples
 ::     build test   - Test all built examples
 ::     build timing - Build with a given version of MS VC++
+::     build cmp    - Build all executables for comparison with other languages
 ::                                                                           
 :: This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
 :: Copyright (C) 2005-2012 Texas A&M University.
@@ -67,6 +68,7 @@ goto END
 setlocal
 
 if "%1" == "timing" shift && goto TIMING
+if "%1" == "cmp"    shift && goto CMP
 if "%1" == ""                goto BUILD_ALL
 
 :BUILD_ARG :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -179,8 +181,25 @@ if "%M%" == "x86" set B=32
 if "%M%" == "x64" set B=64
 set PGO=1
 set CXXFLAGS=/DXTL_VISITOR_FORWARDING=%1 /DXTL_DEFAULT_SYNTAX='%S%' /DXTL_%3_TEST %CXXFLAGS% 
-call :SUB_BUILD_FILE skeleton.cxx time-%B%-%F%-%G%-%E%-%3
+call :SUB_BUILD_FILE %5 %6-%B%-%F%-%G%-%E%-%3
 endlocal
+goto END
+
+:CMP :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+call :SUB_BUILD_TIMING 0 p SEQ x86 cmp_cpp.cxx cmp
+call :SUB_BUILD_TIMING 0 f SEQ x86 cmp_cpp.cxx cmp
+call :SUB_BUILD_TIMING 1 f SEQ x86 cmp_cpp.cxx cmp
+call :SUB_BUILD_TIMING 0 P SEQ x86 cmp_cpp.cxx cmp
+call :SUB_BUILD_TIMING 0 F SEQ x86 cmp_cpp.cxx cmp
+call :SUB_BUILD_TIMING 1 F SEQ x86 cmp_cpp.cxx cmp
+echo ======================================== [ cmp_haskell.exe ] >> %logfile%
+ghc -O --make cmp_haskell
+echo ======================================== [ cmp_ocaml.exe ] >> %logfile%
+set OCAMLPATH=C:\Program Files (x86)\Objective Caml
+set OCAMLLIB=%OCAMLPATH%\lib
+set PATH=%OCAMLPATH%\bin;C:\Program Files (x86)\flexdll;%PATH%
+ocamlopt.opt unix.cmxa -o cmp_ocaml.exe cmp_ocaml.ml
 goto END
 
 :SUB_PARSE_DATE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

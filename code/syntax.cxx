@@ -6,7 +6,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -19,7 +19,7 @@
 
 //------------------------------------------------------------------------------
 
-#if XTL_DEFAULT_SYNTAX == 'u' && defined(XTL_REDUNDANCY_CHECKING)
+#if XTL_DEFAULT_SYNTAX == 'u' && XTL_REDUNDANCY_CHECKING
 // We do this as we will be using tags as first argument for unified code of 
 // Match in this case, which will render wrong catch handlers. So we workaround
 // it with just some different types in catch handlers to let it compile.
@@ -338,13 +338,13 @@ size_t do_match_3(const Shape& s, size_t)
             When(  c,w |= w > 1) std::cout << "Square(" << c << ',' << w << ">1" << ')' << std::endl;
             When(  c,w |= w > 0) std::cout << "Square(" << c << ',' << w << ">0" << ')' << std::endl;
             When(  c,w)          std::cout << "Square(" << c << ',' << w << "$$" << ')' << std::endl;
-        Que(Triangle,x,y,match<loc>(r,w |= r != w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "!=" << w << ')' << std::endl;
-            When(    x,y,match<loc>(r,w |= r >  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "> " << w << ')' << std::endl;
-            When(    x,y,match<loc>(r,w |= r >= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << ">=" << w << ')' << std::endl;
-            When(    x,y,match<loc>(r,w |= r == w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "==" << w << ')' << std::endl;
-            When(    x,y,match<loc>(r,w |= r <= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "<=" << w << ')' << std::endl;
-            When(    x,y,match<loc>(r,w |= r <  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "< " << w << ')' << std::endl;
-            When(    x,y,match<loc>(r,w))           std::cout << "Triangle(" << x << ',' << y << ',' << r << "$$" << w << ')' << std::endl;
+        Que(Triangle,x,y,cons<loc>(r,w |= r != w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "!=" << w << ')' << std::endl;
+            When(    x,y,cons<loc>(r,w |= r >  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "> " << w << ')' << std::endl;
+            When(    x,y,cons<loc>(r,w |= r >= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << ">=" << w << ')' << std::endl;
+            When(    x,y,cons<loc>(r,w |= r == w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "==" << w << ')' << std::endl;
+            When(    x,y,cons<loc>(r,w |= r <= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "<=" << w << ')' << std::endl;
+            When(    x,y,cons<loc>(r,w |= r <  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "< " << w << ')' << std::endl;
+            When(    x,y,cons<loc>(r,w))           std::cout << "Triangle(" << x << ',' << y << ',' << r << "$$" << w << ')' << std::endl;
       XTL_USE_BRACES_ONLY(})
     EndMatch
 
@@ -371,13 +371,13 @@ size_t do_match_4(const Shape& s, size_t)
             When(  c,w |= w > 1) std::cout << "Square(" << c << ',' << w << ">1" << ')' << std::endl;
             When(  c,w |= w > 0) std::cout << "Square(" << c << ',' << w << ">0" << ')' << std::endl;
             When(  c,w)          std::cout << "Square(" << c << ',' << w << "$$" << ')' << std::endl;
-        Que(Triangle,x,y,match<loc>(r,w |= r != w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "!=" << w << ')' << std::endl;
-            When(    x,y,match<loc>(r,w |= r >  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "> " << w << ')' << std::endl;
-            When(    x,y,match<loc>(r,w |= r >= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << ">=" << w << ')' << std::endl;
-            When(    x,y,match<loc>(r,w |= r == w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "==" << w << ')' << std::endl;
-            When(    x,y,match<loc>(r,w |= r <= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "<=" << w << ')' << std::endl;
-            When(    x,y,match<loc>(r,w |= r <  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "< " << w << ')' << std::endl;
-            When(    x,y,match<loc>(r,w))           std::cout << "Triangle(" << x << ',' << y << ',' << r << "$$" << w << ')' << std::endl;
+        Que(Triangle,x,y,cons<loc>(r,w |= r != w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "!=" << w << ')' << std::endl;
+            When(    x,y,cons<loc>(r,w |= r >  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "> " << w << ')' << std::endl;
+            When(    x,y,cons<loc>(r,w |= r >= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << ">=" << w << ')' << std::endl;
+            When(    x,y,cons<loc>(r,w |= r == w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "==" << w << ')' << std::endl;
+            When(    x,y,cons<loc>(r,w |= r <= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "<=" << w << ')' << std::endl;
+            When(    x,y,cons<loc>(r,w |= r <  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "< " << w << ')' << std::endl;
+            When(    x,y,cons<loc>(r,w))           std::cout << "Triangle(" << x << ',' << y << ',' << r << "$$" << w << ')' << std::endl;
         Otherwise()              std::cout << "Other()"                                 << std::endl;
       XTL_USE_BRACES_ONLY(})
     EndMatch
@@ -430,10 +430,10 @@ int fib(int n)
 {
     variable<int> m;
 
-    if (match<int>(1)(n))     return 1;
-    if (match<int>(2)(n))     return 1;
-    if (match<int>(m*2)(n))   return sqr(fib(m+1)) - sqr(fib(m-1));
-    if (match<int>(m*2+1)(n)) return sqr(fib(m+1)) + sqr(fib(m));
+    if (cons<int>(1)(n))     return 1;
+    if (cons<int>(2)(n))     return 1;
+    if (cons<int>(m*2)(n))   return sqr(fib(m+1)) - sqr(fib(m-1));
+    if (cons<int>(m*2+1)(n)) return sqr(fib(m+1)) + sqr(fib(m));
 }
 #endif
 

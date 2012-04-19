@@ -6,7 +6,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -199,6 +199,7 @@ int main()
 
 }
 
+#if 0
 int main1()
 {
     Shape* c = new Circle(loc(1,1),7);
@@ -352,7 +353,7 @@ int main1()
                 }                                                                 //
         case 117:                                                                 //
                 auto result_of_dynamic_cast = adjust_ptr<Circle>(__selector_ptr,__switch_info.offset);
-                if (match<Circle>(_,x)(result_of_dynamic_cast))
+                if (cons<Circle>(_,x)(result_of_dynamic_cast))
                 {                                                                 //
 //-->8--------------------------------------------------------------------------  //
                     std::cout << "Circle"   << std::endl; 
@@ -370,7 +371,7 @@ int main1()
                 }                                                                 //
         case 118:                                                                 //
                 auto result_of_dynamic_cast = adjust_ptr<Square>(__selector_ptr,__switch_info.offset);
-                if (match<Square>(_,x)(result_of_dynamic_cast))
+                if (cons<Square>(_,x)(result_of_dynamic_cast))
                 {                                                                 //
 //-->8--------------------------------------------------------------------------  //
                     std::cout << "Square"   << std::endl; 
@@ -388,7 +389,7 @@ int main1()
                 }                                                                 //
         case 119:                                                                 //
                 auto result_of_dynamic_cast = adjust_ptr<Triangle>(__selector_ptr,__switch_info.offset);
-                if (match<Triangle>(l)(result_of_dynamic_cast))
+                if (cons<Triangle>(l)(result_of_dynamic_cast))
                 {                                                                 //
 //-->8--------------------------------------------------------------------------  //
                     std::cout << "Triangle" << std::endl; 
@@ -409,3 +410,4 @@ int main1()
     std::cout << m << std::endl;
     return 0;
 }
+#endif

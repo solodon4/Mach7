@@ -13,6 +13,27 @@
 #pragma once
 
 #include <cstddef>
+#include "rnd.hpp"
+
+//------------------------------------------------------------------------------
+
+#if !defined(XTL_RANDOMIZE_TAGS)
+#define XTL_RANDOMIZE_TAGS 0
+#endif
+
+#if XTL_RANDOMIZE_TAGS
+/// When tag randomization is enabled, @tag<>::value metafunction returns some
+/// unique pseudo-random numbers.
+template <size_t N> struct tag : rnd<N> {};
+/// A run-time equivalent of the above.
+inline size_t get_tag(size_t n) { return get_rnd(n); }
+#else
+/// By default @tag<>::value metafunction behaves as identity thus assigning
+/// a class number N a tag N
+template <size_t N> struct tag { static const size_t value = N; };
+/// A run-time equivalent of the above.
+inline size_t get_tag(size_t n) { return n; }
+#endif
 
 //------------------------------------------------------------------------------
 
@@ -59,16 +80,16 @@ struct Shape
     size_t        m_fdc_id; // Fast dynamic cast ID
 
     Shape(size_t n = -1, size_t fdc_id = -1) : m_kind(n), m_all_kinds(0), m_fdc_id(fdc_id),
-        m_member0(n+0),
-        m_member1(n+1),
-        m_member2(n+2),
-        m_member3(n+3),
-        m_member4(n+4),
-        m_member5(n+5),
-        m_member6(n+6),
-        m_member7(n+7),
-        m_member8(n+8),
-        m_member9(n+9)
+        m_member0(get_rnd(n+0)),
+        m_member1(get_rnd(n+1)),
+        m_member2(get_rnd(n+2)),
+        m_member3(get_rnd(n+3)),
+        m_member4(get_rnd(n+4)),
+        m_member5(get_rnd(n+5)),
+        m_member6(get_rnd(n+6)),
+        m_member7(get_rnd(n+7)),
+        m_member8(get_rnd(n+8)),
+        m_member9(get_rnd(n+9))
     {}
 
     virtual ~Shape() {}

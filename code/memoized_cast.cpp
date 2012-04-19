@@ -6,7 +6,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -34,7 +34,8 @@ T byte_pattern(unsigned char c)
 struct A
 {
     A(intptr_t a = byte_pattern<intptr_t>(0xAA)) : m_a(a) {}
-    virtual ~A() {}
+    //virtual ~A() {}
+    virtual int foo() { return 42; }
     intptr_t m_a;
 };
 

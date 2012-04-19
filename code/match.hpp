@@ -23,9 +23,9 @@
 // done: Preallocate cache for number of case clauses
 // done: Add probabilities on classes to be taken into account for collisions
 // TODO: Add support for multiple scrutinies
-// done: Add static assert that verifies types in clauses to be related to selector type
+// done: Add static assert that verifies types in clauses to be related to source type
 //       in the same way dynamic_cast does. This cannot always be check that target type
-//       is derived from selector type because we may have cross cast, but we can add
+//       is derived from source type because we may have cross cast, but we can add
 //       a configuration macro that says that hierarchy is not using multiple inheritance
 //       in which case such assertion will be valid. This can be made default too.
 // done: Define logic with dedicated value used by closed matching and the way user
@@ -35,12 +35,12 @@
 // TODO: Test cases should test:
 //        - template vs. non-template context
 //        - presense and absense of Otherwise as well as when user disabled its use
-//        - const vs. non-const selector
+//        - const vs. non-const subject
 //        - presence and absense of forwarding to base classes
 //        - usage of fall-through behavior
 //        - use of implicitly declared variables in Case and explicitly declared in Que
 //        - read and write of explicitly declared variables
-//        - selector by reference and by pointer
+//        - subject by reference and by pointer
 //        - use of generic and specialized syntax
 //        - multiple match statements within the same function (to check labels and instantiations)
 //        - presense of multiple inheritance: both repeated and virtual
@@ -58,7 +58,8 @@
 // TODO: Overload comma operator on patterns to handle multiple subjects
 // TODO: Make the following two syntaxes work:
 //        - if (match(c).with(re,im)) ...
-//        - if (match<complex<float>>(re,im) == c) ...
+//        - if (cons<complex<float>>(re,im) == c) ...
+//        - if (Po(P1,...,Pn).matches(v))
 // FIX:  number of clauses is only used for MatchP at the moment, not for MatchG
 
 // NOTE: If Visual C++ gives you any of the following errors:
@@ -77,6 +78,12 @@
 #include "has_member.hpp"    // Meta-functions to check use of certain @match_members facilities
 #include <unordered_map>
 #include <vector>
+
+#if defined(_MSC_VER) && !defined(_CPPRTTI)
+    /// Disabling RTTI in MSVC is known to enable compiler optimizations that
+    /// may render type switching on a polymorphic object type unsafe.
+    XTL_MESSAGE("WARNING: Polymorphic type switch is potentially unsafe when RTTI is disabled!")
+#endif
 
 //------------------------------------------------------------------------------
 
@@ -146,7 +153,7 @@
     /// Macro to define an expected frequency of objects of a given class.
     /// The exact values are not important as they are turned into probabilities by
     /// dividing these numbers onto sum of frequencies of all classes, statically
-    /// allowable by a given match statement (derived from a selector type).
+    /// allowable by a given match statement (derived from a source type).
     /// \note Use this macro only inside specializations of @match_members
     /// \note We use variadic macro parameter here in order to be able to handle 
     ///       templates, which might have commas, otherwise juse a second argument
@@ -158,9 +165,9 @@
 
 #if !defined(FQS)
     /// Macro to define a function that returns expected frequency of a given type.
-    /// The syntax of the function should be: size_t f(const selector_type&);
+    /// The syntax of the function should be: size_t f(const source_type&);
     /// FIX: Make sure there is no re-entrancy problems when pattern matching is
-    ///      used inside of the frequency function f to uncover selector type.
+    ///      used inside of the frequency function f to uncover source type.
     #define FQS(f)                                                  \
         static size_t frequency(intptr_t vtbl) noexcept             \
         {                                                           \
@@ -253,7 +260,7 @@ template <class U, size_t L>                  struct get_param<match_members<U,L
 //------------------------------------------------------------------------------
 
 /// Helper function that is enabled when user provided frequency function for the
-/// selector type.
+/// source type.
 template <typename T>
 inline typename std::enable_if<has_member_frequency<match_members<T>>::value, size_t>::type
 get_frequency_ex(intptr_t vtbl)
@@ -262,7 +269,7 @@ get_frequency_ex(intptr_t vtbl)
 }
 
 /// Helper function that is enabled when user did not provide frequency function
-/// for selector type.
+/// for source type.
 template <typename T>
 inline typename std::enable_if<!has_member_frequency<match_members<T>>::value, size_t>::type
 get_frequency_ex(intptr_t)
@@ -476,33 +483,38 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 /// This is a common prefix of every Match statement that ensures the following:
 /// - a local type match_uid_type that uniquely identifies this match statement
 ///   is introduced. We use it to associate global resources with this statement.
-/// - a pointer value __selector_ptr referencing the subject is introduced, 
+/// - a (const) reference value subject_ref referencing the subject is 
+///   introduced, in order to prolong the lifetime of a temporary, if such was
+///   used as a subject, till the end of the Match statement.
+/// - a pointer value subject_ptr referencing the subject is introduced, 
 ///   regardless of whether the actual subject was passed by pointer, reference
 ///   or value.
-/// - the actual type of the subject without qualifiers etc. is selector_type
-/// - the default target_type is the selector_type (used for When sub-clauses)
+/// - the actual type of the subject without qualifiers etc. is source_type
+/// - the default target_type is the source_type (used for When sub-clauses)
 /// - the default target layout is the default layout (used for When sub-clauses)
 /// - matched refers the subject by default (used for When sub-clauses)
 /// - the subject cannot be a nullptr - we assert at run-time (debug) if it is
 #define XTL_MATCH_PREAMBULA(s)                                                 \
         struct match_uid_type {};                                              \
-        auto const __selector_ptr = addr(s);                                   \
-        typedef XTL_CPP0X_TYPENAME underlying<decltype(*__selector_ptr)>::type selector_type; \
-        typedef selector_type target_type;                                     \
+        auto&&     subject_ref = s;                                            \
+        auto const subject_ptr = addr(subject_ref);                            \
+        typedef XTL_CPP0X_TYPENAME underlying<decltype(*subject_ptr)>::type source_type; \
+        typedef source_type target_type;                                       \
         enum { target_layout = default_layout, is_inside_case_clause = 0 };    \
-        XTL_ASSERT(("Trying to match against a nullptr",__selector_ptr));      \
-        auto const matched = __selector_ptr;                                   \
+        XTL_ASSERT(("Trying to match against a nullptr",subject_ptr));         \
+        auto const matched = subject_ptr;                                      \
         XTL_UNUSED(matched);
 
 #define XTL_SUBCLAUSE_FIRST         XTL_NON_FALL_THROUGH_ONLY(if (false)) XTL_NON_USE_BRACES_ONLY({)
-#define XTL_SUBCLAUSE_OPEN(...)                                       if (UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true,   XTL_LIKELY(match<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
-#define XTL_SUBCLAUSE_CONTINUE(...) } XTL_NON_FALL_THROUGH_ONLY(else) if (UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(match<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
+#define XTL_SUBCLAUSE_OPEN(...)                                       if (UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true,   XTL_LIKELY(cons<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
+#define XTL_SUBCLAUSE_CONTINUE(...) } XTL_NON_FALL_THROUGH_ONLY(else) if (UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(cons<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
+#define XTL_SUBCLAUSE_PATTERN(...)  } XTL_NON_FALL_THROUGH_ONLY(else) if (UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(filter(__VA_ARGS__)(*matched)))) {
 #define XTL_SUBCLAUSE_CLOSE         }                          XTL_NON_FALL_THROUGH_ONLY(if (is_inside_case_clause) break;)
 #define XTL_SUBCLAUSE_LAST          XTL_NON_USE_BRACES_ONLY(}) XTL_NON_FALL_THROUGH_ONLY(if (is_inside_case_clause) break;)
 
 #define XTL_CLAUSE_OTHERWISE(CaseClause,...)                                   \
         static_assert(is_inside_case_clause, "Otherwise() must follow actual clauses! If you are trying to use it as a default sub-clause, use When() instead"); \
-        CaseClause(selector_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
+        CaseClause(source_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
 
 #if XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM
     #define XTL_GET_TYPES_NUM_ESTIMATE   (deferred_constant<vtbl_count_t>::get<match_uid_type>::value)
@@ -521,7 +533,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 /// - Match statement baseed on switch should introduce more open braces than
 ///   its Case-clauses to allow optional { } surrounding clauses.
 /// - Scopes are generally as following:
-///   * Match-level scope to introduce __selector_ptr, selector_type, __base_counter
+///   * Match-level scope to introduce subject_ptr, source_type, __base_counter
 ///   * switch-level scope to group case labels and allow use of break statement
 ///   * Clause-level scope introduces target_type shared by all sub-clauses
 ///   * Sub-clause-level scope introduces target_label etc.
@@ -536,10 +548,10 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 #define MatchP(s) {                                                            \
         XTL_MATCH_PREAMBULA(s)                                                 \
         enum { __base_counter = XTL_COUNTER };                                 \
-        static_assert(std::is_polymorphic<selector_type>::value, "Type of selector should be polymorphic when you use MatchP");\
-        XTL_PRELOADABLE_LOCAL_STATIC(vtblmap<type_switch_info&>,__vtbl2lines_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,)XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM);\
+        static_assert(std::is_polymorphic<source_type>::value, "Type of subject should be polymorphic when you use MatchP");\
+        XTL_PRELOADABLE_LOCAL_STATIC(vtblmap<type_switch_info&>,__vtbl2lines_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
         register const void* __casted_ptr = 0;                                 \
-        type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);\
+        type_switch_info& __switch_info = __vtbl2lines_map.get(subject_ptr);\
         switch (__switch_info.line)                                            \
         {                                                                      \
             XTL_REDUNDANCY_TRY                                                 \
@@ -548,31 +560,56 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
                     XTL_REDUNDANCY_LABEL(default:)                             \
                     XTL_SUBCLAUSE_FIRST
 
+#ifdef _MSC_VER
 /// Macro that defines the case statement for the above switch
 #define QueP(C,...)                                                            \
         XTL_SUBCLAUSE_CLOSE }}                                                 \
         XTL_REDUNDANCY_CATCH(C)                                                \
         {                                                                      \
             typedef C target_type;                                             \
-            enum { target_label = XTL_COUNTER-__base_counter, is_inside_case_clause = 1 };     \
-            if (XTL_UNLIKELY(__casted_ptr = dynamic_cast<const target_type*>(__selector_ptr))) \
+            enum { target_label = XTL_COUNTER-__base_counter, is_inside_case_clause = 1 };  \
+            if (XTL_UNLIKELY(__casted_ptr = dynamic_cast<const target_type*>(subject_ptr))) \
             {                                                                  \
                 if (XTL_LIKELY((__switch_info.line == 0)))                     \
                 {                                                              \
                     __switch_info.line = target_label;                         \
-                    __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr); \
+                    __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(subject_ptr); \
                 }                                                              \
             XTL_REDUNDANCY_LABEL(case target_label:)                           \
-                auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset);\
+                auto matched = adjust_ptr<target_type>(subject_ptr,__switch_info.offset);\
                 XTL_UNUSED(matched);                                           \
                 XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
+#else
+/// NOTE: This version of the macro experiments with syntax Case(const A& a) a.foo() syntax
+/// Macro that defines the case statement for the above switch
+#define QueP(C,...)                                                            \
+        XTL_SUBCLAUSE_CLOSE }}                                                 \
+        XTL_REDUNDANCY_CATCH(C)                                                \
+        {                                                                      \
+            /*typedef C target_type;*/                                         \
+            void foo(C); typedef XTL_CPP0X_TYPENAME underlying<XTL_CPP0X_TYPENAME get_first_param<decltype(foo)>::type>::type target_type;\
+            enum { target_label = XTL_COUNTER-__base_counter, is_inside_case_clause = 1 };  \
+            if (XTL_UNLIKELY(__casted_ptr = dynamic_cast<const target_type*>(subject_ptr))) \
+            {                                                                  \
+                if (XTL_LIKELY((__switch_info.line == 0)))                     \
+                {                                                              \
+                    __switch_info.line = target_label;                         \
+                    __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(subject_ptr); \
+                }                                                              \
+            XTL_REDUNDANCY_LABEL(case target_label:)                           \
+                auto matched = adjust_ptr<target_type>(subject_ptr,__switch_info.offset);\
+                C{*matched};                                                   \
+                XTL_UNUSED(matched);                                           \
+                XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
+#endif
 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
 ///       seems to be impossible to introduce dummy argument inside the Case 
 ///       directly, so we use the type argument as a dummy argument for XTL_DECL_BOUND_VARS
 #define CaseP_(C,...)   QueP(C)                                                                         
 #define CaseP(...)      XTL_APPLY_VARIADIC_MACRO(CaseP_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
-#define WhenP(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__) __casted_ptr = __selector_ptr;
+#define WhenP(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__) __casted_ptr = subject_ptr;
+#define PatternP(...)   XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)  __casted_ptr = subject_ptr;
 #define OtherwiseP(...) XTL_CLAUSE_OTHERWISE(CaseP,__VA_ARGS__)
 #define EndMatchP                                                              \
         XTL_SUBCLAUSE_LAST }}                                                  \
@@ -587,8 +624,8 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 /// a distinct integral value in one of their members.
 #define MatchK(s) {                                                            \
         XTL_MATCH_PREAMBULA(s)                                                 \
-        static_assert(has_member_kind_selector<match_members<selector_type>>::value, "Before using MatchK, you have to specify kind selector on the selector type using KS macro");\
-        auto const __kind_selector = kind_selector(__selector_ptr);            \
+        static_assert(has_member_kind_selector<match_members<source_type>>::value, "Before using MatchK, you have to specify kind selector on the source type using KS macro");\
+        auto const __kind_selector = kind_selector(subject_ptr);               \
         switch (__kind_selector) { { XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
@@ -599,7 +636,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
         case match_members<C>::kind_value:                                     \
             typedef C target_type;                                             \
             enum { is_inside_case_clause = 1 };                                \
-            auto matched = stat_cast<target_type>(__selector_ptr);             \
+            auto matched = stat_cast<target_type>(subject_ptr);                \
             XTL_UNUSED(matched);                                               \
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
 
@@ -609,6 +646,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 #define CaseK_(C,...)   QueK(C)
 #define CaseK(...)      XTL_APPLY_VARIADIC_MACRO(CaseK_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenK(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
+#define PatternK(...)   XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)
 #define OtherwiseK(...)                                                        \
         } XTL_NON_FALL_THROUGH_ONLY(break;) }                                  \
         default: { XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__)) {
@@ -620,25 +658,26 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 /// a distinct integral value in one of their members.
 #define MatchU(s) {                                                            \
         XTL_MATCH_PREAMBULA(s)                                                 \
-        static_assert(has_member_kind_selector<match_members<selector_type>>::value, "Before using MatchU, you have to specify kind selector on the selector type using KS macro");\
-        auto const __kind_selector = kind_selector(__selector_ptr);            \
+        static_assert(has_member_kind_selector<match_members<source_type>>::value, "Before using MatchU, you have to specify kind selector on the subject type using KS macro");\
+        auto const __kind_selector = kind_selector(subject_ptr);               \
         switch (__kind_selector) { { XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
 #define QueU(L,...)                                                            \
         XTL_SUBCLAUSE_CLOSE }                                                  \
-        if (XTL_UNLIKELY((__kind_selector == match_members<selector_type,L>::kind_value))) \
+        if (XTL_UNLIKELY((__kind_selector == match_members<source_type,L>::kind_value))) \
         {                                                                      \
-        case match_members<selector_type,L>::kind_value:                       \
-            typedef selector_type target_type;                                 \
+        case match_members<source_type,L>::kind_value:                         \
+            typedef source_type target_type;                                   \
             enum { target_layout = L, is_inside_case_clause = 1 };             \
-            auto matched = __selector_ptr;                                     \
+            auto matched = subject_ptr;                                        \
             XTL_UNUSED(matched);                                               \
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
 
 #define CaseU_(L,...)   QueU(L)
 #define CaseU(...)      XTL_APPLY_VARIADIC_MACRO(CaseU_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenU(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
+#define PatternU(...)   XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)
 #define OtherwiseU(...)                                                        \
         } XTL_NON_FALL_THROUGH_ONLY(break;) }                                  \
         default: { XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__)) {
@@ -652,9 +691,9 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 ///       around the case clauses.
 #define MatchE(s) {                                                            \
         XTL_MATCH_PREAMBULA(s)                                                 \
-        static_assert(has_member_raise_selector<match_members<selector_type>>::value, "Before using MatchE, you have to specify raise selector on the selector type using RS macro");\
+        static_assert(has_member_raise_selector<match_members<source_type>>::value, "Before using MatchE, you have to specify raise selector on the subject type using RS macro");\
         XTL_MESSAGE("WARNING: The use of { and } within MatchE-statement must match XTL_USE_BRACES setting!") \
-        try { raise_selector(__selector_ptr); XTL_SUBCLAUSE_FIRST
+        try { raise_selector(subject_ptr); XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
 #define QueE(C,...) }}                                                         \
@@ -669,6 +708,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 #define CaseE_(C,...)   QueE(C)
 #define CaseE(...)      XTL_APPLY_VARIADIC_MACRO(CaseE_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenE(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
+#define PatternE(...)   XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)
 #define OtherwiseE(...) XTL_CLAUSE_OTHERWISE(CaseE,__VA_ARGS__)
 #define EndMatchE       XTL_NON_USE_BRACES_ONLY(}) } catch (...) {} }
 
@@ -680,8 +720,8 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 ///     Forwarding: Sequential: 251% faster; Random: 33% faster
 #define MatchF(s) {                                                            \
         XTL_MATCH_PREAMBULA(s)                                                 \
-        static_assert(has_member_kind_selector<match_members<selector_type>>::value, "Before using MatchF, you have to specify kind selector on the selector type using KS macro");\
-        lbl_type __kind_selector = original2remapped<selector_type>(tag_type(kind_selector(__selector_ptr))), __most_derived_kind_selector = __kind_selector;\
+        static_assert(has_member_kind_selector<match_members<source_type>>::value, "Before using MatchF, you have to specify kind selector on the subject type using KS macro");\
+        lbl_type __kind_selector = original2remapped<source_type>(tag_type(kind_selector(subject_ptr))), __most_derived_kind_selector = __kind_selector;\
         const lbl_type* __kinds = 0;                                           \
         size_t __attempt;                                                      \
         XTL_CONCAT(ReMatch,__LINE__):                                          \
@@ -690,11 +730,11 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
             if (XTL_LIKELY(!__kinds))                                          \
             {                                                                  \
                 __attempt = 0;                                                 \
-                XTL_PRELOADABLE_LOCAL_STATIC(std::vector<const lbl_type*>,__kinds_cache,match_uid_type); \
+                XTL_PRELOADABLE_LOCAL_STATIC(std::vector<const lbl_type*>,__kinds_cache,match_uid_type);\
                 if (XTL_UNLIKELY(__kind_selector >= __kinds_cache.size()))     \
                     __kinds_cache.resize(__kind_selector+1);                   \
                 if (!(__kinds = __kinds_cache[__kind_selector]))               \
-                    __kinds = __kinds_cache[__kind_selector] = get_kinds<selector_type>(__kind_selector);\
+                    __kinds = __kinds_cache[__kind_selector] = get_kinds<source_type>(__kind_selector);\
             }                                                                  \
             XTL_ASSERT(("Base classes for this kind were not specified",__kinds));    \
             XTL_ASSERT(("Invalid list of kinds",__kinds[__attempt]==__kind_selector));\
@@ -705,12 +745,12 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 /// Macro that defines the case statement for the above switch
 #define QueF(C,...)                                                            \
         XTL_SUBCLAUSE_CLOSE }                                                  \
-        if (XTL_UNLIKELY(is_base_and_derived_kinds<selector_type>(remapped<C>::lbl, __most_derived_kind_selector))) \
+        if (XTL_UNLIKELY(is_base_and_derived_kinds<source_type>(remapped<C>::lbl, __most_derived_kind_selector))) \
         {                                                                      \
         case remapped<C>::lbl:                                                 \
             typedef C target_type;                                             \
             enum { is_inside_case_clause = 1 };                                \
-            auto matched = stat_cast<target_type>(__selector_ptr);             \
+            auto matched = stat_cast<target_type>(subject_ptr);                \
             XTL_UNUSED(matched);                                               \
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
 
@@ -720,6 +760,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 #define CaseF_(C,...)   QueF(C)
 #define CaseF(...)      XTL_APPLY_VARIADIC_MACRO(CaseF_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenF(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
+#define PatternF(...)   XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)
 #define OtherwiseF(...) XTL_CLAUSE_OTHERWISE(CaseF,__VA_ARGS__)
 #define EndMatchF       XTL_SUBCLAUSE_LAST } }}
 
@@ -747,7 +788,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
             typedef C target_type;                                             \
             enum { is_inside_case_clause = 1 };                                \
             XTL_REDUNDANCY_LABEL(case XTL_COUNTER-__base_counter:)             \
-            if (auto matched = match<C>()(__selector_ptr))                     \
+            if (auto matched = cons<C>()(subject_ptr))                         \
             { /* Sequential */                                                 \
                 XTL_UNUSED(matched);                                           \
                 XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
@@ -758,6 +799,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 #define CaseS_(C,...)   QueS(C)
 #define CaseS(...)      XTL_APPLY_VARIADIC_MACRO(CaseS_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenS(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
+#define PatternS(...)   XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)
 #define OtherwiseS(...) XTL_CLAUSE_OTHERWISE(CaseS,__VA_ARGS__)
 #define EndMatchS       XTL_SUBCLAUSE_LAST }}}}
 
@@ -777,7 +819,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
         XTL_SUBCLAUSE_CLOSE }}{                                                \
         typedef C target_type;                                                 \
         enum { is_inside_case_clause = 1 };                                    \
-        if (auto matched = match<C>()(__selector_ptr))                         \
+        if (auto matched = cons<C>()(subject_ptr))                             \
         {                                                                      \
             XTL_UNUSED(matched);                                               \
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
@@ -788,6 +830,7 @@ inline bool is_base_and_derived_kinds(lbl_type base_kind, lbl_type derived_kind)
 #define CaseS_(C,...)   QueS(C)
 #define CaseS(...)      XTL_APPLY_VARIADIC_MACRO(CaseS_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenS(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
+#define PatternS(...)   XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)
 #define OtherwiseS(...) XTL_CLAUSE_OTHERWISE(CaseS,__VA_ARGS__)
 #define EndMatchS       XTL_SUBCLAUSE_LAST }}} while (false);
 
@@ -823,11 +866,11 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 #define MatchQ(s) {                                                            \
         XTL_MATCH_PREAMBULA(s)                                                 \
         enum { __base_counter = XTL_COUNTER };                                 \
-        typedef unified_switch<selector_type> switch_traits;                   \
+        typedef unified_switch<source_type> switch_traits;                     \
         XTL_PRELOADABLE_LOCAL_STATIC(XTL_CPP0X_TYPENAME switch_traits::static_data_type,static_data,match_uid_type); \
-        XTL_CPP0X_TYPENAME switch_traits::local_data_type  local_data;  \
+        XTL_CPP0X_TYPENAME switch_traits::local_data_type  local_data;         \
         register bool processed = false;                                       \
-        size_t jump_target = switch_traits::choose(__selector_ptr,static_data,local_data); \
+        size_t jump_target = switch_traits::choose(subject_ptr,static_data,local_data); \
         XTL_CONCAT(ReMatch,__LINE__):                                          \
         switch (jump_target)                                                   \
         {                                                                      \
@@ -843,15 +886,15 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
         XTL_REDUNDANCY_CATCH(C)                                                \
         {                                                                      \
             typedef XTL_CPP0X_TYPENAME switch_traits::                         \
-                    XTL_CPP0X_TEMPLATE disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::selector_type)>:: \
+                    XTL_CPP0X_TEMPLATE disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::source_type)>:: \
                     XTL_CPP0X_TEMPLATE parameter<C> target_specific;           \
             typedef XTL_CPP0X_TYPENAME target_specific::target_type target_type;                          \
             enum { target_layout = target_specific::layout, target_label = XTL_COUNTER-__base_counter, is_inside_case_clause = 1 };  \
-            if (XTL_UNLIKELY(target_specific::main_condition(__selector_ptr, local_data)))                \
+            if (XTL_UNLIKELY(target_specific::main_condition(subject_ptr, local_data)))                   \
             {                                                                                             \
-                switch_traits::on_first_pass(__selector_ptr, local_data, target_label);                   \
+                switch_traits::on_first_pass(subject_ptr, local_data, target_label);                      \
             XTL_REDUNDANCY_LABEL(case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value:)\
-                auto matched = target_specific::get_matched(__selector_ptr,local_data);                   \
+                auto matched = target_specific::get_matched(subject_ptr,local_data);                      \
                 XTL_UNUSED(matched);                                           \
                 XTL_SUBCLAUSE_OPEN(__VA_ARGS__) processed = true;
 
@@ -861,10 +904,11 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 #define CaseQ_(C,...)   QueQ(C)
 #define CaseQ(...)      XTL_APPLY_VARIADIC_MACRO(CaseQ_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenQ(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__) processed = true;
+#define PatternQ(...)   XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)
 #define OtherwiseQ(...) XTL_CLAUSE_OTHERWISE(CaseQ,__VA_ARGS__)
 #define EndMatchQ       XTL_SUBCLAUSE_LAST }}}                                 \
         enum { target_label = XTL_COUNTER-__base_counter };                    \
-        if (!processed) switch_traits::on_end(__selector_ptr, local_data, target_label); \
+        if (!processed) switch_traits::on_end(subject_ptr, local_data, target_label); \
         case switch_traits::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::exit: ; }}
 
 //------------------------------------------------------------------------------
@@ -883,6 +927,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  Case       CaseP
   #define  Que        QueP
   #define  When       WhenP
+  #define  Pattern    PatternP
   #define  Otherwise  OtherwiseP
   #define  EndMatch   EndMatchP
 #elif XTL_DEFAULT_SYNTAX == 'K'
@@ -892,6 +937,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  Case       CaseK
   #define  Que        QueK
   #define  When       WhenK
+  #define  Pattern    PatternK
   #define  Otherwise  OtherwiseK
   #define  EndMatch   EndMatchK
 #elif XTL_DEFAULT_SYNTAX == 'U'
@@ -901,6 +947,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  Case       CaseU
   #define  Que        QueU
   #define  When       WhenU
+  #define  Pattern    PatternU
   #define  Otherwise  OtherwiseU
   #define  EndMatch   EndMatchU
 #elif XTL_DEFAULT_SYNTAX == 'E'
@@ -910,6 +957,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  Case       CaseE
   #define  Que        QueE
   #define  When       WhenE
+  #define  Pattern    PatternE
   #define  Otherwise  OtherwiseE
   #define  EndMatch   EndMatchE
 #elif XTL_DEFAULT_SYNTAX == 'F'
@@ -919,6 +967,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  Case       CaseF
   #define  Que        QueF
   #define  When       WhenF
+  #define  Pattern    PatternF
   #define  Otherwise  OtherwiseF
   #define  EndMatch   EndMatchF
 #elif XTL_DEFAULT_SYNTAX == 'S'
@@ -928,6 +977,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  Case       CaseS
   #define  Que        QueS
   #define  When       WhenS
+  #define  Pattern    PatternS
   #define  Otherwise  OtherwiseS
   #define  EndMatch   EndMatchS
 #else
@@ -937,6 +987,7 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
   #define  Case       CaseQ
   #define  Que        QueQ
   #define  When       WhenQ
+  #define  Pattern    PatternQ
   #define  Otherwise  OtherwiseQ
   #define  EndMatch   EndMatchQ
 #endif
@@ -953,13 +1004,13 @@ template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 typ
 /// structures used by open and closed cases.
 /// \note This is the general case that assumes no knowledge and generates simple 
 ///       cascading-if statement sequentially testing each clause.
-template <typename SelectorType, class condition = void>
+template <typename SubjectType, class condition = void>
 class unified_switch
 {
 public:
 
     /// Type of the argument on which extended switch is done
-    typedef typename underlying<SelectorType>::type selector_type;
+    typedef typename underlying<SubjectType>::type source_type;
 
     /// Type of data that has to be statically allocated inside the block 
     /// containg extended switch
@@ -984,16 +1035,16 @@ public:
     };
 
     /// Function used to get the value we'll be switching on
-    static inline size_t choose(const selector_type*, static_data_type&, local_data_type&) noexcept
+    static inline size_t choose(const source_type*, static_data_type&, local_data_type&) noexcept
     {
         return 0;
     }
 
     /// Function that will be called upon first entry to the case through the fall-through behavior
-    static inline void on_first_pass(const selector_type*, local_data_type&, size_t) noexcept {}
+    static inline void on_first_pass(const source_type*, local_data_type&, size_t) noexcept {}
     
     /// Function that will be called when the fall-through behavior reached end of the switch
-    static inline void on_end(const selector_type*, local_data_type&, size_t) noexcept {}
+    static inline void on_end(const source_type*, local_data_type&, size_t) noexcept {}
 
     /// Function that will be called on default clause. It should return true 
     /// when unconditional jump to ReMatch label should be performed.
@@ -1031,25 +1082,25 @@ public:
 
             /// Condition that guards applicability of the given case clause
             /// during the fall-through behavior.
-            static inline bool main_condition(const selector_type* selector_ptr, local_data_type& local_data) noexcept
+            static inline bool main_condition(const source_type* subject_ptr, local_data_type& local_data) noexcept
             {
                 return true;
             }
 
-            /// Performs the necessary conversion of the original selector into the proper
+            /// Performs the necessary conversion of the original subject into the proper
             /// object of target type.
-            /// \note The selector is const-qualified, thus the target is also const-qualified
-            static inline const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data) noexcept
+            /// \note The subject is const-qualified, thus the target is also const-qualified
+            static inline const target_type* get_matched(const source_type* subject_ptr, local_data_type& local_data) noexcept
             {
-                return static_cast<const target_type*>(selector_ptr);
+                return static_cast<const target_type*>(subject_ptr);
             }
 
-            /// Performs the necessary conversion of the original selector into the proper
+            /// Performs the necessary conversion of the original subject into the proper
             /// object of target type.
-            /// \note The selector is non-const, thus the target is also non-const
-            static inline       target_type* get_matched(      selector_type* selector_ptr, local_data_type& local_data) noexcept
+            /// \note The subject is non-const, thus the target is also non-const
+            static inline       target_type* get_matched(      source_type* subject_ptr, local_data_type& local_data) noexcept
             {
-                return static_cast<      target_type*>(selector_ptr);
+                return static_cast<      target_type*>(subject_ptr);
             }
         };
     };
@@ -1064,12 +1115,12 @@ public:
 /// overhead that appears because of the necessity of merging the syntactic 
 /// structures used by open and closed cases.
 /// \note This is a specialization for polymorphic case
-template <typename SelectorType>
+template <typename SubjectType>
 class unified_switch<
-    SelectorType, 
+    SubjectType, 
     typename std::enable_if<
-                std::is_polymorphic<typename underlying<SelectorType>::type>::value &&
-               !has_member_kind_selector<match_members<typename underlying<SelectorType>::type>>::value,
+                std::is_polymorphic<typename underlying<SubjectType>::type>::value &&
+               !has_member_kind_selector<match_members<typename underlying<SubjectType>::type>>::value,
                 void
              >::type
 >
@@ -1077,7 +1128,7 @@ class unified_switch<
 public:
 
     /// Type of the argument on which extended switch is done
-    typedef typename underlying<SelectorType>::type selector_type;
+    typedef typename underlying<SubjectType>::type source_type;
 
     /// Type of data that has to be statically allocated inside the block 
     /// containg extended switch
@@ -1106,24 +1157,24 @@ public:
     };
 
     /// Function used to get the value we'll be switching on
-    static inline size_t choose(const selector_type* selector_ptr, static_data_type& static_data, local_data_type& local_data) noexcept
+    static inline size_t choose(const source_type* subject_ptr, static_data_type& static_data, local_data_type& local_data) noexcept
     {
-        local_data.switch_info_ptr = &static_data.get(selector_ptr);
+        local_data.switch_info_ptr = &static_data.get(subject_ptr);
         return local_data.switch_info_ptr->line;
     }
 
     /// Function that will be called upon first entry to the case through the fall-through behavior
-    static inline void on_first_pass(const selector_type* selector_ptr, local_data_type& local_data, size_t line) noexcept
+    static inline void on_first_pass(const source_type* subject_ptr, local_data_type& local_data, size_t line) noexcept
     {
         if (XTL_LIKELY(local_data.switch_info_ptr->line == 0)) 
         {
             local_data.switch_info_ptr->line   = line; 
-            local_data.switch_info_ptr->offset = intptr_t(local_data.casted_ptr)-intptr_t(selector_ptr);
+            local_data.switch_info_ptr->offset = intptr_t(local_data.casted_ptr)-intptr_t(subject_ptr);
         } 
     }
     
     /// Function that will be called when the fall-through behavior reached end of the switch
-    static inline void on_end(const selector_type* selector_ptr, local_data_type& local_data, size_t line) noexcept
+    static inline void on_end(const source_type* subject_ptr, local_data_type& local_data, size_t line) noexcept
     {
         XTL_ASSERT(local_data.switch_info_ptr->line == 0);
         //if (XTL_LIKELY(local_data.switch_info_ptr->line == 0)) 
@@ -1170,25 +1221,25 @@ public:
 
             /// Condition that guards applicability of the given case clause
             /// during the fall-through behavior.
-            static inline bool main_condition(const selector_type* selector_ptr, local_data_type& local_data) noexcept
+            static inline bool main_condition(const source_type* subject_ptr, local_data_type& local_data) noexcept
             {
-                return (local_data.casted_ptr = dynamic_cast<const target_type*>(selector_ptr)) != 0;
+                return (local_data.casted_ptr = dynamic_cast<const target_type*>(subject_ptr)) != 0;
             }
 
-            /// Performs the necessary conversion of the original selector into the proper
+            /// Performs the necessary conversion of the original subject into the proper
             /// object of target type.
-            /// \note The selector is const-qualified, thus the target is also const-qualified
-            static inline const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data) noexcept
+            /// \note The subject is const-qualified, thus the target is also const-qualified
+            static inline const target_type* get_matched(const source_type* subject_ptr, local_data_type& local_data) noexcept
             {
-                return adjust_ptr<target_type>(selector_ptr,local_data.switch_info_ptr->offset);
+                return adjust_ptr<target_type>(subject_ptr,local_data.switch_info_ptr->offset);
             }
 
-            /// Performs the necessary conversion of the original selector into the proper
+            /// Performs the necessary conversion of the original subject into the proper
             /// object of target type.
-            /// \note The selector is non-const, thus the target is also non-const
-            static inline       target_type* get_matched(      selector_type* selector_ptr, local_data_type& local_data) noexcept
+            /// \note The subject is non-const, thus the target is also non-const
+            static inline       target_type* get_matched(      source_type* subject_ptr, local_data_type& local_data) noexcept
             {
-                return adjust_ptr<target_type>(selector_ptr,local_data.switch_info_ptr->offset);
+                return adjust_ptr<target_type>(subject_ptr,local_data.switch_info_ptr->offset);
             }
         };
     };
@@ -1207,11 +1258,11 @@ public:
 /// \note This is a specialization for the closed case. It becomes enabled when
 ///       user used KS macro inside @match_members to define which member will
 ///       be used as kind selector.
-template <typename SelectorType>
+template <typename SubjectType>
 class unified_switch<
-    SelectorType, 
+    SubjectType, 
     typename std::enable_if<
-                has_member_kind_selector<match_members<typename underlying<SelectorType>::type>>::value,
+                has_member_kind_selector<match_members<typename underlying<SubjectType>::type>>::value,
                 void
              >::type
 >
@@ -1219,7 +1270,7 @@ class unified_switch<
 public:
 
     /// Type of the argument on which extended switch is done
-    typedef typename underlying<SelectorType>::type selector_type;
+    typedef typename underlying<SubjectType>::type source_type;
 
     /// Type of data that has to be statically allocated inside the block 
     /// containg extended switch
@@ -1256,16 +1307,16 @@ public:
     };
 
     /// Function used to get the value we'll be switching on
-    static inline size_t choose(const selector_type* selector_ptr, static_data_type&, local_data_type&)
+    static inline size_t choose(const source_type* subject_ptr, static_data_type&, local_data_type&)
     {
-        return original2remapped<selector_type>(tag_type(kind_selector(selector_ptr)));
+        return original2remapped<source_type>(tag_type(kind_selector(subject_ptr)));
     }
 
     /// Function that will be called upon first entry to the case through the fall-through behavior
-    static inline void on_first_pass(const selector_type*, local_data_type&, size_t) noexcept {}
+    static inline void on_first_pass(const source_type*, local_data_type&, size_t) noexcept {}
 
     /// Function that will be called when the fall-through behavior reached end of the switch
-    static inline void on_end(const selector_type*, local_data_type&, size_t) noexcept {}
+    static inline void on_end(const source_type*, local_data_type&, size_t) noexcept {}
 
     /// Function that will be called on default clause. It should return true 
     /// when unconditional jump to ReMatch label should be performed.
@@ -1277,7 +1328,7 @@ public:
             if (XTL_UNLIKELY(jump_target >= static_data.size()))
                 static_data.resize(jump_target+1);
             if (!(local_data.kinds = static_data[jump_target]))
-                local_data.kinds = static_data[jump_target] = get_kinds<selector_type>(lbl_type(jump_target));
+                local_data.kinds = static_data[jump_target] = get_kinds<source_type>(lbl_type(jump_target));
         }
         XTL_ASSERT(("Base classes for this kind were not specified",local_data.kinds));
         XTL_ASSERT(("Invalid list of kinds",local_data.kinds[local_data.attempt]==jump_target));
@@ -1301,8 +1352,8 @@ public:
         {
             /// Since value as a first argument of the case clause is only
             /// allowed by us on discriminated unions, the target type is equal
-            /// to the selector type.
-            typedef typename target_of<selector_type>::type target_type;
+            /// to the source type.
+            typedef typename target_of<source_type>::type target_type;
 
             /// Layout that has to be used for the given target type.
             enum { layout = N };
@@ -1322,26 +1373,26 @@ public:
             
             /// Condition that guards applicability of the given case clause
             /// during the fall-through behavior.
-            static inline bool main_condition(const selector_type* selector_ptr, local_data_type&) 
+            static inline bool main_condition(const source_type* subject_ptr, local_data_type&) 
             {
-                lbl_type derived_kind = original2remapped<selector_type>(tag_type(kind_selector(selector_ptr)));
-                return is_base_and_derived_kinds<selector_type>(remapped<target_type,layout>::lbl, derived_kind); 
+                lbl_type derived_kind = original2remapped<source_type>(tag_type(kind_selector(subject_ptr)));
+                return is_base_and_derived_kinds<source_type>(remapped<target_type,layout>::lbl, derived_kind); 
             }
 
-            /// Performs the necessary conversion of the original selector into the proper
+            /// Performs the necessary conversion of the original subject into the proper
             /// object of target type.
-            /// \note The selector is const-qualified, thus the target is also const-qualified
-            static inline const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data) noexcept
+            /// \note The subject is const-qualified, thus the target is also const-qualified
+            static inline const target_type* get_matched(const source_type* subject_ptr, local_data_type& local_data) noexcept
             {
-                return selector_ptr;
+                return subject_ptr;
             }
 
-            /// Performs the necessary conversion of the original selector into the proper
+            /// Performs the necessary conversion of the original subject into the proper
             /// object of target type.
-            /// \note The selector is non-const, thus the target is also non-const
-            static inline       target_type* get_matched(      selector_type* selector_ptr, local_data_type& local_data) noexcept
+            /// \note The subject is non-const, thus the target is also non-const
+            static inline       target_type* get_matched(      source_type* subject_ptr, local_data_type& local_data) noexcept
             {
-                return selector_ptr;
+                return subject_ptr;
             }
         };
     };
@@ -1378,26 +1429,26 @@ public:
 
             /// Condition that guards applicability of the given case clause
             /// during the fall-through behavior.
-            static inline bool main_condition(const selector_type* selector_ptr, local_data_type& local_data) 
+            static inline bool main_condition(const source_type* subject_ptr, local_data_type& local_data) 
             { 
-                lbl_type derived_kind = original2remapped<selector_type>(tag_type(kind_selector(selector_ptr)));
-                return is_base_and_derived_kinds<selector_type>(remapped<target_type,layout>::lbl, derived_kind); 
+                lbl_type derived_kind = original2remapped<source_type>(tag_type(kind_selector(subject_ptr)));
+                return is_base_and_derived_kinds<source_type>(remapped<target_type,layout>::lbl, derived_kind); 
             }
 
-            /// Performs the necessary conversion of the original selector into the proper
+            /// Performs the necessary conversion of the original subject into the proper
             /// object of target type.
-            /// \note The selector is const-qualified, thus the target is also const-qualified
-            static inline const target_type* get_matched(const selector_type* selector_ptr, local_data_type& local_data) noexcept
+            /// \note The subject is const-qualified, thus the target is also const-qualified
+            static inline const target_type* get_matched(const source_type* subject_ptr, local_data_type& local_data) noexcept
             {
-                return stat_cast<target_type>(selector_ptr);
+                return stat_cast<target_type>(subject_ptr);
             }
 
-            /// Performs the necessary conversion of the original selector into the proper
+            /// Performs the necessary conversion of the original subject into the proper
             /// object of target type.
-            /// \note The selector is non-const, thus the target is also non-const
-            static inline       target_type* get_matched(      selector_type* selector_ptr, local_data_type& local_data) noexcept
+            /// \note The subject is non-const, thus the target is also non-const
+            static inline       target_type* get_matched(      source_type* subject_ptr, local_data_type& local_data) noexcept
             {
-                return stat_cast<target_type>(selector_ptr);
+                return stat_cast<target_type>(subject_ptr);
             }
         };
     };

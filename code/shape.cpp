@@ -6,7 +6,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -32,13 +32,13 @@ double area(const Shape& shape)
     variable<loc>  x,y,z;
     variable<double> r,s;
 
-    if (match<Circle>(_,r)(shape))
+    if (cons<Circle>(_,r)(shape))
         return 3.14 * r * r;
 
-    if (match<Square>(_,s)(shape))
+    if (cons<Square>(_,s)(shape))
         return s * s;
 
-    if (match<Triangle>(x,y,z)(shape))
+    if (cons<Triangle>(x,y,z)(shape))
         return heron(x,y,z);
 
     XTL_ASSERT(!"Inexhaustive search");
@@ -48,21 +48,21 @@ loc center(/*const*/ Shape& shape)
 {
     variable<loc> c;
 
-    if (match<Circle>(c/*,_*/)(shape))
+    if (cons<Circle>(c/*,_*/)(shape))
         return c;
 
     variable<double> x,y,s;
 
-    if (match<Square>(
-            match<loc>(x,y),s)(shape))
+    if (cons<Square>(
+            cons<loc>(x,y),s)(shape))
         return loc(x+s/2,y+s/2);
 
     variable<double> x1,y1,x2,y2,x3,y3;
 
-    if (match<Triangle>(
-            match<loc>(x1,y1),
-            match<loc>(x2,y2),
-            match<loc>(x3,y3)
+    if (cons<Triangle>(
+            cons<loc>(x1,y1),
+            cons<loc>(x2,y2),
+            cons<loc>(x3,y3)
                        )(shape))
         return loc((x1+x2+x3)/3,(y1+y2+y3)/3);
 
@@ -75,33 +75,33 @@ void foo(Shape* s)
     variable<double> a,b,c;
     wildcard       _;
 
-    auto pattern = match<Circle>(x, -a*2+1);
+    auto pattern = cons<Circle>(x, -a*2+1);
 
     if (pattern(s))
         std::cout << "Matched against pattern " << a << std::endl;
 
-    if (match<Circle>(x, -a*2+1)(s))
+    if (cons<Circle>(x, -a*2+1)(s))
         std::cout << "Matched against subexpression " << a << std::endl;
 
-    if (match<Circle>(x |= x == loc(1,1), a)(s))
+    if (cons<Circle>(x |= x == loc(1,1), a)(s))
         std::cout << "Matched against guard " << a << std::endl;
 
-    if (match<Circle>(x, a |= a > 3 && a < 5)(s))
+    if (cons<Circle>(x, a |= a > 3 && a < 5)(s))
         std::cout << "Matched radius against COMPLEX guard " << a << std::endl;
 
-    if (match<Circle>(match<loc>(b,1), a)(s))
+    if (cons<Circle>(cons<loc>(b,1), a)(s))
         std::cout << "Matched against subexpression " << b << std::endl;
 
-    if (match<Circle>(x,4.0)(s))
+    if (cons<Circle>(x,4.0)(s))
         std::cout << "Circle with center " << x << " and FIXED radius " << std::endl;
 
-    if (match<Circle>(x,a)(s))
+    if (cons<Circle>(x,a)(s))
         std::cout << "Circle with center " << x << " and radius " << a << std::endl;
     else
-    if (match<Square>(x,a)(s))
+    if (cons<Square>(x,a)(s))
         std::cout << "Square with top left " << x << " and side " << a << std::endl;
     else
-    if (match<Triangle>(x,y,z)(s))
+    if (cons<Triangle>(x,y,z)(s))
         std::cout << "Triangle with corners " << x << ',' << y << ',' << z << std::endl;
 }
 
@@ -111,22 +111,22 @@ void bar(ADTShape& s)
     variable<double> a;
 
 #ifndef POD_ONLY
-    if (match<ADTShapeEx,ADTShape::circle>(x,a)(s))
+    if (cons<ADTShapeEx,ADTShape::circle>(x,a)(s))
         std::cout << "ADTCircleEx with center " << x << " and radius " << a << std::endl;
     else
-    if (match<ADTShapeEx,ADTShape::square>(x,a)(s))
+    if (cons<ADTShapeEx,ADTShape::square>(x,a)(s))
         std::cout << "ADTSquareEx with top left " << x << " and side " << a << std::endl;
     else
-    if (match<ADTShapeEx,ADTShape::triangle>(x,y,z)(s))
+    if (cons<ADTShapeEx,ADTShape::triangle>(x,y,z)(s))
         std::cout << "ADTTriangleEx with corners " << x << ',' << y << ',' << z << std::endl;
 #endif
-    if (match<ADTShape,ADTShape::circle>(x,a)(s))
+    if (cons<ADTShape,ADTShape::circle>(x,a)(s))
         std::cout << "ADTCircle with center " << x << " and radius " << a << std::endl;
     else
-    if (match<ADTShape,ADTShape::square>(x,a)(s))
+    if (cons<ADTShape,ADTShape::square>(x,a)(s))
         std::cout << "ADTSquare with top left " << x << " and side " << a << std::endl;
     else
-    if (match<ADTShape,ADTShape::triangle>(x,y,z)(s))
+    if (cons<ADTShape,ADTShape::triangle>(x,y,z)(s))
         std::cout << "ADTTriangle with corners " << x << ',' << y << ',' << z << std::endl;
 }
 

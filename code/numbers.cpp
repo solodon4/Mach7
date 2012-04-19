@@ -22,6 +22,9 @@ fib 2       = 1
 fib (2*n)   = (fib(n+1))^2 - (fib(n-1))^2
 fib (2*n+1) = (fib(n+1))^2 + (fib n   )^2
 */
+
+#define XTL_DEFAULT_SYNTAX 'S'
+
 #include "match.hpp"
 #include <math.h>
 #include <iostream>
@@ -33,8 +36,8 @@ int factorial(int n)
 {
     variable<int> m;
 
-	if (match<int>(0)(n))   return 1;
-	if (match<int>(m+1)(n)) return (m+1)*factorial(m);
+	if (cons<int>(0)(n))   return 1;
+	if (cons<int>(m+1)(n)) return (m+1)*factorial(m);
 	XTL_ASSERT(!"Should never happen");	
     return 0;
 }
@@ -72,10 +75,10 @@ double power1(double x, int n)
 {
 	variable<int> m;
 
-	if (match<int>(0)(n))     return 1.0;
-    if (match<int>(1)(n))     return x;
-	if (match<int>(m*2)(n))   return sqr(power1(x,m));
-	if (match<int>(m*2+1)(n)) return x*power1(x,2*m);
+	if (cons<int>(0)(n))     return 1.0;
+    if (cons<int>(1)(n))     return x;
+	if (cons<int>(m*2)(n))   return sqr(power1(x,m));
+	if (cons<int>(m*2+1)(n)) return x*power1(x,2*m);
 }
 
 //------------------------------------------------------------------------------
@@ -122,10 +125,10 @@ int fib1(int n)
 {
     variable<int> m;
 
-    if (match<int>(1)(n))     return 1;
-    if (match<int>(2)(n))     return 1;
-    if (match<int>(m*2)(n))   return sqr(fib1(m+1)) - sqr(fib1(m-1));
-    if (match<int>(m*2+1)(n)) return sqr(fib1(m+1)) + sqr(fib1(m));
+    if (cons<int>(1)(n))     return 1;
+    if (cons<int>(2)(n))     return 1;
+    if (cons<int>(m*2)(n))   return sqr(fib1(m+1)) - sqr(fib1(m-1));
+    if (cons<int>(m*2+1)(n)) return sqr(fib1(m+1)) + sqr(fib1(m));
 }
 
 //------------------------------------------------------------------------------
@@ -160,8 +163,8 @@ struct ShapeVisitor {};
 XTL_TIMED_FUNC_BEGIN
 size_t do_match(const Shape& s, size_t n)
 {
-    //return power2(1.01,n);
-    return fib2(n%100+1);
+    return power2(1.01,n);
+    //return fib2(n%100+1);
 }
 XTL_TIMED_FUNC_END
 
@@ -170,8 +173,8 @@ XTL_TIMED_FUNC_END
 XTL_TIMED_FUNC_BEGIN
 size_t do_visit(const Shape& s, size_t n)
 {
-    //return power_opt(1.01,n);
-    return fib_opt(n%100+1);
+    return power_opt(1.01,n);
+    //return fib_opt(n%100+1);
 }
 XTL_TIMED_FUNC_END
 
@@ -184,7 +187,7 @@ Shape* make_shape(size_t)
 
 //------------------------------------------------------------------------------
 
-#include "testutils.hpp"    // Utilities for timing tests
+#include "testvismat.hpp"    // Utilities for timing tests
 
 //------------------------------------------------------------------------------
 

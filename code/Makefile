@@ -13,32 +13,22 @@
 #
 # Usage:
 #     make        - Build all .cpp files in the current folder
+#     make all    - Build all the targets and documentation
 #     make syntax - Build all supported library options combination for syntax variations
 #     make timing - Build all supported configurations for timing the library
+#     make cmp    - Build all executables for comparison with other languages
 #     make clean  - Clean all targets
+#     make includes.png - Build graph representation of header inclusions
 #     make test   - Run the test suite
 #
 
-OPTFLAGS = $(OPTFLAGS452)
-INCLUDES = 
+OS       = $(shell uname -s)
 LIBS     = -lstdc++
+INCLUDES = 
 CXXFLAGS = $(INCLUDES) -Wall -time -O2 -DNDEBUG -std=c++0x \
 #-fno-omit-frame-pointer \
-#-fno-devirtualize \
-#-fno-combine-stack-adjustments \
-#-fno-compare-elim \
-#-fno-dwarf2-cfi-asm \
-#-fno-ipa-profile \
-#-fno-keep-inline-dllexport \
-#-fno-partial-inlining \
-#-fno-prefetch-loop-arrays \
-#-fno-strict-volatile-bitfields \
-#-fno-tree-bit-ccp \
-#-fno-tree-loop-if-convert \
-#-fno-asynchronous-unwind-tables \
-#-fno-unwind-tables
-
-LIBFLAGS =  
+#-fno-rtti
+LIBFLAGS = $(LIBS)
 AR       = ar
 
 .SUFFIXES: .cpp .o
@@ -46,13 +36,28 @@ AR       = ar
 # Create a list of source files.
 SOURCES  = $(shell ls *.cpp)
 # Create a list of object files from the source file lists.
-OBJECTS = ${SOURCES:.cpp=.o}     
+OBJECTS  = ${SOURCES:.cpp=.o}
 # Create a list of targets.
-TARGETS = ${SOURCES:.cpp=.exe}     
+TARGETS  = ${SOURCES:.cpp=.exe}     
+
+# A phony target is one that is not really the name of a file; rather it is just 
+# a name for a recipe to be executed when you make an explicit request.
+
+.PHONY: all clean cmp default syntax tags test timing ver
+
+# Phony targets can have prerequisites. When one phony target is a prerequisite 
+# of another, it serves as a subroutine of the other.
+
+# Build all files in current folder as well as all combinations for syntax, timing and comparison
+all: default syntax timing cmp
+
+# A phony target should not be a prerequisite of a real target file; if it is, 
+# its recipe will be run every time make goes to update that file. 
 
 # Build all targets by default
-all: 	$(TARGETS)
+default: 	$(TARGETS)
 
+# Print compiler version
 ver:
 	@$(CXX) --version
 
@@ -67,6 +72,8 @@ ver:
 
 # A rule to build .exe file out of a .o file
 %.exe: %.o
+	@echo --------------------------------------------------------------------------------
+	@echo Linking $@ ...
 	$(CXX) -o $@ $(LIBFLAGS) $< $(LIBS)
 	@echo ================================================================================
 	@echo Done building $@
@@ -75,8 +82,18 @@ ver:
 	@echo
 
 # A rule to build .o file out of a .cpp file
-%.o: %.cpp 
+%.o: %.cpp
+	@echo --------------------------------------------------------------------------------
+	@echo Compiling $@ ...
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+tags: skeleton.cxx
+	$(CXX) $(CXXFLAGS) -DXTL_VISITOR_FORWARDING=1 -DXTL_DEFAULT_SYNTAX=\'f\' -DXTL_REP_TEST -o time-fwd-special-kind-rep.exe skeleton.cxx
+	$(CXX) $(CXXFLAGS) -DXTL_VISITOR_FORWARDING=1 -DXTL_DEFAULT_SYNTAX=\'f\' -DXTL_SEQ_TEST -o time-fwd-special-kind-seq.exe skeleton.cxx
+	$(CXX) $(CXXFLAGS) -DXTL_VISITOR_FORWARDING=1 -DXTL_DEFAULT_SYNTAX=\'f\' -DXTL_RND_TEST -o time-fwd-special-kind-rnd.exe skeleton.cxx
+	$(CXX) $(CXXFLAGS) -DXTL_VISITOR_FORWARDING=0 -DXTL_DEFAULT_SYNTAX=\'k\' -DXTL_REP_TEST -o time-non-special-kind-rep.exe skeleton.cxx
+	$(CXX) $(CXXFLAGS) -DXTL_VISITOR_FORWARDING=0 -DXTL_DEFAULT_SYNTAX=\'k\' -DXTL_SEQ_TEST -o time-non-special-kind-seq.exe skeleton.cxx
+	$(CXX) $(CXXFLAGS) -DXTL_VISITOR_FORWARDING=0 -DXTL_DEFAULT_SYNTAX=\'k\' -DXTL_RND_TEST -o time-non-special-kind-rnd.exe skeleton.cxx
 
 # A rule to build all encoding/benchmark/forwarding combinations for timing
 #
@@ -201,9 +218,28 @@ oldsyntax: syntax.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_REDUNDANCY_CHECKING_XXX -DXTL_FALL_THROUGH=1 -DXTL_USE_BRACES=1 -DXTL_DEFAULT_SYNTAX=\'u\' -o syntax-rc0-ft1-br1-gen-u.exe syntax.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_REDUNDANCY_CHECKING_XXX -DXTL_FALL_THROUGH=1 -DXTL_USE_BRACES=1 -DXTL_DEFAULT_SYNTAX=\'k\' -o syntax-rc0-ft1-br1-gen-k.exe syntax.cxx
 
+# A rule to build all executables for comparison with other languages
+cmp: cmp_cpp.cxx cmp_ocaml.ml cmp_haskell.hs
+	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'p\' -DXTL_SEQ_TEST -o cmp-non-generic-poly-seq.exe cmp_cpp.cxx
+	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'k\' -DXTL_SEQ_TEST -o cmp-non-generic-kind-seq.exe cmp_cpp.cxx
+	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'f\' -DXTL_SEQ_TEST -o cmp-fwd-generic-kind-seq.exe cmp_cpp.cxx
+	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'P\' -DXTL_SEQ_TEST -o cmp-non-special-poly-seq.exe cmp_cpp.cxx
+	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'K\' -DXTL_SEQ_TEST -o cmp-non-special-kind-seq.exe cmp_cpp.cxx
+	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'F\' -DXTL_SEQ_TEST -o cmp-fwd-special-kind-seq.exe cmp_cpp.cxx
+	ghc -O --make cmp_haskell
+	ocamlopt.opt unix.cmxa -o cmp_ocaml.exe cmp_ocaml.ml
+
 # A rule to clean all the intermediates and targets
-clean:	
-	rm -rf $(TARGETS) $(OBJECTS) *.out *.stackdump *.cmi *.cmx *.obj *.csv time-*.exe syntax-*.exe
+clean:
+	rm -rf $(TARGETS) $(OBJECTS) *.out *.stackdump *.cmi *.cmx *.obj *.csv time-*.exe syntax-*.exe cmp-*.exe cmp_*.exe cmp_*.hi cmp_*.o
+
+# A rule to create GraphViz .dot file with graph representation of header inclusions
+includes.dot:
+	grep "#include" *.hpp | sed -e "s/^/\"/g" -e "s/:/\"/g" -e "s/\/\/.*//g" -e "s/\(<.*>\)/\1\n\1 [color=red,shape=box]/g" -e "s/#include/ -> /g" -e "1 { s/^/digraph Includes {\nrankdir=TB;\nratio=0.44;\n/g }" -e "$$ { s/$$/\n}\n/g }" > includes.dot
+
+# A rule to convert the above GraphViz .dot file into actual picture
+includes.png: includes.dot
+	dot.exe -Tpng -oincludes.png includes.dot
 
 # A rule to run set of tests
 test:

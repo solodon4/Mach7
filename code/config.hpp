@@ -22,6 +22,9 @@
 /// - Redundancy checking              \see @XTL_REDUNDANCY_CHECKING
 /// - Fallthrough behavior             \see @XTL_FALL_THROUGH
 /// - Use of { & } around case clauses \see @XTL_USE_BRACES
+///
+/// Options for logging and debugging
+/// - Compile-time messages            \see @XTL_MESSAGE_ENABLED
 /// - Trace of performance             \see @XTL_TRACE_PERFORMANCE
 /// Most of the combinations of from this set are built with: make syntax
 ///
@@ -51,6 +54,11 @@
     #define XTL_DUMP_PERFORMANCE 0
 #endif
 #define XTL_DUMP_PERFORMANCE_ONLY(...)   UCL_PP_IF(UCL_PP_NOT(XTL_DUMP_PERFORMANCE), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+
+#if !defined(XTL_MESSAGE_ENABLED)
+    /// Flag compile-time messages from the library
+    #define XTL_MESSAGE_ENABLED 0
+#endif
 
 #if !defined(XTL_USE_VTBL_FREQUENCY)
     /// When this macro is defined, vtblmaps will count frequency of requests using a
@@ -121,8 +129,8 @@
     ///    only work with refutable Que-clauses, and thus cannot be used in Case-clauses.
     #define XTL_FALL_THROUGH 1
 #endif
-#define XTL_FALL_THROUGH_ONLY(...)           UCL_PP_IF(UCL_PP_NOT(XTL_FALL_THROUGH), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
-#define XTL_NON_FALL_THROUGH_ONLY(...)       UCL_PP_IF(           XTL_FALL_THROUGH,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+#define XTL_FALL_THROUGH_ONLY(...)     UCL_PP_IF(UCL_PP_NOT(XTL_FALL_THROUGH), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+#define XTL_NON_FALL_THROUGH_ONLY(...) UCL_PP_IF(           XTL_FALL_THROUGH,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 
 #if !defined(XTL_USE_BRACES)
     /// For general syntax of Match statements, this definition only affects @MatchE
@@ -192,12 +200,12 @@
 
 #if !defined(XTL_MAX_LOG_SIZE)
     /// Log of the largest cache size to try
-    #define XTL_MAX_LOG_SIZE 10
+    #define XTL_MAX_LOG_SIZE 14
 #endif
 
 #if !defined(XTL_MAX_LOG_INC)
     /// Log of the maximum allowed increased from the minimum requred log size (1 means twice from the min required size)
-    #define XTL_MAX_LOG_INC 0
+    #define XTL_MAX_LOG_INC 1
 #endif
 
 #if !defined(XTL_LOCAL_CACHE_LOG_SIZE)
@@ -290,6 +298,16 @@
 
 //------------------------------------------------------------------------------
 
+#define XTL_FUNCTION __func__
+
+//------------------------------------------------------------------------------
+
+#if defined(_MSC_VER)
+    #define alignof(T) __alignof(T)
+#endif
+
+//------------------------------------------------------------------------------
+
 #if defined(_MSC_VER) || defined(__GNUC__)
     /// When the compiler supports Visual C++ like __COUNTER__ macro that is resolved 
     /// to consequitive number each time it is used, we use it, otherwise we approximate 
@@ -314,13 +332,23 @@
 #if defined(_MSC_VER)
     /// MSVC10 doesn't seem to support the standard _Pragma operator
     #define XTL_PRAGMA(x) __pragma(x)
-    /// Helper macro to output a message during compilation in format understood by Visual Studio
-    #define XTL_MESSAGE(str) XTL_PRAGMA(message(__FILE__ "(" XTL_STRING_LITERAL(__LINE__) ") : " str))
+    #if XTL_MESSAGE_ENABLED
+        /// Helper macro to output a message during compilation in format understood by Visual Studio
+        #define XTL_MESSAGE(str) XTL_PRAGMA(message(__FILE__ "(" XTL_STRING_LITERAL(__LINE__) ") : " str))
+    #else
+        /// Helper macro to output a message during compilation in format understood by Visual Studio
+        #define XTL_MESSAGE(str)
+    #endif
 #else
     /// Helper macro to use the sandard _Pragma operator
     #define XTL_PRAGMA(x) _Pragma(#x)
-    /// Helper macro to output a message during compilation. GCC prepends file and line info to it anyways
-    #define XTL_MESSAGE(str) XTL_PRAGMA(message str)
+    #if XTL_MESSAGE_ENABLED
+        /// Helper macro to output a message during compilation. GCC prepends file and line info to it anyways
+        #define XTL_MESSAGE(str) XTL_PRAGMA(message str)
+    #else
+        /// Helper macro to output a message during compilation. GCC prepends file and line info to it anyways
+        #define XTL_MESSAGE(str)
+    #endif
 #endif
 
 //------------------------------------------------------------------------------

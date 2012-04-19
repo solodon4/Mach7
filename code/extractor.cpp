@@ -6,7 +6,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -29,16 +29,16 @@ int main()
     double r;
     double i;
 
-    if (match<std::complex<double>>(r,i)(c))
+    if (cons<std::complex<double>>(r,i)(c))
         std::cout << '(' << r << ',' << i << ')' << std::endl;
 
-    if (match<std::complex<double>, plar>(r,i)(c))
+    if (cons<std::complex<double>, plar>(r,i)(c))
         std::cout << "The polar form of " << c << " is " << r << "*e^i*" << i << "rad " << std::polar(r,i) << std::endl;
 
-    if (match<cartesian>(r,i)(c))
+    if (cons<cartesian>(r,i)(c))
         std::cout << '(' << r << ',' << i << ')' << std::endl;
 
-    if (match<polar>(r,i)(c))
+    if (cons<polar>(r,i)(c))
         std::cout << "The polar form of " << c << " is " << r << "*e^i*" << i << "rad " << std::polar(r,i) << std::endl;
 
     std::cout << '(' << std::real(c) << ',' << std::imag(c) << ')' << std::endl;
