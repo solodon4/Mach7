@@ -6,14 +6,15 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
+#include "match.hpp"                // Support for Match statement
+#include "patterns/primitive.hpp"   // Support for primitive patterns
 #include <iostream>
 #include <utility>
 #include <vector>
-#include "match.hpp"
 
 typedef std::pair<double,double> loc;
 struct cloc { double first; double second; };
@@ -102,17 +103,17 @@ struct ADTShape
 
 SKV(Shape,Shape::SK_Shape);
 
-template <> struct match_members<Shape>    { KS(Shape::kind); KV(Shape::SK_Shape); };
+template <> struct bindings<Shape>    { KS(Shape::kind); KV(Shape,Shape::SK_Shape); };
 
-template <> struct match_members<Circle>   { KV(Shape::SK_Circle);   BCS(Circle,  Shape); CM(0,Circle::get_center); CM(1,Circle::radius); };
-template <> struct match_members<Square>   { KV(Shape::SK_Square);   BCS(Square,  Shape); CM(0,Square::upper_left); CM(1,Square::side);   };
-template <> struct match_members<Triangle> { KV(Shape::SK_Triangle); BCS(Triangle,Shape); CM(0,Triangle::first);    CM(1,Triangle::second); CM(2,Triangle::third); };
+template <> struct bindings<Circle>   { KV(Shape,Shape::SK_Circle);   BCS(Circle,  Shape); CM(0,Circle::get_center); CM(1,Circle::radius); };
+template <> struct bindings<Square>   { KV(Shape,Shape::SK_Square);   BCS(Square,  Shape); CM(0,Square::upper_left); CM(1,Square::side);   };
+template <> struct bindings<Triangle> { KV(Shape,Shape::SK_Triangle); BCS(Triangle,Shape); CM(0,Triangle::first);    CM(1,Triangle::second); CM(2,Triangle::third); };
 
-template <> struct match_members<ADTShape> { KS(ADTShape::kind); };
+template <> struct bindings<ADTShape> { KS(ADTShape::kind); };
 
-template <> struct match_members<ADTShape,ADTShape::circle>   { KV(ADTShape::circle);  CM(0,ADTShape::center);     CM(1,ADTShape::radius); };
-template <> struct match_members<ADTShape,ADTShape::square>   { KV(ADTShape::square);  CM(0,ADTShape::upper_left); CM(1,ADTShape::size); };
-template <> struct match_members<ADTShape,ADTShape::triangle> { KV(ADTShape::triangle);CM(0,ADTShape::first);      CM(1,ADTShape::second); CM(2,ADTShape::third); };
+template <> struct bindings<ADTShape,ADTShape::circle>   { KV(ADTShape,ADTShape::circle);  CM(0,ADTShape::center);     CM(1,ADTShape::radius); };
+template <> struct bindings<ADTShape,ADTShape::square>   { KV(ADTShape,ADTShape::square);  CM(0,ADTShape::upper_left); CM(1,ADTShape::size); };
+template <> struct bindings<ADTShape,ADTShape::triangle> { KV(ADTShape,ADTShape::triangle);CM(0,ADTShape::first);      CM(1,ADTShape::second); CM(2,ADTShape::third); };
 
 int main()
 {
@@ -129,7 +130,7 @@ int main()
     ADTShape at(l11, l10, l00);
 #endif
 
-    ADTShape* adtshapes[] = {&ac,&as,&at};
+    //ADTShape* adtshapes[] = {&ac,&as,&at};
 
     Shape* c = new Circle(loc(1,1),7);
     Shape* s = new Square(loc(1,1),2);
@@ -137,11 +138,11 @@ int main()
 
     const Shape* shapes[] = {c,s,t};
 
-    wildcard _;
-    double   x;
+    //wildcard _;
+    //double   x;
     variable<double> v;
     loc      l;
-    cloc     cl;
+    //cloc     cl;
 
     double m = 0.0;
 
@@ -150,8 +151,8 @@ int main()
         MatchF(shapes[i])
         {
         CaseF(Shape)         std::cout << "Shape"    << std::endl; m += 42;      break;
-        CaseF(Circle,_,r)    std::cout << "Circle"   << std::endl; m += r;       break;
-        CaseF(Square,_,r)    std::cout << "Square"   << std::endl; m += r;       break;
+        CaseF(Circle,_,r)    std::cout << "Circle"   << std::endl; m += r;       XTL_UNUSED(_); break;
+        CaseF(Square,_,r)    std::cout << "Square"   << std::endl; m += r;       XTL_UNUSED(_); break;
         CaseF(Triangle,p)    std::cout << "Triangle" << std::endl; m += p.first; break;
         }
         EndMatchF
@@ -164,10 +165,10 @@ void test_read(const Shape* shape)
 {
     Match(shape)
     {
-        Que(Circle)   const Circle*   s = matched; break;
-        Que(Square)   const Square*   s = matched; break;
-        Que(Triangle) const Triangle* s = matched; break;
-        Otherwise()   const Shape*    s = matched; break;
+        Qua(Circle)   const Circle*   s = matched; XTL_UNUSED(s); break;
+        Qua(Square)   const Square*   s = matched; XTL_UNUSED(s); break;
+        Qua(Triangle) const Triangle* s = matched; XTL_UNUSED(s); break;
+        Otherwise()   const Shape*    s = matched; XTL_UNUSED(s); break;
     }
     EndMatch
 }
@@ -176,10 +177,10 @@ void test_write(Shape* shape)
 {
     Match(shape)
     {
-        Que(Circle)         Circle*   s = matched; break;
-        Que(Square)         Square*   s = matched; break;
-        Que(Triangle)       Triangle* s = matched; break;
-        Otherwise()         Shape*    s = matched; break;
+        Qua(Circle)         Circle*   s = matched; XTL_UNUSED(s); break;
+        Qua(Square)         Square*   s = matched; XTL_UNUSED(s); break;
+        Qua(Triangle)       Triangle* s = matched; XTL_UNUSED(s); break;
+        Otherwise()         Shape*    s = matched; XTL_UNUSED(s); break;
     }
     EndMatch
 }
@@ -190,8 +191,8 @@ void test_autodecl(const Shape* shape)
 
     Match(shape)
     {
-        Case(Circle,c,r)  std::cout << "Circle"   << std::endl; m += r;       break;
-        Case(Square,c,s)  std::cout << "Square"   << std::endl; m += s;       break;
+        Case(Circle,c,r)  std::cout << "Circle"   << std::endl; m += r;       XTL_UNUSED(c); break;
+        Case(Square,c,s)  std::cout << "Square"   << std::endl; m += s;       XTL_UNUSED(c); break;
         Case(Triangle,p)  std::cout << "Triangle" << std::endl; m += p.first; break;
         Otherwise()       std::cout << "Other"    << std::endl; m += 2;       break;
     }

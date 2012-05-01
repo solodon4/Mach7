@@ -25,7 +25,9 @@ fib (2*n+1) = (fib(n+1))^2 + (fib n   )^2
 
 #define XTL_DEFAULT_SYNTAX 'S'
 
-#include "match.hpp"
+#include "match.hpp"                // Support for Match statement
+#include "patterns/constructor.hpp" // Support for constructor patterns
+
 #include <math.h>
 #include <iostream>
 #include "testshape.hpp"
@@ -161,20 +163,20 @@ struct ShapeVisitor {};
 //------------------------------------------------------------------------------
 
 XTL_TIMED_FUNC_BEGIN
-size_t do_match(const Shape& s, size_t n)
+size_t do_match(const Shape&, size_t n)
 {
-    return power2(1.01,n);
-    //return fib2(n%100+1);
+    return (size_t)power2(1.01,n);
+  //return (size_t)fib2(n%100+1);
 }
 XTL_TIMED_FUNC_END
 
 //------------------------------------------------------------------------------
 
 XTL_TIMED_FUNC_BEGIN
-size_t do_visit(const Shape& s, size_t n)
+size_t do_visit(const Shape&, size_t n)
 {
-    return power_opt(1.01,n);
-    //return fib_opt(n%100+1);
+    return (size_t)power_opt(1.01,n);
+  //return (size_t)fib_opt(n%100+1);
 }
 XTL_TIMED_FUNC_END
 

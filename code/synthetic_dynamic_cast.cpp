@@ -113,11 +113,11 @@ XTL_TIMED_FUNC_BEGIN
 size_t do_match(const Shape& s, size_t)
 {
     #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
-    #define FOR_EACH_N(N) if (const shape_kind<N>* p = dynamic_cast<const shape_kind<N>*>(&s)) return N/*+p->m_member1*/;
+    #define FOR_EACH_N(N) if (/*const shape_kind<N>* p =*/ dynamic_cast<const shape_kind<N>*>(&s)) return N/*+p->m_member1*/;
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_N
     #undef  FOR_EACH_MAX
-    return -1;
+    return invalid;
 }
 XTL_TIMED_FUNC_END
 #else
@@ -140,7 +140,7 @@ size_t do_visit(const Shape& s, size_t)
     };
 
     Visitor v;
-    v.result = -1;
+    v.result = invalid;
     s.accept(v);
     return v.result;
 }

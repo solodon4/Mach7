@@ -49,11 +49,11 @@ size_t frequency(const Shape& s)
         #undef  FOR_EACH_MAX
     }
     EndMatchP
-    return -1;
+    return invalid;
 }
 
 //size_t frequency(intptr_t vtbl) { return frequency(*reinterpret_cast<const Shape*>(&vtbl)); }
-template <> struct match_members<Shape> { FQS(frequency); };
+template <> struct bindings<Shape> { FQS(frequency); };
 
 //------------------------------------------------------------------------------
 
@@ -70,7 +70,7 @@ size_t do_match(const Shape& s, size_t)
         #undef  FOR_EACH_MAX
     }
     EndMatchP
-    return -1;
+    return invalid;
 }
 XTL_TIMED_FUNC_END
 #else
@@ -95,7 +95,7 @@ XTL_TIMED_FUNC_BEGIN
 size_t do_visit(const Shape& s, size_t m)
 {
     Visitor v(m);
-    //v.result = -1;
+    //v.result = invalid;
     s.accept(v);
     return v.result;
 }

@@ -10,15 +10,17 @@
 /// All rights reserved.
 ///
 
+#include "match.hpp"                // Support for Match statement
+#include "patterns/constructor.hpp" // Support for constructor patterns
+
 #include <complex>
 #include <iostream>
-#include "match.hpp"
 
 enum { cart = default_layout, plar = 1 };
 
-//template <typename T> struct match_members<std::complex<T>>       { CM(0,std::complex<T>::real); CM(1,std::complex<T>::imag); };
-template <typename T> struct match_members<std::complex<T>, cart> { CM(0,std::real<T>); CM(1,std::imag<T>); };
-template <typename T> struct match_members<std::complex<T>, plar> { CM(0,std::abs<T>);  CM(1,std::arg<T>);  };
+//template <typename T> struct bindings<std::complex<T>>       { CM(0,std::complex<T>::real); CM(1,std::complex<T>::imag); };
+template <typename T> struct bindings<std::complex<T>, cart> { CM(0,std::real<T>); CM(1,std::imag<T>); };
+template <typename T> struct bindings<std::complex<T>, plar> { CM(0,std::abs<T>);  CM(1,std::arg<T>);  };
 
 typedef view<std::complex<double>,cart> cartesian;
 typedef view<std::complex<double>,plar> polar;

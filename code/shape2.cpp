@@ -10,12 +10,14 @@
 /// All rights reserved.
 ///
 
-//#define POD_ONLY
-
+#include "match.hpp"                // Support for Match statement
+#include "patterns/constructor.hpp" // Support for constructor patterns
+#include "timing.hpp"
+#include "shape_bindings.hpp"
 #include <cmath>
 #include <iostream>
-#include "match_shape.hpp"
-#include "timing.hpp"
+
+//#define POD_ONLY
 
 wildcard _; // Meta variable
 
@@ -222,7 +224,7 @@ void time_area(Shape& s)
         a2 = area(s);
     time_stamp liFinish2 = get_time_stamp();
 
-    XTL_ASSERT(a1==a2);
+    XTL_ASSERT(a1==a2); XTL_UNUSED(a1); XTL_UNUSED(a2); 
 
     std::cout << "AreaV Time:" << microseconds(liFinish1-liStart1) << std::endl;
     std::cout << "AreaM Time:" << microseconds(liFinish2-liStart2) << std::endl;
@@ -243,7 +245,7 @@ void time_center(Shape& s)
         c2 = center(s);
     time_stamp liFinish2 = get_time_stamp();
 
-    XTL_ASSERT(c1==c2);
+    XTL_ASSERT(c1==c2); XTL_UNUSED(c1); XTL_UNUSED(c2); 
 
     std::cout << "CenterV Time:" << microseconds(liFinish1-liStart1) << std::endl;
     std::cout << "CenterM Time:" << microseconds(liFinish2-liStart2) << std::endl;
@@ -269,7 +271,7 @@ void time_dummy(Shape& s)
         c2 = dummy_dyn(&s);
     time_stamp liFinish3 = get_time_stamp();
 
-    XTL_ASSERT(c1==c2);
+    XTL_ASSERT(c1==c2); XTL_UNUSED(c1); XTL_UNUSED(c2);
 
     std::cout << "DummyV Time:" << microseconds(liFinish1-liStart1) << std::endl;
     std::cout << "DummyD Time:" << microseconds(liFinish3-liStart3) << std::endl;

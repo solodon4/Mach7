@@ -24,27 +24,27 @@ struct shape_kind : OtherBase, Shape
 #if XTL_DEFAULT_SYNTAX == 'K' || XTL_DEFAULT_SYNTAX == 'k' || XTL_DEFAULT_SYNTAX == 'F' || XTL_DEFAULT_SYNTAX == 'f'
     shape_kind() : Shape(tag<N>::value) {}
 #endif
-    void accept(ShapeVisitor& v) const {}
+    void accept(ShapeVisitor&) const {}
 };
 
 //------------------------------------------------------------------------------
 
 #if XTL_DEFAULT_SYNTAX == 'K' || XTL_DEFAULT_SYNTAX == 'k'
-template <>         struct match_members<Shape>         { KS(Shape::m_kind); };
-template <size_t N> struct match_members<shape_kind<N>> { KV(tag<N>::value); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
+template <>         struct bindings<Shape>         { KS(Shape::m_kind); };
+template <size_t N> struct bindings<shape_kind<N>> { KV(Shape,tag<N>::value); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
 
 #elif XTL_DEFAULT_SYNTAX == 'F' || XTL_DEFAULT_SYNTAX == 'f'
 
 SKV(Shape,0); // Declare the smallest kind value for Shape hierarchy
-template <>         struct match_members<Shape>         { KS(Shape::m_kind); KV(tag<NUMBER_OF_DERIVED+1>::value); };
+template <>         struct bindings<Shape>         { KS(Shape::m_kind); KV(Shape,tag<NUMBER_OF_DERIVED+1>::value); };
 
-// NOTE: We need to explicitly instantiate all match_members as otherwise our kinds 
+// NOTE: We need to explicitly instantiate all bindings as otherwise our kinds 
 //       associations don't get instantiated and recorded. This happens because
-//       now that match_members with specific N > base cases is never instantiated
+//       now that bindings with specific N > base cases is never instantiated
 // FIX:  Wonder though why it didn't instantiate them for base cases at least since
 //       we instantiate them explicitly in Case statements
 #define FOR_EACH_MAX NUMBER_OF_DERIVED-1
-#define FOR_EACH_N(N) template <> struct match_members<shape_kind<N>> { KV(tag<N>::value);  BCS(shape_kind<N>,Shape); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
+#define FOR_EACH_N(N) template <> struct bindings<shape_kind<N>> { KV(Shape,tag<N>::value);  BCS(shape_kind<N>,Shape); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
 #include "loop_over_numbers.hpp"
 #undef  FOR_EACH_N
 #undef  FOR_EACH_MAX
@@ -64,7 +64,7 @@ size_t do_match(const Shape& s)
     #undef  FOR_EACH_MAX
     }
     EndMatch
-    return -1;
+    return invalid;
 }
 
 Shape* make_shape(int i)
@@ -92,19 +92,19 @@ int main()
 {
     std::vector<Shape*> array(N);
 
-    for (int j = 0; j < N; ++j)
+    for (size_t j = 0; j < N; ++j)
         array[j] = make_shape(j%K);
 
-    Shape* s = make_shape(42);
+    //Shape* s = make_shape(42);
 
     time_stamp total_time = 0;
     size_t z = 0;
 
-    for (int i = 0; i < M; ++i)
+    for (size_t i = 0; i < M; ++i)
     {
         time_stamp start = get_time_stamp();
 
-        for (int j = 0; j < N; ++j)
+        for (size_t j = 0; j < N; ++j)
             z = z + do_match(*array[j]);
             //z = z + do_match(*s);
 
@@ -112,7 +112,7 @@ int main()
         total_time += finish-start;
     }
 
-    for (int j = 0; j < N; ++j)
+    for (size_t j = 0; j < N; ++j)
         delete array[j];
 
     std::cout << "\nAverage time for " << N << " runs takes " << std::setprecision(5) << dbl::seconds(total_time)/M << " seconds: " << z << std::endl;

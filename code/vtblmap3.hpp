@@ -317,12 +317,12 @@ T& vtblmap<T&>::update(intptr_t vtbl)
     last_table_size = table.size();       // Update memoized value
     collisions_before_update = renewed_collisions_before_update;         // Reset collisions counter
 
-    if (true/*diff != m_different*/)
+    XTL_STATIC_IF(true) /*diff != m_different*/
     {
-        bit_offset_t k  = req_bits(cache_mask);     // current log_size
-        bit_offset_t n  = req_bits(table.size()-1); // needed  log_size
-        bit_offset_t m  = req_bits(diff);           // highest bit in which vtbls differ
-        bit_offset_t z  = trailing_zeros(static_cast<unsigned int>(diff)); // amount of lowest bits in which vtbls do not differ
+        bit_offset_t k  = bit_offset_t(req_bits(cache_mask));     // current log_size
+        bit_offset_t n  = bit_offset_t(req_bits(table.size()-1)); // needed  log_size
+        bit_offset_t m  = bit_offset_t(req_bits(diff));           // highest bit in which vtbls differ
+        bit_offset_t z  = bit_offset_t(trailing_zeros(static_cast<unsigned int>(diff))); // amount of lowest bits in which vtbls do not differ
         bit_offset_t l1 = std::min(max_log_size,std::max(k,n));
         bit_offset_t l2 = std::min(max_log_size,std::max(k,bit_offset_t(n+max_log_inc)));
         bit_offset_t no = l1;
@@ -361,13 +361,13 @@ T& vtblmap<T&>::update(intptr_t vtbl)
             if (no > k)
             {
                 if (cache_mask > local_cache_size) delete[] cache; 
-                cache_mask = (1<<no)-1;
-                cache = cache_mask < local_cache_size ? local_cache : new cache_entry[1<<no];
+                cache_mask = (1 << no)-1;
+                cache = cache_mask < local_cache_size ? local_cache : new cache_entry[size_t(1) << no];
             }
             else
                 no = k;
 
-            std::memset(cache,0,(1<<no)*sizeof(cache_entry)); // Reset cache
+            std::memset(cache,0,(size_t(1) << no)*sizeof(cache_entry)); // Reset cache
             optimal_shift = zo;
 
             for (typename vtbl_to_t_map::iterator p = table.begin(); p != table.end(); ++p)

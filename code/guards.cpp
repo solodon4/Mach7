@@ -10,15 +10,18 @@
 /// All rights reserved.
 ///
 
-#include "match.hpp"
+#include "match.hpp"                // Support for Match statement
+#include "patterns/constructor.hpp" // Support for constructor patterns
+#include "patterns/guard.hpp"       // Support for guard patterns
+#include "patterns/n+k.hpp"         // Support for n+k patterns
 #include <complex>
 #include <iostream>
 
 enum { cart = default_layout, plar = 1 };
 
-//template <typename T> struct match_members<std::complex<T>>       { CM(0,std::complex<T>::real); CM(1,std::complex<T>::imag); };
-template <typename T> struct match_members<std::complex<T>, cart> { CM(0,std::real<T>); CM(1,std::imag<T>); };
-template <typename T> struct match_members<std::complex<T>, plar> { CM(0,std::abs<T>);  CM(1,std::arg<T>);  };
+//template <typename T> struct bindings<std::complex<T>>       { CM(0,std::complex<T>::real); CM(1,std::complex<T>::imag); };
+template <typename T> struct bindings<std::complex<T>, cart> { CM(0,std::real<T>); CM(1,std::imag<T>); };
+template <typename T> struct bindings<std::complex<T>, plar> { CM(0,std::abs<T>);  CM(1,std::arg<T>);  };
 
 typedef view<std::complex<double>,cart> cartesian;
 typedef view<std::complex<double>,plar> polar;
@@ -31,14 +34,14 @@ int main()
 
     Match(i)
     {
-    Que(cartesian,a,b)        std::cout << a << "+"    << b << "*i" << std::endl;
+    Qua(cartesian,a,b)        std::cout << a << "+"    << b << "*i" << std::endl;
      When(a,b |= a < b)       std::cout << a << "<"    << b << std::endl;
      When(a,b |= a ==b)       std::cout << a << "=="   << b << std::endl;
      When(a,b |= a > b)       std::cout << a << ">"    << b << std::endl;
      When(0,1)                std::cout << "(0,1)"     << std::endl;
      When(1+a,1+b)            std::cout << "1+" << a << ",1+" << b << std::endl;
      When(a+1,b+1)            std::cout << a << "+1,"  << b << "+1"<< std::endl;
-    Que(polar,    r,f)        std::cout << r << "*e^i" << f << std::endl;
+    Qua(polar,    r,f)        std::cout << r << "*e^i" << f << std::endl;
      When(r,f |= r < f)       std::cout << r << "<"    << f << std::endl;
      When(r,f |= r ==f)       std::cout << r << "=="   << f << std::endl;
      When(r,f |= r > f)       std::cout << r << ">"    << f << std::endl;

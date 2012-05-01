@@ -6,7 +6,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -36,6 +36,8 @@ struct plus
     plus(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
     const E1 m_e1;
     const E2 m_e2;
+private: 
+    plus& operator=(const plus&);       // = delete;
 };
 
 template <typename E1, typename E2>
@@ -44,6 +46,8 @@ struct minus
     minus(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
     const E1 m_e1;
     const E2 m_e2;
+private: 
+    minus& operator=(const minus&);    // = delete;
 };
 
 template <typename E1, typename E2>
@@ -52,6 +56,8 @@ struct times
     times(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
     const E1 m_e1;
     const E2 m_e2;
+private: 
+    times& operator=(const times&);   // = delete;
 };
 
 template <typename E1, typename E2>
@@ -60,6 +66,8 @@ struct divide
     divide(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
     const E1 m_e1;
     const E2 m_e2;
+private: 
+    divide& operator=(const divide&); // = delete;
 };
 
 //template <typename T>
@@ -74,7 +82,7 @@ template <typename E1, typename E2>  minus<E1,E2> operator-(const E1& e1, const 
 template <typename E1, typename E2>  times<E1,E2> operator*(const E1& e1, const E2& e2) { return  times<E1,E2>(e1,e2); }
 template <typename E1, typename E2> divide<E1,E2> operator/(const E1& e1, const E2& e2) { return divide<E1,E2>(e1,e2); }
 
-template <typename T, T t> T eval(const constant<T,t>& e) { return t; }
+template <typename T, T t> T eval(const constant<T,t>&  ) { return t; }
 template <typename T>      T eval(const    value<T>&   e) { return e.m_value; }
 template <typename T>      T eval(const variable<T>&   e) { return e.m_value; }
 template <typename E>   auto eval(const times<constant<int,0>,E>& e) -> decltype(eval(e.m_e2)) { return (decltype(eval(e.m_e2)))(42); }

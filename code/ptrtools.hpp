@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include "config.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <typeinfo>
@@ -44,11 +45,21 @@ template <typename T> const std::type_info& vtbl_typeid(std::intptr_t vtbl)
 #ifdef _MSC_VER
     // FIX: The SEH handler below works in debug but not in release builds
     //__try { return typeid(*reinterpret_cast<const T*>(&vtbl)); }
-    //__except(EXCEPTION_EXECUTE_HANDLER) { return typeid(int); }
+    //__except(EXCEPTION_EXECUTE_HANDLER) { return typeid(void); }
+    XTL_UNUSED(vtbl);
     return typeid(void);
 #else
-    try { return typeid(*reinterpret_cast<const T*>(&vtbl)); }
-    catch (...) { return typeid(int); }
+    try 
+    { 
+        XTL_WARNING_PUSH;
+        XTL_WARNING_IGNORE_STRICT_ALIASING;
+        return typeid(*reinterpret_cast<const T*>(&vtbl)); 
+        XTL_WARNING_POP
+    }
+    catch (...)
+    {
+        return typeid(void); 
+    }
 #endif
 }
 
@@ -82,7 +93,10 @@ inline unsigned int trailing_zeros(unsigned int v)
   #pragma warning( disable : 4146 ) // warning C4146: unary minus operator applied to unsigned type, result still unsigned
 #endif
     float  f = (float)(v & -v); // cast the least significant bit in v to a float
+    XTL_WARNING_PUSH;
+    XTL_WARNING_IGNORE_STRICT_ALIASING;
     return (*(uint32_t *)&f >> 23) - 0x7f; // the result goes here
+    XTL_WARNING_POP
 #ifdef _MSC_VER
   #pragma warning( pop )
 #endif

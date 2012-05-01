@@ -10,10 +10,12 @@
 /// All rights reserved.
 ///
 
+#include "match.hpp"                // Support for Match statement
+#include "patterns/constructor.hpp" // Support for constructor patterns
+
 #include <iostream>
 #include <typeinfo>
 #include <utility>
-#include "match.hpp"
 
 #if defined(__GNUC__)
     // We need to do this workaround for this file until GCC will fix the bug 
@@ -54,6 +56,7 @@ struct Left : Either<X, Y>
 {
 	const X x;
 	Left(const X& x) : x(x) { }
+    Left& operator=(const Left&) XTL_DELETED;
 	void accept(EitherVisitor<X, Y>& v) const { v.visit(*this); }
 	virtual std::ostream& operator>>(std::ostream& os) const { return os << "Left<" << typeid(X).name() << ',' << typeid(Y).name() << ">(" << x << ')'; }
 };
@@ -63,6 +66,7 @@ struct Right : Either<X, Y>
 {
 	const Y y;
 	Right(const Y& y) : y(y) { }
+    Right& operator=(const Right&) XTL_DELETED;
 	void accept(EitherVisitor<X, Y>& v) const { v.visit(*this); }
 	virtual std::ostream& operator>>(std::ostream& os) const { return os << "Right<" << typeid(X).name() << ',' << typeid(Y).name() << ">(" << y << ')'; }
 };
@@ -100,8 +104,8 @@ const Either<S, T>* lift(const Either<X, Y>& e, S f(X), T g(Y))
 	return vis.value;
 }
 
-template <class X, class Y> struct match_members<Left<X,Y> >   { CM(0,Left<X,Y>::x); };
-template <class X, class Y> struct match_members<Right<X,Y> >  { CM(0,Right<X,Y>::y); };
+template <class X, class Y> struct bindings<Left<X,Y> >   { CM(0,Left<X,Y>::x); };
+template <class X, class Y> struct bindings<Right<X,Y> >  { CM(0,Right<X,Y>::y); };
 
 template<class X, class Y, class S, class T>
 const Either<S, T>* lift_ex(const Either<X, Y>& e, S f(X), T g(Y))
@@ -126,6 +130,7 @@ const Either<S, T>* lift_ex2(const Either<X, Y>& e, S f(X), T g(Y))
     {
         Case(TypeArg( Left<X,Y>), x) return  left<S, T>(f(x));
         Case(TypeArg(Right<X,Y>), y) return right<S, T>(g(y));
+        Otherwise() return nullptr;
     }
     EndMatch
 }

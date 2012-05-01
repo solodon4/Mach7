@@ -10,9 +10,13 @@
 /// All rights reserved.
 ///
 
+#include "match.hpp"                // Support for Match statement
+#include "patterns/guard.hpp"       // Support for guard patterns
+#include "patterns/n+k.hpp"         // Support for n+k patterns
+#include "patterns/regex.hpp"       // Support for regular expression patterns
+
 #include <iostream>
-#include "patterns/regex.hpp"
-#include "match.hpp"
+
 
 int main()
 {

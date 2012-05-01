@@ -39,6 +39,26 @@ template <typename T> inline T& identity(T& t) noexcept { return t; }
 
 //------------------------------------------------------------------------------
 
+/// Helper metafunction to get the type of the first argument of a function type
+template<typename T>              struct get_first_param;
+template<typename R, typename P1> struct get_first_param<R(P1)> { typedef P1 type; };
+
+//------------------------------------------------------------------------------
+
+/// Helper meta-function used to obtain the first argument of a single-argument
+/// template instantiation.
+/// \note Default template does not have implementation by design to fail on 
+///       inappropriate application.
+template <typename T>                         struct get_param;
+/// This is the actual implementation that grabs the first parameter for any 
+/// single-argument template Q instantiation.
+template <class U, template<class X> class Q> struct get_param<Q<U>> { typedef U type; };
+/// This specialization is for uses of @bindings that employ layouts.
+template <class U, size_t L, template<class X, size_t Y> class Q> struct get_param<Q<U,L>> { typedef U type; };
+//template <class U, size_t L>                  struct get_param<bindings<U,L>> { typedef U type; };
+
+//------------------------------------------------------------------------------
+
 /// A class representing a set of locations of type T, indexed by a usually local
 /// type UID that uniquely identifies the deferred constant. 
 /// The class is used to implicitly introduce global variables in block
@@ -98,7 +118,7 @@ T preallocated<T,UID>::value;
 
 /// Helper function to help disambiguate a unary version of a given function when 
 /// overloads with different arity are available.
-/// All of the members we work with so far through @match_members are unary:
+/// All of the members we work with so far through @bindings are unary:
 /// they are either unary function, nullary member function (implicit argument 
 /// this makes them unary effectively) or a data member (which can be treated
 /// in the same way as nullary member function).
@@ -141,7 +161,7 @@ inline R apply_member(      C* c, R (T::*method)()      )
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline const R& apply_member(const C* c, R T::*field) noexcept
+inline const R& apply_member(const C* c, R T::*field) /*noexcept*/
 {
     XTL_DEBUG_APPLY_MEMBER("data member to const instance ", c, field);
     return c->*field;
@@ -150,7 +170,7 @@ inline const R& apply_member(const C* c, R T::*field) noexcept
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline       R& apply_member(      C* c, R T::*field) noexcept
+inline       R& apply_member(      C* c, R T::*field) /*noexcept*/
 {
     XTL_DEBUG_APPLY_MEMBER("data member to non-const instance ", c, field);
     return c->*field;

@@ -10,9 +10,11 @@
 /// All rights reserved.
 ///
 
+#include "match.hpp"                // Support for Match statement
+#include "patterns/constructor.hpp" // Support for constructor patterns
+
 #include <iostream>
 #include <string>
-#include "match.hpp"
 
 struct Expr;
 struct Value;
@@ -88,7 +90,7 @@ struct ToStrVisitor : virtual ExprVisitor
 
     using ExprVisitor::visit; // Bring in those we do not override for overload resolution
 
-    void visit(const Value&  e) { result = "X"/*std::to_string(e.value)*/; }
+    void visit(const Value&   ) { result = "X"/*std::to_string(e.value)*/; }
     void visit(const Plus&   e) { result = '(' + evaluate(e.exp1) + '+' + evaluate(e.exp2) + ')'; }
     void visit(const Minus&  e) { result = '(' + evaluate(e.exp1) + '-' + evaluate(e.exp2) + ')'; }
     void visit(const Times&  e) { result = '(' + evaluate(e.exp1) + '*' + evaluate(e.exp2) + ')'; }
@@ -130,11 +132,11 @@ std::string to_str(const Expr* e)
 
 //------------------------------------------------------------------------------
 
-template <> struct match_members<Value>  { CM(0,Value::value); };
-template <> struct match_members<Plus>   { CM(0,Plus::exp1);   CM(1,Plus::exp2);   };
-template <> struct match_members<Minus>  { CM(0,Minus::exp1);  CM(1,Minus::exp2);  };
-template <> struct match_members<Times>  { CM(0,Times::exp1);  CM(1,Times::exp2);  };
-template <> struct match_members<Divide> { CM(0,Divide::exp1); CM(1,Divide::exp2); };
+template <> struct bindings<Value>  { CM(0,Value::value); };
+template <> struct bindings<Plus>   { CM(0,Plus::exp1);   CM(1,Plus::exp2);   };
+template <> struct bindings<Minus>  { CM(0,Minus::exp1);  CM(1,Minus::exp2);  };
+template <> struct bindings<Times>  { CM(0,Times::exp1);  CM(1,Times::exp2);  };
+template <> struct bindings<Divide> { CM(0,Divide::exp1); CM(1,Divide::exp2); };
 
 int myeval(const Expr* e)
 {

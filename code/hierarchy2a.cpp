@@ -69,24 +69,24 @@ struct ShapeVisitor
 template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(*this); }
 
 SKV(Shape,0); // Declare the smallest kind value for Shape hierarchy
-template <>         struct match_members<Shape>         { KS(Shape::m_kind); KV(NUMBER_OF_DERIVED+1); };
+template <>         struct bindings<Shape>         { KS(Shape::m_kind); KV(Shape,NUMBER_OF_DERIVED+1); };
 
-// NOTE: We need to explicitly instantiate all match_members as otherwise our kinds 
+// NOTE: We need to explicitly instantiate all bindings as otherwise our kinds 
 //       associations don't get instantiated and recorded. This happens because
-//       now that match_members with specific N > base cases is never instantiated
+//       now that bindings with specific N > base cases is never instantiated
 // FIX:  Wonder though why it didn't instantiate them for base cases at least since
 //       we instantiate them explicitly in Case statements
 #define FOR_EACH_MAX NUMBER_OF_BASES-1
-#define FOR_EACH_N(N) template <> struct match_members<shape_kind<N>> { KV(N);  BCS(shape_kind<N>,Shape); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
+#define FOR_EACH_N(N) template <> struct bindings<shape_kind<N>> { KV(Shape,N);  BCS(shape_kind<N>,Shape); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
 #include "loop_over_numbers.hpp"
 #undef  FOR_EACH_N
 #undef  FOR_EACH_MAX
 
-// NOTE: We need to explicitly instantiate all match_members as otherwise our kinds 
+// NOTE: We need to explicitly instantiate all bindings as otherwise our kinds 
 //       associations don't get instantiated and recorded. This happens because
-//       now that match_members with specific N > base cases is never instantiated
+//       now that bindings with specific N > base cases is never instantiated
 #define FOR_EACH_MAX NUMBER_OF_DERIVED-NUMBER_OF_BASES-1
-#define FOR_EACH_N(N) template <> struct match_members<shape_kind<NUMBER_OF_BASES+N>> { KV(NUMBER_OF_BASES+N);  BCS(shape_kind<NUMBER_OF_BASES+N>,shape_kind<NUMBER_OF_BASES+N>::base_type,Shape); CM(0,shape_kind<NUMBER_OF_BASES+N>::m_member0); CM(1,shape_kind<NUMBER_OF_BASES+N>::m_member1); };
+#define FOR_EACH_N(N) template <> struct bindings<shape_kind<NUMBER_OF_BASES+N>> { KV(Shape,NUMBER_OF_BASES+N);  BCS(shape_kind<NUMBER_OF_BASES+N>,shape_kind<NUMBER_OF_BASES+N>::base_type,Shape); CM(0,shape_kind<NUMBER_OF_BASES+N>::m_member0); CM(1,shape_kind<NUMBER_OF_BASES+N>::m_member1); };
 #include "loop_over_numbers.hpp"
 #undef  FOR_EACH_N
 #undef  FOR_EACH_MAX
@@ -106,7 +106,7 @@ size_t do_match(const Shape& s, size_t)
         #undef  FOR_EACH_MAX
     }
     EndMatchF
-    return -1;
+    return invalid;
 }
 XTL_TIMED_FUNC_END
 #else
@@ -129,7 +129,7 @@ size_t do_visit(const Shape& s, size_t)
     };
 
     Visitor v;
-    v.result = -1;
+    v.result = invalid;
     s.accept(v);
     return v.result;
 }

@@ -38,32 +38,32 @@ struct shape_kind : Shape
     shape_kind() : Shape(N) {}
 };
 
-template <>         struct match_members<Shape>         { KS(Shape::m_kind); };
-template <size_t N> struct match_members<shape_kind<N>> { KV(N); };
+template <>         struct bindings<Shape>         { KS(Shape::m_kind); };
+template <size_t N> struct bindings<shape_kind<N>> { KV(Shape,N); };
 
 size_t do_match(const Shape& s)
 {
     MatchK(s)
     {
-    #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
-    #define FOR_EACH_N(N) CaseK(shape_kind<N>) return N;
-    #include "loop_over_numbers.hpp"
-    #undef  FOR_EACH_N
-    #undef  FOR_EACH_MAX
+        #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
+        #define FOR_EACH_N(N) CaseK(shape_kind<N>) return N;
+        #include "loop_over_numbers.hpp"
+        #undef  FOR_EACH_N
+        #undef  FOR_EACH_MAX
     }
     EndMatchK
-    return -1;
+    return size_t(-1);
 }
 
 Shape* make_shape(int i)
 {
     switch (i % NUMBER_OF_DERIVED)
     {
-    #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
-    #define FOR_EACH_N(N) case N: return new shape_kind<N>;
-    #include "loop_over_numbers.hpp"
-    #undef  FOR_EACH_N
-    #undef  FOR_EACH_MAX
+        #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
+        #define FOR_EACH_N(N) case N: return new shape_kind<N>;
+        #include "loop_over_numbers.hpp"
+        #undef  FOR_EACH_N
+        #undef  FOR_EACH_MAX
     }
     return new shape_kind<0>;
 }
@@ -76,19 +76,19 @@ int main()
 {
     std::vector<Shape*> array(N);
 
-    for (int j = 0; j < N; ++j)
+    for (size_t j = 0; j < N; ++j)
         array[j] = make_shape(j%K);
 
-    Shape* s = make_shape(42);
+    //Shape* s = make_shape(42);
 
     time_stamp total_time = 0;
     size_t z = 0;
 
-    for (int i = 0; i < M; ++i)
+    for (size_t i = 0; i < M; ++i)
     {
         time_stamp start = get_time_stamp();
 
-        for (int j = 0; j < N; ++j)
+        for (size_t j = 0; j < N; ++j)
             z = z + do_match(*array[j]);
             //z = z + do_match(*s);
 
@@ -96,7 +96,7 @@ int main()
         total_time += finish-start;
     }
 
-    for (int j = 0; j < N; ++j)
+    for (size_t j = 0; j < N; ++j)
         delete array[j];
 
     std::cout << "\nAverage time for " << N << " runs takes " << std::setprecision(5) << dbl::seconds(total_time)/M << " seconds: " << z << std::endl;

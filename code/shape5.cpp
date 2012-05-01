@@ -6,13 +6,16 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
+#include "match.hpp"                // Support for Match statement
+#include "patterns/constructor.hpp" // Support for constructor patterns
+#include "patterns/guard.hpp"       // Support for guard patterns
+#include "patterns/n+k.hpp"         // Support for n+k patterns
 #include <iostream>
 #include <utility>
-#include "match.hpp"
 
 typedef std::pair<double,double> loc;
 struct cloc { double first; double second; };
@@ -98,17 +101,17 @@ struct ADTShape
 #endif
 };
 
-template <> struct match_members<Shape>    { /*KS(Shape::kind);*/ };
+template <> struct bindings<Shape>    { /*KS(Shape::kind);*/ };
 
-template <> struct match_members<Circle>   { KV(Shape::SK_Circle);  CM(0,Circle::get_center); CM(1,Circle::radius); };
-template <> struct match_members<Square>   { KV(Shape::SK_Square);  CM(0,Square::upper_left); CM(1,Square::side);   };
-template <> struct match_members<Triangle> { KV(Shape::SK_Triangle);CM(0,Triangle::first);    CM(1,Triangle::second); CM(2,Triangle::third); };
+template <> struct bindings<Circle>   { KV(Shape,Shape::SK_Circle);  CM(0,Circle::get_center); CM(1,Circle::radius); };
+template <> struct bindings<Square>   { KV(Shape,Shape::SK_Square);  CM(0,Square::upper_left); CM(1,Square::side);   };
+template <> struct bindings<Triangle> { KV(Shape,Shape::SK_Triangle);CM(0,Triangle::first);    CM(1,Triangle::second); CM(2,Triangle::third); };
 
-template <> struct match_members<ADTShape> { KS(ADTShape::kind); };
+template <> struct bindings<ADTShape> { KS(ADTShape::kind); };
 
-template <> struct match_members<ADTShape,ADTShape::circle>   { KV(ADTShape::circle);  CM(0,ADTShape::center);     CM(1,ADTShape::radius); };
-template <> struct match_members<ADTShape,ADTShape::square>   { KV(ADTShape::square);  CM(0,ADTShape::upper_left); CM(1,ADTShape::size); };
-template <> struct match_members<ADTShape,ADTShape::triangle> { KV(ADTShape::triangle);CM(0,ADTShape::first);      CM(1,ADTShape::second); CM(2,ADTShape::third); };
+template <> struct bindings<ADTShape,ADTShape::circle>   { KV(ADTShape,ADTShape::circle);  CM(0,ADTShape::center);     CM(1,ADTShape::radius); };
+template <> struct bindings<ADTShape,ADTShape::square>   { KV(ADTShape,ADTShape::square);  CM(0,ADTShape::upper_left); CM(1,ADTShape::size); };
+template <> struct bindings<ADTShape,ADTShape::triangle> { KV(ADTShape,ADTShape::triangle);CM(0,ADTShape::first);      CM(1,ADTShape::second); CM(2,ADTShape::third); };
 
 int main()
 {
@@ -140,123 +143,7 @@ int main()
     cloc     cl;
 
     double m = 0.0;
-//-----------------------------------------------------------------------------
-for (size_t i = 0; i < 3; ++i)
-{
-    {
-        struct match_uid_type {};
-        enum {__base_counter = 0 };
-        static vtblmap<type_switch_info&> __vtbl2lines_map(deferred_constant<vtbl_count_t>::get<match_uid_type>::value);
-        auto const __selector_ptr = addr(shapes[i]);
-        ;
-        const void* __casted_ptr;
-        type_switch_info& __switch_info = __vtbl2lines_map.get(__selector_ptr);
-        switch (__switch_info.line) 
-        {
-        case 0:
-            {
-                {
-                    {
-                        {
-                        }
-                    }
-                }
-                {
-                    typedef Circle target_type;
-                    enum { target_label = 1-__base_counter };
-                    if ((__casted_ptr = dynamic_cast<const target_type*>(__selector_ptr))) 
-                    {
-                        if (((__switch_info.line == 0))) 
-                        {
-                            __switch_info.line = target_label;
-                            __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr);
-                        }
-        case target_label:
-                        auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset);
-                        const auto& _ = apply_member(matched, match_members<target_type,default_layout>::member0());
-                        const auto& r = apply_member(matched, match_members<target_type,default_layout>::member1());
-                        {
-                            std::cout << "Circle"   << std::endl;
-                            m += r;
-                            break;
-                        }
-                    }
-                }
-                {
-                    typedef Square target_type;
-                    enum { target_label = 2-__base_counter };
-                    if ((__casted_ptr = dynamic_cast<const target_type*>(__selector_ptr))) 
-                    {
-                        if (((__switch_info.line == 0))) 
-                        {
-                            __switch_info.line = target_label;
-                            __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr);
-                        }
-        case target_label:
-                        auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset);
-                        const auto& _ = apply_member(matched, match_members<target_type,default_layout>::member0());
-                        const auto& r = apply_member(matched, match_members<target_type,default_layout>::member1());
-                        {
-                            std::cout << "Square"   << std::endl;
-                            m += r;
-                            break;
-                        }
-                    }
-                }
-                {
-                    typedef Triangle target_type;
-                    enum { target_label = 3-__base_counter };
-                    if ((__casted_ptr = dynamic_cast<const target_type*>(__selector_ptr))) 
-                    {
-                        if (((__switch_info.line == 0))) 
-                        {
-                            __switch_info.line = target_label;
-                            __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr);
-                        }
-        case target_label:
-                        auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset);
-                        const auto& p = apply_member(matched, match_members<target_type,default_layout>::member0());
-                        {
-                            std::cout << "Triangle" << std::endl;
-                            m += p.first;
-                            break;
-                        }
-                    }
-                }
-                {
-                    typedef Triangle target_type;
-                    enum { target_label = 4-__base_counter };
-                    if ((__casted_ptr = dynamic_cast<const target_type*>(__selector_ptr))) 
-                    {
-                        if (((__switch_info.line == 0))) 
-                        {
-                            __switch_info.line = target_label;
-                            __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(__selector_ptr);
-                        }
-        case target_label:
-                        auto matched = adjust_ptr<target_type>(__selector_ptr,__switch_info.offset);
-                        const auto& p = apply_member(matched, match_members<target_type,default_layout>::member0());
-                        {
-                            std::cout << "Triangle" << std::endl;
-                            m += p.first;
-                            break;
-                        }
-                    }
-                }
-            }
-            enum { target_label = 5-__base_counter };
-            deferred_constant<vtbl_count_t>::set<match_uid_type,target_label>::value_ptr;
-            if (((__switch_info.line == 0))) 
-            {
-                __switch_info.line = target_label;
-            }
-        case target_label:
-            ;
-        }
-    }
-}
 
-//-----------------------------------------------------------------------------
     for (size_t i = 0; i < 3; ++i)
     {
         MatchP(shapes[i])
@@ -279,8 +166,8 @@ for (size_t i = 0; i < 3; ++i)
     {
         MatchP(shapes[i])
         {
-        CaseP(Circle,_,r)    std::cout << "Circle"   << std::endl; m += r;       break;
-        CaseP(Square,_,r)    std::cout << "Square"   << std::endl; m += r;       break;
+        CaseP(Circle,_,r)    std::cout << "Circle"   << std::endl; m += r;       XTL_UNUSED(_); break;
+        CaseP(Square,_,r)    std::cout << "Square"   << std::endl; m += r;       XTL_UNUSED(_); break;
         CaseP(Triangle,p)    std::cout << "Triangle" << std::endl; m += p.first; break;
         CaseP(Triangle,p)    std::cout << "Triangle" << std::endl; m += p.first; break; // NOTE: Possible to have another regular match
         }
@@ -297,13 +184,13 @@ for (size_t i = 0; i < 3; ++i)
     {
         Match(shapes[i])
         {
-            Que(Circle,_,x)          std::cout << "Circle"   << std::endl; m += x;       break;
-            Que(Square,_,v |= v > 5) std::cout << "Square>5" << std::endl; m += v;       break;
+            Qua(Circle,_,x)          std::cout << "Circle"   << std::endl; m += x;       break;
+            Qua(Square,_,v |= v > 5) std::cout << "Square>5" << std::endl; m += v;       break;
              When(     _,v |= v > 3) std::cout << "Square>3" << std::endl; m += v;       break;
              When(     _,v |= v > 1) std::cout << "Square>1" << std::endl; m += v;       break;
              When(     _,v |= v > 0) std::cout << "Square>0" << std::endl; m += v;       break;
              When(     _,x)          std::cout << "Square"   << std::endl; m += x;       break;
-            Que(Triangle,l)          std::cout << "Triangle" << std::endl; m += l.first; break;
+            Qua(Triangle,l)          std::cout << "Triangle" << std::endl; m += l.first; break;
             Otherwise()              std::cout << "Other"    << std::endl; m += 2;       break;
         }
         EndMatch
@@ -319,8 +206,8 @@ for (size_t i = 0; i < 3; ++i)
     {
         Match(shapes[i])
         {
-            Case(Circle,c,r)  std::cout << "Circle"   << std::endl; m += r;       break;
-            Case(Square,c,s)  std::cout << "Square"   << std::endl; m += s;       break;
+            Case(Circle,c,r)  std::cout << "Circle"   << std::endl; m += r;       XTL_UNUSED(c); break;
+            Case(Square,c,s)  std::cout << "Square"   << std::endl; m += s;       XTL_UNUSED(c); break;
             Case(Triangle,p)  std::cout << "Triangle" << std::endl; m += p.first; break;
             Otherwise()       std::cout << "Other"    << std::endl; m += 2;       break;
         }
@@ -341,14 +228,17 @@ for (size_t i = 0; i < 3; ++i)
         //std::cout << "Selector: " << adtshapes[i]->kind << std::endl;
         Match(adtshapes[i])
         {
+            // FIX: Otherwise is not supported at the moment on discriminated 
+            //      unions as we use default to jump back for rematching for 
+            //      closed case and enter the fall-through behavior for open case
             //Otherwise()                        std::cout << "Other"       << std::endl; m += 2;       break;
-            Que(ADTShape::circle,_,x)          std::cout << "ADTCircle"   << std::endl; m += x;       break;
-            Que(ADTShape::square,_,v |= v > 5) std::cout << "ADTSquare>5" << std::endl; m += v;       break;
+            Qua(ADTShape::circle,_,x)          std::cout << "ADTCircle"   << std::endl; m += x;       break;
+            Qua(ADTShape::square,_,v |= v > 5) std::cout << "ADTSquare>5" << std::endl; m += v;       break;
              When(               _,v |= v > 3) std::cout << "ADTSquare>3" << std::endl; m += v;       break;
              When(               _,v |= v > 1) std::cout << "ADTSquare>1" << std::endl; m += v;       break;
              When(               _,v |= v > 0) std::cout << "ADTSquare>0" << std::endl; m += v;       break;
              When(               _,x)          std::cout << "ADTSquare"   << std::endl; m += x;       break;
-            Que(ADTShape::triangle,cl)         std::cout << "ADTTriangle" << std::endl; m += cl.first;break;
+            Qua(ADTShape::triangle,cl)         std::cout << "ADTTriangle" << std::endl; m += cl.first;break;
         }
         EndMatch
     }
@@ -363,10 +253,15 @@ for (size_t i = 0; i < 3; ++i)
     {
         Match(adtshapes[i])
         {
-            Case(ADTShape::circle,c,r)  std::cout << "ADTCircle"   << std::endl; m += r;       break;
-            Case(ADTShape::square,c,s)  std::cout << "ADTSquare"   << std::endl; m += s;       break;
+            Case(ADTShape::circle,c,r)  std::cout << "ADTCircle"   << std::endl; m += r;       XTL_UNUSED(c); break;
+            Case(ADTShape::square,c,s)  std::cout << "ADTSquare"   << std::endl; m += s;       XTL_UNUSED(c); break;
             Case(ADTShape::triangle,p)  std::cout << "ADTTriangle" << std::endl; m += p.first; break;
-            //Otherwise()                 std::cout << "Other"       << std::endl; m += 2;       break;
+#if XTL_DEFAULT_SYNTAX != 'G'
+            // FIX: Otherwise is not supported at the moment on discriminated 
+            //      unions as we use default to jump back for rematching for 
+            //      closed case and enter the fall-through behavior for open case
+            Otherwise()                 std::cout << "Other"       << std::endl; m += 2;       break;
+#endif
         }
         EndMatch
     }
@@ -381,31 +276,31 @@ for (size_t i = 0; i < 3; ++i)
     {
         Match(shapes[i])
         {
-            Que(Circle,_,x)
+            Qua(Circle,_,x)
                 std::cout << "Circle"   << std::endl;
                 m += x;
                 break;
-            Que(Square,_,v |= v > 5)
+            Qua(Square,_,v |= v > 5)
                 std::cout << "Square>5" << std::endl;
                 m += v;
                 break;
-             When(     _,v |= v > 3)
+              When(     _,v |= v > 3)
                 std::cout << "Square>3" << std::endl;
                 m += v;
                 break;
-             When(     _,v |= v > 1)
+              When(     _,v |= v > 1)
                 std::cout << "Square>1" << std::endl;
                 m += v;
                 break;
-             When(     _,v |= v > 0)
+              When(     _,v |= v > 0)
                 std::cout << "Square>0" << std::endl;
                 m += v;
                 break;
-             When(     _,x)
+              When(     _,x)
                 std::cout << "Square"   << std::endl;
                 m += x;
                 break;
-            Que(Triangle,l)
+            Qua(Triangle,l)
                 std::cout << "Triangle" << std::endl;
                 m += l.first;
                 break;
@@ -424,10 +319,10 @@ void test_read(const Shape* shape)
 {
     Match(shape)
     {
-        Que(Circle)   const Circle*   s = matched; break;
-        Que(Square)   const Square*   s = matched; break;
-        Que(Triangle) const Triangle* s = matched; break;
-        Otherwise()   const Shape*    s = matched; break;
+        Qua(Circle)   const Circle*   s = matched; XTL_UNUSED(s); break;
+        Qua(Square)   const Square*   s = matched; XTL_UNUSED(s); break;
+        Qua(Triangle) const Triangle* s = matched; XTL_UNUSED(s); break;
+        Otherwise()   const Shape*    s = matched; XTL_UNUSED(s); break;
     }
     EndMatch
 }
@@ -436,10 +331,10 @@ void test_write(Shape* shape)
 {
     Match(shape)
     {
-        Que(Circle)         Circle*   s = matched; break;
-        Que(Square)         Square*   s = matched; break;
-        Que(Triangle)       Triangle* s = matched; break;
-        Otherwise()         Shape*    s = matched; break;
+        Qua(Circle)         Circle*   s = matched; XTL_UNUSED(s); break;
+        Qua(Square)         Square*   s = matched; XTL_UNUSED(s); break;
+        Qua(Triangle)       Triangle* s = matched; XTL_UNUSED(s); break;
+        Otherwise()         Shape*    s = matched; XTL_UNUSED(s); break;
     }
     EndMatch
 }
@@ -450,8 +345,8 @@ void test_autodecl(const Shape* shape)
 
     Match(shape)
     {
-        Case(Circle,c,r)  std::cout << "Circle"   << std::endl; m += r;       break;
-        Case(Square,c,s)  std::cout << "Square"   << std::endl; m += s;       break;
+        Case(Circle,c,r)  std::cout << "Circle"   << std::endl; m += r;       XTL_UNUSED(c); break;
+        Case(Square,c,s)  std::cout << "Square"   << std::endl; m += s;       XTL_UNUSED(c); break;
         Case(Triangle,p)  std::cout << "Triangle" << std::endl; m += p.first; break;
         Otherwise()       std::cout << "Other"    << std::endl; m += 2;       break;
     }

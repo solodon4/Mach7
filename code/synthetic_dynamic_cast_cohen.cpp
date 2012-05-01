@@ -95,6 +95,7 @@ XTL_TIMED_FUNC_BEGIN
 size_t do_match(const Shape& s, size_t)
 {
     if (const shape_kind< 0>* p0 = dynamic_cast<const shape_kind< 0>*>(&s))
+    {
         if (const shape_kind< 1>* p1 = dynamic_cast<const shape_kind< 1>*>(p0)) 
             if (const shape_kind< 2>* p2 = dynamic_cast<const shape_kind< 2>*>(p1)) 
                 if (const shape_kind< 4>* p4 = dynamic_cast<const shape_kind< 4>*>(p2)) 
@@ -393,7 +394,8 @@ size_t do_match(const Shape& s, size_t)
                 return p1->m_member7 + 1 ;
         else
             return p0->m_member7 + 0 ;
-    return -1;
+    }
+    return invalid;
 }
 XTL_TIMED_FUNC_END
 
@@ -413,7 +415,7 @@ size_t do_visit(const Shape& s, size_t)
     };
 
     Visitor v;
-    v.result = -1;
+    v.result = invalid;
     s.accept(v);
     return v.result;
 }

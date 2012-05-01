@@ -82,7 +82,7 @@ size_t do_match(const Shape& s, size_t)
         #undef  FOR_EACH_MAX
     }
     EndMatchP
-    return -1;
+    return invalid;
 }
 XTL_TIMED_FUNC_END
 #else
@@ -105,7 +105,7 @@ size_t do_visit(const Shape& s, size_t)
     };
 
     Visitor v;
-    v.result = -1;
+    v.result = invalid;
     s.accept(v);
     return v.result;
 }

@@ -7,7 +7,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -15,7 +15,7 @@
 
 // TODO: 
 // 1. vtbl with pointers directly to table instead of indecies - slows
-// 2. store type index inside match_members
+// 2. store type index inside bindings
 // 3. try smaller type int instead of size_t or ptrdiff_t
 // 4. Problem: different amounts of virtual functions in the base class 
 //             change the irrelevant bits. 

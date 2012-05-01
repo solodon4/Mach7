@@ -59,6 +59,10 @@ inline size_t get_tag(size_t n) { return n; }
 
 //------------------------------------------------------------------------------
 
+const size_t invalid = size_t(-1);
+
+//------------------------------------------------------------------------------
+
 struct ShapeVisitor;
 
 //------------------------------------------------------------------------------
@@ -101,16 +105,16 @@ struct Shape
     #undef  FOR_EACH_N
     #undef  FOR_EACH_MAX
 
-    int m_member0;
-    int m_member1;
-    int m_member2;
-    int m_member3;
-    int m_member4;
-    int m_member5;
-    int m_member6;
-    int m_member7;
-    int m_member8;
-    int m_member9;
+    size_t m_member0;
+    size_t m_member1;
+    size_t m_member2;
+    size_t m_member3;
+    size_t m_member4;
+    size_t m_member5;
+    size_t m_member6;
+    size_t m_member7;
+    size_t m_member8;
+    size_t m_member9;
 };
 
 //------------------------------------------------------------------------------

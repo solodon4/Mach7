@@ -104,10 +104,10 @@ int main()
           A* am = new B;
     const A* an = am;
 
-    B* bm = memoized_cast<B*>(am);
+    B* bm = memoized_cast<B*>(am); XTL_UNUSED(bm);
 //    memoized_cast<B*>(an);
-    const B* bn1 = memoized_cast<const B*>(am);
-    const B* bn2 = memoized_cast<const B*>(an);
+    const B* bn1 = memoized_cast<const B*>(am); XTL_UNUSED(bn1);
+    const B* bn2 = memoized_cast<const B*>(an); XTL_UNUSED(bn2);
 
     const A* a = new A;
     const B* b = new B;
@@ -127,7 +127,7 @@ int main()
     dump_hex(*g);
 
     const A* a1 = (const B*)(const C*)e;
-    const E* e1 = memoized_cast<const E*>(a1);
-    const E* e2 = memoized_cast<const E*>(a1);
+    const E* e1 = memoized_cast<const E*>(a1); XTL_UNUSED(e1);
+    const E* e2 = memoized_cast<const E*>(a1); XTL_UNUSED(e2);
     XTL_ASSERT(e1 == e && e2 == e);
 }

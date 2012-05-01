@@ -39,8 +39,8 @@ template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(
 
 //------------------------------------------------------------------------------
 
-template <>         struct match_members<Shape>         { KS(Shape::m_kind); };
-template <size_t N> struct match_members<shape_kind<N>> { KV(N); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
+template <>         struct bindings<Shape>         { KS(Shape::m_kind); };
+template <size_t N> struct bindings<shape_kind<N>> { KV(Shape,N); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
 
 //------------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ size_t do_match(const Shape& s, size_t)
         #undef  FOR_EACH_MAX
     }
     EndMatchK
-    return -1;
+    return invalid;
 }
 XTL_TIMED_FUNC_END
 #else
@@ -80,7 +80,7 @@ size_t do_visit(const Shape& s, size_t)
     };
 
     Visitor v;
-    v.result = -1;
+    v.result = invalid;
     s.accept(v);
     return v.result;
 }

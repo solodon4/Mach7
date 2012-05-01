@@ -6,7 +6,7 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -47,7 +47,7 @@ struct has_member_##name \
 }
 #endif
 
-/// Helpers to detect use of some of our macros within a @match_members
+/// Helpers to detect use of some of our macros within a @bindings
 
 HAS_MEMBER_XXX(kind_selector,  bool (T::*)() const,  kind_selector_dummy);
 HAS_MEMBER_XXX(raise_selector, bool (T::*)() const, raise_selector_dummy);

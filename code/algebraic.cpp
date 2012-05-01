@@ -10,7 +10,10 @@
 /// All rights reserved.
 ///
 
-#include "match.hpp"
+#include "match.hpp"                // Support for Match statement
+#include "patterns/constructor.hpp" // Support for constructor patterns
+#include "patterns/guard.hpp"       // Support for guard patterns
+#include "patterns/n+k.hpp"         // Support for n+k patterns
 #include <complex>
 #include <iostream>
 
@@ -75,17 +78,14 @@ template <>
 inline bool solve(const expr<division,var_ref<variable<double>>,var_ref<variable<double>>>& e, const double& r)
 {
     // n/m = 3.1415926 => n=22,m=7
-    long m[2][2];
-    double x, startx;
-    long maxden;
+    long m[2][2] = {
+                        {1,0},
+                        {0,1}
+                   };
+    double x      = r;
+    //double startx = r;
+    long maxden   = 100;
     long ai;
-
-    startx = x = r;
-    maxden = 100;
-
-    /* initialize matrix */
-    m[0][0] = m[1][1] = 1;
-    m[0][1] = m[1][0] = 0;
 
     /* loop finding terms until denom gets too big */
     while (m[1][0] *  ( ai = (long)x ) + m[1][1] <= maxden) {
@@ -123,17 +123,16 @@ int main()
              std::complex<double>  c(1,1);
     variable<std::complex<double>> d;
     variable<double> a,b,r,f;
-    wildcard _;
 
     std::cout << a << "+"    << b << "*i" << std::endl;
 
-    //if (cons<std::complex<double>>(b*i)(i))   std::cout << b << "*i" << std::endl;
+  //if (cons<std::complex<double>>(b*i)(i))   std::cout << b << "*i" << std::endl;
     if (cons<std::complex<double>>(b*i+a)(i)) std::cout << a << "+"    << b << "*i" << std::endl;
     if (cons<double>(sqrt(a))(4.0))   std::cout << "sqrt("  << a << ")=4" << std::endl;
     if (cons<double>(a/b)(3.1415926)) std::cout << "3.1415926=" << a << "/" << b << std::endl;
     if (cons<double>(-a)(3.1415926))  std::cout << "-3.1415926=" << a << std::endl;
 
-//    if (cons<std::complex<double>>(i*a)(c)) std::cout << "(2,2) + " << a << " * i" << std::endl;
+  //if (cons<std::complex<double>>(i*a)(c)) std::cout << "(2,2) + " << a << " * i" << std::endl;
     if (cons<std::complex<double>>(d*i)(c)) std::cout << d << " * i" << std::endl;
 	if (cons<std::complex<double>>(i)(c))   std::cout << "i" << std::endl;
     if (cons<std::complex<double>>(d)(c))   std::cout << d << std::endl;
@@ -153,7 +152,7 @@ int main()
     }
     EndMatch
 
-    variable<size_t> m1 = 12;
+  //variable<size_t> m1 = 12;
     variable<size_t> m2 = 3;
 
     Match(n)

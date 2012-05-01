@@ -10,9 +10,14 @@
 /// All rights reserved.
 ///
 
-//#define POD_ONLY
+#include "match.hpp"                // Support for Match statement
+#include "patterns/constructor.hpp" // Support for constructor patterns
+#include "patterns/guard.hpp"       // Support for guard patterns
+#include "patterns/n+k.hpp"         // Support for n+k patterns
+#include "shape_bindings.hpp"
 #include <iostream>
-#include "match_shape.hpp"
+
+//#define POD_ONLY
 
 std::ostream& operator<<(std::ostream& os, const loc& l)
 {
@@ -24,7 +29,7 @@ std::ostream& operator<<(std::ostream& os, const cloc& l)
     return os << '(' << l.first << ',' << l.second << ')';
 }
 
-double heron(const loc& a, const loc& b, const loc& c) { return 1.0/2; }
+double heron(const loc&, const loc&, const loc&) { return 1.0/2; }
 
 double area(const Shape& shape)
 {
@@ -73,7 +78,7 @@ void foo(Shape* s)
 {
     variable<loc>  x,y,z;
     variable<double> a,b,c;
-    wildcard       _;
+    //wildcard       _;
 
     auto pattern = cons<Circle>(x, -a*2+1);
 

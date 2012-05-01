@@ -10,8 +10,9 @@
 /// All rights reserved.
 ///
 
+#include "match.hpp"                // Support for Match statement
+#include "patterns/constructor.hpp" // Support for constructor patterns
 #include "testshape.hpp"
-#include "match.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -47,7 +48,7 @@ size_t do_match(const Shape& s, size_t)
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_N
     #undef  FOR_EACH_MAX
-    return -1;
+    return invalid;
 }
 XTL_TIMED_FUNC_END
 #else
@@ -70,7 +71,7 @@ size_t do_visit(const Shape& s, size_t)
     };
 
     Visitor v;
-    v.result = -1;
+    v.result = invalid;
     s.accept(v);
     return v.result;
 }

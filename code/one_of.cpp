@@ -10,9 +10,10 @@
 /// All rights reserved.
 ///
 
+#include "match.hpp"                // Support for Match statement
+#include "patterns/any.hpp"         // Support for one-of patterns
+#include "patterns/primitive.hpp"   // Support for primitive patterns
 #include <iostream>
-#include "patterns/any.hpp"
-#include "match.hpp"
 
 int main()
 {
@@ -25,9 +26,9 @@ int main()
         std::cout << values[i] << " is ";
         Match(values[i])
         {
-            When(any({0,2,4,6,8})) std::cout << "Even"; break;
-            When(any({1,3,5,7,9})) std::cout << "Odd";  break;
-            When()                 std::cout << "UNRECOGNIZED"; break;
+            Pattern(any({0,2,4,6,8})) std::cout << "Even"; break;
+            Pattern(any({1,3,5,7,9})) std::cout << "Odd";  break;
+            Pattern()                 std::cout << "UNRECOGNIZED"; break;
         }
         EndMatch
         std::cout << std::endl;

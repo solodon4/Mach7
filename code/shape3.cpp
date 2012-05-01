@@ -6,15 +6,18 @@
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2011 Texas A&M University.
+/// Copyright (C) 2005-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
-//#define POD_ONLY
-
+#include "match.hpp"                // Support for Match statement
+#include "patterns/constructor.hpp" // Support for constructor patterns
+#include "timing.hpp"
+#include "shape_bindings.hpp"
 #include <cmath>
 #include <iostream>
-#include "match_shape.hpp"
+
+//#define POD_ONLY
 
 wildcard _; // Meta variable
 
@@ -40,10 +43,12 @@ double area_select(Shape* shape)
 {
     MatchP(shape)
     {
-    CaseP(Circle,_,r)     
+    CaseP(Circle,_,r)
+        XTL_UNUSED(_); 
         std::cout << "Circle" << std::endl; 
         return 3.14 * r * r;
-    CaseP(Square,_,s)     
+    CaseP(Square,_,s)
+        XTL_UNUSED(_); 
         std::cout << "Square" << std::endl; 
         return s * s;
     CaseP(Triangle,x,y,z) 

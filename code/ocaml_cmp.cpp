@@ -46,7 +46,7 @@ size_t do_match(const Shape& s)
         #undef  FOR_EACH_MAX
     }
     EndMatchP
-    return -1;
+    return size_t(-1);
 }
 
 Shape* make_shape(int i)
@@ -70,19 +70,19 @@ int main()
 {
     std::vector<Shape*> array(N);
 
-    for (int j = 0; j < N; ++j)
+    for (size_t j = 0; j < N; ++j)
         array[j] = make_shape(j%K);
 
-    Shape* s = make_shape(42);
+    //Shape* s = make_shape(42);
 
     time_stamp total_time = 0;
     size_t z = 0;
 
-    for (int i = 0; i < M; ++i)
+    for (size_t i = 0; i < M; ++i)
     {
         time_stamp start = get_time_stamp();
 
-        for (int j = 0; j < N; ++j)
+        for (size_t j = 0; j < N; ++j)
             z = z + do_match(*array[j]);
             //z = z + do_match(*s);
 
@@ -90,7 +90,7 @@ int main()
         total_time += finish-start;
     }
 
-    for (int j = 0; j < N; ++j)
+    for (size_t j = 0; j < N; ++j)
         delete array[j];
 
     std::cout << "\nAverage time for " << N << " runs takes " << std::setprecision(5) << dbl::seconds(total_time)/M << " seconds: " << z << std::endl;
