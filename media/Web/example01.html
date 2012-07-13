@@ -1,0 +1,553 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1251">
+<meta name=Generator content="Microsoft Word 14 (filtered)">
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:Consolas;
+	panose-1:2 11 6 9 2 2 4 3 2 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:10.0pt;
+	margin-left:0in;
+	line-height:115%;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+.MsoChpDefault
+	{font-family:"Calibri","sans-serif";}
+.MsoPapDefault
+	{margin-bottom:10.0pt;
+	line-height:115%;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:42.5pt 42.5pt 42.5pt 70.85pt;}
+div.WordSection1
+	{page:WordSection1;}
+-->
+</style>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1777267-5']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</head>
+
+<body lang=EN-US>
+
+<div class=WordSection1>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>///</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>/// \file</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>///</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>/// This file is a part of pattern matching
+testing suite.</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>///</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>/// \autor Yuriy Solodkyy </span><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>&lt;yuriy.solodkyy@gmail.com&gt;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>///</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>/// This file is a part of the XTL framework
+(http://parasol.tamu.edu/xtl/).</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>/// Copyright (C) 2005-2012 Texas A&amp;M
+University.</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>/// All rights reserved.</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>///</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>#include</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#A31515;background:white'>&lt;utility&gt;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>#include</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#A31515;background:white'>&quot;match.hpp&quot;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>typedef</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:navy;background:white'>std</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>::</span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>pair</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&lt;</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>double</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>,</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>double</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&gt; </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>loc</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// An Algebraic Data Type implemented through
+inheritance</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>struct</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Shape</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>{</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>~Shape</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>() {}</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>};</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>struct</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Circle</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> : </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Shape</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>{</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><b><span style='font-size:9.5pt;
+font-family:Consolas;color:maroon;background:white'>Circle</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>loc</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><i><span style='font-size:9.5pt;font-family:Consolas;color:silver;
+background:white'>c</span></i><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>, </span><span style='font-size:9.5pt;font-family:
+Consolas;color:blue;background:white'>const</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>double</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><i><span style='font-size:9.5pt;font-family:Consolas;color:silver;
+background:white'>r</span></i><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>) : </span><b><span style='font-size:9.5pt;
+font-family:Consolas;color:gray;background:white'>center</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>c</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>), </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>radius</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>r</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>) {}</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#2B91AF;background:white'>loc</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>center</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>double</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>radius</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>};</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>struct</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Square</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> : </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Shape</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>{</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><b><span style='font-size:9.5pt;
+font-family:Consolas;color:maroon;background:white'>Square</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>loc</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><i><span style='font-size:9.5pt;font-family:Consolas;color:silver;
+background:white'>c</span></i><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>, </span><span style='font-size:9.5pt;font-family:
+Consolas;color:blue;background:white'>const</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>double</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><i><span style='font-size:9.5pt;font-family:Consolas;color:silver;
+background:white'>s</span></i><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>) : </span><b><span style='font-size:9.5pt;
+font-family:Consolas;color:gray;background:white'>upper_left</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>c</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>), </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>side</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>s</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>) {}</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#2B91AF;background:white'>loc</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>upper_left</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>double</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>side</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>};</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>struct</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Triangle</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> : </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Shape</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>{</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><b><span style='font-size:9.5pt;
+font-family:Consolas;color:maroon;background:white'>Triangle</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>loc</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><i><span style='font-size:9.5pt;font-family:Consolas;color:silver;
+background:white'>a</span></i><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>, </span><span style='font-size:9.5pt;font-family:
+Consolas;color:blue;background:white'>const</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>loc</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><i><span style='font-size:9.5pt;font-family:Consolas;color:silver;
+background:white'>b</span></i><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>, </span><span style='font-size:9.5pt;font-family:
+Consolas;color:blue;background:white'>const</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>loc</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><i><span style='font-size:9.5pt;font-family:Consolas;color:silver;
+background:white'>c</span></i><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>) : </span><b><span style='font-size:9.5pt;
+font-family:Consolas;color:gray;background:white'>first</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>a</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>), </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>second</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>b</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>), </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>third</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>c</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>) {}</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#2B91AF;background:white'>loc</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>first</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#2B91AF;background:white'>loc</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>second</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#2B91AF;background:white'>loc</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>third</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>};</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:#2B91AF;background:white'>loc</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>point_within</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Shape</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>* </span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>shape</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>)</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>{</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#6F008A;background:white'>Match(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>shape</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>)</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; {</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#6F008A;background:white'>Case(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>Circle)&nbsp;&nbsp;
+</span><span style='font-size:9.5pt;font-family:Consolas;color:blue;background:
+white'>return</span><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'> matched-&gt;center;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#6F008A;background:white'>Case(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>Square)&nbsp;&nbsp;
+</span><span style='font-size:9.5pt;font-family:Consolas;color:blue;background:
+white'>return</span><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'> matched-&gt;upper_left;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#6F008A;background:white'>Case(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>Triangle)
+</span><span style='font-size:9.5pt;font-family:Consolas;color:blue;background:
+white'>return</span><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'> matched-&gt;first;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#6F008A;background:white'>Otherwise(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>)&nbsp;&nbsp;&nbsp; </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>return</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> loc(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:teal;background:white'>0</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>,</span><span
+style='font-size:9.5pt;font-family:Consolas;color:teal;background:white'>0</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; }</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#6F008A;background:white'>EndMatch</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>}</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>int</span><span style='font-size:9.5pt;font-family:
+Consolas;color:black;background:white'> </span><span style='font-size:9.5pt;
+font-family:Consolas;color:maroon;background:white'>main</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>()</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>{</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:maroon;background:white'>point_within</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>new</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Triangle</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>loc</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:teal;background:white'>0</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>,</span><span
+style='font-size:9.5pt;font-family:Consolas;color:teal;background:white'>0</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>),</span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>loc</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:teal;background:white'>1</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>,</span><span
+style='font-size:9.5pt;font-family:Consolas;color:teal;background:white'>0</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>),</span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>loc</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:teal;background:white'>0</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>,</span><span
+style='font-size:9.5pt;font-family:Consolas;color:teal;background:white'>1</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>)));</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:maroon;background:white'>point_within</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>new</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Square</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>loc</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:teal;background:white'>1</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>,</span><span
+style='font-size:9.5pt;font-family:Consolas;color:teal;background:white'>0</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>),</span><span
+style='font-size:9.5pt;font-family:Consolas;color:teal;background:white'>1</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>));</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:maroon;background:white'>point_within</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>new</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Circle</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>loc</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:teal;background:white'>0</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>,</span><span
+style='font-size:9.5pt;font-family:Consolas;color:teal;background:white'>0</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>),</span><span
+style='font-size:9.5pt;font-family:Consolas;color:teal;background:white'>1</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>));</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>}</span></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+</div>
+
+</body>
+
+</html>

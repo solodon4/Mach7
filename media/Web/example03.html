@@ -1,0 +1,716 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1251">
+<meta name=Generator content="Microsoft Word 14 (filtered)">
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:Consolas;
+	panose-1:2 11 6 9 2 2 4 3 2 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:10.0pt;
+	margin-left:0in;
+	line-height:115%;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+.MsoChpDefault
+	{font-family:"Calibri","sans-serif";}
+.MsoPapDefault
+	{margin-bottom:10.0pt;
+	line-height:115%;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:42.5pt 42.5pt 42.5pt 70.85pt;}
+div.WordSection1
+	{page:WordSection1;}
+-->
+</style>
+
+</head>
+
+<body lang=EN-US>
+
+<div class=WordSection1>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>///</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>/// \file</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>///</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>/// This file is a part of pattern matching
+testing suite.</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>///</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>/// \autor Yuriy Solodkyy </span><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>&lt;yuriy.solodkyy@gmail.com&gt;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>///</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>/// This file is a part of the XTL framework
+(http://parasol.tamu.edu/xtl/).</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>/// Copyright (C) 2005-2012 Texas A&amp;M
+University.</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>/// All rights reserved.</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>///</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>#include</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#A31515;background:white'>&lt;iostream&gt;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// Enable declarations in case clauses, which are
+disabled by default</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>#define</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#6F008A;background:white'>XTL_CLAUSE_DECL</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:teal;background:white'>1</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>#include</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#A31515;background:white'>&quot;match.hpp&quot;</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span><span style='font-size:9.5pt;font-family:Consolas;color:green;
+background:white'>// Support for Match statement</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>//------------------------------------------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>struct</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>{ </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>~Expr</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>() {}</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>};</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>struct</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Value</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> : </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>{</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><b><span style='font-size:9.5pt;
+font-family:Consolas;color:maroon;background:white'>Value</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>int</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>v</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>) : </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>value</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>v</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>) {}</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>int</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>value</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>};</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>struct</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Plus</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> : </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>{</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><b><span style='font-size:9.5pt;
+font-family:Consolas;color:maroon;background:white'>Plus</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><i><span style='font-size:9.5pt;font-family:Consolas;color:silver;
+background:white'>e1</span></i><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>, </span><span style='font-size:9.5pt;font-family:
+Consolas;color:blue;background:white'>const</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><i><span style='font-size:9.5pt;font-family:Consolas;color:silver;
+background:white'>e2</span></i><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>) : </span><b><span style='font-size:9.5pt;
+font-family:Consolas;color:gray;background:white'>e1</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>e1</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>), </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>e2</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>e2</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>) {}</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><b><span style='font-size:9.5pt;font-family:Consolas;color:gray;
+background:white'>e1</span></b><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><b><span style='font-size:9.5pt;font-family:Consolas;color:gray;
+background:white'>e2</span></b><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>};</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>struct</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Minus</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> : </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>{</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><b><span style='font-size:9.5pt;
+font-family:Consolas;color:maroon;background:white'>Minus</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><i><span style='font-size:9.5pt;font-family:Consolas;color:silver;
+background:white'>e1</span></i><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>, </span><span style='font-size:9.5pt;font-family:
+Consolas;color:blue;background:white'>const</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><i><span style='font-size:9.5pt;font-family:Consolas;color:silver;
+background:white'>e2</span></i><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>) : </span><b><span style='font-size:9.5pt;
+font-family:Consolas;color:gray;background:white'>e1</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>e1</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>), </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>e2</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>e2</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>) {}</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><b><span style='font-size:9.5pt;font-family:Consolas;color:gray;
+background:white'>e1</span></b><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><b><span style='font-size:9.5pt;font-family:Consolas;color:gray;
+background:white'>e2</span></b><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>};</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>struct</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Times</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> : </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>{</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><b><span style='font-size:9.5pt;
+font-family:Consolas;color:maroon;background:white'>Times</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><i><span style='font-size:9.5pt;font-family:Consolas;color:silver;
+background:white'>e1</span></i><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>, </span><span style='font-size:9.5pt;font-family:
+Consolas;color:blue;background:white'>const</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><i><span style='font-size:9.5pt;font-family:Consolas;color:silver;
+background:white'>e2</span></i><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>) : </span><b><span style='font-size:9.5pt;
+font-family:Consolas;color:gray;background:white'>e1</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>e1</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>), </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>e2</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>e2</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>) {}</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><b><span style='font-size:9.5pt;font-family:Consolas;color:gray;
+background:white'>e1</span></b><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><b><span style='font-size:9.5pt;font-family:Consolas;color:gray;
+background:white'>e2</span></b><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>};</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>struct</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Divide</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> : </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>{</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><b><span style='font-size:9.5pt;
+font-family:Consolas;color:maroon;background:white'>Divide</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><i><span style='font-size:9.5pt;font-family:Consolas;color:silver;
+background:white'>e1</span></i><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>, </span><span style='font-size:9.5pt;font-family:
+Consolas;color:blue;background:white'>const</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><i><span style='font-size:9.5pt;font-family:Consolas;color:silver;
+background:white'>e2</span></i><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>) : </span><b><span style='font-size:9.5pt;
+font-family:Consolas;color:gray;background:white'>e1</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>e1</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>), </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>e2</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>e2</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>) {}</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><b><span style='font-size:9.5pt;font-family:Consolas;color:gray;
+background:white'>e1</span></b><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><b><span style='font-size:9.5pt;font-family:Consolas;color:gray;
+background:white'>e2</span></b><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>};</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>//------------------------------------------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>int</span><span style='font-size:9.5pt;font-family:
+Consolas;color:black;background:white'> </span><span style='font-size:9.5pt;
+font-family:Consolas;color:maroon;background:white'>eval</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Expr</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&amp;
+</span><i><span style='font-size:9.5pt;font-family:Consolas;color:silver;
+background:white'>e</span></i><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>)</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>{</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#6F008A;background:white'>Match(</span><i><span
+style='font-size:9.5pt;font-family:Consolas;color:silver;background:white'>e</span></i><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>)</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; {</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#6F008A;background:white'>Case(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Value&amp;&nbsp; x) </span><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>return</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> x.value;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#6F008A;background:white'>Case(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Plus&amp;&nbsp;&nbsp; x) </span><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>return</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> eval(x.e1) + eval(x.e2);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#6F008A;background:white'>Case(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Minus&amp;&nbsp; x) </span><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>return</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> eval(x.e1) - eval(x.e2);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#6F008A;background:white'>Case(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Times&amp;&nbsp; y) </span><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>return</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> eval(y.e1) * eval(y.e2);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#6F008A;background:white'>Case(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Divide&amp; z) </span><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>return</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'> eval(z.e1) / eval(z.e2);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; }</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#6F008A;background:white'>EndMatch</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>}</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>//------------------------------------------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:blue;background:white'>int</span><span style='font-size:9.5pt;font-family:
+Consolas;color:black;background:white'> </span><span style='font-size:9.5pt;
+font-family:Consolas;color:maroon;background:white'>main</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>()</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>{</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#2B91AF;background:white'>Value</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>a</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> = </span><span
+style='font-size:9.5pt;font-family:Consolas;color:teal;background:white'>17</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#2B91AF;background:white'>Value</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>b</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> = </span><span
+style='font-size:9.5pt;font-family:Consolas;color:teal;background:white'>25</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:#2B91AF;background:white'>Plus</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>&nbsp; </span><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>c</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> = </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Plus</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>a</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>,</span><span
+style='font-size:9.5pt;font-family:Consolas;color:gray;background:white'>b</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:navy;background:white'>std</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>::cout
+&lt;&lt; </span><span style='font-size:9.5pt;font-family:Consolas;color:maroon;
+background:white'>eval</span><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>(</span><span style='font-size:9.5pt;font-family:
+Consolas;color:gray;background:white'>a</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'>) &lt;&lt; </span><span
+style='font-size:9.5pt;font-family:Consolas;color:navy;background:white'>std</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>::</span><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>endl</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:navy;background:white'>std</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>::cout
+&lt;&lt; </span><span style='font-size:9.5pt;font-family:Consolas;color:maroon;
+background:white'>eval</span><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>(</span><span style='font-size:9.5pt;font-family:
+Consolas;color:gray;background:white'>b</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'>) &lt;&lt; </span><span
+style='font-size:9.5pt;font-family:Consolas;color:navy;background:white'>std</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>::</span><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>endl</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:navy;background:white'>std</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>::cout
+&lt;&lt; </span><span style='font-size:9.5pt;font-family:Consolas;color:maroon;
+background:white'>eval</span><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>(</span><span style='font-size:9.5pt;font-family:
+Consolas;color:gray;background:white'>c</span><span style='font-size:9.5pt;
+font-family:Consolas;color:black;background:white'>) &lt;&lt; </span><span
+style='font-size:9.5pt;font-family:Consolas;color:navy;background:white'>std</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>::</span><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>endl</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>}</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>//------------------------------------------------------------------------------</span></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+</div>
+
+</body>
+
+</html>

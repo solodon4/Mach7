@@ -74,7 +74,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="common.hpp" />
+    <ClInclude Include="SharedCommon.hpp" />
     <ClInclude Include="SharedDll1.hpp" />
   </ItemGroup>
   <ItemGroup>

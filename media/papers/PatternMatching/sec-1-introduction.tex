@@ -24,32 +24,33 @@ semantics, and tool chains. A prototype implementation requires more effort than
 for an experimental language and is harder to get into use because mainstream 
 users are unwilling to try non-portable, non-standard, and unoptimized features. 
 
-To balance utility and effort we took the Semantically 
-Enhanced Library Language (SELL) approach\cite{SELL} and extend a
-general-purpose programming language with a library, aided by tool 
-support. With pattern matching, we (somewhat surprisingly) managed to avoid 
-external tool support by relying on some pretty nasty macro hacking to provide a
-conventional and convenient interface to an efficient library implementation.
-By efficient, we mean about as fast as functional languages for closed cases and
-much better than code generated for visitor patterns by commercial optimizers 
-for open cases\cite{TypeSwitch}.
+To balance utility and effort we took the Semantically Enhanced Library Language 
+(SELL) approach\cite{SELL} that advocates for extending a general-purpose 
+programming language with a library, aided by a tool. With pattern matching, we 
+(somewhat surprisingly) managed to avoid external tool support by relying on 
+some pretty nasty macro hacking to provide a conventional and convenient syntax.
+%interface to an efficient library implementation.
+%By efficient, we mean about as fast as functional languages for closed cases and
+%much better than code generated for visitor patterns by commercial optimizers 
+%for open cases\cite{TypeSwitch}.
 
 \subsection{Summary}
 
-We present a functional style pattern matching for C++ built as a library. Our solution:
+We present a functional-style pattern matching for C++ built as a library. Our solution:
 
 \begin{compactitem}
 \setlength{\itemsep}{0pt}
 \setlength{\parskip}{0pt}
-  \item Is open, non-intrusive and avoids the control inversion typical for visitors~\cite{TypeSwitch}.
-  \item Can be retroactively applied to any polymorphic or tagged classes (\textsection\ref{sec:bnd}).
+  \item Makes patterns a first-class citizens in the language.
+  \item Is open as the user can introduce new kinds of patterns into the library.
+  \item Is non-intrusive and can be retroactively applied to existing data types (\textsection\ref{sec:bnd}).
+  \item Provides a unified syntax for various encodings of extensible 
+        hierarchical datatypes in C++ (\textsection\ref{sec:unisyn}).
   \item Generalizes the controversial n+k patterns in a non-equational way by 
         leaving the choice of semantics to the user (\textsection\ref{sec:slv}). 
   \item Supports a limited form of views (\textsection\ref{sec:view}).
-  \item Provides a unified syntax for various encodings of extensible 
-        hierarchical datatypes in C++ (\textsection\ref{sec:unisyn}).
   \item Is simpler than conventional object-oriented or union-based alternatives.
-  \item Improves performance compared to alternatives in real applications~\cite{TypeSwitch}.
+%  \item Improves performance compared to alternatives in real applications~\cite{TypeSwitch}.
 \end{compactitem}
 
 \noindent
@@ -118,12 +119,15 @@ possible instantiations using C++ partial template specialization.
 
 The syntax is provided without any external tool support. Instead we rely on a 
 few C++11 features\cite{C++11}, template meta-programming, and macros. As shown 
-in our companion paper~\cite{TypeSwitch}, it runs about as fast as the OCaml 
-version and up to 80\% faster (depending on the usage scenario, compiler and 
-underlying hardware) than a handcrafted C++ code using the visitor 
-design pattern.
+in our companion paper~\cite{TypeSwitch}, it runs about as fast as its OCaml and 
+Haskell equivalents and up to 80\% faster (depending on the usage scenario, 
+compiler and underlying hardware) than a handcrafted C++ code using the visitor 
+design pattern. The companion paper concentrated solely on the efficient 
+implementation of an open type switch statement. This work extends the 
+\code{Match}-statement introduced there to any kinds of patterns and 
+concentrates on library composition, expressiveness and ease of use.
 
-The rest of this paper is structured as following. Section~\ref{sec:bg} goes 
+The rest of the paper is structured as following. Section~\ref{sec:bg} goes 
 over some terminology and compares examples written with our library and in 
 other languages. Section~\ref{sec:pm} goes over the syntax and semantics of our 
 SELL independently of our host language -- C++. Section~\ref{sec:impl} discusses 

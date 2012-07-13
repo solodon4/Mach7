@@ -118,8 +118,8 @@ This binding code would be implicitly provided by the compiler had
 we chosen that implementation strategy.
 
 The syntax is provided without any external tool support. Instead we rely on a 
-few C++0x features~\cite{C++0x}, template meta-programming, and macros. It runs 
-about as fast as the OCaml version (\textsection\ref{sec:ocaml}), and, depending 
+few C++11 features~\cite{C++11}, template meta-programming, and macros. It runs 
+about as fast as OCaml and Haskell equivalents (\textsection\ref{sec:ocaml}), and, depending 
 on the usage scenario, compiler and underlying hardware, comes close or 
 outperforms the handcrafted C++ code based on the \emph{visitor design pattern} 
 (\textsection\ref{sec:eval}).
@@ -131,7 +131,7 @@ rather unsatisfactory experiences working with various C++ front-ends and
 program analysis frameworks~\cite{Pivot09,Phoenix,Clang,Lise}. 
 The problem was not in the frameworks per se, but in the fact that we had to use
 the \emph{visitor design pattern}~\cite{DesignPatterns1993} to inspect, traverse, and 
-elaborate abstract syntax trees of their target languages. We found visitors 
+elaborate abstract syntax trees to target languages. We found visitors 
 unsuitable to express our application logic, surprisingly hard to teach 
 students, and slow. We found dynamic casts in many places, often nested, 
 because users wanted to answer simple structural 

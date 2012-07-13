@@ -5,14 +5,18 @@ Pattern matching is an abstraction mechanism that provides syntax very close to
 mathematical notations. It allows the user tersely describe a (possibly 
 infinite) set of values accepted by the pattern. A \emph{pattern} represents a 
 predicate on values, and is usually more concise and readable than equivalent 
-imperative code. Pattern matching is closely related to \emph{algebraic data 
-types} and \emph{equational reasoning}. 
-In ML and Haskell an \emph{Algebraic Data Type} is a data type 
-each of whose values are picked from a disjoint sum of (possibly recursive) data 
-types, called \emph{variants}. Each variant is marked with a unique 
-symbolic constant called a \emph{constructor}. Constructors provide a convenient 
-way of creating a value of its variant type as well as discriminating among 
-variants through pattern matching. Consider a simple expression language:
+imperative code. An interesting peculiarity about patterns is that a given 
+pattern is rarely repeated in several places in code. This context sensitivity 
+makes them unattractive for code reuse through a dedicated predicate, since the 
+predicate will typically only be used once.
+
+Pattern matching is closely related to \emph{algebraic data types} and 
+\emph{equational reasoning}. In ML and Haskell an \emph{Algebraic Data Type} is 
+a data type each of whose values are picked from a disjoint sum of (possibly 
+recursive) data types, called \emph{variants}. Each variant is marked with a 
+unique symbolic constant called a \emph{constructor}. Constructors provide a 
+convenient way of creating a value of its variant type as well as discriminating 
+among variants through pattern matching. Consider a simple expression language:
 \begin{center}
 $exp$ \is{} $val$ \Alt{} $exp+exp$ \Alt{} $exp-exp$ \Alt{} $exp*exp$ \Alt{} $exp/exp$
 \end{center}

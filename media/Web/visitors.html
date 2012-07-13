@@ -1,0 +1,2368 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1251">
+<meta name=Generator content="Microsoft Word 14 (filtered)">
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:Consolas;
+	panose-1:2 11 6 9 2 2 4 3 2 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:10.0pt;
+	margin-left:0in;
+	line-height:115%;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+.MsoChpDefault
+	{font-family:"Calibri","sans-serif";}
+.MsoPapDefault
+	{margin-bottom:10.0pt;
+	line-height:115%;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:42.5pt 42.5pt 42.5pt 70.85pt;}
+div.WordSection1
+	{page:WordSection1;}
+-->
+</style>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1777267-5']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</head>
+
+<body lang=EN-US>
+
+<div class=WordSection1>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='font-size:9.5pt;font-family:Consolas;color:green;background:white'>// --
+Visitor --</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>struct</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:#2B91AF;background:white'>Visitor</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> {</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Node&amp;) = </span><span style='font-size:9.5pt;font-family:Consolas;
+color:teal;background:white'>0</span><span style='font-size:9.5pt;font-family:
+Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Annotation&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Region&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Comment&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+String&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Linkage&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Overload&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Parameter_list&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Scope&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Expr&amp;) = </span><span style='font-size:9.5pt;font-family:Consolas;
+color:teal;background:white'>0</span><span style='font-size:9.5pt;font-family:
+Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Classic&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// -------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// -- results of name constructor constants --</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// -------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Name&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Identifier&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Operator&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Conversion&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Scope_ref&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Template_id&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Type_id&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Ctor_name&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Dtor_name&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Rname&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// -------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// -- results of type constructor constants --</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// -------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Type&amp;) = </span><span style='font-size:9.5pt;font-family:Consolas;
+color:teal;background:white'>0</span><span style='font-size:9.5pt;font-family:
+Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Array&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+As_type&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Class&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Decltype&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Enum&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Function&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Namespace&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Pointer&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Ptr_to_member&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Product&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Qualified&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Reference&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Rvalue_reference&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Sum&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Template&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Union&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Udt&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>//
+--------------------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// -- results of nullar expression constructor
+constants --</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>//
+--------------------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Phantom&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>//
+-------------------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// -- results of unary expression constructor
+constants --</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>//
+-------------------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Address&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Array_delete&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Complement&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Delete&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Deref&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Expr_list&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Expr_sizeof&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Expr_typeid&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Id_expr&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Label&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Not&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Paren_expr&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Post_decrement&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Post_increment&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Pre_decrement&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Pre_increment&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Throw&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Type_sizeof&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Type_typeid&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Unary_minus&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Unary_plus&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>//
+--------------------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// -- results of binary expression constructor
+constants --</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// --------------------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+And&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Array_ref&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Arrow&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Arrow_star&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Assign&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Bitand&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Bitand_assign&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Bitor&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Bitor_assign&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Bitxor&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Bitxor_assign&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Cast&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Call&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Comma&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Const_cast&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Datum&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> Div&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Div_assign&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Dot&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Dot_star&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Dynamic_cast&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Equal&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Greater&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Greater_equal&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Less&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Less_equal&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Literal&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Lshift&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Lshift_assign&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Member_init&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Minus&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Minus_assign&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Modulo&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Modulo_assign&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Mul&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Mul_assign&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Not_equal&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Or&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Plus&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Plus_assign&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Reinterpret_cast&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Rshift&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Rshift_assign&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Static_cast&amp;); </span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>//
+--------------------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// -- result of trinary expression constructor
+constants --</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>//
+--------------------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Conditional&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+New&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Mapping&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>//
+-----------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// -- result of statement constructor constants
+--</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>//
+-----------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Stmt&amp;) = </span><span style='font-size:9.5pt;font-family:Consolas;
+color:teal;background:white'>0</span><span style='font-size:9.5pt;font-family:
+Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Block&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Break&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Continue&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Ctor_body&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Do&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Expr_stmt&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Empty_stmt&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+For&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+For_in&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Goto&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Handler&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+If_then&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+If_then_else&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Labeled_stmt&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Return&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Switch&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+While&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>//
+-------------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// -- result of declaration constructor constants
+--</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>//
+-------------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Decl&amp;) = </span><span style='font-size:9.5pt;font-family:Consolas;
+color:teal;background:white'>0</span><span style='font-size:9.5pt;font-family:
+Consolas;color:black;background:white'>;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Alias&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Base_type&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Bitfield&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Enumerator&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Field&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Fundecl&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Named_map&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Parameter&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Typedecl&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Var&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Asm&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// ------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// -- distinguished node --</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// ------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Unit&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// --------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// -- Special built-in constants --</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// --------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Void&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Bool&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Char&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+sChar&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+uChar&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Short&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+uShort&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Int&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+uInt&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Long&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+uLong&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Long_long&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+uLong_long&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Float&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Double&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Long_double&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Ellipsis&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+C_linkage&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Cxx_linkage&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// ----------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// -- built-ins, but not constants --</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:green;background:white'>// ----------------------------------</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='font-size:9.5pt;
+font-family:Consolas;color:blue;background:white'>virtual</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>void</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'> </span><b><span
+style='font-size:9.5pt;font-family:Consolas;color:maroon;background:white'>visit</span></b><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>(</span><span
+style='font-size:9.5pt;font-family:Consolas;color:blue;background:white'>const</span><span
+style='font-size:9.5pt;font-family:Consolas;color:black;background:white'>
+Global_scope&amp;);</span></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+normal;text-autospace:none'><span style='font-size:9.5pt;font-family:Consolas;
+color:black;background:white'>&nbsp;&nbsp; };</span></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+</div>
+
+</body>
+
+</html>

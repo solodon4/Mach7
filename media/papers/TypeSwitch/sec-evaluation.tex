@@ -1,14 +1,23 @@
 \section{Evaluation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:eval}
 
-Our evaluation methodology consisted of several independent studies of the 
-technique in order to achieve a better confidence in its validity. Our first 
-study involved comparison of relative performance of our approach against the 
-visitor design pattern. The second study did a similar comparison with built-in 
-facilities of Haskell and OCaml. In the third study we looked at how well our 
-caching mechanisms deal with some large real-world class hierarchies. In the 
-last study we did rewrite an existing application that was based on visitors 
-using our approach and compared the two.
+We performed several independent studies of our approach to demonstrate its 
+effectiveness. The first study compares our approach to the visitor design 
+pattern and shows that the type switch is comparable or faster 
+(\textsection\ref{sec:viscmp}). We also include the comparison of type switching 
+solutions made under open and closed world assumptions -- a choice the library 
+offers to the user with no changes in surface syntax (\textsection\ref{sec:cmp}).  
+The second study does a similar comparison with built-in facilities of Haskell 
+and OCaml and shows that the open type switch for extensible and hierarchical 
+data types can be almost as efficient as its equivalent for closed algebraic 
+data types (\textsection\ref{sec:ocaml}). In the third study we looked at how 
+well our caching mechanisms deal with some large real-world class hierarchies in 
+order to demonstrate that our performance numbers were not established in overly 
+idealistic conditions (\textsection\ref{sec:hierarchies}). In the last study we 
+rewrote an existing visitor-based application using our approach in order to 
+compare the ease of use, readibility and maintainability of each approach, as 
+well as to show the memory usage and the startup costs associated with our 
+approach in a real application (\textsection\ref{sec:qualcmp}).
 
 \subsection{Comparison with Visitor Design Pattern}
 \label{sec:viscmp}
@@ -105,31 +114,21 @@ The benchmarks were executed in the following configurations refered to as
       \end{itemize}
 \end{itemize}
 
-\noindent
-The code on the critical path of our type switch implementation benefits 
-significantly from branch hinting as some branches are much more likely than 
-others. We use the branch hinting in GCC to guide the compiler, but, 
-unfortunately, Visual C++ does not have similar facilities. Microsoft suggests 
-to use \emph{Profile-Guided Optimization} to achieve the same, which is why the 
-results for Visual C++ reported here have been obtained with profile-guided 
-optimizations enabled. %The results without profile-guided optimizations can be 
-%found in the accompanying technical report~\cite[\textsection 10]{TR}.
-%The results of optimizing code created with Visual C++ by using profile 
-%guided optimizations as currently Visual C++ does not have means for branch 
-%hinting, which are supported by G++ and proven to be very effective in few 
-%cruicial places. Profile guided optimization in Visual C++ lets compiler find 
-%out experimentally what we would have otherwise hinted, even though this 
-%includes other optimizations as well.
-
-To give an idea about absolute timings of each of the benchmarks, 
-Figure~\ref{fig:VisitorsComparison} presents a sample of performance numbers 
-achieved by visitor design pattern and our open type switch on Windows Laptop 
-under GCC 4.6.1. The actual bars show the timings without forwarding, while the 
-black lines above and below each bar show where the corresponding bar would be 
-in the presence of forwarding. It is easy to see that visitors generally become 
-slower in the presence of forwarding due to extra call, while type switch 
-becomes faster due to smaller jump table. As discussed, both timings are much 
-smaller for repetitive benchmark due to hardware cache.
+To improve accuracy, timing in all the configurations was performed with the 
+help of \code{RDTSC} instruction available on x86 processors. For every number reported 
+here we ran 101 experiments timing 1000000 dispatches each (all through either 
+visitors or type switch). The first experiment was serving as a warm-up, during 
+which the optimal caching parameters were inferred, and typically resulted in an 
+outlier with the largest time. Averaged over 1000000 dispatches, the number of 
+cycles per dispatch in each of the 101 experiments was sorted and the median was 
+chosen. We prefered median to average to diminish the influence of other 
+applications and OS interrupts as well as to improve reproducibility of timings 
+between the runs of application. In particular, in the diagnostic boot of 
+Windows, where the minimum of drivers and applications are loaded, we were 
+getting the same number of cycles per iteration 70-80 out of 101 times. Timings 
+in non-diagnostic boots had somewhat larger absolute values, however the 
+relative performance of type switch against visitors remained unchanged and 
+equally well reproducible.
 
 \begin{figure}[htbp]
   \centering
@@ -137,6 +136,17 @@ smaller for repetitive benchmark due to hardware cache.
   \caption{Sample timings for different benchmarks}
   \label{fig:VisitorsComparison}
 \end{figure}
+
+To give an idea about absolute timings of each of the benchmarks, 
+Figure~\ref{fig:VisitorsComparison} presents a sample of performance numbers 
+achieved by visitor design pattern and our open type switch when compiled with 
+GCC 4.6.1 and ran in the diagnostic boot of OS on Windows Laptop. The actual 
+bars show the timings without forwarding, while the black lines above and below 
+each bar show where the corresponding bar would be in the presence of 
+forwarding. It is easy to see that visitors generally become slower in the 
+presence of forwarding due to extra call, while type switch becomes faster due 
+to smaller jump table. As discussed, both timings are much smaller for 
+repetitive benchmark due to hardware cache.
 
 To give a broader view of how both techniques compare under different 
 compiler/platform configurations, we also compare the performance of our 
@@ -146,24 +156,30 @@ technique. Numbers in regular font represent cases where type switching was
 faster, while numbers in bold indicate cases where visitors were faster.
 
 \begin{figure}[htbp]
-\begin{tabular}{@{}c@{ }@{}l@{ }||@{}r@{}|@{}r@{}|@{}r@{}|@{}r@{}||@{}r@{}|@{}r@{}|@{}r@{}|@{}r@{}}
+\scriptsize
+%\footnotesize
+\begin{tabular}{@{}c@{ }@{}l@{ }||@{ }r@{ }|@{ }r@{ }|@{ }r@{ }|@{ }r@{ }|@{ }r@{ }|@{ }r@{ }||@{ }r@{ }|@{ }r@{ }|@{ }r@{ }|@{ }r@{ }|@{ }r@{ }|@{ }r@{ }}
 \hline % ---------------------------------------------------------------
- &     & \multicolumn{4}{c||}{Open}    & \multicolumn{4}{c}{Closed}     \\
+ &     & \multicolumn{6}{c||}{Open}     & \multicolumn{6}{c}{Closed}     \\
 \hline % ---------------------------------------------------------------
- &     & \multicolumn{2}{@{}c@{}|}{G++} & \multicolumn{2}{@{}c@{}||}{MS VC++} & \multicolumn{2}{@{}c@{}|}{G++} & \multicolumn{2}{@{}c@{}}{MS VC++} \\
+ &     & \multicolumn{2}{@{}c@{}|}{G++} & \multicolumn{4}{@{}c@{}||}{MS Visual C++} 
+       & \multicolumn{2}{@{}c@{}|}{G++} & \multicolumn{4}{@{}c@{}}{MS Visual C++} \\
 \hline % ---------------------------------------------------------------
- &     &\tiny{x86-32}&\tiny{x86-32}&\tiny{x86-32}&\tiny{x86-64}&\tiny{x86-32}&\tiny{x86-32}&\tiny{x86-32}&\tiny{x86-64} \\
+ &     & \multicolumn{1}{@{}c@{}|}{Lnx} & \multicolumn{1}{@{}c@{}|}{Win} 
+       & \multicolumn{2}{@{}c@{}|}{PGO} & \multicolumn{2}{@{}c@{}||}{w/o PGO} 
+       & \multicolumn{1}{@{}c@{}|}{Lnx} & \multicolumn{1}{@{}c@{}|}{Win} 
+       & \multicolumn{2}{@{}c@{}|}{PGO} & \multicolumn{2}{@{}c@{}}{w/o PGO} \\
 \hline % ---------------------------------------------------------------
- & REP &\glNSPp&\gwNSPp&\VwNSPp&\VxNSPp&\glNSKp&\gwNSKp&\VwNSKp&\VxNSKp \\
- & SEQ &\glNSPq&\gwNSPq&\VwNSPq&\VxNSPq&\glNSKq&\gwNSKq&\VwNSKq&\VxNSKq \\
- & RND &\glNSPn&\gwNSPn&\VwNSPn&\VxNSPn&\glNSKn&\gwNSKn&\VwNSKn&\VxNSKn \\
+ &     & \xV   & \xV   & \xV   & \xW   & \xV   & \xW   & \xV   & \xV   & \xV   & \xW   & \xV   &\xW     \\
 \hline % ---------------------------------------------------------------
-\multirow{3}{*}{\begin{sideways}{\tiny Forward}\end{sideways}}
- & REP &\glYSPp&\gwYSPp&\VwYSPp&\VxYSPp&\glYSKp&\gwYSKp&\VwYSKp&\VxYSKp \\
- & SEQ &\glYSPq&\gwYSPq&\VwYSPq&\VxYSPq&\glYSKq&\gwYSKq&\VwYSKq&\VxYSKq \\
- & RND &\glYSPn&\gwYSPn&\VwYSPn&\VxYSPn&\glYSKn&\gwYSKn&\VwYSKn&\VxYSKn \\
+ & REP &\glNSPp&\gwNSPp&\VwNSPp&\VxNSPp&\vwNSPp&\vxNSPp&\glNSKp&\gwNSKp&\VwNSKp&\VxNSKp&\vwNSKp&\vxNSKp \\
+ & SEQ &\glNSPq&\gwNSPq&\VwNSPq&\VxNSPq&\vwNSPq&\vxNSPq&\glNSKq&\gwNSKq&\VwNSKq&\VxNSKq&\vwNSKq&\vxNSKq \\
+ & RND &\glNSPn&\gwNSPn&\VwNSPn&\VxNSPn&\vwNSPn&\vxNSPn&\glNSKn&\gwNSKn&\VwNSKn&\VxNSKn&\vwNSKn&\vxNSKn \\
 \hline % ---------------------------------------------------------------
- &     & \multicolumn{1}{@{}c@{}|}{Lnx}& \multicolumn{3}{@{}c@{}||}{Win} & \multicolumn{1}{@{}c@{}|}{Lnx} & \multicolumn{3}{c}{Win} \\
+\multirow{3}{*}{\begin{sideways}{\tiny Forwarding}\end{sideways}}
+ & REP &\glYSPp&\gwYSPp&\VwYSPp&\VxYSPp&\vwYSPp&\vxYSPp&\glYSKp&\gwYSKp&\VwYSKp&\VxYSKp&\vwYSKp&\vxYSKp \\
+ & SEQ &\glYSPq&\gwYSPq&\VwYSPq&\VxYSPq&\vwYSPq&\vxYSPq&\glYSKq&\gwYSKq&\VwYSKq&\VxYSKq&\vwYSKq&\vxYSKq \\
+ & RND &\glYSPn&\gwYSPn&\VwYSPn&\VxYSPn&\vwYSPn&\vxYSPn&\glYSKn&\gwYSKn&\VwYSKn&\VxYSKn&\vwYSKn&\vxYSKn \\
 \hline % ---------------------------------------------------------------
 \end{tabular}
 \caption{Relative performance of type switching versus visitors. Numbers 
@@ -184,6 +200,22 @@ Similarly the code for x64 is only slower relatively: the actual time spent for
 both visitors and type switching was smaller than that for x86, but it was much 
 smaller for visitors than type switching, which resulted in worse relative 
 performance.
+
+Lastly, the code on the critical path of our type switch implementation benefits 
+significantly from branch hinting as some branches are much more likely than 
+others. We use the branch hinting directives in GCC to guide the compiler, but, 
+unfortunately, Visual C++ does not provide any similar facilities. Instead, 
+Microsoft suggests to use \emph{Profile-Guided Optimizations} (PGO) to achieve 
+the same, which is why we list the results for Visual C++ both with and without 
+profile-guided optimizations.
+%The results without profile-guided optimizations can be 
+%found in the accompanying technical report~\cite[\textsection 10]{TR}.
+%The results of optimizing code created with Visual C++ by using profile 
+%guided optimizations as currently Visual C++ does not have means for branch 
+%hinting, which are supported by G++ and proven to be very effective in few 
+%cruicial places. Profile guided optimization in Visual C++ lets compiler find 
+%out experimentally what we would have otherwise hinted, even though this 
+%includes other optimizations as well.
 
 \subsection{Open vs. Closed Type Switch}
 \label{sec:cmp}
@@ -349,7 +381,7 @@ subhierarchy of 3 classes, 10\% of 4, 7\% of 5 and so forth.
 Turning this into a cumulative distribution, $a\%$ of subhierarchies had more 
 than $b$ classes in them, where:
 
-\noindent
+%\noindent
 \begin{tabular}
 {l||@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }|@{ }c@{ }}
 %{l||c|c|c|c|c|c|c|c|c}
@@ -417,6 +449,7 @@ experiments had $H_{kl}^V$ with 2 conflicts, 0.87\% with 3 and so forth as shown
 in Figure~\ref{fig:size}($K+1$).
 
 \begin{figure}[htbp]
+\small
 \begin{tabular}
 {@{}c@{}||@{}c@{}|@{}c@{}|@{}c@{}|@{}c@{}|@{}c@{}|@{}c@{}|@{}c@{}|@{}c@{}}
 \hline % -------------------------------------------------------------------------
@@ -498,7 +531,7 @@ The blue part of each bar corresponds to the memory used by cache, while the
 maroon -- to the memory used by the hash table. The ratio of the non-opaque 
 parts of both colors to the entire part of that color indicate the load factors 
 of cache and hash-table respectively. The black box additionally indicates the 
-amount of entries in the cache that are allocated for only one vtbl-pointer and 
+number of entries in the cache that are allocated for only one vtbl-pointer and 
 thus never result in a cache miss. %The non-transparent part without black box 
 %represents the percentage of vtbl-pointers that have to share their cache entry 
 %with at least one other vtbl-pointer and thus may result in collisions during 
@@ -524,8 +557,9 @@ $k$ even further.
 
 The table does not have to be hash table and can be implemented with 
 any other container i.e. sorted vector, map etc. that let us find quickly by a given 
-vtbl-pointer the data associated with it. If we implement it with sorted vector, 
-the red part will shrink to only the non-transparent part.
+vtbl-pointer the data associated with it. In fact we provide a slightly less 
+efficient caching container that avoids the table altogether, thus significanly 
+reducing the memory requirements instead.
 
 %During this refactoring we have made several simplifications that became obvious 
 %in pattern-matching code, but were not in visitors code because of control 
@@ -555,3 +589,23 @@ the red part will shrink to only the non-transparent part.
 %matching code will likely follow the structure already set by the visitors. 
 %Pattern matching was most effective when writing new code, where we could design 
 %the structure of the code having the pattern-matching facility in our toolbox.
+
+\subsection{Limitations}
+\label{sec:lim}
+
+Currently the definition of each class used in a case clause must be visible to 
+the compiler because \code{dynamic_cast} operator used in the type switch does 
+not allow incomplete types as a target type. For particularly large type 
+switches (e.g. \textgreater 1000 case clauses) this may easily reach some 
+compiler limitations. Both GCC and Visual C++, for example, could not generate 
+object files for such translation units simply because the sheer size of v-tables 
+and other compiler data in it were exceeding the limits. The problem is not 
+specific to our technique though and allowing \code{dynamic_cast} on classes 
+that were declared but not defined yet would solve the problem.
+
+While it might be reasonable to expect from linkers to layout v-tables close 
+to each other -- the property that makes our hashing function efficient -- they 
+are not required to do so. We believe, nevertheless, that should our approach 
+become popular through the library implementation, its compiler implementation 
+will encourage compiler vendors to enforce the property in order to keep the 
+type switching fast.

@@ -10,7 +10,7 @@
 /// All rights reserved.
 ///
 
-#include "common.hpp"
+#include "SharedCommon.hpp"
 #include "SharedDll1.hpp"
 
 using namespace std;
@@ -76,7 +76,7 @@ Shape* make_shape(size_t i)
 
 //------------------------------------------------------------------------------
 
-#include "testutils.hpp"    // Utilities for timing tests
+#include "testvismat.hpp"    // Utilities for timing tests
 
 //------------------------------------------------------------------------------
 

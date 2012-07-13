@@ -1,6 +1,29 @@
 \section{Related Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:rw}
 
+\emph{Lookup caches} have been long used to reduce the overhead of 
+dynamically-bound message passing in Smalltalk~\cite{UngarPatterson83}. 
+\emph{Inline caching} further observed that the type of the receiver at a given 
+call site rarely varies and that the call instruction can be speculatively 
+modified to jump directly to a previously looked up method~\cite{Deutsch84}. 
+The method in this case will have to ensure that the type of the reciever has 
+not changed and redirect the call to generic lookup otherwise. The effects of 
+inline caching on modern architectures can be seen through hardware call target 
+prediction, which in our case is exemplified by repetitive benchmark. In this 
+case both virtual function calls and the underlying jump-table implementation of 
+the \code{Match}-statement are about twice faster than usual.
+
+\emph{Polymorphic Inline Caches}~\cite{Holzle:Chambers:Ungar:91} generalize the 
+idea of inline caches further by building a decision tree in the method prologue 
+that caches all lookup results. The main difference of this approach from our 
+work is that it requires code generation at run time, while we neither require 
+re-compilation, nor re-linking nor even any computations at dynamic linking 
+time. The reason for this is difference in the initial setting: they are mapping 
+arbitrary number of receiver types to arbitrary number of implementations, while 
+we are mapping an arbitrary number of receivers to a fixed number of jump 
+targets. This lets us generate code at compile time that incorporates both the 
+initial and memoized execution.
+
 \emph{Extensible Visitors with Default Cases}~\cite[\textsection 
 4.2]{Zenger:2001} attempts to solve the extensibility problem of visitors; 
 however, the solution has problems of its own. The visitation interface 

@@ -46,6 +46,7 @@
   publisher    = {ACM Press},
   address      = {New York, NY, USA},
 }
+
 @TechReport{C++WD,
   key          = {ISO},
   editor       = {Pete Becker},
@@ -55,6 +56,17 @@
   month        = aug,
   number       = {N2723=08-0233},
   url          = {http://www.open-std.org/JTC1/sc22/wg21/docs/papers/2008/n2723.pdf}
+}
+
+@TechReport{C++library_WD,
+  key = {ISO},
+  editor =       {Pete Becker},
+  title =        {Working Draft, Standard for Programming Language {C++}},
+  institution =  {ISO/IEC JTC 1, Information Technology, Subcommittee
+                  SC 22, Programming Language {C++}},
+  year =         2006,
+  number =    {N2009=06-0079},
+  month =     {April}
 }
 
 
@@ -97,7 +109,7 @@
   author =	 {Walter E. Brown},
   title =	 {{Applied Template Metaprogramming in SIUNITS: the
                   Library of Unit-Based Computation}},
-  booktitle =	 {Second Workshop on C++ Template Programming},
+  booktitle =	 {Second Workshop on {C++} Template Programming},
   year =	 2001,
   month =	 oct,
   note =	 {in conjunction with OOPSLA'01,
@@ -294,6 +306,14 @@
  address = {New York, NY, USA},
  }
 
+@book{Cpp98
+,  author    = {{ISO/IEC 14882 International Standard}}
+,  publisher = {American National Standards Institute}
+,  title     = {Programming languages -- {C++}}
+,  year      = {1998}
+,  month     = {September}
+}
+
 @book{iso-cpp-03,
   author = {{International Organization for Standardization}},
   title = {ISO/IEC 14882:2003: Programming languages: {C++}},
@@ -306,10 +326,9 @@
    pages = 757,
 }
 
-
 @book{Str00,
  author = {Bjarne Stroustrup},
- title = {The  C++ Programming Language},
+ title = {The  {C++} Programming Language},
  edition = {1st},
  year = {2000},
  isbn = {0201700735},
@@ -319,7 +338,7 @@
 
 @book{CPPARM90,
  author = {Ellis, Margaret A. and Stroustrup, Bjarne},
- title = {The annotated C++ reference manual},
+ title = {The annotated {C++} reference manual},
  year = {1990},
  isbn = {0-201-51459-1},
  publisher = {Addison-Wesley Longman Publishing Co., Inc.},
@@ -328,7 +347,7 @@
 
 @book{StrFirstEdition,
  author = {Bjarne Stroustrup},
- title = {The  C++ Programming Language},
+ title = {The  {C++} Programming Language},
  year = {1986},
  isbn = {0-201-12078},
  publisher = {Addison-Wesley},
@@ -531,7 +550,7 @@
  
 @Manual{boost_enable_if,
   author       = {Jaakko J\"arvi and Jeremiah Willcock and Andrew Lumsdaine},
-  title        = {The {B}oost enable\_if {L}ibrary},
+  title        = {The {B}oost {E}nable\_if {L}ibrary},
   organization = {{Boost}},
   note         = {\url{http://www.boost.org/libs/utility/enable_if.html}},
   year         = 2003,
@@ -540,7 +559,7 @@
   author       = "Todd L. Veldhuizen",
   title        = "Using {C++} template metaprograms",
   url          = "http://extreme.indiana.edu/~tveldhui/papers/",
-  journal      = "C++ Report",
+  journal      = "{C++} Report",
   volume       = "7",
   number       = "4",
   pages        = "36--43",
@@ -555,10 +574,10 @@
                   speed increases for many applications. A simple
                   example that generates factorials at compile time is
                   presented. Although this technique might seem like
-                  just a cute C++ trick, it becomes powerful when
-                  combined with normal C++ code. In this hybrid
+                  just a cute {C++} trick, it becomes powerful when
+                  combined with normal {C++} code. In this hybrid
                   approach, source code contains two programs: the
-                  normal C++ runtime program, and a template
+                  normal {C++} runtime program, and a template
                   metaprogram that runs at compile time. Template
                   metaprograms can generate useful code when
                   interpreted by the compiler, such as a massively
@@ -579,12 +598,12 @@
                   and other processors)",
   corpsource   = "Waterloo Univ., Ont., Canada",
   keywords     = "algorithm; bubble sort; Bubble sort algorithm; C
-                  language; C++; C++ runtime program; C++ template
+                  language; {C++}; {C++} runtime program; {C++} template
                   metaprograms; Compiler interpretation; compiler
                   interpretation; Factorials; factorials; Hybrid
                   approach; hybrid approach; increases; Massively
                   inlined algorithm; massively inlined algorithm;
-                  Normal C++ code; normal C++ code; object-oriented;
+                  Normal {C++} code; normal {C++} code; object-oriented;
                   object-oriented languages; program compilers;
                   program interpreters; programming; runtime program;
                   speed; Speed increases",
@@ -659,8 +678,8 @@
 }
 
 @inproceedings{DRS06,
- author = {Gabriel Dos Reis and Bjarne Stroustrup},
- title = {Specifying C++ concepts},
+ author = {Gabriel {Dos Reis} and Bjarne Stroustrup},
+ title = {Specifying {C++} concepts},
  booktitle = {POPL '06: Conference record of the 33rd ACM SIGPLAN-SIGACT symposium on Principles of programming languages},
  year = {2006},
  isbn = {1-59593-027-2},
@@ -673,7 +692,7 @@
 
 @inproceedings{SELL,
  author = {Bjarne Stroustrup},
- title = {A rationale for semantically enhanced library languages},
+ title = {A rationale for {S}emantically {E}nhanced {L}ibrary {L}anguages},
  booktitle = {LCSD '05},
  year = {2005},
  month = {October},
@@ -745,10 +764,25 @@
   NUMBER = 9
 }
 
+@inproceedings{XTL06,
+  author = {Yuriy Solodkyy and Jaakko J\"arvi and Esam Mlaih},
+  title = {Extending Type Systems in a Library --- Type-safe {XML} processing in {C++}},
+  booktitle = { Proceedings of the Second International Workshop on Library-Centric Software Design ({LCSD}'06)},
+  location = {Portland, Oregon},
+  pages = {55--64},
+  note = {Technical Report No. 06-18 in Computer Science and Engineering at Chalmers University of Technology and G{\"o}teborg University},
+  url = {http://sms.cs.chalmers.se/bibliography/proceedings/2006-LCSD.pdf},
+  year = 2006,
+  month = oct,
+  keyword = CPP,
+  keyword = TYPES,
+}
+
 @Manual{xtl,
   key =		 {XTL},
   author =	 {Yuriy Solodkyy and Jaakko J{\"arvi} and Esam Mlaih},
-  title =	 {{eXtensible Typing Library}},
+  title =	 {e{X}tensible {T}yping {L}ibrary},
+  howpublished = {\url{http://parasol.tamu.edu/xtl}},
   url = {http://parasol.tamu.edu/xtl},
   year =	 2007
 }
@@ -760,7 +794,7 @@
   number       = {WG21/N2258=07-0118},
   institution  = {{JTC1}/{SC22}/{WG21} {C++} Standards Committee},
   url          = {http://www.open-std.org/JTC1/sc22/wg21/docs/papers/2007/n2258.pdf},
-  keywords     = {C++, Templates, Aliases}
+  keywords     = {{C++}, Templates, Aliases}
 }
 
 @Misc{RSS20,
@@ -786,7 +820,7 @@
 
 @Misc{Sankel10,
   author = {David Sankel},
-  title  = {Algebraic Data Types in C++},
+  title  = {Algebraic Data Types in {C++}},
   url    = {http://cpp-next.com/archive/2010/09/algebraic-data-types-in-c/},
   year   = 2010,
   month  = September,
@@ -795,7 +829,7 @@
 
 @InProceedings{SankelFP10,
   author = {David Sankel},
-  title  = {Modern Functional Programming in C++},
+  title  = {Modern Functional Programming in {C++}},
   booktitle = {BoostCon'10},
   url    = {http://netsuperbrain.com/gfp/funccpp.pdf},
   url    = {https://github.com/boostcon/2010_presentations/raw/master/thu/funccpp.pdf},
@@ -813,7 +847,7 @@
 }
 
 @inproceedings{Pivot09,
-  author    = {Gabriel Dos Reis and Bjarne Stroustrup},
+  author    = {Gabriel {Dos Reis} and Bjarne Stroustrup},
   title     = {A Principled, Complete, and Efficient Representation of {C++}},
   booktitle = {Proc. Joint Conference of ASCM 2009 and MACIS 2009},
   series    = {COE Lecture Notes},
@@ -836,7 +870,7 @@
 @ARTICLE{Veldhuizen95expressiontemplates,
   author = {Todd Veldhuizen},
   title = {Expression Templates},
-  journal = {C++ Report},
+  journal = {{C++} Report},
   year = {1995},
   volume = {7},
   pages = {26--31}
@@ -928,7 +962,6 @@
  author = {Milner, Robin and Tofte, Mads and Harper, Robert},
  title = {The  Definition of Standard ML},
  year = {1990},
- isbn = {0262132559},
  publisher = {MIT Press},
  address = {Cambridge, MA, USA},
 }
@@ -963,7 +996,7 @@
 
 @TechReport{Prop96,
   author       = {Allen Leung},
-  title        = {Prop: A C++ based Pattern Matching Language},
+  title        = {Prop: A {C++} based Pattern Matching Language},
   institution  = {Courant Institute of Mathematical Sciences, New York University},
   year         = 1996,
   month        = March,
@@ -1119,14 +1152,14 @@
 }
 
 @Misc{Clang,
-  title =        {clang: a {C} language family frontend for {LLVM}},
+  title =        {{Clang}: a {C} language family frontend for {LLVM}},
   howpublished = {\url{http://clang.llvm.org/}},
   year =         2007
 }
 
 @InProceedings{Milewski11,
   author    = {Bartosz Milewski},
-  title     = {Haskell - The Pseudocode Language for C++ Template Metaprogramming},
+  title     = {Haskell - The Pseudocode Language for {C++} Template Metaprogramming},
   booktitle = {BoostCon'11},
   url       = {http://boostcon.boost.org/2011-resources},
   year      = 2011,
@@ -1174,7 +1207,6 @@
 @book{C++11,
   author  = {{International Organization for Standardization}},
   title   = {ISO/IEC 14882:2011: Programming languages: {C++}},
-  url     = {http://www.iso.org/iso/iso\_catalogue/catalogue\_tc/catalogue\_detail.htm?csnumber=50372},
   address = "Geneva, Switzerland",
   year    = 2011,
   edition = {3rd}
@@ -1340,13 +1372,13 @@ This thesis describes an algoritm that translates functional program code with a
 	month = {{July}},
 	note = {{http://www.edg.com/}},
 	author = {{Edison Design Group}},
-	title = {{C++ Front End}},
+	title = {{{C++} Front End}},
 	year = {{2008}},
 }
 
 @InProceedings{SQ03,
 	BookTitle = {{JMLC{'}03: Joint Modular Languages Conference}},
-	Keywords = {{Rose, C++, Compiler Infrastructure, Source-to-Source }},
+	Keywords = {{Rose, {C++}, Compiler Infrastructure, Source-to-Source }},
 	Month = {{August}},
 	Publisher = {{Springer-Verlag}},
 	Weblink = {{citeseer.ist.psu.edu/schordan03sourcetosource.html}},
@@ -1397,7 +1429,7 @@ This thesis describes an algoritm that translates functional program code with a
 @misc{C++ABI,
 	note = {{http://www.codesourcery.com/public/cxx-abi/}},
 	author = {{CodeSourcery, Compaq, EDG, HP, IBM, Intel, Red Hat, and SGI}},
-	title = {{Itanium C++ ABI}},
+	title = {{Itanium {C++} ABI}},
     month = {{March}},
 	year = {{2001}},
 }
@@ -1411,8 +1443,8 @@ This thesis describes an algoritm that translates functional program code with a
 }
 
 @inproceedings{RDL11,
- author = {Ramananandro, Tahina and Dos Reis, Gabriel and Leroy, Xavier},
- title = {Formal verification of object layout for c++ multiple inheritance},
+ author = {Ramananandro, Tahina and {Dos Reis}, Gabriel and Leroy, Xavier},
+ title = {Formal verification of object layout for {C++} multiple inheritance},
  booktitle = {Proceedings of the 38th annual ACM SIGPLAN-SIGACT symposium on Principles of programming languages},
  series = {POPL '11},
  year = {2011},
@@ -1422,7 +1454,7 @@ This thesis describes an algoritm that translates functional program code with a
  acmid = {1926395},
  publisher = {ACM},
  address = {New York, NY, USA},
- keywords = {c++, compiler verification, data representation, empty base classes, multiple inheritance, object identity, object layout},
+ keywords = {{C++}, compiler verification, data representation, empty base classes, multiple inheritance, object identity, object layout},
 }
 
 @inproceedings{RF95,
@@ -1441,7 +1473,7 @@ This thesis describes an algoritm that translates functional program code with a
 
 @inproceedings{WNST06,
  author = {Wasserrab, Daniel and Nipkow, Tobias and Snelting, Gregor and Tip, Frank},
- title = {An operational semantics and type safety prooffor multiple inheritance in C++},
+ title = {An operational semantics and type safety prooffor multiple inheritance in {C++}},
  booktitle = {Proceedings of the 21st annual ACM SIGPLAN conference on Object-oriented programming systems, languages, and applications},
  series = {OOPSLA '06},
  year = {2006},
@@ -1451,7 +1483,7 @@ This thesis describes an algoritm that translates functional program code with a
  acmid = {1167503},
  publisher = {ACM},
  address = {New York, NY, USA},
- keywords = {C++, multiple inheritance, semantics, type safety},
+ keywords = {{C++}, multiple inheritance, semantics, type safety},
 }
 
 @Unpublished{exprproblem,
@@ -1489,7 +1521,7 @@ This thesis describes an algoritm that translates functional program code with a
  acmid = {1115608},
  publisher = {John Wiley \& Sons, Inc.},
  address = {New York, NY, USA},
- keywords = {C++, dynamic casting, embedded systems, hard real-time, modulo},
+ keywords = {{C++}, dynamic casting, embedded systems, hard real-time, modulo},
 } 
 
 @techreport{Spuler94,
@@ -1537,7 +1569,7 @@ This thesis describes an algoritm that translates functional program code with a
 
 @article{Schilling98,
  author = {Schilling, Jonathan L.},
- title = {Optimizing away C++ exception handling},
+ title = {Optimizing away {C++} exception handling},
  journal = {SIGPLAN Not.},
  volume = {33},
  issue = {8},
@@ -1551,11 +1583,11 @@ This thesis describes an algoritm that translates functional program code with a
  acmid = {286390},
  publisher = {ACM},
  address = {New York, NY, USA},
- keywords = {C++, benchmarks, compiler, exception handling, optimization},
+ keywords = {{C++}, benchmarks, compiler, exception handling, optimization},
 } 
 
 @book{vandevoorde2003c++,
-  title={C++ templates: the complete guide},
+  title={{C++} templates: the complete guide},
   author={Vandevoorde, D. and Josuttis, N.M.},
   isbn={9780201734843},
   lccn={2002027933},
@@ -1618,19 +1650,15 @@ This thesis describes an algoritm that translates functional program code with a
  keywords = {algebraic datatypes, design patterns, program extensibility, software components, traversal, visitor pattern},
 }
 
-
 @inproceedings{PQEncoding,
  author = {Zibin, Yoav and Gil, Joseph Yossi},
- title = {Efficient subtyping tests with PQ-encoding},
+ title = {Efficient subtyping tests with {PQ}-encoding},
  booktitle = {Proceedings of the 16th ACM SIGPLAN conference on Object-oriented programming, systems, languages, and applications},
  series = {OOPSLA '01},
  year = {2001},
- isbn = {1-58113-335-9},
  location = {Tampa Bay, FL, USA},
  pages = {96--107},
  numpages = {12},
- url = {http://doi.acm.org/10.1145/504282.504290},
- doi = {10.1145/504282.504290},
  acmid = {504290},
  publisher = {ACM},
  address = {New York, NY, USA},
@@ -1691,11 +1719,9 @@ This thesis describes an algoritm that translates functional program code with a
  title = {Compiling pattern matching},
  booktitle = {Proc. of a conference on Functional programming languages and computer architecture},
  year = {1985},
- isbn = {3-387-15975-4},
  location = {Nancy, France},
  pages = {368--381},
  numpages = {14},
- url = {http://dl.acm.org/citation.cfm?id=5280.5303},
  acmid = {5303},
  publisher = {Springer-Verlag New York, Inc.},
  address = {New York, NY, USA},
@@ -1707,12 +1733,9 @@ This thesis describes an algoritm that translates functional program code with a
  booktitle = {Proc. of the 1984 ACM Symposium on LISP and functional programming},
  series = {LFP '84},
  year = {1984},
- isbn = {0-89791-142-3},
  location = {Austin, Texas, United States},
  pages = {208--217},
  numpages = {10},
- url = {http://doi.acm.org/10.1145/800055.802037},
- doi = {http://doi.acm.org/10.1145/800055.802037},
  acmid = {802037},
  publisher = {ACM},
  address = {New York, NY, USA},
@@ -1726,8 +1749,7 @@ This thesis describes an algoritm that translates functional program code with a
   title     = {Matchete: Paths through the Pattern Matching Jungle},
   year      = {2008},
   pages     = {150-166},
-  booktitle     = {10th International Symposium on 
-               Practical Aspects of Declarative Languages (PADL)}, 
+  booktitle = {10th International Symposium on Practical Aspects of Declarative Languages (PADL)}, 
   publisher = {Springer}
 }
 
@@ -1808,7 +1830,6 @@ This thesis describes an algoritm that translates functional program code with a
     title = "Walkabout revisited: The Runabout",
     booktitle = "ECOOP 2003 - Object-Oriented Programming",
     publisher = "Springer-Verlag",
-    url = "http://grothoff.org/christian/runabout/runabout.pdf",
     year = "2003",
     pages = "103-125",
 	    
@@ -1834,16 +1855,13 @@ This thesis describes an algoritm that translates functional program code with a
 
 @inproceedings{Driesen96,
  author = {Driesen, Karel and H\"{o}lzle, Urs},
- title = {The direct cost of virtual function calls in C++},
+ title = {The direct cost of virtual function calls in {C++}},
  booktitle = {Proceedings of the 11th ACM SIGPLAN conference on Object-oriented programming, systems, languages, and applications},
  series = {OOPSLA '96},
  year = {1996},
- isbn = {0-89791-788-X},
  location = {San Jose, California, United States},
  pages = {306--323},
  numpages = {18},
- url = {http://doi.acm.org/10.1145/236337.236369},
- doi = {10.1145/236337.236369},
  acmid = {236369},
  publisher = {ACM},
  address = {New York, NY, USA},
@@ -1873,7 +1891,6 @@ volume = {16},
 issn = {0018-9162},
 year = {1983},
 pages = {53-60},
-doi = {http://doi.ieeecomputersociety.org/10.1109/MC.1983.1654198},
 publisher = {IEEE Computer Society},
 address = {Los Alamitos, CA, USA},
 }
@@ -1884,12 +1901,9 @@ address = {Los Alamitos, CA, USA},
  booktitle = {Proceedings of the eighth annual conference on Object-oriented programming systems, languages, and applications},
  series = {OOPSLA '93},
  year = {1993},
- isbn = {0-89791-587-9},
  location = {Washington, D.C., United States},
  pages = {271--287},
  numpages = {17},
- url = {http://doi.acm.org/10.1145/165854.165905},
- doi = {10.1145/165854.165905},
  acmid = {165905},
  publisher = {ACM},
  address = {New York, NY, USA},
@@ -1901,12 +1915,9 @@ address = {Los Alamitos, CA, USA},
  booktitle = {Proceedings of the 12th ACM SIGPLAN conference on Object-oriented programming, systems, languages, and applications},
  series = {OOPSLA '97},
  year = {1997},
- isbn = {0-89791-908-4},
  location = {Atlanta, Georgia, United States},
  pages = {142--157},
  numpages = {16},
- url = {http://doi.acm.org/10.1145/263698.263730},
- doi = {10.1145/263698.263730},
  acmid = {263730},
  publisher = {ACM},
  address = {New York, NY, USA},
@@ -1966,11 +1977,8 @@ address = {Los Alamitos, CA, USA},
  number = {4},
  month = oct,
  year = {1991},
- issn = {0164-0925},
  pages = {626--629},
  numpages = {4},
- url = {http://doi.acm.org/10.1145/115372.115297},
- doi = {10.1145/115372.115297},
  acmid = {115297},
  publisher = {ACM},
  address = {New York, NY, USA},
@@ -2001,12 +2009,9 @@ address = {Los Alamitos, CA, USA},
  booktitle = {Proceedings of the 16th ACM SIGPLAN-SIGACT symposium on Principles of programming languages},
  series = {POPL '89},
  year = {1989},
- isbn = {0-89791-294-2},
  location = {Austin, Texas, United States},
  pages = {202--212},
  numpages = {11},
- url = {http://doi.acm.org/10.1145/75277.75295},
- doi = {10.1145/75277.75295},
  acmid = {75295},
  publisher = {ACM},
  address = {New York, NY, USA},
@@ -2021,7 +2026,6 @@ address = {Los Alamitos, CA, USA},
  isbn = {0-8186-8585-9},
  pages = {9--15},
  numpages = {7},
- url = {http://dl.acm.org/citation.cfm?id=645980.674267},
  acmid = {674267},
  publisher = {IEEE Computer Society},
  address = {Washington, DC, USA},
@@ -2029,7 +2033,7 @@ address = {Los Alamitos, CA, USA},
 
 @inproceedings{OpenMM,
  author = {Pirkelbauer, Peter and Solodkyy, Yuriy and Stroustrup, Bjarne},
- title = {Open multi-methods for c++},
+ title = {Open multi-methods for {C++}},
  booktitle = {Proceedings of the 6th international conference on Generative programming and component engineering},
  series = {GPCE '07},
  year = {2007},
@@ -2042,7 +2046,7 @@ address = {Los Alamitos, CA, USA},
  acmid = {1289993},
  publisher = {ACM},
  address = {New York, NY, USA},
- keywords = {C++, generic programming, multi-methods, multiple dispatch, object oriented programming, open-methods},
+ keywords = {{C++}, generic programming, multi-methods, multiple dispatch, object oriented programming, open-methods},
 }
 
 @inproceedings{OpenShutTypecase05,
@@ -2055,8 +2059,6 @@ address = {Los Alamitos, CA, USA},
  location = {Long Beach, California, USA},
  pages = {13--24},
  numpages = {12},
- url = {http://doi.acm.org/10.1145/1040294.1040296},
- doi = {10.1145/1040294.1040296},
  acmid = {1040296},
  publisher = {ACM},
  address = {New York, NY, USA},
@@ -2069,12 +2071,9 @@ address = {Los Alamitos, CA, USA},
  booktitle = {Proceedings of the 22nd ACM SIGPLAN-SIGACT symposium on Principles of programming languages},
  series = {POPL '95},
  year = {1995},
- isbn = {0-89791-692-1},
  location = {San Francisco, California, United States},
  pages = {130--141},
  numpages = {12},
- url = {http://doi.acm.org/10.1145/199448.199475},
- doi = {10.1145/199448.199475},
  acmid = {199475},
  publisher = {ACM},
  address = {New York, NY, USA},
@@ -2098,11 +2097,8 @@ address = {Los Alamitos, CA, USA},
  number = {2},
  month = apr,
  year = {1988},
- issn = {0164-0925},
  pages = {204--214},
  numpages = {11},
- url = {http://doi.acm.org/10.1145/42190.46167},
- doi = {10.1145/42190.46167},
  acmid = {46167},
  publisher = {ACM},
  address = {New York, NY, USA},
@@ -2114,12 +2110,9 @@ address = {Los Alamitos, CA, USA},
  booktitle = {Proceedings of the 11th ACM SIGPLAN conference on Object-oriented programming, systems, languages, and applications},
  series = {OOPSLA '96},
  year = {1996},
- isbn = {0-89791-788-X},
  location = {San Jose, California, United States},
  pages = {83--100},
  numpages = {18},
- url = {http://doi.acm.org/10.1145/236337.236344},
- doi = {10.1145/236337.236344},
  acmid = {236344},
  publisher = {ACM},
  address = {New York, NY, USA},
@@ -2130,7 +2123,7 @@ address = {Los Alamitos, CA, USA},
 	Isbn = {{0-201-54330-3}},
 	Publisher = {{ACM Press/Addison-Wesley Publishing Co.}},
 	author = {Stroustrup, Bjarne},
-	title = {{The design and evolution of C++}},
+	title = {{The design and evolution of {C++}}},
 	year = {{1994}},
 	tags = "programming language"
 }
@@ -2148,8 +2141,6 @@ address = {Los Alamitos, CA, USA},
  pages = {33:1--33:56},
  articleno = {33},
  numpages = {56},
- url = {http://doi.acm.org/10.1145/1391956.1391960},
- doi = {10.1145/1391956.1391960},
  acmid = {1391960},
  publisher = {ACM},
  address = {New York, NY, USA},
@@ -2158,7 +2149,7 @@ address = {Los Alamitos, CA, USA},
 
 @article{Str89,
   author    = {Bjarne Stroustrup},
-  title     = {Multiple Inheritance for C++},
+  title     = {Multiple Inheritance for {C++}},
   journal   = {Computing Systems},
   volume    = {2},
   number    = {4},
@@ -2169,11 +2160,36 @@ address = {Los Alamitos, CA, USA},
 
 @inproceedings{Str87,
  author    = {Bjarne Stroustrup},
- title     = {Multiple Inheritance for C++},
+ title     = {Multiple Inheritance for {C++}},
  booktitle = {Proceedings of the Spring'87 EUUG Conference},
- note      = {Revised version in AT\&T C++ Translator Release Notes, June 1989. Also, USENIX Computing Systems, V2 no 4, Fall 1989, pp 367-396},
+ note      = {Revised version in AT\&T {C++} Translator Release Notes, June 1989. Also, USENIX Computing Systems, V2 no 4, Fall 1989, pp 367-396},
  series    = {EUUG '87},
  year      = {1987},
  month     = {May},
  location  = {Helsinki, Finland}
 }
+
+@incollection {UngarPatterson83,
+ author    = {Ungar, David and Patterson, David},
+ title     = {Berkeley Smalltalk: Who Knows Where the Time Goes?},
+ booktitle = {Smalltalk-80: Bits of History and Words of Advice},
+ editor    = {Krasner, Glenn},
+ publisher = {Addison-Wesley},
+ isbn      = {0-201-11669-3},
+ pages     = {189-206},
+ year      = {1983}
+}
+
+@inproceedings{Deutsch84,
+ author = {Deutsch, L. Peter and Schiffman, Allan M.},
+ title = {Efficient implementation of the smalltalk-80 system},
+ booktitle = {Proceedings of the 11th ACM SIGACT-SIGPLAN symposium on Principles of programming languages},
+ series = {POPL '84},
+ year = {1984},
+ location = {Salt Lake City, Utah, United States},
+ pages = {297--302},
+ numpages = {6},
+ acmid = {800542},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 

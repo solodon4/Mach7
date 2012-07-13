@@ -1,6 +1,6 @@
 // MathFuncsDll.h
 
-#include "common.hpp"
+#include "SharedCommon.hpp"
 
 __declspec(dllexport) Shape* make_shape_dll(size_t i);
 

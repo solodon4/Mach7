@@ -35,10 +35,10 @@ cascading-if statement implements the first-fit semantics for our type switch in
 a truly open fashion:
 
 \begin{lstlisting}
-if (T1* match = dynamic_cast<T1*>(subject)) { s1; } else
-if (T2* match = dynamic_cast<T2*>(subject)) { s2; } else
+if (T1* match = dynamic_cast<T1*>(subject)) {s1;} else
+if (T2* match = dynamic_cast<T2*>(subject)) {s2;} else
 ...
-if (Tn* match = dynamic_cast<Tn*>(subject)) { sn; }
+if (Tn* match = dynamic_cast<Tn*>(subject)) {sn;}
 \end{lstlisting}
 
 \noindent
@@ -196,7 +196,7 @@ dispatching~\cite{ErnstKC98}.
 Imagine that the predicates with the numbers $2i$ and $2i+1$ are mutually exclusive and 
 each imply the value of the predicate with number $i$ i.e. $\forall x \in \mathsf{Domain}(P)$
 \begin{eqnarray*}
-P_{2i+1}(x)\rightarrow P_i(x) \wedge P_{2i}(x)\rightarrow P_i(x) \wedge \neg(P_{2i+1}(x) \wedge P_{2i}(x))
+P_{2i+1}(x)\rightarrow P_i(x)\wedge P_{2i}(x)\rightarrow P_i(x)\wedge\neg(P_{2i+1}(x)\wedge P_{2i}(x))
 \end{eqnarray*}
 \noindent
 An example of predicates that satisfy this condition are class membership tests 
@@ -732,11 +732,12 @@ accordingly to the value of their vtbl-pointer and associate both jump target
 and the required offset through the memoization device:
 
 \begin{lstlisting}
-typedef pair<ptrdiff_t,size_t> type_switch_info;
-static unordered_map<intptr_t, type_switch_info> jump_targets;
-type_switch_info& info = jump_targets[vtbl(x)];
-const void*       tptr; 
-switch (info.second) ...
+typedef pair<ptrdiff_t,size_t> target_info;
+static unordered_map<intptr_t, target_info> jump_targets;
+      auto*  sptr = &x; // name to access subject
+const void*  tptr; 
+target_info& info = jump_targets[vtbl(sptr)];
+switch (info.second) {{ default: 
 \end{lstlisting}
 
 \noindent
@@ -749,15 +750,15 @@ The call to \code{adjust_ptr<Ti>} re-establishes the invariant that
 %not required.
 
 \begin{lstlisting}
-    if (tptr = dynamic_cast<const Ti *>(x)) {
-        if (info.second == 0) { // supports fall-through
-            info.first  = intptr_t(tptr)-intptr_t(x); // offset
-            info.second = @$i$@; // jump target
-        }
-case @$i$@: // @$i$@ is a constant here - clause's position in switch
-        auto match = adjust_ptr<Ti>(x,info.first); 
-        si;
+  if (tptr = dynamic_cast<const Ti *>(sptr)) {
+    if (info.second == 0) { // supports fall-through
+      info.first  = intptr_t(tptr)-intptr_t(sptr); // offset
+      info.second = @$i$@; // jump target
     }
+  case @$i$@: // @$i$@ is a constant - clause's position in switch
+    auto match = adjust_ptr<Ti>(sptr,info.first);
+    si;
+  }
 \end{lstlisting}
 
 \noindent
@@ -779,7 +780,10 @@ Class \code{std::unordered_map} provides amortized constant time access on
 average and linear in the amount of elements in the worst case. We show in the 
 next section that most of the time we will be bypassing traditional access to 
 its elements. We need this extra optimization because, as-is, the type switch is 
-still about 50\% slower than the visitor design pattern.
+still about 50\% slower than the visitor design pattern.\footnote{We are using 
+speedups throughout the paper when comparing performance, so ``X is 42\% faster 
+than Y'' or equally ``Y is 42\% slower than X'' means that Y's execution time is 
+1.42 times X's execution time.}
 
 %Note that we can apply the reasoning of \textsection\ref{sec:memdev} and change 
 %the first-fit semantics of the resulting match statement into a best-fit 
@@ -787,6 +791,19 @@ still about 50\% slower than the visitor design pattern.
 %tree. A compiler implementation of a type switch based on Vtable Pointer 
 %Memoization will certainly take advantage of this optimization to cut down the 
 %cost of the first run on a given vtbl-pointer, when the actual memoization happens.
+
+Looking back at example from \textsection\ref{sec:intro} and allowing for few 
+unimportant omissions, the first code snippet corresponds to what macro 
+\code{Match(x)} is expanded to given a subject expression \code{x}. In order to 
+see what \code{Case(Ti)} is expanded to, the second snippet has to be split on 
+the line containing \code{si;} (excluding \code{si;} itself, which comes from 
+source) and the second part (i.e. \} here) moved in front of the first one. The 
+macro thus closes the scope of the previous case-clause, before starting the new 
+one. \code{Case}'s expansion only relies on names introduced by \code{Match(x)}, 
+its argument \code{Ti} and a constant $i$, which can be obtained from 
+\code{__LINE__} or better \code{__COUNTER__} macro when the later one is 
+supported by the compiler. The \code{EndMatch} macro simply closes the scopes 
+(i.e. \}\} here).
 
 %\subsubsection{Structure of Virtual Table Pointers}
 %\label{sec:sovtp}
@@ -882,7 +899,7 @@ P_{kl}(V)=\sum\limits_{j=0}^{2^k-1}[|V^j_{kl}| \neq 0]\frac{|V^j_{kl}|-1}{n}
 \end{eqnarray*}
 
 \noindent
-We use the notation $[\pi]$ to refer to the outcome of a predicate $\pi$ as numbers $0$ or $1$.
+We use the Iverson bracket $[\pi]$ here to refer to the outcome of a predicate $\pi$ as numbers $0$ or $1$.
 The value $|V^j_{kl}|$ represents the number of vtbl-pointers $v_i$ from a given 
 set $V$ that are mapped to the same location $j$ in cache with $H_{kl}^V$. Only 
 one such vtbl-pointer will actually be present in that cache location at any given 

@@ -82,7 +82,7 @@ showstringspaces=false,
 \newcommand{\Rule}[1]{{\rmfamily\itshape{#1}}}
 \newcommand{\Alt}{\ensuremath{|}}
 \newcommand{\is}{$::=$}
-\newcommand{\subtype}{\textless:}
+\newcommand{\subtype}{\ensuremath{\texttt{\raisebox{-0.1ex}{<}\raisebox{0.05ex}{:}}}}
 \newcommand{\lazyevals}{\Downarrow}
 \newcommand{\evals}{\Rightarrow}
 \newcommand{\evalspp}{\Rightarrow^+}
@@ -170,24 +170,24 @@ showstringspaces=false,
 \begin{abstract}
 Pattern matching is an abstraction mechanism that greatly simplifies code. We 
 present functional-programming-style pattern matching for C++ implemented as a 
-library. The library provides a uniform notation for matching against different 
-encodings of algebraic as well as extensible hierarchical data types in C++. The 
-library integrates well with programming styles supported by ISO C++ and can be 
-used in the presence of multiple inheritance as well as in generic code.
+library. The library provides a uniform notation for matching against built-in 
+and user-defined types, including the numerous encodings of algebraic as well as 
+extensible hierarchical data types used in C++. The library integrates well with 
+programming styles supported by ISO C++ and can be used in the presence of 
+multiple inheritance as well as in generic code.
 
-We demonstrate that most of the traditional patterns seen in functional 
-languages, can be made available in a language as library entities. This 
-includes in-demand features, such as views, as well as controversial features, 
-such as n+k patterns. Implementing pattern matching as a library allows us to 
-experiment with syntax, implementation algorithms, and styles of use while 
-preserving the performance and portability provided by industrial compilers and 
-support tools.
+Our patterns are first-class citizens, and the set of patterns supported by 
+the library is open. The traditional patterns seen in functional languages are 
+expressed as user-defined entities, including the typical constructor patterns, 
+controversial n+k patterns and expressive views. Implementing pattern matching 
+as a library allows us to experiment with the expressiveness of syntax, 
+under-the-hood tweaks, and styles of use while preserving the performance and 
+portability provided by industrial compilers and support tools.
 
 The library was originally motivated by and is used for applications involving 
 large, typed, abstract syntax trees. Code written using our patterns is 
-significantly more concise  and easier to comprehend than alternative solutions 
-in C++. Compared to the visitor 
-design pattern, pattern matching is non-intrusive, 
+significantly more concise and easier to comprehend than alternative solutions 
+in C++. Compared to the visitor design pattern, pattern matching is non-intrusive, 
 does not have extensibility restrictions, avoids control inversion, is 
 faster, and can be used in scenarios for which visitors are ill suited.
 \keywords{Pattern Matching, Visitor Design Pattern, C++}

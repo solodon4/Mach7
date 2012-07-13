@@ -56,16 +56,17 @@ Instead, we offer an external introspection of objects with case analysis:
 int eval(const Expr& e)
 {
   Match(e)
-    Case(const  Value& x) return x.value;
-    Case(const   Plus& x) return eval(x.e1) + eval(x.e2);
-    Case(const  Minus& x) return eval(x.e1) - eval(x.e2);
-    Case(const  Times& x) return eval(x.e1) * eval(x.e2);
-    Case(const Divide& x) return eval(x.e1) / eval(x.e2);
+   Case(const  Value& x) return x.value;
+   Case(const   Plus& x) return eval(x.e1)+eval(x.e2);
+   Case(const  Minus& x) return eval(x.e1)-eval(x.e2);
+   Case(const  Times& x) return eval(x.e1)*eval(x.e2);
+   Case(const Divide& x) return eval(x.e1)/eval(x.e2);
   EndMatch
 }
 \end{lstlisting}
 
 \noindent
+With the exception of include directive for a library header, this is everything the user has to write.
 The syntax is provided without any external tool support or additional definitions. Instead we rely on a 
 few C++11 features~\cite{C++11}, template meta-programming, and macros. It runs 
 about as fast as OCaml and Haskell equivalents (\textsection\ref{sec:ocaml}), and, depending 

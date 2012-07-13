@@ -1,18 +1,127 @@
 <HTML>
 <HEAD>
-<TITLE>Supporting material for PLDI review</TITLE>
+<TITLE>Supporting material for OOPSLA-2012 review</TITLE>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1777267-5']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
 </HEAD>
 <BODY>
 <H1>Open and Efficient Type Switch for C++</H1>
-Paper review supporting material.
+<H3>OOPSLA-2012 paper review supporting material</H3>
+
+<font color="red">NOTE:</font> Please do not share this link past the reviewing needs for now.
+
+<H2>The Library</H2>
+
+<H3><a name="typeswitch">Type Switch</a></H3>
+
+<P>The library source code can be downloaded here: 
+<A href="typeswitch.zip">typeswitch.zip</A>. 
+</P>
+<P>
+The library is a subset of a larger <A href="#matching">pattern-matching 
+library</A> and only exposes the facilities discussed in the paper. It uses a 
+smaller subset of C++11 than the general library and thus can be compiled on 
+more compilers. It is also supposedly easier to understand since there is less 
+code in it. Because it is a subset of a larger library, not every configuration 
+option mentioned in <TT>config.hpp</TT> will be applicable to this subset.
+</P>
+<P>
+To build various test cases with GCC (4.4 or later), simply invoke 
+<TT>make</TT>. To do the same with Visual C++ (2010 or later), invoke 
+<TT>build.bat</TT> from the command line. For the list of other supported 
+build targets see the source of <TT>Makefile</TT> or <TT>build.bat</TT> 
+respectively. Some of the source files are known to crash GCC 4.4.5 on my Fedora 
+13 box, just delete them if they also crash your compiler -- the specific 
+problems causing the crash were reported to GCC or solved in later versions 
+already. 
+</P>
+<P>
+If your class hierarchy has virtual functions in its root class, you can start 
+using the library by simply including <TT>match.hpp</TT>. The only statements 
+that would be available are: <TT>Match</TT>, <TT>EndMatch</TT>, <TT>Case</TT> 
+and <TT>Otherwise</TT>. Other statements mentioned in the header depend on the 
+part of the library not present here. The simplest example of library use can be 
+found in <TT><A href="example01.html">example01.cpp</A></TT>. The exact example 
+used in the paper can be found in <TT><A href="example03.html">example03.cpp</A></TT> 
+and is only available under GCC at the moment because it depends on the compiler 
+implementing C++11 initializer lists.
+</P>
+<P>
+As a larger example you might want to look at the source code of a C++ pretty 
+printer we implemented for the Pivot framework (see below the Code Comparison 
+section and the source files it references).
+</P>
+
+<H3><a name="matching">Pattern Matching</a></H3>
+
+<P>The library source code can be downloaded here: <A href="pm.zip">pm.zip</A>. 
+It addresses general pattern matching for C++ and is subject of a separate 
+paper. We present the source code here only for completeness.
+</P>
+
+<H2>Synthetic Tests Performance Comparison</H2>
+<P>
+Synthetic tests were designed to compare the run-time performance of visitors 
+and type switching in a setting where the actual pay-load functionality is the 
+minimal (i.e. just returning a case number here), while the most of the time is 
+spent on detecting the case. 
+There are 24 test configurations, which are a combination of the following 4 
+parameters described in details in the paper:
+</P>
+
+<UL>
+<LI>3 use case scenarios: Repetitive, Random or Sequential
+<LI>2 encodings: Open or Tag
+<LI>2 syntax variations: Unified or Special
+<LI>2 cases of presence or absence of forwarding to the base class in visitors.
+</UL>
+
+<P>
+The result of the timing experiment can be seen in Excel Spreadsheet 
+<a href="Timing.xlsx">Timing.xlsx</a>. Embedded version of the file can be seen 
+below, however some features/information is not available when viewing in 
+browser, so we suggest you download the file locally.
+</P>
+<P>
+Please feel free to edit the four values that are allowed to be editable below 
+to see the amount of cycles spent per iteration of a corresponding test by 
+visitors and type switch. The first value can be in range 1-7 and controls the 
+compiler configuration used for tests. The 3 other boolean parameters represent 
+the 3 last parameters described above: Encoding, Syntax and Forwarding. 
+The numbers hidden by the chart are copied from the corresponding sheet below by 
+choosing compiler configuration. You can see it directly by clicking on the 
+corresponding sheet.
+</P>
+
+<iframe width="100%" height="600" frameborder="0" scrolling="no" src="https://r.office.microsoft.com/r/rlidExcelEmbed?su=2783159172736703518&Fi=SD269FC48594575C1E!230&ak=t%3d0%26s%3d0%26v%3d!ADIMvZn3S8MyMdY&kip=1&wdAllowInteractivity=False&AllowTyping=True&ActiveCell='Visualization'!A8&wdHideGridlines=True&wdHideHeaders=True&wdDownloadButton=True"></iframe>
+
+<P>
+All the tests have been performed in the diagnostic boot of Windows 7, in which 
+the operating system loads only the bare minimum of drivers and services. This 
+limits the effect of other applications on the timed application as well as 
+makes the timing numbers very sustainable: i.e. you can see that each test of a 
+given configuration was performed 3 times, with numbers representing the amount 
+of cycles per iteration almost always beeing the same or different by 1.
+</P>
+
+<H2>Real Code Performance Comparison</H2>
 <P>
 The C++ pretty printer that we implemented using both type switching (open 
 encoding) and visitor design pattern was ran on a set of standard header files 
 to print them out. The produced output of both program was byte-to-byte the 
 same.
 </P>
-
-<H2>Real Code Performance Comparison</H2>
 <P>
 The running times for the entire execution of the printer (not including loading 
 and termination of the application or parsing of the input file) are presented 
@@ -74,51 +183,6 @@ with an average speed-up of 5.53%.
  197234 | |  vector     |X| 188669  #   194703 | |  vector     |X| 188664  #  vector       5985
 ==================================  #  ==================================  #  =================
 </PRE>
-
-<H2>Synthetic Tests Performance Comparison</H2>
-<P>
-Synthetic tests were designed to compare the run-time performance of visitors 
-and type switching in a setting where the actual pay-load functionality is the 
-minimal (i.e. just returning a case number here), while the most of the time is 
-spent on detecting the case. 
-There are 24 test configurations, which are a combination of the following 4 
-parameters described in details in the paper:
-</P>
-
-<UL>
-<LI>3 use case scenarios: Repetitive, Random or Sequential
-<LI>2 encodings: Open or Tag
-<LI>2 syntax variations: Unified or Special
-<LI>2 cases of presence or absence of forwarding to the base class in visitors.
-</UL>
-
-<P>
-The result of the timing experiment can be seen in Excel Spreadsheet 
-<a href="Timing.xlsx">Timing.xlsx</a>. Embedded version of the file can be seen 
-below, however some features/information is not available when viewing in 
-browser, so we suggest you download the file locally.
-</P>
-<P>
-Please feel free to edit the four values that are allowed to be editable below 
-to see the amount of cycles spent per iteration of a corresponding test by 
-visitors and type switch. The first value can be in range 1-7 and controls the 
-compiler configuration used for tests. The 3 other boolean parameters represent 
-the 3 last parameters described above: Encoding, Syntax and Forwarding. 
-The numbers hidden by the chart are copied from the corresponding sheet below by 
-choosing compiler configuration. You can see it directly by clicking on the 
-corresponding sheet.
-</P>
-
-<iframe width="100%" height="600" frameborder="0" scrolling="no" src="https://r.office.microsoft.com/r/rlidExcelEmbed?su=2783159172736703518&Fi=SD269FC48594575C1E!230&ak=t%3d0%26s%3d0%26v%3d!ADIMvZn3S8MyMdY&kip=1&wdAllowInteractivity=False&AllowTyping=True&ActiveCell='Visualization'!A8&wdHideGridlines=True&wdHideHeaders=True&wdDownloadButton=True"></iframe>
-
-<P>
-All the tests have been performed in the diagnostic boot of Windows 7, in which 
-the operating system loads only the bare minimum of drivers and services. This 
-limits the effect of other applications on the timed application as well as 
-makes the timing numbers very sustainable: i.e. you can see that each test of a 
-given configuration was performed 3 times, with numbers representing the amount 
-of cycles per iteration almost always beeing the same or different by 1.
-</P>
 
 <H2>Memory Usage</H2>
 <P>
@@ -204,18 +268,70 @@ file 40464 bytes, making the pattern-matching source about 14% smaller.</P>
 
 <P>
 <table>
-<tr><td><a href="printer_visitors.cpp">printer_visitors.cpp</a></td>
+<tr><td><a href="printer_visitors.html">printer_visitors.cpp</a></td>
     <td>Visitors based implementation (left file in comparison)</td></tr>
-<tr><td><a href="printer_matching.cpp">printer_matching.cpp</a></td>
+<tr><td><a href="printer_matching.html">printer_matching.cpp</a></td>
     <td>Pattern-matching based implementation (right file in comparison)</td></tr>
-<tr><td><a href="visitors.hpp">visitors.hpp</a></td>
+<tr><td><a href="visitors.html">visitors.hpp</a></td>
     <td>Excerpt from Pivot's header with visitor definition</td></tr>
-<tr><td><a href="match_ipr.hpp">match_ipr.hpp</a></td>
+<tr><td><a href="match_ipr.html">match_ipr.hpp</a></td>
     <td>Definition of pattern-matching bindings</td></tr>
 </table>
 </P>
 
 <iframe name="Comparison" src="Visitors-Matching.html" width="100%" height="14350" ></iframe>
+
+<H2>Errata</H2>
+
+<P>
+The discussion of the following work did not appear in the sent draft due to version 
+control skew. We are aware of this work based on the suggestion from a previous 
+review.<BR>
+<EM>Urs Holzle, Craig Chambers and David Ungar ``Optimizing Dynamically-Typed 
+Object-Oriented Languages with Polymorphic Inline Caches'' (ECOOP'91)</EM>.
+</P>
+<P>
+PICs generate code at run-time, our approach neither requires re-compilation, 
+nor re-linking nor even any computations at dynamic linking time. Besides, PICs 
+are based on decision trees and we show that they are inferior to jump tables in 
+application to type switching. Our setting is quite different from theirs though 
+- they are mapping arbitrary number of receiver types to arbitrary number of 
+implementations of a specific dynamically looked up method, called at that call 
+site. We are mapping an arbitrary number of receivers to a fixed amount of jump 
+targets. We are thus able to generate code at compile time that can be executed 
+two ways: sequentially and directly with a jump. The novelty of specifically 
+memoization device is thus in a code layout that can memoize its own sequential 
+execution.
+</P>
+<P>
+A small observation about Inline Caches (IC) that PICs are based on: virtual 
+function calls on modern architectures are essentially executed with IC, because 
+of the hardware call target prediction. This can be easily seen from our 
+repetitive benchmark where calls on different objects of the same reciever type 
+are twice faster than virtual calls on objects of different reciever types. The 
+repetitive benchmark was specifically designed to compare our performance for 
+this specific case. Holzle also notes that inline caches are effective only if 
+the receiver type (and thus the call target) remains relatively constant at a 
+call site.
+</P>
+<P>
+We decided not to discuss in details multiple and predicated dispatching in the 
+context of this work as based on previous reviews it was significantly side 
+tracking the discussion, giving our work a connotation that we are trying to 
+solve the expression problem. Instead we discuss in greater details why type 
+switch is not a solution to the expression problem and why it is better than 
+visitor design pattern.
+</P>
+<P>
+We also forgot to mention that the class hierarchy tests had both tests 
+involving multiple translation units and single translation units in them. 
+Some of the class hierarchies were so large neither GCC nor Visual C++ could 
+compile them when put into a single translation unit due to the limitations on 
+object file size. This was happening primarily due to the number of virtual 
+tables that had to be generated and put into a single object file. We thus 
+implemented a possibility of splitting the tests into multiple translation 
+units in order to make the setting as close as possible to the real world use.
+</P>
 
 </BODY>
 </HTML>
