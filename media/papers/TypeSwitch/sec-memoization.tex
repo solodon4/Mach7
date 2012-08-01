@@ -1,18 +1,18 @@
 \section{Type Switch}
 \label{sec:copc}
 
-\Cpp{} does not have direct support of algebraic data types, but they can be 
+While \Cpp{} does not have direct support of algebraic data types, they can be 
 encoded with classes in a number of ways. One common such encoding is to 
 introduce an abstract base class representing an algebraic data type with 
-several derived classes representing variants. The variants can then be 
+several derived classes representing variants. The variants can be 
 discriminated with either run-time type information (referred to as 
-\emph{polymorphic encoding}) or a dedicated member of a base class 
-(referred to  as \emph{tagged encoding}).
+\emph{polymorphic encoding}) or a unique tag inside a dedicated member of the 
+common base class (referred to  as \emph{tagged encoding}).
 
-While our library supports both encodings, it handles them differently to let 
+While Mach7 supports both encodings, it handles them differently to let 
 the user choose between openness and efficiency. The type switch for tagged 
-encoding is simpler and more efficient for many typical use cases, however, 
-making it open will eradicate its performance advantages. The difference in 
+encoding(\textsection\ref{sec:cotc}) is simpler and more efficient for many typical use cases, however, 
+making it open eradicates its performance advantages. The difference in 
 performance is the price we pay for keeping the solution open. We describe pros 
 and cons of each approach in \textsection\ref{sec:cmp}.
 
@@ -35,18 +35,18 @@ cascading-if statement implements the first-fit semantics for our type switch in
 a truly open fashion:
 
 \begin{lstlisting}
-if (T1* match = dynamic_cast<T1*>(subject)) {s1;} else
-if (T2* match = dynamic_cast<T2*>(subject)) {s2;} else
+if (T1* match=dynamic_cast<T1*>(subject)) {s1;} else
+if (T2* match=dynamic_cast<T2*>(subject)) {s2;} else
 ...
-if (Tn* match = dynamic_cast<Tn*>(subject)) {sn;}
+if (Tn* match=dynamic_cast<Tn*>(subject)) {sn;}
 \end{lstlisting}
 
 \noindent
-Its main drawback is performance: a typical 
-implementation of \code{dynamic_cast} takes time proportional to the 
-distance between base and derived classes in the inheritance tree.
-What is worse, is that the time to uncover the type in the $i^{th}$ case clause 
-is proportional to $i$, while failure to match will always take the longest. 
+Its main drawback is performance: a typical implementation of 
+\code{dynamic_cast} takes time proportional to the distance between base and 
+derived classes in the inheritance tree. What is worse, is that due to 
+sequential order of tests, the time to uncover the type in the $i^{th}$ case 
+clause will be proportional to $i$, while failure to match will always take the longest. 
 %This linear increase can be seen in the Figure~\ref{fig:DCastVis1}, where 
 %the above cascading-if was applied to a flat hierarchy encoding an algebraic 
 %data type with 100 variants. The same type-switching functionality implemented 
@@ -60,13 +60,13 @@ is proportional to $i$, while failure to match will always take the longest.
 %last.
 In a test involving a flat hierarchy of 100 variants, it took 93 cycles to 
 discover the first type and 22760 to discover the last (with linear combination 
-of those times to discover the types in between). %A visitor design pattern could 
+of them to discover the types in between). %A visitor design pattern could 
 %uncover any type in about 55 cycles, regardless of its position among the case 
 %clauses, while a switch based on sequential tags could achieve the same in less 
 %than 20 cycles. The idea is thus to combine the openness of the above structure 
 %with the efficiency of a jump table on small sequential values.
 
-Relying on \code{dynamic_cast} also makes an implicit semantic choice that we 
+Relying on \code{dynamic_cast} also makes an implicit semantic choice where we 
 are no longer looking for the first/best-fitting type that is in subtyping 
 relation, but for the first/best-fitting type to which a cast is possible from 
 the source subobject (\textsection\ref{sec:specifics}).
@@ -120,12 +120,11 @@ switch (x) { case P1(x): s1; ... case Pn(x): sn; }
 \end{lstlisting}
 
 \noindent
-Assuming that predicates depend only on $x$ and nothing else as well as that 
-they do not involve any side effects, we can be sure that the next time we come 
-to such a switch with the same value, the same predicate will be enabled 
-first. Thus, we would like to avoid evaluating predicates and jump straight to 
-the statement it guards. In a way, we would like the switch to memoize which 
-case is enabled for a given value of $x$.
+Assuming that predicates are \emph{functional} (i.e. do not involve any side 
+effects), the next time we come to the switch with the same value $x$, the same 
+predicate will be enabled first. We thus would like to avoid evaluating 
+preceding predicates and jump straight to the statement it guards. In a way, we 
+would like the switch to memoize which case is enabled for a given value of $x$. 
 
 The idea is to generate a simple cascading-if statement interleaved with jump 
 targets and instructions that associate the original value with enabled target. 
@@ -136,13 +135,13 @@ that the actual code associated with the predicates remains unaware of this
 optimization, the code preceding it after the target must re-establish any 
 invariant guaranteed by sequential execution (\textsection\ref{sec:vtblmem}).
 
-The above code can easily be produced in a compiler setting, but producing it in 
+Described code can be easily produced in a compiler setting, but generating it in 
 a library setting is a challenge. Inspired by Duff's Device~\cite{Duff}, 
 we devised a construct that we call \emph{Memoization Device} that does just 
 that in standard \Cpp{}:
 
 \begin{lstlisting}
-typedef decltype(x) T;
+typedef decltype(x) T; // T is the type of subject x
 static std::unordered_map<T,size_t> jump_targets;
 
 switch (size_t& jump_to = jump_targets[x]) {
@@ -194,11 +193,8 @@ can build a decision-tree-based memoization device that will effectively have
 dispatching~\cite{ErnstKC98}.
 
 Imagine that the predicates with the numbers $2i$ and $2i+1$ are mutually exclusive and 
-each imply the value of the predicate with number $i$ i.e. $\forall x \in \mathsf{Domain}(P)$
-\begin{eqnarray*}
-P_{2i+1}(x)\rightarrow P_i(x)\wedge P_{2i}(x)\rightarrow P_i(x)\wedge\neg(P_{2i+1}(x)\wedge P_{2i}(x))
-\end{eqnarray*}
-\noindent
+each imply the value of the predicate with number $i$ i.e.
+$\forall i\forall x\in\bigcap_j\mathsf{Domain}(P_j).P_{2i+1}(x)\rightarrow P_i(x)\wedge P_{2i}(x)\rightarrow P_i(x)\wedge\neg(P_{2i+1}(x)\wedge P_{2i}(x))$ holds. 
 An example of predicates that satisfy this condition are class membership tests 
 where the truth of testing membership in a derived class implies the truth of 
 testing membership in its base class. 
@@ -246,7 +242,7 @@ almost any code, providing that we can re-establish the invariants, guaranteed
 by sequential execution. Its main disadvantage is the size of the hash table 
 that grows proportionally to the number of different values seen. Fortunately, 
 the values can often be grouped into equivalence classes that do not change the 
-outcome of the predicate. The map can then associate the equivalence class of a 
+outcome of the predicates. The map can then associate the equivalence class of a 
 value with a target instead of associating the value with it. 
 
 In application to type switching, the idea is to use the memoization device to 
@@ -258,13 +254,13 @@ same on all the objects from the same equivalence class. We can use the
 address of class' \code{type_info} object obtained in constant time with 
 \code{typeid()} operator as a unique identifier of each most-derived type. 
 Presence of multiple \code{type_info} objects for the same class, as is often 
-the case when dynamic linking is involved, is not a problem, as we would 
+the case when dynamic linking is involved, is not a problem, as it would 
 effectively split a single equivalence class into multiple ones. 
 
 This could have been a solution if we were only interested in class membership. 
 More often than not, however, we will be interested in obtaining a reference to 
 the target type of the subject and we saw in \textsection\ref{sec:specifics} 
-that the cast between the source and target subobjects additionally depends on 
+that the cast between the source and target subobjects depends on 
 the position of the source subobject in the most-derived type's subobject graph. 
 Ideally, we would like to have different equivalence classes per different 
 subobjects, but there seems to be no easy way of identifying them given just an 
@@ -309,8 +305,8 @@ before the members of derived class resulting in the base class being at the
 same offset as the derived class itself. In our example, the offset of \code{A} 
 in \code{B} under regular (non-virtual) inheritance of \code{A} is 0.
 Under multiple inheritance, different base classes might be at different offsets 
-in the most-derived class, which is why pointers of a given static type may only 
-be pointing to certain subobjects in it. These positions are marked in the 
+in the most-derived class, which is why pointers of a given static type may be 
+pointing to only certain subobjects in it. These positions are marked in the 
 picture with vertical arrows decorated with the set of pointer types whose 
 values may point into that position. Run-time conversions between such pointers 
 represent casts between subobjects of the same most-derived type and may require 
@@ -361,6 +357,7 @@ vtbl-pointer referencing a group of virtual methods known in object's static
 type. Figure~\ref{fig:vtbl}(1) shows a typical layout of virtual function tables 
 together with objects it points to for classes \code{B} and \code{D}.
 
+\noindent
 \begin{figure}[htbp]
   \centering
     \includegraphics[width=0.49\textwidth]{v-table.pdf}
@@ -422,22 +419,29 @@ et al~\cite{RDL11}.
 \subsection{Subobjects}
 \label{sec:subobj}
 
-In a given program $P$, a class $B$ is a \emph{direct repeated base class} of 
+We assume a program $\mathfrak{P}$ is represented by its class table, which can be 
+queried for inheritance relations between classes. All subsequent definitions 
+are implicitly parameterized over a given program $\mathfrak{P}$. 
+A class $B$ is a \emph{direct repeated base class} of  
 $D$ if $B$ is mentioned in the list of base classes of $D$ without the 
 \code{virtual} keyword ($D \prec_R B$). Similarly, a class $B$ is a \emph{direct 
 shared base class} of $D$ if $B$ is mentioned in the list of base classes of $D$ 
 with the \code{virtual} keyword ($D \prec_S B$). A reflexive transitive closure 
 of these relationships $\preceq^*=(\prec_R \cup \prec_S)^*$ defines the 
-\emph{subtyping} relation on types of program $P$.
+\emph{subtyping} relation on types of program $\mathfrak{P}$.
 A base class \emph{subobject} of a given \emph{complete object} is represented by a pair 
 $\sigma = (h,l)$ with $h \in \{\mathsf{Repeated},\mathsf{Shared}\}$ representing the 
 kind of inheritance (single inheritance is $\mathsf{Repeated}$ with one base class) and $l$ 
 representing the path in a non-virtual inheritance graph.
-A predicate $C\leftY\sigma\rightY A$ states that $\sigma$ 
-designates a subobject of static type $A$ within the most-derived object of 
-type $C$. More formally:
+A judgment of the form $\mathfrak{P}\vdash C\leftY\sigma\rightY A$ states that 
+in a program $\mathfrak{P}$, $\sigma$ designates a subobject of static type $A$ 
+within the most-derived object of type $C$. Ommitting the immutable context $\mathfrak{P}$: 
 
 \begin{mathpar}
+\inferrule
+{C \prec_S B \\ B\leftY(h,l)\rightY A}
+{C\leftY(\mathsf{Shared},l)\rightY A}
+
 \inferrule
 {}
 {C\leftY(\mathsf{Repeated},C::\epsilon)\rightY C}
@@ -445,10 +449,6 @@ type $C$. More formally:
 \inferrule
 {C \prec_R B \\ B\leftY(\mathsf{Repeated},l)\rightY A}
 {C\leftY(\mathsf{Repeated},C::l)\rightY A}
-
-\inferrule
-{C \prec_S B \\ B\leftY(h,l)\rightY A}
-{C\leftY(\mathsf{Shared},l)\rightY A}
 \end{mathpar}
 
 \noindent
@@ -480,16 +480,16 @@ $C\leftY\sigma\rightY A \implies \sigma=(h,C::l_1) \wedge \sigma=(h,l_2::A::\eps
 which simply means that any path to a subobject of static type $A$ within the 
 most-derived object of type $C$ starts with $C$ and ends with $A$. This 
 observation shows that $\sigma_\bot = (\mathsf{Shared},\epsilon)$ does not 
-represent a valid subobject. If $\Sigma_P$ is the domain of all subobjects in 
-the program $P$ extended with $\sigma_\bot$, then a \emph{cast} operation can be 
-understood as a function $\delta : \Sigma_P \rightarrow \Sigma_P$. We use 
+represent a valid subobject. If $\Sigma_\mathfrak{P}$ is the domain of all subobjects in 
+the program $\mathfrak{P}$ extended with $\sigma_\bot$, then a \emph{cast} operation can be 
+understood as a function $\delta : \Sigma_\mathfrak{P} \rightarrow \Sigma_\mathfrak{P}$. We use 
 $\sigma_\bot$ to indicate an impossibility of a cast. The fact that $\delta$ is 
 defined on subobjects as opposed to actual run-time values reflects the 
 non-coercive nature of the operation -- i.e. the underlain value remains the 
 same. Any implementation of such a function must thus satisfy the following 
 condition:
 \begin{eqnarray*}
-\delta(\sigma_1) = \sigma_2 \wedge C \leftY\sigma_1\rightY A \implies C \leftY\sigma_2\rightY B
+C \leftY\sigma_1\rightY A \wedge \delta(\sigma_1) = \sigma_2 \implies C \leftY\sigma_2\rightY B
 \end{eqnarray*}
 \noindent
 i.e. the most-derived type of the value does not change during casting, only the way 
@@ -641,7 +641,7 @@ We thus have $h_1 = h_2 = h$. If $h = \mathsf{Shared}$ then there is only one pa
 such $A$ in $C$, which would contradict $\sigma_1 \neq \sigma_2$. 
 If $h = \mathsf{Repeated}$ then we must have that $l_1 \neq l_2$. In this case let $k$ be 
 the first position in which they differ: 
-$l_1^j=l_2^j \forall j<k \wedge l_1^k\neq l_2^k$. Since our class $A$ is a base 
+$\forall j<k.l_1^j=l_2^j \wedge l_1^k\neq l_2^k$. Since our class $A$ is a base 
 class for classes $l_1^k$ and $l_2^k$, both of which are in turn base classes of 
 $C$, the object identity requirement of \Cpp{} requires that the relevant subobjects 
 of type $A$ have different offsets within class $C$: 
@@ -706,8 +706,8 @@ vtbl-pointer will remain the same for the lifetime of the object.
 %functional \Cpp{} solution, we combine the memoization device with the properties 
 %of virtual table pointers into a \emph{Vtable Pointer Memoization} technique.
 
-The \Cpp{} standard requires that information about types be available at run time 
-for three distinct purposes:
+The \Cpp{} standard implies that information about types be available at run time 
+for three distinct purposes~\cite[\textsection 2.9.1]{C++ABI}:
 
 \begin{itemize}
 \setlength{\itemsep}{0pt}
@@ -723,7 +723,7 @@ disabled RTTI, the compiler will emit an error or at least a warning. Some
 compilers (e.g. Visual \Cpp{}) additionally let a library check presence of RTTI 
 through a predefined macro, thus letting it report an error if its dependence on 
 RTTI cannot be satisfied. Since our solution relies on \code{dynamic_cast} to 
-perform casts at run-time, we implicitly rely on the presence of RTTI and thus 
+perform casts at run-time, according to the third requirement we implicitly rely on the presence of RTTI and thus 
 fall into the setting that guarantees the preconditions of Theorem~\ref{thm:vtbl}.
 Since all the objects that will be coming through a particular type switch will 
 have the same static type, the theorem guarantees that different vtbl-pointers 

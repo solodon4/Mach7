@@ -202,17 +202,18 @@ showstringspaces=false,
 
 Selecting operations based on the run-time type of an object is key to many
 object-oriented and functional programming techniques. We present a technique
-for implementing open and efficient type switching for hierarchical extensible 
+for implementing open and efficient type switching on hierarchical extensible 
 data types. The technique is general and copes well with \Cpp{} multiple 
 inheritance.
  
 To simplify experimentation and gain realistic performance using production-quality
-compilers and tool chains, we implement our type switch constructs as an ISO \Cpp{}11 library.
+compilers and tool chains, we implement our type switch construct as an ISO \Cpp{}11 
+library, called \emph{Mach7}\footnote{The library is available at http://parasol.tamu.edu/mach7/}. 
 Our library-only implementation provides concise notation and
-outperforms the visitor design pattern, commonly used for type-casing
-scenarios in object-oriented programs. For many uses, it equals or outperforms
-equivalent code in languages with built-in type-switching constructs, such as
-OCaml and Haskell. The type-switching code is easier to use and is more expressive 
+outperforms the visitor design pattern, commonly used for case analysis on types 
+in object-oriented programming. It also comes close to equivalent code in 
+functional languages, such as OCaml and Haskell, while allowing for extensibility 
+of types. The type-switching code is easier to use and is more expressive  
 than hand-coded visitors are. The library is non-intrusive and circumvents most of
 extensibility restrictions typical of the visitor design pattern. 
 It was motivated by applications involving large, typed, abstract

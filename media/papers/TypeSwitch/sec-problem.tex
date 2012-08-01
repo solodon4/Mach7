@@ -1,17 +1,18 @@
 \section{Overview} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:over}
 
-A \emph{class hierarchy} is a partially ordered set $(H,\subtype)$ where $H$ is a set 
+A \emph{class hierarchy} is a partially ordered set $(H,\subtype)$ where $H$ is a potentially open set 
 of classes and $\subtype$ is reflexive, transitive and anti-symmetric 
 \emph{subtyping relation} on $H$. We use \emph{class} and \emph{type}  
 interchangeably as the exact distinction is not important for this discussion. 
 Given two types in a subtyping relation $D \subtype B$, the type $D$ is said to be a 
 \emph{subtype} or a \emph{derived class} of $B$, which in turn is said to be a 
-\emph{supertype} or a \emph{base class} of $D$. When the transitive reduction 
-$\subtypeD$ of $\subtype$ is a function, $H$ is usually referred to as 
-\emph{hierarchy} to indicate single inheritance.
+\emph{supertype} or a \emph{base class} of $D$. %When the transitive reduction 
+%$\subtypeD$ of $\subtype$ is a function, $H$ is usually referred to as 
+%\emph{hierarchy} to indicate single inheritance.
 
-The \emph{most-derived type of an object} is the type used to create it.
+The \emph{most-derived type of an object} also known as the \emph{dynamic type 
+of an object} is the type used to create it.
 The \emph{static type of an expression} is the type of that expression
 as given by the static semantics, i.e. the typing rule of expressions.
 %  By 
@@ -25,10 +26,9 @@ In general, \emph{type switch} or \emph{typecase} is a multiway branch statement
 that distinguishes values based on their type. In a multi-paradigm programming 
 language like \Cpp{}, that supports parametric, ad-hoc, and 
 subtyping polymorphism, such a broad definition subsumes numerous different
-type switch constructs studied in the literature~\cite{Intensional95,Glew99,OpenShutTypecase05}. 
-In this work, we only look at type switch scenarios based on dynamic polymorphism 
-of \Cpp{}, similar to 
-those studied by Glew~\cite{Glew99}. 
+typecase constructs studied in the literature~\cite{Intensional95,Glew99,OpenShutTypecase05}. 
+In this work, we only look at typecasing scenarios based on subtyping polymorphism 
+of \Cpp{}, similar to those studied by Glew~\cite{Glew99}. 
 % It is possible to generalize type switch
 % (the notion, not our implementation) to static polymorphism of \Cpp{} (ad-hoc and 
 % parametric polymorphism enabled by overloading and templates) along the line of 
@@ -47,7 +47,7 @@ the most-derived type \code{D <: S} of the subject as well as suitable
 conversion that coerces the subject to the target type \code{Tm}.  
 Due to multiple inheritance, types \code{Ti} in general may or may not be 
 derived from \code{S}, however, because of the strong static type safety 
-requirement, the type of applicable clause \code{Tm} will necessarily have to be 
+requirement, the type of the applicable clause \code{Tm} will necessarily have to be 
 one of subject's dynamic types: \code{D <: Tm}. A hypothetical type switch 
 statement, not currently supported by \Cpp{}, may look as following:
 
@@ -75,31 +75,31 @@ The statement in general can be given numerous plausible semantics:
 \setlength{\itemsep}{0pt}
 \setlength{\parskip}{0pt}
 \item \emph{First-fit} semantics will evaluate the first statement $s_i$ such 
-      that $T_i$ is a base class of $D$
+      that $T_i$ is a base class of $D$.
 \item \emph{Best-fit} semantics will evaluate the statement corresponding to the 
-      most-derived base class $T_i$ of $D$ if it is unique (subject to 
-      ambiguity)
+      most-specialized base class $T_i$ of $D$ if it is unique (subject to 
+      ambiguity).
 \item \emph{Exact-fit} semantics will evaluate statement $s_i$ if $T_i=D$.
 \item \emph{All-fit} semantics will evaluate all statements $s_i$ whose guard 
-      type $T_i$ is a subtype of $D$ (order of execution has to be defined)
+      type $T_i$ is a supertype of $D$ (order of execution has to be defined).
 \item \emph{Any-fit} semantics might choose non-deterministically one of the 
-      statements enabled by all-fit
+      statements enabled by the all-fit semantics.
 \end{itemize}
 
 \noindent
-The list is not exhaustive and depending on a language, any of these semantics 
+The list is not exhaustive and depending on a language, any of them
 is a plausible choice. Functional languages, for example, often prefer 
 first-fit semantics because it is similar to case analysis in mathematics. 
-Object-oriented languages would typically be inclined to best-fit semantics due 
-to its similarity to overload resolution and virtual dispatch, however, some 
+Object-oriented languages are typically inclined to best-fit semantics due 
+to its similarity to overload resolution and run-time dispatch, however, some 
 do opt for first-fit semantics to mimic the functional style: e.g. Scala~\cite{Scala2nd}. 
 Exact-fit semantics can often be seen in languages supporting discriminated 
-union types: e.g. variant records in Pascal, Ada and Modula-2, oneof and variant 
-objects in CLU, unions in C and \Cpp{} etc.
+union types (sum types): e.g. \emph{variant records} in Pascal, Ada and Modula-2, 
+\emph{oneof} and \emph{variant objects} in CLU, \emph{unions} in C and \Cpp{} etc. 
 All-fit and any-fit semantics might be seen in languages based on predicate 
 dispatching~\cite{ErnstKC98} or guarded commands~\cite{EWD:EWD472}, where a 
 predicate can be seen as a characteristic function of a type, while logical 
-implication can be seen as subtyping.
+implication -- as subtyping.
 
 \subsection{Expression Problem}
 
@@ -162,7 +162,7 @@ closer to object-oriented classes then algebraic data types are, but,
 interestingly, they provided neither traditional nor efficient facilities for 
 performing case analysis on them.
 
-Zenger and Odersky later refined the expression problem in the context of 
+Zenger and Odersky refined the expression problem in the context of 
 independently extensible solutions~\cite{fool12} as a challenge to find an 
 implementation technique that satisfies the following requirements:
 
@@ -219,7 +219,7 @@ A lot has been written about the visitor design pattern~\cite{DesignPatterns1993
 Its advantages include \emph{extensibility of functions}, \emph{speed}, and, 
 \emph{being a library solution}. Nevertheless, the solution is \emph{intrusive}, 
 \emph{specific to hierarchy}, and requires a lot of \emph{boilerplate code} to 
-be written. It also introduces \emph{control inversion}, and, most importantly, 
+be written. It also introduces \emph{control inversion}, but, most importantly, 
 -- \emph{hinders extensibility} of classes.
 
 %In this work we are not trying to solve the expression problem in its full 
@@ -229,7 +229,7 @@ be written. It also introduces \emph{control inversion}, and, most importantly,
 
 \subsection{Open Type Switch}
 
-Type switch in an object-oriented language alone 
+In an object-oriented language, type switch alone 
 does not solve the expression problem because the existing code may have to be 
 modified to consider new variants. Relying on default clause is not 
 considered an acceptable solution in this context, because often times the 
@@ -282,9 +282,9 @@ inheritance. The difference between the two only arises in situations where a
 class indirectly inherits from the same base class via more than one path in the 
 hierarchy. Different kinds of inheritance give raise to the notion of 
 \emph{subobject} in \Cpp{}, which are then used to define semantics of operations 
-like casts, virtual function dispatch etc. We give an informal introduction to 
-them here in order to show some subtleties of the \Cpp{} inheritance model, which 
-must be taken into account when addressing type switching or subtype testing.
+like casts, virtual function dispatch etc. We introduce them here informally to 
+show some subtleties of the \Cpp{} inheritance model, which must be taken into 
+account when addressing type switching or subtype testing.
 
 \begin{figure}[htbp]
   \centering
@@ -300,25 +300,24 @@ Consider a simple class hierarchy in Figure~\ref{fig:inheritance}(1). Class
 subobjects of class \code{A} (repeated inheritance) or a shared one (virtual 
 inheritance) by specifying how \code{B} and \code{C} are inherited from 
 \code{A}. The kind of inheritance is thus not a property of a given class, but a 
-property of an inheritance relation between derived and base class and it is 
-possible to mix the two in an object of the most-derived type. 
+property of an inheritance relation between classes and it is possible to mix the two. 
 
-A class hierarchy gives rise to a subobject graph, 
-where a given class node may be replicated when inherited repeatedly or left 
-shared when inherited virtually. The edges in such a graph represent subobject 
-containment and are marked with whether such containment is shared or 
-exclusive. Every class $C$ in the class hierarchy will have its own subobject 
-graph representing the subobject of an object of the most-derived type $C$.
+A class hierarchy gives rise to a \emph{subobject graph}, where a given class 
+node may be replicated when inherited repeatedly or left shared when inherited 
+virtually. The edges in such a graph represent \emph{subobject containment} and 
+indicate whether such containment is shared or exclusive. 
+Every class $C$ in the class hierarchy will have its own subobject 
+graph representing the subobjects of an object of the most-derived type $C$.
 Figure~\ref{fig:inheritance}(2) shows subobject graph for class \code{D} 
-obtained for the class hierarchy in (1) under repeated (a) and virtual (b) 
+obtained for the class hierarchy in Figure~\ref{fig:inheritance}(1) under repeated (a) and virtual (b) 
 inheritance of class \code{A} by classes \code{B} and \code{C}. The shared 
-containment is indicated with the dashed arrows, while exclusive with the solid 
+containment is indicated with the dashed arrows, while exclusive -- with the solid 
 ones.
 
 We will use term \emph{object descriptor} to mean either pointer or reference to 
 an object, which we will use interchangeably when not explicitly specified. 
 An object descriptor of static type $A$ referencing an object of the most-derived 
-type $C$ can be understood as any \code{*::}$A$-node in the subobject graph of $C$. Rosie 
+type $C$ can be understood as any $C$\code{::*::}$A$-node in the subobject graph of $C$. Rosie 
 and Friedman call $A$ an \emph{effective type} of object, while the node in the 
 subobject graph representing it -- its \emph{effective subobject}. 
 Casts in such a model can be understood as a change from one effective subobject 
@@ -334,7 +333,7 @@ annotations. When the base class is ambiguous, cast failure is manifested
 statically in a form of a compile-time error. This is the case for example with 
 casting \code{D} to \code{A} under repeated multiple inheritance of \code{A}, 
 in which case the user needs to explicitly cast the object to \code{B} or 
-\code{C} first in order to indicate the desired subobject and resolve ambiguity. 
+\code{C} first in order to indicate the desired subobject and resolve the ambiguity. 
 In some cases, however, introduction of such an explicit cast is not possible: 
 e.g. in implicit conversions generated by the compiler to implement covariant 
 return types, cross casts or conversions in generic code. This does not mean 
@@ -352,12 +351,12 @@ inheritance. Accordingly to the \Cpp{} semantics such cast is defined to be a
 composition of upcast to target type and downcast to the most-derived type. 
 While the downcast to the most-derived type is always guaranteed to succeed 
 regardless of the source subobject, the upcast to the target type may be 
-ambiguous, in which case the cast will fail. A cast from \code{Y} to \code{B} 
-inside an object of the most-derived type \code{D} in 
-Figure~\ref{fig:inheritance}(2a,2b) will be an example of a successful cross 
+ambiguous, in which case the cast will fail at runtime. A cast from \code{Y} to 
+\code{B} inside an object of the most-derived type \code{D} in 
+Figure~\ref{fig:inheritance}(2a,2b) is an example of a successful cross 
 cast. A similar cast from \code{Y} to \code{A} inside \code{D} under repeated 
-inheritance of (2a) will fail because of ambiguous upcast from \code{D} to 
-\code{A}.
+inheritance of Figure~\ref{fig:inheritance}(2a) will fail because of ambiguous 
+upcast from \code{D} to \code{A}.
 
 An interesting artifact of these distinctions can be seen on an example of 
 casting a subobject of type \code{Z} to a subobject of type \code{A} in 
@@ -386,7 +385,7 @@ depend.
 %\section{Problem Description} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\label{sec:probl}
 
-\subsection{Previous Work}
+\subsection{Existing Approaches to Type Case Analysis}
 \label{sec:prev}
 
 The closed nature of algebraic data types allows for their efficient 
@@ -441,7 +440,7 @@ In some cases, the sealing may happen implicitly. For example, languages that
 allow names with internal and external linkage may employ the fact that classes 
 with internal linkage will not be externally accessible and thus effectively 
 sealed. While clearly efficient, the approach is not open as it avoids the 
-question rather than solves. 
+question rather than answers it. 
 
 The broader problem with this approach is that techniques that rely on unique or
 sequential compile or link-time constants violate independent extensibility 
@@ -497,7 +496,7 @@ multiple inheritance and was the first constant-time technique to addresses the
 problem of casts between subobjects. Unfortunately, the approach limits the size 
 of the class hierarchies that can be encoded with this technique. 
 Ducournau proposed constant-time inclusion test based on the fact that in an 
-open solution a class has known amount of base classes and thus perfect hashes 
+open solution a class has known number of base classes and thus perfect hashes 
 can be used to map them to this-pointer offsets typically used to implement 
 subobject casts\cite{Ducournau08}. Unfortunately the approach addresses only 
 virtual multiple inheritance and similarly to other approaches relies on 
@@ -511,8 +510,8 @@ based on the assumption that \emph{the outcome of a subtyping test as well as
 the subsequent cast depend only on the target type and the most-derived type of 
 the object}. While such assumption is sound for subtyping tests and subtype 
 casts for shared inheritance (including single), it does not reflect the 
-relationship between subobjects in the general case multiple inheritance present 
-in \Cpp{}.
+relationship between subobjects in the general case of multiple inheritance 
+present in \Cpp{}.
 
 \subsection{The Source of Inefficiency}
 
@@ -523,8 +522,7 @@ language implementation of such a feature due to its inferior performance.
 We implemented 3 constant-time type inclusion tests: binary 
 matrix~\cite{Vitek97}, Cohen's algorithm~\cite{Cohen91} and fast dynamic 
 cast~\cite{FastDynCast} and combined them with a decision tree to implement a 
-type switch on a class hierarchy ideally suited for such scenario.  
-The class hierarchy used in this comparison was a perfect binary tree with 
+type switch on a class hierarchy ideally suited for such scenario: a perfect binary tree with 
 classes number $2i$ and $2i+1$ derived from a class number $i$. Our workaround 
 techniques included visitor design pattern and a switch on the sealed sequential 
 set of tags.

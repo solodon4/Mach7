@@ -519,7 +519,7 @@ header (it has the largest LOC after preprocessing in our test set).
   \label{fig:mem}
 \end{figure}
 
-The bars represent the total amount of memory in bytes each of the 8 match 
+The bars represent the total size of memory in bytes each of the 8 match 
 statements (marked A-H) used. The info $[n/c]$ next to the letter indicates the 
 actual number of different subobjects (i.e. vtbl-pointers) $n$ that came through 
 that match statement, and the number of case clauses $c$ the match statement had 
@@ -539,7 +539,7 @@ thus never result in a cache miss. %The non-transparent part without black box
 
 The actual number of hits and misses for each of the match statements is 
 indicated on top of the corresponding column. The sum of them is the total 
-amount of calls made. %Hits indicate situation when we found entry in cache and 
+number of calls made. %Hits indicate situation when we found entry in cache and 
 %didn't have to make roundtrip to the hash-table to get it. Misses indicate the 
 %number of cases during actual run we had to pick the entry from the hash table 
 %and update the cache with it. 
@@ -549,7 +549,7 @@ outcome.
 
 The library always preallocates memory for at least 8 subobjects to avoid 
 unnecessary recomputations of optimal parameters $k$ and $l$ -- this is the case 
-with the last 3 match statements. In all other cases it allocate the amount of 
+with the last 3 match statements. In all other cases it allocates the 
 memory proportional to $2^{K+1}$ where $2^{K-1} < \max(n,c) \le 2^{K}$. We make 
 $c$ a parameter, because in a library setting $n$ is not known up front and 
 estimating it with $c$ allows us to avoid unnecessary recomputations of $l$ and 
