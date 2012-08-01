@@ -4,9 +4,11 @@
 We performed several independent studies of our approach to demonstrate its 
 effectiveness. The first study compares our approach to the visitor design 
 pattern and shows that the type switch is comparable or faster 
-(\textsection\ref{sec:viscmp}). We also include the comparison of type switching 
-solutions made under open and closed world assumptions -- a choice the library 
-offers to the user with no changes in surface syntax (\textsection\ref{sec:cmp}).  
+(\textsection\ref{sec:viscmp}). While we do not advocate for the closed solution 
+of \textsection\ref{sec:cotc}, we included the comparison of type switching 
+solutions made under open and closed world assumptions (\textsection\ref{sec:cmp}).
+Our library supports both solutions with the same surface syntax, which is why 
+we believe many users will try them both before settling on one.
 The second study does a similar comparison with built-in facilities of Haskell 
 and OCaml and shows that the open type switch for extensible and hierarchical 
 data types can be almost as efficient as its equivalent for closed algebraic 
@@ -85,12 +87,6 @@ derived classes, encoding an algebraic data type. The class hierarchy for
 forwarding tests had two levels of inheritance with 5 intermediate base classes 
 and 95 derived ones. 
 
-While we do not advocate here for the closed solution of 
-\textsection\ref{sec:cotc}, we included it in our tests to show the performance 
-gains a closed solution might have over the open one. Our library supports both 
-solutions with the same surface syntax, which is why we believe many users will 
-try them both before settling on one. 
-
 The benchmarks were executed in the following configurations referred to as 
 \emph{Linux Desktop} and \emph{Windows Laptop} respectively:
 
@@ -116,10 +112,10 @@ The benchmarks were executed in the following configurations referred to as
 
 To improve accuracy, timing in all the configurations was performed with the 
 help of \code{RDTSC} instruction available on x86 processors. For every number reported 
-here we ran 101 experiments timing 1000000 dispatches each (all through either 
+here we ran 101 experiments timing 1,000,000 dispatches each (all through either 
 visitors or type switch). The first experiment was serving as a warm-up, during 
 which the optimal caching parameters were inferred, and typically resulted in an 
-outlier with the largest time. Averaged over 1000000 dispatches, the number of 
+outlier with the largest time. Averaged over 1,000,000 dispatches, the number of 
 cycles per dispatch in each of the 101 experiments was sorted and the median was 
 chosen. We preferred median to average to diminish the influence of other 
 applications and OS interrupts as well as to improve reproducibility of timings 
@@ -152,8 +148,8 @@ To give a broader view on how both techniques compare under different
 compiler/platform configurations, we also compare the performance of our 
 solution relative to the performance of visitors in Figure~\ref{relperf}. The 
 values are given as percentages of performance increase against the slower 
-technique. Numbers in regular font represent cases where type switching was 
-faster, while underlined numbers in bold indicate cases where visitors were faster.
+technique. %Numbers in regular font represent cases where type switching was 
+%faster, while underlined numbers in bold indicate cases where visitors were faster.
 
 \begin{figure}[htbp]
 \scriptsize
@@ -182,10 +178,10 @@ faster, while underlined numbers in bold indicate cases where visitors were fast
  & RND &\glYSPn&\gwYSPn&\VwYSPn&\VxYSPn&\vwYSPn&\vxYSPn&\glYSKn&\gwYSKn&\VwYSKn&\VxYSKn&\vwYSKn&\vxYSKn \\
 \hline % ---------------------------------------------------------------
 \end{tabular}
-\caption{Relative performance of type switching versus visitors. Numbers 
-in regular font (e.g. \f{67}), indicate that our type switching is faster than 
-visitors by corresponding percentage. Numbers in bold font (e.g. \s{18}), 
-indicate that visitors are faster by corresponding percentage.}
+\caption{Relative performance of type switching vs. visitors. Numbers 
+in regular font (e.g. \f{67}), indicate when type switching was faster than 
+visitors, while underlined numbers in bold (e.g. \s{18}), indicate when visitors 
+were faster by corresponding percentage.}
 \label{relperf}
 \end{figure}
 
@@ -225,8 +221,8 @@ that the performance of the closed tag switch dominates the performance of the
 open type switch. We believe that the difference, often significant, is the 
 price one pays for the true openness of the vtable pointer memoization solution. 
 
-As we mentioned in \textsection\ref{sec:cotc}, the use of tags, even allocated 
-by compiler, may require integration efforts to ensure that different DLLs have 
+As we mentioned in \textsection\ref{sec:cotc}, the use of tags, even when allocated 
+by a compiler, may require integration efforts to ensure that different DLLs have 
 not reused the same tags. Randomization of tags, similar to a proposal of 
 Garrigue~\cite{garrigue-98}, will not eliminate the problem and will surely 
 replace jump tables in switches with decision trees. This will likely 
@@ -261,9 +257,9 @@ benchmark on an algebraic data type of 100 variants. Corresponding \Cpp{}
 applications were working with a flat class hierarchy of 100 derived classes. 
 The difference between the \Cpp{} applications lies in the encoding used. Kind 
 encoding is the same as Tag encoding, but it does not require substitutability, 
-and thus can be implemented with a direct switch on tags. It is only supported 
-through specialized syntax in our library as it differs from the Tag encoding 
-only semantically.
+and thus can be implemented with a direct switch on tags without a ReMatch loop. 
+It is only supported through specialized syntax in our library as it differs 
+from the Tag encoding only semantically.
 
 %The optimized OCaml compiler \texttt{ocamlopt.opt} that we used to compile the code 
 %can be based on different toolsets on some platforms, e.g. Visual \Cpp{} or GCC 
@@ -284,15 +280,17 @@ only semantically.
 We used optimizing OCaml compiler \texttt{ocamlopt.opt} version 3.11.0 working 
 under the Visual \Cpp{} toolset as well as the Glasgow Haskell Compiler version 
 7.0.3 (with -O switch) working under the MinGW toolset. All the tests were 
-performed on the Windows 7 laptop.
-The timing results presented in Figure~\ref{fig:OCamlComparison} are averaged 
+performed on the Windows 7 laptop. Similar to comparison with visitors,
+the timing results presented in Figure~\ref{fig:OCamlComparison} are averaged 
 over 101 measurements and show the number of seconds it took to perform a 
-million decompositions within our sequential benchmark.
+1,000,000 decompositions within our sequential benchmark. We compare here time 
+and not cycles as that was the only common measurement in all three 
+environments.
 
 \begin{figure}[htbp]
   \centering
     \includegraphics[width=0.47\textwidth]{OCamlComparison.png}
-  \caption{Performance comparison of various encodings and syntax against OCaml code}
+  \caption{Performance comparison with OCaml and Haskell code}
   \label{fig:OCamlComparison}
 \end{figure}
 
@@ -304,10 +302,12 @@ million decompositions within our sequential benchmark.
 \subsection{Dealing with real-world class hierarchies}
 \label{sec:hierarchies}
 
-We used a class hierarchy benchmark used previously in the literature to study efficiency of type 
-inclusion testing and dispatching techniques~\cite{Vitek97,Krall97nearoptimal,PQEncoding,Ducournau08}. 
+For this experiment, we used a class hierarchy benchmark previously used in the 
+literature to study efficiency of type inclusion testing and dispatching 
+techniques~\cite{Vitek97,Krall97nearoptimal,PQEncoding,Ducournau08}.
 We use the names of the benchmarks from Vitek et al~\cite[Table 2]{Vitek97}, 
-since the set of benchmarks we were working with was closest to that work.
+since the set of benchmarks we were working with was closest (though not exact) 
+to that work.
 
 While not all class hierarchies originated from \Cpp{}, for this experiment it 
 was more important for us that the hierarchies were man-made. While converting 
@@ -315,7 +315,7 @@ the hierarchies into \Cpp{}, we had to prune inaccessible base classes (direct b
 class that is already an indirect base class) when used with repeated 
 inheritance in order to satisfy semantic requirements of the \Cpp{}. We maintained 
 the same number of virtual functions present in each class as well as the number 
-of data members. The benchmarks, however, did not preserve the types of those.
+of data members; the benchmarks, however, did not preserve the exact types of those.
 The data in Figure~\ref{fig:benchmarks} shows various parameters of the class 
 hierarchies in each benchmark, after their adoption to \Cpp{}. 
 
@@ -337,21 +337,21 @@ hierarchies in each benchmark, after their adoption to \Cpp{}.
 \hline % --------------------------------------------------------------------------------------------------
  DG2 & \tiny{\textsc{Smalltalk}}   &  534 &   534 & 11 &   2 &  381 &   1 & 1    &  1 & 3.48 &  59 \\ % digitalk2         
  DG3 & \tiny{\textsc{Smalltalk}}   & 1356 &  1356 & 13 &   2 &  923 &   1 & 1    &  1 & 3.13 & 142 \\ % digitalk3         
- ET+ & \tiny{\textsc{\Cpp{}}}         &  370 &   370 &  8 &  87 &  289 &  79 & 1    &  1 & 3.49 &  51 \\ % et++              
+ ET+ & \tiny{\textsc{\Cpp{}}}      &  370 &   370 &  8 &  87 &  289 &  79 & 1    &  1 & 3.49 &  51 \\ % et++              
  GEO & \tiny{\textsc{Eiffel}}      & 1318 & 13798 & 14 &   1 &  732 &   0 & 1.89 & 16 & 4.75 & 323 \\ % geode             
  JAV & \tiny{\textsc{Java}}        &  604 &   792 & 10 &   1 &  445 &   0 & 1.08 &  3 & 4.64 & 210 \\ % java              
  LOV & \tiny{\textsc{Eiffel}}      &  436 &  1846 & 10 &   1 &  218 &   0 & 1.72 & 10 & 3.55 &  78 \\ % lov-object-editor 
  NXT & \tiny{\textsc{Objective-C}} &  310 &   310 &  7 &   2 &  246 &   1 & 1    &  1 & 4.81 & 142 \\ % nextstep          
  SLF & \tiny{\textsc{Self}}        & 1801 & 36420 & 17 &  51 & 1134 &   0 & 1.05 &  9 & 2.76 & 232 \\ % self              
- UNI & \tiny{\textsc{\Cpp{}}}         &  613 &   633 &  9 & 147 &  481 & 117 & 1.02 &  2 & 3.61 &  39 \\ % unidraw           
+ UNI & \tiny{\textsc{\Cpp{}}}      &  613 &   633 &  9 & 147 &  481 & 117 & 1.02 &  2 & 3.61 &  39 \\ % unidraw           
 %    &                             &   51 &    51 &  7 &   1 &   29 &   0 & 1.00 &  1 & 2.27 &   5 \\ % v1-collection     
 %    &                             &   18 &    18 &  5 &   1 &   11 &   0 & 1.00 &  1 & 2.43 &   5 \\ % v1-magnitude      
 %    &                             &  383 &   383 &  9 &   1 &  244 &   0 & 1.00 &  1 & 2.75 &  86 \\ % v1-object-nometa  
 %    &                             &    9 &     9 &  5 &   1 &    4 &   0 & 1.00 &  1 & 1.60 &   2 \\ % v1-set            
 %    &                             &   16 &    16 &  7 &   1 &    7 &   0 & 1.00 &  1 & 1.67 &   2 \\ % v1-stream         
 %    &                             &   53 &    53 &  8 &   1 &   31 &   0 & 1.00 &  1 & 2.36 &   7 \\ % v1-visualcomponent
- VA2 & \tiny{\textsc{  }}          & 3241 &  3241 & 14 &   1 & 2582 &   0 & 1    &  1 & 4.92 & 249 \\ % visualage2.all    
- VA2 & \tiny{\textsc{  }}          & 2320 &  2320 & 13 &   1 & 1868 &   0 & 1    &  1 & 5.13 & 240 \\ % visualage2.kern   
+ VA2$_a$& \tiny{\textsc{Smalltalk}}& 3241 &  3241 & 14 &   1 & 2582 &   0 & 1    &  1 & 4.92 & 249 \\ % visualage2.all    
+ VA2$_k$& \tiny{\textsc{Smalltalk}}& 2320 &  2320 & 13 &   1 & 1868 &   0 & 1    &  1 & 5.13 & 240 \\ % visualage2.kern   
  VW1 & \tiny{\textsc{Smalltalk}}   &  387 &   387 &  9 &   1 &  246 &   0 & 1    &  1 & 2.74 &  87 \\ % visualworks1      
  VW2 & \tiny{\textsc{Smalltalk}}   & 1956 &  1956 & 15 &   1 & 1332 &   0 & 1    &  1 & 3.13 & 181 \\ % visualworks2      
 %    &                             &    6 &     9 &  4 &   2 &    1 &   0 & 1.50 &  2 & 1.20 &   2 \\ % vtbl              
@@ -459,7 +459,7 @@ in Figure~\ref{fig:size}($K+1$).
 \hline % -------------------------------------------------------------------------
 $K+1$ & 87.50\% &  5.58\% & 2.63\% & 0.87\% & 0.69\% & 0.69\% & 0.30\% & 1.76\% 
 \end{tabular}
-\caption{Number of conflicts under different size constraints}
+\caption{Percentage of subhierarchies rendering a given number of conflicts ($m$) under different size constraints}
 \label{fig:size}
 \end{figure}
 
@@ -470,7 +470,7 @@ efficiency she may restrict $k$ to $[K,K]$ instead of $[K,K+1]$ as discussed in
 restriction and obtained a similar histogram shown in Figure~\ref{fig:size}($K$).
 The average probability of conflict over the entire set increased from 0.011 to 
 0.049, while the maximum probability of conflict increased from 0.333 to 0.375. 
-The average load factor of the cache increased from 75.45\% to 82.47\%. 
+The average load factor of the cache expectedly increased from 75.45\% to 82.47\%. 
 
 It is important to understand that the high ratio of cases in which the hash 
 function could deliver perfect indexing does not indicate that the hash function 
@@ -482,7 +482,7 @@ are particularly suitable for such a hash function.
 \label{sec:qualcmp}
 
 For this experiment we have reimplemented a visitor based \Cpp{} pretty printer for 
-Pivot\cite{Pivot09} using our pattern-matching library. Pivot's class hierarchy 
+Pivot\cite{Pivot09} using Mach7. Pivot's class hierarchy 
 consists of 154 node kinds representing various entities in the \Cpp{} program. The 
 original code had 8 visitor classes each handling 5, 7, 8, 10, 15, 17, 30 and 63 
 cases, which we turned into 8 match statements with corresponding numbers of 
@@ -490,13 +490,13 @@ case clauses. Most of the rewrite was performed by sed-like replaces that
 converted visit methods into respective case-clauses. In several cases we had to 
 manually reorder case-clauses to avoid redundancy as visit-methods for base classes 
 were typically coming before the same for derived, while for type switching we 
-needed them to come after. Redundancy checking support provided by our library 
+needed them to come after. Redundancy checking support provided by Mach7 
 was invaluable in finding out all such cases.
 
 Both pretty printers were executed on a set of header files from the \Cpp{} 
 standard library and the produced output of both program was byte-to-byte the same. 
 We timed execution of the pretty printing phase (not including loading and termination 
-of the application or parsing of the input file) and observed that on small 
+of the application or parsing of the source file) and observed that on small 
 files (e.g. those from C run-time library and few small \Cpp{} files) 
 visitors-based implementation was faster because the total number of nodes in 
 AST and thus calls did not justify our set-up calls. In particular, 
@@ -523,13 +523,13 @@ The bars represent the total size of memory in bytes each of the 8 match
 statements (marked A-H) used. The info $[n/c]$ next to the letter indicates the 
 actual number of different subobjects (i.e. vtbl-pointers) $n$ that came through 
 that match statement, and the number of case clauses $c$ the match statement had 
-(the library uses it as an estimate of $n$). $n$ is also the number of cases the 
+(the library uses $c$ as an estimate of $n$). $n$ is also the number of cases the 
 corresponding match statement had to be executed sequentially (instead of a 
 direct jump).
 
-The blue part of each bar corresponds to the memory used by cache, while the 
-maroon -- to the memory used by the hash table. The ratio of the non-opaque 
-part of both colors to the entire part of that color indicates the load factors 
+The \textoverline{blue} part of each bar corresponds to the memory used by cache, while the 
+\textoverline{maroon} -- to the memory used by the hash table. The ratio of the \textoverline{non-opaque}
+part of both \textoverline{colors} to the entire part of that \textoverline{color} indicates the load factors 
 of cache and hash-table respectively. The black box additionally indicates the 
 number of entries in the cache that are allocated for only one vtbl-pointer and 
 thus never result in a cache miss. %The non-transparent part without black box 

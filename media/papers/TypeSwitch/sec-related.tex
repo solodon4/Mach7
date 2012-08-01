@@ -38,7 +38,7 @@ and open functions~\cite{LohHinze2006}. The solution allows top-level data types
 and functions to be marked as open with concrete variants and overloads defined 
 anywhere in the program. The semantics of open extension is given by 
 transformation into a single module, which assumes a whole-program view and thus 
-is not an open solution. Besides, open data types are extensible but not 
+is not an open solution by our definition. Besides, open data types are extensible but not 
 hierarchical, which avoids the problems discussed here.
 
 Polymorphic variants in OCaml~\cite{garrigue-98} allow the addition of new 
@@ -48,16 +48,13 @@ This maintains disjointness between values from different variants and makes an
 important distinction between \emph{extensible sum types} like polymorphic 
 variants and \emph{extensible hierarchical sum types} like classes. Our 
 memoization device can be used to implement pattern matching on polymorphic 
-variants.
+variants as well.
 
 \emph{Tom} is a pattern-matching compiler that can be used together with Java, C or 
 Eiffel to bring a common pattern matching and term rewriting syntax into the 
-languages~\cite{Moreau:2003}. In comparison to our approach, Tom has much bigger 
-goals: the combination of pattern matching, term rewriting and strategies turns 
-Tom into a fully-fledged tree-transformation language. Its type patterns and \code{\%match}
-statement can be used as a type switch; however, the Tom language's handling of type 
-switching is based on decision trees and an \code{instanceof}-like predicate, 
-which are inefficient.
+languages~\cite{Moreau:2003}. Its type patterns and \code{\%match}
+statement can be used as a type switch, however, their implementation is based 
+on decision trees and an \code{instanceof}-like predicate.
 
 Pattern matching in Scala~\cite{Scala2nd} also supports type switching through 
 type patterns. The language supports extensible and hierarchical data types, but
