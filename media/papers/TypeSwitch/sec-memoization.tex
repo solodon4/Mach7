@@ -803,7 +803,8 @@ one. \code{Case}'s expansion only relies on names introduced by \code{Match(x)},
 its argument \code{Ti} and a constant $i$, which can be obtained from 
 \code{__LINE__} or better \code{__COUNTER__} macro when the later one is 
 supported by the compiler. The \code{EndMatch} macro simply closes the scopes 
-(i.e. \}\} here).
+(i.e. \}\} here). We refer the reader to consult the library source code for 
+further details.
 
 %\subsubsection{Structure of Virtual Table Pointers}
 %\label{sec:sovtp}
@@ -815,7 +816,7 @@ Virtual table pointers are not constant values and are not even guaranteed to be
 the same between different runs of the application, because techniques like 
 \emph{address space layout randomization} or \emph{rebasing} of the module are 
 likely to change them. The relative distance between them will remain the same 
-as long as they come from the same module.
+however, as long as they come from the same module.
 
 Knowing that vtbl-pointers point into an array of function pointers, we should 
 expect them to be aligned accordingly and thus have a few lowest bits as zero. 
@@ -834,7 +835,7 @@ Let $\Xi$ be the domain of integral representations of pointers. Given a cache
 with $2^k$ entries, we use a family of hash functions $H_{kl} : \Xi \rightarrow [0..2^k-1]$ 
 defined as $H_{kl}(v)=v/2^l \mod 2^k$ to index the cache, where $l \in [0..32]$ 
 (assuming 32 bit addresses) is a parameter modeling the number of common bits on 
-the right. Division and modulo operations are implemented with bit-shifts since 
+the right. Division and modulo operations are implemented with bit operations since 
 denominator in each case is a power of 2, which in turn explains the choice of 
 the cache size.
 
@@ -856,7 +857,7 @@ corresponding to such optimal $(k,l)$ for the set $V$.
 
 In our setting, set $V$ represents the set of vtbl-pointers coming through a 
 particular type switch. While the exact values of these pointers are not known 
-until run-time, their offset from the module's base address is. This can often be 
+until run-time, their offset from the module's base address is. This is generally 
 sufficient to estimate optimal $k$ and $l$ in a compiler setting. In the library 
 setting, we recompute them after a given number of actual collisions in cache.
 
@@ -864,11 +865,11 @@ When $H_{kl}^V$ is injective (renders 0 conflicts on $V$), the frequency of any
 given vtbl-pointer $v_i$ coming through the type switch does not affect the 
 overall performance of the switch. However when $H_{kl}^V$ is not injective, we 
 would prefer the conflict to happen on less frequent vtbl-pointers.
-Given a probability $p_i$ of each vtbl-pointer $v_i \in V$ we can compute the 
+Given a probability $p(v_i)$ of each vtbl-pointer $v_i \in V$ we can compute the 
 probability of conflict rendered by a given $H_{kl}$:
 
 \begin{eqnarray*}
-P_{kl}(V)=\sum\limits_{j=0}^{2^k-1}(\sum\limits_{v_{i} \in V^j_{kl}}p_{i})(1-\frac{\sum\limits_{v_i \in V^j_{kl}}p_i^2}{(\sum\limits_{v_{i} \in V^j_{kl}}p_{i})^2})
+p_{kl}(V)=\sum\limits_{j=0}^{2^k-1}(\sum\limits_{v_{i} \in V^j_{kl}}p(v_i))(1-\frac{\sum\limits_{v_i \in V^j_{kl}}p(v_i)^2}{(\sum\limits_{v_{i} \in V^j_{kl}}p(v_i))^2})
 \end{eqnarray*}
 
 \noindent 
@@ -876,7 +877,7 @@ where $V^j_{kl}=\{v \in V | H_{kl}(v)=j\}$. In this case, the optimal hash
 function $H_{kl}^V$ can similarly be defined as $H_{kl}$ that minimizes the 
 above probability of conflict on $V$.
 
-Probabilities $p_i$ can be estimated in a compiler setting through profiling, 
+Probabilities $p(v_i)$ can be estimated in a compiler setting through profiling, 
 while in a library setting we let the user enable tracing of frequencies of 
 each vtbl-pointer. This introduces an overhead of an increment into the critical 
 path of execution, and according to our tests degrades the performance by 1-2\%. 
@@ -891,10 +892,10 @@ inferring the optimal $k$ and $l$ even in non-frequency based caching where
 incomparably smaller than the number of successful cache hits.
 
 Assuming the uniform distribution of $v_i$ in $V$ and substituting the probability 
-$p_i=\frac{1}{n}$, where $n=|V|$, into the above formula we will get:
+$p(v_i)=\frac{1}{n}$, where $n=|V|$, into the above formula we get:
 
 \begin{eqnarray*}
-P_{kl}(V)=\sum\limits_{j=0}^{2^k-1}[|V^j_{kl}| \neq 0]\frac{|V^j_{kl}|-1}{n}
+p_{kl}(V)=\sum\limits_{j=0}^{2^k-1}[|V^j_{kl}| \neq 0]\frac{|V^j_{kl}|-1}{n}
 \end{eqnarray*}
 
 \noindent

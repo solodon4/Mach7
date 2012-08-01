@@ -61,7 +61,7 @@ same most-derived type. This scenario happens in object-oriented setting when a
 group of polymorphic objects is created and passed around (e.g. numerous 
 particles of a given kind in a particle simulation system). We include it 
 because double dispatch becomes twice faster (20 vs. 53 cycles) in this 
-scenario compared to others due to cache and call target prediction mechanisms. 
+scenario compared to others due to hardware cache and call target prediction mechanisms. 
 
 The \emph{sequential} benchmark (SEQ) effectively uses an object of each derived type only 
 once and then moves on to an object of a different type. The cache is typically 
@@ -148,12 +148,12 @@ presence of forwarding due to extra call, while type switch becomes faster due
 to smaller jump table. As discussed, both timings are much smaller for 
 repetitive benchmark due to hardware cache.
 
-To give a broader view of how both techniques compare under different 
+To give a broader view on how both techniques compare under different 
 compiler/platform configurations, we also compare the performance of our 
 solution relative to the performance of visitors in Figure~\ref{relperf}. The 
 values are given as percentages of performance increase against the slower 
 technique. Numbers in regular font represent cases where type switching was 
-faster, while numbers in bold indicate cases where visitors were faster.
+faster, while underlined numbers in bold indicate cases where visitors were faster.
 
 \begin{figure}[htbp]
 \scriptsize
@@ -232,7 +232,7 @@ Garrigue~\cite{garrigue-98}, will not eliminate the problem and will surely
 replace jump tables in switches with decision trees. This will likely 
 significantly degrade the numbers for the part of Figure~\ref{relperf} 
 representing closed tag switch, since the tags in our experiments were all 
-sequential. 
+sequential and small. 
 
 The reliance of a tag switch on static cast has severe limitations in the 
 presence of multiple inheritance, and thus is not as versatile as open type 
