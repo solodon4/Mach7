@@ -6,17 +6,17 @@ dynamically-bound message passing in Smalltalk~\cite{UngarPatterson83}.
 \emph{Inline caching} further observed that the type of the receiver at a given 
 call site rarely varies and that the call instruction can be speculatively 
 modified to jump directly to a previously looked up method~\cite{Deutsch84}. 
-The method in this case will have to ensure that the type of the reciever has 
+The method in this case will have to ensure that the type of the receiver has 
 not changed and redirect the call to generic lookup otherwise. The effects of 
 inline caching on modern architectures can be seen through hardware call target 
 prediction, which in our case is exemplified by repetitive benchmark. In this 
-case both virtual function calls and the underlying jump-table implementation of 
+case, both virtual function calls and the underlying jump-table implementation of 
 the \code{Match}-statement are about twice faster than usual.
 
 \emph{Polymorphic Inline Caches}~\cite{Holzle:Chambers:Ungar:91} generalize the 
 idea of inline caches further by building a decision tree in the method prologue 
 that caches all lookup results. The main difference of this approach from our 
-work is that it requires code generation at run time, while we neither require 
+work is that it requires code generation at run time, while we require neither 
 re-compilation, nor re-linking nor even any computations at dynamic linking 
 time. The reason for this is difference in the initial setting: they are mapping 
 arbitrary number of receiver types to arbitrary number of implementations, while 
@@ -28,7 +28,7 @@ initial and memoized execution.
 4.2]{Zenger:2001} attempts to solve the extensibility problem of visitors; 
 however, the solution has problems of its own. The visitation interface 
 hierarchy can easily be grown linearly, but independent extensions by different  
-authorities require a developer's intervention. On top of the double dispatch the 
+authorities require a developer's intervention. On top of the double dispatch, the 
 solution will incur two additional virtual calls and a dynamic cast for each 
 level of visitor extension. The solution is simpler with virtual inheritance, 
 which adds even more indirections.
@@ -42,7 +42,7 @@ is not an open solution. Besides, open data types are extensible but not
 hierarchical, which avoids the problems discussed here.
 
 Polymorphic variants in OCaml~\cite{garrigue-98} allow the addition of new 
-variants and also define subtyping on them. The subtyping, however, is not 
+variants, while defining subtyping on them. The subtyping, however, is not 
 defined between the variants, but between combinations of them. 
 This maintains disjointness between values from different variants and makes an 
 important distinction between \emph{extensible sum types} like polymorphic 
@@ -54,7 +54,7 @@ variants.
 Eiffel to bring a common pattern matching and term rewriting syntax into the 
 languages~\cite{Moreau:2003}. In comparison to our approach, Tom has much bigger 
 goals: the combination of pattern matching, term rewriting and strategies turns 
-Tom into a fully fledged tree-transformation language. Its type patterns and \code{\%match}
+Tom into a fully-fledged tree-transformation language. Its type patterns and \code{\%match}
 statement can be used as a type switch; however, the Tom language's handling of type 
 switching is based on decision trees and an \code{instanceof}-like predicate, 
 which are inefficient.

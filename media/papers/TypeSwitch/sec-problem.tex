@@ -23,21 +23,21 @@ as given by the static semantics, i.e. the typing rule of expressions.
 %to case analysis of hierarchical and extensible datatype values.
 In general, \emph{type switch} or \emph{typecase} is a multiway branch statement 
 that distinguishes values based on their type. In a multi-paradigm programming 
-language like C++ that supports parametric, ad-hoc, and 
+language like \Cpp{}, that supports parametric, ad-hoc, and 
 subtyping polymorphism, such a broad definition subsumes numerous different
 type switch constructs studied in the literature~\cite{Intensional95,Glew99,OpenShutTypecase05}. 
 In this work, we only look at type switch scenarios based on dynamic polymorphism 
-of C++, similar to 
+of \Cpp{}, similar to 
 those studied by Glew~\cite{Glew99}. 
 % It is possible to generalize type switch
-% (the notion, not our implementation) to static polymorphism of C++ (ad-hoc and 
+% (the notion, not our implementation) to static polymorphism of \Cpp{} (ad-hoc and 
 % parametric polymorphism enabled by overloading and templates) along the line of 
 % work introduced by Harper and Morrisett~\cite{Intensional95} and studied in the
 % context of closed and extensible solutions by Vytiniotis et 
 % al~\cite{OpenShutTypecase05}, but we do not address such a generalization here.
 We use the term \emph{type switch} instead of a broader \emph{typecase} to 
 stress the run-time nature of the type analysis similar to how regular 
-\code{switch}-statement of C++ performs case analysis of values at run time.
+\code{switch}-statement of \Cpp{} performs case analysis of values at run time.
 
 Given an object descriptor, called \emph{subject}, of static type \code{S} 
 (pointer or reference) referred to as \emph{subject type}, and a list of 
@@ -49,7 +49,7 @@ Due to multiple inheritance, types \code{Ti} in general may or may not be
 derived from \code{S}, however, because of the strong static type safety 
 requirement, the type of applicable clause \code{Tm} will necessarily have to be 
 one of subject's dynamic types: \code{D <: Tm}. A hypothetical type switch 
-statement, not currently supported by C++, may look as following:
+statement, not currently supported by \Cpp{}, may look as following:
 
 \begin{lstlisting}[keepspaces]
 switch (subject) { case T1: s1; ... case Tn: sn; }
@@ -59,10 +59,8 @@ switch (subject) { case T1: s1; ... case Tn: sn; }
 There is no need for an explicit \emph{default clause} in our setting because 
 such a clause is semantically equivalent to a case clause guarded by the 
 subject type: \code{case S: s}. The only semantic difference such a choice 
-makes is in the treatment of null-pointers.
-% , which, one may argue, should be 
-% handled by the default clause. We disagree,
-This is because not distinguishing between 
+makes is in the treatment of null-pointers, which, one may argue, should be 
+handled by the default clause. We disagree, because not distinguishing between 
 invalid object and valid object of a known static but unknown dynamic type may 
 lead to some nasty run-time errors.
 
@@ -97,7 +95,7 @@ to its similarity to overload resolution and virtual dispatch, however, some
 do opt for first-fit semantics to mimic the functional style: e.g. Scala~\cite{Scala2nd}. 
 Exact-fit semantics can often be seen in languages supporting discriminated 
 union types: e.g. variant records in Pascal, Ada and Modula-2, oneof and variant 
-objects in CLU, unions in C and C++ etc.
+objects in CLU, unions in C and \Cpp{} etc.
 All-fit and any-fit semantics might be seen in languages based on predicate 
 dispatching~\cite{ErnstKC98} or guarded commands~\cite{EWD:EWD472}, where a 
 predicate can be seen as a characteristic function of a type, while logical 
@@ -109,7 +107,7 @@ Type switch is related to a more general problem manifesting the differences
 in functional and object-oriented programming styles.
 
 %The ideas and the library were motivated by our unsatisfactory experiences 
-%working with various C++ front-ends and program analysis 
+%working with various \Cpp{} front-ends and program analysis 
 %frameworks~\cite{Pivot09,Phoenix,Clang}.
 %The problem was not in the frameworks per se, but in the fact that we had to use
 %the \emph{visitor design pattern}~\cite{DesignPatterns1993} to inspect, traverse, and 
@@ -187,17 +185,17 @@ implementation technique that satisfies the following requirements:
 \end{itemize}
 
 \noindent
-While these requirements were formulated for extensible data type with 
+While these requirements were formulated for extensible data types with 
 disjoint variants, object-oriented languages primarily deal with 
-hierarchical data types. We thus found it important to explicitly state an 
+hierarchical data types. We thus found it important to state explicitly an 
 additional requirement based on the Liskov substitution principle~\cite{Lis87}:
 
 \begin{itemize}
 \setlength{\itemsep}{0pt}
 \setlength{\parskip}{0pt}
 \item \emph{Substitutability}: Operations expressed on more general data variants
-      should be applicable to more specific ones that are in a subtyping relation 
-      with them.
+      should be applicable to more specific ones (the latter being in a 
+      subtyping relation with the former).
 \end{itemize}
 
 %Depending on the semantics of the language's subtyping relation, 
@@ -274,24 +272,24 @@ all the major shortcomings of the visitor design pattern:
       intent.
 \end{itemize}
 
-\subsection{C++ Specifics: Subobjects}
+\subsection{\Cpp{} Specifics: Subobjects}
 \label{sec:specifics}
 
-C++ supports two kinds of inheritance: \emph{non-virtual}~\cite{CPPARM90} (also 
+\Cpp{} supports two kinds of inheritance: \emph{non-virtual}~\cite{CPPARM90} (also 
 known as \emph{replicated}~\cite{RF95} or \emph{repeated}~\cite{WNST06}) 
 inheritance and \emph{virtual}~\cite{CPPARM90} (or \emph{shared}~\cite{WNST06}) 
 inheritance. The difference between the two only arises in situations where a 
 class indirectly inherits from the same base class via more than one path in the 
 hierarchy. Different kinds of inheritance give raise to the notion of 
-\emph{subobject} in C++, which are then used to define semantics of operations 
+\emph{subobject} in \Cpp{}, which are then used to define semantics of operations 
 like casts, virtual function dispatch etc. We give an informal introduction to 
-them here in order to show some subtleties of the C++ inheritance model, which 
+them here in order to show some subtleties of the \Cpp{} inheritance model, which 
 must be taken into account when addressing type switching or subtype testing.
 
 \begin{figure}[htbp]
   \centering
     \includegraphics[width=0.47\textwidth]{Inheritance.pdf}
-  \caption{Multiple Inheritance in C++}
+  \caption{Multiple Inheritance in \Cpp{}}
   \label{fig:inheritance}
 \end{figure}
 
@@ -327,7 +325,7 @@ Casts in such a model can be understood as a change from one effective subobject
 to another. We will use terms \emph{source subobject} and \emph{target 
 subobject} to refer to effective subobjects before and after the cast. Their 
 static types will be referred to as \emph{source type} and \emph{target type} 
-respectively. C++ distinguishes 3 kinds of casts: upcasts, downcasts and 
+respectively. \Cpp{} distinguishes three kinds of casts: upcasts, downcasts and 
 crosscasts.
 
 An \emph{upcast} is a cast from a derived class to one of its bases. When the 
@@ -350,7 +348,7 @@ subobject of the target type in the most-derived type's subobject graph. Failure
 of such a cast is manifested dynamically at run-time.
 
 A \emph{crosscast} is a cast between classes that are not necessarily related by 
-inheritance. Accordingly to the C++ semantics such cast is defined to be a 
+inheritance. Accordingly to the \Cpp{} semantics such cast is defined to be a 
 composition of upcast to target type and downcast to the most-derived type. 
 While the downcast to the most-derived type is always guaranteed to succeed 
 regardless of the source subobject, the upcast to the target type may be 
@@ -376,7 +374,7 @@ between crosscast and downcast is not based solely on the presence of a
 subtyping relation between the source and target types, but also on the actual 
 position of the source subobject in the most-derived type's subobject graph.
 
-C++ inheritance model, presented here informally, complicates the semantics and 
+\Cpp{} inheritance model, presented here informally, complicates the semantics and 
 the implementation of a type switch further. On one side, we have to define the 
 semantics of a type switch when the cast between source and target types that 
 are in subtyping relation is not possible. On the other -- an implementation of 
@@ -434,7 +432,7 @@ There are two main approaches to implementing case analysis on extensible
 hierarchical data types, discussed in the literature.
 
 The first approach is based on either explicit or implicit sealing of the class 
-hierarchy, on which type switching can be performed. C++11, for example, allows 
+hierarchy, on which type switching can be performed. \Cpp{}11, for example, allows 
 the user to prohibit further derivation by specifying a class to be ``final''~\cite{C++11}, 
 similar to Scala and Java's facilities. The compiler then may use the above tag 
 allocation over all variants to implement type analysis~\cite[\textsection 
@@ -469,7 +467,7 @@ tests~\cite{Schubert83,Wirth88,Cohen91,Caseau93,Vortex96,Krall97nearoptimal,Vite
 %inheritance and separates the single logical operation of gaining type-safe 
 %access to an object into two, implying the possibility of a programmer error." 
 
-C++ handled the general dynamic casting since 1987 when the multiple inheritance 
+\Cpp{} handled the general dynamic casting since 1987 when the multiple inheritance 
 was added to the language~\cite{Str87}. Wirth later presented a technique that 
 can be used to implement subtype tests by traversing a linked list of 
 types~\cite{Wirth88}. His encoding required little space, but ran in time 
@@ -483,7 +481,7 @@ only deal with single inheritance~\cite{Cohen91}. \emph{Hierarchical encoding}
 is another constant-time test that maps subtype queries into subset queries on 
 bit-vectors~\cite{Caseau93,Krall97nearoptimal}. The approach can handle multiple
 inheritance, but the space and time required for a subtype test in this encoding 
-increases with the size of the class hierarchy, also Caseau's approach~\cite{Caseau93} is 
+increase with the size of the class hierarchy, also Caseau's approach~\cite{Caseau93} is 
 limited to class hierarchies that are lattices. Schubert's \emph{relative 
 numbering}~\cite{Schubert83} encodes each type with an interval $[l,r]$, 
 effectively making type inclusion tests isomorphic to a simple range checking. 
@@ -514,7 +512,7 @@ the subsequent cast depend only on the target type and the most-derived type of
 the object}. While such assumption is sound for subtyping tests and subtype 
 casts for shared inheritance (including single), it does not reflect the 
 relationship between subobjects in the general case multiple inheritance present 
-in C++.
+in \Cpp{}.
 
 \subsection{The Source of Inefficiency}
 

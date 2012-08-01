@@ -167,9 +167,9 @@ showstringspaces=false,
 %\copyrightdata{[to be supplied]} 
 
 \titlebanner{Draft for OOPSLA 2012} % These are ignored unless
-\preprintfooter{Y.Solodkyy, G.Dos Reis, B.Stroustrup: Open and Efficient Type Switch for C++}   % 'preprint' option specified.
+\preprintfooter{Y.Solodkyy, G.Dos Reis, B.Stroustrup: Open and Efficient Type Switch for \Cpp{}}   % 'preprint' option specified.
 
-\title{Open and Efficient Type Switch for C++}
+\title{Open and Efficient Type Switch for \Cpp{}}
 %\subtitle{your \code{visit}, Jim, is not \code{accept}able anymore}
 %\subtitle{\code{accepting} aint no \code{visit}ors}
 
@@ -184,11 +184,11 @@ showstringspaces=false,
 %to many object-oriented and functional programming techniques. We present 
 %techniques that can implement efficient type switching, type testing, pattern 
 %matching, predicate dispatch, multi-methods in a compiler or a library. The 
-%techniques are general and cope well with C++ multiple inheritance.
+%techniques are general and cope well with \Cpp{} multiple inheritance.
 %
 %Our library-only implementation provides a functional programming style notation 
 %to the programmer. It outperforms the visitor design pattern, as commonly used 
-%for type-casing scenarios in C++. For many use cases it equals or outperforms 
+%for type-casing scenarios in \Cpp{}. For many use cases it equals or outperforms 
 %equivalent code in languages with built-in type switching constructs, such as 
 %OCaml. We find the pattern-based library code easier to read and write and more 
 %expressive than hand-coded visitors. The library is non-intrusive and does not have 
@@ -203,11 +203,11 @@ showstringspaces=false,
 Selecting operations based on the run-time type of an object is key to many
 object-oriented and functional programming techniques. We present a technique
 for implementing open and efficient type switching for hierarchical extensible 
-data types. The technique is general and copes well with C++ multiple 
+data types. The technique is general and copes well with \Cpp{} multiple 
 inheritance.
  
 To simplify experimentation and gain realistic performance using production-quality
-compilers and tool chains, we implement our type switch constructs as an ISO C++11 library.
+compilers and tool chains, we implement our type switch constructs as an ISO \Cpp{}11 library.
 Our library-only implementation provides concise notation and
 outperforms the visitor design pattern, commonly used for type-casing
 scenarios in object-oriented programs. For many uses, it equals or outperforms
@@ -221,13 +221,13 @@ syntax trees.
 %We present techniques that can be used in a compiler or library setting to 
 %efficiently implement type switching, type testing, pattern matching, predicate 
 %dispatch, multi-methods and other facilities that depend on the run-time type 
-%of an argument. The techniques cope well with multiple inheritance in C++, 
-%however they are not specific to C++ and can be adapted to implement 
+%of an argument. The techniques cope well with multiple inheritance in \Cpp{}, 
+%however they are not specific to \Cpp{} and can be adapted to implement 
 %similar facilities in other languages.
 %
 %Our library-only implementation of a type switch based on these techniques equals 
 %or outperforms the visitor design pattern, as commonly used for type-casing 
-%scenarios in C++. For many use cases, it equals or outperforms equivalent 
+%scenarios in \Cpp{}. For many use cases, it equals or outperforms equivalent 
 %code in languages with built-in type-switching constructs. While remaining a 
 %library-only solution, such a facility better addresses the expression problem 
 %than the visitor design pattern does: it is non-intrusive and does not have 
@@ -244,7 +244,7 @@ syntax trees.
 Languages, Design
 
 \keywords
-Type Switch, Typecase, Visitor Design Pattern, Memoization, C++
+Type Switch, Typecase, Visitor Design Pattern, Memoization, \Cpp{}
 
 \input{sec-introduction}
 \input{sec-problem}
@@ -261,12 +261,11 @@ Type Switch, Typecase, Visitor Design Pattern, Memoization, C++
 We would like to thank Xavier Leroy and Luc Maranget for valuable feedback and 
 suggestions for improvements on the initial idea, Gregory Berkolaiko and 
 Suhasini Subba Rao for ideas related to minimization of conflicts, Jaakko 
-J\"arvi for assistance in comparison to other languages, Andrew Sutton, Peter 
-Pirkelbauer and Abe Skolnik for helpful discussions and comments to numerous 
-rewrites of this paper. We also benefitted greatly from insightful comments by 
-anonymous reviewers on earlier revisions of this work. We would also like to 
-thank Karel Driesen for letting us use his class hierarchies benchmark for this 
-work.
+J\"arvi for assistance in comparison to other languages, Peter Pirkelbauer, 
+Andrew Sutton and Abe Skolnik for useful discussions that helped shaping this 
+work. We also benefitted greatly from insightful comments by anonymous 
+reviewers. Finally, we would like to thank Karel Driesen for letting us use his 
+class hierarchies benchmark for this work.
 
 \bibliographystyle{abbrvnat}
 \bibliography{mlpatmat}

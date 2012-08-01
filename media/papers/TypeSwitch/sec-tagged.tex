@@ -17,7 +17,7 @@ repeated inheritance. The idea is to combine the fast switching on closed
 algebraic datatypes with a loop that tries the tags of base classes when 
 switching on derived tags fails.
 
-%The nominal subtyping of C++ effectively gives every class multiple types. The 
+%The nominal subtyping of \Cpp{} effectively gives every class multiple types. The 
 %idea is thus to associate with the type not only its most-derived tag, but also 
 %the list of tags of all its base classes. In a compiler implementation such a 
 %list can be stored inside the virtual table of a class, while in our library 
@@ -38,7 +38,7 @@ We also assume the tag-constant associated with a class
 \code{Di} be accessible through a static constant \code{Di::class_tag}. These 
 simplifications are not essential and the library does not rely on any of these 
 assumptions. Instead, the user can retroactively narrate to the library the 
-specific tag encoding used through a trait-like classes.
+specific tag encoding used through a trait-like class.
 
 A type switch below, built on top of a hierarchy of tagged classes, proceeds as 
 a regular switch on the subject's tag. If the jump succeeds, we found an exact 

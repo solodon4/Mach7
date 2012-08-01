@@ -68,14 +68,14 @@ int eval(const Expr& e)
 \noindent
 With the exception of include directive for a library header, this is everything the user has to write.
 The syntax is provided without any external tool support or additional definitions. Instead we rely on a 
-few C++11 features~\cite{C++11}, template meta-programming, and macros. It runs 
+few \Cpp{}11 features~\cite{C++11}, template meta-programming, and macros. It runs 
 about as fast as OCaml and Haskell equivalents (\textsection\ref{sec:ocaml}), and, depending 
 on the usage scenario, compiler and underlying hardware, comes close or 
-outperforms the handcrafted C++ code based on the \emph{visitor design pattern} 
+outperforms the handcrafted \Cpp{} code based on the \emph{visitor design pattern} 
 (\textsection\ref{sec:eval}).
 
 The ideas and the library presented here were motivated by our unsatisfactory experiences 
-working with various C++ front-ends and program analysis 
+working with various \Cpp{} front-ends and program analysis 
 frameworks~\cite{Pivot09,Phoenix,Clang}.
 The problem was not in the frameworks per se, but in the fact that we had to use
 the \emph{visitor design pattern}~\cite{DesignPatterns1993} to inspect, traverse, and 
@@ -102,7 +102,7 @@ This paper makes the following contributions:
  	performance to those for closed cases.
   \item The technique is simpler to use and outperforms the visitor pattern.
   \item A type-switch approach that combines subtype tests and type conversion;
-      It delivers superior performance to
+      it delivers superior performance to
         approaches that combine (even constant-time) subtype tests with 
 decision trees for even small class hierarchies.
   \item The type-switch construct handles multiple inheritance without workarounds.
@@ -132,11 +132,11 @@ In particular, our technique for efficient type switch:
         and avoids the control inversion typical for visitors. 
   \item Works in the presence of multiple inheritance, both repeated and 
         virtual, as well as in generic code (\textsection\ref{sec:vtblmem}).
-  \item Does not require any changes to the C++ object model or computations at 
+  \item Does not require any changes to the \Cpp{} object model or computations at 
         link or load time. 
   \item Can be used in object-oriented languages with 
-        object models similar to C++'s.
-  \item For C++, can be implemented as a library written in ISO Standard C++11.
+        object models similar to \Cpp{}'s.
+  \item For \Cpp{}, can be implemented as a library written in ISO Standard \Cpp{}11.
 %  \item It applies to polymorphic (\textsection\ref{sec:vtp}-\ref{sec:vtblmem}) and 
 %        tagged (\textsection\ref{sec:cotc}) class hierarchies through a unified  
 %        syntax~\cite[\textsection 8]{TR}.
@@ -146,7 +146,7 @@ In particular, our technique for efficient type switch:
 %        (\textsection\ref{sec:poets},\cite[\textsection 9]{TR}), predicate dispatch 
 %        (\textsection\ref{sec:memdev}), and multiple dispatch efficiently.
 %  \item We list conditions under which virtual table pointers, commonly used in 
-%        C++ implementations, uniquely identify the exact subobject within the 
+%        \Cpp{} implementations, uniquely identify the exact subobject within the 
 %        most-derived type (\textsection\ref{sec:vtp}).
 %  \item We also build an efficient cache indexing function for virtual table 
 %        pointers that minimizes the amount of conflicts 
@@ -157,32 +157,32 @@ In particular, our technique for efficient type switch:
 This is the first technique for efficiently handling 
 type switch in the presence of general multiple inheritance.
 Being a library, our solution is that it can be used with any 
-ISO C++11 compiler (e.g., Microsoft, GNU, or Clang) without requiring the installation of 
+ISO \Cpp{}11 compiler (e.g., Microsoft, GNU, or Clang) without requiring the installation of 
 any additional tools or preprocessors. The solution
 sets a new threshold for acceptable performance, brevity, clarity and
-usefulness of open type switch in C++.
+usefulness of open type switch in \Cpp{}.
 
 %To the best of our knowledge this is the first technique capable of handling 
 %type switching in the presence of multiple inheritance in its full generality 
-%present in C++. Prior work was mainly concentrating on constant-time type 
-%inclusion tests under assumptions that were oversimplifying the reality of C++.
+%present in \Cpp{}. Prior work was mainly concentrating on constant-time type 
+%inclusion tests under assumptions that were oversimplifying the reality of \Cpp{}.
 % and omitted discussion of type casts typically following such 
 %tests. We argue that in the presence of multiple inheritance the implementation 
 %of casts may be significantly slower than that of subtype tests and thus the 
 %complexity of the combined operation should be addressed by all the type 
 %inclusion testing techniques. Besides, approaches based on constant-time subtype 
 %tests require changes to object model and rely on load-time computations to 
-%ensure openness. In contrast, our approach requires neither changes to the C++ 
+%ensure openness. In contrast, our approach requires neither changes to the \Cpp{} 
 %object model nor any computations at link or load time. We demonstrate that 
 %applying even the fastest subtype tests to the implementation of type switching 
 %is inferior in performance to visitor design pattern and our approach for even 
 %small class hierarchies.
 %
 %A practical benefit of our library solution is that it can be used right away with any 
-%compiler with a decent support of C++11 without requiring the installation of 
+%compiler with a decent support of \Cpp{}11 without requiring the installation of 
 %any additional tools or preprocessors. The solution is a proof of concept that 
 %sets a minimum threshold for the performance, brevity, clarity and usefulness of 
-%a language solution for open type-switching in C++.
+%a language solution for open type-switching in \Cpp{}.
 
 %Due to page restrictions, we will only deal here with the part of the library 
 %concerned with efficient type testing, type identification, and type switching. 

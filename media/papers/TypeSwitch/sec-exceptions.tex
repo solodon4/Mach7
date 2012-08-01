@@ -3,8 +3,8 @@
 
 Several authors had noted the relationship between exception handling and type 
 switching before~\cite{Glew99,ML2000}. Not surprisingly, the exception handling 
-mechanism of C++ can be abused to implement the first-fit semantics of a type 
-switch statement. The idea is to harness the fact that catch-handlers in C++ 
+mechanism of \Cpp{} can be abused to implement the first-fit semantics of a type 
+switch statement. The idea is to harness the fact that catch-handlers in \Cpp{} 
 essentially use first-fit semantics to decide which one is going to handle a 
 given exception. The only problem is to raise an exception with a static type 
 equal to the dynamic type of the subject.
@@ -35,7 +35,7 @@ slowest approach. The numbers illustrate why exception handling should only be
 used to deal with exceptional and not common cases.
 
 Despite its total impracticality, the approach gave us a very practical idea of 
-harnessing a C++ compiler to do \emph{redundancy checking} at compile time.
+harnessing a \Cpp{} compiler to do \emph{redundancy checking} at compile time.
 
 \subsection{Redundancy Checking}
 \label{sec:redun}

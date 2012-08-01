@@ -15,7 +15,7 @@ well our caching mechanisms deal with some large real-world class hierarchies in
 order to demonstrate that our performance numbers were not established in overly 
 idealistic conditions (\textsection\ref{sec:hierarchies}). In the last study we 
 rewrote an existing visitor-based application using our approach in order to 
-compare the ease of use, readibility and maintainability of each approach, as 
+compare the ease of use, readability and maintainability of each approach, as 
 well as to show the memory usage and the startup costs associated with our 
 approach in a real application (\textsection\ref{sec:qualcmp}).
 
@@ -26,7 +26,7 @@ approach in a real application (\textsection\ref{sec:qualcmp}).
 %\begin{tabular}{@{}c@{ }l||@{ }r@{}@{ }r@{}|@{ }r@{}@{ }r@{}||@{ }r@{}@{ }r@{}|@{ }r@{}@{ }r@{}||@{ }r@{}@{ }r@{}|@{ }r@{}@{ }r@{}||@{ }r@{}@{ }r@{}|@{ }r@{}@{ }r@{}}
 %\hline % -----------------------------------------------------------------------------------------------------------------------------------------
 %\hline % -----------------------------------------------------------------------------------------------------------------------------------------
-% &            & \multicolumn{4}{c||}{G++/32}  & \multicolumn{4}{c||}{G++/32}  & \multicolumn{4}{c||}{MS Visual C++/32} & \multicolumn{4}{c}{MS Visual C++/64} \\
+% &            & \multicolumn{4}{c||}{G++/32}  & \multicolumn{4}{c||}{G++/32}  & \multicolumn{4}{c||}{MS Visual \Cpp{}/32} & \multicolumn{4}{c}{MS Visual \Cpp{}/64} \\
 %\hline % -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 % & Syntax     & \multicolumn{2}{c|}{Unified} & \multicolumn{2}{c||}{Special} & \multicolumn{2}{c|}{Unified} & \multicolumn{2}{c||}{Special} & \multicolumn{2}{c|}{Unified} & \multicolumn{2}{c||}{Special} & \multicolumn{2}{c|}{Unified} & \multicolumn{2}{c}{Special} \\
 %\hline % -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ gains a closed solution might have over the open one. Our library supports both
 solutions with the same surface syntax, which is why we believe many users will 
 try them both before settling on one. 
 
-The benchmarks were executed in the following configurations refered to as 
+The benchmarks were executed in the following configurations referred to as 
 \emph{Linux Desktop} and \emph{Windows Laptop} respectively:
 
 \begin{itemize}
@@ -110,7 +110,7 @@ The benchmarks were executed in the following configurations refered to as
       \setlength{\itemsep}{0pt}
       \setlength{\parskip}{0pt}
       \item G++ 4.5.2 and 4.6.1 / MinGW executed with -O2; x86 binaries
-      \item MS Visual C++ 2010 Professional x86/x64 binaries with profile-guided optimizations
+      \item MS Visual \Cpp{} 2010 Professional x86/x64 binaries with profile-guided optimizations
       \end{itemize}
 \end{itemize}
 
@@ -121,7 +121,7 @@ visitors or type switch). The first experiment was serving as a warm-up, during
 which the optimal caching parameters were inferred, and typically resulted in an 
 outlier with the largest time. Averaged over 1000000 dispatches, the number of 
 cycles per dispatch in each of the 101 experiments was sorted and the median was 
-chosen. We prefered median to average to diminish the influence of other 
+chosen. We preferred median to average to diminish the influence of other 
 applications and OS interrupts as well as to improve reproducibility of timings 
 between the runs of application. In particular, in the diagnostic boot of 
 Windows, where the minimum of drivers and applications are loaded, we were 
@@ -162,8 +162,8 @@ faster, while numbers in bold indicate cases where visitors were faster.
 \hline % ---------------------------------------------------------------
  &     & \multicolumn{6}{c||}{Open}     & \multicolumn{6}{c}{Closed}     \\
 \hline % ---------------------------------------------------------------
- &     & \multicolumn{2}{@{}c@{}|}{G++} & \multicolumn{4}{@{}c@{}||}{MS Visual C++} 
-       & \multicolumn{2}{@{}c@{}|}{G++} & \multicolumn{4}{@{}c@{}}{MS Visual C++} \\
+ &     & \multicolumn{2}{@{}c@{}|}{G++} & \multicolumn{4}{@{}c@{}||}{MS Visual \Cpp{}} 
+       & \multicolumn{2}{@{}c@{}|}{G++} & \multicolumn{4}{@{}c@{}}{MS Visual \Cpp{}} \\
 \hline % ---------------------------------------------------------------
  &     & \multicolumn{1}{@{}c@{}|}{Lnx} & \multicolumn{1}{@{}c@{}|}{Win} 
        & \multicolumn{2}{@{}c@{}|}{PGO} & \multicolumn{2}{@{}c@{}||}{w/o PGO} 
@@ -192,11 +192,11 @@ indicate that visitors are faster by corresponding percentage.}
 We can see that type switching wins by a good margin when implemented with tag switch as 
 well as in the presence of at least one level of forwarding. Note that the 
 numbers are relative, and thus the ratio depends on both the performance of 
-virtual function calls and the performance of switch statements. Visual C++ was 
+virtual function calls and the performance of switch statements. Visual \Cpp{} was 
 generating faster virtual function calls, while GCC was generating faster switch 
 statements, which is why their relative performance seem to be much more 
 favorable for us in the case of GCC.
-Similarly the code for x64 is only slower relatively: the actual time spent for 
+Similarly, the code for x64 is only slower relatively: the actual time spent for 
 both visitors and type switching was smaller than that for x86, but it was much 
 smaller for visitors than type switching, which resulted in worse relative 
 performance.
@@ -204,16 +204,16 @@ performance.
 Lastly, the code on the critical path of our type switch implementation benefits 
 significantly from branch hinting as some branches are much more likely than 
 others. We use the branch hinting directives in GCC to guide the compiler, but, 
-unfortunately, Visual C++ does not provide any similar facilities. Instead, 
-Microsoft suggests to use \emph{Profile-Guided Optimizations} (PGO) to achieve 
-the same, which is why we list the results for Visual C++ both with and without 
+unfortunately, Visual \Cpp{} does not provide any similar facilities. Instead, 
+Microsoft suggests using \emph{Profile-Guided Optimizations} (PGO) to achieve 
+the same, which is why we list the results for Visual \Cpp{} both with and without 
 profile-guided optimizations.
 %The results without profile-guided optimizations can be 
 %found in the accompanying technical report~\cite[\textsection 10]{TR}.
-%The results of optimizing code created with Visual C++ by using profile 
-%guided optimizations as currently Visual C++ does not have means for branch 
+%The results of optimizing code created with Visual \Cpp{} by using profile 
+%guided optimizations as currently Visual \Cpp{} does not have means for branch 
 %hinting, which are supported by G++ and proven to be very effective in few 
-%cruicial places. Profile guided optimization in Visual C++ lets compiler find 
+%cruicial places. Profile guided optimization in Visual \Cpp{} lets compiler find 
 %out experimentally what we would have otherwise hinted, even though this 
 %includes other optimizations as well.
 
@@ -238,7 +238,7 @@ The reliance of a tag switch on static cast has severe limitations in the
 presence of multiple inheritance, and thus is not as versatile as open type 
 switch. Overcoming this problem will either require the use of 
 \code{dynamic_cast} or techniques similar to those used for vtable pointer 
-memoization, which will likely degrade tag switch'es performance numbers even 
+memoization, which will likely degrade tag switch's performance numbers even 
 further.
 
 Note also that the approach used to implement open type switch can be used to 
@@ -257,24 +257,24 @@ open solution improves.
 We now compare our solution to the built-in pattern-matching facility of 
 OCaml~\cite{OPM01} and Haskell~\cite{Haskell98Book}.  
 In this test, we timed small OCaml and Haskell applications performing our sequential 
-benchmark on an algebraic data type of 100 variants. Corresponding C++ 
+benchmark on an algebraic data type of 100 variants. Corresponding \Cpp{} 
 applications were working with a flat class hierarchy of 100 derived classes. 
-The difference between the C++ applications lies in the encoding used. Kind 
+The difference between the \Cpp{} applications lies in the encoding used. Kind 
 encoding is the same as Tag encoding, but it does not require substitutability, 
 and thus can be implemented with a direct switch on tags. It is only supported 
 through specialized syntax in our library as it differs from the Tag encoding 
 only semantically.
 
 %The optimized OCaml compiler \texttt{ocamlopt.opt} that we used to compile the code 
-%can be based on different toolsets on some platforms, e.g. Visual C++ or GCC 
+%can be based on different toolsets on some platforms, e.g. Visual \Cpp{} or GCC 
 %on Windows. To make the comparison fair we had to make sure that the 
-%same toolset was used to compile the C++ code. We ran the tests 
+%same toolset was used to compile the \Cpp{} code. We ran the tests 
 %on both of the machines described above using the following configurations: 
 
 %\begin{itemize}
 %\setlength{\itemsep}{0pt}
 %\setlength{\parskip}{0pt}
-%\item The tests on a Windows 7 laptop were all based on the \emph{Visual C++ toolset} 
+%\item The tests on a Windows 7 laptop were all based on the \emph{Visual \Cpp{} toolset} 
 %      and used \texttt{ocamlopt.opt} version 3.11.0.
 %\item The tests on a Linux desktop were all based on the \emph{GCC toolset} and used 
 %      \texttt{ocamlopt.opt} version 3.11.2
@@ -282,7 +282,7 @@ only semantically.
 
 %\noindent
 We used optimizing OCaml compiler \texttt{ocamlopt.opt} version 3.11.0 working 
-under the Visual C++ toolset as well as the Glasgow Haskell Compiler version 
+under the Visual \Cpp{} toolset as well as the Glasgow Haskell Compiler version 
 7.0.3 (with -O switch) working under the MinGW toolset. All the tests were 
 performed on the Windows 7 laptop.
 The timing results presented in Figure~\ref{fig:OCamlComparison} are averaged 
@@ -309,15 +309,15 @@ inclusion testing and dispatching techniques~\cite{Vitek97,Krall97nearoptimal,PQ
 We use the names of the benchmarks from Vitek et al~\cite[Table 2]{Vitek97}, 
 since the set of benchmarks we were working with was closest to that work.
 
-While not all class hierarchies originated from C++, for this experiment it 
+While not all class hierarchies originated from \Cpp{}, for this experiment it 
 was more important for us that the hierarchies were man-made. While converting 
-the hierachies into C++, we had to prune inaccessible base classes (direct base  
+the hierarchies into \Cpp{}, we had to prune inaccessible base classes (direct base  
 class that is already an indirect base class) when used with repeated 
-inheritance in order to satisfy semantic requirements of the C++. We maintained 
+inheritance in order to satisfy semantic requirements of the \Cpp{}. We maintained 
 the same number of virtual functions present in each class as well as the number 
 of data members. The benchmarks, however, did not preserve the types of those.
 The data in Figure~\ref{fig:benchmarks} shows various parameters of the class 
-hierarchies in each benchmark, after their adoption to C++. 
+hierarchies in each benchmark, after their adoption to \Cpp{}. 
 
 \begin{figure}[htbp]
 \footnotesize
@@ -337,13 +337,13 @@ hierarchies in each benchmark, after their adoption to C++.
 \hline % --------------------------------------------------------------------------------------------------
  DG2 & \tiny{\textsc{Smalltalk}}   &  534 &   534 & 11 &   2 &  381 &   1 & 1    &  1 & 3.48 &  59 \\ % digitalk2         
  DG3 & \tiny{\textsc{Smalltalk}}   & 1356 &  1356 & 13 &   2 &  923 &   1 & 1    &  1 & 3.13 & 142 \\ % digitalk3         
- ET+ & \tiny{\textsc{C++}}         &  370 &   370 &  8 &  87 &  289 &  79 & 1    &  1 & 3.49 &  51 \\ % et++              
+ ET+ & \tiny{\textsc{\Cpp{}}}         &  370 &   370 &  8 &  87 &  289 &  79 & 1    &  1 & 3.49 &  51 \\ % et++              
  GEO & \tiny{\textsc{Eiffel}}      & 1318 & 13798 & 14 &   1 &  732 &   0 & 1.89 & 16 & 4.75 & 323 \\ % geode             
  JAV & \tiny{\textsc{Java}}        &  604 &   792 & 10 &   1 &  445 &   0 & 1.08 &  3 & 4.64 & 210 \\ % java              
  LOV & \tiny{\textsc{Eiffel}}      &  436 &  1846 & 10 &   1 &  218 &   0 & 1.72 & 10 & 3.55 &  78 \\ % lov-object-editor 
  NXT & \tiny{\textsc{Objective-C}} &  310 &   310 &  7 &   2 &  246 &   1 & 1    &  1 & 4.81 & 142 \\ % nextstep          
  SLF & \tiny{\textsc{Self}}        & 1801 & 36420 & 17 &  51 & 1134 &   0 & 1.05 &  9 & 2.76 & 232 \\ % self              
- UNI & \tiny{\textsc{C++}}         &  613 &   633 &  9 & 147 &  481 & 117 & 1.02 &  2 & 3.61 &  39 \\ % unidraw           
+ UNI & \tiny{\textsc{\Cpp{}}}         &  613 &   633 &  9 & 147 &  481 & 117 & 1.02 &  2 & 3.61 &  39 \\ % unidraw           
 %    &                             &   51 &    51 &  7 &   1 &   29 &   0 & 1.00 &  1 & 2.27 &   5 \\ % v1-collection     
 %    &                             &   18 &    18 &  5 &   1 &   11 &   0 & 1.00 &  1 & 2.43 &   5 \\ % v1-magnitude      
 %    &                             &  383 &   383 &  9 &   1 &  244 &   0 & 1.00 &  1 & 2.75 &  86 \\ % v1-object-nometa  
@@ -359,21 +359,21 @@ hierarchies in each benchmark, after their adoption to C++.
 \multicolumn{2}{r|}{\tiny{\textsc{Overalls}}} &15246 & 63963 & 17 & 298 &10877 & 199 & 1.11 & 16 & 3.89 & 323 \\ % Overalls
 \hline % --------------------------------------------------------------------------------------------------
 \end{tabular}
-\caption{Benchmarks Class Hierarchies}
+\caption{Benchmark Class Hierarchies}
 \label{fig:benchmarks}
 \end{figure}
 
 The number of paths represents the number of distinct inheritance paths from the 
-classes in the hierarchy to the roots of the hiearchy. This number reflects the number of possible subobjects in the 
+classes in the hierarchy to the roots of the hierarchy. This number reflects the number of possible subobjects in the 
 hierarchy. The roots listed in the table are classes with no base classes. We 
 will subsequently use the term \emph{non-leaf} to refer to the possible root of 
 a subhierarchy. Leafs are classes with no children, while \emph{both} refers to 
-utility classes that are both roots and leafs and thus neiter have base nor 
+utility classes that are both roots and leafs and thus neither have base nor 
 derived classes. The average for the number of parents and the number of 
 children were computed only among the classes having at least one parent or at 
-least one children correspondingly.
+least one child correspondingly.
 
-With few useful exceptions, it generally makes sence to only apply type switch 
+With few useful exceptions, it generally makes sense to apply type switch only 
 to non-leaf nodes of the class hierarchy. 71\% of the classes in the entire 
 benchmarks suite were leaf classes. Out of the 4369 non-leaf classes 36\% were 
 spawning a subhierarchy of only 2 classes (including the root), 15\% -- a 
@@ -412,7 +412,7 @@ function $H_{kl}$. We then plotted a point in chart of Figure~\ref{fig:prob}
 relating 2 characteristics of each of the 4396 type switches tested: the optimal 
 computed probability of conflict $p$ achieved by the type switch and the number 
 of subobjects $n$ that came through that type switch. The actual frequencies of 
-collisions were withing one tenth of a percentage point of the computed 
+collisions were within one tenth of a percentage point of the computed 
 probabilities, which is why we did not use them in the chart. To account for the 
 fact that multiple experiments could have resulted in the same pair $(n,p)$, we 
 use a shadow of each point to reflect somewhat the number of experiments 
@@ -427,7 +427,7 @@ yielding it.
 
 The curves on which the results of experiments line up correspond to the fact 
 that under uniform distribution of $n$ subobjects, only a finite number of 
-different values representing the probability of conflict $p$ are possible. In 
+different values representing the probability of conflict $p$ is possible. In 
 particular, all such values $p=\frac{m}{n}$, where $0 \le m < n$. The number $m$ 
 reflects the number of subobjects an optimal cache indexing function $H_{kl}$ 
 could not allocate their own entry for and we showed in \textsection\ref{sec:moc} 
@@ -481,9 +481,9 @@ are particularly suitable for such a hash function.
 \subsection{Refactoring an existing visitors based application}
 \label{sec:qualcmp}
 
-For this experiment we have reimplemented a visitor based C++ pretty printer for 
+For this experiment we have reimplemented a visitor based \Cpp{} pretty printer for 
 Pivot\cite{Pivot09} using our pattern-matching library. Pivot's class hierarchy 
-consists of 154 node kinds representing various entities in the C++ program. The 
+consists of 154 node kinds representing various entities in the \Cpp{} program. The 
 original code had 8 visitor classes each handling 5, 7, 8, 10, 15, 17, 30 and 63 
 cases, which we turned into 8 match statements with corresponding numbers of 
 case clauses. Most of the rewrite was performed by sed-like replaces that 
@@ -493,16 +493,16 @@ were typically coming before the same for derived, while for type switching we
 needed them to come after. Redundancy checking support provided by our library 
 was invaluable in finding out all such cases.
 
-Both pretty printers were executed on a set of header files from the C++ 
+Both pretty printers were executed on a set of header files from the \Cpp{} 
 standard library and the produced output of both program was byte-to-byte the same. 
 We timed execution of the pretty printing phase (not including loading and termination 
 of the application or parsing of the input file) and observed that on small 
-files (e.g. those from C run-time library and few small C++ files) 
+files (e.g. those from C run-time library and few small \Cpp{} files) 
 visitors-based implementation was faster because the total number of nodes in 
 AST and thus calls did not justify our set-up calls. In particular, 
 visitor-based implementation of pretty printer was faster on files of 44--588  
 lines of code, with average 136 lines per those inputs, where visitors win. On 
-these input files it is faster by 1.17\%--21.42\% with an average speed-up of 
+these input files, it is faster by 1.17\%--21.42\% with an average speed-up of 
 8.75\%. Open type switch based implementation of pretty printer was faster on 
 files of 144--9851 lines of code, with average 3497 lines per those input files, 
 where open type switch wins. On these inputs it is faster by 0.18\% -- 32.99\% 
@@ -529,7 +529,7 @@ direct jump).
 
 The blue part of each bar corresponds to the memory used by cache, while the 
 maroon -- to the memory used by the hash table. The ratio of the non-opaque 
-parts of both colors to the entire part of that color indicate the load factors 
+part of both colors to the entire part of that color indicates the load factors 
 of cache and hash-table respectively. The black box additionally indicates the 
 number of entries in the cache that are allocated for only one vtbl-pointer and 
 thus never result in a cache miss. %The non-transparent part without black box 
@@ -543,12 +543,12 @@ amount of calls made. %Hits indicate situation when we found entry in cache and
 %didn't have to make roundtrip to the hash-table to get it. Misses indicate the 
 %number of cases during actual run we had to pick the entry from the hash table 
 %and update the cache with it. 
-The number of misses is always larger then or equal to $n$ since we need to 
+The number of misses is always larger than or equal to $n$ since we need to 
 execute the switch sequentially on each of them once in order to memoize the 
 outcome.
 
 The library always preallocates memory for at least 8 subobjects to avoid 
-unnecessery recomputations of optimal parameters $k$ and $l$ -- this is the case 
+unnecessary recomputations of optimal parameters $k$ and $l$ -- this is the case 
 with the last 3 match statements. In all other cases it allocate the amount of 
 memory proportional to $2^{K+1}$ where $2^{K-1} < \max(n,c) \le 2^{K}$. We make 
 $c$ a parameter, because in a library setting $n$ is not known up front and 
@@ -558,7 +558,7 @@ $k$ even further.
 The table does not have to be hash table and can be implemented with 
 any other container i.e. sorted vector, map etc. that let us find quickly by a given 
 vtbl-pointer the data associated with it. In fact we provide a slightly less 
-efficient caching container that avoids the table altogether, thus significanly 
+efficient caching container that avoids the table altogether, thus significantly 
 reducing the memory requirements instead.
 
 %During this refactoring we have made several simplifications that became obvious 
@@ -576,7 +576,7 @@ reducing the memory requirements instead.
 %comments however that were eqaully applicable to code in either approach.
 %
 %Note that the visitors involved in the pretty printer above did not use 
-%forwarding: since all the C++ constructs were handled by the printer, every 
+%forwarding: since all the \Cpp{} constructs were handled by the printer, every 
 %visit-method was overriden from those statically possible based on the static 
 %type of the argument.
 
@@ -597,7 +597,7 @@ Currently the definition of each class used in a case clause must be visible to
 the compiler because \code{dynamic_cast} operator used in the type switch does 
 not allow incomplete types as a target type. For particularly large type 
 switches (e.g. \textgreater 1000 case clauses) this may easily reach some 
-compiler limitations. Both GCC and Visual C++, for example, could not generate 
+compiler limitations. Both GCC and Visual \Cpp{}, for example, could not generate 
 object files for such translation units simply because the sheer size of v-tables 
 and other compiler data in it were exceeding the limits. The problem is not 
 specific to our technique though and allowing \code{dynamic_cast} on classes 

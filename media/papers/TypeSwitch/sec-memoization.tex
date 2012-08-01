@@ -1,7 +1,7 @@
 \section{Type Switch}
 \label{sec:copc}
 
-C++ does not have direct support of algebraic data types, but they can be 
+\Cpp{} does not have direct support of algebraic data types, but they can be 
 encoded with classes in a number of ways. One common such encoding is to 
 introduce an abstract base class representing an algebraic data type with 
 several derived classes representing variants. The variants can then be 
@@ -16,7 +16,7 @@ making it open will eradicate its performance advantages. The difference in
 performance is the price we pay for keeping the solution open. We describe pros 
 and cons of each approach in \textsection\ref{sec:cmp}.
 
-%The core of the proposal relies on two key aspects of C++ implementations:
+%The core of the proposal relies on two key aspects of \Cpp{} implementations:
 %\begin{enumerate}
 %\item a constant-time access to the virtual table pointer embedded in an object of
 %  dynamic class type;
@@ -102,8 +102,8 @@ the source subobject (\textsection\ref{sec:specifics}).
 %
 %Several authors had noted the relationship between exception handling and type 
 %switching before~\cite{Glew99,ML2000}. Not surprisingly, the exception handling 
-%mechanism of C++ can be abused to implement the first-fit semantics of a type 
-%switch statement. The idea is to harness the fact that catch-handlers in C++ 
+%mechanism of \Cpp{} can be abused to implement the first-fit semantics of a type 
+%switch statement. The idea is to harness the fact that catch-handlers in \Cpp{} 
 %essentially use first-fit semantics to decide which one is going to handle a 
 %given exception. Unfortunately the approach is even slower than the use of 
 %\code{dynamic_cast} and we only list it here for comparison.
@@ -124,22 +124,22 @@ Assuming that predicates depend only on $x$ and nothing else as well as that
 they do not involve any side effects, we can be sure that the next time we come 
 to such a switch with the same value, the same predicate will be enabled 
 first. Thus, we would like to avoid evaluating predicates and jump straight to 
-the statement it guards. In a way we would like the switch to memoize which 
+the statement it guards. In a way, we would like the switch to memoize which 
 case is enabled for a given value of $x$.
 
 The idea is to generate a simple cascading-if statement interleaved with jump 
 targets and instructions that associate the original value with enabled target. 
 The code before the statement looks up whether the association for a given value 
-has already been established, and, if so, jumps directly to the target; otherwise 
+has already been established, and, if so, jumps directly to the target; otherwise, 
 the sequential execution of the cascading-if is started. To ensure 
 that the actual code associated with the predicates remains unaware of this 
-optimization, the code preceeding it after the target must re-establish any 
+optimization, the code preceding it after the target must re-establish any 
 invariant guaranteed by sequential execution (\textsection\ref{sec:vtblmem}).
 
 The above code can easily be produced in a compiler setting, but producing it in 
 a library setting is a challenge. Inspired by Duff's Device~\cite{Duff}, 
 we devised a construct that we call \emph{Memoization Device} that does just 
-that in standard C++:
+that in standard \Cpp{}:
 
 \begin{lstlisting}
 typedef decltype(x) T;
@@ -169,9 +169,9 @@ reference to \code{jump_targets[x]}. The last assignment records absence of
 enabled predicates for the value.
 
 To change the first-fit semantics of the above construct into \emph{sequential 
-all-fit}, we remove the \code{else}s and rely on fall-through behavior of the 
+all-fit}, we remove the \code{else}-statements and rely on fall-through behavior of the 
 switch. We also make the assignments conditional to make sure only the first one 
-gets recorded:
+is recorded:
 
 \begin{lstlisting}
 if (Pi(x)) { if (jump_to == 0) jump_to = @$i$@; case @$i$@: si; }
@@ -258,7 +258,7 @@ same on all the objects from the same equivalence class. We can use the
 address of class' \code{type_info} object obtained in constant time with 
 \code{typeid()} operator as a unique identifier of each most-derived type. 
 Presence of multiple \code{type_info} objects for the same class, as is often 
-the case when dynamic linking is involved, is not a problem as we would 
+the case when dynamic linking is involved, is not a problem, as we would 
 effectively split a single equivalence class into multiple ones. 
 
 This could have been a solution if we were only interested in class membership. 
@@ -266,7 +266,7 @@ More often than not, however, we will be interested in obtaining a reference to
 the target type of the subject and we saw in \textsection\ref{sec:specifics} 
 that the cast between the source and target subobjects additionally depends on 
 the position of the source subobject in the most-derived type's subobject graph. 
-Ideally we would like to have different equivalence classes per different 
+Ideally, we would like to have different equivalence classes per different 
 subobjects, but there seems to be no easy way of identifying them given just an 
 object descriptor.
 
@@ -278,7 +278,7 @@ object descriptor.
 %allows us to use virtual table pointers to \emph{uniquely} identify the 
 %subobjects within the most-derived class.
 
-Figure~\ref{fig:objlayout} shows a typical object layout generated by a C++ 
+Figure~\ref{fig:objlayout} shows a typical object layout generated by a \Cpp{} 
 compiler for class \code{D} from Figure~\ref{fig:inheritance}(1) under repeated 
 (1) and virtual (2) inheritance of \code{A}. The layouts represent an encoding 
 of the corresponding subobject graphs from Figures \ref{fig:inheritance}(2a) and 
@@ -292,19 +292,19 @@ of the corresponding subobject graphs from Figures \ref{fig:inheritance}(2a) and
 \end{figure}
 
 Due to extensibility of classes, the layout decisions for classes have to be 
-made independently of their derived classes -- a property of the C++ object 
+made independently of their derived classes -- a property of the \Cpp{} object 
 model that we will refer to as \emph{layout independence}. In turn, the layout of derived   
 classes must conform to the layout of its base classes relatively to the offset 
 of the base class within derived. For example, the layout of \code{A} within 
 \code{C} is exactly the same as the layout of \code{A} in \code{B} and is simply 
 the layout of \code{A}. Base classes inherited virtually do not contribute to 
 the fixed layout because they are looked up indirectly at run-time, however, 
-they are not excempt from the layout independence, since their lookup rules are 
+they are not exempt from the layout independence, since their lookup rules are 
 agnostic of the concrete most-derived type.
 %Because of this indirection, the use of virtual inheritance incures slight 
 %overhead at run-time. 
 
-Under non-virtual inheritance members of the base class are typically layed out 
+Under non-virtual inheritance, members of the base class are typically laid out 
 before the members of derived class resulting in the base class being at the 
 same offset as the derived class itself. In our example, the offset of \code{A} 
 in \code{B} under regular (non-virtual) inheritance of \code{A} is 0.
@@ -318,23 +318,23 @@ adjustments to this-pointer (shown with horizontal dashed arrows) to maintain
 type safety.
 
 A class that declares or inherits a virtual function is called a 
-\emph{polymorphic class}. The C++ standard~\cite{C++11} does not prescribe any 
+\emph{polymorphic class}. The \Cpp{} standard~\cite{C++11} does not prescribe any 
 specific implementation technique for virtual function dispatch.
-However, in practice, all C++ compilers use a strategy based on so-called
-virtual function tables (or vtables for short) for efficient disptach. 
+However, in practice, all \Cpp{} compilers use a strategy based on so-called
+virtual function tables (or vtables for short) for efficient dispatch. 
 The vtable is part of the reification of a polymorphic class type.  
-C++ compilers embed a pointer to a vtable (vtbl-pointer for short) in every object of
+\Cpp{} compilers embed a pointer to a vtable (vtbl-pointer for short) in every object of
 polymorphic class type (and thus every subobject of that type inside other 
-classes due to layout independence). CFront, the first C++ compiler, puts the 
+classes due to layout independence). CFront, the first \Cpp{} compiler, puts the 
 vtbl-pointer 
-at the end of an object. The so-called ``common vendor C++ ABI''\cite{C++ABI}, 
-further referred to as \emph{C++ ABI} when not indicated otherwise, requires the 
+at the end of an object. The so-called ``common vendor \Cpp{} ABI''\cite{C++ABI}, 
+further referred to as \emph{\Cpp{} ABI} when not indicated otherwise, requires the 
 vtbl-pointer to be at offset 0 of an object~\footnote{The following compilers 
-are known to comply with the C++ ABI: GCC (3.x and up); Clang and llvm-g++; 
+are known to comply with the \Cpp{} ABI: GCC (3.x and up); Clang and llvm-g++; 
 Linux versions of Intel and HP compilers, and compilers from ARM. See 
 http://morpher.com/documentation/articles/abi/ for details.}. We do not have 
 access to the unpublished Microsoft ABI, but we have experimental evidence that 
-Microsoft's C++ compiler also puts the vtbl-pointer at the start of an object.
+Microsoft's \Cpp{} compiler also puts the vtbl-pointer at the start of an object.
 
 While the exact offset of the vtbl-pointer within the (sub)object is not important 
 for this discussion, because of layout independence every (sub)object of a 
@@ -346,7 +346,7 @@ located, but it will be the same within any subobject of an effective type
 \code{template <typename S> intptr_t vtbl(const S* s);} 
 that returns the address of the virtual table corresponding to the subobject 
 pointed to by \code{s}. Such a function can be trivially implemented for the 
-common C++ ABI, where the vtbl-pointer is always at offset 0:
+common \Cpp{} ABI, where the vtbl-pointer is always at offset 0:
 
 \begin{lstlisting}
 template <typename S> std::intptr_t vtbl(const S* s) {
@@ -370,41 +370,41 @@ together with objects it points to for classes \code{B} and \code{D}.
 
 Entries in the vtable to the right of the address pointed to by a vtbl-pointer 
 represent pointers to functions, while entries to the left of it represent 
-various additional fields like: pointer to class' type information, offset to 
+various additional fields like pointer to class' type information, offset to 
 top, offsets to virtual base classes etc. In many implementations, this-pointer 
 adjustments required to properly dispatch the call were stored in the vtable 
 along with function pointers. Today most of the implementations prefer to use 
 \emph{thunks} or \emph{trampolines} -- additional entry points to a function, 
 that adjust this-pointer before transferring the control to the function, -- 
-which was shown to be more efficient~\cite{Driesen96}. Thunks in general may only be 
-needed when its virtual function gets overriden. In such case the overriden 
-function may be called via pointer to base class or a pointer to derived class, 
-which may not be at the same offset in the actual object.
+which was shown to be more efficient~\cite{Driesen96}. Thunks in general may 
+only be needed when its virtual function is overridden. In such case, the 
+overridden function may be called via pointer to base class or a pointer to 
+derived class, which may not be at the same offset in the actual object.
 
 The intuition behind our proposal is to use the values of vtbl-pointers stored 
-inside the object to uniquely identify the subobject in it. There are several 
-problems with the approach, however. First of all, the same vtbl-pointer is 
+inside the object to identify uniquely the subobject in it. There are several 
+problems with the approach, however. First, the same vtbl-pointer is 
 usually shared by multiple subobjects when one of them contains the other. For 
 example, the first vtbl-pointer in Figure~\ref{fig:objlayout}(1) will be shared 
 by objects of static type \code{Z*}, \code{A*}, \code{B*} and \code{D*}. This is 
 not a problem for our purpose, because the subobjects of these types will be at 
 the same offset in the most-derived object. Secondly, and more importantly, 
 however, there are legitimate optimizations that let the compiler share the same 
-vtable among multiple subobjects of often unrelated types.
+vtable among multiple subobjects of often-unrelated types.
 
 Generation of the \emph{Run-Time Type Information} (or RTTI for short) can 
 typically be disabled with a compiler switch and the Figure~\ref{fig:vtbl}(2) 
 shows the same vtable layouts once the RTTI has been disabled. Since neither 
-\code{baz} nor \code{foo} were overriden, the prefix of the vtable for the 
+\code{baz} nor \code{foo} were overridden, the prefix of the vtable for the 
 \code{C} subobject in \code{D} is exactly the same as the vtable for its 
 \code{B} subobject, the \code{A} subobject of \code{C} or the entire vtable of 
 \code{A} and \code{B} classes. Such layout, for example, is produced by 
-Microsoft Visual C++ 11 when the command-line option \code{/GR-} is specified. 
-Visual C++ compiler has been known to unify code identical on binary level, 
+Microsoft Visual \Cpp{} 11 when the command-line option \code{/GR-} is specified. 
+Visual \Cpp{} compiler has been known to unify code identical on binary level, 
 which in some cases may result in sharing of the same vtable between unrelated 
-classes (e.g. when virtual functions are empty).
+classes (e.g., when virtual functions are empty).
 
-%C++ supports multiple-inheritance of two kinds: repeated and virtual (shared). 
+%\Cpp{} supports multiple-inheritance of two kinds: repeated and virtual (shared). 
 %\emph{Repeated inheritance} creates multiple independent subobjects of the same 
 %type within the most-derived type. \emph{Virtual inheritance} creates only one 
 %shared subobject, regardless of the inheritance paths. Consequently,
@@ -413,7 +413,7 @@ classes (e.g. when virtual functions are empty).
 %\emph{subobject} of a certain static type accessible through a given inheritance 
 %path within a dynamic type. 
 
-We now would like to show more formally that in the presence of RTTI, a C++ ABI 
+We now would like to show more formally that in the presence of RTTI, a \Cpp{} ABI 
 compliant implementation will always have all the vtbl-pointers different. To do 
 so, we need a closer look at the notion of subobject, which has been formalized 
 before~\cite{RF95,WNST06,RDL11}. We follow here the presentation of Ramamanandro 
@@ -464,7 +464,7 @@ will have the following $\mathsf{Repeated}$ subobjects:
 \code{D::B}, 
 \code{D::C}, 
 \code{D}.
-Similarly, in case of virtual inheritance in the same expample, an object of the 
+Similarly, in case of virtual inheritance in the same example, an object of the 
 most-derived class \code{D} will have the following $\mathsf{Repeated}$ subobjects:
 \code{D::C::Y}, 
 \code{D::B}, 
@@ -497,8 +497,8 @@ we reference it does. Following the definitions from
 \textsection\ref{sec:specifics}, $A$ is the \emph{source type} and $\sigma_1$ is 
 the \emph{source subobject} of the cast, while $B$ is the \emph{target type} and 
 $\sigma_2$ is the \emph{target subobject} of it. The type $C$ is the 
-most-derived type of the value being casted. The C++ semantics states more 
-requirement to the implementation of $\delta$: e.g. 
+most-derived type of the value being casted. The \Cpp{} semantics states more 
+requirements to the implementation of $\delta$: e.g. 
 $\delta(\sigma_\bot) = \sigma_\bot$ etc. but their precise modeling is out of 
 the scope of this discussion. We would only like to point out here that since 
 the result of the cast does not depend on the actual value and only on the 
@@ -546,7 +546,7 @@ one instance in order to apply its results to another.
 %$D\leftY(\mathsf{Repeated},    [D,C])\rightY C$,
 %$D\leftY(\mathsf{Repeated},      [D])\rightY D$,
 
-\subsection{Uniqueness of vtbl-pointers under the C++ ABI}
+\subsection{Uniqueness of vtbl-pointers under the \Cpp{} ABI}
 \label{sec:uniq}
 
 %A class that declares or inherits a virtual function is called a 
@@ -562,12 +562,12 @@ one instance in order to apply its results to another.
 %An object of a class
 %type with multiple inheritance may contain several vtbl-pointers
 %(included in its subobjects). We assume that for every expression of
-%static type \code{T} (a dynamic class type), a C++ compiler provides
+%static type \code{T} (a dynamic class type), a \Cpp{} compiler provides
 %access to the vtbl-pointer of the (sub)object designated by that 
 %expression (or at least documents the position of that
-%pointer within an object). For the common vendor C++ ABI, we can state:
+%pointer within an object). For the common vendor \Cpp{} ABI, we can state:
 %\begin{lemma}
-%  In an object layout that adheres to the ``common vendor C++ ABI'', 
+%  In an object layout that adheres to the ``common vendor \Cpp{} ABI'', 
 %  an object of a polymorphic class always has a virtual table pointer
 %  at offset 0.
 %\label{lem:vtbl}
@@ -586,7 +586,7 @@ Given a reference \code{a} to polymorphic type \code{A} that points to a subobje
 $\sigma$ of the most-derived type \code{C} (i.e. $C\leftY\sigma\rightY A$ is 
 true), we will use the traditional field-access notion \code{a.vtbl} to refer to 
 the virtual table of that subobject. The exact structure of the virtual table as 
-mandated by the common vendor C++ ABI is immaterial for this discussion, but we 
+mandated by the common vendor \Cpp{} ABI is immaterial for this discussion, but we 
 mention a few fields that are important for the reasoning~\cite[\textsection 2.5.2]{C++ABI}:
 
 \begin{itemize}
@@ -603,7 +603,7 @@ mention a few fields that are important for the reasoning~\cite[\textsection 2.5
       offset based on the object layout from Figure~\ref{fig:objlayout}(1).
 \item \code{vbase(a.vtbl)}: \emph{Virtual Base (vbase) offsets} are used to access 
       the virtual bases of an object. Such an entry is required for each virtual 
-      base class. None are shown in our example in Figure~\ref{fig:vtbl}(1) 
+      base class. None is shown in our example in Figure~\ref{fig:vtbl}(1) 
       since it discussed repeated inheritance, but they will occupy further 
       entries to the left of the vtbl-pointer, when present.
 \end{itemize}
@@ -613,7 +613,7 @@ We also use the notation $\mathit{offset}(\sigma)$ to refer to the offset of a
 given subobject $\sigma$ within $C$, known by the compiler.
 
 \begin{theorem}
-In an object layout that adheres to the common vendor C++ ABI with enabled RTTI, 
+In an object layout that adheres to the common vendor \Cpp{} ABI with enabled RTTI, 
 equality of vtbl-pointers of two objects of the same static type implies that 
 they both belong to subobjects with the same inheritance path in the same most-derived class.
 
@@ -643,7 +643,7 @@ If $h = \mathsf{Repeated}$ then we must have that $l_1 \neq l_2$. In this case l
 the first position in which they differ: 
 $l_1^j=l_2^j \forall j<k \wedge l_1^k\neq l_2^k$. Since our class $A$ is a base 
 class for classes $l_1^k$ and $l_2^k$, both of which are in turn base classes of 
-$C$, the object identity requirement of C++ requires that the relevant subobjects 
+$C$, the object identity requirement of \Cpp{} requires that the relevant subobjects 
 of type $A$ have different offsets within class $C$: 
 $\mathit{offset}(\sigma_1)\neq \mathit{offset}(\sigma_2)$ However 
 $\mathit{offset}(\sigma_1)=$\code{off2top}$(a_1.\textit{vtbl})=$\code{off2top}$(a_2.\textit{vtbl})=\mathit{offset}(\sigma_2)$ 
@@ -653,7 +653,7 @@ since $a_1.\textit{vtbl} = a_2.\textit{vtbl}$, which contradicts that the offset
 \noindent
 Conjecture in the other direction is not true in general as there may be 
 duplicate vtables for the same type present at run-time. This happens in 
-many C++ implementations in the presence of \emph{Dynamically Linked Libraries} 
+many \Cpp{} implementations in the presence of \emph{Dynamically Linked Libraries} 
 (or DLLs for short) as the same class compiled into executable and DLL it loads 
 may have identical vtables inside the executable's and DLL's binaries.
 
@@ -663,11 +663,11 @@ the static types is not true in general because a derived class can share the
 vtbl-pointer with its primary base class. The theorem can be reformulated, 
 however, stating that one subobject will necessarily have to be contained inside 
 the other, but that would require bringing in the formalism for subobject 
-containtment~\cite{WNST06}. The current formulation is sufficient for our 
+containment~\cite{WNST06}. The current formulation is sufficient for our 
 purposes.
 
 %\begin{corollary}
-%In an object layout that adheres to the common vendor C++ ABI with enabled RTTI, 
+%In an object layout that adheres to the common vendor \Cpp{} ABI with enabled RTTI, 
 %the offset between two same subobjects of two different objects of the same 
 %most-derived type is the same.
 %$\forall c_1, c_2 : C\ |\ c_1,c_2 \in C\leftY\sigma_1\rightY C $ \\ 
@@ -689,7 +689,7 @@ an object, the value of a given vtbl-pointer may change. In particular,
 that value will reflect the fact that the most-derived type of the object is the type of its 
 fully constructed part only. This, however, does not affect our reasoning, as during 
 such transition we also treat the object to have the type of its fully 
-constructed base only. Such interpretation is in line with the C++ semantics for 
+constructed base only. Such interpretation is in line with the \Cpp{} semantics for 
 virtual function calls and the use of RTTI during construction and destruction of an 
 object. Once the complete object is fully constructed, the value of the 
 vtbl-pointer will remain the same for the lifetime of the object.
@@ -703,10 +703,10 @@ vtbl-pointer will remain the same for the lifetime of the object.
 %to the uncovered type. Using a \code{static_cast<Ti>} upon successful type test 
 %would have been a solution if we did not have multiple inheritance. It certainly 
 %can be used as such in languages with only single inheritance. For the fully 
-%functional C++ solution, we combine the memoization device with the properties 
+%functional \Cpp{} solution, we combine the memoization device with the properties 
 %of virtual table pointers into a \emph{Vtable Pointer Memoization} technique.
 
-The C++ standard requires that information about types be available at run time 
+The \Cpp{} standard requires that information about types be available at run time 
 for three distinct purposes:
 
 \begin{itemize}
@@ -720,7 +720,7 @@ for three distinct purposes:
 \noindent
 and if any of these facilities are used in a program that was compiled with 
 disabled RTTI, the compiler will emit an error or at least a warning. Some 
-compilers (e.g. Visual C++) additionally let a library check presence of RTTI 
+compilers (e.g. Visual \Cpp{}) additionally let a library check presence of RTTI 
 through a predefined macro, thus letting it report an error if its dependence on 
 RTTI cannot be satisfied. Since our solution relies on \code{dynamic_cast} to 
 perform casts at run-time, we implicitly rely on the presence of RTTI and thus 
@@ -763,7 +763,7 @@ The call to \code{adjust_ptr<Ti>} re-establishes the invariant that
 
 \noindent
 %The use of dynamic cast makes a huge difference in comparison to the use of 
-%static cast we dismissed above. First of all the C++ type system is much more 
+%static cast we dismissed above. First of all the \Cpp{} type system is much more 
 %restrictive about the static cast and many cases where it is not allowed can 
 %still be handled by dynamic cast. Examples of these include downcasting from an 
 %ambiguous base class or cross-casting between unrelated base classes.
@@ -777,7 +777,7 @@ The call to \code{adjust_ptr<Ti>} re-establishes the invariant that
 
 \noindent
 Class \code{std::unordered_map} provides amortized constant time access on 
-average and linear in the amount of elements in the worst case. We show in the 
+average and linear in the number of elements in the worst case. We show in the 
 next section that most of the time we will be bypassing traditional access to 
 its elements. We need this extra optimization because, as-is, the type switch is 
 still about 50\% slower than the visitor design pattern.\footnote{We are using 
@@ -840,11 +840,11 @@ the cache size.
 
 Given a hash function $H_{kl}$, pointers $v'$ and $v''$ are said to be in 
 \emph{conflict} when $H_{kl}(v')=H_{kl}(v'')$. For a given set of pointers 
-$V \in 2^{\Xi}$ we can always find such $k$ and $l$ that $H_{kl}$ will render no  
-conclicts between its elements, however the required cache size $2^k$ can be too 
+$V \in 2^{\Xi}$, we can always find such $k$ and $l$ that $H_{kl}$ will render no  
+conflicts between its elements, however the required cache size $2^k$ can be too 
 large to justify the use of memory. The value $K$ such that $2^{K-1} < |V| \leq 2^K$ 
 is the smallest value of $k$ under which absence of conflicts is still possible. 
-We thus allow $k$ to only vary in range $[K,K+1]$ to ensure that the cache size 
+We thus allow $k$ to vary only in range $[K,K+1]$ to ensure that the cache size 
 is never more than 4 times bigger than the minimum required cache size.
 
 Given a set $V = \{v_1, ... , v_n\}$, we would like to find a pair of parameters 
@@ -856,14 +856,13 @@ corresponding to such optimal $(k,l)$ for the set $V$.
 
 In our setting, set $V$ represents the set of vtbl-pointers coming through a 
 particular type switch. While the exact values of these pointers are not known 
-till run-time, their offset from the module's base address is. This can often be 
-sufficient to at least estimate optimal $k$ and $l$ in a compiler setting. In 
-the library setting we estimate them by recomputing them after a given amount of 
-actual collisions happened in cache.
+until run-time, their offset from the module's base address is. This can often be 
+sufficient to estimate optimal $k$ and $l$ in a compiler setting. In the library 
+setting, we recompute them after a given number of actual collisions in cache.
 
 When $H_{kl}^V$ is injective (renders 0 conflicts on $V$), the frequency of any 
 given vtbl-pointer $v_i$ coming through the type switch does not affect the 
-overal performance of the switch. However when $H_{kl}^V$ is not injective, we 
+overall performance of the switch. However when $H_{kl}^V$ is not injective, we 
 would prefer the conflict to happen on less frequent vtbl-pointers.
 Given a probability $p_i$ of each vtbl-pointer $v_i \in V$ we can compute the 
 probability of conflict rendered by a given $H_{kl}$:
@@ -877,11 +876,11 @@ where $V^j_{kl}=\{v \in V | H_{kl}(v)=j\}$. In this case, the optimal hash
 function $H_{kl}^V$ can similarly be defined as $H_{kl}$ that minimizes the 
 above probability of conflict on $V$.
 
-Probabilities $p_i$ can be estimated in a compiler settings through profiling, 
+Probabilities $p_i$ can be estimated in a compiler setting through profiling, 
 while in a library setting we let the user enable tracing of frequencies of 
 each vtbl-pointer. This introduces an overhead of an increment into the critical 
 path of execution, and according to our tests degrades the performance by 1-2\%. 
-This should not be a problem as long as the overal performance gains from 
+This should not be a problem as long as the overall performance gains from 
 smaller probability of a conflicts happening at run time. Unfortunately, in our 
 tests the significant drop in the number of actual collisions was not reflected 
 in a noticeable decrease in execution time, which is why we do not enable 
@@ -904,7 +903,7 @@ The value $|V^j_{kl}|$ represents the number of vtbl-pointers $v_i$ from a given
 set $V$ that are mapped to the same location $j$ in cache with $H_{kl}^V$. Only 
 one such vtbl-pointer will actually be present in that cache location at any given 
 time, which is why the value $|V^j_{kl}|-1$ represents the number of ``extra'' 
-pointers mapped into the entry $j$ on which a collision will happen. The overal 
+pointers mapped into the entry $j$ on which a collision will happen. The overall 
 probability of conflict thus only depends on the total number of these ``extra'' 
 or conflicting vtbl-pointers. The $H_{kl}^V$ obtained by minimization of 
 probability of conflict under uniform distribution is thus the same as our 
@@ -984,9 +983,9 @@ discrete form $\frac{m}{n}$, where $0 \le m < n$.
 %to happen on less-frequent vtbl-pointers.
 
 %We studied the frequency of vtbl-pointers that come through various match statements
-%of a C++ pretty-printer that we implemented on top of the Pivot 
+%of a \Cpp{} pretty-printer that we implemented on top of the Pivot 
 %framework~\cite{Pivot09} using our pattern-matching library. We ran the 
-%pretty-printer on a set of C++ standard library headers and then ranked all the  
+%pretty-printer on a set of \Cpp{} standard library headers and then ranked all the  
 %classes from the most-frequent to the least-frequent ones, on average. The 
 %resulting probability distribution resembled the power-law distribution, which means 
 %that for that specific application, the probability of some vtbl-pointers was much 
