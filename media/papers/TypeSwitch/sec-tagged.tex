@@ -26,7 +26,7 @@ switching on derived tags fails.
 
 For simplicity of presentation we assume a pointer to array of tags be available 
 directly through subject's \code{taglist} data member. The array is of 
-variable size, its first element is always the tag corresponding to the 
+variable size; its first element is always the tag corresponding to the 
 most-derived type of the subject, while its end is marked with a dedicated 
 \code{end_of_list} marker distinct from all the tags. The tags in between are 
 topologically sorted according to the subtyping relation with incomparable 

@@ -284,7 +284,7 @@ performed on the Windows 7 laptop. Similar to comparison with visitors,
 the timing results presented in Figure~\ref{fig:OCamlComparison} are averaged 
 over 101 measurements and show the number of seconds it took to perform a 
 1,000,000 decompositions within our sequential benchmark. We compare here time 
-and not cycles as that was the only common measurement in all three 
+and not cycles, as that was the only common measurement in all three 
 environments.
 
 \begin{figure}[htbp]
@@ -375,7 +375,7 @@ least one child correspondingly.
 
 With few useful exceptions, it generally makes sense to apply type switch only 
 to non-leaf nodes of the class hierarchy. 71\% of the classes in the entire 
-benchmarks suite were leaf classes. Out of the 4369 non-leaf classes 36\% were 
+benchmarks suite were leaf classes. Out of the 4369 non-leaf classes, 36\% were 
 spawning a subhierarchy of only 2 classes (including the root), 15\% -- a 
 subhierarchy of 3 classes, 10\% of 4, 7\% of 5 and so forth. 
 Turning this into a cumulative distribution, $a\%$ of subhierarchies had more 
@@ -481,7 +481,7 @@ are particularly suitable for such a hash function.
 \subsection{Refactoring an existing visitors based application}
 \label{sec:qualcmp}
 
-For this experiment we have reimplemented a visitor based \Cpp{} pretty printer for 
+For this experiment, we have reimplemented a visitor based \Cpp{} pretty printer for 
 Pivot\cite{Pivot09} using Mach7. Pivot's class hierarchy 
 consists of 154 node kinds representing various entities in the \Cpp{} program. The 
 original code had 8 visitor classes each handling 5, 7, 8, 10, 15, 17, 30 and 63 
@@ -505,7 +505,7 @@ lines of code, with average 136 lines per those inputs, where visitors win. On
 these input files, it is faster by 1.17\%--21.42\% with an average speed-up of 
 8.75\%. Open type switch based implementation of pretty printer was faster on 
 files of 144--9851 lines of code, with average 3497 lines per those input files, 
-where open type switch wins. On these inputs it is faster by 0.18\% -- 32.99\% 
+where open type switch wins. On these inputs, it is faster by 0.18\% -- 32.99\% 
 with an average speed-up of 5.53\%.
 
 Figure~\ref{fig:mem} shows memory usage as well as cache hits and misses for 

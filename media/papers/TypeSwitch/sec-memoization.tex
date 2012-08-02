@@ -44,7 +44,7 @@ if (Tn* match=dynamic_cast<Tn*>(subject)) {sn;}
 \noindent
 Its main drawback is performance: a typical implementation of 
 \code{dynamic_cast} takes time proportional to the distance between base and 
-derived classes in the inheritance tree. What is worse, is that due to 
+derived classes in the inheritance tree. What is worse is that due to 
 sequential order of tests, the time to uncover the type in the $i^{th}$ case 
 clause will be proportional to $i$, while failure to match will always take the longest. 
 %This linear increase can be seen in the Figure~\ref{fig:DCastVis1}, where 
@@ -369,7 +369,7 @@ Entries in the vtable to the right of the address pointed to by a vtbl-pointer
 represent pointers to functions, while entries to the left of it represent 
 various additional fields like pointer to class' type information, offset to 
 top, offsets to virtual base classes etc. In many implementations, this-pointer 
-adjustments required to properly dispatch the call were stored in the vtable 
+adjustments required to dispatch properly the call were stored in the vtable 
 along with function pointers. Today most of the implementations prefer to use 
 \emph{thunks} or \emph{trampolines} -- additional entry points to a function, 
 that adjust this-pointer before transferring the control to the function, -- 
@@ -411,7 +411,7 @@ classes (e.g., when virtual functions are empty).
 %path within a dynamic type. 
 
 We now would like to show more formally that in the presence of RTTI, a \Cpp{} ABI 
-compliant implementation will always have all the vtbl-pointers different. To do 
+compliant implementation would always have all the vtbl-pointers different. To do 
 so, we need a closer look at the notion of subobject, which has been formalized 
 before~\cite{RF95,WNST06,RDL11}. We follow here the presentation of Ramamanandro 
 et al~\cite{RDL11}.
@@ -435,7 +435,7 @@ kind of inheritance (single inheritance is $\mathsf{Repeated}$ with one base cla
 representing the path in a non-virtual inheritance graph.
 A judgment of the form $\mathfrak{P}\vdash C\leftY\sigma\rightY A$ states that 
 in a program $\mathfrak{P}$, $\sigma$ designates a subobject of static type $A$ 
-within the most-derived object of type $C$. Ommitting the context $\mathfrak{P}$: 
+within the most-derived object of type $C$. Omitting the context $\mathfrak{P}$: 
 
 \begin{mathpar}
 \inferrule
@@ -766,7 +766,7 @@ The call to \code{adjust_ptr<Ti>} re-establishes the invariant that
 %static cast we dismissed above. First of all the \Cpp{} type system is much more 
 %restrictive about the static cast and many cases where it is not allowed can 
 %still be handled by dynamic cast. Examples of these include downcasting from an 
-%ambiguous base class or cross-casting between unrelated base classes.
+%ambiguous base class or crosscasting between unrelated base classes.
 %
 %An important benefit we get from this optimization is that the number of values 
 %stored in the hash table is on the order $O(|A|)$, where $A$ represents the 
