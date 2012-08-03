@@ -9,7 +9,7 @@ discriminated with either run-time type information (referred to as
 \emph{polymorphic encoding}) or a unique tag inside a dedicated member of the 
 common base class (referred to  as \emph{tagged encoding}).
 
-While Mach7 supports both encodings, it handles them differently to let 
+While \emph{Mach7} supports both encodings, it handles them differently to let 
 the user choose between openness and efficiency. The type switch for tagged 
 encoding(\textsection\ref{sec:cotc}) is simpler and more efficient for many typical use cases, however, 
 making it open eradicates its performance advantages. The difference in 
@@ -330,7 +330,7 @@ are known to comply with the \Cpp{} ABI: GCC (3.x and up); Clang and llvm-g++;
 Linux versions of Intel and HP compilers, and compilers from ARM. See 
 http://morpher.com/documentation/articles/abi/ for details.}. We do not have 
 access to the unpublished Microsoft ABI, but we have experimental evidence that 
-Microsoft's \Cpp{} compiler also puts the vtbl-pointer at the start of an object.
+their \Cpp{} compiler also puts the vtbl-pointer at the start of an object.
 
 While the exact offset of the vtbl-pointer within the (sub)object is not important 
 for this discussion, because of layout independence every (sub)object of a 

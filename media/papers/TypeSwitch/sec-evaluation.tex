@@ -105,11 +105,13 @@ The benchmarks were executed in the following configurations referred to as
       \begin{itemize}
       \setlength{\itemsep}{0pt}
       \setlength{\parskip}{0pt}
-      \item G++ 4.5.2 and 4.6.1 / MinGW executed with -O2; x86 binaries
-      \item MS Visual \Cpp{} 2010 Professional x86/x64 binaries with profile-guided optimizations
+      \item G++ 4.6.1 / MinGW executed with -O2; x86 binaries
+      \item MS Visual \Cpp{} 2010 Professional x86/x64 binaries with and without 
+      Profile-Guided Optimizations
       \end{itemize}
 \end{itemize}
 
+\noindent
 To improve accuracy, timing in all the configurations was performed with the 
 help of \code{RDTSC} instruction available on x86 processors. For every number reported 
 here we ran 101 experiments timing 1,000,000 dispatches each (all through either 
@@ -128,32 +130,38 @@ equally well reproducible.
 
 \begin{figure}[htbp]
   \centering
-    \includegraphics[width=0.47\textwidth]{VisitorsCompare.png}
-  \caption{Sample timings for different benchmarks}
+    \includegraphics[width=0.47\textwidth]{VisitorsCompare.pdf}
+  \caption{Absolute timings for different benchmarks}
   \label{fig:VisitorsComparison}
 \end{figure}
 
-To give an idea about absolute timings of each of the benchmarks, 
-Figure~\ref{fig:VisitorsComparison} presents a sample of performance numbers 
-achieved by visitor design pattern and our open type switch when compiled with 
-GCC 4.6.1 and ran in the diagnostic boot of OS on Windows Laptop. The actual 
-bars show the timings without forwarding, while the black lines above and below 
-each bar show where the corresponding bar would be in the presence of 
-forwarding. It is easy to see that visitors generally become slower in the 
-presence of forwarding due to extra call, while type switch becomes faster due 
-to smaller jump table. As discussed, both timings are much smaller for 
-repetitive benchmark due to hardware cache.
+To understand better the relative numbers of Figure~\ref{relperf}, we present 
+in Figure~\ref{fig:VisitorsComparison} few absolute timings taken by visitors 
+and open type switch to execute an iteration of a given benchmark. These timings 
+correspond to the relative numbers from column Open/G++/Win of Figure~\ref{relperf}.
+The actual bars show the timings without forwarding, while the black lines 
+indicate where the corresponding bar would be in the presence of forwarding. It 
+is easy to see that visitors generally become slower in the presence of 
+forwarding due to extra call, while type switch becomes faster due to smaller 
+jump table. As discussed, both timings are much smaller for repetitive benchmark 
+due to hardware cache.
 
-To give a broader view on how both techniques compare under different 
-compiler/platform configurations, we also compare the performance of our 
-solution relative to the performance of visitors in Figure~\ref{relperf}. The 
-values are given as percentages of performance increase against the slower 
-technique. %Numbers in regular font represent cases where type switching was 
+Figure~\ref{relperf} provides a broader overview of how both techniques compare 
+under different compiler/platform configurations. The values are given as 
+percentages of performance increase against the slower technique. 
+%Numbers in regular font represent cases where type switching was  
 %faster, while underlined numbers in bold indicate cases where visitors were faster.
 
 \begin{figure}[htbp]
 \scriptsize
 %\footnotesize
+% Meaning of letters in variable name:
+% g - GCC
+% v - Visual C++
+% V - Visual C++ with PGO
+% l - Linux machine test (Sierra)
+% w - Windows machine test x86 (my laptop)
+% x - Windows machine test x64 (my laptop)
 \begin{tabular}{@{}c@{ }@{}l@{ }||@{ }r@{ }|@{ }r@{ }|@{ }r@{ }|@{ }r@{ }|@{ }r@{ }|@{ }r@{ }||@{ }r@{ }|@{ }r@{ }|@{ }r@{ }|@{ }r@{ }|@{ }r@{ }|@{ }r@{ }}
 \hline % ---------------------------------------------------------------
  &     & \multicolumn{6}{c||}{Open}     & \multicolumn{6}{c}{Closed}     \\
@@ -179,13 +187,13 @@ technique. %Numbers in regular font represent cases where type switching was
 \hline % ---------------------------------------------------------------
 \end{tabular}
 \caption{Relative performance of type switching vs. visitors. Numbers 
-in regular font (e.g. \f{67}), indicate when type switching was faster than 
+in regular font (e.g. \f{14}), indicate when type switching was faster than 
 visitors, while underlined numbers in bold (e.g. \s{18}), indicate when visitors 
 were faster by corresponding percentage.}
 \label{relperf}
 \end{figure}
 
-We can see that type switching wins by a good margin when implemented with tag switch as 
+We can see that type switching wins by a good margin when implemented with tag switch (\textsection\ref{sec:cotc}) as  
 well as in the presence of at least one level of forwarding. Note that the 
 numbers are relative, and thus the ratio depends on both the performance of 
 virtual function calls and the performance of switch statements. Visual \Cpp{} was 
@@ -216,10 +224,10 @@ profile-guided optimizations.
 \subsection{Open vs. Closed Type Switch}
 \label{sec:cmp}
 
-With a few exceptions for x64, it can be seen from Figure~\ref{relperf} 
-that the performance of the closed tag switch dominates the performance of the 
-open type switch. We believe that the difference, often significant, is the 
-price one pays for the true openness of the vtable pointer memoization solution. 
+With only a few exceptions, we saw in the Figure~\ref{relperf} that the 
+performance of the closed tag switch dominates the performance of the open type 
+switch. We believe that the difference, often significant, is the price one pays 
+for the true openness of the vtable pointer memoization solution.
 
 As we mentioned in \textsection\ref{sec:cotc}, the use of tags, even when allocated 
 by a compiler, may require integration efforts to ensure that different DLLs have 
@@ -289,8 +297,8 @@ environments.
 
 \begin{figure}[htbp]
   \centering
-    \includegraphics[width=0.47\textwidth]{OCamlComparison.png}
-  \caption{Performance comparison with OCaml and Haskell code}
+    \includegraphics[width=0.47\textwidth]{OCamlComparison.pdf}
+  \caption{Performance comparison with OCaml \& Haskell}
   \label{fig:OCamlComparison}
 \end{figure}
 
@@ -359,7 +367,7 @@ hierarchies in each benchmark, after their adoption to \Cpp{}.
 \multicolumn{2}{r|}{\tiny{\textsc{Overalls}}} &15246 & 63963 & 17 & 298 &10877 & 199 & 1.11 & 16 & 3.89 & 323 \\ % Overalls
 \hline % --------------------------------------------------------------------------------------------------
 \end{tabular}
-\caption{Benchmark Class Hierarchies}
+\caption{Benchmark class hierarchies}
 \label{fig:benchmarks}
 \end{figure}
 
@@ -421,7 +429,7 @@ yielding it.
 \begin{figure}[htbp]
   \centering
     \includegraphics[width=0.49\textwidth]{ClassHierarchies.pdf}
-  \caption{Probability of Conflict vs. Number of Subobjects in Hierarchy}
+  \caption{Probability of conflict in real hierarchies}
   \label{fig:prob}
 \end{figure}
 
@@ -451,15 +459,15 @@ in Figure~\ref{fig:size}($K+1$).
 \begin{figure}[htbp]
 \small
 \begin{tabular}
-{@{}c@{}||@{}c@{}|@{}c@{}|@{}c@{}|@{}c@{}|@{}c@{}|@{}c@{}|@{}c@{}|@{}c@{}}
+{@{}c@{}||@{}c@{ }|@{}c@{ }|@{}c@{ }|@{}c@{ }|@{}c@{ }|@{}c@{ }|@{}c@{ }|@{}c@{ }}
 \hline % -------------------------------------------------------------------------
   $m$ &       0 &       1 &      2 &      3 &      4 &        5 &      6 & \textgreater 6 \\
 \hline % -------------------------------------------------------------------------
-  $K$ & 72.55\% & 12.27\% & 4.87\% & 2.61\% & 1.42\% & 0.94\% & 0.80\% & 4.55\% \\
+$K+1$ & 87.50\% &  5.58\% & 2.63\% & 0.87\% & 0.69\% & 0.69\% & 0.30\% & 1.76\% \\
 \hline % -------------------------------------------------------------------------
-$K+1$ & 87.50\% &  5.58\% & 2.63\% & 0.87\% & 0.69\% & 0.69\% & 0.30\% & 1.76\% 
+  $K$ & 72.55\% & 12.27\% & 4.87\% & 2.61\% & 1.42\% & 0.94\% & 0.80\% & 4.55\% 
 \end{tabular}
-\caption{Percentage of subhierarchies rendering a given number of conflicts ($m$) under different size constraints}
+\caption{Percentage of type switches with given number of conflicts ($m$) under different size constraints}
 \label{fig:size}
 \end{figure}
 
@@ -481,8 +489,8 @@ are particularly suitable for such a hash function.
 \subsection{Refactoring an existing visitors based application}
 \label{sec:qualcmp}
 
-For this experiment, we have reimplemented a visitor based \Cpp{} pretty printer for 
-Pivot\cite{Pivot09} using Mach7. Pivot's class hierarchy 
+For this experiment, we reimplemented a visitor based \Cpp{} pretty printer for 
+Pivot\cite{Pivot09} using \emph{Mach7}. Pivot's class hierarchy 
 consists of 154 node kinds representing various entities in the \Cpp{} program. The 
 original code had 8 visitor classes each handling 5, 7, 8, 10, 15, 17, 30 and 63 
 cases, which we turned into 8 match statements with corresponding numbers of 
@@ -490,7 +498,7 @@ case clauses. Most of the rewrite was performed by sed-like replaces that
 converted visit methods into respective case-clauses. In several cases we had to 
 manually reorder case-clauses to avoid redundancy as visit-methods for base classes 
 were typically coming before the same for derived, while for type switching we 
-needed them to come after. Redundancy checking support provided by Mach7 
+needed them to come after. Redundancy checking support provided by \emph{Mach7} 
 was invaluable in finding out all such cases.
 
 Both pretty printers were executed on a set of header files from the \Cpp{} 
@@ -514,24 +522,24 @@ header (it has the largest LOC after preprocessing in our test set).
 
 \begin{figure}[htbp]
   \centering
-    \includegraphics[width=0.49\textwidth]{Memory.png}
+    \includegraphics[width=0.49\textwidth]{Memory.pdf}
   \caption{Memory usage in real application}
   \label{fig:mem}
 \end{figure}
 
 The bars represent the total size of memory in bytes each of the 8 match 
-statements (marked A-H) used. The info $[n/c]$ next to the letter indicates the 
+statements (marked A-H) used. Information $[n/c]$ next to the letter indicates the 
 actual number of different subobjects (i.e. vtbl-pointers) $n$ that came through 
 that match statement, and the number of case clauses $c$ the match statement had 
 (the library uses $c$ as an estimate of $n$). $n$ is also the number of cases the 
 corresponding match statement had to be executed sequentially (instead of a 
 direct jump).
 
-The \textoverline{blue} part of each bar corresponds to the memory used by cache, while the 
-\textoverline{maroon} -- to the memory used by the hash table. The ratio of the \textoverline{non-opaque}
-part of both \textoverline{colors} to the entire part of that \textoverline{color} indicates the load factors 
+The solid part of each bar corresponds to the memory used by cache, while the 
+dashed part -- to the memory used by the hash table. The ratio of the lighter
+section of each part to the entire part indicates the load factors 
 of cache and hash-table respectively. The black box additionally indicates the 
-number of entries in the cache that are allocated for only one vtbl-pointer and 
+proportion of cache entries that are allocated for only one vtbl-pointer and 
 thus never result in a cache miss. %The non-transparent part without black box 
 %represents the percentage of vtbl-pointers that have to share their cache entry 
 %with at least one other vtbl-pointer and thus may result in collisions during 

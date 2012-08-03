@@ -500,9 +500,9 @@ open solution a class has known number of base classes and thus perfect hashes
 can be used to map them to this-pointer offsets typically used to implement 
 subobject casts\cite{Ducournau08}. Unfortunately the approach addresses only 
 virtual multiple inheritance and similarly to other approaches relies on 
-load-time computations that may be costly. Excellent introduction and detailed 
+load-time computations. Excellent introduction and detailed 
 analysis of existing constant-time type inclusion tests can be found in 
-\cite{Vitek97} and \cite{PQEncoding}.
+\cite{Vitek97,PQEncoding}.
 
 With the exception of work by Gibbs and Stroustrup~\cite{FastDynCast}, all the 
 approaches to efficient type-inclusion testing we found in the literature were 
