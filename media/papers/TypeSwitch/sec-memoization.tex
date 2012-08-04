@@ -5,9 +5,9 @@ While \Cpp{} does not have direct support for algebraic data types, they can be
 encoded with classes in a number of ways. One common such encoding is to 
 introduce an abstract base class representing an algebraic data type with 
 several derived classes representing variants. The variants can be 
-discriminated with either run-time type information (referred to as 
-\emph{polymorphic encoding}) or a unique tag inside a dedicated member of the 
-common base class (referred to as \emph{tagged encoding}).
+discriminated with either run-time type information (\emph{polymorphic 
+encoding}) or a unique tag inside a dedicated member of the common base class 
+(\emph{tagged encoding}).
 
 While \emph{Mach7} supports both encodings, it handles them differently to let 
 the user choose between openness and efficiency. The type switch for tagged 
@@ -181,7 +181,7 @@ Note that the protocol that has to be maintained by this structure does not
 depend on the actual values of case labels. We only require them to be 
 different and include a predefined default value. The default clause can be 
 replaced with a case clause for the predefined value, however keeping the default  
-clause results in a faster code. A more important performance consideration is to 
+clause generates faster code. A more important consideration is to 
 keep the values close to each other. Not following this rule might result in a 
 compiler choosing a decision tree over a jump table implementation of the 
 switch, which in our experience significantly degrades the performance.
@@ -252,9 +252,9 @@ most-derived type -- the outcome of each type inclusion test will be the same on
 all the objects of the same dynamic type. We can use the  
 address of class' \code{type_info} object obtained in constant time with 
 \code{typeid()} operator as a unique identifier of each most-derived type. 
-Presence of multiple \code{type_info} objects for the same class, as is often 
-the case when dynamic linking is involved, is not a problem, as it would 
-effectively split a single equivalence class into multiple ones. 
+%Presence of multiple \code{type_info} objects for the same class, as is often 
+%the case when dynamic linking is involved, is not a problem, as it would 
+%effectively split a single equivalence class into multiple ones. 
 
 This could have been a solution if we were only interested in class membership. 
 More often than not, however, we will be interested in obtaining a reference to 
@@ -309,8 +309,7 @@ pointing to only certain subobjects in it. These positions are marked in the
 picture with vertical arrows decorated with the set of pointer types whose 
 values may point into that position. Run-time conversions between such pointers 
 represent casts between subobjects of the same most-derived type and may require 
-adjustments to this-pointer (shown with dashed arrows) to maintain 
-type safety.
+adjustments to this-pointer (shown with dashed arrows) for type safety.
 
 A class that declares or inherits a virtual function is called a 
 \emph{polymorphic class}. The \Cpp{} standard~\cite{C++11} does not prescribe any 
