@@ -26,24 +26,26 @@ switching on derived tags fails.
 
 For simplicity of presentation we assume a pointer to array of tags be available 
 directly through subject's \code{taglist} data member. The array is of 
-variable size; its first element is always the tag corresponding to the 
-most-derived type of the subject, while its end is marked with a dedicated 
-\code{end_of_list} marker distinct from all the tags. The tags in between are 
-topologically sorted according to the subtyping relation with incomparable 
-siblings listed in \emph{local precedence order} -- the order of the direct base 
-classes used in the class definition. The list resembles the \emph{class 
-precedence list} of object-oriented descendants of Lisp (e.g. Dylan, Flavors, 
-LOOPS, and CLOS) used there for \emph{linearization} of class hierarchies.
-We also assume the tag-constant associated with a class 
-\code{Di} be accessible through a static constant \code{Di::class_tag}. These presentational
-simplifications are not essential and the library does not rely on any of these 
-assumptions. Instead, the user can retroactively narrate to the library the 
-specific tag encoding used through a trait-like class.
+variable size: its first element is always the tag of subject's most-derived 
+type, while its end is marked with a dedicated \code{end_of_list} marker, 
+distinct from all the tags. The tags in between are topologically sorted 
+according to the subtyping relation with incomparable siblings listed in 
+\emph{local precedence order} -- the order of the direct base classes used in 
+the class definition. The list resembles the \emph{class precedence list} of 
+object-oriented descendants of Lisp (e.g. Dylan, Flavors, LOOPS, and CLOS) used 
+there for \emph{linearization} of class hierarchies. 
+We also assume the tag-constant associated with a class \code{Di} be accessible 
+through a static constant \code{Di::class_tag}. These presentational 
+simplifications are not essential and the library does not rely on any of them. 
+%Instead, the user can retroactively narrate to the library the specific tag 
+%encoding used through a trait-like class.
 
-A type switch below, built on top of a hierarchy of tagged classes, proceeds as 
+A type switch below %, built on top of a hierarchy of tagged classes, 
+proceeds as 
 a regular switch on the subject's tag. If the jump succeeds, we found an exact 
 match; otherwise, we get into a default clause that obtains the next tag in the
-list and jumps back to the beginning of the switch statement for a rematch:
+list and jumps back %to the beginning of the switch statement 
+for a rematch:
 
 \begin{lstlisting}[keepspaces]
     size_t attempt = 0; 
@@ -67,27 +69,26 @@ ReMatch:
 
 \noindent
 The above structure, which we call \emph{tag switch}, implements a variation of 
-best-fit semantics based on linearization. It lets us dispatch to the case 
+best-fit semantics based on local precedence order. It lets us dispatch to the case 
 clause of the most-specialized class with an overhead of initializing two 
 local variables, compared to efficient switch used on algebraic data types. 
 Dispatching to a case clause of a base class will take time roughly proportional 
 to the distance between the matched base class and the most-derived class in the 
 inheritance graph, thus the technique is not constant. When none of the base 
-class tags was matched, we will necessarily reach the end\_of\_list marker in 
-the list and exit the loop. As mentioned before, the default 
-clause of the type switch can be implemented with a case clause on subject 
-type's tag: \code{case S::class_tag:}
+class tags was matched, we will necessarily reach the end\_of\_list marker %in the list 
+and exit the loop. %As mentioned before, 
+The default clause %of the type switch 
+can again be implemented with a case clause on subject type's tag: \code{case S::class_tag:}
 
 The efficiency of the above code crucially depends on the set of tags 
 be small and sequential to justify the use of jump table instead of 
 decision tree to implement the switch. This is usually not a problem in closed 
-hierarchies based on tag encoding since the user of the hierarchy handpicks 
-the tags herself. The use of static cast to obtain proper reference once the most 
-specialized derived class has been established, however, essentially limits the use of 
-this mechanism to single inheritance only. This only refers to the way target 
-classes inherit from the subject type -- they can freely inherit other classes 
-as long as they inherit the subject type through non-repeated inheritance only. 
-Due to these assumptions, the technique is not open because it may  
-violate independent extensibility. Moving away from these assumptions in order 
-to make the technique more open (e.g. randomizing tags, using 
-\code{dynamic_cast} etc.) will also eradicate its performance advantages.
+hierarchies based on tag encoding since the designer of the hierarchy handpicks 
+the tags herself. The use of static cast %to obtain proper reference once the most specialized derived class has been established, 
+however, essentially limits the use of 
+this mechanism to non-repeated inheritance only. This only refers to the way target 
+classes inherit from the subject type -- they can freely inherit other classes. 
+%as long as they inherit the subject type through non-repeated inheritance only. 
+Due to these restrictions, the technique is not open because it may  
+violate independent extensibility. We discuss in \textsection\ref{sec:cmp} that 
+making the technique more open will also eradicate its performance advantages.

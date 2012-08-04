@@ -25,7 +25,7 @@ as given by the static semantics, i.e. the typing rule of expressions.
 In general, \emph{type switch} or \emph{typecase} is a multiway branch statement 
 that distinguishes values based on their type. In a multi-paradigm programming 
 language like \Cpp{}, that supports parametric, ad-hoc, and 
-subtyping polymorphism, such a broad definition subsumes numerous different
+subtyping polymorphisms, such a broad definition subsumes numerous different
 typecase constructs studied in the literature~\cite{Intensional95,Glew99,OpenShutTypecase05}. 
 In this work, we only look at typecasing scenarios based on subtyping polymorphism 
 of \Cpp{}, similar to those studied by Glew~\cite{Glew99}. 
@@ -39,8 +39,10 @@ We use the term \emph{type switch} instead of a broader \emph{typecase} to
 stress the run-time nature of the type analysis similar to how regular 
 \code{switch}-statement of \Cpp{} performs case analysis of values at run time.
 
+We will use term \emph{object descriptor} to mean either pointer or reference to 
+an object, which we will use interchangeably when not explicitly specified. 
 Given an object descriptor, called \emph{subject}, of static type \code{S} 
-(pointer or reference) referred to as \emph{subject type}, and a list of 
+referred to as \emph{subject type}, and a list of 
 \emph{target types} \code{Ti} associated with the branches, a type switch 
 statement needs to identify a suitable clause $m$ (or absence of such) based on 
 the most-derived type \code{D <: S} of the subject as well as suitable 
@@ -159,8 +161,8 @@ algebraic data types are \emph{disjoint} and \emph{closed}.
 Some functional languages e.g. ML2000~\cite{ML2000} and its predecessor, Moby, 
 were experimenting with \emph{hierarchical extensible sum types}, which are 
 closer to object-oriented classes then algebraic data types are, but, 
-interestingly, they provided neither traditional nor efficient facilities for 
-performing case analysis on them.
+interestingly, they provided no %neither traditional nor efficient 
+facilities for performing case analysis on them.
 
 Zenger and Odersky refined the expression problem in the context of 
 independently extensible solutions~\cite{fool12} as a challenge to find an 
@@ -261,7 +263,7 @@ all the major shortcomings of the visitor design pattern:
 \begin{itemize}
 \setlength{\itemsep}{0pt}
 \setlength{\parskip}{0pt}
-\item Case analysis with an open type switch is \emph{non-intrusive} as it 
+\item Case analysis with an open type switch is non-intrusive as it 
       inspects the hierarchy externally and can be applied retroactively. 
 \item New variants can be accounted for in the newly written code and will be 
       seen as a base class or default in the existing code.
@@ -314,8 +316,6 @@ inheritance of class \code{A} by classes \code{B} and \code{C}. The shared
 containment is indicated with the dashed arrows, while exclusive -- with the solid 
 ones.
 
-We will use term \emph{object descriptor} to mean either pointer or reference to 
-an object, which we will use interchangeably when not explicitly specified. 
 An object descriptor of static type $A$ referencing an object of the most-derived 
 type $C$ can be understood as any $C$\code{::*::}$A$-node in the subobject graph of $C$. Rosie 
 and Friedman call $A$ an \emph{effective type} of object, while the node in the 
@@ -393,8 +393,8 @@ implementation. The traditional compilation scheme assigns unique (and often
 small and sequential) tags to every variant of the algebraic data type and type 
 switching is then simply implemented with a multi-way branch~\cite{Spuler94} 
 (usually a jump table) over all the tags~\cite{Augustsson85}. Dealing with 
-extensible hierarchical data types makes this extremely efficient approach 
-infeasible:
+extensible hierarchical data types makes this %extremely efficient 
+approach infeasible:
 
 \begin{itemize}
 \setlength{\itemsep}{0pt}
@@ -436,8 +436,8 @@ the user to prohibit further derivation by specifying a class to be ``final''~\c
 similar to Scala and Java's facilities. The compiler then may use the above tag 
 allocation over all variants to implement type analysis~\cite[\textsection 
 4.3.2]{EmirThesis}. 
-In some cases, the sealing may happen implicitly. For example, languages that 
-allow names with internal and external linkage may employ the fact that classes 
+In some cases, the sealing may happen implicitly. For example, languages %that allow names 
+with internal and external linkage may employ the fact that classes 
 with internal linkage will not be externally accessible and thus effectively 
 sealed. While clearly efficient, the approach is not open as it avoids the 
 question rather than answers it. 
@@ -457,9 +457,9 @@ in the literature~\cite{Zenger:2001}, however they have problems of their own,
 discussed in \textsection\ref{sec:rw}.
 
 The second approach employs type inclusion tests combined with decision 
-trees~\cite{Cardelli84} to avoid duplicate checks. The efficiency of the 
-approach is then entirely focused on the efficiency of type inclusion 
-tests~\cite{Schubert83,Wirth88,Cohen91,Caseau93,Vortex96,Krall97nearoptimal,Vitek97,PQEncoding,FastDynCast,Ducournau08}.
+trees~\cite{Cardelli84} to avoid unnecessary checks. Its efficiency is then 
+entirely focused on the efficiency of type inclusion 
+tests~\cite{Schubert83,Wirth88,Cohen91,Caseau93,Vortex96,Krall97nearoptimal,Vitek97,PQEncoding,FastDynCast,Ducournau08}. 
 
 %"A couple of years later, Nikolaus With published an approach based on type 
 %inclusion. However, that approach does not work well in the presence of multiple 
@@ -535,17 +535,17 @@ set of tags.
 \end{figure}
 
 The chart in Figure~\ref{fig:DCastVis2} shows the number of cycles (Y-axis) each 
-technique took to recognize an object of the most-derived type $i$ (X-axis). It 
-is easy to see that the logarithmic cost associated with the decision tree very 
-quickly surpasses the constant overhead of double dispatch (20 cycles) present 
-in the visitor design pattern or the jump-table implementation of the switch on 
-all tags (11 cycles). The edgy shape of timing results reflects the shape of the
-binary tree class hierarchy used for this experiment. Regardless of their 
-limitations, Binary matrix and Cohen's algorithm are known to be some of the 
-fastest known type inclusion tests for single inheritance~\cite{Vitek97}. We 
-expect the cost of techniques capable of handling multiple inheritance be even 
-higher, especially those addressing casting between subobjects (e.g. fast 
-dynamic cast as seen in the picture). 
+technique took to recognize an object of the most-derived type $i$ (X-axis). 
+Despite known limitations, binary matrix and Cohen's algorithm are some of the 
+fastest known type inclusion tests for single inheritance~\cite{Vitek97}. It 
+is easy to see nonetheless that the logarithmic cost associated with the 
+decision tree very quickly surpasses the constant overhead of double dispatch 
+(20 cycles) present in the visitor design pattern or the jump-table 
+implementation of the switch on all tags (11 cycles). We expect the cost of 
+techniques capable of handling multiple inheritance be even higher, especially 
+those addressing casting between subobjects (e.g. fast dynamic cast). The edgy 
+shape of timing results reflects the shape of the binary tree class hierarchy 
+used for this experiment.
 %We show in \textsection{sec:viscmp} that 
 %our open solution is capable of delivering an amortized constant-time type 
 %switching wi

@@ -55,7 +55,7 @@ approach in a real application (\textsection\ref{sec:qualcmp}).
 %\label{relperf}
 %\end{figure*}
 
-Our evaluation methodology consists of several benchmarks representing various 
+Our comparison methodology involves several benchmarks representing various 
 uses of objects inspected with either visitors or type switching.
 
 The \emph{repetitive} benchmark (REP) performs calls on different objects of the 
@@ -71,8 +71,7 @@ reused the least in this scenario, which is typical of lookup tables, where each
 entry is implemented with a different derived class.
 
 The \emph{random} benchmark (RND) is the most representative as it randomly makes calls on 
-random objects, which will probably be the most common usage scenario in the 
-real world.
+different objects -- probably be the most common usage scenario in the real world.
 
 Presence of \emph{forwarding} in any of these benchmarks refers to the 
 common technique used by visitors where, for class hierarchies with multiple 
@@ -82,7 +81,7 @@ may forward it to its base class, etc. The use of forwarding in visitors is a
 way to achieve substitutability, which in type switch corresponds to the use 
 of base classes in the case clauses.
 
-The class hierarchy for non-forwarding test was a flat hierarchy with 100 
+The class hierarchy for non-forwarding test was a flat hierarchy of 100 
 derived classes, encoding an algebraic data type. The class hierarchy for 
 forwarding tests had two levels of inheritance with 5 intermediate base classes 
 and 95 derived ones. 
@@ -98,10 +97,10 @@ The benchmarks were executed in the following configurations referred to as
       \begin{itemize}
       \setlength{\itemsep}{0pt}
       \setlength{\parskip}{0pt}
-      \item G++ 4.4.5 executed with -O2
+      \item G++ 4.4.5 executed with -O2; x86 binaries
       \end{itemize}
 \item \emph{Win}: Sony VAIO\textsuperscript{\textregistered} laptop with Intel\textsuperscript{\textregistered} Core\texttrademark i5 460M 
-      CPU at 2.53 GHz; 6GB of RAM; Windows 7 Professional
+      CPU at 2.53 GHz; 6GB of RAM; Windows 7 Pro.
       \begin{itemize}
       \setlength{\itemsep}{0pt}
       \setlength{\parskip}{0pt}
@@ -137,7 +136,7 @@ equally well reproducible.
 
 To understand better the relative numbers of Figure~\ref{relperf}, we present 
 in Figure~\ref{fig:VisitorsComparison} few absolute timings taken by visitors 
-and open type switch to execute an iteration of a given benchmark. These timings 
+and open type switch to execute an iteration of a given benchmark. These absolute timings 
 correspond to the relative numbers from column Open/G++/Win of Figure~\ref{relperf}.
 The actual bars show the timings without forwarding, while the black lines 
 indicate where the corresponding bar would be in the presence of forwarding. It 
@@ -200,8 +199,8 @@ virtual function calls and the performance of switch statements. Visual \Cpp{} w
 generating faster virtual function calls, while GCC was generating faster switch 
 statements, which is why their relative performance seem to be much more 
 favorable for us in the case of GCC.
-Similarly, the code for x64 is only slower relatively: the actual time spent for 
-both visitors and type switching was smaller than that for x86, but it was much 
+Similarly, the code for x86-64 is only slower relatively: the actual time spent for 
+both visitors and type switching was smaller than that for x86-32, but it was much 
 smaller for visitors than type switching, which resulted in worse relative 
 performance.
 
@@ -241,9 +240,8 @@ sequential and small.
 The reliance of a tag switch on static cast has severe limitations in the 
 presence of multiple inheritance, and thus is not as versatile as open type 
 switch. Overcoming this problem will either require the use of 
-\code{dynamic_cast} or techniques similar to those used for vtable pointer 
-memoization, which will likely degrade tag switch's performance numbers even 
-further.
+\code{dynamic_cast} or techniques similar to vtable pointer memoization, which 
+will likely degrade tag switch's performance numbers even further.
 
 Note also that the approach used to implement open type switch can be used to 
 implement both first-fit and best-fit semantics, while the tag switch is only suitable 
@@ -258,8 +256,8 @@ open solution improves.
 \subsection{Comparison with OCaml and Haskell}
 \label{sec:ocaml}
 
-We now compare our solution to the built-in pattern-matching facility of 
-OCaml~\cite{OPM01} and Haskell~\cite{Haskell98Book}.  
+%We now compare our solution to the built-in pattern-matching facility of 
+%OCaml~\cite{OPM01} and Haskell~\cite{Haskell98Book}.  
 In this test, we timed small OCaml and Haskell applications performing our sequential 
 benchmark on an algebraic data type of 100 variants. Corresponding \Cpp{} 
 applications were working with a flat class hierarchy of 100 derived classes. 
@@ -287,7 +285,8 @@ from the Tag encoding only semantically.
 %\noindent
 We used optimizing OCaml compiler \texttt{ocamlopt.opt} version 3.11.0 working 
 under the Visual \Cpp{} toolset as well as the Glasgow Haskell Compiler version 
-7.0.3 (with -O switch) working under the MinGW toolset. All the tests were 
+7.0.3 (with -O switch) working under the MinGW toolset. The \Cpp{} applications 
+were compiled with Visual \Cpp{} as well and all the tests were  
 performed on the Windows 7 laptop. Similar to comparison with visitors,
 the timing results presented in Figure~\ref{fig:OCamlComparison} are averaged 
 over 101 measurements and show the number of seconds it took to perform a 
@@ -313,7 +312,7 @@ environments.
 For this experiment, we used a class hierarchy benchmark previously used in the 
 literature to study efficiency of type inclusion testing and dispatching 
 techniques~\cite{Vitek97,Krall97nearoptimal,PQEncoding,Ducournau08}.
-We use the names of the benchmarks from Vitek et al~\cite[Table 2]{Vitek97}, 
+We use the names of each benchmark from Vitek et al~\cite[Table 2]{Vitek97}, 
 since the set of benchmarks we were working with was closest (though not exact) 
 to that work.
 
@@ -321,7 +320,7 @@ While not all class hierarchies originated from \Cpp{}, for this experiment it
 was more important for us that the hierarchies were man-made. While converting 
 the hierarchies into \Cpp{}, we had to prune inaccessible base classes (direct base  
 class that is already an indirect base class) when used with repeated 
-inheritance in order to satisfy semantic requirements of the \Cpp{}. We maintained 
+inheritance in order to satisfy semantic requirements of \Cpp{}. We maintained 
 the same number of virtual functions present in each class as well as the number 
 of data members; the benchmarks, however, did not preserve the exact types of those.
 The data in Figure~\ref{fig:benchmarks} shows various parameters of the class 
@@ -387,7 +386,7 @@ benchmarks suite were leaf classes. Out of the 4369 non-leaf classes, 36\% were
 spawning a subhierarchy of only 2 classes (including the root), 15\% -- a 
 subhierarchy of 3 classes, 10\% of 4, 7\% of 5 and so forth. 
 Turning this into a cumulative distribution, $a\%$ of subhierarchies had more 
-than $b$ classes in them, where:
+than $b$ classes in them:
 
 %\noindent
 \begin{tabular}
@@ -416,7 +415,7 @@ executed multiple but the same number of times on each subobject to ensure
 uniformity on one side (since we do not have the data about the actual 
 probabilities of each subobject in the benchmark hierarchies) as well as let the 
 type switch infer the optimal parameters $k$ and $l$ of its cache indexing 
-function $H_{kl}$. We then plotted a point in chart of Figure~\ref{fig:prob} 
+function $H_{kl}^V$. We then plotted a point in chart of Figure~\ref{fig:prob} 
 relating 2 characteristics of each of the 4396 type switches tested: the optimal 
 computed probability of conflict $p$ achieved by the type switch and the number 
 of subobjects $n$ that came through that type switch. The actual frequencies of 
@@ -437,7 +436,7 @@ The curves on which the results of experiments line up correspond to the fact
 that under uniform distribution of $n$ subobjects, only a finite number of 
 different values representing the probability of conflict $p$ is possible. In 
 particular, all such values $p=\frac{m}{n}$, where $0 \le m < n$. The number $m$ 
-reflects the number of subobjects an optimal cache indexing function $H_{kl}$ 
+reflects the number of subobjects an optimal cache indexing function $H_{kl}^V$ 
 could not allocate their own entry for and we showed in \textsection\ref{sec:moc} 
 that the probability of conflict under uniform distribution of $n$ subobjects 
 depends only on $m$. The curves thus correspond to graphs of functions 
@@ -471,7 +470,6 @@ $K+1$ & 87.50\% &  5.58\% & 2.63\% & 0.87\% & 0.69\% & 0.69\% & 0.30\% & 1.76\% 
 \label{fig:size}
 \end{figure}
 
-\noindent
 In cases when the user is willing to trade performance for better space 
 efficiency she may restrict $k$ to $[K,K]$ instead of $[K,K+1]$ as discussed in 
 \textsection\ref{sec:moc}. We redid all the 4396 experiments under this 
@@ -483,7 +481,7 @@ The average load factor of the cache expectedly increased from 75.45\% to 82.47\
 It is important to understand that the high ratio of cases in which the hash 
 function could deliver perfect indexing does not indicate that the hash function 
 we used is better than other hash functions. It does indicate instead that the 
-values representing vtbl-pointers in a given application are not very random and 
+values representing vtbl-pointers in a given application are not random at all and 
 are particularly suitable for such a hash function.
 
 \subsection{Refactoring an existing visitors based application}
@@ -498,8 +496,8 @@ case clauses. Most of the rewrite was performed by sed-like replaces that
 converted visit methods into respective case-clauses. In several cases we had to 
 manually reorder case-clauses to avoid redundancy as visit-methods for base classes 
 were typically coming before the same for derived, while for type switching we 
-needed them to come after. Redundancy checking support provided by \emph{Mach7} 
-was invaluable in finding out all such cases.
+needed them to come after due to first-fit semantics. Redundancy checking 
+support provided by \emph{Mach7} was invaluable in finding out all such cases.
 
 Both pretty printers were executed on a set of header files from the \Cpp{} 
 standard library and the produced output of both program was byte-to-byte the same. 
@@ -510,15 +508,15 @@ visitors-based implementation was faster because the total number of nodes in
 AST and thus calls did not justify our set-up calls. In particular, 
 visitor-based implementation of pretty printer was faster on files of 44--588  
 lines of code, with average 136 lines per those inputs, where visitors win. On 
-these input files, it is faster by 1.17\%--21.42\% with an average speed-up of 
+these input files, visitors are faster by 1.17\%--21.42\% with an average speed-up of 
 8.75\%. Open type switch based implementation of pretty printer was faster on 
 files of 144--9851 lines of code, with average 3497 lines per those input files, 
-where open type switch wins. On these inputs, it is faster by 0.18\% -- 32.99\% 
+where open type switch wins. On these inputs, open type switch is faster by 0.18\% -- 32.99\% 
 with an average speed-up of 5.53\%.
 
 Figure~\ref{fig:mem} shows memory usage as well as cache hits and misses for 
 the run of our pretty printer on \code{<queue>} standard library 
-header (it has the largest LOC after preprocessing in our test set).
+header, which had the largest LOC count after preprocessing in our test set.
 
 \begin{figure}[htbp]
   \centering

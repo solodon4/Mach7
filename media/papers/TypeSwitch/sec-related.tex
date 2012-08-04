@@ -9,9 +9,9 @@ modified to jump directly to a previously looked up method~\cite{Deutsch84}.
 The method in this case will have to ensure that the type of the receiver has 
 not changed and redirect the call to generic lookup otherwise. The effects of 
 inline caching on modern architectures can be seen through hardware call target 
-prediction, which in our case is exemplified by repetitive benchmark. In this 
-case, both virtual function calls and the underlying jump-table implementation of 
-the \code{Match}-statement are about twice faster than usual.
+prediction, which in our case is exemplified by repetitive benchmark: both 
+virtual function calls and the underlying jump-table implementation of the 
+\code{Match}-statement are about twice faster than usual.
 
 \emph{Polymorphic Inline Caches}~\cite{Holzle:Chambers:Ungar:91} generalize the 
 idea of inline caches further by building a decision tree in the method prologue 
@@ -25,7 +25,7 @@ targets. This lets us generate code at compile time that incorporates both the
 initial and memoized execution.
 
 \emph{Extensible Visitors with Default Cases}~\cite[\textsection 
-4.2]{Zenger:2001} attempts to solve the extensibility problem of visitors; 
+4.2]{Zenger:2001} attempt to solve the extensibility problem of visitors; 
 however, the solution has problems of its own. The visitation interface 
 hierarchy can easily be grown linearly, but independent extensions by different  
 authorities require a developer's intervention. On top of the double dispatch, the 

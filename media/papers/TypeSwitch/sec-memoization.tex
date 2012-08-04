@@ -1,20 +1,21 @@
 \section{Type Switch}
 \label{sec:copc}
 
-While \Cpp{} does not have direct support of algebraic data types, they can be 
+While \Cpp{} does not have direct support for algebraic data types, they can be 
 encoded with classes in a number of ways. One common such encoding is to 
 introduce an abstract base class representing an algebraic data type with 
 several derived classes representing variants. The variants can be 
 discriminated with either run-time type information (referred to as 
 \emph{polymorphic encoding}) or a unique tag inside a dedicated member of the 
-common base class (referred to  as \emph{tagged encoding}).
+common base class (referred to as \emph{tagged encoding}).
 
 While \emph{Mach7} supports both encodings, it handles them differently to let 
 the user choose between openness and efficiency. The type switch for tagged 
-encoding(\textsection\ref{sec:cotc}) is simpler and more efficient for many typical use cases, however, 
-making it open eradicates its performance advantages. The difference in 
-performance is the price we pay for keeping the solution open. We describe pros 
-and cons of each approach in \textsection\ref{sec:cmp}.
+encoding (\textsection\ref{sec:cotc}) is simpler and more efficient for many typical use cases, however, 
+making it open eradicates its performance advantages (\textsection\ref{sec:cmp}). 
+%The difference in 
+%performance is the price we pay for keeping the solution open. We describe pros 
+%and cons of each approach in \textsection\ref{sec:cmp}.
 
 %The core of the proposal relies on two key aspects of \Cpp{} implementations:
 %\begin{enumerate}
@@ -46,7 +47,7 @@ Its main drawback is performance: a typical implementation of
 \code{dynamic_cast} takes time proportional to the distance between base and 
 derived classes in the inheritance tree. What is worse is that due to 
 sequential order of tests, the time to uncover the type in the $i^{th}$ case 
-clause will be proportional to $i$, while failure to match will always take the longest. 
+clause will be proportional to $i$, while failure to match will take the longest. 
 %This linear increase can be seen in the Figure~\ref{fig:DCastVis1}, where 
 %the above cascading-if was applied to a flat hierarchy encoding an algebraic 
 %data type with 100 variants. The same type-switching functionality implemented 
@@ -59,8 +60,8 @@ clause will be proportional to $i$, while failure to match will always take the 
 %first case with \code{dynamic_cast}, while it took 22760 cycles to uncover the 
 %last.
 In a test involving a flat hierarchy of 100 variants, it took 93 cycles to 
-discover the first type and 22760 to discover the last (with linear combination 
-of them to discover the types in between). %A visitor design pattern could 
+discover the first type and 22760 to discover the last (with their linear combination 
+for the types in between). %A visitor design pattern could 
 %uncover any type in about 55 cycles, regardless of its position among the case 
 %clauses, while a switch based on sequential tags could achieve the same in less 
 %than 20 cycles. The idea is thus to combine the openness of the above structure 
@@ -121,10 +122,10 @@ switch (x) { case P1(x): s1; ... case Pn(x): sn; }
 
 \noindent
 Assuming that predicates are \emph{functional} (i.e. do not involve any side 
-effects), the next time we come to the switch with the same value $x$, the same 
+effects), the next time we execute the switch with the same value $x$, the same 
 predicate will be enabled first. We thus would like to avoid evaluating 
-preceding predicates and jump straight to the statement it guards. In a way, we 
-would like the switch to memoize which case is enabled for a given value of $x$. 
+preceding predicates and jump to the statement it guards. In a way, we 
+would like the switch to memoize the case enabled for a given $x$. 
 
 The idea is to generate a simple cascading-if statement interleaved with jump 
 targets and instructions that associate the original value with enabled target. 
@@ -136,8 +137,8 @@ optimization, the code preceding it after the target must re-establish any
 invariant guaranteed by sequential execution (\textsection\ref{sec:vtblmem}).
 
 Described code can be easily produced in a compiler setting, but generating it in 
-a library setting is a challenge. Inspired by Duff's Device~\cite{Duff}, 
-we devised a construct that we call \emph{Memoization Device} that does just 
+a library is a challenge. Inspired by Duff's Device~\cite{Duff}, 
+we devised a construct that we call \emph{Memoization Device} doing just 
 that in standard \Cpp{}:
 
 \begin{lstlisting}
@@ -163,14 +164,13 @@ new entry with its associated data default initialized (to 0 for \code{size_t}).
 there is no case label 0 in the switch, the default case will be taken, which, in 
 turn, will initiate sequential execution of the interleaved cascading-if 
 statement. Assignments to \code{jump_to} effectively establish association 
-between value $x$ and corresponding predicate, since \code{jump_to} is just a 
+between value $x$ and corresponding predicate, since \code{jump_to} is a 
 reference to \code{jump_targets[x]}. The last assignment records absence of 
-enabled predicates for the value.
+enabled predicates for $x$.
 
 To change the first-fit semantics of the above construct into \emph{sequential 
 all-fit}, we remove the \code{else}-statements and rely on fall-through behavior of the 
-switch. We also make the assignments conditional to make sure only the first one 
-is recorded:
+switch. We make the assignments conditional to make sure only the first is recorded:
 
 \begin{lstlisting}
 if (Pi(x)) { if (jump_to == 0) jump_to = @$i$@; case @$i$@: si; }
@@ -188,16 +188,16 @@ switch, which in our experience significantly degrades the performance.
 
 The first-fit semantics is not an inherent property of the memoization device. 
 Assuming that the conditions are either mutually exclusive or imply one another, we 
-can build a decision-tree-based memoization device that will effectively have 
+can build a decision tree based memoization device that will effectively have 
 \emph{most-specific} semantics -- an analog of best-fit semantics in predicate 
 dispatching~\cite{ErnstKC98}.
 
 Imagine that the predicates with the numbers $2i$ and $2i+1$ are mutually exclusive and 
 each imply the value of the predicate with number $i$ i.e.
 $\forall i\forall x\in\bigcap_j\mathsf{Domain}(P_j).P_{2i+1}(x)\rightarrow P_i(x)\wedge P_{2i}(x)\rightarrow P_i(x)\wedge\neg(P_{2i+1}(x)\wedge P_{2i}(x))$ holds. 
-An example of predicates that satisfy this condition are class membership tests 
-where the truth of testing membership in a derived class implies the truth of 
-testing membership in its base class. 
+An example of such predicates are class membership tests where the truth of 
+testing membership in a derived class implies the truth of testing membership in 
+its base class.
 
 The following decision-tree based memoization device will execute the statement 
 $s_i$ associated with the \emph{most-specific} predicate $P_i$ (i.e. the 
@@ -224,8 +224,8 @@ default:
 \end{lstlisting}
 
 \noindent
-Our library solution prefers the simpler cascading-if approach only because the necessary 
-structure of the code can be laid out directly with macros. A compiler solution 
+Our library solution prefers the simpler cascading-if approach only because the 
+necessary code structure can be laid out with macros. A compiler solution 
 will use the decision-tree approach whenever possible to lower the cost of the 
 first match from linear in case's number to logarithmic. % as seen in Figure\ref{fig:DCastVis1}.
 
@@ -246,11 +246,10 @@ outcome of the predicates. The map can then associate the equivalence class of a
 value with a target instead of associating the value with it. 
 
 In application to type switching, the idea is to use the memoization device to 
-learn the outcomes of type inclusion tests (with \code{dynamic_cast} used as a predicate), 
-thus avoiding calls to it on subsequent runs. It is easy to see that objects can 
-be grouped into equivalence classes based on their most-derived type without 
-affecting the results of predicates -- the outcome of each type inclusion test will be the 
-same on all the objects from the same equivalence class. We can use the 
+learn the outcomes of type inclusion tests (with \code{dynamic_cast} used as a 
+predicate). The objects can be grouped into equivalence classes based on their 
+most-derived type -- the outcome of each type inclusion test will be the same on 
+all the objects of the same dynamic type. We can use the  
 address of class' \code{type_info} object obtained in constant time with 
 \code{typeid()} operator as a unique identifier of each most-derived type. 
 Presence of multiple \code{type_info} objects for the same class, as is often 
@@ -262,9 +261,9 @@ More often than not, however, we will be interested in obtaining a reference to
 the target type of the subject and we saw in \textsection\ref{sec:specifics} 
 that the cast between the source and target subobjects depends on 
 the position of the source subobject in the most-derived type's subobject graph. 
-Ideally, we would like to have different equivalence classes per different 
-subobjects, but there seems to be no easy way of identifying them given just an 
-object descriptor.
+We thus would like to have different equivalence classes per different 
+subobjects. 
+%, but there seems to be no easy way of identifying them given just an object descriptor.
 
 \subsection{Virtual Table Pointers}
 \label{sec:vtp}
@@ -287,12 +286,12 @@ of the corresponding subobject graphs from Figures \ref{fig:inheritance}(2a) and
   \label{fig:objlayout}
 \end{figure}
 
-Due to extensibility of classes, the layout decisions for classes have to be 
+Due to extensibility of classes, the layout decisions for classes must be 
 made independently of their derived classes -- a property of the \Cpp{} object 
 model that we will refer to as \emph{layout independence}. In turn, the layout of derived   
 classes must conform to the layout of its base classes relatively to the offset 
-of the base class within derived. For example, the layout of \code{A} within 
-\code{C} is exactly the same as the layout of \code{A} in \code{B} and is simply 
+of the base class within derived. For example, the layout of \code{A} in 
+\code{C} is exactly the same as the layout of \code{A} in \code{B} and is simply
 the layout of \code{A}. Base classes inherited virtually do not contribute to 
 the fixed layout because they are looked up indirectly at run-time, however, 
 they are not exempt from the layout independence, since their lookup rules are 
@@ -310,7 +309,7 @@ pointing to only certain subobjects in it. These positions are marked in the
 picture with vertical arrows decorated with the set of pointer types whose 
 values may point into that position. Run-time conversions between such pointers 
 represent casts between subobjects of the same most-derived type and may require 
-adjustments to this-pointer (shown with horizontal dashed arrows) to maintain 
+adjustments to this-pointer (shown with dashed arrows) to maintain 
 type safety.
 
 A class that declares or inherits a virtual function is called a 
@@ -500,7 +499,7 @@ $\sigma_2$ is the \emph{target subobject} of it. The type $C$ is the
 most-derived type of the value being casted. The \Cpp{} semantics states more 
 requirements to the implementation of $\delta$: e.g. 
 $\delta(\sigma_\bot) = \sigma_\bot$ etc. but their precise modeling is out of 
-the scope of this discussion. We would only like to point out here that since 
+scope of this discussion. We would only like to point out here that since 
 the result of the cast does not depend on the actual value and only on the 
 source subobject and the target type, we can memoize the outcome of a cast on 
 one instance in order to apply its results to another.
@@ -604,7 +603,7 @@ mention a few fields that are important for the reasoning~\cite[\textsection 2.5
 \item \code{vbase(a.vtbl)}: \emph{Virtual Base (vbase) offsets} are used to access 
       the virtual bases of an object. Such an entry is required for each virtual 
       base class. None is shown in our example in Figure~\ref{fig:vtbl}(1) 
-      since it discussed repeated inheritance, but they will occupy further 
+      since it discusses repeated inheritance, but they will occupy further 
       entries to the left of the vtbl-pointer, when present.
 \end{itemize}
 
@@ -661,8 +660,7 @@ Note also that we require both static types to be the same. Dropping this
 requirement and saying that equality of vtbl-pointers also implies equality of 
 the static types is not true in general because a derived class can share the 
 vtbl-pointer with its primary base class. The theorem can be reformulated, 
-however, stating that one subobject will necessarily have to be contained inside 
-the other, but that would require bringing in the formalism for subobject 
+however, stating that one subobject will necessarily have to containe the other, but that would require bringing in the formalism for subobject 
 containment~\cite{WNST06}. The current formulation is sufficient for our 
 purposes.
 
@@ -719,20 +717,20 @@ for three distinct purposes~\cite[\textsection 2.9.1]{C++ABI}:
 
 \noindent
 and if any of these facilities are used in a program that was compiled with 
-disabled RTTI, the compiler will emit an error or at least a warning. Some 
+disabled RTTI, the compiler shall emit a warning. Some 
 compilers (e.g. Visual \Cpp{}) additionally let a library check presence of RTTI 
 through a predefined macro, thus letting it report an error if its dependence on 
-RTTI cannot be satisfied. Since our solution relies on \code{dynamic_cast} to 
-perform casts at run-time, according to the third requirement we implicitly rely on the presence of RTTI and thus 
+RTTI cannot be satisfied. Since our solution depends on \code{dynamic_cast}% to perform casts at run-time
+, according to the third requirement we implicitly rely on the presence of RTTI and thus 
 fall into the setting that guarantees the preconditions of Theorem~\ref{thm:vtbl}.
-Since all the objects that will be coming through a particular type switch will 
-have the same static type, the theorem guarantees that different vtbl-pointers 
+Besides, all the objects that will be coming through a particular type switch will 
+have the same static type, and thus the theorem guarantees that different vtbl-pointers 
 will correspond to different subobjects. The idea is thus to group them 
 accordingly to the value of their vtbl-pointer and associate both jump target 
 and the required offset through the memoization device:
 
 \begin{lstlisting}
-typedef pair<ptrdiff_t,size_t> target_info;
+typedef pair<ptrdiff_t,size_t> target_info; //(offs,targ)
 static unordered_map<intptr_t, target_info> jump_targets;
       auto*  sptr = &x; // name to access subject
 const void*  tptr; 
@@ -800,7 +798,7 @@ the line containing \code{si;} (excluding \code{si;} itself, which comes from
 source) and the second part (i.e. \} here) moved in front of the first one. The 
 macro thus closes the scope of the previous case-clause, before starting the new 
 one. \code{Case}'s expansion only relies on names introduced by \code{Match(x)}, 
-its argument \code{Ti} and a constant $i$, which can be obtained from 
+its argument \code{Ti} and a constant $i$, which can be generated from 
 \code{__LINE__} or better \code{__COUNTER__} macro when the later one is 
 supported by the compiler. The \code{EndMatch} macro simply closes the scopes 
 (i.e. \}\} here). We refer the reader to consult the library source code for 
@@ -824,7 +822,7 @@ Moreover, since many derived classes do not introduce new virtual functions,
 the size of their virtual tables remains the same. When allocated sequentially 
 in memory, we can expect a certain number of lowest bits in the vtbl-pointers 
 pointing to them to be the same.
-These assumptions, supported by actual observations, has made virtual table 
+These assumptions, supported by actual observations, made virtual table 
 pointers of classes related by inheritance ideally suitable for hashing -- the 
 values obtained by throwing away the common bits on the right were compactly 
 distributed in small disjoint ranges (\textsection\ref{sec:hierarchies}). We use 
@@ -835,7 +833,7 @@ Let $\Xi$ be the domain of integral representations of pointers. Given a cache
 with $2^k$ entries, we use a family of hash functions $H_{kl} : \Xi \rightarrow [0..2^k-1]$ 
 defined as $H_{kl}(v)=v/2^l \mod 2^k$ to index the cache, where $l \in [0..32]$ 
 (assuming 32 bit addresses) is a parameter modeling the number of common bits on 
-the right. Division and modulo operations are implemented with bit operations since 
+the right. Division and modulo are implemented with bit operations since 
 denominator in each case is a power of 2, which in turn explains the choice of 
 the cache size.
 
@@ -900,16 +898,15 @@ p_{kl}(V)=\sum\limits_{j=0}^{2^k-1}[|V^j_{kl}| \neq 0]\frac{|V^j_{kl}|-1}{n}
 
 \noindent
 We use the Iverson bracket $[\pi]$ here to refer to the outcome of a predicate $\pi$ as numbers $0$ or $1$.
-The value $|V^j_{kl}|$ represents the number of vtbl-pointers $v_i$ from a given 
-set $V$ that are mapped to the same location $j$ in cache with $H_{kl}^V$. Only 
+The value $|V^j_{kl}|$ represents the number of vtbl-pointers $v_i \in V$ that are mapped to the same location $j$ in cache with $H_{kl}^V$. Only 
 one such vtbl-pointer will actually be present in that cache location at any given 
 time, which is why the value $|V^j_{kl}|-1$ represents the number of ``extra'' 
 pointers mapped into the entry $j$ on which a collision will happen. The overall 
 probability of conflict thus only depends on the total number of these ``extra'' 
 or conflicting vtbl-pointers. The $H_{kl}^V$ obtained by minimization of 
-probability of conflict under uniform distribution is thus the same as our 
-original $H_{kl}^V$ that was minimizing the number of conflicts. An important 
-observation here is that since the exact location of these ``extra'' 
+probability of conflict under uniform distribution of $v_i$ in $V$ is thus the 
+same as original $H_{kl}^V$ that was minimizing the number of conflicts. An 
+important observation here is that since the exact location of these ``extra'' 
 vtbl-pointers is not important and only the total number $m$ is, the probability 
 of conflict under uniform distribution of $v_i$ in $V$ is always going to be of 
 discrete form $\frac{m}{n}$, where $0 \le m < n$.
