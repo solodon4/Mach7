@@ -59,7 +59,7 @@ Our comparison methodology involves several benchmarks representing various
 uses of objects inspected with either visitors or type switching.
 
 The \emph{repetitive} benchmark (REP) performs calls on different objects of the 
-same most-derived type. This scenario happens in object-oriented setting when a 
+same dynamic type. This scenario happens in object-oriented setting when a 
 group of polymorphic objects is created and passed around (e.g. numerous 
 particles of a given kind in a particle simulation system). We include it 
 because double dispatch becomes twice faster (20 vs. 53 cycles) in this 
@@ -283,7 +283,7 @@ from the Tag encoding only semantically.
 %\end{itemize}
 
 %\noindent
-We used optimizing OCaml compiler \texttt{ocamlopt.opt} version 3.11.0 working 
+We used the optimizing OCaml compiler \texttt{ocamlopt.opt} version 3.11.0 working 
 under the Visual \Cpp{} toolset as well as the Glasgow Haskell Compiler version 
 7.0.3 (with -O switch) working under the MinGW toolset. The \Cpp{} applications 
 were compiled with Visual \Cpp{} as well and all the tests were  
@@ -488,7 +488,7 @@ are particularly suitable for such a hash function.
 \label{sec:qualcmp}
 
 For this experiment, we reimplemented a visitor based \Cpp{} pretty printer for 
-Pivot\cite{Pivot09} using \emph{Mach7}. Pivot's class hierarchy 
+Pivot\cite{Pivot09} using \emph{Mach7}. The Pivot's class hierarchy 
 consists of 154 node kinds representing various entities in the \Cpp{} program. The 
 original code had 8 visitor classes each handling 5, 7, 8, 10, 15, 17, 30 and 63 
 cases, which we turned into 8 match statements with corresponding numbers of 
@@ -506,10 +506,10 @@ of the application or parsing of the source file) and observed that on small
 files (e.g. those from C run-time library and few small \Cpp{} files) 
 visitors-based implementation was faster because the total number of nodes in 
 AST and thus calls did not justify our set-up calls. In particular, 
-visitor-based implementation of pretty printer was faster on files of 44--588  
+visitor-based implementation of the pretty printer was faster on files of 44--588  
 lines of code, with average 136 lines per those inputs, where visitors win. On 
 these input files, visitors are faster by 1.17\%--21.42\% with an average speed-up of 
-8.75\%. Open type switch based implementation of pretty printer was faster on 
+8.75\%. Open type switch based implementation of the pretty printer was faster on 
 files of 144--9851 lines of code, with average 3497 lines per those input files, 
 where open type switch wins. On these inputs, open type switch is faster by 0.18\% -- 32.99\% 
 with an average speed-up of 5.53\%.
@@ -533,8 +533,8 @@ that match statement, and the number of case clauses $c$ the match statement had
 corresponding match statement had to be executed sequentially (instead of a 
 direct jump).
 
-The solid part of each bar corresponds to the memory used by cache, while the 
-dashed part -- to the memory used by the hash table. The ratio of the lighter
+The lower part of each bar (with respect to dividing line) corresponds to the memory used by cache, while the 
+upper part -- to the memory used by the hash table. The ratio of the darker
 section of each part to the entire part indicates the load factors 
 of cache and hash-table respectively. The black box additionally indicates the 
 proportion of cache entries that are allocated for only one vtbl-pointer and 

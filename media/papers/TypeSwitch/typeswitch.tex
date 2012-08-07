@@ -1,4 +1,4 @@
-\documentclass[preprint,10pt]{sigplanconf}
+\documentclass[10pt]{sigplanconf}
 %\documentclass{sigplanconf}
 
 \usepackage{amssymb}
@@ -120,8 +120,9 @@ showstringspaces=false,
 
 %% grammar commands
 \newcommand{\Rule}[1]{{\rmfamily\itshape{#1}}}
-\newcommand{\Alt}{\ensuremath{|}}
-\newcommand{\is}{$::=$}
+\newcommand{\Alt}{\ensuremath{\mid}}
+\newcommand{\SynCat}[1]{\ensuremath{\mathit{#1}}}
+\newcommand{\is}{\ensuremath{::=}}
 \newcommand{\subtype}{\ensuremath{\texttt{\raisebox{-0.1ex}{<}\raisebox{0.05ex}{:}}}}
 \newcommand{\subtypeD}{\ensuremath{<:_d}}
 \newcommand{\lazyevals}{\Downarrow}
@@ -129,6 +130,7 @@ showstringspaces=false,
 \newcommand{\evalspp}{\Rightarrow^+}
 \newcommand{\DynCast}[2]{\ensuremath{\mathsf{dyn\_cast}\langle{#1}\rangle({#2})}}
 \newcommand{\nullptr}{\ensuremath{\bot}}
+\newcommand{\of}[1]{\left(#1\right)}
 
 \newcommand{\f}[1]{{{{#1\%}}}}
 \newcommand{\s}[1]{{{\bf \underline{#1\%}}}}
@@ -163,9 +165,9 @@ showstringspaces=false,
 
 \begin{document}
 
-%\conferenceinfo{PLDI 2012}{Beijing, China} 
-%\copyrightyear{2012} 
-%\copyrightdata{[to be supplied]} 
+\conferenceinfo{OOPSLA'12,} {October 19--26, 2012, Tucson, Arizona, USA.}
+\CopyrightYear{2012}
+\copyrightdata{978-1-4503-1561-6/12/10}
 
 \titlebanner{Draft for OOPSLA 2012} % These are ignored unless
 \preprintfooter{Y.Solodkyy, G.Dos Reis, B.Stroustrup: Open and Efficient Type Switch for \Cpp{}}   % 'preprint' option specified.
@@ -208,15 +210,14 @@ data types. The technique is general and copes well with \Cpp{} multiple
 inheritance.
  
 To simplify experimentation and gain realistic performance using production-quality
-compilers and tool chains, we implement our type switch construct as an ISO \Cpp{}11 
+compilers and tool chains, we implement a type switch construct as an ISO \Cpp{}11 
 library, called \emph{Mach7}\footnote{The library is available at http://parasol.tamu.edu/mach7/}. 
-Our library-only implementation provides concise notation and
+This library-only implementation provides concise notation and
 outperforms the visitor design pattern, commonly used for case analysis on types 
-in object-oriented programming. It also comes close to equivalent code in 
-functional languages, such as OCaml and Haskell, while allowing for extensibility 
-of types. The type-switching code is easier to use and is more expressive  
+in object-oriented programming. For closed sets of types, its performance roughly equals equivalent code in 
+functional languages, such as OCaml and Haskell. The type-switching code is easier to use and is more expressive  
 than hand-coded visitors are. The library is non-intrusive and circumvents most of
-extensibility restrictions typical of the visitor design pattern. 
+the extensibility restrictions typical of the visitor design pattern. 
 It was motivated by applications involving large, typed, abstract
 syntax trees. 
 
@@ -239,8 +240,8 @@ syntax trees.
 %typed abstract syntax trees.
 \end{abstract}
 
-\category{D}{1}{5}
-\category{D}{3}{3}
+\category{D.1.5}{Programming techniques}{Object-oriented Programming}
+\category{D.3.3}{Programming Languages}{Language Constructs and Features} 
 
 \terms
 Languages, Design
@@ -260,14 +261,15 @@ Type Switch, Typecase, Visitor Design Pattern, Memoization, \Cpp{}
 
 \acks
 
-We would like to thank Xavier Leroy and Luc Maranget for valuable feedback and 
-suggestions for improvements on the initial idea, Gregory Berkolaiko and 
-Suhasini Subba Rao for ideas related to minimization of conflicts, Jaakko 
-J\"arvi for assistance in comparison to other languages, Peter Pirkelbauer, 
-Andrew Sutton and Abe Skolnik for useful discussions that helped shaping this 
-work. We also benefitted greatly from insightful comments by anonymous 
+We would like to thank Xavier Leroy and Luc Maranget for valuable feedback, and 
+suggestions for improvements on the initial idea; Gregory Berkolaiko and 
+Suhasini Subba Rao for ideas related to minimization of conflicts; Jaakko 
+J\"arvi for assistance in comparison to other languages; and, Peter Pirkelbauer, 
+Andrew Sutton, and Abe Skolnik for useful discussions that helped shape this 
+work. We also benefitted greatly from the insightful comments by our anonymous 
 reviewers. Finally, we would like to thank Karel Driesen for letting us use his 
-class hierarchies benchmark for this work.
+class hierarchies benchmark for this work. This work was partially 
+supported by NSF grants CCF-0702765, CCF-1043084, and CCF-1150055.
 
 \bibliographystyle{abbrvnat}
 \bibliography{mlpatmat}

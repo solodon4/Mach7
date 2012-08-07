@@ -11,7 +11,7 @@ slight semantic difference can be easily implemented in terms of the pointer one
 The \code{dynamic_cast} operator in \Cpp{} involves two arguments: a value argument 
 representing an object of a known static type as well as a type argument 
 denoting the runtime type we are querying. Its behavior is twofold: on one hand 
-it should be able to determine when the object's most-derived type is not a 
+it should be able to determine when the object's dynamic type is not a 
 subtype of the queried type (or when the cast is ambiguous), while on the other 
 it should be able to produce an offset by which to adjust the value argument when it is.
 
@@ -39,7 +39,7 @@ different offsets associated with the same pair of source and target types
 depending on which subobject the cast is performed from. According to 
 corollary~\ref{crl:vtbl}, however, it is a function of target type and the value 
 of the vtbl-pointer stored in the object, because the vtbl-pointer uniquely 
-determines the subobject within the most-derived type. Our memoization of the 
+determines the subobject within the dynamic type. Our memoization of the 
 results of \code{dynamic_cast} should thus be specific to a vtbl-pointer and the 
 target type. 
 
