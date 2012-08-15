@@ -1,0 +1,183 @@
+From:	Matthew B Dwyer <oopsla@splashcon.org>
+Sent:	Wednesday, July 04, 2012 3:35 AM
+To:	yuriys@cse.tamu.edu; gdr@cse.tamu.edu; bs@cse.tamu.edu
+Cc:	oopsla@splashcon.org; oopsla2012-papers-webadmin@borbala.com
+Subject:	SPLASH 2012 OOPSLA Paper Notification [213]
+
+Dear Yuriy, Gabriel and Bjarne,
+
+I am pleased to inform you that your paper, titled
+
+"Open and Efficient Type Switch for C++"
+
+has been accepted for presentation in the conference program the 27th ACM SIGPLAN Conference on Object-
+Oriented Programming, Systems, Languages and Applications - which is part of SPLASH 2012.
+Papers were subjected to a rigorous reviewing process.
+Each paper was reviewed by at least three program committee members and only 25% of the record 228 
+submissions were accepted.
+
+Attached please find the reviews of your paper. Please carefully take into account the enclosed comments by 
+the reviewers when preparing the camera-ready version. It is incumbent upon you to do so.
+
+Papers are limited to 20 pages and must comply with SIGPLAN conference proceeding's formatting standards; 
+papers that do not meet these guidelines will not appear in the proceedings. In a week, you will be contacted 
+with specific details for preparing the camera-ready copy of your manuscript - the deadline for camera-ready is 
+August 5, 2012.
+
+At least one of the authors of your paper must attend OOPSLA to present the paper. We hope, of course, that 
+all authors of accepted papers will attend as we believe that both the research track of OOPSLA and the other 
+tracks of SPLASH will provide a strong and varied body of technical information for participants.
+I look forward to seeing you in Tucson, Arizona in October.
+
+Congratulations on having your paper accepted.
+
+Sincerely,
+
+Matthew B. Dwyer
+OOPSLA 2012 Program Chair
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=
+
+First reviewer's review:
+
+          >>> Summary of the submission <<<
+
+This paper presents a technique for implementing type switching in C++. The implementation goals were to be 
+open, allowing extenstions and dynamic linking, yet as efficient. The technique is described with elaborate 
+experimental evaluations
+
+          >>> Evaluation <<<
+
+This paper is well written, describes a technique that is effective and meets the stated goals, and is very well 
+evaluated.  I hope to see it appear at OOPSLA.  I enjoyed the extensive background as it also acts as a survey / 
+tutorial on work in the related area.
+
+Despite how well written the paper is overall, a few simple things remain quite unclear. One is exactly how this 
+work is implemented as a library, and exactly what code is written by the programmer. Could you please 
+expand on this in the author response, and also make this much more clear in section 3.3?
+
+I feel you should have also included numbers on Virtual C++ with profiling disabled, for information purposes. 
+Can this be done in the final paper?
+
+The work is most relevant for statically compiled languages with multiple inheretence. It would be nice to see a 
+discussion on how dynamic compilation could have made things simpler (the runtime could optimize 
+dynamically) as well as how Java's single inheretence + interfaces change things.
+
+Figure 6:  Should the third column be x86-64, not x86-32?
+
+Figure 2: The lines cannot be differentiated when printed.
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*
+
+Second reviewer's review:
+
+          >>> Summary of the submission <<<
+
+This paper proposes a library to do open and efficient type switching for C++.
+The paper's motivating example is analysis of expression languages. Such an analysis should be open, i.e., it 
+should be possible to add operators later on.
+The traditional approach includes a visitor design pattern, which implicitly closes the type of elements switched 
+on in its 'visit' methods. The paper first provides an overview the problem, addressing type switches, the 
+expression problem, the need for an open type switch, and C++ specifics mostly related to multiple inheritance. 
+It particularly investigates efficiency of type inclusion tests.
+
+The paper then proceeds to discuss the type switch solution proposed. To explore the design space, a tag-
+based 'non-solution', as well as a naive open solution is discussed. The actual solution adopted epxloits 
+memoization.
+Furthermore, it leverages virtual table pointers, and the availability of Run-Time Type Information (RTTI) in 
+order to do runtime casting.
+
+An evaluation is presented involving several experiments, addressing the performance against the traditional 
+visitor pattern, a comparison to Haskell and OCaml, the effect of the proposed caching in real-world class 
+hierarchies, and the usability of the library by migrating a visitor-based application to a pattern-based one. The 
+findings include that the library outperforms hand-crafted visitor-based approaches, and is easier to use.
+
+          >>> Evaluation <<<
+
+While not free of typos, this paper is very well written. All concepts are explained both at a high level as well as 
+in great detail. The paper discusses a number of design alternatives, and includes a broad evaluation from 
+different perspectives. An exemplary piece of engineering.
+
+The paper frequently talks about 'our library'. It would be good to give the library a name, and, better still, 
+make it available to the reader.
+
+After section 3, I was expecting a brief section explaining the implementation of the library, the availability, and 
+the way C++ macros and template meta-programming is used to achieve the seamless syntactical integration. 
+The pattern matching for algebraic data types in functional languages also offers syntactic sugar to identify the 
+fields, which your example does via getters.
+This difference may be worth discussing.
+
+The actual proposed solution is very C++ specific, relying on vtable pointer memoization. Are there other 
+settings in which the proposed approach would work or would be useful? Can C#/Java benefit from this? How 
+should future languages address this problem? Or is the a solution to a problem that only exists in an older 
+language like C++? It would be interesting to discuss this explicitly in the paper.
+
+Can the benchmarks used be made available? Is the pivot reimplementation available?
+
+There is no conclusion / answer in 4.3. In general, section 4 could be strengthened by formulating explicit 
+research questions for each of the subsection, as well as the answers that you found. You presently do not 
+explicitly discuss limitations of your experiments, for example relating to the representativeness of your cases, 
+possible errors you could make in your measurements, or repeatability. An explicit discussion of these 
+(external,
+internal) threats to validity would further strengthen the paper.
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*
+
+Third reviewer's review:
+
+          >>> Summary of the submission <<<
+
+This paper presents the implementation and rational of a "Type Switch"
+feature for C++. After an introduction that presents the type switch statement, section 2 gives an overview of 
+typecase/type switch constructs and the expression problem. and then goes on to describes some C++ specific 
+problems. Section 3 then presents the rationale for the typecase design, based on a memoized interleave 
+switch statement. This implementation depends on uniqueness conditions for vtbl pointers, and (nearly) 
+optimal hasing, and the balance of section
+3 presents these concerns in detail. Section 4 evaluates the implementation, section 5 revisits related work and 
+a short section 6 concludes.
+
+          >>> Evaluation <<<
+
+C++ was one of the first "multiparadigm" languages: in retrospect it
+may seem anomalous that C++ has lacked a typecase or typeswitch statement for so long. This paper is 
+primarily about the implementation of such a feature, rather than its design or programmer-visible syntax. For 
+C++ it is clearly important that the typeswitch implementation performs at least as fast as alternative designs 
+(e.g. the visitor pattern) --- it is to the authors credit that they have produced such an implementation without 
+modifying the compiler. 
+
+I have a number of issues with the paper, however. These problems are more related to the presentation, and 
+in part to the methodology, rather than the underlying design and implementation, although they do make the 
+paper harder to follow.
+
+* The paper often talks about a typeswitch "library" but that library  isn't presented or described. How do you 
+get from the syntax on page
+ 1 to the code on page 8? What are the library definitions, how does  it work? is it available? in use? Are you 
+planning to do a proper  language extension (end of p2) or not - why or why not?
+
+* why are there multiple related work sections 2.5 and 5
+
+* the interleaved switch-and-if needs to be better explained at the  top of page 8
+
+* the progression of ideas through section 3 was hard to follow. It's  not clear why what you're talking about is 
+important, how much is  accidental. So the paper swings between hardcore C hackism  (interleaving), hardcore 
+mathematical analyses of optimal hashing,  and sometimes both simultaneously (e.g. formal theorems about 
+C++  subobject vtbl pointer uniqueness). What are the key points in the  paper? What are accidental features of 
+your implementation?
+
+* The evaluation is weakly described - e.g. figure 7 is just "averaged  over 101 measurements". Where are the 
+number of runs, warm-ups (if  any), variance / error bars? The "Kind" encoding is described in  passing in just 
+one sentence. 
+
+Finally, although the paper is mostly understandable, the English does degenerate through the paper: the draft 
+needs to be proofread by an experienced writer of academic English. All these issues can be resolved in 
+another draft, but does raise the question for the programme committee that this draft may be too premature 
+for publication in this OOPSLA.
+
+=========
+I thank the authors for the response, and trust that they will clarify the paper as described in the reviews.
+
+To encourage accountability, I'm signing my reviews in 2012. For the record, I am James Noble, 
+kjx@ecs.vuw.ac.nz.
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*
+

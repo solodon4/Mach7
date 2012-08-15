@@ -497,7 +497,7 @@ converted visit methods into respective case-clauses. In several cases we had to
 manually reorder case-clauses to avoid redundancy as visit-methods for base classes 
 were typically coming before the same for derived, while for type switching we 
 needed them to come after due to first-fit semantics. Redundancy checking 
-support provided by \emph{Mach7} was invaluable in finding out all such cases.
+support provided by \emph{Mach7} was invaluable in finding all such cases.
 
 Both pretty printers were executed on a set of header files from the \Cpp{} 
 standard library and the produced output of both program was byte-to-byte the same. 

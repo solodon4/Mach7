@@ -24,10 +24,9 @@ we map an arbitrary number of receivers to a fixed number of jump
 targets. This lets us generate code at compile time that incorporates both the 
 initial and memoized execution.
 
-\emph{Extensible Visitors with Default Cases}~\cite[\textsection 
-4.2]{Zenger:2001} presents a solution to the extensibility problem of visitors. 
-However, the visitation interface 
-hierarchy can easily be grown linearly and independent extensions by different  
+\emph{Extensible Visitors with Defaults}~\cite[\textsection 4.2]{Zenger:2001} 
+offer a solution to the extensibility problem of visitors. The visitation interface 
+hierarchy can easily be grown linearly, but independent extensions by different  
 programmers require manual coordination. In addition to the double dispatch, the 
 solution incurs two additional virtual calls and a dynamic cast for each 
 level of visitor extension. The solution is simpler with virtual inheritance, 

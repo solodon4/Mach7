@@ -48,8 +48,9 @@ showstringspaces=false,
   moredelim=**[is][\color{white}]{~}{~},
   morekeywords={concept,decltype,noexcept,nullptr,requires},
   literate={[<]}{{\textless}}1      {[>]}{{\textgreater}}1 %
+           {*}{{$*$}}1 % Without this, star (*) is rendered in Type 3 font
            {<}{{$\langle$}}1        {>}{{$\rangle$}}1 %
-           {<=}{{$\leq$}}1          {>=}{{$\geq$}}1          
+           {<=}{{$\leq$}}1          {>=}{{$\geq$}}1 %
            {==}{{$==$}}2            {!=}{{$\neq$}}1 %
            {=>}{{$\Rightarrow\;$}}1 {->}{{$\rightarrow{}$}}1 %
            {<:}{{$\subtype{}\ $}}1  {<-}{{$\leftarrow$}}1 %
