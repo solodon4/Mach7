@@ -3,10 +3,10 @@
 ///
 /// Classes and macros used to define and work with bindings.
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -60,15 +60,15 @@ struct target_of<view<T,L>>
 #if !defined(CM)
     /// Macro to define member's position within decomposition of a given data type
     /// Example: CM(0,MyClass::member) or CM(1,external_func)
-    /// \note Use this macro only inside specializations of @bindings
+    /// \note Use this macro only inside specializations of #bindings
     /// \note We use variadic macro parameter here in order to be able to handle 
     ///       templates, which might have commas, otherwise just a second argument
     ///       would be sufficient.
-    /// \note @unary is used here as an identity to disambiguate the necessary
+    /// \note #unary is used here as an identity to disambiguate the necessary
     ///       [member-]function when multiple exist. For example: complex<T> has
     ///       two member functions imag() - one with no arugment and one with one
     ///       argument. We are only interested with the one without argument and
-    ///       putting @unary here around taking the address of it saves the user
+    ///       putting #unary here around taking the address of it saves the user
     ///       from having to disambiguate explicitly.
     #define CM(Index,...)                                           \
         static inline decltype(unary(&__VA_ARGS__)) member##Index() noexcept \
@@ -83,7 +83,7 @@ struct target_of<view<T,L>>
     /// Macro to define a kind selector - a member of the common base class that 
     /// carries a distinct integral value that uniquely identifies the derived 
     /// type.  Used in the decomposition of the base class.
-    /// \note Use this macro only inside specializations of @bindings
+    /// \note Use this macro only inside specializations of #bindings
     /// \note We use variadic macro parameter here in order to be able to handle 
     ///       templates, which might have commas, otherwise just a single argument
     ///       would be sufficient.
@@ -105,7 +105,7 @@ struct target_of<view<T,L>>
     ///        the least derived class for which tag values given in second 
     ///        argument are unique, which is also the class whose bindings define 
     ///        the KS macro.
-    /// \note Use this macro only inside specializations of @bindings
+    /// \note Use this macro only inside specializations of #bindings
     /// \note We use variadic macro parameter here in order to be able to handle 
     ///       templates, which might have commas, otherwise just a single argument
     ///       would be sufficient.
@@ -119,7 +119,7 @@ struct target_of<view<T,L>>
     /// The exact values are not important as they are turned into probabilities by
     /// dividing these numbers onto sum of frequencies of all classes, statically
     /// allowable by a given match statement (derived from a source type).
-    /// \note Use this macro only inside specializations of @bindings
+    /// \note Use this macro only inside specializations of #bindings
     /// \note We use variadic macro parameter here in order to be able to handle 
     ///       templates, which might have commas, otherwise just a single argument
     ///       would be sufficient.
@@ -150,7 +150,7 @@ struct target_of<view<T,L>>
     /// Essentially it's a virtual member function (e.g. virtual void raise() const = 0;)
     /// that will be overriden in all subclasses in the following way:
     /// void SubClass::raise() const { throw *this; }
-    /// \note Use this macro only inside specializations of @bindings
+    /// \note Use this macro only inside specializations of #bindings
     /// \note We use variadic macro parameter here in order to be able to handle 
     ///       templates, which might have commas, otherwise just a single argument
     ///       would be sufficient.
@@ -177,7 +177,7 @@ struct bindings { CM(0,identity<type_being_matched>); };
 
 //------------------------------------------------------------------------------
 
-/// Helper function to access the value of the member specified with @KS macro 
+/// Helper function to access the value of the member specified with #KS macro 
 /// on a given object.
 template <typename T>
 inline auto kind_selector(const T* p) -> XTL_RETURN
@@ -185,7 +185,7 @@ inline auto kind_selector(const T* p) -> XTL_RETURN
     apply_member(p, bindings<T>::kind_selector())
 )
 
-/// Helper function to call a function specified with @RS macro on a given object.
+/// Helper function to call a function specified with #RS macro on a given object.
 template <typename T>
 inline auto raise_selector(const T* p) -> XTL_RETURN
 (

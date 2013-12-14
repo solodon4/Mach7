@@ -4,10 +4,10 @@
 /// This file defines the necessary infrastructure for ML-like pattern matching
 /// against trees in C++.
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -99,13 +99,13 @@
 /// FIX: This specialization doesn't actually help/work as expected as get<UID>
 ///      at the time of this instantiation is not yet set<UID>.
 template <typename T, typename UID>
-struct preallocated<vtblmap<T&>,UID>
+struct preallocated<vtblmap<T>,UID>
 {
-    static vtblmap<T&> value;
+    static vtblmap<T> value;
 };
 
 template <typename T, typename UID>
-vtblmap<T&> preallocated<vtblmap<T&>,UID>::value(
+vtblmap<T> preallocated<vtblmap<T>,UID>::value(
     deferred_constant<vtbl_count_t>::get<UID>::value 
         ? deferred_constant<vtbl_count_t>::get<UID>::value 
         : min_expected_size
@@ -132,7 +132,7 @@ get_frequency_ex(intptr_t)
     return 1;
 }
 
-/// We need this extra wrapper to be able to forward declare it from @vtblmap's header
+/// We need this extra wrapper to be able to forward declare it from #vtblmap's header
 template <typename T> inline size_t get_frequency(intptr_t vtbl) { return get_frequency_ex<T>(vtbl); }
 
 //------------------------------------------------------------------------------
@@ -197,6 +197,14 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 /// will trigger compiler to check case clauses for redundancy.
 /// \warning Do not define this macro in actual builds as the generated code 
 ///          will effectively have a switch statement whose body is never evaluated!
+/// In type-checking builds we sprinkle in try to start a try-catch block 
+/// that will trigger redundancy warnings by a compiler. The case clauses will
+/// be wrapped with a catch handler on target type to let the compiler
+/// check case-clauses for redundancy by checking catch-handlers for redundancy.
+/// We need to hide case labels during redundancy checking as those will skip 
+/// variable initialization inside the catch handler. This is what makes the 
+/// underlain switch statement essentially empty as there won't be any case 
+/// labels in it, unless user provided a default.
 #if XTL_REDUNDANCY_CHECKING
   /// During redundancy checking mode all case labels are removed from the 
   /// underlying switch statement, making it effectively empty. Your code will
@@ -209,29 +217,18 @@ template <class T> inline void ignore_unused_warning(T const&) {}
   /// which lets us use or not use {} around case clauses, the try-catch structure
   /// used for redundancy checking does not have this flexibility as catch handlers
   /// should correspond to the try block. To assure generation of proper try-catch 
-  /// structure, the use of {} inside @Match statement should correspond to the 
-  /// @XTL_USE_BRACES library configuration flag.
+  /// structure, the use of {} inside #Match statement should correspond to the 
+  /// #XTL_USE_BRACES library configuration flag.
   XTL_MESSAGE("WARNING: The use of { and } within Match-statement must match XTL_USE_BRACES setting for redundancy checking mode!")
-  /// In type-checking builds we resolve it to try to start a try-catch block 
-  /// that will trigger redundancy warnings by a compiler.
-  #define XTL_REDUNDANCY_TRY       try
   /// Wraps case clause with a catch handler on target type to let the compiler
   /// check case-clauses for redundancy by checking catch-handlers for redundancy.
-  #define XTL_REDUNDANCY_CATCH(C)  catch(C*)
-  /// We need to hide case labels during redundancy checking as those will skip 
-  /// variable initialization inside the catch handler. This is what makes the 
-  /// underlain switch statement essentially empty as there won't be any case 
-  /// labels in it, unless user provided a default.
-  #define XTL_REDUNDANCY_LABEL(lbl)
+  #define XTL_REDUNDANCY_CATCH(C)  catch(C)
 #else
   /// We do not generate try statement in release builds, they were only needed 
   /// for redundancy checking.
   /// FIX: We still need to discuss behavior of our mechanism when exceptions are presents
-  #define XTL_REDUNDANCY_TRY
   /// We do not generate catch handlers either in release builds
   #define XTL_REDUNDANCY_CATCH(C)
-  /// Case labels are now visible again.
-  #define XTL_REDUNDANCY_LABEL(lbl) lbl
 #endif
 
 /// This is a common prefix of every Match statement that ensures the following:
@@ -262,7 +259,8 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 #define XTL_SUBCLAUSE_FIRST           XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(false)) XTL_NON_USE_BRACES_ONLY({)
 #define XTL_SUBCLAUSE_OPEN(...)                                       XTL_STATIC_IF(UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true,   XTL_LIKELY(cons<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
 #define XTL_SUBCLAUSE_CONTINUE(...) } XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(cons<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
-#define XTL_SUBCLAUSE_PATTERN(...)  } XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(filter(__VA_ARGS__)(*matched)))) {
+//#define XTL_SUBCLAUSE_PATTERN(...)} XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(filter(__VA_ARGS__)(*matched)))) {
+#define XTL_SUBCLAUSE_PATTERN(...)                                    XTL_STATIC_IF(UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(filter(__VA_ARGS__)(*matched)))) {
 #define XTL_SUBCLAUSE_CLOSE         }                            XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(is_inside_case_clause) break;)
 #define XTL_SUBCLAUSE_LAST            XTL_NON_USE_BRACES_ONLY(}) XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(is_inside_case_clause) break;)
 
@@ -278,14 +276,37 @@ template <class T> inline void ignore_unused_warning(T const&) {}
         CaseClause(source_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
 #endif
 
+/// Helper metafunction used to disambiguate the use of a type, value or 
+/// declaration as a target of a clause
+template<typename P>              struct target_disambiguator;           ///< Intentionally no definition
+template<typename R, typename A1> struct target_disambiguator<R(A1)>     { typedef A1   type; template<R (&)(A1)>  struct layout { enum { value = default_layout }; }; };
+template<typename R, typename A1> struct target_disambiguator<R(A1&)>    { typedef A1   type; template<R (&)(A1&)> struct layout { enum { value = default_layout }; }; };
+template<>                        struct target_disambiguator<const int> { typedef void type; template<int N>      struct layout { enum { value = N }; };              };
+
+#if XTL_CLAUSE_DECL
+    /// FIX: Current decl_helper trick does not work with abstract base classes
+    #define XTL_DISAMBIGUATE_TARGET(...)                                       \
+            const int decl_helper(__VA_ARGS__);                                \
+            typedef target_disambiguator<decltype(decl_helper)> disambiguator; \
+            typedef disambiguator::type target_type;                           \
+            enum { target_layout = disambiguator::layout<decl_helper>::value };
+#else
+    /// FIX: This version doesn't do any disambiguation at the moment, just assumes a type
+    #define XTL_DISAMBIGUATE_TARGET(...)                                       \
+            typedef __VA_ARGS__ target_type;                                   \
+            enum { target_layout = default_layout };
+#endif
+
 /// This is a common part of most clause implementations, which:
 /// - Introduces named constant into the scope to indicate we are in clause's scope
 /// - Extracts type from C when it is allowed to be a declaration
 #define XTL_CLAUSE_COMMON(C)                                                   \
         enum { is_inside_case_clause = 1 };                                    \
-        XTL_NON_CLAUSE_DECL_ONLY(typedef C target_type);                       \
-        XTL_CLAUSE_DECL_ONLY(extern int decl_helper(C));                       \
-        XTL_CLAUSE_DECL_ONLY(typedef XTL_CPP0X_TYPENAME underlying<XTL_CPP0X_TYPENAME get_first_param<decltype(decl_helper)>::type>::type target_type);
+        XTL_DISAMBIGUATE_TARGET(C)                                       
+
+//        XTL_NON_CLAUSE_DECL_ONLY(typedef C target_type);                       
+//        XTL_CLAUSE_DECL_ONLY(extern int decl_helper(C));                       
+//        XTL_CLAUSE_DECL_ONLY(typedef XTL_CPP0X_TYPENAME underlying<XTL_CPP0X_TYPENAME get_first_param<decltype(decl_helper)>::type>::type target_type);
 
 #if XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM
     #define XTL_GET_TYPES_NUM_ESTIMATE   (deferred_constant<vtbl_count_t>::get<match_uid_type>::value)
@@ -296,7 +317,7 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 #endif
 
 //------------------------------------------------------------------------------
-/// Few general rules to understand behavior of various @Match statements below:
+/// Few general rules to understand behavior of various #Match statements below:
 /// - Each Case, Qua and When clauses should close as many braces as they open
 /// - When-clause should open less braces than Qua and Case to allow sub-clauses
 /// - Case and Qua clauses should open the same amount of braces since they can
@@ -315,20 +336,21 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 /// Macro that starts the switch on pattern
 /// \note case 0: instead of default: will work in the same way because we 
 ///       initialize cache with 0, however through experiments we can see
-///       that having default here is quite a bit faster than having case 0.
+///       that having default here is quite a bit faster than having case 0
+///       because one less branch should be generated
 #define MatchP(s) {                                                            \
         XTL_MATCH_PREAMBULA(s)                                                 \
         enum { __base_counter = XTL_COUNTER };                                 \
         static_assert(std::is_polymorphic<source_type>::value, "Type of subject should be polymorphic when you use MatchP");\
-        XTL_PRELOADABLE_LOCAL_STATIC(vtblmap<type_switch_info&>,__vtbl2lines_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
+        XTL_PRELOADABLE_LOCAL_STATIC(vtblmap<type_switch_info>,__vtbl2lines_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
         register const void* __casted_ptr = 0;                                 \
-        type_switch_info& __switch_info = __vtbl2lines_map.get(subject_ptr);\
-        switch (__switch_info.line)                                            \
+        type_switch_info& __switch_info = __vtbl2lines_map.get(subject_ptr);   \
+        switch (__switch_info.target)                                          \
         {                                                                      \
-            XTL_REDUNDANCY_TRY                                                 \
+            XTL_REDUNDANCY_ONLY(try)                                           \
             {                                                                  \
                 {                                                              \
-                    XTL_REDUNDANCY_LABEL(default:)                             \
+                    XTL_NON_REDUNDANCY_ONLY(default:)                          \
                     XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
@@ -341,16 +363,36 @@ template <class T> inline void ignore_unused_warning(T const&) {}
             __casted_ptr = dynamic_cast<const target_type*>(subject_ptr);      \
             if (XTL_UNLIKELY(__casted_ptr))                                    \
             {                                                                  \
-                if (XTL_LIKELY((__switch_info.line == 0)))                     \
+                if (XTL_LIKELY((__switch_info.target == 0)))                   \
                 {                                                              \
-                    __switch_info.line = target_label;                         \
+                    __switch_info.target = target_label;                       \
                     __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(subject_ptr); \
                 }                                                              \
-            XTL_REDUNDANCY_LABEL(case target_label:)                           \
+            XTL_NON_REDUNDANCY_ONLY(case target_label:)                        \
                 auto matched = adjust_ptr<target_type>(subject_ptr,__switch_info.offset);\
                 XTL_CLAUSE_DECL_ONLY(C(*matched));                             \
                 XTL_UNUSED(matched);                                           \
                 XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
+
+/// Macro that defines the with-clause for the above switch
+#define WithP(...)                                                             \
+        XTL_SUBCLAUSE_CLOSE }}                                                 \
+        XTL_REDUNDANCY_CATCH(underlying<decltype(__VA_ARGS__)>::type::accepted_type)     \
+        {                                                                      \
+            XTL_CLAUSE_COMMON(underlying<decltype(__VA_ARGS__)>::type::accepted_type);   \
+            enum { target_label = XTL_COUNTER-__base_counter };                \
+            __casted_ptr = dynamic_cast<const target_type*>(subject_ptr);      \
+            if (XTL_UNLIKELY(__casted_ptr))                                    \
+            {                                                                  \
+                if (XTL_LIKELY(__switch_info.target == 0))                     \
+                {                                                              \
+                    __switch_info.target = target_label;                       \
+                    __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(subject_ptr); \
+                }                                                              \
+            XTL_NON_REDUNDANCY_ONLY(case target_label:)                        \
+                auto matched = adjust_ptr<target_type>(subject_ptr,__switch_info.offset);\
+                XTL_UNUSED(matched);                                           \
+                XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)
 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
 ///       seems to be impossible to introduce dummy argument inside the Case 
@@ -358,13 +400,12 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 #define CaseP_(C,...)   QuaP(C)                                                                         
 #define CaseP(...)      XTL_APPLY_VARIADIC_MACRO(CaseP_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenP(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__) __casted_ptr = subject_ptr;
-#define PatternP(...)   XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)  __casted_ptr = subject_ptr;
 #define OtherwiseP(...) XTL_CLAUSE_OTHERWISE(CaseP,__VA_ARGS__)
 #define EndMatchP                                                              \
         XTL_SUBCLAUSE_LAST }}                                                  \
         enum { target_label = XTL_COUNTER-__base_counter };                    \
         XTL_SET_TYPES_NUM_ESTIMATE(target_label-1);                            \
-        if (XTL_UNLIKELY((__casted_ptr == 0 && __switch_info.line == 0))) { __switch_info.line = target_label; } \
+        if (XTL_UNLIKELY((__casted_ptr == 0 && __switch_info.target == 0))) { __switch_info.target = target_label; } \
         case target_label: ; }}
 
 //------------------------------------------------------------------------------
@@ -395,7 +436,6 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 #define CaseK_(C,...)   QuaK(C)
 #define CaseK(...)      XTL_APPLY_VARIADIC_MACRO(CaseK_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenK(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
-#define PatternK(...)   XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)
 #define OtherwiseK(...)                                                        \
         } XTL_NON_FALL_THROUGH_ONLY(break;) }                                  \
         default: { XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__)) {
@@ -426,7 +466,6 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 #define CaseU_(L,...)   QuaU(L)
 #define CaseU(...)      XTL_APPLY_VARIADIC_MACRO(CaseU_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenU(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
-#define PatternU(...)   XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)
 #define OtherwiseU(...)                                                        \
         } XTL_NON_FALL_THROUGH_ONLY(break;) }                                  \
         default: { XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__)) {
@@ -459,7 +498,6 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 #define CaseE_(C,...)   QuaE(C)
 #define CaseE(...)      XTL_APPLY_VARIADIC_MACRO(CaseE_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenE(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
-#define PatternE(...)   XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)
 #define OtherwiseE(...) XTL_CLAUSE_OTHERWISE(CaseE,__VA_ARGS__)
 #define EndMatchE       XTL_NON_USE_BRACES_ONLY(}) } catch (...) {} }
 
@@ -513,7 +551,6 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 #define CaseF_(C,...)   QuaF(C)
 #define CaseF(...)      XTL_APPLY_VARIADIC_MACRO(CaseF_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenF(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
-#define PatternF(...)   XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)
 #define OtherwiseF(...) XTL_CLAUSE_OTHERWISE(CaseF,__VA_ARGS__)
 #define EndMatchF       XTL_SUBCLAUSE_LAST }}}
 
@@ -530,7 +567,7 @@ template <class T> inline void ignore_unused_warning(T const&) {}
         switch (1)                                                             \
         {                                                                      \
             default:                                                           \
-            XTL_REDUNDANCY_TRY                                                 \
+            XTL_REDUNDANCY_ONLY(try)                                           \
             {{ XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
@@ -539,7 +576,7 @@ template <class T> inline void ignore_unused_warning(T const&) {}
         XTL_REDUNDANCY_CATCH(C)                                                \
         { /* Clause */                                                         \
             XTL_CLAUSE_COMMON(C);                                              \
-            XTL_REDUNDANCY_LABEL(case XTL_COUNTER-__base_counter:)             \
+            XTL_NON_REDUNDANCY_ONLY(case XTL_COUNTER-__base_counter:)          \
             if (auto matched = cons<C>()(subject_ptr))                         \
             { /* Sequential */                                                 \
                 XTL_CLAUSE_DECL_ONLY(C(*matched));                             \
@@ -552,7 +589,6 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 #define CaseS_(C,...)   QuaS(C)
 #define CaseS(...)      XTL_APPLY_VARIADIC_MACRO(CaseS_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenS(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
-#define PatternS(...)   XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)
 #define OtherwiseS(...) XTL_CLAUSE_OTHERWISE(CaseS,__VA_ARGS__)
 #define EndMatchS       XTL_SUBCLAUSE_LAST }}}}
 
@@ -583,7 +619,6 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 #define CaseS_(C,...)   QuaS(C)
 #define CaseS(...)      XTL_APPLY_VARIADIC_MACRO(CaseS_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenS(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
-#define PatternS(...)   XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)
 #define OtherwiseS(...) XTL_CLAUSE_OTHERWISE(CaseS,__VA_ARGS__)
 #define EndMatchS       XTL_SUBCLAUSE_LAST }}} XTL_STATIC_WHILE(false);
 
@@ -597,8 +632,9 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 /// argument separator by the preprocessor. Enclosing such type argument in 
 /// () directly will not work because (Type) is a conversion expression in C
 /// and compiler reports an error when we try to user (Type) instead of a Type.
-/// \example 
+/// \code 
 ///       Case(TypeArg(MyMap<int,string>),x,y,z) ...
+/// \endcode
 /// The solution used here is based on the following discussion:
 /// \see http://stackoverflow.com/questions/4295890/trouble-with-template-parameters-used-in-macros
 #define  TypeArg_(X)  XTL_CPP0X_TYPENAME get_first_param<void X>::type
@@ -608,11 +644,6 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 
 /// Macro that starts generic switch on types capable of figuring out by itself
 /// which of the 3 cases presented above we are dealing with: open, closed or union.
-/// \note This macro cannot be used in a template context! If you need to have 
-///       it inside a template, please use @TMatch and corresponding @TCase and 
-///       @TEndMatch. Unfortunately at the moment we are unaware how to unify 
-///       these 2 macros as types and templates should only be annotated inside
-///       a template context and not outside.
 #define MatchQ(s) {                                                            \
         XTL_MATCH_PREAMBULA(s)                                                 \
         enum { __base_counter = XTL_COUNTER };                                 \
@@ -624,8 +655,8 @@ template <class T> inline void ignore_unused_warning(T const&) {}
         XTL_CONCAT(ReMatch,__LINE__):                                          \
         switch (jump_target)                                                   \
         {                                                                      \
-            XTL_REDUNDANCY_LABEL(default:)                                     \
-            { XTL_REDUNDANCY_TRY {{                                            \
+            XTL_NON_REDUNDANCY_ONLY(default:)                                  \
+            { XTL_REDUNDANCY_ONLY(try){{                                       \
             if (switch_traits::on_default(jump_target,local_data,static_data)) \
                 goto XTL_CONCAT(ReMatch,__LINE__);                             \
             XTL_SUBCLAUSE_FIRST
@@ -643,11 +674,11 @@ template <class T> inline void ignore_unused_warning(T const&) {}
             typedef XTL_CPP0X_TYPENAME switch_traits::                         \
                     XTL_CPP0X_TEMPLATE disambiguate<0>::                       \
                     XTL_CPP0X_TEMPLATE parameter<target_type> target_specific; \
-            enum { target_layout = target_specific::layout, target_label = XTL_COUNTER-__base_counter };  \
+            enum { /*target_layout = target_specific::layout,*/ target_label = XTL_COUNTER-__base_counter };  \
             if (XTL_UNLIKELY(target_specific::main_condition(subject_ptr, local_data)))                   \
             {                                                                                             \
                 switch_traits::on_first_pass(subject_ptr, local_data, target_label);                      \
-            XTL_REDUNDANCY_LABEL(case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value:)\
+            XTL_NON_REDUNDANCY_ONLY(case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value:)\
                 auto matched = target_specific::get_matched(subject_ptr,local_data);                      \
                 XTL_CLAUSE_DECL_ONLY(C(*matched));                             \
                 XTL_UNUSED(matched);                                           \
@@ -666,11 +697,30 @@ template <class T> inline void ignore_unused_warning(T const&) {}
             if (XTL_UNLIKELY(target_specific::main_condition(subject_ptr, local_data)))                   \
             {                                                                                             \
                 switch_traits::on_first_pass(subject_ptr, local_data, target_label);                      \
-            XTL_REDUNDANCY_LABEL(case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value:)\
+            XTL_NON_REDUNDANCY_ONLY(case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value:)\
                 auto matched = target_specific::get_matched(subject_ptr,local_data);                      \
                 XTL_UNUSED(matched);                                           \
                 XTL_SUBCLAUSE_OPEN(__VA_ARGS__) processed = true;
 #endif // XTL_CLAUSE_DECL
+
+/// Macro that defines the case statement for the above switch
+#define WithQ(...)                                                             \
+        XTL_SUBCLAUSE_CLOSE }}                                                 \
+        XTL_REDUNDANCY_CATCH(underlying<decltype(__VA_ARGS__)>::type::accepted_type) \
+        {                                                                      \
+            typedef underlying<decltype(__VA_ARGS__)>::type::accepted_type C;  \
+            typedef XTL_CPP0X_TYPENAME switch_traits::                         \
+                    XTL_CPP0X_TEMPLATE disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::source_type)>:: \
+                    XTL_CPP0X_TEMPLATE parameter<C> target_specific;           \
+            typedef XTL_CPP0X_TYPENAME target_specific::target_type target_type;                          \
+            enum { target_layout = target_specific::layout, target_label = XTL_COUNTER-__base_counter, is_inside_case_clause = 1 };  \
+            if (XTL_UNLIKELY(target_specific::main_condition(subject_ptr, local_data)))                   \
+            {                                                                                             \
+                switch_traits::on_first_pass(subject_ptr, local_data, target_label);                      \
+            XTL_NON_REDUNDANCY_ONLY(case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value:)\
+                auto matched = target_specific::get_matched(subject_ptr,local_data);                      \
+                XTL_UNUSED(matched);                                           \
+                XTL_SUBCLAUSE_PATTERN(__VA_ARGS__) processed = true;
 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
 ///       seems to be impossible to introduce dummy argument inside the Case 
@@ -678,7 +728,6 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 #define CaseQ_(C,...)   QuaQ(C)
 #define CaseQ(...)      XTL_APPLY_VARIADIC_MACRO(CaseQ_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenQ(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__) processed = true;
-#define PatternQ(...)   XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)
 #define OtherwiseQ(...) XTL_CLAUSE_OTHERWISE(CaseQ,__VA_ARGS__)
 #define EndMatchQ       XTL_SUBCLAUSE_LAST }}}                                 \
         enum { target_label = XTL_COUNTER-__base_counter };                    \
@@ -691,7 +740,69 @@ template <class T> inline void ignore_unused_warning(T const&) {}
     #error One of the macros used by the pattern-matching library has already been defined
 #endif
 
+/// The table below lists capabilities of each (sub)clause in each encoding.
+///
+/// ----------+------+------+------+------+------+------+------+
+/// Encoding=>| P    | S0   | S1   | F    | K    | U    | E    |
+/// ----------+------+------+------+------+------+------+------+
+/// Otherwise | A    | A    | A    | A    | A    | A    | A    | Specialized
+///           | A    | A    | A    | A    | A    | A    | A    | Unified
+/// Case      | ADTR | ADTR | ADT  | ADT  | ADT  | A  N | ADT  |
+///           | A TR | A TR | A T  | A TN | A TN | A  N | A T  |    ^
+/// Qua       | PDTR | PDTR | PDT  | PDT  | PDT  | P  N | PDT  | Syntax 
+///           | P TR | P TR | P T  | P TN | P TN | P  N | P T  |
+/// With      | P    | P    | P    |      |      |      | P    |
+///           | P    | P    | P    |      |      |      | P    |
+/// When      | P    | P    | P    | P    | P    | P    | P    |
+///           | P    | P    | P    | P    | P    | P    | P    |
+/// ----------+------+------+------+------+------+------+------+
+///
+/// The (sub)clauses are:
+///
+/// * Qua(T,p1,...,pn) - most general clause that takes target type or a tag 
+///   value as the first argument and generalized patterns as subsequent arguments
+/// * Case(T,v1,...,vn)- auto introduces v1 ... vn as variables of corresponding 
+///   types and forwards the call to Qua
+/// * Otherwise(v1,...,vn) - equivalent to Case-clause with subject type used
+///   as a target type. It is an irrefutable clause and should be last.
+/// * With(p) - takes a single pattern as an argument. With(cons<T>(p1,...,pn))
+///   is essentially the same as Qua(T,p1,...,pn), but With can take other patterns        
+/// * When(p1,...,pn) - this is a subclause. They are executed sequentially on the
+///   matched value of the last clause (or a subject if none).
+///
+/// The encodings are:
+///
+/// * P  - polymorphic encoding combined with type switch          - implements first-fit semantics
+/// * S0 - polymorphic encoding combined with sequential execution - implements first-fit semantics (dummy switch)
+/// * S1 - polymorphic encoding combined with sequential execution - implements first-fit semantics (cascading if)
+/// * F  - tag encoding with    forwarding to base classes         - implements  best-fit semantics
+/// * K  - tag encoding without forwarding to base classes         - implements exact-fit semantics
+/// * U  - tag encoding for discriminated union types              - implements exact-fit semantics
+/// * E  - dispatch based on exception handling mechanism of C++   - implements first-fit semantics
+///
+/// The obvious question is why bother with so many encodings? Once the match 
+/// statement is written, one may wonder to experiment with it whether tag or 
+/// polymorphic encoding would work best for his particular hierarchy and needs.
+/// This was the case for our hierarchy that had both tags and virtual functions,
+/// which is why we made it transparent to support both. Later we added other 
+/// encodings just for the sake of experiment since we were timing them for the
+/// paper and technical report to justify our choices.
+///
+/// The letters indicate:
+///
+/// * A - support of autodeclaration of variables in binding positions
+/// * D - support of declaration syntax in the first parameter
+/// * T - support of type in the first parameter
+/// * N - support of number (tag) in the first parameter
+/// * R - support of redundancy checking
+/// * P - support of generalized patterns
+///
+/// The first  line of each clause indicates feature support for specialized syntax.
+/// The second line of each clause indicates feature support for unified     syntax.
+
 //------------------------------------------------------------------------------
+
+/// FIX: Add syntax that simply generates visitor's code (assuming accept takes the visitor)
 
 /// Now based on user's preference we can set up default syntax to one of the above
 #if   XTL_DEFAULT_SYNTAX == 'P'
@@ -701,7 +812,7 @@ template <class T> inline void ignore_unused_warning(T const&) {}
   #define  Case       CaseP
   #define  Qua        QuaP
   #define  When       WhenP
-  #define  Pattern    PatternP
+  #define  With       WithP
   #define  Otherwise  OtherwiseP
   #define  EndMatch   EndMatchP
 #elif XTL_DEFAULT_SYNTAX == 'K'
@@ -711,7 +822,7 @@ template <class T> inline void ignore_unused_warning(T const&) {}
   #define  Case       CaseK
   #define  Qua        QuaK
   #define  When       WhenK
-  #define  Pattern    PatternK
+  #define  With       WithK
   #define  Otherwise  OtherwiseK
   #define  EndMatch   EndMatchK
 #elif XTL_DEFAULT_SYNTAX == 'U'
@@ -721,7 +832,7 @@ template <class T> inline void ignore_unused_warning(T const&) {}
   #define  Case       CaseU
   #define  Qua        QuaU
   #define  When       WhenU
-  #define  Pattern    PatternU
+  #define  With       WithU
   #define  Otherwise  OtherwiseU
   #define  EndMatch   EndMatchU
 #elif XTL_DEFAULT_SYNTAX == 'E'
@@ -731,7 +842,7 @@ template <class T> inline void ignore_unused_warning(T const&) {}
   #define  Case       CaseE
   #define  Qua        QuaE
   #define  When       WhenE
-  #define  Pattern    PatternE
+  #define  With       WithE
   #define  Otherwise  OtherwiseE
   #define  EndMatch   EndMatchE
 #elif XTL_DEFAULT_SYNTAX == 'F'
@@ -741,7 +852,7 @@ template <class T> inline void ignore_unused_warning(T const&) {}
   #define  Case       CaseF
   #define  Qua        QuaF
   #define  When       WhenF
-  #define  Pattern    PatternF
+  #define  With       WithF
   #define  Otherwise  OtherwiseF
   #define  EndMatch   EndMatchF
 #elif XTL_DEFAULT_SYNTAX == 'S'
@@ -751,7 +862,7 @@ template <class T> inline void ignore_unused_warning(T const&) {}
   #define  Case       CaseS
   #define  Qua        QuaS
   #define  When       WhenS
-  #define  Pattern    PatternS
+  #define  With       WithS
   #define  Otherwise  OtherwiseS
   #define  EndMatch   EndMatchS
 #else
@@ -761,7 +872,7 @@ template <class T> inline void ignore_unused_warning(T const&) {}
   #define  Case       CaseQ
   #define  Qua        QuaQ
   #define  When       WhenQ
-  #define  Pattern    PatternQ
+  #define  With       WithQ
   #define  Otherwise  OtherwiseQ
   #define  EndMatch   EndMatchQ
 #endif

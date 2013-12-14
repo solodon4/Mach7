@@ -3,10 +3,10 @@
 ///
 /// Common definitions for pattern support by our library.
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -17,21 +17,33 @@
 
 //------------------------------------------------------------------------------
 
-/// @is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
+///
+/// \interface Pattern
+///
+/// \brief Concept for all the patterns in the library
+///
+
+/// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
 template <typename T> struct is_pattern_ { enum { value = false }; };
 
-/// @is_pattern is a helper meta-predicate capable of distinguishing all our patterns
+/// #is_pattern is a helper meta-predicate capable of distinguishing all our patterns
 template <typename T> struct is_pattern : is_pattern_<typename underlying<T>::type> {};
 
 //------------------------------------------------------------------------------
 
-/// @is_expression_ is a helper meta-predicate that separates lazily evaluatable expressions we support
+///
+/// \interface LazyExpression
+///
+/// \brief Concept for all the lazy expressions in the library
+///
+
+/// #is_expression_ is a helper meta-predicate that separates lazily evaluatable expressions we support
 template <typename T> struct is_expression_ { enum { value = false }; };
 
-/// @is_expression is a helper meta-predicate that separates lazily evaluatable expressions we support
+/// #is_expression is a helper meta-predicate that separates lazily evaluatable expressions we support
 template <typename T> struct is_expression : is_expression_<typename underlying<T>::type> {};
 
-/// @either_is_expression is a only used to workaround a compiler stack overflow 
+/// #either_is_expression is a only used to workaround a compiler stack overflow 
 /// problem in MSVC when we were overloading operator||(E1&&,E2&&) and had || in
 /// enabling condition for that overload. Now we use either_is_expression there 
 /// instead.

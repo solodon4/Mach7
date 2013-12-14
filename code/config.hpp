@@ -1,5 +1,5 @@
 ///
-/// \file config.hpp
+/// \file
 ///
 /// This file defines various options for configuring the library for use with a 
 /// specific project and its class hierarchies as well as macros that are compiler 
@@ -8,52 +8,106 @@
 /// Here are some of the library configuration options that can be set:
 ///
 /// Options with performance impact:
-/// - Use of multi-threading           \see @XTL_MULTI_THREADING
-/// - Default syntax                   \see @XTL_DEFAULT_SYNTAX
-/// - Use of vtbl frequencies          \see @XTL_USE_VTBL_FREQUENCY
-/// - Use of memoized_cast             \see @XTL_USE_MEMOIZED_CAST
-/// - Whether extractors might throw   \see @XTL_EXTRACTORS_MIGHT_THROW
-/// - Use of static local variables    \see @XTL_PRELOAD_LOCAL_STATIC_VARIABLES
-/// - Use number of case clauses init  \see @XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM
-/// - Certain under-the-hood types     \see @vtbl_count_t
-/// - Certain under-the-hood constants \see @XTL_MIN_LOG_SIZE, @XTL_MAX_LOG_SIZE, @XTL_MAX_LOG_INC, @XTL_LOCAL_CACHE_LOG_SIZE, @XTL_IRRELEVANT_VTBL_BITS
+/// - Use of multi-threading           \see #XTL_MULTI_THREADING
+/// - Default syntax                   \see #XTL_DEFAULT_SYNTAX
+/// - Use of vtbl frequencies          \see #XTL_USE_VTBL_FREQUENCY
+/// - Use of memoized_cast             \see #XTL_USE_MEMOIZED_CAST
+/// - Whether extractors might throw   \see #XTL_EXTRACTORS_MIGHT_THROW
+/// - Use of static local variables    \see #XTL_PRELOAD_LOCAL_STATIC_VARIABLES
+/// - Use number of case clauses init  \see #XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM
+/// - Certain under-the-hood types     \see #vtbl_count_t
+/// - Certain under-the-hood constants \see #XTL_MIN_LOG_SIZE, #XTL_MAX_LOG_SIZE, #XTL_MAX_LOG_INC, #XTL_LOCAL_CACHE_LOG_SIZE, #XTL_IRRELEVANT_VTBL_BITS
 /// Most of the combinations of from this set are built with: make timing
 ///
 /// Options with semantic or convenience impact
-/// - Redundancy checking              \see @XTL_REDUNDANCY_CHECKING
-/// - Fallthrough behavior             \see @XTL_FALL_THROUGH
-/// - Use of { & } around case clauses \see @XTL_USE_BRACES
-/// - Declarations in case clause      \see @XTL_CLAUSE_DECL
+/// - Redundancy checking              \see #XTL_REDUNDANCY_CHECKING
+/// - Fallthrough behavior             \see #XTL_FALL_THROUGH
+/// - Use of { & } around case clauses \see #XTL_USE_BRACES
+/// - Declarations in case clause      \see #XTL_CLAUSE_DECL
 ///
 /// Options for logging and debugging
-/// - Compile-time messages            \see @XTL_MESSAGE_ENABLED
-/// - Trace of performance             \see @XTL_DUMP_PERFORMANCE
+/// - Compile-time messages            \see #XTL_MESSAGE_ENABLED
+/// - Trace of performance             \see #XTL_DUMP_PERFORMANCE
+/// - Trace of memory leaks with lines \see #XTL_LEAKED_NEW_LOCATIONS
 /// Most of the combinations of from this set are built with: make syntax
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
 #pragma once
 
 #if defined(_DEBUG)
-#include <iostream>            // We refer to std::cerr in debug mode
+    #if defined(_MSC_VER)
+        // Enable memory leak tracing in debug builds
+        #define _CRTDBG_MAP_ALLOC
+        #include <stdlib.h>
+        #include <crtdbg.h>
+
+        /// \def XTL_LEAKED_NEW_LOCATIONS
+        /// Tracing locations of leaked new operators should be enabled 
+        /// explicitly since it redefines new with macro and may cause 
+        /// errors in the application using this library, for example, when 
+        /// the user overrides new operator.
+        #if defined(XTL_LEAKED_NEW_LOCATIONS)
+            #ifndef DBG_NEW
+                #define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+                #define new DBG_NEW
+            #endif
+        #endif
+
+        /// We make this class parameterized only because we want subsequent 
+        /// uses of it be generated from this header file. For this we need 
+        /// linker to throw away duplicates of #instances initialization.
+        template <typename F, F& f>
+        struct call_on_last_instance
+        {
+            call_on_last_instance() { ++instances; }
+           ~call_on_last_instance() { if (--instances == 0) f(); }
+            static size_t instances;
+        };
+
+        template <typename F, F& f>
+        size_t call_on_last_instance<F,f>::instances = 0;
+
+        /// \note The following declaration attempts to call _CrtDumpMemoryLeaks 
+        ///       as late as possible, however the order of initialization of 
+        ///       static variables in different translation units is not defined,
+        ///       in which case you may still have false reports of memory leaks
+        ///       on allocations within initializations of global and static 
+        ///       variables that happened before this one. Debug those separately
+        ///       from Visual C++ IDE by breaking on their allocation number:
+        ///       set {,,msvcr100d.dll}_crtBreakAlloc in Watch window to leaked 
+        ///       allocation number.
+        ///
+        /// \note By default, _CrtDumpMemoryLeaks outputs the memory-leak report 
+        ///       to the Debug pane of the Output window. When debugger is not 
+        ///       attached, call the following somewhere to redirect report to std_err.
+        ///       _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+        ///       _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
+        ///
+        /// \see  For more information on Finding Memory Leaks Using the CRT Library, 
+        ///       see http://msdn.microsoft.com/en-us/library/x98tx3cf(v=vs.100).aspx
+        static call_on_last_instance<decltype(_CrtDumpMemoryLeaks),_CrtDumpMemoryLeaks> dummy_to_call_leak_dumping_at_exit;
+    #endif
+
+    #include <iostream>            // We refer to std::cerr in debug mode
 #endif
 
 //------------------------------------------------------------------------------
 
 #if !defined(XTL_DUMP_PERFORMANCE)
     /// Flag enabling showing results of performance tracing
-    #define XTL_DUMP_PERFORMANCE 0
+    #define XTL_DUMP_PERFORMANCE 1
 #endif
 #define XTL_DUMP_PERFORMANCE_ONLY(...)   UCL_PP_IF(UCL_PP_NOT(XTL_DUMP_PERFORMANCE), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 
 #if !defined(XTL_MESSAGE_ENABLED)
-    /// Flag compile-time messages from the library
-    #define XTL_MESSAGE_ENABLED 0
+    /// Flag enabling compile-time messages from the library
+    #define XTL_MESSAGE_ENABLED 1
 #endif
 
 #if !defined(XTL_USE_VTBL_FREQUENCY)
@@ -72,6 +126,8 @@
     ///          will effectively have a switch statement whose body is never evaluated!
     #define XTL_REDUNDANCY_CHECKING 0
 #endif
+#define XTL_REDUNDANCY_ONLY(...)     UCL_PP_IF(UCL_PP_NOT(XTL_REDUNDANCY_CHECKING), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+#define XTL_NON_REDUNDANCY_ONLY(...) UCL_PP_IF(           XTL_REDUNDANCY_CHECKING,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 
 #if !defined(XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM)
     /// When this macro is 1, we use the number of clauses in the Match statements
@@ -111,7 +167,7 @@
     /// When this macro is 1 the fall-through behavior of the underlying switch
     /// statement is enabled. It becomes up to the user to use break statements to 
     /// leave the case clause. Fall through behavior might be needed to implement 
-    /// all-fit semantics of the @Match statement.
+    /// all-fit semantics of the #Match statement.
     /// When this macro is 0 the fall-through behavior is disabled and break 
     /// statements are implicitly inserted at the end of each case-clause, while
     /// sub-clauses are made exclusive with the use of else between the ifs.
@@ -129,13 +185,13 @@
 #define XTL_NON_FALL_THROUGH_ONLY(...) UCL_PP_IF(           XTL_FALL_THROUGH,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 
 #if !defined(XTL_USE_BRACES)
-    /// For general syntax of Match statements, this definition only affects @MatchE
-    /// and @MatchS statements. It specifies whether by default the user prefers to 
+    /// For general syntax of Match statements, this definition only affects #MatchE
+    /// and #MatchS statements. It specifies whether by default the user prefers to 
     /// use { and } to separate case clauses. These two macros can be made work 
     /// either way, but only one of them. The rest of the macros work with or 
     /// without them. There is one important reason to choose the default and stick
-    /// to it for other @Match statements. Redundancy checking essentially builds 
-    /// the same syntactic structure as @MatchE and thus depends on this choice. 
+    /// to it for other #Match statements. Redundancy checking essentially builds 
+    /// the same syntactic structure as #MatchE and thus depends on this choice. 
     /// If you'd like to be able to perform redundancy checking on your statements,
     /// please make the choice and specify it to the library with this macro.
     #define XTL_USE_BRACES 1
@@ -290,12 +346,14 @@
 /// A macro we use in functions with auto as a return type. It helps us avoid 
 /// duplication of expression when both the expression in decltype() and in the
 /// only return statement are the same.
-/// \example auto foo(T1 t1, T2 t2) -> XTL_RETURN(t1 + t2)
+/// \code
+/// auto foo(T1 t1, T2 t2) -> XTL_RETURN(t1 + t2)
+/// \endcode
 /// \note We use ... (__VA_ARGS__ parameters) to allow expressions 
 ///       containing comma as argument. Essentially this is a one arg macro
 #define XTL_RETURN(...) decltype(__VA_ARGS__) { return (__VA_ARGS__); }
 
-/// The same as @XTL_RETURN but additionally takes a compile-time condition under
+/// The same as #XTL_RETURN but additionally takes a compile-time condition under
 /// which the whole function is enabled.
 #define XTL_RETURN_ENABLE_IF(C,...) typename std::enable_if<C,decltype(__VA_ARGS__)>::type { return (__VA_ARGS__); }
 
@@ -471,7 +529,7 @@
     #define XTL_NARG_(...) XTL_APPLY_VARIADIC_MACRO(XTL_ARG_N,(__VA_ARGS__))
 
     /// The same as above but assumes a dummy first argument that is not counted
-    /// in order to deal with the fact that regular @XTL_NARG cannot cope with 
+    /// in order to deal with the fact that regular #XTL_NARG cannot cope with 
     /// zero arguments.
     /// \note We need here 0 to be a real 0 and not something that evaluates to 0
     ///       as is done in some solutions to this problem of NARG, because we 
@@ -490,7 +548,7 @@
     #define XTL_NARG_(...) XTL_ARG_N(__VA_ARGS__) 
 
     /// The same as above but assumes a dummy first argument that is not counted
-    /// in order to deal with the fact that regular @XTL_NARG cannot cope with 
+    /// in order to deal with the fact that regular #XTL_NARG cannot cope with 
     /// zero arguments.
     /// \note We need here 0 to be a real 0 and not something that evaluates to 0
     ///       as is done in some solutions to this problem of NARG, because we 

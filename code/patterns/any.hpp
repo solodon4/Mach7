@@ -3,10 +3,10 @@
 ///
 /// This file defines any pattern (one-of pattern).
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -22,7 +22,7 @@ template <typename T>
 struct one_of
 {
     one_of(std::initializer_list<T>&& init) : m_elements(std::move(init)) {}
-    typedef T result_type;
+    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
     bool operator()(const T& s) const noexcept 
     {
         return std::find(m_elements.begin(),m_elements.end(),s) != m_elements.end(); 
@@ -32,7 +32,7 @@ struct one_of
 
 //------------------------------------------------------------------------------
 
-/// @is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
+/// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
 template <typename T> struct is_pattern_<one_of<T>> { enum { value = true }; };
 
 //------------------------------------------------------------------------------

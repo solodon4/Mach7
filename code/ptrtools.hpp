@@ -4,10 +4,10 @@
 /// This file defines several utility functions for working with pointers,
 /// especially pointers to (polymorphic) objects, that we use in XTL
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -77,7 +77,7 @@ template <>         struct requires_bits_<1> { enum { value = 0 }; };
 template <>         struct requires_bits_<0> { enum { value = 0 }; };
 
 /// Returns the amount of bits required to represent a given number.
-/// Compile-time version of @req_bits
+/// Compile-time version of #req_bits
 template <size_t N> struct requires_bits     { enum { value = requires_bits_<(N+1)>::value }; };
 template <>         struct requires_bits<0>  { enum { value = 1 }; };
 

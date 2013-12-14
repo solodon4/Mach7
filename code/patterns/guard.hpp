@@ -3,10 +3,10 @@
 ///
 /// This file defines guard pattern support by our library.
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -29,7 +29,7 @@ struct guard
     guard(      E1&& e1,       E2&& e2) noexcept : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
     guard(guard&& e) noexcept : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {}
 
-    typedef typename E1::result_type result_type;
+    typedef typename E1::accepted_type accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
 
     template <typename U>
     bool operator()(const U& u) const { return m_e1(u) && eval(m_e2); }
@@ -64,5 +64,5 @@ auto operator|=(P&& p, E&& e) noexcept -> XTL_RETURN_ENABLE_IF
 
 //------------------------------------------------------------------------------
 
-/// @is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
+/// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
 template <typename E1, typename E2> struct is_pattern_<guard<E1,E2>> { enum { value = true }; };

@@ -3,16 +3,15 @@
 ///
 /// Shape class hierarchy used in our synthetic tests.
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
 #pragma once
 
-#include <cstddef>
 #include "rnd.hpp"
 
 //------------------------------------------------------------------------------
@@ -22,13 +21,13 @@
 #endif
 
 #if XTL_RANDOMIZE_TAGS
-/// When tag randomization is enabled, @tag<>::value metafunction returns some
+/// When tag randomization is enabled, #tag<>::value metafunction returns some
 /// unique pseudo-random numbers.
 template <size_t N> struct tag : rnd<N> {};
 /// A run-time equivalent of the above.
 inline size_t get_tag(size_t n) { return get_rnd(n); }
 #else
-/// By default @tag<>::value metafunction behaves as identity thus assigning
+/// By default #tag<>::value metafunction behaves as identity thus assigning
 /// a class number N a tag N
 template <size_t N> struct tag { static const size_t value = N; };
 /// A run-time equivalent of the above.

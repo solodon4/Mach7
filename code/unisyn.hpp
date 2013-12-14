@@ -4,16 +4,16 @@
 /// This file defines the helper data structures used to unified syntax of the
 /// Match statement.
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
 #pragma once
 
-#include "has_member.hpp"    // Meta-functions to check use of certain @bindings facilities
+#include "has_member.hpp"    // Meta-functions to check use of certain #bindings facilities
 #include "patterns/bindings.hpp"
 #include "vtblmap.hpp"
 #include <unordered_map>
@@ -51,9 +51,9 @@ const size_t reserved_extra_kinds = 1;
     #error Macro SKV used by the pattern-matching library has already been defined
 #endif
 
-/// Predefined structure that will be used when user did specify smallest kind with @SKV macro
+/// Predefined structure that will be used when user did specify smallest kind with #SKV macro
 template <size_t N> struct smallest_kind_is { enum { value = N }; };
-/// When the user did not specify the smallest kind with @SKV macro, assume it is 0
+/// When the user did not specify the smallest kind with #SKV macro, assume it is 0
 smallest_kind_is<0> smallest_kind_value_helper(...);
 
 /// Accessort to get the smallest kind for the hierarchy type T belongs to
@@ -276,7 +276,7 @@ public:
 
     /// Type of data that has to be statically allocated inside the block 
     /// containg extended switch
-    typedef vtblmap<type_switch_info&> static_data_type;
+    typedef vtblmap<type_switch_info> static_data_type;
 
     /// Type of data that has to be automatically allocated inside the block 
     /// containg extended switch
@@ -304,15 +304,15 @@ public:
     static inline size_t choose(const source_type* subject_ptr, static_data_type& static_data, local_data_type& local_data) noexcept
     {
         local_data.switch_info_ptr = &static_data.get(subject_ptr);
-        return local_data.switch_info_ptr->line;
+        return local_data.switch_info_ptr->target;
     }
 
     /// Function that will be called upon first entry to the case through the fall-through behavior
     static inline void on_first_pass(const source_type* subject_ptr, local_data_type& local_data, size_t line) noexcept
     {
-        if (XTL_LIKELY(local_data.switch_info_ptr->line == 0)) 
+        if (XTL_LIKELY(local_data.switch_info_ptr->target == 0)) 
         {
-            local_data.switch_info_ptr->line   = line; 
+            local_data.switch_info_ptr->target = line; 
             local_data.switch_info_ptr->offset = intptr_t(local_data.casted_ptr)-intptr_t(subject_ptr);
         } 
     }
@@ -320,10 +320,10 @@ public:
     /// Function that will be called when the fall-through behavior reached end of the switch
     static inline void on_end(const source_type*, local_data_type& local_data, size_t line) noexcept
     {
-        XTL_ASSERT(local_data.switch_info_ptr->line == 0);
-        //if (XTL_LIKELY(local_data.switch_info_ptr->line == 0)) 
+        XTL_ASSERT(local_data.switch_info_ptr->target == 0);
+        //if (XTL_LIKELY(local_data.switch_info_ptr->target == 0)) 
         { 
-            local_data.switch_info_ptr->line = line;
+            local_data.switch_info_ptr->target = line;
         }
     }
 
@@ -400,7 +400,7 @@ public:
 /// overhead that appears because of the necessity of merging the syntactic 
 /// structures used by open and closed cases.
 /// \note This is a specialization for the closed case. It becomes enabled when
-///       user used KS macro inside @bindings to define which member will
+///       user used KS macro inside #bindings to define which member will
 ///       be used as kind selector.
 template <typename SubjectType>
 class unified_switch<

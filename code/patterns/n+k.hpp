@@ -3,10 +3,10 @@
 ///
 /// This file defines generalized n+k pattern support by our library.
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -44,10 +44,10 @@ struct expr;
 
 //------------------------------------------------------------------------------
 
-/// @is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
+/// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
 template <typename F, typename E1, typename E2> struct is_pattern_<expr<F,E1,E2>>    { enum { value = true }; };
 
-/// @is_expression_ is a helper meta-predicate that separates lazily evaluatable expressions we support
+/// #is_expression_ is a helper meta-predicate that separates lazily evaluatable expressions we support
 template <typename F, typename E1, typename E2> struct is_expression_<expr<F,E1,E2>> { enum { value = true }; };
 
 //------------------------------------------------------------------------------
@@ -63,6 +63,7 @@ struct expr<F,E1>
     expr(expr&& e) noexcept : m_e1(std::move(e.m_e1)) {}
 
     typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>()))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
+    typedef result_type accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
     operator result_type() const { return eval(*this); } // FIX: avoid implicit conversion in lazy expressions
 
     template <typename U>
@@ -83,6 +84,7 @@ struct expr
     expr(expr&& e) noexcept : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {}
 
     typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>(),std::declval<typename E2::result_type>()))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
+    typedef result_type accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
     operator result_type() const { return eval(*this); }// FIX: avoid implicit conversion in lazy expressions
 
     template <typename U>

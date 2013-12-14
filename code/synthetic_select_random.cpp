@@ -38,6 +38,7 @@ template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(
 
 //------------------------------------------------------------------------------
 
+#if XTL_USE_VTBL_FREQUENCY
 size_t frequency(const Shape& s)
 {
     MatchP(s)
@@ -54,6 +55,7 @@ size_t frequency(const Shape& s)
 
 //size_t frequency(intptr_t vtbl) { return frequency(*reinterpret_cast<const Shape*>(&vtbl)); }
 template <> struct bindings<Shape> { FQS(frequency); };
+#endif
 
 //------------------------------------------------------------------------------
 
@@ -124,11 +126,11 @@ Shape* make_shape(size_t i)
 
 int main()
 {
-//    verdict pp = test_repetitive();
+    verdict pp = test_repetitive();
     verdict ps = test_sequential();
     verdict pr = test_randomized();
     std::cout << "OVERALL: "
-//              << "Repetitive: " << pp << "; "
+              << "Repetitive: " << pp << "; "
               << "Sequential: " << ps << "; "
               << "Random: "     << pr 
               << std::endl; 

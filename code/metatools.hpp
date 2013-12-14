@@ -3,10 +3,10 @@
 ///
 /// This file defines several utility functions used in XTL
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -53,7 +53,7 @@ template <typename T>                         struct get_param;
 /// This is the actual implementation that grabs the first parameter for any 
 /// single-argument template Q instantiation.
 template <class U, template<class X> class Q> struct get_param<Q<U>> { typedef U type; };
-/// This specialization is for uses of @bindings that employ layouts.
+/// This specialization is for uses of #bindings that employ layouts.
 template <class U, size_t L, template<class X, size_t Y> class Q> struct get_param<Q<U,L>> { typedef U type; };
 //template <class U, size_t L>                  struct get_param<bindings<U,L>> { typedef U type; };
 
@@ -118,7 +118,7 @@ T preallocated<T,UID>::value;
 
 /// Helper function to help disambiguate a unary version of a given function when 
 /// overloads with different arity are available.
-/// All of the members we work with so far through @bindings are unary:
+/// All of the members we work with so far through #bindings are unary:
 /// they are either unary function, nullary member function (implicit argument 
 /// this makes them unary effectively) or a data member (which can be treated
 /// in the same way as nullary member function).

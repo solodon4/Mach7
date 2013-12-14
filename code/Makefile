@@ -3,10 +3,10 @@
 #
 # Makefile for building and testing pattern matching library.
 #
-# \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+# \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 #
-# This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-# Copyright (C) 2005-2012 Texas A&M University.
+# This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+# Copyright (C) 2011-2012 Texas A&M University.
 # All rights reserved.
 #
 
@@ -18,6 +18,7 @@
 #     make timing - Build all supported configurations for timing the library
 #     make cmp    - Build all executables for comparison with other languages
 #     make clean  - Clean all targets
+#     make doc    - Build Mach7 documentation
 #     make includes.png - Build graph representation of header inclusions
 #     make test   - Run the test suite
 #
@@ -25,10 +26,13 @@
 OS       = $(shell uname -s)
 LIBS     = -lstdc++
 INCLUDES = 
-CXXFLAGS = $(INCLUDES) -Wall -time -O2 -DNDEBUG -std=c++0x \
+CXXFLAGS = $(INCLUDES) -Wall -time -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++0x \
 #-fno-omit-frame-pointer \
 #-fno-rtti
 LIBFLAGS = $(LIBS)
+OCAMLLIB = /c/Program Files (x86)/OCaml/lib
+#OCAMLLIB = C:\Program Files (x86)\OCaml\
+FLEXLINKFLAGS=-L/mingw/lib -L/mingw/lib/gcc/mingw32/4.6.1
 AR       = ar
 
 .SUFFIXES: .cpp .o
@@ -43,7 +47,7 @@ TARGETS  = ${SOURCES:.cpp=.exe}
 # A phony target is one that is not really the name of a file; rather it is just 
 # a name for a recipe to be executed when you make an explicit request.
 
-.PHONY: all clean cmp default syntax tags test timing ver
+.PHONY: all clean cmp default doc syntax tags test timing ver
 
 # Phony targets can have prerequisites. When one phony target is a prerequisite 
 # of another, it serves as a subroutine of the other.
@@ -56,6 +60,10 @@ all: default syntax timing cmp
 
 # Build all targets by default
 default: 	$(TARGETS)
+
+# Build documentation
+doc: 	$(SOURCES)
+	@(cd doxygen; doxygen mach7.dxg)
 
 # Print compiler version
 ver:
@@ -98,14 +106,14 @@ tags: skeleton.cxx
 # A rule to build all encoding/benchmark/forwarding combinations for timing
 #
 # Options with performance impact:
-# - Default syntax                   \see @XTL_DEFAULT_SYNTAX
-# - Use of vtbl frequencies          \see @XTL_USE_VTBL_FREQUENCY
-# - Use of memoized_cast             \see @XTL_USE_MEMOIZED_CAST
-# - Whether extractors might throw   \see @XTL_EXTRACTORS_MIGHT_THROW
-# - Use of static local variables    \see @XTL_PRELOAD_LOCAL_STATIC_VARIABLES
-# - Use number of case clauses init  \see @XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM
-# - Certain under-the-hood types     \see @vtbl_count_t
-# - Certain under-the-hood constants \see @XTL_MIN_LOG_SIZE, @XTL_MAX_LOG_SIZE, @XTL_MAX_LOG_INC, @XTL_LOCAL_CACHE_LOG_SIZE, @XTL_IRRELEVANT_VTBL_BITS
+# - Default syntax                   \see #XTL_DEFAULT_SYNTAX
+# - Use of vtbl frequencies          \see #XTL_USE_VTBL_FREQUENCY
+# - Use of memoized_cast             \see #XTL_USE_MEMOIZED_CAST
+# - Whether extractors might throw   \see #XTL_EXTRACTORS_MIGHT_THROW
+# - Use of static local variables    \see #XTL_PRELOAD_LOCAL_STATIC_VARIABLES
+# - Use number of case clauses init  \see #XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM
+# - Certain under-the-hood types     \see #vtbl_count_t
+# - Certain under-the-hood constants \see #XTL_MIN_LOG_SIZE, #XTL_MAX_LOG_SIZE, #XTL_MAX_LOG_INC, #XTL_LOCAL_CACHE_LOG_SIZE, #XTL_IRRELEVANT_VTBL_BITS
 # Most of the combinations of from this set are built with: make timing
 timing: skeleton.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_VISITOR_FORWARDING=1 -DXTL_DEFAULT_SYNTAX=\'p\' -DXTL_REP_TEST -o time-fwd-generic-poly-rep.exe skeleton.cxx
@@ -136,10 +144,10 @@ timing: skeleton.cxx
 # A rule to build all encoding/syntax combinations to ensure proper semantics
 #
 # Options with semantic or convenience impact
-# - Redundancy checking              \see @XTL_REDUNDANCY_CHECKING
-# - Fallthrough behavior             \see @XTL_FALL_THROUGH
-# - Use of { & } around case clauses \see @XTL_USE_BRACES
-# - Trace of performance             \see @XTL_TRACE_PERFORMANCE
+# - Redundancy checking              \see #XTL_REDUNDANCY_CHECKING
+# - Fallthrough behavior             \see #XTL_FALL_THROUGH
+# - Use of { & } around case clauses \see #XTL_USE_BRACES
+# - Trace of performance             \see #XTL_TRACE_PERFORMANCE
 # Most of the combinations of from this set are built with: make syntax
 syntax: syntax.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_FALL_THROUGH=0 -DXTL_USE_BRACES=1 -DXTL_DEFAULT_SYNTAX=\'S\' -o syntax-rc0-ft0-br1-S-spe.exe syntax.cxx
@@ -227,6 +235,8 @@ cmp: cmp_cpp.cxx cmp_ocaml.ml cmp_haskell.hs
 	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'K\' -DXTL_SEQ_TEST -o cmp-non-special-kind-seq.exe cmp_cpp.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'F\' -DXTL_SEQ_TEST -o cmp-fwd-special-kind-seq.exe cmp_cpp.cxx
 	ghc -O --make cmp_haskell
+
+caml: cmp_ocaml.ml 
 	ocamlopt.opt unix.cmxa -o cmp_ocaml.exe cmp_ocaml.ml
 
 # A rule to clean all the intermediates and targets

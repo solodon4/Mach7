@@ -13,8 +13,8 @@
 ::     build clean  - Clean all examples
 ::     build test   - Test all built examples
 ::                                                                           
-:: This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-:: Copyright (C) 2005-2012 Texas A&M University.
+:: This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+:: Copyright (C) 2011-2012 Texas A&M University.
 :: All rights reserved.
 :: 
 
@@ -61,7 +61,7 @@ if "%1" == "test"   shift && goto TEST
 
 rem Set-up Visual C++ Environment Variables ::::::::::::::::::::::::::::::::::::
 
-rem if not "%VS110COMNTOOLS%" == "" call "%VS110COMNTOOLS%vsvars32.bat" && goto PROCEED
+if not "%VS110COMNTOOLS%" == "" call "%VS110COMNTOOLS%vsvars32.bat" && goto PROCEED
 if not "%VS100COMNTOOLS%" == "" call "%VS100COMNTOOLS%vsvars32.bat" && goto PROCEED
 if not "%VS90COMNTOOLS%"  == "" call "%VS90COMNTOOLS%vsvars32.bat"  && goto PROCEED
 if not "%VS80COMNTOOLS%"  == "" call "%VS80COMNTOOLS%vsvars32.bat"  && goto PROCEED

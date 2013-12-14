@@ -4,10 +4,10 @@
 /// This file defines class vtblmap<T> used for fast mapping of vtbl pointers 
 /// to type T.
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -45,7 +45,6 @@
 //------------------------------------------------------------------------------
 
 #include <cmath>
-#include <cstdint>
 #include <cstring>
 #include <unordered_map>
 #include "ptrtools.hpp"  // Helper functions to work with pointers
@@ -89,25 +88,29 @@ const double ln2 = 0.69314718055994528622676398299518041312694549560546875;
 
 //------------------------------------------------------------------------------
 
+/// Class for efficient mapping of vtbl-pointers to a value of type T.
+/// This version of the class is for use in the single-threaded environment. 
+/// The data structure is implemented in a lock-free manner.
+///
+/// The map can only grow in size - it does not provide any means to shrink or 
+/// reallocate the contained data. The reason is that all the applications that
+/// use the vtblmap so far rely on the reference to an element associated with 
+/// given vtbl-pointer to not change throughout the lifetime of application. 
 template <typename T>
-class vtblmap;
-
-//------------------------------------------------------------------------------
-
-template <typename T>
-class vtblmap<T&>
+class vtblmap
 {
 private:
 
     enum { local_cache_bits = XTL_LOCAL_CACHE_LOG_SIZE, local_cache_size = 1 << local_cache_bits };
 
 #if XTL_USE_VTBL_FREQUENCY
+    /// Type of the stored values, which is a pair of hits count and T value.
     struct stored_type
     {
         stored_type() : value(), hits(0) {}
         operator const T&() const { return value; }
         operator       T&()       { return value; }
-        T      value;
+        T      value; ///< value associated with the v-table pointer vtbl
         size_t hits;
     };
 #else
@@ -138,9 +141,15 @@ private:
     typedef typename vtbl_to_t_map::value_type  value_type;
 
 public:
-    
+
 #if XTL_DUMP_PERFORMANCE
     vtblmap(const char* fl, size_t ln, const char* fn, const vtbl_count_t expected_size = min_expected_size) : 
+        cache_mask((1<<std::min(max_log_size,bit_offset_t(req_bits(expected_size-1))))-1),
+        cache(cache_mask < local_cache_size ? local_cache : new cache_entry[cache_mask+1]),
+        optimal_shift(irrelevant_bits),
+        table(expected_size),
+        last_table_size(0),
+        collisions_before_update(initial_collisions_before_update),
         file(fl), 
         line(ln),
         func(fn),
@@ -149,12 +158,6 @@ public:
         hits(0),
         misses(0),
         collisions(0),
-        cache_mask((1<<std::min(max_log_size,bit_offset_t(req_bits(expected_size-1))))-1),
-        cache(cache_mask < local_cache_size ? local_cache : new cache_entry[cache_mask+1]),
-        optimal_shift(irrelevant_bits),
-        table(expected_size),
-        last_table_size(0),
-        collisions_before_update(initial_collisions_before_update)
     {
         std::memset(cache,0,(cache_mask+1)*sizeof(cache_entry)); // Reset cache
     }
@@ -198,7 +201,7 @@ public:
     /// container elements, but may invalidate all iterators to the container. 
     /// The erase members shall invalidate only iterators and references to 
     /// the erased elements. 
-    inline T& get(const void* p) throw()
+    inline T& get(const void* p) noexcept
     {
         const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
         cache_entry&   ce   = cache[(vtbl>>optimal_shift) & cache_mask];
@@ -222,6 +225,16 @@ public:
         return *ce.ptr;
     }
 
+    /// Extension of #get that also reports whether the element was new
+    inline T& get_ex(const void* p, bool& inserted) noexcept
+    {
+        size_t s = table.size();
+        T& t = get(p);
+        inserted = table.size() != s;
+        return t;
+    }
+
+    /// A function that gets called when the cache is either too inefficient or full.
     T& update(intptr_t vtbl);
 
 #if XTL_USE_VTBL_FREQUENCY || XTL_DUMP_PERFORMANCE
@@ -255,14 +268,14 @@ private:
     cache_entry* cache;
 
     /// Optimal shift computed based on the vtbl pointers already in the map.
-    /// Most of the time this value would be equal to @irrelevant_bits, but not
+    /// Most of the time this value would be equal to #irrelevant_bits, but not
     /// necessarily always. In case of collisions, optimal_shift will have
     /// a value of a shift that maximizes entropy of caching vtbl pointers (which 
     /// effectively also minimizes probability of not finding something in cache)
     size_t optimal_shift;
 
     /// Actual mapping of vtbl pointers (in reality keys obtained from them) 
-    /// to values of type T. Values in this table are cached in @cache.
+    /// to values of type T. Values in this table are cached in #cache.
     vtbl_to_t_map table;
 
     /// Memoized table.size() during last cache rearranging
@@ -290,7 +303,7 @@ private:
 //------------------------------------------------------------------------------
 
 template <typename T>
-T& vtblmap<T&>::update(intptr_t vtbl)
+T& vtblmap<T>::update(intptr_t vtbl)
 {
     XTL_ASSERT(last_table_size  < table.size()); // We will only call this if size changed
     //XTL_ASSERT(table.find(vtbl) == table.end()); // This is guaranteed by the caller
@@ -391,7 +404,7 @@ T& vtblmap<T&>::update(intptr_t vtbl)
 
 #if XTL_USE_VTBL_FREQUENCY
 template <typename T>
-size_t vtblmap<T&>::get_stats_for(bit_offset_t log_size, bit_offset_t offset, double& entropy, double& conflict) const
+size_t vtblmap<T>::get_stats_for(bit_offset_t log_size, bit_offset_t offset, double& entropy, double& conflict) const
 {
     const size_t   cache_size = 1<<log_size;
     const intptr_t cache_mask = cache_size-1;
@@ -446,7 +459,7 @@ size_t vtblmap<T&>::get_stats_for(bit_offset_t log_size, bit_offset_t offset, do
 #else
 
 template <typename T>
-size_t vtblmap<T&>::get_stats_for(bit_offset_t log_size, bit_offset_t offset, double& entropy, double& conflict) const
+size_t vtblmap<T>::get_stats_for(bit_offset_t log_size, bit_offset_t offset, double& entropy, double& conflict) const
 {
     const size_t   cache_size = 1<<log_size;
     const intptr_t cache_mask = cache_size-1;
@@ -509,7 +522,7 @@ size_t last_non_zero_count(const T arr[/*n*/], size_t n, size_t m) // arr[i] <= 
 //------------------------------------------------------------------------------
 
 template <typename T>
-std::ostream& vtblmap<T&>::operator>>(std::ostream& os) const
+std::ostream& vtblmap<T>::operator>>(std::ostream& os) const
 {
     std::ios::fmtflags fmt = os.flags(); // store flags
 
@@ -535,7 +548,7 @@ std::ostream& vtblmap<T&>::operator>>(std::ostream& os) const
 
     intptr_t diff = 0;
     intptr_t prev = 0;
-    size_t   sum  = 0;
+    XTL_USE_VTBL_FREQUENCY_ONLY(size_t   sum  = 0);
 
     for (typename vtbl_to_t_map::const_iterator p = table.begin(); p != table.end(); ++p)
     {
@@ -571,7 +584,10 @@ std::ostream& vtblmap<T&>::operator>>(std::ostream& os) const
             << ' ';
             
         if (prev)
-            os << std::setw(6) << std::showpos << vtbl-prev; // Show offset from the previous vtable
+            if (vtbl-prev == 0)
+                os << "ERR:+0"; // Indicate there are duplicates in the table
+            else
+                os << std::setw(6) << std::showpos << vtbl-prev; // Show offset from the previous vtable
         else
             os << "      ";
 
@@ -671,7 +687,7 @@ std::ostream& vtblmap<T&>::operator>>(std::ostream& os) const
     os  << "\nTable:"
         << " buckets="     << std::setw(4) << table_size
         << " load_factor=" << std::setw(4) << std::fixed << std::setprecision(2) << table.load_factor()
-        << " perfect="     << std::setw(3) << std::count(table_histogram,table_histogram+table_size,1)*100/vtbl_count << '%'
+        << " perfect="     << std::setw(3) << (vtbl_count ? std::count(table_histogram,table_histogram+table_size,1)*100/vtbl_count : 0) << '%'
         << " sizeof(val)=" << std::setw(2) << sizeof(typename vtbl_to_t_map::value_type)
         << " conflict="    << std::setw(9) << std::fixed << std::setprecision(7) << table_conflict // Probability of conflict in table
         << " Stmt: "       << file << '[' << line << ']' << ' ' << func
@@ -709,7 +725,7 @@ std::ostream& vtblmap<T&>::operator>>(std::ostream& os) const
     os  << "\nCache:"
         << " buckets="     << std::setw(4) << cache_size
         << " load_factor=" << std::setw(4) << std::fixed << std::setprecision(2) << double(cache_size-d0)/cache_size
-        << " perfect="     << std::setw(3) << d1*100/vtbl_count << '%'
+        << " perfect="     << std::setw(3) << (vtbl_count ? d1*100/vtbl_count : 0) << '%'
         << " sizeof(ent)=" << std::setw(2) << sizeof(cache_entry)
         << " conflict="    << std::setw(9) << std::fixed << std::setprecision(7) << cache_conflict // Probability of conflict in cache
         << " Stmt: "       << file << '[' << line << ']' << ' ' << func
@@ -769,12 +785,12 @@ std::ostream& vtblmap<T&>::operator>>(std::ostream& os) const
 #endif
 //------------------------------------------------------------------------------
 
+/// Data structure used by our Match statements to associate jump target and the 
+/// required offset with the vtbl-pointer.
 struct type_switch_info
 {
-    std::ptrdiff_t offset; ///< FIX: We assume here offsets within object can only be ints
-    std::size_t    line;   ///< We can choose smaller type for line to give more space to offset
-    //int offset; ///< FIX: We assume here offsets within object can only be ints
-    //int    line;   ///< We can choose smaller type for line to give more space to offset
+    std::ptrdiff_t offset; ///< Required this-pointer offset to the source sub-object
+    std::size_t    target; ///< Case label of the jump target of Match statement
 };
 
 //------------------------------------------------------------------------------

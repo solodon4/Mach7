@@ -4,10 +4,10 @@
 /// This file defines function memoized_cast<T>(U) that behaves as dynamic_cast
 /// but is much faster when multiple invokations are involved because of caching
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -79,7 +79,7 @@ static const std::ptrdiff_t unknown_offset = 0x0FF1C1A0; // A dedicated constant
 template <typename T>
 inline std::ptrdiff_t& per_target_offset_of(const void* p)
 {
-    /// The only purpose of this class is to have @unknown_offset be default
+    /// The only purpose of this class is to have #unknown_offset be default
     /// value of otherwise a std::ptrdiff_t variable. 
     struct dyn_cast_info
     {
@@ -87,7 +87,7 @@ inline std::ptrdiff_t& per_target_offset_of(const void* p)
         std::ptrdiff_t offset;
     };
 
-    XTL_PRELOADABLE_LOCAL_STATIC(vtblmap<dyn_cast_info&>,offset_map,T);
+    XTL_PRELOADABLE_LOCAL_STATIC(vtblmap<dyn_cast_info>,offset_map,T);
     return offset_map.get(p).offset;
 }
 
@@ -104,7 +104,7 @@ inline std::ptrdiff_t& per_source_offset_of(const void* p, size_t ti)
     // FIX: vector here might create problems later when we implement 
     //      multi-threaded solution because of reference invalidation
     typedef std::vector<std::ptrdiff_t> dyn_cast_info;
-    XTL_PRELOADABLE_LOCAL_STATIC(vtblmap<dyn_cast_info&>,offset_map,S);
+    XTL_PRELOADABLE_LOCAL_STATIC(vtblmap<dyn_cast_info>,offset_map,S);
     dyn_cast_info& sdci = offset_map.get(p);
 
     if (XTL_UNLIKELY(ti >= sdci.size()))
@@ -211,7 +211,7 @@ struct memoized_cast_helper<T&>
 //------------------------------------------------------------------------------
 
 /// Actual implementation of memoized_cast that simply forwards the call to a 
-/// static member of @memoized_cast_helper in order to distinguish pointer and 
+/// static member of #memoized_cast_helper in order to distinguish pointer and 
 /// reference types in the target type.
 template <typename T, typename S>
 inline T memoized_cast(S&& s)

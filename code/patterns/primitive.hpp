@@ -3,10 +3,10 @@
 ///
 /// This file defines primitive patterns supported by our library.
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -22,21 +22,17 @@
 /// use of this variable will make sure the actual member is never invoked!
 struct wildcard
 {
-    //typedef void result_type;
-
     // NOTE: We don't need the below application anymore since we have a
     //       specialization that never applies the actual member before
     //       passing it to this meta variable that matches everything.
     // NOTE: We add it anyways for unlikely cases when user uses wildcard in the
     //       left hand side of a guard
     bool operator()(...) const noexcept { return true; }
-    //template <typename U>
-    //bool operator()(const U& u) const noexcept { return true; }
 };
 
 //------------------------------------------------------------------------------
 
-/// @is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
+/// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
 template <> struct is_pattern_<wildcard> { enum { value = true }; };
 
 //------------------------------------------------------------------------------
@@ -61,7 +57,8 @@ inline bool apply_expression(const wildcard&,       C*, M) noexcept
 template <class T>
 struct value
 {
-    typedef T result_type;
+    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
     explicit value(const T& t) : m_value(t) {}
     explicit value(T&& t) noexcept : m_value(std::move(t)) {}
     value(value&& v) noexcept : m_value(std::move(v.m_value)) {}
@@ -72,10 +69,10 @@ struct value
 
 //------------------------------------------------------------------------------
 
-/// @is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
+/// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
 template <typename T> struct is_pattern_<value<T>>    { enum { value = true }; };
 
-/// @is_expression_ is a helper meta-predicate that separates lazily evaluatable expressions we support
+/// #is_expression_ is a helper meta-predicate that separates lazily evaluatable expressions we support
 template <typename T> struct is_expression_<value<T>> { enum { value = true }; };
 
 //------------------------------------------------------------------------------
@@ -94,7 +91,8 @@ struct variable
     /*explicit*/ variable(T&& t) noexcept : m_value(std::move(t)) {}
     variable(variable&& v) noexcept : m_value(std::move(v.m_value)) {}
 
-    typedef T result_type;
+    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
 
     /// We report that matching succeeded and bind the value
     bool operator()(const T& t) const
@@ -122,7 +120,8 @@ struct variable<const T*>
     variable() : m_value() {}
     variable(variable&& v) noexcept : m_value(std::move(v.m_value)) {}
 
-    typedef const T* result_type;
+    typedef const T* accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    typedef const T* result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
 
     /// We may be applied to a value of a base type, so first we have to figure
     /// out whether they dynamic type is actually T. We report match only if it is
@@ -171,7 +170,8 @@ struct variable<const T&>
     variable() : m_value() {}
     variable(variable&& v) noexcept : m_value(std::move(v.m_value)) {}
 
-    typedef const T& result_type;
+    typedef const T& accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    typedef const T& result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
 
     /// We may be applied to a value of a base type, so first we have to figure
     /// out whether they dynamic type is actually T. We report match only if it is
@@ -205,10 +205,10 @@ struct variable<const T&>
 
 //------------------------------------------------------------------------------
 
-/// @is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
+/// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
 template <typename T> struct is_pattern_<variable<T>>    { enum { value = true }; };
 
-/// @is_expression_ is a helper meta-predicate that separates lazily evaluatable expressions we support
+/// #is_expression_ is a helper meta-predicate that separates lazily evaluatable expressions we support
 template <typename T> struct is_expression_<variable<T>> { enum { value = true }; };
 
 //------------------------------------------------------------------------------
@@ -220,7 +220,8 @@ struct var_ref
     explicit var_ref(T& var) : m_var(&var) {}
     var_ref(var_ref&& v) noexcept : m_var(v.m_var) {}
 
-    typedef T result_type;
+    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
     operator result_type() const noexcept { return *m_var; }// FIX: avoid implicit conversion in lazy expressions
 
     /// We report that matching succeeded and bind the value
@@ -243,7 +244,8 @@ struct var_ref<variable<T>>
     explicit var_ref(variable<T>& var) : m_var(&var) {}
     var_ref(var_ref&& v) noexcept : m_var(v.m_var) {}
 
-    typedef T result_type;
+    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
     operator result_type() const noexcept { return *m_var; }// FIX: avoid implicit conversion in lazy expressions
 
     /// We report that matching succeeded and bind the value
@@ -259,10 +261,10 @@ struct var_ref<variable<T>>
 
 //------------------------------------------------------------------------------
 
-/// @is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
+/// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
 template <typename T> struct is_pattern_<var_ref<T>>    { enum { value = true }; };
 
-/// @is_expression_ is a helper meta-predicate that separates lazily evaluatable expressions we support
+/// #is_expression_ is a helper meta-predicate that separates lazily evaluatable expressions we support
 template <typename T> struct is_expression_<var_ref<T>> { enum { value = true }; };
 
 //------------------------------------------------------------------------------
