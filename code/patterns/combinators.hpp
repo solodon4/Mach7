@@ -14,6 +14,9 @@
 
 #include "common.hpp"
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 /// Conjunction pattern combinator
@@ -141,3 +144,5 @@ inline auto operator!(P1&& p) noexcept
 }
 
 //------------------------------------------------------------------------------
+
+} // of namespace mch

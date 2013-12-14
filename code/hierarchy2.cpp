@@ -134,6 +134,8 @@ Shape* make_shape(size_t i)
 
 int main()
 {
+    using namespace mch; // Mach7's library namespace
+
 //    verdict pp = test_repetitive();
     verdict ps = test_sequential();
     verdict pr = test_randomized();

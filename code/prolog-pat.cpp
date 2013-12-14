@@ -313,10 +313,12 @@ inline Comment*   K(const char*  v) { return new Comment(v); }
 #include "patterns/constructor.hpp"
 #include "patterns/primitive.hpp"
 
-#define C cons
+#define C mch::cons
 
 //------------------------------------------------------------------------------
 
+namespace mch ///< Mach7 library namespace
+{
 template <> struct bindings<Atom>      { CM(0,Atom::value);     };
 template <> struct bindings<Number>    { };
 template <> struct bindings<Integer>   { CM(0,Integer::value);  };
@@ -327,6 +329,7 @@ template <> struct bindings<Structure> { CM(1,Structure::arity); CM(0,Structure:
 template <> struct bindings<List>      { CM(0,List::head);      CM(1,List::tail); };
 template <> struct bindings<Operator>  { CM(0,Operator::name);  };
 template <> struct bindings<Comment>   { CM(0,Comment::text);   };
+} // of namespace mch
 
 //------------------------------------------------------------------------------
 

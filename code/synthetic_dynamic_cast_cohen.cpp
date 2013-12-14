@@ -67,7 +67,7 @@ template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(
 
 //------------------------------------------------------------------------------
 
-template <size_t N> struct depth     { enum { value = requires_bits<N>::value+1 }; };
+template <size_t N> struct depth     { enum { value = mch::requires_bits<N>::value+1 }; };
 template <>         struct depth<0>  { enum { value = 1 }; };
 
 //------------------------------------------------------------------------------
@@ -445,13 +445,13 @@ Shape* make_shape(size_t i)
 int main()
 {
     for (int i = 0; i < 10; ++i)
-        std::cout << i << "->" << req_bits(i)+1 << " : " << i/2 << std::endl;
+        std::cout << i << "->" << mch::req_bits(i)+1 << " : " << i/2 << std::endl;
 
     std::cout << std::endl;
 
     for (int i = 0; i < NUMBER_OF_DERIVED; ++i)
     {
-        int m = cohen[i].depth = req_bits(i)+1;
+        int m = cohen[i].depth = mch::req_bits(i)+1;
 
         std::cout << i << "->" << m << ";\t";
 
@@ -488,6 +488,8 @@ int main()
     std::cout << "17 -> " << dynamic_cast<const shape_kind<17>*>(p) << std::endl;
     std::cout << "18 -> " << dynamic_cast<const shape_kind<18>*>(p) << std::endl;
     std::cout << "19 -> " << dynamic_cast<const shape_kind<19>*>(p) << std::endl;
+
+    using namespace mch; // Mach7's library namespace
 
     verdict pp = test_repetitive();
     verdict ps = test_sequential();

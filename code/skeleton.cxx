@@ -100,12 +100,19 @@ template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(
 //------------------------------------------------------------------------------
 
 #if XTL_DEFAULT_SYNTAX == 'K' || XTL_DEFAULT_SYNTAX == 'k'
+
+namespace mch ///< Mach7 library namespace
+{
 template <>         struct bindings<Shape>         { KS(Shape::m_kind); };
 template <size_t N> struct bindings<shape_kind<N>> { KV(Shape,tag<N>::value); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
+} // of namespace mch
 
 #elif XTL_DEFAULT_SYNTAX == 'F' || XTL_DEFAULT_SYNTAX == 'f'
 
 SKV(Shape,0); // Declare the smallest kind value for Shape hierarchy
+
+namespace mch ///< Mach7 library namespace
+{
 template <>         struct bindings<Shape>         { KS(Shape::m_kind); KV(Shape,tag<NUMBER_OF_DERIVED+1>::value); };
 
 // NOTE: We need to explicitly instantiate all bindings as otherwise our kinds 
@@ -127,6 +134,8 @@ template <>         struct bindings<Shape>         { KS(Shape::m_kind); KV(Shape
 #include "loop_over_numbers.hpp"
 #undef  FOR_EACH_N
 #undef  FOR_EACH_MAX
+
+} // of namespace mch
 
 #endif
 
@@ -242,13 +251,13 @@ Shape* make_shape(size_t i)
 int main()
 {
 #if   defined(XTL_REP_TEST)
-    verdict pr = test_repetitive();
+    mch::verdict pr = mch::test_repetitive();
     std::cout << XTL_PREFIX_STR "Repetitive: " << pr << std::endl; 
 #elif defined(XTL_SEQ_TEST)
-    verdict ps = test_sequential();
+    mch::verdict ps = mch::test_sequential();
     std::cout << XTL_PREFIX_STR "Sequential: " << ps << std::endl; 
 #elif defined(XTL_RND_TEST)
-    verdict pn = test_randomized();
+    mch::verdict pn = mch::test_randomized();
     std::cout << XTL_PREFIX_STR "Randomized: " << pn << std::endl; 
 #else
     #error Test scenario REP, SEQ or RND has not been chosen.

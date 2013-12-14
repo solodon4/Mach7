@@ -94,6 +94,9 @@
   #define memoized_cast dynamic_cast
 #endif
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 /// FIX: This specialization doesn't actually help/work as expected as get<UID>
@@ -139,6 +142,8 @@ template <typename T> inline size_t get_frequency(intptr_t vtbl) { return get_fr
 
 template <class T> inline void ignore_unused_warning(T const&) {}
 
+} // of namespace mch
+
 //------------------------------------------------------------------------------
 
 /// A helper macro to access kind value of a class
@@ -168,7 +173,7 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 /// A macro to declare implicitly a reference variable with name V bound to 
 /// a value in position P of the target type.
 /// FIX: Try without const to bind also for modification
-#define XTL_VAR_DECL(P,V) const auto& V = apply_member(matched, bindings<target_type,target_layout>::XTL_CONCAT(member,P)())
+#define XTL_VAR_DECL(P,V) const auto& V = mch::apply_member(matched, mch::bindings<target_type,target_layout>::XTL_CONCAT(member,P)())
 
 /// A set of macros handling various amount of arguments passed to case statement.
 /// FIX: The reason macro for 0 arguments doesn't take Dummy but ... is because 
@@ -248,17 +253,17 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 #define XTL_MATCH_PREAMBULA(s)                                                 \
         struct match_uid_type {};                                              \
         auto&&     subject_ref = s;                                            \
-        auto const subject_ptr = addr(subject_ref);                            \
-        typedef XTL_CPP0X_TYPENAME underlying<decltype(*subject_ptr)>::type source_type; \
+        auto const subject_ptr = mch::addr(subject_ref);                       \
+        typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(*subject_ptr)>::type source_type; \
         typedef source_type target_type;                                       \
-        enum { target_layout = default_layout, is_inside_case_clause = 0 };    \
+        enum { target_layout = mch::default_layout, is_inside_case_clause = 0 }; \
         XTL_ASSERT(("Trying to match against a nullptr",subject_ptr));         \
         auto const matched = subject_ptr;                                      \
         XTL_UNUSED(matched);
 
 #define XTL_SUBCLAUSE_FIRST           XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(false)) XTL_NON_USE_BRACES_ONLY({)
-#define XTL_SUBCLAUSE_OPEN(...)                                       XTL_STATIC_IF(UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true,   XTL_LIKELY(cons<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
-#define XTL_SUBCLAUSE_CONTINUE(...) } XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(cons<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
+#define XTL_SUBCLAUSE_OPEN(...)                                       XTL_STATIC_IF(UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true,   XTL_LIKELY(mch::cons<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
+#define XTL_SUBCLAUSE_CONTINUE(...) } XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(mch::cons<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
 //#define XTL_SUBCLAUSE_PATTERN(...)} XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(filter(__VA_ARGS__)(*matched)))) {
 #define XTL_SUBCLAUSE_PATTERN(...)                                    XTL_STATIC_IF(UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(filter(__VA_ARGS__)(*matched)))) {
 #define XTL_SUBCLAUSE_CLOSE         }                            XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(is_inside_case_clause) break;)
@@ -276,25 +281,28 @@ template <class T> inline void ignore_unused_warning(T const&) {}
         CaseClause(source_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
 #endif
 
+namespace mch ///< Mach7 library namespace
+{
 /// Helper metafunction used to disambiguate the use of a type, value or 
 /// declaration as a target of a clause
 template<typename P>              struct target_disambiguator;           ///< Intentionally no definition
 template<typename R, typename A1> struct target_disambiguator<R(A1)>     { typedef A1   type; template<R (&)(A1)>  struct layout { enum { value = default_layout }; }; };
 template<typename R, typename A1> struct target_disambiguator<R(A1&)>    { typedef A1   type; template<R (&)(A1&)> struct layout { enum { value = default_layout }; }; };
 template<>                        struct target_disambiguator<const int> { typedef void type; template<int N>      struct layout { enum { value = N }; };              };
+} // of namespace mch
 
 #if XTL_CLAUSE_DECL
     /// FIX: Current decl_helper trick does not work with abstract base classes
     #define XTL_DISAMBIGUATE_TARGET(...)                                       \
             const int decl_helper(__VA_ARGS__);                                \
-            typedef target_disambiguator<decltype(decl_helper)> disambiguator; \
+            typedef mch::target_disambiguator<decltype(decl_helper)> disambiguator; \
             typedef disambiguator::type target_type;                           \
             enum { target_layout = disambiguator::layout<decl_helper>::value };
 #else
     /// FIX: This version doesn't do any disambiguation at the moment, just assumes a type
     #define XTL_DISAMBIGUATE_TARGET(...)                                       \
             typedef __VA_ARGS__ target_type;                                   \
-            enum { target_layout = default_layout };
+            enum { target_layout = mch::default_layout };
 #endif
 
 /// This is a common part of most clause implementations, which:
@@ -306,11 +314,11 @@ template<>                        struct target_disambiguator<const int> { typed
 
 //        XTL_NON_CLAUSE_DECL_ONLY(typedef C target_type);                       
 //        XTL_CLAUSE_DECL_ONLY(extern int decl_helper(C));                       
-//        XTL_CLAUSE_DECL_ONLY(typedef XTL_CPP0X_TYPENAME underlying<XTL_CPP0X_TYPENAME get_first_param<decltype(decl_helper)>::type>::type target_type);
+//        XTL_CLAUSE_DECL_ONLY(typedef XTL_CPP0X_TYPENAME mch::underlying<XTL_CPP0X_TYPENAME get_first_param<decltype(decl_helper)>::type>::type target_type);
 
 #if XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM
-    #define XTL_GET_TYPES_NUM_ESTIMATE   (deferred_constant<vtbl_count_t>::get<match_uid_type>::value)
-    #define XTL_SET_TYPES_NUM_ESTIMATE(N) ignore_unused_warning(deferred_constant<vtbl_count_t>::set<match_uid_type,(N)>::value_ptr)
+    #define XTL_GET_TYPES_NUM_ESTIMATE   (mch::deferred_constant<mch::vtbl_count_t>::get<match_uid_type>::value)
+    #define XTL_SET_TYPES_NUM_ESTIMATE(N) mch::ignore_unused_warning(mch::deferred_constant<mch::vtbl_count_t>::set<match_uid_type,(N)>::value_ptr)
 #else
     #define XTL_GET_TYPES_NUM_ESTIMATE   (min_expected_size)
     #define XTL_SET_TYPES_NUM_ESTIMATE(N)
@@ -342,9 +350,9 @@ template<>                        struct target_disambiguator<const int> { typed
         XTL_MATCH_PREAMBULA(s)                                                 \
         enum { __base_counter = XTL_COUNTER };                                 \
         static_assert(std::is_polymorphic<source_type>::value, "Type of subject should be polymorphic when you use MatchP");\
-        XTL_PRELOADABLE_LOCAL_STATIC(vtblmap<type_switch_info>,__vtbl2lines_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
+        XTL_PRELOADABLE_LOCAL_STATIC(mch::vtblmap<mch::type_switch_info>,__vtbl2lines_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
         register const void* __casted_ptr = 0;                                 \
-        type_switch_info& __switch_info = __vtbl2lines_map.get(subject_ptr);   \
+        mch::type_switch_info& __switch_info = __vtbl2lines_map.get(subject_ptr);   \
         switch (__switch_info.target)                                          \
         {                                                                      \
             XTL_REDUNDANCY_ONLY(try)                                           \
@@ -369,7 +377,7 @@ template<>                        struct target_disambiguator<const int> { typed
                     __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(subject_ptr); \
                 }                                                              \
             XTL_NON_REDUNDANCY_ONLY(case target_label:)                        \
-                auto matched = adjust_ptr<target_type>(subject_ptr,__switch_info.offset);\
+                auto matched = mch::adjust_ptr<target_type>(subject_ptr,__switch_info.offset);\
                 XTL_CLAUSE_DECL_ONLY(C(*matched));                             \
                 XTL_UNUSED(matched);                                           \
                 XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
@@ -377,9 +385,9 @@ template<>                        struct target_disambiguator<const int> { typed
 /// Macro that defines the with-clause for the above switch
 #define WithP(...)                                                             \
         XTL_SUBCLAUSE_CLOSE }}                                                 \
-        XTL_REDUNDANCY_CATCH(underlying<decltype(__VA_ARGS__)>::type::accepted_type)     \
+        XTL_REDUNDANCY_CATCH(mch::underlying<decltype(__VA_ARGS__)>::type::accepted_type)     \
         {                                                                      \
-            XTL_CLAUSE_COMMON(underlying<decltype(__VA_ARGS__)>::type::accepted_type);   \
+            XTL_CLAUSE_COMMON(mch::underlying<decltype(__VA_ARGS__)>::type::accepted_type);   \
             enum { target_label = XTL_COUNTER-__base_counter };                \
             __casted_ptr = dynamic_cast<const target_type*>(subject_ptr);      \
             if (XTL_UNLIKELY(__casted_ptr))                                    \
@@ -390,7 +398,7 @@ template<>                        struct target_disambiguator<const int> { typed
                     __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(subject_ptr); \
                 }                                                              \
             XTL_NON_REDUNDANCY_ONLY(case target_label:)                        \
-                auto matched = adjust_ptr<target_type>(subject_ptr,__switch_info.offset);\
+                auto matched = mch::adjust_ptr<target_type>(subject_ptr,__switch_info.offset);\
                 XTL_UNUSED(matched);                                           \
                 XTL_SUBCLAUSE_PATTERN(__VA_ARGS__)
 
@@ -414,18 +422,18 @@ template<>                        struct target_disambiguator<const int> { typed
 /// a distinct integral value in one of their members.
 #define MatchK(s) {                                                            \
         XTL_MATCH_PREAMBULA(s)                                                 \
-        static_assert(has_member_kind_selector<bindings<source_type>>::value, "Before using MatchK, you have to specify kind selector on the source type using KS macro");\
-        auto const __kind_selector = kind_selector(subject_ptr);               \
+        static_assert(has_member_kind_selector<mch::bindings<source_type>>::value, "Before using MatchK, you have to specify kind selector on the source type using KS macro");\
+        auto const __kind_selector = mch::kind_selector(subject_ptr);          \
         switch (__kind_selector) { { XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
 #define QuaK(C,...)                                                            \
         XTL_SUBCLAUSE_CLOSE }                                                  \
-        if (XTL_UNLIKELY((size_t(__kind_selector) == size_t(bindings<C>::kind_value)))) \
+        if (XTL_UNLIKELY((size_t(__kind_selector) == size_t(mch::bindings<C>::kind_value)))) \
         {                                                                      \
-        case bindings<C>::kind_value:                                          \
+        case mch::bindings<C>::kind_value:                                     \
             XTL_CLAUSE_COMMON(C);                                              \
-            auto matched = stat_cast<target_type>(subject_ptr);                \
+            auto matched = mch::stat_cast<target_type>(subject_ptr);           \
             XTL_CLAUSE_DECL_ONLY(C(*matched));                                 \
             XTL_UNUSED(matched);                                               \
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
@@ -447,16 +455,16 @@ template<>                        struct target_disambiguator<const int> { typed
 /// a distinct integral value in one of their members.
 #define MatchU(s) {                                                            \
         XTL_MATCH_PREAMBULA(s)                                                 \
-        static_assert(has_member_kind_selector<bindings<source_type>>::value, "Before using MatchU, you have to specify kind selector on the subject type using KS macro");\
-        auto const __kind_selector = kind_selector(subject_ptr);               \
+        static_assert(has_member_kind_selector<mch::bindings<source_type>>::value, "Before using MatchU, you have to specify kind selector on the subject type using KS macro");\
+        auto const __kind_selector = mch::kind_selector(subject_ptr);          \
         switch (__kind_selector) { { XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
 #define QuaU(L,...)                                                            \
         XTL_SUBCLAUSE_CLOSE }                                                  \
-        if (XTL_UNLIKELY((size_t(__kind_selector) == size_t(bindings<source_type,L>::kind_value)))) \
+        if (XTL_UNLIKELY((size_t(__kind_selector) == size_t(mch::bindings<source_type,L>::kind_value)))) \
         {                                                                      \
-        case bindings<source_type,L>::kind_value:                              \
+        case mch::bindings<source_type,L>::kind_value:                         \
             typedef source_type target_type;                                   \
             enum { target_layout = L, is_inside_case_clause = 1 };             \
             auto matched = subject_ptr;                                        \
@@ -479,10 +487,10 @@ template<>                        struct target_disambiguator<const int> { typed
 ///       around the case clauses.
 #define MatchE(s) {                                                            \
         XTL_MATCH_PREAMBULA(s)                                                 \
-        static_assert(has_member_raise_selector<bindings<source_type>>::value, "Before using MatchE, you have to specify raise selector on the subject type using RS macro");\
+        static_assert(has_member_raise_selector<mch::bindings<source_type>>::value, "Before using MatchE, you have to specify raise selector on the subject type using RS macro");\
         XTL_MESSAGE("WARNING: The use of { and } within MatchE-statement must match XTL_USE_BRACES setting!") \
         try {                                                                  \
-            raise_selector(subject_ptr);                                       \
+            mch::raise_selector(subject_ptr);                                  \
             XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
@@ -511,36 +519,36 @@ template<>                        struct target_disambiguator<const int> { typed
 ///      region 0..k. Tag randomization will overuse memory!
 #define MatchF(s) {                                                            \
         XTL_MATCH_PREAMBULA(s)                                                 \
-        static_assert(has_member_kind_selector<bindings<source_type>>::value, "Before using MatchF, you have to specify kind selector on the subject type using KS macro");\
-        lbl_type __kind_selector = original2remapped<source_type>(tag_type(kind_selector(subject_ptr))), __most_derived_kind_selector = __kind_selector;\
+        static_assert(has_member_kind_selector<mch::bindings<source_type>>::value, "Before using MatchF, you have to specify kind selector on the subject type using KS macro");\
+        mch::lbl_type __kind_selector = mch::original2remapped<source_type>(mch::tag_type(mch::kind_selector(subject_ptr))), __most_derived_kind_selector = __kind_selector;\
         XTL_UNUSED(__most_derived_kind_selector);                              \
-        const lbl_type* __kinds = 0;                                           \
+        const mch::lbl_type* __kinds = 0;                                      \
         XTL_CONCAT(ReMatch,__LINE__):                                          \
         switch (size_t(__kind_selector)) {                                     \
         default:                                                               \
             if (XTL_LIKELY(!__kinds))                                          \
             {                                                                  \
-                XTL_PRELOADABLE_LOCAL_STATIC(std::vector<const lbl_type*>,__kinds_cache,match_uid_type);\
+                XTL_PRELOADABLE_LOCAL_STATIC(std::vector<const mch::lbl_type*>,__kinds_cache,match_uid_type);\
                 if (XTL_UNLIKELY(size_t(__kind_selector) >= __kinds_cache.size()))\
                     __kinds_cache.resize(__kind_selector+1);                   \
                 __kinds = __kinds_cache[__kind_selector];                      \
                 if (!__kinds)                                                  \
-                    __kinds = __kinds_cache[__kind_selector] = get_kinds<source_type>(__kind_selector);\
+                    __kinds = __kinds_cache[__kind_selector] = mch::get_kinds<source_type>(__kind_selector);\
             }                                                                  \
             XTL_ASSERT(("Base classes for this kind were not specified",__kinds));\
             XTL_ASSERT(("Invalid list of kinds",*__kinds==__kind_selector));   \
-            __kind_selector = __kinds ? *++__kinds : lbl_type(0);              \
+            __kind_selector = __kinds ? *++__kinds : mch::lbl_type(0);         \
             goto XTL_CONCAT(ReMatch,__LINE__);                                 \
         case 0: break; { XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
 #define QuaF(C,...)                                                            \
         XTL_SUBCLAUSE_CLOSE }                                                  \
-        if (XTL_UNLIKELY(is_base_and_derived_kinds<source_type>(remapped<C>::lbl, __most_derived_kind_selector))) \
+        if (XTL_UNLIKELY(mch::is_base_and_derived_kinds<source_type>(mch::remapped<C>::lbl, __most_derived_kind_selector))) \
         {                                                                      \
-        case remapped<C>::lbl:                                                 \
+        case mch::remapped<C>::lbl:                                            \
             XTL_CLAUSE_COMMON(C);                                              \
-            auto matched = stat_cast<target_type>(subject_ptr);                \
+            auto matched = mch::stat_cast<target_type>(subject_ptr);           \
             XTL_CLAUSE_DECL_ONLY(C(*matched));                                 \
             XTL_UNUSED(matched);                                               \
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
@@ -577,7 +585,7 @@ template<>                        struct target_disambiguator<const int> { typed
         { /* Clause */                                                         \
             XTL_CLAUSE_COMMON(C);                                              \
             XTL_NON_REDUNDANCY_ONLY(case XTL_COUNTER-__base_counter:)          \
-            if (auto matched = cons<C>()(subject_ptr))                         \
+            if (auto matched = mch::cons<C>()(subject_ptr))                         \
             { /* Sequential */                                                 \
                 XTL_CLAUSE_DECL_ONLY(C(*matched));                             \
                 XTL_UNUSED(matched);                                           \
@@ -607,7 +615,7 @@ template<>                        struct target_disambiguator<const int> { typed
 #define QuaS(C,...)                                                            \
         XTL_SUBCLAUSE_CLOSE }}{                                                \
         XTL_CLAUSE_COMMON(C);                                                  \
-        if (auto matched = cons<C>()(subject_ptr))                             \
+        if (auto matched = mch::cons<C>()(subject_ptr))                             \
         {                                                                      \
             XTL_CLAUSE_DECL_ONLY(C(*matched));                                 \
             XTL_UNUSED(matched);                                               \
@@ -637,7 +645,7 @@ template<>                        struct target_disambiguator<const int> { typed
 /// \endcode
 /// The solution used here is based on the following discussion:
 /// \see http://stackoverflow.com/questions/4295890/trouble-with-template-parameters-used-in-macros
-#define  TypeArg_(X)  XTL_CPP0X_TYPENAME get_first_param<void X>::type
+#define  TypeArg_(X)  XTL_CPP0X_TYPENAME mch::get_first_param<void X>::type
 #define  TypeArg(...) TypeArg_((__VA_ARGS__))
 
 //------------------------------------------------------------------------------
@@ -647,7 +655,7 @@ template<>                        struct target_disambiguator<const int> { typed
 #define MatchQ(s) {                                                            \
         XTL_MATCH_PREAMBULA(s)                                                 \
         enum { __base_counter = XTL_COUNTER };                                 \
-        typedef unified_switch<source_type> switch_traits;                     \
+        typedef mch::unified_switch<source_type> switch_traits;                \
         XTL_PRELOADABLE_LOCAL_STATIC(XTL_CPP0X_TYPENAME switch_traits::static_data_type,static_data,match_uid_type); \
         XTL_CPP0X_TYPENAME switch_traits::local_data_type  local_data;         \
         register bool processed = false;                                       \
@@ -674,7 +682,7 @@ template<>                        struct target_disambiguator<const int> { typed
             typedef XTL_CPP0X_TYPENAME switch_traits::                         \
                     XTL_CPP0X_TEMPLATE disambiguate<0>::                       \
                     XTL_CPP0X_TEMPLATE parameter<target_type> target_specific; \
-            enum { /*target_layout = target_specific::layout,*/ target_label = XTL_COUNTER-__base_counter };  \
+            enum { /*target_layout = target_specific::layout,*/ target_label = XTL_COUNTER-__base_counter }; \
             if (XTL_UNLIKELY(target_specific::main_condition(subject_ptr, local_data)))                   \
             {                                                                                             \
                 switch_traits::on_first_pass(subject_ptr, local_data, target_label);                      \
@@ -706,9 +714,9 @@ template<>                        struct target_disambiguator<const int> { typed
 /// Macro that defines the case statement for the above switch
 #define WithQ(...)                                                             \
         XTL_SUBCLAUSE_CLOSE }}                                                 \
-        XTL_REDUNDANCY_CATCH(underlying<decltype(__VA_ARGS__)>::type::accepted_type) \
+        XTL_REDUNDANCY_CATCH(mch::underlying<decltype(__VA_ARGS__)>::type::accepted_type) \
         {                                                                      \
-            typedef underlying<decltype(__VA_ARGS__)>::type::accepted_type C;  \
+            typedef mch::underlying<decltype(__VA_ARGS__)>::type::accepted_type C;  \
             typedef XTL_CPP0X_TYPENAME switch_traits::                         \
                     XTL_CPP0X_TEMPLATE disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::source_type)>:: \
                     XTL_CPP0X_TEMPLATE parameter<C> target_specific;           \

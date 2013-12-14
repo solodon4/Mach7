@@ -30,8 +30,8 @@ enum { default_layout = size_t(~0) };
 /// subject s in position N
 #define XTL_MATCH_SUBJECT(N,s)                                                 \
         auto&&     subject_ref##N = s;                                         \
-        auto const subject_ptr##N = addr(subject_ref##N);                      \
-        typedef XTL_CPP0X_TYPENAME underlying<decltype(*subject_ptr##N)>::type source_type##N; \
+        auto const subject_ptr##N = mch::addr(subject_ref##N);                 \
+        typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(*subject_ptr##N)>::type source_type##N; \
         typedef source_type##N target_type##N;                                 \
         enum { target_layout##N = default_layout };                            \
         XTL_ASSERT(("Trying to match against a nullptr",subject_ptr##N));      \
@@ -61,8 +61,8 @@ enum { default_layout = size_t(~0) };
         enum { __base_counter = XTL_COUNTER };                                 \
         XTL_MATCH_SUBJECT_POLYMORPHIC(0,s0)                                    \
         XTL_MATCH_SUBJECT_POLYMORPHIC(1,s1)                                    \
-        XTL_PRELOADABLE_LOCAL_STATIC(vtblmap<type_switch_info>,__vtbl2lines_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
-        type_switch_info& __switch_info = __vtbl2lines_map.get(subject_ptr0,subject_ptr1); \
+        XTL_PRELOADABLE_LOCAL_STATIC(mch::vtblmap<mch::type_switch_info>,__vtbl2lines_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
+        mch::type_switch_info& __switch_info = __vtbl2lines_map.get(subject_ptr0,subject_ptr1); \
         switch (__switch_info.target) {                                        \
         default: {
 
@@ -87,8 +87,8 @@ enum { default_layout = size_t(~0) };
                 __switch_info.offset[1] = intptr_t(__casted_ptr1)-intptr_t(subject_ptr1); \
             }                                                                  \
         case target_label:                                                     \
-            auto& match0 = *adjust_ptr<C0>(subject_ptr0,__switch_info.offset[0]); \
-            auto& match1 = *adjust_ptr<C1>(subject_ptr1,__switch_info.offset[1]); \
+            auto& match0 = *mch::adjust_ptr<C0>(subject_ptr0,__switch_info.offset[0]); \
+            auto& match1 = *mch::adjust_ptr<C1>(subject_ptr1,__switch_info.offset[1]); \
             XTL_UNUSED(match0);                                                \
             XTL_UNUSED(match1);
 

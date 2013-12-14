@@ -19,6 +19,9 @@
 #include <unordered_map>
 #include <vector>
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 /// The type capable of holding any values of original tags in user's class 
@@ -35,18 +38,13 @@ enum tag_type { min_tag = size_t(0), max_tag = ~size_t(0) };
 /// places we will have to do a run-time conversion.
 enum lbl_type { min_lbl = size_t(0), max_lbl = ~size_t(0) };
 
-namespace std 
-{
-    template <> struct hash<lbl_type> { size_t operator()(const lbl_type& l) const noexcept { return l; } };
-};
-
 /// Amount of extra values in the range of labels (lbl_type) we need for our purposes
 const size_t reserved_extra_kinds = 1;
 
 #if !defined(SKV)
     /// Macro to be used in global scope to set the smallest kind value N for the 
     /// class hierarchy rooted at C. When it is not used, 0 is assumed.
-    #define SKV(C,N) smallest_kind_is<N> smallest_kind_value_helper(const C&);
+    #define SKV(C,N) mch::smallest_kind_is<N> smallest_kind_value_helper(const C&);
 #else
     #error Macro SKV used by the pattern-matching library has already been defined
 #endif
@@ -605,3 +603,10 @@ public:
 };
 
 //------------------------------------------------------------------------------
+
+} // of namespace mch
+
+namespace std 
+{
+    template <> struct hash<mch::lbl_type> { size_t operator()(const mch::lbl_type& l) const noexcept { return l; } };
+} // of namespace std

@@ -471,6 +471,8 @@ int main()
     std::cout << "18 -> " << dynamic_cast<const shape_kind<18>*>(p) << std::endl;
     std::cout << "19 -> " << dynamic_cast<const shape_kind<19>*>(p) << std::endl;
 
+    using namespace mch; // Mach7's library namespace
+
     verdict pp = test_repetitive();
     verdict ps = test_sequential();
     verdict pr = test_randomized();

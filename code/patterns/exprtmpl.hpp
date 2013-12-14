@@ -16,6 +16,9 @@
 
 #include <utility>
 
+namespace mch ///< Mach7 library namespace
+{
+
 //==============================================================================
 // Functors implementing a particular operation for any pair of types
 //==============================================================================
@@ -331,3 +334,5 @@ inline bool do_solve(division,const A& a,       B& b, const decltype(a/b)& r)
 }
 
 //------------------------------------------------------------------------------
+
+} // of namespace mch

@@ -14,8 +14,13 @@
 #include "patterns/constructor.hpp" // Support for constructor patterns
 #include "patterns/guard.hpp"       // Support for guard patterns
 #include "patterns/n+k.hpp"         // Support for n+k patterns
+
+#include <cmath>
 #include <complex>
 #include <iostream>
+
+namespace mch ///< Mach7 library namespace
+{
 
 size_t gcd(size_t a, size_t b)
 {
@@ -54,7 +59,6 @@ template <typename E1, typename E2> auto gcd(E1&& e1, E2&& e2) -> XTL_RETURN_ENA
     make_expr<gcd_functor>(filter(std::forward<E1>(e1)),filter(std::forward<E2>(e2)))
 )
 
-#include <cmath>
 struct sqrt_functor
 {
     template <class A> 
@@ -116,9 +120,12 @@ inline bool solve(const expr<division,var_ref<variable<double>>,var_ref<variable
     return true;
 }
 
+} // of namespace mch
 
 int main()
 {
+    using namespace mch; // Mach7's library namespace
+
     const    std::complex<double>  i(0.0,1.0);
              std::complex<double>  c(1,1);
     variable<std::complex<double>> d;

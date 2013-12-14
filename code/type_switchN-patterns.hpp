@@ -22,7 +22,7 @@
 //------------------------------------------------------------------------------
 
 /// Predefined value representing a layout used by default when none is specified.
-//enum { default_layout = size_t(~0) };
+enum { default_layout = size_t(~0) };
 
 //------------------------------------------------------------------------------
 
@@ -30,8 +30,8 @@
 /// subject s in position N
 #define XTL_MATCH_SUBJECT(N,s)                                                 \
         auto&&     subject_ref##N = s;                                         \
-        auto const subject_ptr##N = addr(subject_ref##N);                      \
-        typedef XTL_CPP0X_TYPENAME underlying<decltype(*subject_ptr##N)>::type source_type##N; \
+        auto const subject_ptr##N = mch::addr(subject_ref##N);                 \
+        typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(*subject_ptr##N)>::type source_type##N; \
         typedef source_type##N target_type##N;                                 \
         enum { target_layout##N = default_layout };                            \
         XTL_ASSERT(("Trying to match against a nullptr",subject_ptr##N));      \
@@ -64,9 +64,9 @@
         enum { is_inside_case_clause = 0, number_of_subjects = N };            \
         enum { __base_counter = XTL_COUNTER };                                 \
         XTL_REPEAT(N,XTL_MATCH_SUBJECT_POLYMORPHIC_FROM,__VA_ARGS__)           \
-        typedef vtbl_map<N,type_switch_info<N>> vtbl_map_type;                 \
+        typedef mch::vtbl_map<N,mch::type_switch_info<N>> vtbl_map_type;       \
         XTL_PRELOADABLE_LOCAL_STATIC(vtbl_map_type,__vtbl2case_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
-        type_switch_info<N>& __switch_info = __vtbl2case_map.get(XTL_ENUM(N,XTL_PREFIX,subject_ptr)); \
+        mch::type_switch_info<N>& __switch_info = __vtbl2case_map.get(XTL_ENUM(N,XTL_PREFIX,subject_ptr)); \
         switch (__switch_info.target) {                                        \
         default: {{{
 
@@ -81,11 +81,11 @@
 #endif
 
 #define XTL_DECLARE_TARGET_TYPES(i,...)                                        \
-        static_assert(is_pattern<decltype(XTL_SELECT_ARG(i,__VA_ARGS__))>::value,"With-clause expects patterns as its arguments"); \
-        typedef underlying<decltype(XTL_SELECT_ARG(i,__VA_ARGS__))>::type::accepted_type target_type##i;
+        static_assert(mch::is_pattern<decltype(XTL_SELECT_ARG(i,__VA_ARGS__))>::value,"With-clause expects patterns as its arguments"); \
+        typedef mch::underlying<decltype(XTL_SELECT_ARG(i,__VA_ARGS__))>::type::accepted_type target_type##i;
 #define XTL_DYN_CAST_FROM(i,...) (__casted_ptr##i = dynamic_cast<const target_type##i*>(subject_ptr##i)) != 0
 #define XTL_ASSIGN_OFFSET(i,...) __switch_info.offset[i] = intptr_t(__casted_ptr##i)-intptr_t(subject_ptr##i);
-#define XTL_ADJUST_PTR_FROM(i,...) auto& match##i = *adjust_ptr<target_type##i>(subject_ptr##i,__switch_info.offset[i]);
+#define XTL_ADJUST_PTR_FROM(i,...) auto& match##i = *mch::adjust_ptr<target_type##i>(subject_ptr##i,__switch_info.offset[i]);
 #define XTL_MATCH_PATTERN_TO_TARGET(i,...) XTL_SELECT_ARG(i,__VA_ARGS__)(match##i)
 
 /// Helper macro for #Case

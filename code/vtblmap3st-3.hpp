@@ -60,6 +60,9 @@
 #include <vector>
 #endif
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 /// Type capable of representing bit offsets and bit counts in intptr_t
@@ -803,3 +806,5 @@ struct type_switch_info
 };
 
 //------------------------------------------------------------------------------
+
+} // of namespace mch

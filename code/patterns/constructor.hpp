@@ -16,6 +16,9 @@
 #include "primitive.hpp"
 #include <cstddef>
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 /// Constructor/Type pattern of 0 arguments
@@ -627,3 +630,5 @@ template <typename T, size_t L, typename P1, typename P2, typename P3>          
 template <typename T, size_t L, typename P1, typename P2, typename P3, typename P4> struct is_pattern_<constr4<T,L,P1,P2,P3,P4>>  { enum { value = true }; };
 
 //------------------------------------------------------------------------------
+
+} // of namespace mch

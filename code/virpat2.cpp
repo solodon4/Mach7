@@ -26,21 +26,21 @@ int main()
     int r = 0;
     size_t u = 0;
 
-    wildcard _;
+    mch::wildcard _;
     int v = 0;
 
-    time_stamp liStart1 = get_time_stamp();
+    mch::time_stamp liStart1 = mch::get_time_stamp();
 
     for (size_t j = 0; j < T; ++j)
         for (size_t i = 0; i < N; ++i)
         {
-            if (cons<int>(17)(tests[i])) r+=1;
-            if (cons<int>( v)(tests[i])) r+=2;
-            if (cons<int>( _)(tests[i])) r+=4;
+            if (mch::cons<int>(17)(tests[i])) r+=1;
+            if (mch::cons<int>( v)(tests[i])) r+=2;
+            if (mch::cons<int>( _)(tests[i])) r+=4;
             u += r;
             //std::cout << "r=" << r << " u=" << u << std::endl;
         }
 
-    time_stamp liFinish1 = get_time_stamp();
-    std::cout << "r=" << r << " u=" << u << " timing=" << cycles((liFinish1-liStart1)/T) << " cycles/iteration" << std::endl;
+    mch::time_stamp liFinish1 = mch::get_time_stamp();
+    std::cout << "r=" << r << " u=" << u << " timing=" << mch::cycles((liFinish1-liStart1)/T) << " cycles/iteration" << std::endl;
 }

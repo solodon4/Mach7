@@ -36,10 +36,10 @@ fib (2*n+1) = (fib(n+1))^2 + (fib n   )^2
 
 int factorial(int n)
 {
-    variable<int> m;
+    mch::variable<int> m;
 
-	if (cons<int>(0)(n))   return 1;
-	if (cons<int>(m+1)(n)) return (m+1)*factorial(m);
+	if (mch::cons<int>(0)(n))   return 1;
+	if (mch::cons<int>(m+1)(n)) return (m+1)*factorial(m);
 	XTL_ASSERT(!"Should never happen");	
     return 0;
 }
@@ -75,19 +75,19 @@ double power_opt(double x, int n)
 
 double power1(double x, int n)
 {
-	variable<int> m;
+	mch::variable<int> m;
 
-	if (cons<int>(0)(n))     return 1.0;
-    if (cons<int>(1)(n))     return x;
-	if (cons<int>(m*2)(n))   return sqr(power1(x,m));
-	if (cons<int>(m*2+1)(n)) return x*power1(x,2*m);
+	if (mch::cons<int>(0)(n))     return 1.0;
+    if (mch::cons<int>(1)(n))     return x;
+	if (mch::cons<int>(m*2)(n))   return sqr(power1(x,m));
+	if (mch::cons<int>(m*2+1)(n)) return x*power1(x,2*m);
 }
 
 //------------------------------------------------------------------------------
 
 double power2(double x, int n)
 {
-    variable<int> m;
+    mch::variable<int> m;
 
     Match(n)
     {
@@ -125,19 +125,19 @@ int fib_opt(int n)
 
 int fib1(int n)
 {
-    variable<int> m;
+    mch::variable<int> m;
 
-    if (cons<int>(1)(n))     return 1;
-    if (cons<int>(2)(n))     return 1;
-    if (cons<int>(m*2)(n))   return sqr(fib1(m+1)) - sqr(fib1(m-1));
-    if (cons<int>(m*2+1)(n)) return sqr(fib1(m+1)) + sqr(fib1(m));
+    if (mch::cons<int>(1)(n))     return 1;
+    if (mch::cons<int>(2)(n))     return 1;
+    if (mch::cons<int>(m*2)(n))   return sqr(fib1(m+1)) - sqr(fib1(m-1));
+    if (mch::cons<int>(m*2+1)(n)) return sqr(fib1(m+1)) + sqr(fib1(m));
 }
 
 //------------------------------------------------------------------------------
 
 int fib2(int n)
 {
-    variable<int> m;
+    mch::variable<int> m;
 
     Match(n)
     {
@@ -205,6 +205,8 @@ int main()
 
 	for (int i = 1; i < 10; ++i)
 		std::cout << "factorial(" << i << ")=" << factorial(i) << std::endl;
+
+    using namespace mch; // Mach7's library namespace
 
     verdict pp = test_repetitive();
     std::cout << "OVERALL: "

@@ -15,6 +15,9 @@
 #include "common.hpp"
 #include <algorithm>
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 /// One-of pattern
@@ -46,3 +49,5 @@ inline one_of<T> any(std::initializer_list<T>&& init) noexcept
 }
 
 //------------------------------------------------------------------------------
+
+} // of namespace mch

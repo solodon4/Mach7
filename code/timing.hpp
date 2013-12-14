@@ -34,6 +34,8 @@
     #endif
     #include <windows.h>
 
+namespace mch ///< Mach7 library namespace
+{
     /// The type used to record a time stamp. The type must have operator- defined.
     typedef LONGLONG  time_stamp;
     /// The type capable of holding a difference of two time stamps.
@@ -46,10 +48,15 @@
     /// FIX: 1000 is heuristic here for my laptop. QueryPerformanceCounter doesn't specify how it is related to cycles!
     inline time_stamp_diff cycles(time_stamp_diff tsd)  { return tsd*1000; }
 
+} // of namespace mch
+
 #elif defined(XTL_TIMING_METHOD_2)
 
     #include <stdint.h>
     #include <unistd.h>
+
+namespace mch ///< Mach7 library namespace
+{
 
     // The following code is taken from: http://en.wikipedia.org/wiki/Time_Stamp_Counter
     extern "C" {
@@ -91,10 +98,14 @@
     /// Estimates the number of cycles in a given time_stamp_diff value
     inline time_stamp_diff cycles(time_stamp_diff tsd)  { return tsd; }
 
+} // of namespace mch
+
 #elif defined(XTL_TIMING_METHOD_3)
 
     #include <time.h>
 
+namespace mch ///< Mach7 library namespace
+{
     /// The type used to record a time stamp. The type must have operator- defined.
     typedef clock_t   time_stamp;
     /// The type capable of holding a difference of two time stamps.
@@ -103,12 +114,16 @@
     inline time_stamp get_time_stamp() { return clock(); }
     /// Returns how many time stamps are there in 1 second (frequency).
     inline time_stamp get_frequency()  { return CLOCKS_PER_SEC; }
+} // of namespace mch
 
 #else
 
     #error Timing method has not been chosen
 
 #endif
+
+namespace mch ///< Mach7 library namespace
+{
 
 static const time_stamp time_stamp_frequency = get_frequency();
 
@@ -124,3 +139,5 @@ namespace dbl
     inline double microseconds(const long long& l) { return double(l)*1000000/time_stamp_frequency; }
     inline double  nanoseconds(const long long& l) { return double(l)*1000000000/time_stamp_frequency; }
 }
+
+} // of namespace mch

@@ -61,6 +61,9 @@
 #include <vector>
 #endif
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 /// Type capable of representing bit offsets and bit counts in intptr_t
@@ -832,6 +835,8 @@ struct type_switch_info
 };
 
 //------------------------------------------------------------------------------
+
+} // of namespace mch
 
 #include "vtblmap4st-1.hpp" // Implementation of vtbl_map<1,T> partial specialization
 #include "vtblmap4st-2.hpp" // Implementation of vtbl_map<2,T> partial specialization

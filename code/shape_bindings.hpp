@@ -17,6 +17,8 @@
 
 // Members binding for Shape hierarchy
 
+namespace mch ///< Mach7 library namespace
+{
 template <> struct bindings<Shape>    {};
 
 template <> struct bindings<Circle>   { CM(0,Circle::get_center); CM(1,Circle::radius); };
@@ -44,3 +46,4 @@ template <> struct bindings<ADTShapeEx> { KS(ADTShape::kind); };
 template <> struct bindings<ADTShapeEx,ADTShape::circle>   { KV(ADTShape,ADTShape::circle);   CM(0,ADTShape::center);     CM(1,ADTShape::radius); CM(2,ADTShapeEx::extra_field); };
 template <> struct bindings<ADTShapeEx,ADTShape::square>   { KV(ADTShape,ADTShape::square);   CM(0,ADTShape::upper_left); CM(1,ADTShape::size);   CM(2,ADTShapeEx::extra_field); };
 template <> struct bindings<ADTShapeEx,ADTShape::triangle> { KV(ADTShape,ADTShape::triangle); CM(0,ADTShape::first);      CM(1,ADTShape::second); CM(2,ADTShape::third); CM(3,ADTShapeEx::extra_field); };
+} // of namespace mch

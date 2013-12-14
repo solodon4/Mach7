@@ -54,7 +54,10 @@ size_t frequency(const Shape& s)
 }
 
 //size_t frequency(intptr_t vtbl) { return frequency(*reinterpret_cast<const Shape*>(&vtbl)); }
+namespace mch ///< Mach7 library namespace
+{
 template <> struct bindings<Shape> { FQS(frequency); };
+} // of namespace mch
 #endif
 
 //------------------------------------------------------------------------------
@@ -126,6 +129,8 @@ Shape* make_shape(size_t i)
 
 int main()
 {
+    using namespace mch; // Mach7's library namespace
+
     verdict pp = test_repetitive();
     verdict ps = test_sequential();
     verdict pr = test_randomized();

@@ -10,16 +10,22 @@
 /// All rights reserved.
 ///
 
+#include <iostream>
+
 #include "match.hpp"                // Support for Match statement
 #include "patterns/constructor.hpp" // Support for constructor patterns
 #include "patterns/guard.hpp"       // Support for guard patterns
 #include "patterns/n+k.hpp"         // Support for n+k patterns
 #include "shape_bindings.hpp"
-#include <iostream>
 
 //#define POD_ONLY
 
 std::ostream& operator<<(std::ostream& os, const loc& l)
+{
+    return os << '(' << l.first << ',' << l.second << ')';
+}
+
+std::ostream& operator<<(std::ostream& os,       loc& l)
 {
     return os << '(' << l.first << ',' << l.second << ')';
 }
@@ -33,17 +39,17 @@ double heron(const loc&, const loc&, const loc&) { return 1.0/2; }
 
 double area(const Shape& shape)
 {
-    wildcard       _; // Meta variable
-    variable<loc>  x,y,z;
-    variable<double> r,s;
+    mch::wildcard       _; // Meta variable
+    mch::variable<loc>  x,y,z;
+    mch::variable<double> r,s;
 
-    if (cons<Circle>(_,r)(shape))
+    if (mch::cons<Circle>(_,r)(shape))
         return 3.14 * r * r;
 
-    if (cons<Square>(_,s)(shape))
+    if (mch::cons<Square>(_,s)(shape))
         return s * s;
 
-    if (cons<Triangle>(x,y,z)(shape))
+    if (mch::cons<Triangle>(x,y,z)(shape))
         return heron(x,y,z);
 
     XTL_ASSERT(!"Inexhaustive search");
@@ -51,23 +57,23 @@ double area(const Shape& shape)
 
 loc center(/*const*/ Shape& shape)
 {
-    variable<loc> c;
+    mch::variable<loc> c;
 
-    if (cons<Circle>(c/*,_*/)(shape))
+    if (mch::cons<Circle>(c/*,_*/)(shape))
         return c;
 
-    variable<double> x,y,s;
+    mch::variable<double> x,y,s;
 
-    if (cons<Square>(
-            cons<loc>(x,y),s)(shape))
+    if (mch::cons<Square>(
+            mch::cons<loc>(x,y),s)(shape))
         return loc(x+s/2,y+s/2);
 
-    variable<double> x1,y1,x2,y2,x3,y3;
+    mch::variable<double> x1,y1,x2,y2,x3,y3;
 
-    if (cons<Triangle>(
-            cons<loc>(x1,y1),
-            cons<loc>(x2,y2),
-            cons<loc>(x3,y3)
+    if (mch::cons<Triangle>(
+            mch::cons<loc>(x1,y1),
+            mch::cons<loc>(x2,y2),
+            mch::cons<loc>(x3,y3)
                        )(shape))
         return loc((x1+x2+x3)/3,(y1+y2+y3)/3);
 
@@ -76,62 +82,62 @@ loc center(/*const*/ Shape& shape)
 
 void foo(Shape* s)
 {
-    variable<loc>  x,y,z;
-    variable<double> a,b,c;
-    //wildcard       _;
+    mch::variable<loc>  x,y,z;
+    mch::variable<double> a,b,c;
+    //mch::wildcard       _;
 
-    auto pattern = cons<Circle>(x, -a*2+1);
+    auto pattern = mch::cons<Circle>(x, -a*2+1);
 
     if (pattern(s))
         std::cout << "Matched against pattern " << a << std::endl;
 
-    if (cons<Circle>(x, -a*2+1)(s))
+    if (mch::cons<Circle>(x, -a*2+1)(s))
         std::cout << "Matched against subexpression " << a << std::endl;
 
-    if (cons<Circle>(x |= x == loc(1,1), a)(s))
+    if (mch::cons<Circle>(x |= x == loc(1,1), a)(s))
         std::cout << "Matched against guard " << a << std::endl;
 
-    if (cons<Circle>(x, a |= a > 3 && a < 5)(s))
+    if (mch::cons<Circle>(x, a |= a > 3 && a < 5)(s))
         std::cout << "Matched radius against COMPLEX guard " << a << std::endl;
 
-    if (cons<Circle>(cons<loc>(b,1), a)(s))
+    if (mch::cons<Circle>(mch::cons<loc>(b,1), a)(s))
         std::cout << "Matched against subexpression " << b << std::endl;
 
-    if (cons<Circle>(x,4.0)(s))
+    if (mch::cons<Circle>(x,4.0)(s))
         std::cout << "Circle with center " << x << " and FIXED radius " << std::endl;
 
-    if (cons<Circle>(x,a)(s))
+    if (mch::cons<Circle>(x,a)(s))
         std::cout << "Circle with center " << x << " and radius " << a << std::endl;
     else
-    if (cons<Square>(x,a)(s))
+    if (mch::cons<Square>(x,a)(s))
         std::cout << "Square with top left " << x << " and side " << a << std::endl;
     else
-    if (cons<Triangle>(x,y,z)(s))
+    if (mch::cons<Triangle>(x,y,z)(s))
         std::cout << "Triangle with corners " << x << ',' << y << ',' << z << std::endl;
 }
 
 void bar(ADTShape& s)
 {
-    variable<cloc>  x,y,z;
-    variable<double> a;
+    mch::variable<cloc>  x,y,z;
+    mch::variable<double> a;
 
 #ifndef POD_ONLY
-    if (cons<ADTShapeEx,ADTShape::circle>(x,a)(s))
+    if (mch::cons<ADTShapeEx,ADTShape::circle>(x,a)(s))
         std::cout << "ADTCircleEx with center " << x << " and radius " << a << std::endl;
     else
-    if (cons<ADTShapeEx,ADTShape::square>(x,a)(s))
+    if (mch::cons<ADTShapeEx,ADTShape::square>(x,a)(s))
         std::cout << "ADTSquareEx with top left " << x << " and side " << a << std::endl;
     else
-    if (cons<ADTShapeEx,ADTShape::triangle>(x,y,z)(s))
+    if (mch::cons<ADTShapeEx,ADTShape::triangle>(x,y,z)(s))
         std::cout << "ADTTriangleEx with corners " << x << ',' << y << ',' << z << std::endl;
 #endif
-    if (cons<ADTShape,ADTShape::circle>(x,a)(s))
+    if (mch::cons<ADTShape,ADTShape::circle>(x,a)(s))
         std::cout << "ADTCircle with center " << x << " and radius " << a << std::endl;
     else
-    if (cons<ADTShape,ADTShape::square>(x,a)(s))
+    if (mch::cons<ADTShape,ADTShape::square>(x,a)(s))
         std::cout << "ADTSquare with top left " << x << " and side " << a << std::endl;
     else
-    if (cons<ADTShape,ADTShape::triangle>(x,y,z)(s))
+    if (mch::cons<ADTShape,ADTShape::triangle>(x,y,z)(s))
         std::cout << "ADTTriangle with corners " << x << ',' << y << ',' << z << std::endl;
 }
 
@@ -140,6 +146,9 @@ int main()
     Shape* c = new Circle(loc(1,1),4);
     Shape* s = new Square(loc(2,2),2);
     Shape* t = new Triangle(loc(0,0),loc(0,1),loc(1,0));
+
+    loc lll;
+    std::cout << lll;
 
     foo(c); std::cout << "Area: " << area(*c) << " Center: " << center(*c) << std::endl;
     foo(s); std::cout << "Area: " << area(*s) << " Center: " << center(*s) << std::endl;

@@ -30,6 +30,9 @@
 #include "metatools.hpp"     // Utility meta-functions
 #include <vector>
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 /// A class that keeps a run-time instantiation counter of different types. 
@@ -208,6 +211,8 @@ struct memoized_cast_helper<T&>
     }
 };
 
+} // of namespace mch
+
 //------------------------------------------------------------------------------
 
 /// Actual implementation of memoized_cast that simply forwards the call to a 
@@ -216,7 +221,7 @@ struct memoized_cast_helper<T&>
 template <typename T, typename S>
 inline T memoized_cast(S&& s)
 {
-    return memoized_cast_helper<T>::go(std::forward<S>(s));
+    return mch::memoized_cast_helper<T>::go(std::forward<S>(s));
 }
 
 //------------------------------------------------------------------------------

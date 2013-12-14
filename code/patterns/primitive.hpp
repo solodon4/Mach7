@@ -14,6 +14,9 @@
 
 #include "common.hpp"
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 /// Class that describes a meta variable that matches everything.
@@ -284,6 +287,7 @@ template <typename P> inline typename std::enable_if< is_pattern<P>::value, type
 ///@{
 /// Set of overloads capable of decomposing an expression template that models
 /// an Expression concept and evaluating it.
+/// \note See header files of other patterns for more overloads!
 template <typename T> T inline eval(const value<T>& e)             { return e.m_value; }
 template <typename T> T inline eval(const variable<T>& e)          { return e.m_value; }
 template <typename T> T inline eval(const var_ref<T>& e)           { return *e.m_var; }
@@ -291,3 +295,5 @@ template <typename T> T inline eval(const var_ref<variable<T>>& e) { return e.m_
 ///@}
 
 //------------------------------------------------------------------------------
+
+} // of namespace mch

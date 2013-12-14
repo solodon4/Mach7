@@ -16,6 +16,9 @@
 #include <regex>
 #include <string>
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 /// RegEx pattern of 0 arguments
@@ -74,3 +77,7 @@ inline auto rex(const char* re, P1&& p1) noexcept -> XTL_RETURN
 
 template <>            struct is_pattern_<regex0>     { enum { value = true }; };
 template <typename P1> struct is_pattern_<regex1<P1>> { enum { value = true }; };
+
+//------------------------------------------------------------------------------
+
+} // of namespace mch

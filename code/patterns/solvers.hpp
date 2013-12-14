@@ -12,7 +12,11 @@
 
 #pragma once
 
+#include <complex>
 //#include "patterns.hpp"
+
+namespace mch ///< Mach7 library namespace
+{
 
 //------------------------------------------------------------------------------
 
@@ -166,7 +170,7 @@ inline bool solve(const expr<division,value<T>,E1>& e, const S& r)
 }
 
 //------------------------------------------------------------------------------
-#include <complex>
+
 template <typename T1, typename T2>
 struct is_complex_and_scalar
 {
@@ -233,3 +237,5 @@ inline bool solve(
 //}
 
 //------------------------------------------------------------------------------
+
+} // of namespace mch

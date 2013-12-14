@@ -19,9 +19,13 @@
 
 //------------------------------------------------------------------------------
 
+/// Application including this header must provide implementation of this.
 extern Shape* make_shape(size_t);
 
 //------------------------------------------------------------------------------
+
+namespace mch ///< Mach7 library namespace
+{
 
 /// Just a table of numbers that would prevent compiler from optimizing too much
 static int some_numbers[256] = {
@@ -337,3 +341,5 @@ verdict test_repetitive()
 }
 
 //------------------------------------------------------------------------------
+
+} // of namespace mch

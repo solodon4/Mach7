@@ -25,6 +25,9 @@
 #include "config.hpp"
 #include "timing.hpp"
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 #if defined(XTL_TIMING_METHOD_1)
@@ -361,3 +364,5 @@ inline void print_xtl_macros(std::ostream& os = std::clog)
 } 
 
 //------------------------------------------------------------------------------
+
+} // of namespace mch

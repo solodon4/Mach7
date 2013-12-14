@@ -19,7 +19,7 @@
 
 //#define POD_ONLY
 
-wildcard _; // Meta variable
+mch::wildcard _; // Meta variable
 
 std::ostream& operator<<(std::ostream& os, const loc& l)
 {

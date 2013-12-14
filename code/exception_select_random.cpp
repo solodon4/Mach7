@@ -39,7 +39,10 @@ template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(
 
 //------------------------------------------------------------------------------
 
-template <> struct bindings<Shape> { RS(Shape::raise); };
+namespace mch ///< Mach7 library namespace
+{
+    template <> struct bindings<Shape> { RS(Shape::raise); };
+} // of namespace mch
 
 //------------------------------------------------------------------------------
 
@@ -111,6 +114,8 @@ Shape* make_shape(size_t i)
 
 int main()
 {
+    using namespace mch; // Mach7's library namespace
+
     verdict pp = test_repetitive();
 //    verdict ps = test_sequential();
 //    verdict pr = test_randomized();

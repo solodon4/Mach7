@@ -16,6 +16,9 @@
 #include "exprtmpl.hpp"
 #include <ostream>
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 /// This is the most generic solver that essentially just reports an error at
@@ -115,10 +118,7 @@ template <typename F, typename E1, typename E2>
 ///@{
 /// Set of overloads capable of decomposing an expression template that models
 /// an Expression concept and evaluating it.
-template <typename T> T inline eval(const value<T>& e)             { return e.m_value; }
-template <typename T> T inline eval(const variable<T>& e)          { return e.m_value; }
-template <typename T> T inline eval(const var_ref<T>& e)           { return *e.m_var; }
-template <typename T> T inline eval(const var_ref<variable<T>>& e) { return e.m_var->m_value; }
+/// \note See header files of other patterns for more overloads!
 template <typename F, typename E1>              
     typename expr<F,E1>::result_type    inline eval(const expr<F,E1>&    e) { return F()(eval(e.m_e1)); }
 template <typename F, typename E1, typename E2> 
@@ -156,22 +156,36 @@ struct filtered_result<F,E1,E2,false>
 ///@}
 #endif
 
+} // of namespace mch
+
 //------------------------------------------------------------------------------
 
 #if defined(__GNUC__)
-// NOTE: We need otherwise redundant non-const overloads to make sure that our 
-//       overloads creating expression templates based on the second argument are 
-//       not chosen!
-template <typename T> std::ostream& operator<<(std::ostream& os, const variable<T >& v) { return os <<  v.m_value; }
-template <typename T> std::ostream& operator<<(std::ostream& os,       variable<T >& v) { return os <<  v.m_value; }
-template <typename T> std::ostream& operator<<(std::ostream& os, const variable<T*>& v) { return os << *v.m_value; }
-template <typename T> std::ostream& operator<<(std::ostream& os,       variable<T*>& v) { return os << *v.m_value; }
+
+/// \note We need otherwise redundant non-const overloads to make sure that our 
+///       overloads creating expression templates based on the second argument are 
+///       not chosen!
+/// \fix  These operators should also work when declared in mch namespace AFAIK since 
+///       their arguments are from mch, however if we put them there, GCC for some
+///       reason cannot find then a proper overload for os << v.m_value when it is 
+///       declared in the global scope for the type decltype(v.m_value) from the 
+///       global scope. To workaround this, we keep these overloads in the global scope!
+template <typename T> std::ostream& operator<<(std::ostream& os, const mch::variable<T >& v) { return os <<  v.m_value; }
+template <typename T> std::ostream& operator<<(std::ostream& os,       mch::variable<T >& v) { return os <<  v.m_value; }
+template <typename T> std::ostream& operator<<(std::ostream& os, const mch::variable<T*>& v) { return os << *v.m_value; }
+template <typename T> std::ostream& operator<<(std::ostream& os,       mch::variable<T*>& v) { return os << *v.m_value; }
+
 #else
+
+/// \note This operator has to be in the global namespace as E is unrestricted
+///       and ADL won't work to find it!
 template <typename E>
-inline auto operator<<(std::ostream& os, E&& e) throw() -> typename std::enable_if<is_expression<E>::value, std::ostream&>::type 
+inline auto operator<<(std::ostream& os, E&& e) throw() 
+        -> typename std::enable_if<mch::is_expression<E>::value, std::ostream&>::type 
 {
-    return os << eval(e);
+    return os << mch::eval(e);
 }
+
 #endif
 
 //------------------------------------------------------------------------------
@@ -188,6 +202,8 @@ inline auto operator<<(std::ostream& os, E&& e) throw() -> typename std::enable_
 /// - all unary operators on binary expressions as well as all binary
 ///   operators with first argument being binary expression and second whatever
 /// - the combinations making the above ones ambiguous
+/// \note These operators have to be in the global namespace as Ei is unrestricted
+///       and ADL won't work to find it!
 /// FIX: GCC (versions 4.5.2 and 4.6.1 at least) crashes on the following definition
 ///      that tries to mimic concept overloading based approach with enable_if. We thus
 ///      provide an overload based workaround for GCC.
@@ -195,20 +211,27 @@ inline auto operator<<(std::ostream& os, E&& e) throw() -> typename std::enable_
 #define FOR_EACH_UNARY_OPERATOR(FF,S)                                           \
     template <typename E1>                                                      \
     inline auto XTL_CONCATENATE(operator,S)(E1&& e1) noexcept ->                \
-    typename std::enable_if<is_expression<E1>::value,                           \
-                            expr<FF,decltype(filter(std::forward<E1>(e1)))>     \
-                           >::type                                              \
+    typename std::enable_if<                                                    \
+                mch::is_expression<E1>::value,                                  \
+                mch::expr<FF,decltype(mch::filter(std::forward<E1>(e1)))>       \
+             >::type                                                            \
     {                                                                           \
-        return make_expr<FF>(filter(std::forward<E1>(e1)));                     \
+        return mch::make_expr<FF>(mch::filter(std::forward<E1>(e1)));           \
     }
 #define FOR_EACH_BINARY_OPERATOR(FF,S)                                          \
     template <typename E1, typename E2>                                         \
     inline auto XTL_CONCATENATE(operator,S)(E1&& e1, E2&& e2) noexcept ->       \
-    typename std::enable_if<either_is_expression<E1,E2>::value,                 \
-                            expr<FF,decltype(filter(std::forward<E1>(e1))),decltype(filter(std::forward<E2>(e2)))> \
-                           >::type                                              \
+    typename std::enable_if<                                                    \
+                mch::either_is_expression<E1,E2>::value,                        \
+                mch::expr<FF,                                                   \
+                          decltype(mch::filter(std::forward<E1>(e1))),          \
+                          decltype(mch::filter(std::forward<E2>(e2)))           \
+                         >                                                      \
+             >::type                                                            \
     {                                                                           \
-        return make_expr<FF>(filter(std::forward<E1>(e1)),filter(std::forward<E2>(e2))); \
+        return mch::make_expr<FF>(                                              \
+                    mch::filter(std::forward<E1>(e1)),                          \
+                    mch::filter(std::forward<E2>(e2)));                         \
     }
 #else
 /// FIX: As you can see one of the overloads is commented and is replaced with a
@@ -217,31 +240,31 @@ inline auto operator<<(std::ostream& os, E&& e) throw() -> typename std::enable_
 ///      This was choosing the wrong overload, so maybe we should replace all operators
 ///      in that way, of rely on later GCC version where this (presumably) is fixed.
 #define FOR_EACH_UNARY_OPERATOR(FF,S)                                           \
-    template <typename T>                                        inline auto XTL_CONCATENATE(operator,S)(      variable<T>&    v) noexcept -> XTL_RETURN(make_expr<FF>(var_ref<variable<T>>(v))) \
-    template <typename T>                                        inline auto XTL_CONCATENATE(operator,S)(const value<T>&       v) noexcept -> XTL_RETURN(make_expr<FF>(v))                       \
-    template <typename F1, typename E1>                          inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1>&    v) noexcept -> XTL_RETURN(make_expr<FF>(v))                       \
-    template <typename F1, typename E1, typename E2>             inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1,E2>& v) noexcept -> XTL_RETURN(make_expr<FF>(v))
+    template <typename T>                                         inline auto XTL_CONCATENATE(operator,S)(      mch::variable<T>&    v) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::var_ref<mch::variable<T>>(v))) \
+    template <typename T>                                         inline auto XTL_CONCATENATE(operator,S)(const mch::value<T>&       v) noexcept -> XTL_RETURN(mch::make_expr<FF>(v))                       \
+    template <typename F1, typename E1>                           inline auto XTL_CONCATENATE(operator,S)(const mch::expr<F1,E1>&    v) noexcept -> XTL_RETURN(mch::make_expr<FF>(v))                       \
+    template <typename F1, typename E1, typename E2>              inline auto XTL_CONCATENATE(operator,S)(const mch::expr<F1,E1,E2>& v) noexcept -> XTL_RETURN(mch::make_expr<FF>(v))
 #define FOR_EACH_BINARY_OPERATOR(FF,S)                                          \
-  /*template <typename T, typename E>                            inline auto XTL_CONCATENATE(operator,S)(      variable<T>&    v,       E&&             e) noexcept -> XTL_RETURN(make_expr<FF>(var_ref<variable<T>>(v),filter(std::forward<E>(e))))*/ \
-    template <typename T, typename E>                            inline auto XTL_CONCATENATE(operator,S)(      variable<T>&    v,       E&&             e) noexcept -> expr<FF,var_ref<variable<T>>,decltype(filter(std::forward<E>(e)))> { return make_expr<FF>(var_ref<variable<T>>(v),filter(std::forward<E>(e))); } \
-  /*template <typename T, typename E>                            inline auto XTL_CONCATENATE(operator,S)(      E&&             e,       variable<T>&    v) noexcept -> XTL_RETURN(make_expr<FF>(filter(std::forward<E>(e)),var_ref<variable<T>>(v)))*/ \
-    template <typename T, typename E>                            inline auto XTL_CONCATENATE(operator,S)(      E&&             e,       variable<T>&    v) noexcept -> expr<FF,decltype(filter(std::forward<E>(e))),var_ref<variable<T>>> { return make_expr<FF>(filter(std::forward<E>(e)),var_ref<variable<T>>(v)); } \
-    template <typename T, typename E>                            inline auto XTL_CONCATENATE(operator,S)(const value<T>&       v,       E&&             e) noexcept -> XTL_RETURN(make_expr<FF>(v,filter(std::forward<E>(e)))) \
-    template <typename T, typename E>                            inline auto XTL_CONCATENATE(operator,S)(      E&&             e, const value<T>&       v) noexcept -> XTL_RETURN(make_expr<FF>(filter(std::forward<E>(e)),v)) \
-    template <typename F1, typename E1, typename E>              inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1>&    v,       E&&             e) noexcept -> XTL_RETURN(make_expr<FF>(v,filter(std::forward<E>(e)))) \
-    template <typename F1, typename E1, typename E>              inline auto XTL_CONCATENATE(operator,S)(      E&&             e, const expr<F1,E1>&    v) noexcept -> XTL_RETURN(make_expr<FF>(filter(std::forward<E>(e)),v)) \
-    template <typename F1, typename E1, typename E2, typename E> inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1,E2>& v,       E&&             e) noexcept -> XTL_RETURN(make_expr<FF>(v,filter(std::forward<E>(e)))) \
-    template <typename F1, typename E1, typename E2, typename E> inline auto XTL_CONCATENATE(operator,S)(      E&&             e, const expr<F1,E1,E2>& v) noexcept -> XTL_RETURN(make_expr<FF>(filter(std::forward<E>(e)),v)) \
-    template <typename T, typename U>                            inline auto XTL_CONCATENATE(operator,S)(const value<T>&       v, const value<U>&       c) noexcept -> XTL_RETURN(make_expr<FF>(v,c)) \
-    template <typename T, typename U>                            inline auto XTL_CONCATENATE(operator,S)(      variable<T>&    v,       variable<U>&    w) noexcept -> XTL_RETURN(make_expr<FF>(var_ref<variable<T>>(v),var_ref<variable<T>>(w))) \
+  /*template <typename T,  typename E>                            inline auto XTL_CONCATENATE(operator,S)(      mch::variable<T>&    v,       E&&                  e) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::var_ref<mch::variable<T>>(v),mch::filter(std::forward<E>(e))))*/ \
+    template <typename T,  typename E>                            inline auto XTL_CONCATENATE(operator,S)(      mch::variable<T>&    v,       E&&                  e) noexcept -> mch::expr<FF,mch::var_ref<mch::variable<T>>,decltype(mch::filter(std::forward<E>(e)))> { return mch::make_expr<FF>(mch::var_ref<mch::variable<T>>(v),mch::filter(std::forward<E>(e))); } \
+  /*template <typename T,  typename E>                            inline auto XTL_CONCATENATE(operator,S)(      E&&             e,            mch::variable<T>&    v) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::filter(std::forward<E>(e)),mch::var_ref<mch::variable<T>>(v)))*/ \
+    template <typename T,  typename E>                            inline auto XTL_CONCATENATE(operator,S)(      E&&             e,            mch::variable<T>&    v) noexcept -> mch::expr<FF,decltype(mch::filter(std::forward<E>(e))),mch::var_ref<mch::variable<T>>> { return mch::make_expr<FF>(mch::filter(std::forward<E>(e)),mch::var_ref<mch::variable<T>>(v)); } \
+    template <typename T,  typename E>                            inline auto XTL_CONCATENATE(operator,S)(const mch::value<T>&       v,       E&&                  e) noexcept -> XTL_RETURN(mch::make_expr<FF>(v,mch::filter(std::forward<E>(e)))) \
+    template <typename T,  typename E>                            inline auto XTL_CONCATENATE(operator,S)(      E&&             e,      const mch::value<T>&       v) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::filter(std::forward<E>(e)),v)) \
+    template <typename F1, typename E1, typename E>               inline auto XTL_CONCATENATE(operator,S)(const mch::expr<F1,E1>&    v,       E&&                  e) noexcept -> XTL_RETURN(mch::make_expr<FF>(v,mch::filter(std::forward<E>(e)))) \
+    template <typename F1, typename E1, typename E>               inline auto XTL_CONCATENATE(operator,S)(      E&&             e,      const mch::expr<F1,E1>&    v) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::filter(std::forward<E>(e)),v)) \
+    template <typename F1, typename E1, typename E2, typename E>  inline auto XTL_CONCATENATE(operator,S)(const mch::expr<F1,E1,E2>& v,       E&&                  e) noexcept -> XTL_RETURN(mch::make_expr<FF>(v,mch::filter(std::forward<E>(e)))) \
+    template <typename F1, typename E1, typename E2, typename E>  inline auto XTL_CONCATENATE(operator,S)(      E&&             e,      const mch::expr<F1,E1,E2>& v) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::filter(std::forward<E>(e)),v)) \
+    template <typename T,  typename U>                            inline auto XTL_CONCATENATE(operator,S)(const mch::value<T>&       v, const mch::value<U>&       c) noexcept -> XTL_RETURN(mch::make_expr<FF>(v,c)) \
+    template <typename T,  typename U>                            inline auto XTL_CONCATENATE(operator,S)(      mch::variable<T>&    v,       mch::variable<U>&    w) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::var_ref<mch::variable<T>>(v),mch::var_ref<mch::variable<T>>(w))) \
     template <typename F1, typename E1, typename E2,                           \
-              typename F2, typename E3, typename E4>             inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1,E2>& a, const expr<F2,E3,E4>& b) noexcept -> XTL_RETURN(make_expr<FF>(a,b)) \
-    template <typename T, typename U>                            inline auto XTL_CONCATENATE(operator,S)(      variable<T>&    v, const value<U>&       c) noexcept -> XTL_RETURN(make_expr<FF>(var_ref<variable<T>>(v),c)) \
-    template <typename T, typename U>                            inline auto XTL_CONCATENATE(operator,S)(const value<U>&       c,       variable<T>&    v) noexcept -> XTL_RETURN(make_expr<FF>(c,var_ref<variable<T>>(v))) \
-    template <typename T, typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1,E2>& e,       variable<T>&    v) noexcept -> XTL_RETURN(make_expr<FF>(e,var_ref<variable<T>>(v))) \
-    template <typename T, typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(      variable<T>&    v, const expr<F1,E1,E2>& e) noexcept -> XTL_RETURN(make_expr<FF>(var_ref<variable<T>>(v),e)) \
-    template <typename T, typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(const expr<F1,E1,E2>& e, const value<T>&       c) noexcept -> XTL_RETURN(make_expr<FF>(e,c))                       \
-    template <typename T, typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(const value<T>&       c, const expr<F1,E1,E2>& e) noexcept -> XTL_RETURN(make_expr<FF>(c,e))
+              typename F2, typename E3, typename E4>              inline auto XTL_CONCATENATE(operator,S)(const mch::expr<F1,E1,E2>& a, const mch::expr<F2,E3,E4>& b) noexcept -> XTL_RETURN(mch::make_expr<FF>(a,b)) \
+    template <typename T,  typename U>                            inline auto XTL_CONCATENATE(operator,S)(      mch::variable<T>&    v, const mch::value<U>&       c) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::var_ref<mch::variable<T>>(v),c)) \
+    template <typename T,  typename U>                            inline auto XTL_CONCATENATE(operator,S)(const mch::value<U>&       c,       mch::variable<T>&    v) noexcept -> XTL_RETURN(mch::make_expr<FF>(c,mch::var_ref<mch::variable<T>>(v))) \
+    template <typename T,  typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(const mch::expr<F1,E1,E2>& e,       mch::variable<T>&    v) noexcept -> XTL_RETURN(mch::make_expr<FF>(e,mch::var_ref<mch::variable<T>>(v))) \
+    template <typename T,  typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(      mch::variable<T>&    v, const mch::expr<F1,E1,E2>& e) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::var_ref<mch::variable<T>>(v),e)) \
+    template <typename T,  typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(const mch::expr<F1,E1,E2>& e, const mch::value<T>&       c) noexcept -> XTL_RETURN(mch::make_expr<FF>(e,c))                       \
+    template <typename T,  typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(const mch::value<T>&       c, const mch::expr<F1,E1,E2>& e) noexcept -> XTL_RETURN(mch::make_expr<FF>(c,e))
 #endif
 //#include "../loop_over_operators.hpp"
 #include "../operators_preprocessed.hpp"

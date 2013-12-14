@@ -29,7 +29,7 @@ template <size_t N>
 struct shape_kind;
 
 #define FOR_EACH_MAX NUMBER_OF_BASES-1
-#define FOR_EACH_N(N) template <> struct shape_kind<N> : OtherBase, Shape { typedef Shape base_type; shape_kind(size_t kind = N) : Shape(kind) { this->m_all_kinds = (const size_t*)get_kinds<Shape>(original2remapped<Shape>(tag_type(kind))); } void accept(ShapeVisitor&) const; };
+#define FOR_EACH_N(N) template <> struct shape_kind<N> : OtherBase, Shape { typedef Shape base_type; shape_kind(size_t kind = N) : Shape(kind) { this->m_all_kinds = (const size_t*)mch::get_kinds<Shape>(mch::original2remapped<Shape>(mch::tag_type(kind))); } void accept(ShapeVisitor&) const; };
 #include "loop_over_numbers.hpp"
 #undef  FOR_EACH_N
 #undef  FOR_EACH_MAX
@@ -40,7 +40,7 @@ template <size_t N>
 struct shape_kind : shape_kind<N % NUMBER_OF_BASES>
 {
     typedef shape_kind<N % NUMBER_OF_BASES> base_type;
-    shape_kind() : base_type(N) { this->m_all_kinds = (const size_t*)get_kinds<Shape>(original2remapped<Shape>(tag_type(N))); }
+    shape_kind() : base_type(N) { this->m_all_kinds = (const size_t*)mch::get_kinds<Shape>(mch::original2remapped<Shape>(mch::tag_type(N))); }
     void accept(ShapeVisitor&) const;
 };
 
@@ -69,6 +69,9 @@ struct ShapeVisitor
 template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(*this); }
 
 SKV(Shape,0); // Declare the smallest kind value for Shape hierarchy
+
+namespace mch ///< Mach7 library namespace
+{
 template <>         struct bindings<Shape>         { KS(Shape::m_kind); KV(Shape,NUMBER_OF_DERIVED+1); };
 
 // NOTE: We need to explicitly instantiate all bindings as otherwise our kinds 
@@ -90,6 +93,8 @@ template <>         struct bindings<Shape>         { KS(Shape::m_kind); KV(Shape
 #include "loop_over_numbers.hpp"
 #undef  FOR_EACH_N
 #undef  FOR_EACH_MAX
+
+} // of namespace mch
 
 //------------------------------------------------------------------------------
 
@@ -158,6 +163,8 @@ Shape* make_shape(size_t i)
 
 int main()
 {
+    using namespace mch; // Mach7's library namespace
+
     verdict pp = test_repetitive();
     verdict ps = test_sequential();
     verdict pr = test_randomized();

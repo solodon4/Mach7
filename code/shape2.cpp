@@ -19,7 +19,7 @@
 
 //#define POD_ONLY
 
-wildcard _; // Meta variable
+mch::wildcard _; // Meta variable
 
 std::ostream& operator<<(std::ostream& os, const loc& l)
 {
@@ -44,13 +44,13 @@ double area(const Shape& shape)
     loc  x,y,z;
     double r,s;
 
-    if (cons<Circle>(_,r)(shape))
+    if (mch::cons<Circle>(_,r)(shape))
         return 3.14 * r * r;
 
-    if (cons<Square>(_,s)(shape))
+    if (mch::cons<Square>(_,s)(shape))
         return s * s;
 
-    if (cons<Triangle>(x,y,z)(shape))
+    if (mch::cons<Triangle>(x,y,z)(shape))
         return heron(x,y,z);
 
     XTL_ASSERT(!"Inexhaustive search");
@@ -62,13 +62,13 @@ double area_ptr(const Shape& shape)
     loc    *x,*y,*z;
     double *r,*s;
 
-    if (cons<Circle>(_,r)(shape))
+    if (mch::cons<Circle>(_,r)(shape))
         return 3.14 * *r * *r;
 
-    if (cons<Square>(_,s)(shape))
+    if (mch::cons<Square>(_,s)(shape))
         return *s * *s;
 
-    if (cons<Triangle>(x,y,z)(shape))
+    if (mch::cons<Triangle>(x,y,z)(shape))
         return heron(*x,*y,*z);
 
     XTL_ASSERT(!"Inexhaustive search");
@@ -79,21 +79,21 @@ loc center(/*const*/ Shape& shape)
 {
     loc c;
 
-    if (cons<Circle>(c/*,_*/)(shape))
+    if (mch::cons<Circle>(c/*,_*/)(shape))
         return c;
 
     double x,y,s;
 
-    if (cons<Square>(
-            cons<loc>(x,y),s)(shape))
+    if (mch::cons<Square>(
+            mch::cons<loc>(x,y),s)(shape))
         return loc(x+s/2,y+s/2);
 
     double x1,y1,x2,y2,x3,y3;
 
-    if (cons<Triangle>(
-            cons<loc>(x1,y1),
-            cons<loc>(x2,y2),
-            cons<loc>(x3,y3)
+    if (mch::cons<Triangle>(
+            mch::cons<loc>(x1,y1),
+            mch::cons<loc>(x2,y2),
+            mch::cons<loc>(x3,y3)
                        )(shape))
         return loc((x1+x2+x3)/3,(y1+y2+y3)/3);
 
@@ -103,9 +103,9 @@ loc center(/*const*/ Shape& shape)
 
 int dummy(Shape* s)
 {
-    if (cons<Circle>()(s))   return 1;
-    if (cons<Square>()(s))   return 2;
-    if (cons<Triangle>()(s)) return 3;
+    if (mch::cons<Circle>()(s))   return 1;
+    if (mch::cons<Square>()(s))   return 2;
+    if (mch::cons<Triangle>()(s)) return 3;
     XTL_ASSERT(!"Inexhaustive search");
     return 0;
 }
@@ -124,44 +124,44 @@ void foo(Shape* s)
     loc  x,y,z;
     double a;
 
-    //if (cons<Circle>(x |= x == val(loc(1,1)), a)(s))
+    //if (mch::cons<Circle>(x |= x == val(loc(1,1)), a)(s))
     //    std::cout << "Matched against guard" << a << std::endl;
 
-    if (cons<Circle>(x,4.0)(s))
+    if (mch::cons<Circle>(x,4.0)(s))
         std::cout << "Circle with center " << x << " and FIXED radius " << std::endl;
 
-    if (cons<Circle>(x,a)(s))
+    if (mch::cons<Circle>(x,a)(s))
         std::cout << "Circle with center " << x << " and radius " << a << std::endl;
     else
-    if (cons<Square>(x,a)(s))
+    if (mch::cons<Square>(x,a)(s))
         std::cout << "Square with top left " << x << " and side " << a << std::endl;
     else
-    if (cons<Triangle>(x,y,z)(s))
+    if (mch::cons<Triangle>(x,y,z)(s))
         std::cout << "Triangle with corners " << x << ',' << y << ',' << z << std::endl;
 }
 
 void bar(ADTShape& s)
 {
-    variable<cloc>  x,y,z;
-    variable<double> a;
+    mch::variable<cloc>  x,y,z;
+    mch::variable<double> a;
 
 #ifndef POD_ONLY
-    if (cons<ADTShapeEx,ADTShape::circle>(x,a)(s))
+    if (mch::cons<ADTShapeEx,ADTShape::circle>(x,a)(s))
         std::cout << "ADTCircleEx with center " << x << " and radius " << a << std::endl;
     else
-    if (cons<ADTShapeEx,ADTShape::square>(x,a)(s))
+    if (mch::cons<ADTShapeEx,ADTShape::square>(x,a)(s))
         std::cout << "ADTSquareEx with top left " << x << " and side " << a << std::endl;
     else
-    if (cons<ADTShapeEx,ADTShape::triangle>(x,y,z)(s))
+    if (mch::cons<ADTShapeEx,ADTShape::triangle>(x,y,z)(s))
         std::cout << "ADTTriangleEx with corners " << x << ',' << y << ',' << z << std::endl;
 #endif
-    if (cons<ADTShape,ADTShape::circle>(x,a)(s))
+    if (mch::cons<ADTShape,ADTShape::circle>(x,a)(s))
         std::cout << "ADTCircle with center " << x << " and radius " << a << std::endl;
     else
-    if (cons<ADTShape,ADTShape::square>(x,a)(s))
+    if (mch::cons<ADTShape,ADTShape::square>(x,a)(s))
         std::cout << "ADTSquare with top left " << x << " and side " << a << std::endl;
     else
-    if (cons<ADTShape,ADTShape::triangle>(x,y,z)(s))
+    if (mch::cons<ADTShape,ADTShape::triangle>(x,y,z)(s))
         std::cout << "ADTTriangle with corners " << x << ',' << y << ',' << z << std::endl;
 }
 
@@ -214,20 +214,20 @@ void time_area(Shape& s)
 {
     const int N = 10000;
     double a1,a2;
-    time_stamp liStart1 = get_time_stamp();
+    mch::time_stamp liStart1 = mch::get_time_stamp();
     for (int i = 0; i < N; ++i)
         a1 = area_vis(s);
-    time_stamp liFinish1 = get_time_stamp();
+    mch::time_stamp liFinish1 = mch::get_time_stamp();
 
-    time_stamp liStart2 = get_time_stamp();
+    mch::time_stamp liStart2 = mch::get_time_stamp();
     for (int i = 0; i < N; ++i)
         a2 = area(s);
-    time_stamp liFinish2 = get_time_stamp();
+    mch::time_stamp liFinish2 = mch::get_time_stamp();
 
     XTL_ASSERT(a1==a2); XTL_UNUSED(a1); XTL_UNUSED(a2); 
 
-    std::cout << "AreaV Time:" << microseconds(liFinish1-liStart1) << std::endl;
-    std::cout << "AreaM Time:" << microseconds(liFinish2-liStart2) << std::endl;
+    std::cout << "AreaV Time:" << mch::microseconds(liFinish1-liStart1) << std::endl;
+    std::cout << "AreaM Time:" << mch::microseconds(liFinish2-liStart2) << std::endl;
     std::cout << (liFinish2-liStart2)*100/(liFinish1-liStart1)-100 << "% slower" << std::endl;
 }
 
@@ -235,20 +235,20 @@ void time_center(Shape& s)
 {
     const int N = 10000;
     loc c1,c2;
-    time_stamp liStart1 = get_time_stamp();
+    mch::time_stamp liStart1 = mch::get_time_stamp();
     for (int i = 0; i < N; ++i)
         c1 = center_vis(s);
-    time_stamp liFinish1 = get_time_stamp();
+    mch::time_stamp liFinish1 = mch::get_time_stamp();
 
-    time_stamp liStart2 = get_time_stamp();
+    mch::time_stamp liStart2 = mch::get_time_stamp();
     for (int i = 0; i < N; ++i)
         c2 = center(s);
-    time_stamp liFinish2 = get_time_stamp();
+    mch::time_stamp liFinish2 = mch::get_time_stamp();
 
     XTL_ASSERT(c1==c2); XTL_UNUSED(c1); XTL_UNUSED(c2); 
 
-    std::cout << "CenterV Time:" << microseconds(liFinish1-liStart1) << std::endl;
-    std::cout << "CenterM Time:" << microseconds(liFinish2-liStart2) << std::endl;
+    std::cout << "CenterV Time:" << mch::microseconds(liFinish1-liStart1) << std::endl;
+    std::cout << "CenterM Time:" << mch::microseconds(liFinish2-liStart2) << std::endl;
     std::cout << (liFinish2-liStart2)*100/(liFinish1-liStart1)-100 << "% slower" << std::endl;
 }
 
@@ -256,26 +256,26 @@ void time_dummy(Shape& s)
 {
     const int N = 10000;
     int c1,c2;
-    time_stamp liStart1 = get_time_stamp();
+    mch::time_stamp liStart1 = mch::get_time_stamp();
     for (int i = 0; i < N; ++i)
         c1 = dummy_vis(&s);
-    time_stamp liFinish1 = get_time_stamp();
+    mch::time_stamp liFinish1 = mch::get_time_stamp();
 
-    time_stamp liStart2 = get_time_stamp();
+    mch::time_stamp liStart2 = mch::get_time_stamp();
     for (int i = 0; i < N; ++i)
         c2 = dummy(&s);
-    time_stamp liFinish2 = get_time_stamp();
+    mch::time_stamp liFinish2 = mch::get_time_stamp();
 
-    time_stamp liStart3 = get_time_stamp();
+    mch::time_stamp liStart3 = mch::get_time_stamp();
     for (int i = 0; i < N; ++i)
         c2 = dummy_dyn(&s);
-    time_stamp liFinish3 = get_time_stamp();
+    mch::time_stamp liFinish3 = mch::get_time_stamp();
 
     XTL_ASSERT(c1==c2); XTL_UNUSED(c1); XTL_UNUSED(c2);
 
-    std::cout << "DummyV Time:" << microseconds(liFinish1-liStart1) << std::endl;
-    std::cout << "DummyD Time:" << microseconds(liFinish3-liStart3) << std::endl;
-    std::cout << "DummyM Time:" << microseconds(liFinish2-liStart2) << std::endl;
+    std::cout << "DummyV Time:" << mch::microseconds(liFinish1-liStart1) << std::endl;
+    std::cout << "DummyD Time:" << mch::microseconds(liFinish3-liStart3) << std::endl;
+    std::cout << "DummyM Time:" << mch::microseconds(liFinish2-liStart2) << std::endl;
     
     std::cout << (liFinish3-liStart3)*100/(liFinish1-liStart1)-100 << "% slower" << std::endl;
     std::cout << (liFinish2-liStart2)*100/(liFinish1-liStart1)-100 << "% slower" << std::endl;

@@ -38,8 +38,11 @@ struct shape_kind : Shape
     shape_kind() : Shape(N) {}
 };
 
+namespace mch ///< Mach7 library namespace
+{
 template <>         struct bindings<Shape>         { KS(Shape::m_kind); };
 template <size_t N> struct bindings<shape_kind<N>> { KV(Shape,N); };
+} // of namespace mch
 
 size_t do_match(const Shape& s)
 {
@@ -81,23 +84,23 @@ int main()
 
     //Shape* s = make_shape(42);
 
-    time_stamp total_time = 0;
+    mch::time_stamp total_time = 0;
     size_t z = 0;
 
     for (size_t i = 0; i < M; ++i)
     {
-        time_stamp start = get_time_stamp();
+        mch::time_stamp start = mch::get_time_stamp();
 
         for (size_t j = 0; j < N; ++j)
             z = z + do_match(*array[j]);
             //z = z + do_match(*s);
 
-        time_stamp finish = get_time_stamp();
+        mch::time_stamp finish = mch::get_time_stamp();
         total_time += finish-start;
     }
 
     for (size_t j = 0; j < N; ++j)
         delete array[j];
 
-    std::cout << "\nAverage time for " << N << " runs takes " << std::setprecision(5) << dbl::seconds(total_time)/M << " seconds: " << z << std::endl;
+    std::cout << "\nAverage time for " << N << " runs takes " << std::setprecision(5) << mch::dbl::seconds(total_time)/M << " seconds: " << z << std::endl;
 }

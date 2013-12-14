@@ -32,18 +32,18 @@ int main()
 
     for (size_t i = 0, n = sizeof(strings)/sizeof(strings[0]); i < n; ++i)
     {
-        variable<int> area_code;
+        mch::variable<int> area_code;
 
         std::cout << strings[i] << " is a ";
 
         Match(std::string(strings[i]))
         {
-            With(rex("([0-9]+)-([0-9]+)-([0-9]+)", 979))       std::cout << "Local Phone"; break;
-            With(rex("([0-9]+)-([0-9]+)-([0-9]+)", area_code |= area_code >= 970 && area_code <= 980)) std::cout << "Texas Phone "; break;
-            With(rex("([0-9]+)-([0-9]+)-([0-9]+)", area_code)) std::cout << "Phone with area code "     << area_code; break;
-            With(rex("([A-Z]+)-([0-9]+)-([0-9]+)", area_code)) std::cout << "Something with area code " << area_code; break;
-            With(rex("[0-9]+"))                                std::cout << "Number"; break;
-            With(rex("[A-Za-z_][A-Za-z_0-9]*"))                std::cout << "Identifier"; break;
+            With(mch::rex("([0-9]+)-([0-9]+)-([0-9]+)", 979))       std::cout << "Local Phone"; break;
+            With(mch::rex("([0-9]+)-([0-9]+)-([0-9]+)", area_code |= area_code >= 970 && area_code <= 980)) std::cout << "Texas Phone "; break;
+            With(mch::rex("([0-9]+)-([0-9]+)-([0-9]+)", area_code)) std::cout << "Phone with area code "     << area_code; break;
+            With(mch::rex("([A-Z]+)-([0-9]+)-([0-9]+)", area_code)) std::cout << "Something with area code " << area_code; break;
+            With(mch::rex("[0-9]+"))                                std::cout << "Number"; break;
+            With(mch::rex("[A-Za-z_][A-Za-z_0-9]*"))                std::cout << "Identifier"; break;
             Otherwise()                                        std::cout << "UNRECOGNIZED"; break;
         }
         EndMatch

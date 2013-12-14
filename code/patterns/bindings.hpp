@@ -15,6 +15,9 @@
 #include <cstddef>
 #include "../metatools.hpp"
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 /// Predefined value representing a layout used by default when none is specified.
@@ -193,3 +196,5 @@ inline auto raise_selector(const T* p) -> XTL_RETURN
 )
 
 //------------------------------------------------------------------------------
+
+} // of namespace mch

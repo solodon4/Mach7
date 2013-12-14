@@ -13,6 +13,9 @@
 
 #pragma once
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 /// Class for efficient mapping of vtbl-pointers to a value of type T.
@@ -691,3 +694,5 @@ std::ostream& vtbl_map<2,T>::operator>>(std::ostream& os) const
 #endif
 
 //------------------------------------------------------------------------------
+
+} // of namespace mch

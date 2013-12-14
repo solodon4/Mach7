@@ -14,6 +14,9 @@
 
 #include <cstddef>
 
+namespace mch ///< Mach7 library namespace
+{
+
 #if !defined(XTL_RND_SEED)
 /// Initial seed for the pseudo-random sequence. Will change the sequence in 
 /// the same way a call to seed() changes rand() sequence.
@@ -47,3 +50,5 @@ inline size_t get_rnd(size_t n)
 {
     return (get_seed(n+1) >> 16) & 0x7fff;
 }
+
+} // of namespace mch

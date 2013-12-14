@@ -17,20 +17,23 @@
 #include <complex>
 #include <iostream>
 
-enum { cart = default_layout, plar = 1 };
+enum { cart = mch::default_layout, plar = 1 };
 
+namespace mch ///< Mach7 library namespace
+{
 //template <typename T> struct bindings<std::complex<T>>       { CM(0,std::complex<T>::real); CM(1,std::complex<T>::imag); };
 template <typename T> struct bindings<std::complex<T>, cart> { CM(0,std::real<T>); CM(1,std::imag<T>); };
 template <typename T> struct bindings<std::complex<T>, plar> { CM(0,std::abs<T>);  CM(1,std::arg<T>);  };
+} // of namespace mch
 
-typedef view<std::complex<double>,cart> cartesian;
-typedef view<std::complex<double>,plar> polar;
+typedef mch::view<std::complex<double>,cart> cartesian;
+typedef mch::view<std::complex<double>,plar> polar;
 
 int main()
 {
     const std::complex<double> i(0.0,1.0);
-    variable<double> a,b,r,f;
-    wildcard _;
+    mch::variable<double> a,b,r,f;
+    mch::wildcard _;
 
     Match(i)
     {

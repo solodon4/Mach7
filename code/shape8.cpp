@@ -43,7 +43,7 @@ struct Shape
 
 struct Circle : Shape
 {
-    Circle(const loc& c, const double& r) : Shape(SK_Circle), center(c), radius(r) { m_all_kinds = (const size_t*)get_kinds<Shape>(lbl_type(SK_Circle)); }
+    Circle(const loc& c, const double& r) : Shape(SK_Circle), center(c), radius(r) { m_all_kinds = (const size_t*)mch::get_kinds<Shape>(mch::lbl_type(SK_Circle)); }
 
     void accept(ShapeVisitor& v) { v.visit(*this); }
 
@@ -55,7 +55,7 @@ struct Circle : Shape
 
 struct Square : Shape
 {
-    Square(const loc& c, const double& s) : Shape(SK_Square), upper_left(c), side(s) { m_all_kinds = (const size_t*)get_kinds<Shape>(lbl_type(SK_Square)); }
+    Square(const loc& c, const double& s) : Shape(SK_Square), upper_left(c), side(s) { m_all_kinds = (const size_t*)mch::get_kinds<Shape>(mch::lbl_type(SK_Square)); }
 
     void accept(ShapeVisitor& v) { v.visit(*this); }
 
@@ -65,7 +65,7 @@ struct Square : Shape
 
 struct Triangle : Shape
 {
-    Triangle(const loc& a, const loc& b, const loc& c) : Shape(SK_Triangle), first(a), second(b), third(c) { m_all_kinds = (const size_t*)get_kinds<Shape>(lbl_type(SK_Triangle)); }
+    Triangle(const loc& a, const loc& b, const loc& c) : Shape(SK_Triangle), first(a), second(b), third(c) { m_all_kinds = (const size_t*)mch::get_kinds<Shape>(mch::lbl_type(SK_Triangle)); }
 
     void accept(ShapeVisitor& v) { v.visit(*this); }
 
@@ -103,6 +103,8 @@ struct ADTShape
 
 SKV(Shape,Shape::SK_Shape);
 
+namespace mch ///< Mach7 library namespace
+{
 template <> struct bindings<Shape>    { KS(Shape::kind); KV(Shape,Shape::SK_Shape); };
 
 template <> struct bindings<Circle>   { KV(Shape,Shape::SK_Circle);   BCS(Circle,  Shape); CM(0,Circle::get_center); CM(1,Circle::radius); };
@@ -114,6 +116,7 @@ template <> struct bindings<ADTShape> { KS(ADTShape::kind); };
 template <> struct bindings<ADTShape,ADTShape::circle>   { KV(ADTShape,ADTShape::circle);  CM(0,ADTShape::center);     CM(1,ADTShape::radius); };
 template <> struct bindings<ADTShape,ADTShape::square>   { KV(ADTShape,ADTShape::square);  CM(0,ADTShape::upper_left); CM(1,ADTShape::size); };
 template <> struct bindings<ADTShape,ADTShape::triangle> { KV(ADTShape,ADTShape::triangle);CM(0,ADTShape::first);      CM(1,ADTShape::second); CM(2,ADTShape::third); };
+} // of namespace mch
 
 int main()
 {
@@ -140,7 +143,7 @@ int main()
 
     //wildcard _;
     //double   x;
-    variable<double> v;
+    mch::variable<double> v;
     loc      l;
     //cloc     cl;
 

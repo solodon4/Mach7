@@ -82,11 +82,11 @@ const size_t constant_time_dynamic_cast_primes[fdc_size][2] =
 
 static size_t fdc_id(size_t n)
 {
-    XTL_ASSERT(req_bits(n) < fdc_size);
+    XTL_ASSERT(mch::req_bits(n) < fdc_size);
     size_t id = 1;
 
     if (n)
-        for (size_t m = req_bits(n), i = m; i; --i)
+        for (size_t m = mch::req_bits(n), i = m; i; --i)
             id *= constant_time_dynamic_cast_primes[m-i][(n & (1 << (i-1))) != 0];
     //std::cout << n << "->" << id << std::endl;
     return id;
@@ -481,6 +481,8 @@ Shape* make_shape(size_t i)
 
 int main()
 {
+    using namespace mch; // Mach7's library namespace
+
     verdict pp = test_repetitive();
     verdict ps = test_sequential();
     verdict pr = test_randomized();

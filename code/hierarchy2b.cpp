@@ -18,7 +18,7 @@
 template <size_t N>
 struct shape_kind : OtherBase, Shape
 {
-    shape_kind() : Shape(N) { this->m_all_kinds = (const size_t*)get_kinds<Shape>(original2remapped<Shape>(tag_type(N))); }
+    shape_kind() : Shape(N) { this->m_all_kinds = (const size_t*)mch::get_kinds<Shape>(mch::original2remapped<Shape>(mch::tag_type(N))); }
     void accept(ShapeVisitor&) const;
 };
 
@@ -38,8 +38,12 @@ struct ShapeVisitor
 template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(*this); }
 
 SKV(Shape,0); // Declare the smallest kind value for Shape hierarchy
+
+namespace mch ///< Mach7 library namespace
+{
 template <>         struct bindings<Shape>         { KS(Shape::m_kind); };
 template <size_t N> struct bindings<shape_kind<N>> { KV(Shape,N); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
+} // of namespace mch
 
 #if 1
 XTL_TIMED_FUNC_BEGIN
@@ -106,6 +110,8 @@ Shape* make_shape(size_t i)
 
 int main()
 {
+    using namespace mch; // Mach7's library namespace
+
     verdict pp = test_repetitive();
     verdict ps = test_sequential();
     verdict pr = test_randomized();

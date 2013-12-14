@@ -128,7 +128,7 @@ int main()
     pattern* var_pat = var(v);
     pattern*  wc_pat = new wildcard_pattern;
 
-    time_stamp liStart1 = get_time_stamp();
+    mch::time_stamp liStart1 = mch::get_time_stamp();
 
     for (size_t j = 0; j < T; ++j)
         for (size_t i = 0; i < N; ++i)
@@ -140,6 +140,6 @@ int main()
             //std::cout << "r=" << r << " u=" << u << std::endl;
         }
 
-    time_stamp liFinish1 = get_time_stamp();
-    std::cout << "r=" << r << " u=" << u << " timing=" << cycles((liFinish1-liStart1)/T) << " cycles/iteration" << std::endl;
+    mch::time_stamp liFinish1 = mch::get_time_stamp();
+    std::cout << "r=" << r << " u=" << u << " timing=" << mch::cycles((liFinish1-liStart1)/T) << " cycles/iteration" << std::endl;
 }

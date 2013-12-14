@@ -104,8 +104,11 @@ const Either<S, T>* lift(const Either<X, Y>& e, S f(X), T g(Y))
 	return vis.value;
 }
 
+namespace mch 
+{
 template <class X, class Y> struct bindings<Left<X,Y> >   { CM(0,Left<X,Y>::x); };
 template <class X, class Y> struct bindings<Right<X,Y> >  { CM(0,Right<X,Y>::y); };
+} // of namespace mch
 
 template<class X, class Y, class S, class T>
 const Either<S, T>* lift_ex(const Either<X, Y>& e, S f(X), T g(Y))
@@ -113,10 +116,10 @@ const Either<S, T>* lift_ex(const Either<X, Y>& e, S f(X), T g(Y))
 	X x;
 	Y y;
 
-	if (cons<Left<X, Y> >(x)(e))
+	if (mch::cons<Left<X, Y> >(x)(e))
 		return left<S, T>(f(x));
 	else
-	if (cons<Right<X, Y> >(y)(e))
+	if (mch::cons<Right<X, Y> >(y)(e))
 		return right<S, T>(g(y));
 	else
 		return 0;

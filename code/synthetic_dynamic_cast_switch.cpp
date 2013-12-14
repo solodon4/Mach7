@@ -117,6 +117,8 @@ int main()
     for (int i = 0; i < NUMBER_OF_DERIVED; ++i)
         values[i] = i;
 
+    using namespace mch; // Mach7's library namespace
+
     verdict pp = test_repetitive();
     verdict ps = test_sequential();
     verdict pr = test_randomized();

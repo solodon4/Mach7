@@ -21,6 +21,9 @@
 #include <excpt.h>
 #endif
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 template <typename T> inline const T* adjust_ptr(const void* p, std::ptrdiff_t offset) { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
@@ -215,3 +218,5 @@ inline T interleave(const T (&vtbl)[N])
 }
 
 //------------------------------------------------------------------------------
+
+} // of namespace mch

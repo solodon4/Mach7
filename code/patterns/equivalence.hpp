@@ -14,6 +14,9 @@
 
 #include "common.hpp"
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 template <typename E1>
@@ -45,11 +48,17 @@ template <typename E1> struct is_expression_<equivalence<E1>> { enum { value = t
 
 //------------------------------------------------------------------------------
 
+} // of namespace mch
+
+//------------------------------------------------------------------------------
+
+/// \note This operator has to be in the global namespace as E is unrestricted
+///       and ADL won't work to find it!
 template <typename E>
 inline auto operator+(E&& e) throw() 
-        -> typename std::enable_if<is_expression<E>::value, equivalence<typename underlying<E>::type>>::type 
+        -> typename std::enable_if<mch::is_expression<E>::value, mch::equivalence<typename mch::underlying<E>::type>>::type 
 {
-    return equivalence<typename underlying<E>::type>(std::forward<E>(e));
+    return mch::equivalence<typename mch::underlying<E>::type>(std::forward<E>(e));
 }
 
 //------------------------------------------------------------------------------

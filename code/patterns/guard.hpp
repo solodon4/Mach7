@@ -14,6 +14,9 @@
 
 #include "primitive.hpp"
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 /// Guard pattern
@@ -66,3 +69,7 @@ auto operator|=(P&& p, E&& e) noexcept -> XTL_RETURN_ENABLE_IF
 
 /// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
 template <typename E1, typename E2> struct is_pattern_<guard<E1,E2>> { enum { value = true }; };
+
+//------------------------------------------------------------------------------
+
+} // of namespace mch

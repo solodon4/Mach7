@@ -132,11 +132,14 @@ std::string to_str(const Expr* e)
 
 //------------------------------------------------------------------------------
 
+namespace mch ///< Mach7 library namespace
+{
 template <> struct bindings<Value>  { CM(0,Value::value); };
 template <> struct bindings<Plus>   { CM(0,Plus::exp1);   CM(1,Plus::exp2);   };
 template <> struct bindings<Minus>  { CM(0,Minus::exp1);  CM(1,Minus::exp2);  };
 template <> struct bindings<Times>  { CM(0,Times::exp1);  CM(1,Times::exp2);  };
 template <> struct bindings<Divide> { CM(0,Divide::exp1); CM(1,Divide::exp2); };
+} // of namespace mch
 
 int myeval(const Expr* e)
 {
@@ -151,9 +154,9 @@ const Expr* factorize(const Expr* e)
 {
     const Expr *e1, *e2, *e3, *e4;
 
-    if (cons<Plus>(
-            cons<Times>(e1,e2),
-            cons<Times>(e3,e4)
+    if (mch::cons<Plus>(
+            mch::cons<Times>(e1,e2),
+            mch::cons<Times>(e3,e4)
         )(e))
     {
         if (e1 == e3)
@@ -168,14 +171,14 @@ const Expr* factorize(const Expr* e)
 const Expr* factorize1(const Expr* e)
 {
     variable<const Expr*> e1, e2, e3, e4;
-    if (cons<Plus>(
-            cons<Times>(e1,e2), 
-            cons<Times>(e3 |= e1 == e3,e4)
+    if (mch::cons<Plus>(
+            mch::cons<Times>(e1,e2), 
+            mch::cons<Times>(e3 |= e1 == e3,e4)
         )(e)) return new Times(e1, new Plus(e2,e4));
     else
-    if (cons<Plus>(
-            cons<Times>(e1,e2), 
-            cons<Times>(e3,e4 |= e2 == e4)
+    if (mch::cons<Plus>(
+            mch::cons<Times>(e1,e2), 
+            mch::cons<Times>(e3,e4 |= e2 == e4)
         )(e)) return new Times(new Plus(e1,e3), e4);
     else
     return e;

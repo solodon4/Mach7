@@ -15,6 +15,9 @@
 #include "../metatools.hpp"
 #include <utility>           // All our patterns define move-constructors and use std::move
 
+namespace mch ///< Mach7 library namespace
+{
+
 //------------------------------------------------------------------------------
 
 ///
@@ -55,6 +58,7 @@ template <typename E1, typename E2> struct either_is_expression { enum { value =
 template <typename E1, typename E2> struct either_is_expression { enum { value = is_expression<E1>::value || is_expression<E2>::value }; };
 #endif
 
+//------------------------------------------------------------------------------
 
 /// eval represents a set of overloads defined on our #LazyExpression.
 /// \note This generic function should never be called, instead, you must 
@@ -71,3 +75,5 @@ inline auto eval(const E&) noexcept
 //}
 
 //------------------------------------------------------------------------------
+
+} // of namespace mch

@@ -142,11 +142,14 @@ struct Shape
 
 };
 
+namespace mch ///< Mach7 library namespace
+{
 template <> struct bindings<Shape>          { KV(Shape,UnknownShape); KS(Shape::kind); };
 
 template <> struct bindings<Shape,Circle>   { KV(Shape,Circle);  CM(0,Shape::center);     CM(1,Shape::radius); };
 template <> struct bindings<Shape,Square>   { KV(Shape,Square);  CM(0,Shape::upper_left); CM(1,Shape::size); };
 template <> struct bindings<Shape,Triangle> { KV(Shape,Triangle);CM(0,Shape::first);      CM(1,Shape::second); CM(2,Shape::third); };
+} // of namespace mch
 
 #else
 
@@ -196,11 +199,14 @@ struct Triangle : Shape
 
 XTL_TAG_ONLY(SKV(Shape,Shape::SK_Shape));
 
+namespace mch ///< Mach7 library namespace
+{
 template <> struct bindings<Shape>    { XTL_TAG_ONLY(KS(Shape::kind)); XTL_TAG_ONLY(KV(Shape,Shape::SK_Shape)); XTL_E_ONLY(RS(Shape::raise)); };
 
 template <> struct bindings<Circle>   { XTL_TAG_ONLY(KV(Shape,Shape::SK_Circle));   XTL_TAG_ONLY(BCS(Circle,  Shape)); CM(0,Circle::get_center); CM(1,Circle::radius); };
 template <> struct bindings<Square>   { XTL_TAG_ONLY(KV(Shape,Shape::SK_Square));   XTL_TAG_ONLY(BCS(Square,  Shape)); CM(0,Square::upper_left); CM(1,Square::side);   };
 template <> struct bindings<Triangle> { XTL_TAG_ONLY(KV(Shape,Shape::SK_Triangle)); XTL_TAG_ONLY(BCS(Triangle,Shape)); CM(0,Triangle::first);    CM(1,Triangle::second); CM(2,Triangle::third); };
+} // of namespace mch
 
 #endif
 
@@ -245,7 +251,11 @@ Shape* make_shape(size_t i)
 
 //------------------------------------------------------------------------------
 
+
+namespace mch ///< Mach7 library namespace
+{
 template <> struct bindings<loc>    { CM(0, loc::first); CM(1, loc::second); };
+} // of namespace mch
 
 //------------------------------------------------------------------------------
 
@@ -286,8 +296,8 @@ size_t do_match_2_case(const Shape& s, size_t)
 /// \note Results should always match those of do_match_1_case
 size_t do_match_1_que(const Shape& s, size_t)
 {
-    variable<loc> c,x,y,z;
-    variable<double> r,w;
+    mch::variable<loc> c,x,y,z;
+    mch::variable<double> r,w;
 
     Match(s)
       XTL_USE_BRACES_ONLY({)
@@ -306,8 +316,8 @@ size_t do_match_1_que(const Shape& s, size_t)
 /// \note Results should always match those of do_match_2_case
 size_t do_match_2_que(const Shape& s, size_t)
 {
-    variable<loc> c,x,y,z;
-    variable<double> r,w;
+    mch::variable<loc> c,x,y,z;
+    mch::variable<double> r,w;
 
     Match(s)
       XTL_USE_BRACES_ONLY({)
@@ -326,8 +336,8 @@ size_t do_match_2_que(const Shape& s, size_t)
 
 size_t do_match_3(const Shape& s, size_t)
 {
-    variable<loc> c,x,y,z;
-    variable<double> r,w;
+    mch::variable<loc> c,x,y,z;
+    mch::variable<double> r,w;
     {
         struct match_uid_type 
         {
@@ -364,23 +374,23 @@ size_t do_match_3(const Shape& s, size_t)
             (void)matched;
             ;
             __pragma(warning(push)) __pragma(warning( disable : 4127 )) 
-            if (((cons<target_type,target_layout>(c,r |= r > 5).match_structure(matched)))) __pragma(warning(pop)) 
+            if (((mch::cons<target_type,target_layout>(c,r |= r > 5).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Circle(" << c << ',' << r << ">5" << ')' << std::endl;
             }
-            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,r |= r > 3).match_structure(matched)))) __pragma(warning(pop)) 
+            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,r |= r > 3).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Circle(" << c << ',' << r << ">3" << ')' << std::endl;
             }
-            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,r |= r > 1).match_structure(matched)))) __pragma(warning(pop)) 
+            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,r |= r > 1).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Circle(" << c << ',' << r << ">1" << ')' << std::endl;
             }
-            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,r |= r > 0).match_structure(matched)))) __pragma(warning(pop)) 
+            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,r |= r > 0).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Circle(" << c << ',' << r << ">0" << ')' << std::endl;
             }
-            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,r).match_structure(matched)))) __pragma(warning(pop)) 
+            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,r).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Circle(" << c << ',' << r << "$$" << ')' << std::endl;
             }
@@ -395,23 +405,23 @@ size_t do_match_3(const Shape& s, size_t)
             auto matched = &__matched;
             (void)matched;
             ;
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,w |= w > 5).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,w |= w > 5).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Square(" << c << ',' << w << ">5" << ')' << std::endl;
             }
-            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,w |= w > 3).match_structure(matched)))) __pragma(warning(pop)) 
+            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,w |= w > 3).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Square(" << c << ',' << w << ">3" << ')' << std::endl;
             }
-            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,w |= w > 1).match_structure(matched)))) __pragma(warning(pop)) 
+            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,w |= w > 1).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Square(" << c << ',' << w << ">1" << ')' << std::endl;
             }
-            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,w |= w > 0).match_structure(matched)))) __pragma(warning(pop)) 
+            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,w |= w > 0).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Square(" << c << ',' << w << ">0" << ')' << std::endl;
             }
-            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,w).match_structure(matched)))) __pragma(warning(pop)) 
+            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,w).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Square(" << c << ',' << w << "$$" << ')' << std::endl;
             }
@@ -426,31 +436,31 @@ size_t do_match_3(const Shape& s, size_t)
             auto matched = &__matched;
             (void)matched;
             ;
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(x,y,cons<loc>(r,w |= r != w)).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(x,y,mch::cons<loc>(r,w |= r != w)).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Triangle(" << x << ',' << y << ',' << r << "!=" << w << ')' << std::endl;
             }
-            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(x,y,cons<loc>(r,w |= r > w)).match_structure(matched)))) __pragma(warning(pop)) 
+            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(x,y,mch::cons<loc>(r,w |= r > w)).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Triangle(" << x << ',' << y << ',' << r << "> " << w << ')' << std::endl;
             }
-            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(x,y,cons<loc>(r,w |= r >= w)).match_structure(matched)))) __pragma(warning(pop)) 
+            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(x,y,mch::cons<loc>(r,w |= r >= w)).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Triangle(" << x << ',' << y << ',' << r << ">=" << w << ')' << std::endl;
             }
-            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(x,y,cons<loc>(r,w |= r == w)).match_structure(matched)))) __pragma(warning(pop)) 
+            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(x,y,mch::cons<loc>(r,w |= r == w)).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Triangle(" << x << ',' << y << ',' << r << "==" << w << ')' << std::endl;
             }
-            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(x,y,cons<loc>(r,w |= r <= w)).match_structure(matched)))) __pragma(warning(pop)) 
+            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(x,y,mch::cons<loc>(r,w |= r <= w)).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Triangle(" << x << ',' << y << ',' << r << "<=" << w << ')' << std::endl;
             }
-            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(x,y,cons<loc>(r,w |= r < w)).match_structure(matched)))) __pragma(warning(pop)) 
+            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(x,y,mch::cons<loc>(r,w |= r < w)).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Triangle(" << x << ',' << y << ',' << r << "< " << w << ')' << std::endl;
             }
-            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(x,y,cons<loc>(r,w)).match_structure(matched)))) __pragma(warning(pop)) 
+            else __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(x,y,mch::cons<loc>(r,w)).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Triangle(" << x << ',' << y << ',' << r << "$$" << w << ')' << std::endl;
             }
@@ -465,8 +475,8 @@ size_t do_match_3(const Shape& s, size_t)
 /// Tests When-subclauses inside Qua-clauses without Otherwise-clause
 size_t do_match_3(const Shape& s, size_t)
 {
-    variable<loc> c,x,y,z;
-    variable<double> r,w;
+    mch::variable<loc> c,x,y,z;
+    mch::variable<double> r,w;
 
     Match(s)
       XTL_USE_BRACES_ONLY({)
@@ -480,13 +490,13 @@ size_t do_match_3(const Shape& s, size_t)
             When(  c,w |= w > 1) std::cout << "Square(" << c << ',' << w << ">1" << ')' << std::endl;
             When(  c,w |= w > 0) std::cout << "Square(" << c << ',' << w << ">0" << ')' << std::endl;
             When(  c,w)          std::cout << "Square(" << c << ',' << w << "$$" << ')' << std::endl;
-        Qua(Triangle,x,y,cons<loc>(r,w |= r != w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "!=" << w << ')' << std::endl;
-            When(    x,y,cons<loc>(r,w |= r >  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "> " << w << ')' << std::endl;
-            When(    x,y,cons<loc>(r,w |= r >= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << ">=" << w << ')' << std::endl;
-            When(    x,y,cons<loc>(r,w |= r == w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "==" << w << ')' << std::endl;
-            When(    x,y,cons<loc>(r,w |= r <= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "<=" << w << ')' << std::endl;
-            When(    x,y,cons<loc>(r,w |= r <  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "< " << w << ')' << std::endl;
-            When(    x,y,cons<loc>(r,w))           std::cout << "Triangle(" << x << ',' << y << ',' << r << "$$" << w << ')' << std::endl;
+        Qua(Triangle,x,y,mch::cons<loc>(r,w |= r != w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "!=" << w << ')' << std::endl;
+            When(    x,y,mch::cons<loc>(r,w |= r >  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "> " << w << ')' << std::endl;
+            When(    x,y,mch::cons<loc>(r,w |= r >= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << ">=" << w << ')' << std::endl;
+            When(    x,y,mch::cons<loc>(r,w |= r == w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "==" << w << ')' << std::endl;
+            When(    x,y,mch::cons<loc>(r,w |= r <= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "<=" << w << ')' << std::endl;
+            When(    x,y,mch::cons<loc>(r,w |= r <  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "< " << w << ')' << std::endl;
+            When(    x,y,mch::cons<loc>(r,w))           std::cout << "Triangle(" << x << ',' << y << ',' << r << "$$" << w << ')' << std::endl;
       XTL_USE_BRACES_ONLY(})
     EndMatch
 
@@ -500,8 +510,8 @@ size_t do_match_3(const Shape& s, size_t)
 
 size_t do_match_4(const Shape& s, size_t)
 {
-    variable<loc> c,x,y,z;
-    variable<double> r,w;
+    mch::variable<loc> c,x,y,z;
+    mch::variable<double> r,w;
     {
         struct match_uid_type 
         {
@@ -540,23 +550,23 @@ size_t do_match_4(const Shape& s, size_t)
             auto matched = &__matched;
             (void)matched;
             ;
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,r |= r > 5).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,r |= r > 5).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Circle(" << c << ',' << r << ">5" << ')' << std::endl;
             }
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,r |= r > 3).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,r |= r > 3).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Circle(" << c << ',' << r << ">3" << ')' << std::endl;
             }
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,r |= r > 1).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,r |= r > 1).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Circle(" << c << ',' << r << ">1" << ')' << std::endl;
             }
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,r |= r > 0).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,r |= r > 0).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Circle(" << c << ',' << r << ">0" << ')' << std::endl;
             }
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,r).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,r).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Circle(" << c << ',' << r << "$$" << ')' << std::endl;
             }
@@ -572,23 +582,23 @@ size_t do_match_4(const Shape& s, size_t)
             auto matched = &__matched;
             (void)matched;
             ;
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,w |= w > 5).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,w |= w > 5).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Square(" << c << ',' << w << ">5" << ')' << std::endl;
             }
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,w |= w > 3).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,w |= w > 3).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Square(" << c << ',' << w << ">3" << ')' << std::endl;
             }
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,w |= w > 1).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,w |= w > 1).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Square(" << c << ',' << w << ">1" << ')' << std::endl;
             }
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,w |= w > 0).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,w |= w > 0).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Square(" << c << ',' << w << ">0" << ')' << std::endl;
             }
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(c,w).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(c,w).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Square(" << c << ',' << w << "$$" << ')' << std::endl;
             }
@@ -604,31 +614,31 @@ size_t do_match_4(const Shape& s, size_t)
             auto matched = &__matched;
             (void)matched;
             ;
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(x,y,cons<loc>(r,w |= r != w)).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(x,y,mch::cons<loc>(r,w |= r != w)).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Triangle(" << x << ',' << y << ',' << r << "!=" << w << ')' << std::endl;
             }
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(x,y,cons<loc>(r,w |= r > w)).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(x,y,mch::cons<loc>(r,w |= r > w)).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Triangle(" << x << ',' << y << ',' << r << "> " << w << ')' << std::endl;
             }
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(x,y,cons<loc>(r,w |= r >= w)).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(x,y,mch::cons<loc>(r,w |= r >= w)).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Triangle(" << x << ',' << y << ',' << r << ">=" << w << ')' << std::endl;
             }
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(x,y,cons<loc>(r,w |= r == w)).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(x,y,mch::cons<loc>(r,w |= r == w)).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Triangle(" << x << ',' << y << ',' << r << "==" << w << ')' << std::endl;
             }
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(x,y,cons<loc>(r,w |= r <= w)).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(x,y,mch::cons<loc>(r,w |= r <= w)).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Triangle(" << x << ',' << y << ',' << r << "<=" << w << ')' << std::endl;
             }
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(x,y,cons<loc>(r,w |= r < w)).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(x,y,mch::cons<loc>(r,w |= r < w)).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Triangle(" << x << ',' << y << ',' << r << "< " << w << ')' << std::endl;
             }
-            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((cons<target_type,target_layout>(x,y,cons<loc>(r,w)).match_structure(matched)))) __pragma(warning(pop)) 
+            __pragma(warning(push)) __pragma(warning( disable : 4127 )) if (((mch::cons<target_type,target_layout>(x,y,mch::cons<loc>(r,w)).match_structure(matched)))) __pragma(warning(pop)) 
             {
                 std::cout << "Triangle(" << x << ',' << y << ',' << r << "$$" << w << ')' << std::endl;
                 __pragma(warning(push)) __pragma(warning( disable :     4715 )) static_assert(is_inside_case_clause, "Otherwise() must follow actual clauses! If you are trying to use it as a default sub-clause, use When() instead");
@@ -662,8 +672,8 @@ size_t do_match_4(const Shape& s, size_t)
 /// Tests When-subclauses inside Qua-clauses with Otherwise-clause
 size_t do_match_4(const Shape& s, size_t)
 {
-    variable<loc> c,x,y,z;
-    variable<double> r,w;
+    mch::variable<loc> c,x,y,z;
+    mch::variable<double> r,w;
 
     Match(s)
       XTL_USE_BRACES_ONLY({)
@@ -677,13 +687,13 @@ size_t do_match_4(const Shape& s, size_t)
             When(  c,w |= w > 1) std::cout << "Square(" << c << ',' << w << ">1" << ')' << std::endl;
             When(  c,w |= w > 0) std::cout << "Square(" << c << ',' << w << ">0" << ')' << std::endl;
             When(  c,w)          std::cout << "Square(" << c << ',' << w << "$$" << ')' << std::endl;
-        Qua(Triangle,x,y,cons<loc>(r,w |= r != w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "!=" << w << ')' << std::endl;
-            When(    x,y,cons<loc>(r,w |= r >  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "> " << w << ')' << std::endl;
-            When(    x,y,cons<loc>(r,w |= r >= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << ">=" << w << ')' << std::endl;
-            When(    x,y,cons<loc>(r,w |= r == w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "==" << w << ')' << std::endl;
-            When(    x,y,cons<loc>(r,w |= r <= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "<=" << w << ')' << std::endl;
-            When(    x,y,cons<loc>(r,w |= r <  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "< " << w << ')' << std::endl;
-            When(    x,y,cons<loc>(r,w))           std::cout << "Triangle(" << x << ',' << y << ',' << r << "$$" << w << ')' << std::endl;
+        Qua(Triangle,x,y,mch::cons<loc>(r,w |= r != w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "!=" << w << ')' << std::endl;
+            When(    x,y,mch::cons<loc>(r,w |= r >  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "> " << w << ')' << std::endl;
+            When(    x,y,mch::cons<loc>(r,w |= r >= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << ">=" << w << ')' << std::endl;
+            When(    x,y,mch::cons<loc>(r,w |= r == w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "==" << w << ')' << std::endl;
+            When(    x,y,mch::cons<loc>(r,w |= r <= w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "<=" << w << ')' << std::endl;
+            When(    x,y,mch::cons<loc>(r,w |= r <  w)) std::cout << "Triangle(" << x << ',' << y << ',' << r << "< " << w << ')' << std::endl;
+            When(    x,y,mch::cons<loc>(r,w))           std::cout << "Triangle(" << x << ',' << y << ',' << r << "$$" << w << ')' << std::endl;
         Otherwise()              std::cout << "Other()"                                 << std::endl;
       XTL_USE_BRACES_ONLY(})
     EndMatch
@@ -697,8 +707,8 @@ size_t do_match_4(const Shape& s, size_t)
 /// \note The use of Otherwise-clauses is not permitted in this case
 size_t do_match_5(const Shape& s, size_t)
 {
-    variable<loc> c,x,y,z;
-    variable<double> r,w;
+    mch::variable<loc> c,x,y,z;
+    mch::variable<double> r,w;
 
     Match(s)
       XTL_USE_BRACES_ONLY({)
@@ -719,7 +729,7 @@ template <typename T> inline T sqr(const T& x) { return x*x; }
 
 int fib(int n)
 {
-    variable<int> m;
+    mch::variable<int> m;
 
 #if XTL_DEFAULT_SYNTAX != 'P' && XTL_DEFAULT_SYNTAX != 'E' && XTL_DEFAULT_SYNTAX != 'F' && XTL_DEFAULT_SYNTAX != 'U' && XTL_DEFAULT_SYNTAX != 'K'
     Match(n)
@@ -731,10 +741,10 @@ int fib(int n)
     XTL_USE_BRACES_ONLY(})
     EndMatch
 #else
-    if (cons<int>(1)(n))     return 1;
-    if (cons<int>(2)(n))     return 1;
-    if (cons<int>(m*2)(n))   return sqr(fib(m+1)) - sqr(fib(m-1));
-    if (cons<int>(m*2+1)(n)) return sqr(fib(m+1)) + sqr(fib(m));
+    if (mch::cons<int>(1)(n))     return 1;
+    if (mch::cons<int>(2)(n))     return 1;
+    if (mch::cons<int>(m*2)(n))   return sqr(fib(m+1)) - sqr(fib(m-1));
+    if (mch::cons<int>(m*2+1)(n)) return sqr(fib(m+1)) + sqr(fib(m));
 #endif
 
     return -1;

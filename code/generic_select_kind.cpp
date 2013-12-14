@@ -39,8 +39,11 @@ template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(
 
 //------------------------------------------------------------------------------
 
+namespace mch ///< Mach7 library namespace
+{
 template <>         struct bindings<Shape>         { KS(Shape::m_kind); };
 template <size_t N> struct bindings<shape_kind<N>> { KV(Shape,N); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
+} // of namespace mch
 
 //------------------------------------------------------------------------------
 
@@ -109,6 +112,8 @@ Shape* make_shape(size_t i)
 
 int main()
 {
+    using namespace mch; // Mach7's library namespace
+
 //    verdict pp = test_repetitive();
     verdict ps = test_sequential();
     verdict pr = test_randomized();

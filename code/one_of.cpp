@@ -22,12 +22,12 @@ int main()
     for (size_t i = 0, n = sizeof(values)/sizeof(values[0]); i < n; ++i)
     {
 #if 1
-        variable<int> area_code;
+        mch::variable<int> area_code;
         std::cout << values[i] << " is ";
         Match(values[i])
         {
-            With(any({0,2,4,6,8})) std::cout << "Even"; break;
-            With(any({1,3,5,7,9})) std::cout << "Odd";  break;
+            With(mch::any({0,2,4,6,8})) std::cout << "Even"; break;
+            With(mch::any({1,3,5,7,9})) std::cout << "Odd";  break;
             //With()                 std::cout << "UNRECOGNIZED"; break;
         }
         EndMatch
