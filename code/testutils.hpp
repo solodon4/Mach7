@@ -37,9 +37,9 @@
 
 //------------------------------------------------------------------------------
 
-#if defined(XTL_PROFILING) //|| defined(_DEBUG)
-const size_t N = 1000;  // Number of times visitor and matching procedure is invoked in one time measuring
-const size_t M = 11;    // Number of times time measuring is done
+#if defined(XTL_PROFILING) || defined(_DEBUG)
+const size_t N = 100000; // Number of times visitor and matching procedure is invoked in one time measuring
+const size_t M = 101;   // Number of times time measuring is done
 const size_t K = 3;     // Number of experiment repetitions. Each experiment is M*N iterations
 #else
 const size_t N = 10000; // Number of times visitor and matching procedure is invoked in one time measuring

@@ -55,4 +55,19 @@ template <typename E1, typename E2> struct either_is_expression { enum { value =
 template <typename E1, typename E2> struct either_is_expression { enum { value = is_expression<E1>::value || is_expression<E2>::value }; };
 #endif
 
+
+/// eval represents a set of overloads defined on our #LazyExpression.
+/// \note This generic function should never be called, instead, you must 
+///       include header file of the specific lazy expression, which will
+///       define required overload.
+/// FIX: Somehow this doesn't work as intended - only assert when this 
+///      overload gets chosen, which should only happen when you didn't
+///      include headers wtih other overloads of eval. Hence commented body.
+template <typename E>
+inline auto eval(const E&) noexcept
+        -> typename std::enable_if<is_expression<E>::value, typename underlying<E>::type::result_type>::type;
+//{
+//    static_assert(false,"You must include header file with overload of eval(E) for lazy expression of kind E");
+//}
+
 //------------------------------------------------------------------------------

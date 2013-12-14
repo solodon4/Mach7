@@ -22,7 +22,7 @@
 //------------------------------------------------------------------------------
 
 /// Predefined value representing a layout used by default when none is specified.
-enum { default_layout = size_t(~0) };
+//enum { default_layout = size_t(~0) };
 
 //------------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ enum { default_layout = size_t(~0) };
         XTL_PRELOADABLE_LOCAL_STATIC(vtbl_map_type,__vtbl2case_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
         type_switch_info<N>& __switch_info = __vtbl2case_map.get(XTL_ENUM(N,XTL_PREFIX,subject_ptr)); \
         switch (__switch_info.target) {                                        \
-        default: {
+        default: {{{
 
 #if defined(_MSC_VER)
     /// FIX: For some reason we need to make this extra hoop to make MSVC preprocessor do what we want
@@ -80,26 +80,22 @@ enum { default_layout = size_t(~0) };
     #define Match(...) MatchN(XTL_NARG(__VA_ARGS__),__VA_ARGS__)
 #endif
 
-/// A set of macros handling specific number of subjects passed to #Match(...).
-//#define Match0()                        static_assert(false,"Match statement has to have at least 1 scrutiny");
-//#define Match1(x0)                      MatchN(1,x0)
-//#define Match2(x0,x1)                   MatchN(2,x0,x1)                  
-//#define Match3(x0,x1,x2)                MatchN(3,x0,x1,x2)               
-//#define Match4(x0,x1,x2,x3)             MatchN(4,x0,x1,x2,x3)            
-//#define Match5(x0,x1,x2,x3,x4)          MatchN(5,x0,x1,x2,x3,x4)         
-//#define Match6(x0,x1,x2,x3,x4,x5)       MatchN(6,x0,x1,x2,x3,x4,x5)      
-//#define Match7(x0,x1,x2,x3,x4,x5,x6)    MatchN(7,x0,x1,x2,x3,x4,x5,x6)   
-//#define Match8(x0,x1,x2,x3,x4,x5,x6,x7) MatchN(8,x0,x1,x2,x3,x4,x5,x6,x7)
-
-#define XTL_DYN_CAST_FROM(i,...) (__casted_ptr##i = dynamic_cast<const XTL_SELECT_ARG(i,__VA_ARGS__)*>(subject_ptr##i)) != 0
+#define XTL_DECLARE_TARGET_TYPES(i,...)                                        \
+        static_assert(is_pattern<decltype(XTL_SELECT_ARG(i,__VA_ARGS__))>::value,"With-clause expects patterns as its arguments"); \
+        typedef underlying<decltype(XTL_SELECT_ARG(i,__VA_ARGS__))>::type::accepted_type target_type##i;
+#define XTL_DYN_CAST_FROM(i,...) (__casted_ptr##i = dynamic_cast<const target_type##i*>(subject_ptr##i)) != 0
 #define XTL_ASSIGN_OFFSET(i,...) __switch_info.offset[i] = intptr_t(__casted_ptr##i)-intptr_t(subject_ptr##i);
-#define XTL_ADJUST_PTR_FROM(i,...) auto& match##i = *adjust_ptr<XTL_SELECT_ARG(i,__VA_ARGS__)>(subject_ptr##i,__switch_info.offset[i]); XTL_UNUSED(match##i)
+#define XTL_ADJUST_PTR_FROM(i,...) auto& match##i = *adjust_ptr<target_type##i>(subject_ptr##i,__switch_info.offset[i]);
+#define XTL_MATCH_PATTERN_TO_TARGET(i,...) XTL_SELECT_ARG(i,__VA_ARGS__)(match##i)
 
 /// Helper macro for #Case
 /// NOTE: It is possible to have if conditions sequenced instead of &&, but that
 ///       doesn't seem to help compiler figuring out it got same dynamic_cast calls.
+/// FIX: Neither mentioning only type nor omitting variable name works.
 #define CaseN(N, ...)                                                          \
-        }                                                                      \
+        }}}                                                                    \
+        {                                                                      \
+        XTL_REPEAT(N, XTL_DECLARE_TARGET_TYPES, __VA_ARGS__)                   \
         if (XTL_REPEAT_WITH(&&, N, XTL_DYN_CAST_FROM, __VA_ARGS__))            \
         {                                                                      \
             static_assert(number_of_subjects == N, "Number of targets in the case clause must be the same as the number of subjects in the Match statement"); \
@@ -110,7 +106,9 @@ enum { default_layout = size_t(~0) };
                 XTL_REPEAT(N, XTL_ASSIGN_OFFSET)                               \
             }                                                                  \
         case target_label:                                                     \
-            XTL_REPEAT(N, XTL_ADJUST_PTR_FROM, __VA_ARGS__)
+            XTL_REPEAT(N, XTL_ADJUST_PTR_FROM, __VA_ARGS__)                    \
+            if (XTL_REPEAT_WITH(&&, N, XTL_MATCH_PATTERN_TO_TARGET, __VA_ARGS__)) {
+            
 
 #if defined(_MSC_VER)
     /// FIX: For some reason we need to make this extra hoop to make MSVC preprocessor do what we want
@@ -122,53 +120,18 @@ enum { default_layout = size_t(~0) };
     #define Case(...) CaseN(XTL_NARG(__VA_ARGS__), __VA_ARGS__);
 #endif
 
-/// A set of macros handling specific number of subjects passed to #Match(...).
-//#define Case0()                        static_assert(false,"Case clause has to have at least 1 target");
-//#define Case1(x0)                      CaseN(1,x0)
-//#define Case2(x0,x1)                   CaseN(2,x0,x1)                  
-//#define Case3(x0,x1,x2)                CaseN(3,x0,x1,x2)               
-//#define Case4(x0,x1,x2,x3)             CaseN(4,x0,x1,x2,x3)            
-//#define Case5(x0,x1,x2,x3,x4)          CaseN(5,x0,x1,x2,x3,x4)         
-//#define Case6(x0,x1,x2,x3,x4,x5)       CaseN(6,x0,x1,x2,x3,x4,x5)      
-//#define Case7(x0,x1,x2,x3,x4,x5,x6)    CaseN(7,x0,x1,x2,x3,x4,x5,x6)   
-//#define Case8(x0,x1,x2,x3,x4,x5,x6,x7) CaseN(8,x0,x1,x2,x3,x4,x5,x6,x7)
-
-//#define OtherwiseN(N)                                                          \
-//        static_assert(is_inside_case_clause, "Otherwise() must follow actual clauses! If you are trying to use it as a default sub-clause, use When() instead"); \
-//        CaseN(N,XTL_ENUM(N,XTL_PREFIX,source_type))
-
 #define Otherwise()                                                            \
             static_assert(is_inside_case_clause, "Otherwise() must follow actual clauses! If you are trying to use it as a default sub-clause, use When() instead"); \
-        }                                                                      \
-        {                                                                      \
+        }}}                                                                    \
+        {{{                                                                    \
             enum { target_label = XTL_COUNTER-__base_counter, is_inside_case_clause = 1 }; \
             if (XTL_LIKELY(__switch_info.target == 0))                         \
                 __switch_info.target = target_label;                           \
         case target_label:
 
-//#define Otherwise0() static_assert(false,"Otherwise clause has to have at least 1 target");
-//#define Otherwise1() OtherwiseN(1)
-//#define Otherwise2() OtherwiseN(2)
-//#define Otherwise3() OtherwiseN(3)
-//#define Otherwise4() OtherwiseN(4)
-//#define Otherwise5() OtherwiseN(5)
-//#define Otherwise6() OtherwiseN(6)
-//#define Otherwise7() OtherwiseN(7)
-//#define Otherwise8() OtherwiseN(8)
-
-//#define EndMatchN(N)                                                           \
-//        }                                                                      \
-//        if (XTL_UNLIKELY((__switch_info.target == 0 /* && XTL_REPEAT_WITH(&&,N,XTL_PREFIX,__casted_ptr)*/))) \
-//        {                                                                      \
-//            enum { target_label = XTL_COUNTER-__base_counter };                \
-//            __switch_info.target = target_label;                               \
-//            case target_label: ;                                               \
-//        }                                                                      \
-//        }}
-
 /// General EndMatch statement
 #define EndMatch                                                               \
-        }                                                                      \
+        }}}                                                                    \
         if (XTL_UNLIKELY((__switch_info.target == 0)))                         \
         {                                                                      \
             enum { target_label = XTL_COUNTER-__base_counter };                \
@@ -176,15 +139,5 @@ enum { default_layout = size_t(~0) };
             case target_label: ;                                               \
         }                                                                      \
         }}
-
-//#define EndMatch0 static_assert(false,"Invalid EndMatch");
-//#define EndMatch1 EndMatchN(1)
-//#define EndMatch2 EndMatchN(2)
-//#define EndMatch3 EndMatchN(3)
-//#define EndMatch4 EndMatchN(4)
-//#define EndMatch5 EndMatchN(5)
-//#define EndMatch6 EndMatchN(6)
-//#define EndMatch7 EndMatchN(7)
-//#define EndMatch8 EndMatchN(8)
 
 //------------------------------------------------------------------------------

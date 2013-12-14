@@ -13,7 +13,10 @@
 #pragma once
 
 #include "config.hpp"
+#include <cstddef>
 #include <type_traits>
+
+#include <boost/mpl/print.hpp>
 
 //------------------------------------------------------------------------------
 
@@ -27,7 +30,7 @@ namespace std { template <typename T> typename std::add_rvalue_reference<T>::typ
 /// Helper meta-function to remove reference and const qualification from a type.
 /// Used to get an underlying selector type of Match' argument.
 template <typename T>
-struct underlying : std::remove_const<typename std::remove_reference<T>::type> {};
+struct underlying : std::remove_const<typename std::remove_reference<typename boost::mpl::print<T>::type>::type> {};
 
 /// For some reason the above definition results in amgibuity in at least MSVC, 
 /// so we have to provide this specialization to make it work.

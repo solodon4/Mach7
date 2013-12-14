@@ -170,8 +170,8 @@ struct variable<const T&>
     variable() : m_value() {}
     variable(variable&& v) noexcept : m_value(std::move(v.m_value)) {}
 
-    typedef const T& accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
-    typedef const T& result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
+    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
 
     /// We may be applied to a value of a base type, so first we have to figure
     /// out whether they dynamic type is actually T. We report match only if it is
@@ -278,5 +278,16 @@ template <typename T> inline                                             var_ref
 template <typename T> inline typename std::enable_if<!is_pattern<T>::value,   value<T>>::type filter(    const T& t) noexcept { return value<T>(t); }
 template <typename T> inline typename std::enable_if<!is_pattern<T>::value, var_ref<T>>::type filter(          T& t) noexcept { return var_ref<T>(t); }
 template <typename P> inline typename std::enable_if< is_pattern<P>::value, typename std::remove_reference<P>::type>::type filter(P&& p) noexcept { return std::move(p); }
+
+//------------------------------------------------------------------------------
+
+///@{
+/// Set of overloads capable of decomposing an expression template that models
+/// an Expression concept and evaluating it.
+template <typename T> T inline eval(const value<T>& e)             { return e.m_value; }
+template <typename T> T inline eval(const variable<T>& e)          { return e.m_value; }
+template <typename T> T inline eval(const var_ref<T>& e)           { return *e.m_var; }
+template <typename T> T inline eval(const var_ref<variable<T>>& e) { return e.m_var->m_value; }
+///@}
 
 //------------------------------------------------------------------------------

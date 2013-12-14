@@ -101,7 +101,7 @@
 
 #if !defined(XTL_DUMP_PERFORMANCE)
     /// Flag enabling showing results of performance tracing
-    #define XTL_DUMP_PERFORMANCE 1
+    #define XTL_DUMP_PERFORMANCE 0
 #endif
 #define XTL_DUMP_PERFORMANCE_ONLY(...)   UCL_PP_IF(UCL_PP_NOT(XTL_DUMP_PERFORMANCE), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 
@@ -385,7 +385,8 @@
 
 //------------------------------------------------------------------------------
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && _MSC_VER < 1700 
+    /// Visual C++ 2012 supports alignof(T)
     #define alignof(T) __alignof(T)
 #endif
 
@@ -677,6 +678,11 @@
 //------------------------------------------------------------------------------
 
 #if defined(_MSC_VER) || defined(__GNUC__) && (XTL_GCC_VERSION < 40600)
+    #if _MSC_VER == 1700
+        /// Visual C++ 2012 has check that we do not redefine noexcept, but doesn't implement it yet
+        #define _ALLOW_KEYWORD_MACROS 1
+    #endif
+    /// Turn noexcept into throw() for compilers not supporting it
     #define noexcept throw()
 #endif
 
