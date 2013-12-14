@@ -134,7 +134,7 @@ private:
         size_t used;
 
         /// Variable-sized array with actual pointers to stored_type
-        stored_type* cache[0];
+        stored_type* cache[XTL_VARIABLE_SIZE_ARRAY];
 
         #if defined(DBG_NEW)
             #undef new
@@ -143,7 +143,7 @@ private:
         void* operator new(size_t s, size_t log_size)
         {
             // FIX: Ensure proper alignment requirements
-            return ::new char[s + (1<<log_size)*sizeof(stored_type*)];
+            return ::new char[s + ((1<<log_size)-XTL_VARIABLE_SIZE_ARRAY)*sizeof(stored_type*)];
         }
 
         #if defined(DBG_NEW)
@@ -151,10 +151,10 @@ private:
         #endif
 
         /// We need to declare this placement delete operator since we overload new.
-        void operator delete(void* p, size_t, size_t) { ::delete(p); }
+        void operator delete(void* p, size_t) { ::delete(static_cast<char*>(p)); } // We cast to char* to avoid warning on deleting void*, which is undefined
 
         /// We also provide non-placement delete operator since it doesn't really depend on extra arguments.
-        void operator delete(void* p)                 { ::delete(p); }
+        void operator delete(void* p)         { ::delete(static_cast<char*>(p)); } // We cast to char* to avoid warning on deleting void*, which is undefined
 
         /// Creates new cache_descriptor based on parameters k and l of the hashing function
         cache_descriptor(
@@ -290,6 +290,9 @@ public:
         #undef new
     #endif
     vtblmap(const char* fl, size_t ln, const char* fn, const vtbl_count_t expected_size = min_expected_size) : 
+        descriptor(new(min_log_size) cache_descriptor(min_log_size)),
+        last_table_size(0),
+        collisions_before_update(initial_collisions_before_update),
         file(fl), 
         line(ln),
         func(fn),
@@ -297,9 +300,7 @@ public:
         clauses(expected_size),
         hits(0),
         misses(0),
-        collisions(0),
-        descriptor(new(min_log_size) cache_descriptor(min_log_size)),
-        collisions_before_update(initial_collisions_before_update)
+        collisions(0)
     {}
     #if defined(DBG_NEW)
         #define new DBG_NEW
@@ -309,9 +310,10 @@ public:
     #if defined(DBG_NEW)
         #undef new
     #endif
-    vtblmap(const vtbl_count_t expected_size = min_expected_size) : XTL_DUMP_PERFORMANCE_ONLY(file("unspecified"), line(0), func("unspecified"), updates(0), clauses(expected_size), hits(0), misses(0), collisions(0),)
+    vtblmap(const vtbl_count_t expected_size = min_expected_size) :
         descriptor(new(min_log_size) cache_descriptor(min_log_size)),
         collisions_before_update(initial_collisions_before_update)
+        XTL_DUMP_PERFORMANCE_ONLY(,file("unspecified"), line(0), func("unspecified"), updates(0), clauses(expected_size), hits(0), misses(0), collisions(0))
     {}
     #if defined(DBG_NEW)
         #define new DBG_NEW
@@ -344,9 +346,9 @@ public:
             XTL_DUMP_PERFORMANCE_ONLY(if (ce->vtbl) ++collisions);
 
             if (descriptor->is_full()                     // No entries left for possibly new vtbl in the cache
-                || ce->vtbl                               // Collision - the entry for vtbl is already occupied
+                || (ce->vtbl                              // Collision - the entry for vtbl is already occupied
                 && --collisions_before_update <= 0        // We had sufficiently many collisions to justify call
-                && descriptor->used != last_table_size)   // There was at least one vtbl added since last update
+                && descriptor->used != last_table_size))  // There was at least one vtbl added since last update
                 return update(vtbl); // try to rearrange cache
 
             // Try to find entry with our vtbl and swap it with where it is expected to be
@@ -545,7 +547,6 @@ std::ostream& vtblmap<T>::operator>>(std::ostream& os) const
 
     intptr_t diff = 0;
     intptr_t prev = 0;
-    size_t   sum  = 0;
 
     // Compute bits in which existing vtbl, including the newly added one, differ
     for (size_t i = 0; i <= descriptor->cache_mask; ++i)
@@ -554,7 +555,7 @@ std::ostream& vtblmap<T>::operator>>(std::ostream& os) const
 
         if (intptr_t vtbl = descriptor->cache[i]->vtbl)
         {
-            XTL_ASSERT(q-vtbls.begin() < vtbl_count); // Since we preallocated only that much
+            XTL_ASSERT(size_t(q-vtbls.begin()) < vtbl_count); // Since we preallocated only that much
             *q++ = vtbl;
             if (prev) diff |= prev ^ vtbl; // Update diff with information about which bits in all vtbls differ
             prev = vtbl;
@@ -597,7 +598,7 @@ std::ostream& vtblmap<T>::operator>>(std::ostream& os) const
 
     for (size_t j = 1, i = 8*sizeof(prev); i; --i, j<<=1)
         if (diff & j)
-            str[i-1] = 'X';
+            str[i-1] = j & (((1 << log_size) - 1) << descriptor->optimal_shift) ? 'x' : 'X'; // Indicate bit positions used for computing the hash after interleaving
         else
         if (prev & j)
             str[i-1] = '1';

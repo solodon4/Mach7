@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "vtblmap3st-3.hpp"
+#include "vtblmap4.hpp"
 #include "metatools.hpp"
 
 //------------------------------------------------------------------------------
@@ -61,16 +61,24 @@ enum { default_layout = size_t(~0) };
 /// Helper macro for #Match
 #define MatchN(N, ...) {                                                       \
         struct match_uid_type {};                                              \
-        enum { is_inside_case_clause = 0 };                                    \
+        enum { is_inside_case_clause = 0, number_of_subjects = N };            \
         enum { __base_counter = XTL_COUNTER };                                 \
         XTL_REPEAT(N,XTL_MATCH_SUBJECT_POLYMORPHIC_FROM,__VA_ARGS__)           \
-        XTL_PRELOADABLE_LOCAL_STATIC(vtblmap<type_switch_info>,__vtbl2lines_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
-        type_switch_info& __switch_info = __vtbl2lines_map.get(XTL_ENUM(N,XTL_PREFIX,subject_ptr)); \
+        typedef vtbl_map<N,type_switch_info<N>> vtbl_map_type;                 \
+        XTL_PRELOADABLE_LOCAL_STATIC(vtbl_map_type,__vtbl2case_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
+        type_switch_info<N>& __switch_info = __vtbl2case_map.get(XTL_ENUM(N,XTL_PREFIX,subject_ptr)); \
         switch (__switch_info.target) {                                        \
         default: {
 
-/// General Match statement supporting multiple scrutiny (subjects)
-#define Match(...) MatchN(XTL_NARG(__VA_ARGS__), __VA_ARGS__);
+#if defined(_MSC_VER)
+    /// FIX: For some reason we need to make this extra hoop to make MSVC preprocessor do what we want
+    #define Match_(N,...) XTL_APPLY_VARIADIC_MACRO(MatchN,(N,__VA_ARGS__))
+    /// General Match statement supporting multiple scrutiny (subjects)
+    #define Match(...) Match_(XTL_NARG(__VA_ARGS__),__VA_ARGS__)
+#else
+    /// General Match statement supporting multiple scrutiny (subjects)
+    #define Match(...) MatchN(XTL_NARG(__VA_ARGS__),__VA_ARGS__)
+#endif
 
 /// A set of macros handling specific number of subjects passed to #Match(...).
 #define Match0()                        static_assert(false,"Match statement has to have at least 1 scrutiny");
@@ -83,14 +91,16 @@ enum { default_layout = size_t(~0) };
 #define Match7(x0,x1,x2,x3,x4,x5,x6)    MatchN(7,x0,x1,x2,x3,x4,x5,x6)   
 #define Match8(x0,x1,x2,x3,x4,x5,x6,x7) MatchN(8,x0,x1,x2,x3,x4,x5,x6,x7)
 
-#define XTL_DYN_CAST_FROM(i,...) (__casted_ptr##i = dynamic_cast<const XTL_SELECT_ARG(i,__VA_ARGS__)*>(subject_ptr##i))
+#define XTL_DYN_CAST_FROM(i,...) (__casted_ptr##i = dynamic_cast<const XTL_SELECT_ARG(i,__VA_ARGS__)*>(subject_ptr##i)) != 0
 #define XTL_ASSIGN_OFFSET(i,...) __switch_info.offset[i] = intptr_t(__casted_ptr##i)-intptr_t(subject_ptr##i);
 #define XTL_ADJUST_PTR_FROM(i,...) auto& match##i = *adjust_ptr<XTL_SELECT_ARG(i,__VA_ARGS__)>(subject_ptr##i,__switch_info.offset[i]); XTL_UNUSED(match##i)
 
+/// Helper macro for #Case
 #define CaseN(N, ...)                                                          \
         }                                                                      \
         if (XTL_REPEAT_WITH(&&, N, XTL_DYN_CAST_FROM, __VA_ARGS__))            \
         {                                                                      \
+            static_assert(number_of_subjects == N, "Number of targets in the case clause must be the same as the number of subjects in the Match statement"); \
             enum { target_label = XTL_COUNTER-__base_counter, is_inside_case_clause = 1 }; \
             if (XTL_LIKELY(__switch_info.target == 0))                         \
             {                                                                  \
@@ -99,6 +109,16 @@ enum { default_layout = size_t(~0) };
             }                                                                  \
         case target_label:                                                     \
             XTL_REPEAT(N, XTL_ADJUST_PTR_FROM, __VA_ARGS__)
+
+#if defined(_MSC_VER)
+    /// FIX: For some reason we need to make this extra hoop to make MSVC preprocessor do what we want
+    #define Case_(N,...) XTL_APPLY_VARIADIC_MACRO(CaseN,(N,__VA_ARGS__))
+    /// General Match statement supporting multiple scrutiny (subjects)
+    #define Case(...) Case_(XTL_NARG(__VA_ARGS__),__VA_ARGS__)
+#else
+    /// General Case statement supporting multiple targets
+    #define Case(...) CaseN(XTL_NARG(__VA_ARGS__), __VA_ARGS__);
+#endif
 
 /// A set of macros handling specific number of subjects passed to #Match(...).
 #define Case0()                        static_assert(false,"Case clause has to have at least 1 target");
@@ -115,6 +135,15 @@ enum { default_layout = size_t(~0) };
         static_assert(is_inside_case_clause, "Otherwise() must follow actual clauses! If you are trying to use it as a default sub-clause, use When() instead"); \
         CaseN(N,XTL_ENUM(N,XTL_PREFIX,source_type))
 
+#define Otherwise()                                                            \
+            static_assert(is_inside_case_clause, "Otherwise() must follow actual clauses! If you are trying to use it as a default sub-clause, use When() instead"); \
+        }                                                                      \
+        {                                                                      \
+            enum { target_label = XTL_COUNTER-__base_counter, is_inside_case_clause = 1 }; \
+            if (XTL_LIKELY(__switch_info.target == 0))                         \
+                __switch_info.target = target_label;                           \
+        case target_label:
+
 #define Otherwise0() static_assert(false,"Otherwise clause has to have at least 1 target");
 #define Otherwise1() OtherwiseN(1)
 #define Otherwise2() OtherwiseN(2)
@@ -127,7 +156,18 @@ enum { default_layout = size_t(~0) };
 
 #define EndMatchN(N)                                                           \
         }                                                                      \
-        if (XTL_UNLIKELY((__switch_info.target == 0 && XTL_REPEAT_WITH(&&,N,XTL_PREFIX,__casted_ptr)))) \
+        if (XTL_UNLIKELY((__switch_info.target == 0 /* && XTL_REPEAT_WITH(&&,N,XTL_PREFIX,__casted_ptr)*/))) \
+        {                                                                      \
+            enum { target_label = XTL_COUNTER-__base_counter };                \
+            __switch_info.target = target_label;                               \
+            case target_label: ;                                               \
+        }                                                                      \
+        }}
+
+/// General EndMatch statement
+#define EndMatch                                                               \
+        }                                                                      \
+        if (XTL_UNLIKELY((__switch_info.target == 0)))                         \
         {                                                                      \
             enum { target_label = XTL_COUNTER-__base_counter };                \
             __switch_info.target = target_label;                               \

@@ -612,6 +612,13 @@
     #define XTL_ARR_SIZE(a) (sizeof(a)/sizeof((a)[0]))
 #endif
 
+#if !defined(XTL_VARIABLE_SIZE_ARRAY)
+    /// A macro used as an array subscript for trailing array idiom.
+    /// We add it because some compilers accept 0 there, while others 1 and to
+    /// explicitly indicate the programmer's intent to allocate memory right after.
+    #define XTL_VARIABLE_SIZE_ARRAY 1
+#endif
+
 //------------------------------------------------------------------------------
 
 /// A macro used to infer number of bits in a given type of variable.

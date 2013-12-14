@@ -110,7 +110,7 @@ private:
         /// Type of the stored values, which is a pair of vtbl-pointer and T value.
         struct stored_type
         {
-            stored_type(intptr_t v0 = 0, intptr_t v1 = 0, intptr_t v2 = 0) : vtbl(), value() { vtbl[0] = v0; vtbl[1] = v1; vtbl[2] = v2; }
+            stored_type() : vtbl(), value() {}
 
             intptr_t vtbl[N];  ///< v-table pointers of the value
             T        value;    ///< value associated with the v-table pointers vtbl[]
@@ -137,7 +137,7 @@ private:
         size_t used;
 
         /// Variable-sized array with actual pointers to stored_type
-        stored_type* cache[0];
+        stored_type* cache[XTL_VARIABLE_SIZE_ARRAY];
 
         #if defined(DBG_NEW)
             #undef new
@@ -146,7 +146,7 @@ private:
         void* operator new(size_t s, size_t log_size)
         {
             // FIX: Ensure proper alignment requirements
-            return ::new char[s + (1<<log_size)*sizeof(stored_type*)];
+            return ::new char[s + ((1<<log_size)-XTL_VARIABLE_SIZE_ARRAY)*sizeof(stored_type*)];
         }
 
         #if defined(DBG_NEW)
@@ -154,10 +154,10 @@ private:
         #endif
 
         /// We need to declare this placement delete operator since we overload new.
-        void operator delete(void* p, size_t, size_t) { ::delete(p); }
+        void operator delete(void* p, size_t) { ::delete(static_cast<char*>(p)); } // We cast to char* to avoid warning on deleting void*, which is undefined
 
         /// We also provide non-placement delete operator since it doesn't really depend on extra arguments.
-        void operator delete(void* p)                 { ::delete(p); }
+        void operator delete(void* p)         { ::delete(static_cast<char*>(p)); } // We cast to char* to avoid warning on deleting void*, which is undefined
 
         /// Creates new cache_descriptor based on parameters k and l of the hashing function
         cache_descriptor(
@@ -251,7 +251,7 @@ private:
             XTL_ASSERT(vtbl1); // Must be a valid vtbl pointer
             XTL_ASSERT(vtbl2); // Must be a valid vtbl pointer
 
-            stored_type*& ce = loc(vtbl0,vtbl1,vtbl2) // Location where it should be
+            stored_type*& ce = loc(vtbl0,vtbl1,vtbl2); // Location where it should be
 
             XTL_ASSERT(ce);   // Since we pre-allocate all entries
 
@@ -307,6 +307,9 @@ public:
         #undef new
     #endif
     vtblmap(const char* fl, size_t ln, const char* fn, const vtbl_count_t expected_size = min_expected_size) : 
+        descriptor(new(min_log_size) cache_descriptor(min_log_size)),
+        last_table_size(0),
+        collisions_before_update(initial_collisions_before_update),
         file(fl), 
         line(ln),
         func(fn),
@@ -314,9 +317,7 @@ public:
         clauses(expected_size),
         hits(0),
         misses(0),
-        collisions(0),
-        descriptor(new(min_log_size) cache_descriptor(min_log_size)),
-        collisions_before_update(initial_collisions_before_update)
+        collisions(0)
     {}
     #if defined(DBG_NEW)
         #define new DBG_NEW
@@ -326,9 +327,10 @@ public:
     #if defined(DBG_NEW)
         #undef new
     #endif
-    vtblmap(const vtbl_count_t expected_size = min_expected_size) : XTL_DUMP_PERFORMANCE_ONLY(file("unspecified"), line(0), func("unspecified"), updates(0), clauses(expected_size), hits(0), misses(0), collisions(0),)
+    vtblmap(const vtbl_count_t expected_size = min_expected_size) :
         descriptor(new(min_log_size) cache_descriptor(min_log_size)),
         collisions_before_update(initial_collisions_before_update)
+        XTL_DUMP_PERFORMANCE_ONLY(,file("unspecified"), line(0), func("unspecified"), updates(0), clauses(expected_size), hits(0), misses(0), collisions(0))
     {}
     #if defined(DBG_NEW)
         #define new DBG_NEW
@@ -368,9 +370,9 @@ public:
             XTL_DUMP_PERFORMANCE_ONLY(if (ce->vtbl[0]) ++collisions);
 
             if (descriptor->is_full()                     // No entries left for possibly new vtbl in the cache
-                || ce->vtbl[0]                            // Collision - the entry for vtbl is already occupied
+                || (ce->vtbl[0]                           // Collision - the entry for vtbl is already occupied
                 && --collisions_before_update <= 0        // We had sufficiently many collisions to justify call
-                && descriptor->used != last_table_size)   // There was at least one vtbl added since last update
+                && descriptor->used != last_table_size))  // There was at least one vtbl added since last update
                 return update(vtbl0,vtbl1,vtbl2); // try to rearrange cache
 
             // Try to find entry with our vtbl and swap it with where it is expected to be
@@ -425,7 +427,7 @@ T& vtblmap<T>::update(intptr_t vtbl0, intptr_t vtbl1, intptr_t vtbl2)
     XTL_ASSERT(last_table_size < descriptor->used); // We will only call this if size changed
 
     // FIX: vtbl might already exist in old descriptor and if it happens to be the first one, it won't be taken into consideration
-    const intptr_t vtbl[N] = {vtbl0,vtbl1,vtbl2};
+    //const intptr_t vtbl[N] = {vtbl0,vtbl1,vtbl2};
           intptr_t prev[N] = {vtbl0,vtbl1,vtbl2};
           intptr_t diff[N] = {};
 
@@ -498,7 +500,9 @@ T& vtblmap<T>::update(intptr_t vtbl0, intptr_t vtbl1, intptr_t vtbl2)
                 if (intptr_t vtbl0 = st->vtbl[0])
                 {
                     intptr_t vtbl1 = st->vtbl[1];
+                    intptr_t vtbl2 = st->vtbl[2];
                     XTL_ASSERT(vtbl1);
+                    XTL_ASSERT(vtbl2);
                     XTL_BIT_SET(cache_histogram, interleave(vtbl0 >> j0, vtbl1 >> j1, vtbl2 >> j2) & cache_mask); // Mark the entry for each vtbl
                 }
             }
@@ -554,7 +558,7 @@ T& vtblmap<T>::update(intptr_t vtbl0, intptr_t vtbl1, intptr_t vtbl2)
 //        *this >> std::clog;       
 //#endif
     typename cache_descriptor::stored_type* res = descriptor->get(vtbl0,vtbl1,vtbl2);
-    XTL_ASSERT(res && res->vtbl == vtbl); // We have ensured enough space, so no need to check this explicitly
+    XTL_ASSERT(res && res->vtbl[0] == vtbl0 && res->vtbl[1] == vtbl1 && res->vtbl[2] == vtbl2); // We have ensured enough space, so no need to check this explicitly
     last_table_size = descriptor->used;   // Update memoized value
     return res->value;
 }
@@ -619,7 +623,7 @@ std::ostream& vtblmap<T>::operator>>(std::ostream& os) const
             }
 
             cache_histogram[interleave(a[0] >> descriptor->optimal_shift[0], a[1] >> descriptor->optimal_shift[1], a[2] >> descriptor->optimal_shift[2]) & descriptor->cache_mask]++;
-            XTL_ASSERT(q-vtbls.begin() < vtbl_count); // Since we preallocated only that much
+            XTL_ASSERT(size_t(q-vtbls.begin()) < vtbl_count); // Since we preallocated only that much
             *q++ = a;
         }
     }
@@ -642,7 +646,7 @@ std::ostream& vtblmap<T>::operator>>(std::ostream& os) const
         os << " -> " << std::setw(3) << (interleave(a[0] >> descriptor->optimal_shift[0], a[1] >> descriptor->optimal_shift[1], a[2] >> descriptor->optimal_shift[2]) & descriptor->cache_mask)    // Show cache index it is mapped to
            << ' ';
             
-        std::copy(&a[0],&a[N],&prev[0]);
+        std::copy(a.begin(),a.end(),&prev[0]);
 
         if (cache_histogram[interleave(a[0] >> descriptor->optimal_shift[0], a[1] >> descriptor->optimal_shift[1], a[2] >> descriptor->optimal_shift[2]) & descriptor->cache_mask] > 1)
             os << '[' << cache_histogram[interleave(a[0] >> descriptor->optimal_shift[0], a[1] >> descriptor->optimal_shift[1], a[2] >> descriptor->optimal_shift[2]) & descriptor->cache_mask] << ']'; // Show have many vtbl falls into the same cache index
@@ -670,8 +674,8 @@ std::ostream& vtblmap<T>::operator>>(std::ostream& os) const
         std::string str(8*sizeof(prev[0]),'0');
 
         for (size_t j = 1, i = 8*sizeof(prev[0]); i; --i, j<<=1)
-            if (diff[0] & j)
-                str[i-1] = 'X';
+            if (diff[s] & j)
+                str[i-1] = j & (((1 << (log_size+N-1-s)/N) - 1) << descriptor->optimal_shift[s]) ? 'x' : 'X'; // Indicate bit positions used for computing the hash after interleaving
             else
             if (prev[s] & j)
                 str[i-1] = '1';

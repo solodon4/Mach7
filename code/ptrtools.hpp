@@ -195,3 +195,23 @@ inline uint32_t interleave(
 
     return x | (y << 1) | (z << 2);
 }
+
+//------------------------------------------------------------------------------
+
+/// Interleaves bits of N numbers (aka Morton numbers).
+/// FIX: Specialize for the 3 faster interleaves you have
+/// FIX: Replace condition on j to better handle odd numbers.
+template <typename T, unsigned int N>
+inline T interleave(const T (&vtbl)[N])
+{
+    T result = 0;
+    T bit    = 1;
+
+    for (size_t i = 0, j = 0; i < sizeof(T)*8/N; ++i, bit <<= 1)
+        for (size_t n = 0; n < N; ++n)
+            result |= ((vtbl[n] & bit) >> i) << j++;
+
+    return result;
+}
+
+//------------------------------------------------------------------------------
