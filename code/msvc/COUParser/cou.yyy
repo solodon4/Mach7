@@ -1,0 +1,86 @@
+/*
+	Grammar for COU hierarchy class
+*/
+
+%{
+#include "coudefs.hpp"
+
+using namespace std;
+
+int yyparse(void);
+int yylex(void);
+void yyerror(const char *str)
+{
+    extern int g_line;
+    extern char* yytext;
+    std::cerr << "error[" << g_line << "]: " << str << std::endl;
+    std::cerr << "before symbol: " << yytext << std::endl;
+}
+%}
+
+%union
+{
+    std::string*     m_str;
+    int              m_int;
+}
+
+%start cou
+
+%token <m_str> ID "identifier"
+
+%printer    { debug_stream() << *$$; } ID
+%destructor { delete $$; } ID
+
+%%
+
+cou	: '(' classes ')'
+	;
+
+classes	
+    : class classes
+	| class
+	;
+
+class : '(' ID '(' bases ')' '(' attributes ')' '(' methods ')' ')'
+    ;
+
+bases : ID bases
+    | /* empty */
+    ;
+
+attributes : ID attributes
+    | /* empty */
+    ;
+
+methods 
+    : ID methods
+    | operator methods
+    | /* empty */
+    ;
+
+operator
+    : '+'
+    | '-'
+    | '*'
+    | '/'
+    | '%'
+    | '^'
+    | '@'
+    | '$'
+    | '~'
+    | '!'
+    | '|'
+    | '&'
+    | '&''&'
+    | '|''|'
+    | '='
+    | '<'
+    | '>'
+    | '<''='
+    | '>''='
+    | '=''='
+    | '!''='
+    | '\\''\\'
+    ;
+
+%%

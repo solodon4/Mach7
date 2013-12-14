@@ -21,5 +21,8 @@
     <ClCompile Include="..\..\synthetic_dynamic_cast.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\synthetic_dynamic_cast_cohen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

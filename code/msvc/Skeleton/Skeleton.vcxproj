@@ -80,7 +80,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;XTL_VISITOR_FORWARDING=1;XTL_DEFAULT_SYNTAX='f';XTL_REP_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;XTL_VISITOR_FORWARDING=1;XTL_DEFAULT_SYNTAX='F';XTL_REP_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
@@ -156,6 +156,24 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\skeleton.cxx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\config.hpp" />
+    <ClInclude Include="..\..\has_member.hpp" />
+    <ClInclude Include="..\..\loop_over_numbers.hpp" />
+    <ClInclude Include="..\..\match.hpp" />
+    <ClInclude Include="..\..\memoized_cast.hpp" />
+    <ClInclude Include="..\..\metatools.hpp" />
+    <ClInclude Include="..\..\operators_preprocessed.hpp" />
+    <ClInclude Include="..\..\patterns.hpp" />
+    <ClInclude Include="..\..\ptrtools.hpp" />
+    <ClInclude Include="..\..\rnd.hpp" />
+    <ClInclude Include="..\..\testshape.hpp" />
+    <ClInclude Include="..\..\testutils.hpp" />
+    <ClInclude Include="..\..\testvismat.hpp" />
+    <ClInclude Include="..\..\timing.hpp" />
+    <ClInclude Include="..\..\vtblmap.hpp" />
+    <ClInclude Include="..\..\vtblmap3.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

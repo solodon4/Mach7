@@ -8,6 +8,7 @@
 /// Here are some of the library configuration options that can be set:
 ///
 /// Options with performance impact:
+/// - Use of multi-threading           \see @XTL_MULTI_THREADING
 /// - Default syntax                   \see @XTL_DEFAULT_SYNTAX
 /// - Use of vtbl frequencies          \see @XTL_USE_VTBL_FREQUENCY
 /// - Use of memoized_cast             \see @XTL_USE_MEMOIZED_CAST
@@ -22,10 +23,11 @@
 /// - Redundancy checking              \see @XTL_REDUNDANCY_CHECKING
 /// - Fallthrough behavior             \see @XTL_FALL_THROUGH
 /// - Use of { & } around case clauses \see @XTL_USE_BRACES
+/// - Declarations in case clause      \see @XTL_CLAUSE_DECL
 ///
 /// Options for logging and debugging
 /// - Compile-time messages            \see @XTL_MESSAGE_ENABLED
-/// - Trace of performance             \see @XTL_TRACE_PERFORMANCE
+/// - Trace of performance             \see @XTL_DUMP_PERFORMANCE
 /// Most of the combinations of from this set are built with: make syntax
 ///
 /// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
@@ -42,12 +44,6 @@
 #endif
 
 //------------------------------------------------------------------------------
-
-#if !defined(XTL_TRACE_PERFORMANCE)
-    /// Flag enabling performance tracing
-    #define XTL_TRACE_PERFORMANCE 0
-#endif
-#define XTL_TRACE_PERFORMANCE_ONLY(...)  UCL_PP_IF(UCL_PP_NOT(XTL_TRACE_PERFORMANCE), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 
 #if !defined(XTL_DUMP_PERFORMANCE)
     /// Flag enabling showing results of performance tracing
@@ -146,6 +142,25 @@
 #endif
 #define XTL_USE_BRACES_ONLY(...)     UCL_PP_IF(UCL_PP_NOT(XTL_USE_BRACES), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 #define XTL_NON_USE_BRACES_ONLY(...) UCL_PP_IF(           XTL_USE_BRACES,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+
+#if !defined(XTL_CLAUSE_DECL)
+    /// Enables/disables the syntax for declarations inside the case clause:
+    ///   Case(const DerivedType& var) var.something();
+    /// \note The reason we don't allow it by default is that allowing the usual
+    ///       syntax for just type in case clause and this one together may have
+    ///       performace implication since it will introduce a creation of 
+    ///       anonymous object of type DerivedType into the scope.
+    #define XTL_CLAUSE_DECL 0
+#endif
+#define XTL_CLAUSE_DECL_ONLY(...)     UCL_PP_IF(UCL_PP_NOT(XTL_CLAUSE_DECL), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+#define XTL_NON_CLAUSE_DECL_ONLY(...) UCL_PP_IF(           XTL_CLAUSE_DECL,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+
+//------------------------------------------------------------------------------
+
+#if !defined(XTL_MULTI_THREADING)
+    /// Whether pattern-matching constructs can be used in multi-threading context
+    #define XTL_MULTI_THREADING 0
+#endif
 
 //------------------------------------------------------------------------------
 
@@ -488,8 +503,20 @@
 //------------------------------------------------------------------------------
 
 #if !defined(XTL_ARR_SIZE)
+    /// A macro used to infer the size of an array.
     #define XTL_ARR_SIZE(a) (sizeof(a)/sizeof((a)[0]))
 #endif
+
+//------------------------------------------------------------------------------
+
+/// A macro used to infer number of bits in a given type of variable.
+#define XTL_BIT_SIZE(T) (8*sizeof(T))
+
+/// Sets i^th bit in bit_array
+#define XTL_BIT_SET(bit_array, i) ( (bit_array)[(i)/XTL_BIT_SIZE((bit_array)[0])] |= (1 << ((i) % XTL_BIT_SIZE((bit_array)[0]))) )
+
+/// Gets i^th bit in bit_array
+#define XTL_BIT_GET(bit_array, i) ( (bit_array)[(i)/XTL_BIT_SIZE((bit_array)[0])]  & (1 << ((i) % XTL_BIT_SIZE((bit_array)[0]))) )
 
 //------------------------------------------------------------------------------
 

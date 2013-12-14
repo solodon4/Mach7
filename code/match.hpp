@@ -266,9 +266,26 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 #define XTL_SUBCLAUSE_CLOSE         }                            XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(is_inside_case_clause) break;)
 #define XTL_SUBCLAUSE_LAST            XTL_NON_USE_BRACES_ONLY(}) XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(is_inside_case_clause) break;)
 
+
+/// FIX: Workaround
+#if XTL_CLAUSE_DECL
+#define XTL_CLAUSE_OTHERWISE(CaseClause,...)                                   \
+        static_assert(is_inside_case_clause, "Otherwise() must follow actual clauses! If you are trying to use it as a default sub-clause, use When() instead"); \
+        CaseClause(const source_type& _dummy_ UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
+#else
 #define XTL_CLAUSE_OTHERWISE(CaseClause,...)                                   \
         static_assert(is_inside_case_clause, "Otherwise() must follow actual clauses! If you are trying to use it as a default sub-clause, use When() instead"); \
         CaseClause(source_type UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), UCL_PP_EMPTY(), ,) __VA_ARGS__)
+#endif
+
+/// This is a common part of most clause implementations, which:
+/// - Introduces named constant into the scope to indicate we are in clause's scope
+/// - Extracts type from C when it is allowed to be a declaration
+#define XTL_CLAUSE_COMMON(C)                                                   \
+        enum { is_inside_case_clause = 1 };                                    \
+        XTL_NON_CLAUSE_DECL_ONLY(typedef C target_type);                       \
+        XTL_CLAUSE_DECL_ONLY(extern int decl_helper(C));                       \
+        XTL_CLAUSE_DECL_ONLY(typedef XTL_CPP0X_TYPENAME underlying<XTL_CPP0X_TYPENAME get_first_param<decltype(decl_helper)>::type>::type target_type);
 
 #if XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM
     #define XTL_GET_TYPES_NUM_ESTIMATE   (deferred_constant<vtbl_count_t>::get<match_uid_type>::value)
@@ -314,14 +331,13 @@ template <class T> inline void ignore_unused_warning(T const&) {}
                     XTL_REDUNDANCY_LABEL(default:)                             \
                     XTL_SUBCLAUSE_FIRST
 
-#ifdef _MSC_VER
 /// Macro that defines the case statement for the above switch
 #define QuaP(C,...)                                                            \
         XTL_SUBCLAUSE_CLOSE }}                                                 \
         XTL_REDUNDANCY_CATCH(C)                                                \
         {                                                                      \
-            typedef C target_type;                                             \
-            enum { target_label = XTL_COUNTER-__base_counter, is_inside_case_clause = 1 };  \
+            XTL_CLAUSE_COMMON(C);                                              \
+            enum { target_label = XTL_COUNTER-__base_counter };                \
             __casted_ptr = dynamic_cast<const target_type*>(subject_ptr);      \
             if (XTL_UNLIKELY(__casted_ptr))                                    \
             {                                                                  \
@@ -332,32 +348,9 @@ template <class T> inline void ignore_unused_warning(T const&) {}
                 }                                                              \
             XTL_REDUNDANCY_LABEL(case target_label:)                           \
                 auto matched = adjust_ptr<target_type>(subject_ptr,__switch_info.offset);\
+                XTL_CLAUSE_DECL_ONLY(C(*matched));                             \
                 XTL_UNUSED(matched);                                           \
                 XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
-#else
-/// NOTE: This version of the macro experiments with syntax Case(const A& a) a.foo() syntax
-/// Macro that defines the case statement for the above switch
-#define QuaP(C,...)                                                            \
-        XTL_SUBCLAUSE_CLOSE }}                                                 \
-        XTL_REDUNDANCY_CATCH(C)                                                \
-        {                                                                      \
-            /*typedef C target_type;*/                                         \
-            void foo(C); typedef XTL_CPP0X_TYPENAME underlying<XTL_CPP0X_TYPENAME get_first_param<decltype(foo)>::type>::type target_type;\
-            enum { target_label = XTL_COUNTER-__base_counter, is_inside_case_clause = 1 };  \
-            __casted_ptr = dynamic_cast<const target_type*>(subject_ptr);      \
-            if (XTL_UNLIKELY(__casted_ptr))                                    \
-            {                                                                  \
-                if (XTL_LIKELY((__switch_info.line == 0)))                     \
-                {                                                              \
-                    __switch_info.line = target_label;                         \
-                    __switch_info.offset = intptr_t(__casted_ptr)-intptr_t(subject_ptr); \
-                }                                                              \
-            XTL_REDUNDANCY_LABEL(case target_label:)                           \
-                auto matched = adjust_ptr<target_type>(subject_ptr,__switch_info.offset);\
-                C{*matched};                                                   \
-                XTL_UNUSED(matched);                                           \
-                XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
-#endif
 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
 ///       seems to be impossible to introduce dummy argument inside the Case 
@@ -390,9 +383,9 @@ template <class T> inline void ignore_unused_warning(T const&) {}
         if (XTL_UNLIKELY((size_t(__kind_selector) == size_t(bindings<C>::kind_value)))) \
         {                                                                      \
         case bindings<C>::kind_value:                                          \
-            typedef C target_type;                                             \
-            enum { is_inside_case_clause = 1 };                                \
+            XTL_CLAUSE_COMMON(C);                                              \
             auto matched = stat_cast<target_type>(subject_ptr);                \
+            XTL_CLAUSE_DECL_ONLY(C(*matched));                                 \
             XTL_UNUSED(matched);                                               \
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
 
@@ -457,9 +450,9 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 #define QuaE(C,...) }}                                                         \
         catch (C& __matched)                                                   \
         {                                                                      \
-            typedef C target_type;                                             \
-            enum { is_inside_case_clause = 1 };                                \
+            XTL_CLAUSE_COMMON(C);                                              \
             auto matched = &__matched;                                         \
+            XTL_CLAUSE_DECL_ONLY(C(*matched));                                 \
             XTL_UNUSED(matched);                                               \
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
 
@@ -508,9 +501,9 @@ template <class T> inline void ignore_unused_warning(T const&) {}
         if (XTL_UNLIKELY(is_base_and_derived_kinds<source_type>(remapped<C>::lbl, __most_derived_kind_selector))) \
         {                                                                      \
         case remapped<C>::lbl:                                                 \
-            typedef C target_type;                                             \
-            enum { is_inside_case_clause = 1 };                                \
+            XTL_CLAUSE_COMMON(C);                                              \
             auto matched = stat_cast<target_type>(subject_ptr);                \
+            XTL_CLAUSE_DECL_ONLY(C(*matched));                                 \
             XTL_UNUSED(matched);                                               \
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
 
@@ -545,11 +538,11 @@ template <class T> inline void ignore_unused_warning(T const&) {}
         XTL_SUBCLAUSE_CLOSE }}                                                 \
         XTL_REDUNDANCY_CATCH(C)                                                \
         { /* Clause */                                                         \
-            typedef C target_type;                                             \
-            enum { is_inside_case_clause = 1 };                                \
+            XTL_CLAUSE_COMMON(C);                                              \
             XTL_REDUNDANCY_LABEL(case XTL_COUNTER-__base_counter:)             \
             if (auto matched = cons<C>()(subject_ptr))                         \
             { /* Sequential */                                                 \
+                XTL_CLAUSE_DECL_ONLY(C(*matched));                             \
                 XTL_UNUSED(matched);                                           \
                 XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
 
@@ -577,10 +570,10 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 /// Macro that defines the case statement for the above switch
 #define QuaS(C,...)                                                            \
         XTL_SUBCLAUSE_CLOSE }}{                                                \
-        typedef C target_type;                                                 \
-        enum { is_inside_case_clause = 1 };                                    \
+        XTL_CLAUSE_COMMON(C);                                                  \
         if (auto matched = cons<C>()(subject_ptr))                             \
         {                                                                      \
+            XTL_CLAUSE_DECL_ONLY(C(*matched));                                 \
             XTL_UNUSED(matched);                                               \
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
 
@@ -637,6 +630,29 @@ template <class T> inline void ignore_unused_warning(T const&) {}
                 goto XTL_CONCAT(ReMatch,__LINE__);                             \
             XTL_SUBCLAUSE_FIRST
 
+/// Currently we have not found the way to distinguish all 3 possibilities 
+/// i.e. type, layout and declaration so we just define a different macro when
+/// the declaration support is expected.
+#if XTL_CLAUSE_DECL
+/// Macro that defines the case statement for the above switch
+#define QuaQ(C,...)                                                            \
+        XTL_SUBCLAUSE_CLOSE }}                                                 \
+        XTL_REDUNDANCY_CATCH(C)                                                \
+        {                                                                      \
+            XTL_CLAUSE_COMMON(C);                                              \
+            typedef XTL_CPP0X_TYPENAME switch_traits::                         \
+                    XTL_CPP0X_TEMPLATE disambiguate<0>::                       \
+                    XTL_CPP0X_TEMPLATE parameter<target_type> target_specific; \
+            enum { target_layout = target_specific::layout, target_label = XTL_COUNTER-__base_counter };  \
+            if (XTL_UNLIKELY(target_specific::main_condition(subject_ptr, local_data)))                   \
+            {                                                                                             \
+                switch_traits::on_first_pass(subject_ptr, local_data, target_label);                      \
+            XTL_REDUNDANCY_LABEL(case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value:)\
+                auto matched = target_specific::get_matched(subject_ptr,local_data);                      \
+                XTL_CLAUSE_DECL_ONLY(C(*matched));                             \
+                XTL_UNUSED(matched);                                           \
+                XTL_SUBCLAUSE_OPEN(__VA_ARGS__) processed = true;
+#else
 /// Macro that defines the case statement for the above switch
 #define QuaQ(C,...)                                                            \
         XTL_SUBCLAUSE_CLOSE }}                                                 \
@@ -654,6 +670,7 @@ template <class T> inline void ignore_unused_warning(T const&) {}
                 auto matched = target_specific::get_matched(subject_ptr,local_data);                      \
                 XTL_UNUSED(matched);                                           \
                 XTL_SUBCLAUSE_OPEN(__VA_ARGS__) processed = true;
+#endif // XTL_CLAUSE_DECL
 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
 ///       seems to be impossible to introduce dummy argument inside the Case 

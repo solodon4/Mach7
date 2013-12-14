@@ -96,6 +96,122 @@ void run_timings(
 
 //------------------------------------------------------------------------------
 
+#if XTL_MULTI_THREADING
+
+#include <atomic>
+#include <thread>
+
+#define run_timings run_timings_parallel
+
+//------------------------------------------------------------------------------
+
+void partial_do_visit(std::vector<Shape*>& shapes, size_t L, size_t R, std::atomic<size_t>& result)
+{
+    size_t a = 0;
+    unsigned char j = (unsigned char)L;
+
+    for (size_t i = L; i < R; ++i)
+        a += do_visit(*shapes[i],some_numbers[j++]);
+
+    result += a;
+}
+
+//------------------------------------------------------------------------------
+
+void partial_do_match(std::vector<Shape*>& shapes, size_t L, size_t R, std::atomic<size_t>& result)
+{
+    size_t a = 0;
+    unsigned char j = (unsigned char)L;
+
+    for (size_t i = L; i < R; ++i)
+        a += do_match(*shapes[i],some_numbers[j++]);
+
+    result += a;
+}
+
+//------------------------------------------------------------------------------
+
+static const size_t num_extra_threads = 1;
+
+//------------------------------------------------------------------------------
+
+void run_timings_parallel(
+        std::vector<Shape*>&    shapes, 
+        std::vector<long long>& timingsV, 
+        std::vector<long long>& timingsM,
+        size_t& aV,
+        size_t& aM
+     )
+{
+    XTL_ASSERT(timingsM.size() == timingsV.size());
+
+    const size_t N = shapes.size();
+    const size_t M = timingsV.size();
+    const size_t C = N/(num_extra_threads+1);
+    std::atomic<size_t> aa;
+
+    for (size_t m = 0; m < M; ++m)
+    {
+        //unsigned char j = 0;
+        size_t l = 0;
+
+        time_stamp liStart1 = get_time_stamp();   // <- Begin timing
+
+        std::thread threadsV[num_extra_threads];
+
+        aa = 0; // Reset atomic accumulator
+
+        // Launch num_extra_threads additional threads given each of them chunk from l to l+c:
+        for (size_t i = 0; i < num_extra_threads; ++i, l += C) 
+            threadsV[i] = std::thread(partial_do_visit, std::ref(shapes), l, l+C, std::ref(aa));
+
+        // Do the last chunk in the main thread
+        partial_do_visit(shapes, l, N, aa);
+
+        // Join the threads with the main thread
+        for (size_t i = 0; i < num_extra_threads; ++i)
+            threadsV[i].join(); 
+
+        aV += aa;
+
+        time_stamp liFinish1 = get_time_stamp();  // <- End timing
+
+        //j = 0;
+        l  = 0;
+        aa = 0; // Reset atomic accumulator
+
+        time_stamp liStart2 = get_time_stamp();   // <- Begin timing
+
+        std::thread threadsM[num_extra_threads];
+
+        aa = 0; // Reset atomic accumulator
+
+        // Launch num_extra_threads additional threads given each of them chunk from l to l+c:
+        for (size_t i = 0; i < num_extra_threads; ++i, l += C) 
+            threadsM[i] = std::thread(partial_do_match, std::ref(shapes), l, l+C, std::ref(aa));
+
+        // Do the last chunk in the main thread
+        partial_do_match(shapes, l, N, aa);
+
+        // Join the threads with the main thread
+        for (size_t i = 0; i < num_extra_threads; ++i)
+            threadsM[i].join(); 
+
+        aM += aa;
+
+        time_stamp liFinish2 = get_time_stamp();  // <- End timing
+
+        XTL_ASSERT(aV==aM);
+
+        timingsV[m] = liFinish1-liStart1;
+        timingsM[m] = liFinish2-liStart2;
+    }
+}
+
+#endif // XTL_MULTI_THREADING
+
+//------------------------------------------------------------------------------
+
 verdict test_sequential()
 {
     std::cout << "=================== Sequential Test ===================" << std::endl;

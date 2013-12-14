@@ -287,12 +287,6 @@ inline void print_xtl_macros(std::ostream& os = std::clog)
     os << "XTL_USE_BRACES=" << std::endl;
 #endif
 
-#if defined(XTL_TRACE_PERFORMANCE)
-    os << "XTL_TRACE_PERFORMANCE=" << XTL_STRING_LITERAL(XTL_TRACE_PERFORMANCE) << std::endl;
-#else
-    os << "XTL_TRACE_PERFORMANCE=" << std::endl;
-#endif
-
 #if defined(XTL_DUMP_PERFORMANCE)
     os << "XTL_DUMP_PERFORMANCE=" << XTL_STRING_LITERAL(XTL_DUMP_PERFORMANCE) << std::endl;
 #else

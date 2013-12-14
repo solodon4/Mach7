@@ -1,0 +1,3684 @@
+; ivclasses
+; from  wothke@ubilab.ubs.ch (Juergen Wothke)
+; was generated from the Unidraw/InterViews classes.
+; There is some multiple inheritance in here (but not so much either)
+
+(
+( Action
+	( Resource )
+	( )
+	( execute ~Action )
+)
+
+( Macro
+	( Action )
+	( list_ )
+	( action append count execute insert prepend remove ~Macro )
+)
+
+( AdjustableInfo
+	( )
+	( observable_ small_ large_ )
+	( )
+)
+
+( AdjustableImpl
+	( )
+	( info_ )
+	( )
+)
+
+( Adjustable
+	( )
+	( impl_ )
+	( abort_adjustment attach begin_adjustment commit_adjustment constrain cur_length cur_lower cur_upper detach large_scroll large_scroll length lower notify notify_all observable page_backward page_forward scale_to scroll_backward scroll_forward scroll_to small_scroll small_scroll upper zoom_to ~Adjustable )
+)
+
+( AggregateInfo
+	( )
+	( glyph_ allocation_ extension_ )
+	( )
+)
+
+( Aggregate
+	( Glyph )
+	( info_ )
+	( allocate allot allotment append change component count draw insert pick prepend print remove replace ~Aggregate )
+)
+
+( Align
+	( Layout )
+	( dimension_ )
+	( allocate request ~Align )
+)
+
+( AllocationInfo
+	( )
+	( canvas_ transformer_ allocation_ extension_ num_components_ component_allocation_ )
+	( )
+)
+
+( AllocationTable
+	( )
+	( impl_ )
+	( allocate find find_same_size flush most_recent ~AllocationTable )
+)
+
+( ArrayCompositor
+	( Compositor )
+	( count_ )
+	( compose ~ArrayCompositor )
+)
+
+( Background
+	( MonoGlyph )
+	( color_ )
+	( allocate draw print ~Background )
+)
+
+( BevelFrame
+	( MonoGlyph )
+	( thickness_ xalign_ yalign_ hmargin_ vmargin_ )
+	( allocate draw draw_frame pick print request ~BevelFrame )
+)
+
+( Bevel
+	( BevelFrame )
+	( beveler_ light_ medium_ dark_ )
+	( draw_frame ~Bevel )
+)
+
+( Bitmap
+	( Resource )
+	( rep_ )
+	( ascent descent flush height left_bearing peek pheight poke pwidth right_bearing width ~Bitmap )
+)
+
+( Border
+	( MonoGlyph )
+	( color_ thickness_ )
+	( allocate draw print ~Border )
+)
+
+( BoxImpl
+	( )
+	( box_ layout_ requested_ requisition_ allocations_ empty_ext_ )
+	( )
+)
+
+( Box
+	( Scene )
+	( align nelements head tail )
+	( ComputeShape DoChange DoInsert DoRemove Draw GetActual GetCanonical GetComponents PlaceElement Reconfig Resize ~Box )
+)
+
+( HBox
+	( Box )
+	( )
+	( ComputeShape GetActual GetCanonical PlaceElement ~HBox )
+)
+
+( VBox
+	( Box )
+	( )
+	( ComputeShape GetActual GetCanonical PlaceElement ~VBox )
+)
+
+( Browser
+	( InputHandler Observer )
+	( accept_ cancel_ items_ item_ )
+	( append_selectable cancel choose double_click drag press release remove_selectable replace_selectable select selected state update ~Browser )
+)
+
+( Brush
+	( Resource )
+	( impl_ )
+	( width ~Brush )
+)
+
+( BrushCmd
+	( Command )
+	( _br )
+	( Copy Execute GetClassId IsA Read Write )
+)
+
+( ButtonState
+	( Subject )
+	( value )
+	( ~ButtonState )
+)
+
+( Button
+	( Interactor )
+	( value subject associates enabled chosen hit )
+	( Handle Press Refresh Update )
+)
+
+( TextButton
+	( Button )
+	( text background grayout )
+	( Reconfig ~TextButton )
+)
+
+( PushButton
+	( TextButton )
+	( )
+	( Reconfig Redraw Refresh ~PushButton )
+)
+
+( RadioButton
+	( TextButton )
+	( )
+	( Reconfig Redraw Refresh ~RadioButton )
+)
+
+( CheckBox
+	( TextButton )
+	( offvalue )
+	( Press Reconfig Redraw Refresh Update ~CheckBox )
+)
+
+( Canvas
+	( )
+	( rep_ )
+	( any_damage back_buffer character clip clip_rect close_path curve_to damage damage damage_all damage_area damaged damaged fill fill_rect front_buffer height image line line_to move_to new_path pheight pop_clipping pop_transform psize push_clipping push_transform pwidth rect redraw repair restrict_damage restrict_damage size stencil stroke to_coord to_pixels to_pixels_coord transform transformer transformer width window ~Canvas )
+)
+
+( NameMapElem
+	( UMapElem )
+	( _object _string )
+	( id tag ~NameMapElem )
+)
+
+( NameMap
+	( UMap )
+	( )
+	( FindTag )
+)
+
+( VoidIntElem
+	( UMapElem )
+	( _object _id )
+	( id tag )
+)
+
+( ObjectMapElem
+	( UHashElem )
+	( _elem _orig_id _delim _extra_data )
+	( ~ObjectMapElem )
+)
+
+( Catalog
+	( )
+	( _name _creator _version _clipboard _edInfo _world _brs _colors _fonts _pats _curMap _substMap _fileVersion _tmpfile _edInfoMap _compMap _cmdMap _toolMap )
+	( Copy Copy Copy Exists Forget Forget Forget Forget GetName GetName GetName GetName ReadCommand ReadComponent ReadStateVar ReadTool ReadTransferFunct ReadVersion Retrieve Retrieve Retrieve Retrieve Save Save Save Save Valid Valid Valid Valid Writable WriteCommand WriteComponent WriteStateVar WriteTool WriteTransferFunct WriteVersion ~Catalog )
+)
+
+( ObjectMap
+	( UMap )
+	( _objKeys _idKeys _client _id )
+	( )
+)
+
+( NewCompCmd
+	( Command )
+	( prototype_ )
+	( Copy Execute GetClassId IsA Read Reversible Write ~NewCompCmd )
+)
+
+( RevertCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Reversible )
+)
+
+( ViewCompCmd
+	( Command )
+	( chooser_ )
+	( Copy Execute GetClassId IsA Reversible ~ViewCompCmd )
+)
+
+( SaveCompCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Reversible )
+)
+
+( SaveCompAsCmd
+	( Command )
+	( chooser_ )
+	( Copy Execute GetClassId IsA Reversible ~SaveCompAsCmd )
+)
+
+( PrintCmd
+	( Command )
+	( _dialog )
+	( Copy Execute GetClassId IsA Reversible ~PrintCmd )
+)
+
+( QuitCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Reversible )
+)
+
+( CGlue
+	( )
+	( _width _height _hshrink _hstretch _vshrink _vstretch _hshrlim _hstrlim _vshrlim _vstrlim )
+	( )
+)
+
+( Character
+	( Glyph )
+	( c_ font_ color_ left_bearing_ right_bearing_ ascent_ descent_ width_ height_ alignment_ )
+	( allocate code draw pick request ~Character )
+)
+
+( Telltale
+	( MonoGlyph Observer)
+	( state_ )
+	( disconnect state state ~Telltale )
+)
+
+( ChoiceItem
+	( )
+	( deck_ index_ )
+	( look look update ~ChoiceItem )
+)
+
+( Clipboard
+	( )
+	( _comps )
+	( Copy DeepCopy ~Clipboard )
+)
+
+( Color
+	( Resource )
+	( )
+	( )
+)
+
+( ColorCmd
+	( Command )
+	( _fg _bg )
+	( Copy Execute GetClassId IsA Read Write )
+)
+
+( DataElem
+	( UHashElem )
+	( _data _comp )
+	( ~DataElem )
+)
+
+( DataCache
+	( UHashTable )
+	( )
+	( )
+)
+
+( Command
+	( )
+	( _ctrlInfo _editor _clipboard _cache )
+	( Copy Done Execute First GetClassId GetClipboard GetControlInfo GetEditor GetSubstId IsA Last Log Next Prev Read Recall Reversible SetClipboard SetControlInfo SetEditor Store Unexecute Write ~Command )
+)
+
+( Component
+	( )
+	( _views )
+	( Attach Copy Detach Done First GetClassId GetParent GetRoot GetState GetSubstId GetTransferFunct Interpret IsA Last Next Notify Prev Read SetParent Uninterpret Update Write ~Component )
+)
+
+( CompositionComponent
+	( )
+	( glyph_ )
+	( )
+)
+
+( Composition
+	( MonoGlyph )
+	( compositor_ component_ breaks_ separator_ view_all_ damaged_ first_damage_ last_damage_ item_ dimension_ span_ resizable_ )
+	( allocate allotment append beginning_of change component count damage do_repair end_of insert item make make_item margin pick prepend remove repair replace separator view ~Composition )
+)
+
+( LRComposition
+	( Composition )
+	( )
+	( make ~LRComposition )
+)
+
+( TBComposition
+	( Composition )
+	( )
+	( make ~TBComposition )
+)
+
+( Compositor
+	( )
+	( )
+	( compose ~Compositor )
+)
+
+( ComponentView
+	( )
+	( _subject )
+	( Done First GetClassId GetParent Interpret IsA Last Next Prev SetParent SetSubject Uninterpret Update ~ComponentView )
+)
+
+( _CSData
+	( Data )
+	( _state )
+	( ~_CSData )
+)
+
+( Connector
+	( GraphicComp )
+	( _cnxns _stateVar _transMethod _csinfo )
+	( Connect ConnectMe ConnectedTo Disconnect DisconnectMe GetBinding GetCenter GetClassId GetTransMethod Interpret IsA Read SetBinding SetTransMethod Transmit Uninterpret Write ~Connector )
+)
+
+( ConnectorView
+	( GraphicView )
+	( )
+	( GetClassId IsA )
+)
+
+( Creator
+	( )
+	( )
+	( Create Create )
+)
+
+( CSGlue
+	( )
+	( _natural _shrink _stretch _shrlim _strlim )
+	( )
+)
+
+( CCnxn
+	( )
+	( _lbConn _rtConn _glue _pos _deform )
+	( Copy GetCenter ~CCnxn )
+)
+
+( HCnxn
+	( CCnxn )
+	( )
+	( Copy GetCenter )
+)
+
+( VCnxn
+	( CCnxn )
+	( )
+	( Copy GetCenter )
+)
+
+( CNet
+	( UList )
+	( )
+	( CreateCnxn CreateNetwork )
+)
+
+( HNet
+	( CNet )
+	( )
+	( CreateCnxn CreateNetwork )
+)
+
+( VNet
+	( CNet )
+	( )
+	( CreateCnxn CreateNetwork )
+)
+
+( CCnxn_HashElem
+	( UHashElem )
+	( _cnxn )
+	( )
+)
+
+( CU_HashElem
+	( UHashElem )
+	( _px _py )
+	( )
+)
+
+( CS_HashTable
+	( UHashTable )
+	( _elems )
+	( Register ~CS_HashTable )
+)
+
+( CCnxn_HashTable
+	( CS_HashTable )
+	( )
+	( CreateElem )
+)
+
+( CU_HashTable
+	( CS_HashTable )
+	( )
+	( CreateElem )
+)
+
+( CUpdater
+	( )
+	( _hash )
+	( )
+)
+
+( PeerInfo
+	( )
+	( _peer _ncnxns )
+	( )
+)
+
+( ConnInfo
+	( )
+	( _net _peers _npeers _nparallels )
+	( )
+)
+
+( CSolverInfo
+	( )
+	( _hinfo _vinfo )
+	( )
+)
+
+( CSolver
+	( )
+	( _hnets _vnets _hwritten _vwritten )
+	( )
+)
+
+( CSolverState
+	( )
+	( _cnxn _orient _next )
+	( )
+)
+
+( ControlInfo
+	( )
+	( _label _keyLabel _keyCode _owner )
+	( Copy ~ControlInfo )
+)
+
+( Cursor
+	( )
+	( rep_ )
+	( )
+)
+
+( Damage
+	( )
+	( areas additions canvas output graphic )
+	( )
+)
+
+( Data
+	( Resource )
+	( )
+	( )
+)
+
+( VoidData
+	( Data )
+	( _void )
+	( )
+)
+
+( MoveData
+	( Data )
+	( _dx _dy )
+	( )
+)
+
+( ColorData
+	( Data )
+	( _fg _bg )
+	( )
+)
+
+( GSData
+	( Data )
+	( _gs )
+	( ~GSData )
+)
+
+( MobilityData
+	( Data )
+	( _mobility _gs )
+	( ~MobilityData )
+)
+
+( DebugGlyph
+	( MonoGlyph )
+	( )
+	( )
+)
+
+( Deck
+	( Scene )
+	( cards top )
+	( Adjust DoChange DoInsert DoRemove Draw GetComponents Reconfig Resize )
+)
+
+( Dialog
+	( InputHandler )
+	( done_ accepted_ )
+	( dismiss post_at_aligned post_for_aligned run ~Dialog )
+)
+
+( PrintBS
+	( ButtonState )
+	( _dialog )
+	( Notify )
+)
+
+( DialogKit
+	( )
+	( impl_ )
+	( field_editor field_editor file_chooser file_chooser make_field_editor make_file_chooser widget_kit ~DialogKit )
+)
+
+( Display
+	( )
+	( rep_ pixel_ point_ )
+	( a_height a_width clipboard_selection close closed defaults fd find_selection find_selection flush get grab grabber height is_grabbing move_pointer pheight primary_selection put pwidth repair ring_bell secondary_selection set_auto_repeat set_key_click set_pointer_feedback set_screen style style sync ungrab width ~Display )
+)
+
+( Drag
+	( MonoGlyph )
+	( rep_ )
+	( abort allocate caught commit dragCursor dragData dragGlyph dragOffset dragType dragable dragable pick ~Drag )
+)
+
+( DragZone
+	( MonoGlyph )
+	( rep_ )
+	( allocate drop enter leave motion pick sensitive sensitive ~DragZone )
+)
+
+( DragZoneSink
+	( DragZone )
+	( dragPublished_ target_ )
+	( draw drop event pick ~DragZoneSink )
+)
+
+( UndoCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Reversible )
+)
+
+( RedoCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Reversible )
+)
+
+( CutCmd
+	( Command )
+	( _executed )
+	( Copy Execute GetClassId IsA Unexecute ~CutCmd )
+)
+
+( CopyCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Reversible ~CopyCmd )
+)
+
+( PasteCmd
+	( Command )
+	( _executed )
+	( Copy Execute GetClassId IsA Reversible Unexecute ~PasteCmd )
+)
+
+( ReplaceCmd
+	( MacroCmd )
+	( )
+	( Copy GetClassId IsA )
+)
+
+( DupCmd
+	( Command )
+	( _executed )
+	( Copy Execute GetClassId IsA Unexecute ~DupCmd )
+)
+
+( DeleteCmd
+	( Command )
+	( _executed )
+	( Copy Execute GetClassId IsA Unexecute ~DeleteCmd )
+)
+
+( SlctAllCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Reversible )
+)
+
+( ConnectCmd
+	( Command )
+	( _source _target )
+	( Copy Execute GetClassId IsA Read Reversible Unexecute Write )
+)
+
+( MobilityCmd
+	( Command )
+	( _mobility )
+	( Copy GetClassId IsA Read Write )
+)
+
+( Editor
+	( InputHandler )
+	( _window _impl )
+	( Close DependsOn GetComponent GetCurTool GetKeyMap GetSelection GetState GetViewer GetWindow InsertDialog Open RemoveDialog SetClassName SetComponent SetCurTool SetInstance SetKeyMap SetSelection SetViewer SetWindow Update keystroke ~Editor )
+)
+
+( StringStringElem
+	( UMapElem )
+	( _idstring _tagstring )
+	( id tag ~StringStringElem )
+)
+
+( EditorInfo
+	( UMap )
+	( )
+	( FindId FindTag ~EditorInfo )
+)
+
+( EllipseComp
+	( GraphicComp )
+	( )
+	( Copy GetClassId IsA Read Write )
+)
+
+( EllipseView
+	( GraphicView )
+	( )
+	( CreateManipulator GetClassId GetGraphic Interpret InterpretManipulator IsA Update )
+)
+
+( PSEllipse
+	( PostScriptView )
+	( )
+	( Definition GetClassId IsA )
+)
+
+( Ellipse
+	( Graphic )
+	( _patbr x0 y0 r1 r2 )
+	( Copy GetBrush GetClassId GetPattern IsA SetBrush SetPattern br br contains draw getExtent intersects pat pat read write )
+)
+
+( FillEllipse
+	( Ellipse )
+	( )
+	( Copy GetClassId IsA SetBrush br br contains draw getExtent intersects pat pat )
+)
+
+( Circle
+	( Ellipse )
+	( )
+	( Copy GetClassId IsA )
+)
+
+( FillCircle
+	( FillEllipse )
+	( )
+	( Copy GetClassId IsA )
+)
+
+( Event
+	( )
+	( )
+	( )
+)
+
+( ExternView
+	( ComponentView )
+	( )
+	( Definition Emit GetClassId GetView IsA SetView )
+)
+
+( PreorderView
+	( ExternView )
+	( )
+	( Definition GetClassId IsA )
+)
+
+( InorderView
+	( ExternView )
+	( )
+	( Definition GetClassId IsA )
+)
+
+( PostorderView
+	( ExternView )
+	( )
+	( Definition GetClassId IsA )
+)
+
+( FileBrowserKeyInfo
+	( )
+	( key name func )
+	( )
+)
+
+( FileBrowserImpl
+	( )
+	( browser_ kit_ selected_ box_ )
+	( )
+)
+
+( FileBrowser
+	( Browser )
+	( impl_ dir lastpath regexp directory_regexp mode directory_mode )
+	( Acceptable Update adjustable drag focus_in focus_out keystroke press refresh release select ~FileBrowser ~FileBrowser )
+)
+
+( FileChooserImpl
+	( )
+	( name_ kit_ fchooser_ fbrowser_ editor_ filter_ directory_filter_ filter_map_ dir_ action_ selected_ style_ update_ )
+	( )
+)
+
+( FileChooserAction
+	( Resource )
+	( )
+	( execute ~FileChooserAction )
+)
+
+( FileChooser
+	( Dialog )
+	( impl_ title subtitle )
+	( Accept Update UpdateBrowser UpdateEditor dismiss reread selected ~FileChooser ~FileChooser )
+)
+
+( FieldStringEditor
+	( StringEditor )
+	( kit_ style_ start_ index_ )
+	( Reconfig pick print ~FieldStringEditor )
+)
+
+( FieldButton
+	( ButtonState )
+	( editor_ action_ )
+	( Notify ~FieldButton )
+)
+
+( FieldEditorImpl
+	( )
+	( kit_ editor_ bs_ text_ cursor_is_on_ blink_handler_ flash_rate_ )
+	( )
+)
+
+( FieldEditorAction
+	( Resource )
+	( )
+	( accept cancel ~FieldEditorAction )
+)
+
+( FieldEditor
+	( InputHandler )
+	( impl_ )
+	( drag edit edit edit field field focus_in focus_out keystroke press release select select text undraw ~FieldEditor )
+)
+
+( FontFamily
+	( )
+	( impl_ )
+	( font font ~FontFamily )
+)
+
+( FontBoundingBox
+	( )
+	( left_bearing_ right_bearing_ width_ ascent_ descent_ font_ascent_ font_descent_ )
+	( )
+)
+
+( Font
+	( Resource )
+	( impl_ )
+	( char_bbox cleanup encoding font_bbox index name size string_bbox width width ~Font )
+)
+
+( CoordinateSpace
+	( )
+	( )
+	( )
+)
+
+( PointObj
+	( Persistent )
+	( x y )
+	( GetClassId IsA read write )
+)
+
+( LineObj
+	( Persistent )
+	( p1 p2 )
+	( GetClassId IsA read write )
+)
+
+( BoxObj
+	( Persistent )
+	( left right bottom top )
+	( GetClassId IsA read write )
+)
+
+( MultiLineObj
+	( Persistent )
+	( x y count )
+	( GetClassId IsA read write )
+)
+
+( FillPolygonObj
+	( MultiLineObj )
+	( normx normy normCount )
+	( GetClassId IsA )
+)
+
+( Extent
+	( )
+	( left bottom cx cy tol )
+	( )
+)
+
+( GLContext
+	( MonoGlyph )
+	( impl_ )
+	( draw ~GLContext )
+)
+
+( Glue
+	( Interactor )
+	( )
+	( Redraw ~Glue )
+)
+
+( HGlue
+	( Glue )
+	( )
+	( ~HGlue )
+)
+
+( VGlue
+	( Glue )
+	( )
+	( ~VGlue )
+)
+
+( Glyph
+	( Resource )
+	( )
+	( )
+)
+
+( GraphicBlock
+	( Interactor )
+	( graphic pad align zooming x0 y0 mag alt highlighted )
+	( Adjust Draw GetGraphicBox Highlight Invert LimitMagnification Reconfig Redraw Resize Scroll Update Zoom )
+)
+
+( UngroupData
+	( Data )
+	( _parent _gs )
+	( ~UngroupData )
+)
+
+( GraphicComp
+	( Component )
+	( _gr _brushes _colors _fonts _patterns )
+	( Append Bequeath GetClassId GetComp GetGraphic GetGraphicComp GetMobility GetParent InsertAfter InsertBefore Interpret IsA Prepend Remove Remove SetComp SetGraphic SetMobility Uninterpret ~GraphicComp )
+)
+
+( GraphicComps
+	( GraphicComp )
+	( _comps )
+	( Append Bequeath Copy Done First GetClassId GetComp InsertAfter InsertBefore Interpret IsA Last Next Prepend Prev Read Remove Remove SetComp SetMobility Uninterpret Write ~GraphicComps )
+)
+
+( GridGraphic
+	( Graphic )
+	( _width _height _xincr _yincr _br )
+	( Copy GetBrush SetBrush draw drawClipped getExtent ~GridGraphic )
+)
+
+( Grid
+	( )
+	( _graphic )
+	( Constrain GetGraphic IsVisible SetSpacing Visibility ~Grid )
+)
+
+( Group
+	( Glyph )
+	( aggregate_ dimension_ layout_ map_ count_ )
+	( allocate request ~Group )
+)
+
+( GraphicView
+	( ComponentView )
+	( _gr _handles )
+	( Add Append ClosestPoint ConnectorIntersecting CreateHandles CreateManipulator DeleteView DrawHandles EraseHandles GetClassId GetGraphic GetParent GetView GetViewer InitHandles InsertBefore Interpret InterpretManipulator IsA RedrawHandles Remove SelectAll SetGraphic SetView Uninterpret ViewContaining ViewIntersecting ViewsContaining ViewsIntersecting ViewsWithin ~GraphicView )
+)
+
+( GraphicViews
+	( GraphicView )
+	( _views )
+	( Add Append ConnectorIntersecting DeleteView Done First GetClassId GetGraphic GetView InsertBefore Interpret IsA Last Next Prev Remove SelectAll SetView Update ViewContaining ViewIntersecting ViewsContaining ViewsIntersecting ViewsWithin ~GraphicViews )
+)
+
+( GVU_HashElem
+	( UHashElem )
+	( _iview _n )
+	( )
+)
+
+( GVU_HashTable
+	( UHashTable )
+	( )
+	( )
+)
+
+( GVUpdater
+	( )
+	( _gv )
+	( Update ViewCategory )
+)
+
+( Handler
+	( Resource )
+	( )
+	( event ~Handler )
+)
+
+( HitTarget
+	( )
+	( glyph_ index_ handler_ )
+	( )
+)
+
+( HitTargetList
+	( )
+	( avail_ used_ targets_ fixed_targets_ )
+	( )
+)
+
+( HitList
+	( )
+	( avail_ used_ lists_ fixed_lists_ )
+	( )
+)
+
+( PossibleHitTarget
+	( )
+	( picked_ count_ depth_ item_ )
+	( )
+)
+
+( HitStack
+	( )
+	( avail_ used_ possible_targets_ fixed_possible_targets_ )
+	( )
+)
+
+( HitTargetArea
+	( )
+	( left bottom right top )
+	( )
+)
+
+( HitTargetAreaList
+	( )
+	( avail_ used_ areas_ fixed_areas_ )
+	( )
+)
+
+( HitImpl
+	( )
+	( event_ default_handler_ default_handler_depth_ items_ picks_ areas_ )
+	( )
+)
+
+( Hit
+	( )
+	( impl_ free_store_ )
+	( any begin bottom count depth end event handler index left pop_transform push_transform remove retarget right target target top transform ~Hit )
+)
+
+( Image
+	( Glyph )
+	( raster_ )
+	( allocate draw request ~Image )
+)
+
+( ImportCmd
+	( Command )
+	( chooser_ )
+	( Copy Execute GetClassId IsA PostDialog Reversible ~ImportCmd )
+)
+
+( InputHandler
+	( MonoGlyph )
+	( impl_ )
+	( allocate allocation allocation_changed append_input_handler canvas double_click drag draw focus focus_in focus_out handler input_handler input_handler_count inside keystroke move next_focus parent pick press prev_focus redraw release remove_all_input_handlers remove_input_handler repick style transformer undraw ~InputHandler )
+)
+
+( ActiveHandler
+	( InputHandler )
+	( inside_ )
+	( drag enter leave move undraw ~ActiveHandler )
+)
+
+( Iterator
+	( )
+	( _value )
+	( GetValue SetValue )
+)
+
+( KeyMap
+	( )
+	( _next _submap _ctrl )
+	( ~KeyMap )
+)
+
+( WidgetKitOverlay
+	( Glyph )
+	( first_ second_ third_ )
+	( allocate draw pick request ~WidgetKitOverlay )
+)
+
+( WidgetKit
+	( )
+	( impl_ )
+	( alias alias background begin_style begin_style begin_style begin_style bright_inset_frame check_box check_box check_box check_box_look check_menu_item check_menu_item check_menu_item check_menu_item_look chiseled_label chiseled_label default_button default_button default_button default_button_look dfast_cursor down_mover down_mover_look end_style enlarger enlarger_look fancy_label fancy_label font foreground gui hand_cursor hscroll_bar hslider inset_frame label label ldfast_cursor left_mover left_mover_look lfast_cursor lufast_cursor menu_item menu_item menu_item menu_item_look menu_item_separator menu_item_separator_look menubar menubar_item menubar_item menubar_item menubar_item_look menubar_look outset_frame palette_button palette_button palette_button palette_button_look panner panner_look pop_style pulldown pulldown_look pullright pullright_look push_button push_button push_button push_button_look push_style push_style quit radio_button radio_button radio_button radio_button_look radio_menu_item radio_menu_item radio_menu_item radio_menu_item_look raised_label raised_label rdfast_cursor reducer reducer_look rfast_cursor right_mover right_mover_look rufast_cursor scroll_bar_look slider_look style style style_changed ufast_cursor up_mover up_mover_look vscroll_bar vslider ~WidgetKit )
+)
+
+( Label
+	( Graphic )
+	( string count font )
+	( Copy GetClassId GetFont IsA SetFont contains draw getExtent intersects read write )
+)
+
+( Discretionary
+	( Glyph )
+	( penalty_ nobreak_ prebreak_ inbreak_ postbreak_ )
+	( compose request ~Discretionary )
+)
+
+( LayoutLayer
+	( MonoGlyph )
+	( under_ over_ )
+	( allocate draw pick print undraw ~LayoutLayer )
+)
+
+( ShapeOf
+	( Glyph )
+	( x_ y_ )
+	( request ~ShapeOf )
+)
+
+( Space
+	( Glyph )
+	( count_ each_ font_ color_ width_ height_ alignment_ )
+	( allocate draw pick request ~Space )
+)
+
+( Strut
+	( Glyph )
+	( font_ natural_ stretch_ shrink_ height_ alignment_ )
+	( allocate request ~Strut )
+)
+
+( HStrut
+	( Glyph )
+	( left_bearing_ right_bearing_ natural_ stretch_ shrink_ )
+	( request ~HStrut )
+)
+
+( VStrut
+	( Glyph )
+	( ascent_ descent_ natural_ stretch_ shrink_ )
+	( request ~VStrut )
+)
+
+( LayoutKitImpl
+	( )
+	( instance_ )
+	( )
+)
+
+( Layout
+	( )
+	( )
+	( allocate request ~Layout )
+)
+
+( LayoutKit
+	( )
+	( )
+	( back between bmargin bmargin box center center_dimension deck deck discretionary discretionary fixed fixed_dimension flexible flexible_dimension front glue glue hbox hbox hbox_first_aligned hbox_first_aligned hcenter hfixed hflexible hglue hglue hglue hglue hmargin hmargin hmargin hnatural hspace hstrut lmargin lmargin margin margin margin margin natural natural_dimension overlay rmargin rmargin shape_of shape_of_xy spaces strut tmargin tmargin vbox vbox vbox_first_aligned vbox_first_aligned vcenter vfixed vflexible vglue vglue vglue vglue vmargin vmargin vmargin vnatural vscrollbox vspace vstrut ~LayoutKit )
+)
+
+( LineComp
+	( GraphicComp )
+	( )
+	( Copy GetClassId Interpret IsA Read Write )
+)
+
+( LineView
+	( GraphicView )
+	( )
+	( CreateHandles CreateManipulator GetClassId GetEndpoints GetGraphic Interpret InterpretManipulator IsA Update )
+)
+
+( PSLine
+	( PostScriptView )
+	( )
+	( Definition GetClassId IsA )
+)
+
+( MultiLineComp
+	( VerticesComp )
+	( )
+	( Copy GetClassId IsA Read Write )
+)
+
+( MultiLineView
+	( VerticesView )
+	( )
+	( CreateManipulator GetClassId InterpretManipulator IsA VertexChanged )
+)
+
+( PSMultiLine
+	( PSVertices )
+	( )
+	( GetClassId IsA Name )
+)
+
+( Point
+	( Graphic )
+	( x y brush )
+	( Copy GetBrush GetClassId IsA SetBrush contains draw getExtent intersects read write )
+)
+
+( Line
+	( Graphic )
+	( x0 y0 x1 y1 brush )
+	( Copy GetBrush GetClassId GetOriginal IsA SetBrush contains draw getExtent intersects read write )
+)
+
+( MultiLine
+	( Graphic )
+	( _patbr x y count extent )
+	( Copy GetBrush GetClassId GetOriginal GetOriginal GetPattern IsA SetBrush SetPattern br br contains extentCached getExtent intersects operator!= operator== pat pat read uncacheExtent write )
+)
+
+( LinkComp
+	( GraphicComp )
+	( _conn1 _conn2 )
+	( Copy Done First GetClassId GetComp Interpret IsA Last Next Prev Read SetComp SetMobility Uninterpret Update Write ~LinkComp )
+)
+
+( LinkView
+	( GraphicView )
+	( _connView1 _connView2 )
+	( CreateHandles CreateManipulator Done First GetClassId GetEndpoints GetGraphic GetView InterpretManipulator IsA Last NewSubject Next Prev SetView Update ~LinkView )
+)
+
+( PSLink
+	( PostScriptView )
+	( )
+	( Definition GetClassId IsA )
+)
+
+( LRMarker
+	( MonoGlyph )
+	( canvas_ overlay_ underlay_ marked_ bounded_ left_ right_ bottom_ top_ x1_ y1_ h1_ x2_ y2_ h2_ )
+	( allocate draw undraw ~LRMarker )
+)
+
+( MacroCmd
+	( Command )
+	( _cmds )
+	( Copy Done Execute First GetClassId GetCommand IsA Last Next Prev Read Reversible SetCommand SetEditor Unexecute Write ~MacroCmd )
+)
+
+( Manipulator
+	( )
+	( )
+	( Effect GetTool GetViewer Grasp Manipulating SetTool SetViewer ~Manipulator )
+)
+
+( ManipList
+	( UList )
+	( _manipulating )
+	( )
+)
+
+( ManipGroup
+	( Manipulator )
+	( _kids _viewer _tool )
+	( Append Done Effect First GetManip GetTool GetViewer Grasp InsertAfter InsertBefore Last Manipulating Next Prepend Prev Remove Remove SetManip SetTool SetViewer ~ManipGroup )
+)
+
+( DragManip
+	( Manipulator )
+	( _viewer _r _relative _tool _constraint _origPreset _origx _origy _grasp_e )
+	( Constrain Effect GetConstraint GetRubberband GetTool GetTransformer GetViewer Grasp Manipulating SetConstraint SetRubberband SetTool SetTransformer SetViewer ~DragManip )
+)
+
+( VertexManip
+	( DragManip )
+	( )
+	( Manipulating )
+)
+
+( ConnectManip
+	( DragManip )
+	( _target )
+	( Manipulating )
+)
+
+( TextManip
+	( Manipulator )
+	( _prepositioned _selecting _xpos _ypos _viewer _selection _painter _tool _font _lineHt _tabWidth _multiline _text _display _buf _bufsize _dot _mark _grasp_e )
+	( Effect GetLineHeight GetPainter GetPosition GetTabWidth GetText GetTool GetViewer Grasp HandleKey Manipulating SetTool SetViewer ~TextManip )
+)
+
+( MenuItem
+	( Control )
+	( )
+	( Busy Done ~MenuItem )
+)
+
+( Menu
+	( Control )
+	( body_ scene_ state_ shadow_ depth_ align_ world_ ins_x_ ins_y_ rel_x_ rel_y_ )
+	( Close Include InsertBody Leave Open Popup Reconfig Setup ~Menu )
+)
+
+( MenuBar
+	( HBox )
+	( state_ )
+	( Include ~MenuBar )
+)
+
+( PulldownMenu
+	( Menu )
+	( )
+	( ~PulldownMenu )
+)
+
+( PullrightMenu
+	( Menu )
+	( )
+	( ~PullrightMenu )
+)
+
+( PopupMenu
+	( Menu )
+	( )
+	( ~PopupMenu )
+)
+
+( MFDialogKitImpl
+	( )
+	( )
+	( )
+)
+
+( MFDialogKit
+	( DialogKit )
+	( )
+	( make_field_editor make_file_chooser ~MFDialogKit )
+)
+
+( MFKitInfo
+	( Resource )
+	( style_ thickness_ toggle_scale_ radio_scale_ mover_size_ slider_size_ flat_ light_ dull_ dark_ gray_out_ )
+	( ~MFKitInfo )
+)
+
+( MFKitMenuItem
+	( MonoGlyph )
+	( state_ )
+	( draw pick ~MFKitMenuItem )
+)
+
+( MFKitForeground
+	( MonoGlyph )
+	( foreground_ )
+	( draw ~MFKitForeground )
+)
+
+( MFKitImpl
+	( )
+	( kit_ layout_ info_ info_list_ )
+	( )
+)
+
+( MFKit
+	( WidgetKit )
+	( impl_ )
+	( bright_inset_frame check_box_look check_menu_item_look default_button_look down_mover_look enlarger_look gui inset_frame left_mover_look menu_item_look menu_item_separator_look menubar_item_look menubar_look outset_frame palette_button_look panner_look pulldown_look push_button_look radio_button_look radio_menu_item_look reducer_look right_mover_look scroll_bar_look slider_look style_changed up_mover_look ~MFKit )
+)
+
+( MonoGlyph
+	( Glyph )
+	( body_ )
+	( allocate allotment append body body change component count draw insert pick prepend print remove replace request undraw ~MonoGlyph )
+)
+
+( MonoKitInfo
+	( Resource )
+	( style_ thickness_ toggle_scale_ radio_scale_ mover_size_ slider_size_ flat_ light_ dull_ dark_ gray_out_ )
+	( ~MonoKitInfo )
+)
+
+( MonoKitMenuItem
+	( MonoGlyph )
+	( state_ )
+	( draw pick ~MonoKitMenuItem )
+)
+
+( MonoKitForeground
+	( MonoGlyph )
+	( foreground_ )
+	( draw ~MonoKitForeground )
+)
+
+( MonoKitImpl
+	( )
+	( kit_ layout_ info_ info_list_ saved_text_ )
+	( )
+)
+
+( MonoKit
+	( WidgetKit )
+	( impl_ )
+	( bright_inset_frame check_box_look check_menu_item_look default_button_look down_mover_look enlarger_look gui inset_frame label label left_mover_look menu_item_look menu_item_separator_look menubar_item_look menubar_look outset_frame palette_button_look panner_look pulldown_look push_button_look radio_button_look radio_menu_item_look reducer_look right_mover_look scroll_bar_look slider_look style_changed up_mover_look ~MonoKit )
+)
+
+( NOPCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Reversible )
+)
+
+( Observable
+	( )
+	( observers_ )
+	( attach detach notify ~Observable )
+)
+
+( Observer
+	( )
+	( )
+	( disconnect update ~Observer )
+)
+
+( OL_FieldEditor
+	( FieldEditor )
+	( white_ dark_ field_allocation_ )
+	( allocate draw pick request ~OL_FieldEditor )
+)
+
+( OLDialogKit
+	( DialogKit )
+	( )
+	( make_field_editor make_file_chooser ~OLDialogKit )
+)
+
+( OL_ScrollbarSpecs
+	( )
+	( a_ b_ c_ d_ e_ f_ g_ h_ i_ j_ k_ m_ n_ p_ r_ )
+	( )
+)
+
+( OL_ButtonSpecs
+	( )
+	( a_ b_ c_ d_ e_ f_ )
+	( )
+)
+
+( OL_SettingSpecs
+	( )
+	( a_ b_ c_ d_ e_ )
+	( )
+)
+
+( OL_CheckboxSpecs
+	( )
+	( a_ b_ c_ d_ e_ f_ )
+	( )
+)
+
+( OL_MenuButtonSpecs
+	( )
+	( a_ )
+	( )
+)
+
+( OL_MenuMarkSpecs
+	( )
+	( a_ b_ c_ )
+	( )
+)
+
+( OL_SliderSpecs
+	( )
+	( a_ b_ c_ f_ )
+	( )
+)
+
+( OL_TickSpecs
+	( )
+	( a_ )
+	( )
+)
+
+( OL_GaugeSpecs
+	( )
+	( a_ b_ c_ d_ f_ )
+	( )
+)
+
+( OL_ButtonMenuSpecs
+	( )
+	( a_ b_ c_ i_ )
+	( )
+)
+
+( OL_SubMenuSpecs
+	( )
+	( a_ b_ e_ g_ h_ )
+	( )
+)
+
+( OL_Specs
+	( Resource )
+	( points_ font_ coords_per_point_ sb_ bt_ stg_ cbx_ sl_ tk_ gg_ mb_ bm_ mm_ sm_ )
+	( )
+)
+
+( OL_AbbrevMenuButton
+	( Glyph )
+	( kit_ specs_ dimension_ state_ width_ height_ lgap_ tgap_ )
+	( allocate draw request )
+)
+
+( OL_Anchor
+	( Glyph )
+	( kit_ width_ height_ thickness_ state_ )
+	( allocate draw request ~OL_Anchor )
+)
+
+( OL_Button
+	( MonoGlyph Observer )
+	( )
+	( )
+)
+
+( OLKit
+	( WidgetKit )
+	( impl_ )
+	( bg1 bg2 bg3 black bottom_end_box bright_inset_frame busy check_box_look check_menu_item_look default_button_look down_mover_look enlarger_look gui habbrev_menu_button hgauge htick inactive inset_frame left_end_box left_mover_look menu_item_look menu_item_separator_look menubar menubar_item_look menubar_look outset_frame palette_button_look panner_look pinnable pulldown_look pullright_look push_button_look pushpin radio_button_look radio_menu_item_look reducer_look right_end_box right_mover_look scroll_bar_look slider_look top_end_box up_mover_look vabbrev_menu_button vgauge vtick white ~OLKit )
+)
+
+( PadComp
+	( Connector )
+	( _mobility )
+	( Connect Copy GetClassId GetMobility Interpret IsA Read SetMobility Uninterpret Write )
+)
+
+( PadView
+	( ConnectorView )
+	( )
+	( CreateManipulator GetClassId GetGraphic Interpret InterpretManipulator IsA NewSubject Update )
+)
+
+( PadGraphic
+	( Graphic )
+	( _l _b _r _t _br )
+	( Copy GetBrush SetBrush concatGS draw getExtent ~PadGraphic )
+)
+
+( PSPad
+	( PostScriptView )
+	( )
+	( Definition GetClassId IsA )
+)
+
+( PageInfo
+	( )
+	( glyph_ allocation_ extension_ x_ y_ status_ )
+	( )
+)
+
+( Page
+	( Glyph )
+	( info_ background_ canvas_ allocation_ )
+	( allocate allotment append change component count draw insert pick prepend print remove replace request undraw ~Page )
+)
+
+( Patch
+	( MonoGlyph )
+	( canvas_ transformer_ allocation_ extension_ )
+	( allocate draw reallocate redraw repick undraw ~Patch )
+)
+
+( PatternCmd
+	( Command )
+	( _pat )
+	( Copy Execute GetClassId IsA Read Write )
+)
+
+( Path
+	( )
+	( _slot )
+	( Visit Visited ~Path )
+)
+
+( Pattern
+	( Resource )
+	( )
+	( )
+)
+
+( Picture
+	( FullGraphic )
+	( refList cur extent )
+	( Copy GetClassId HasChildren IsA Propagate cacheExtent contains draw drawClipped extentCached getExtent intersects read readObjects uncacheChildren uncacheExtent write writeObjects ~Picture )
+)
+
+( PinComp
+	( Connector )
+	( _mobility )
+	( Connect Copy GetClassId GetMobility Interpret IsA Read SetMobility Uninterpret Write )
+)
+
+( PinView
+	( ConnectorView )
+	( )
+	( CreateManipulator GetClassId GetGraphic Interpret InterpretManipulator IsA NewSubject Update )
+)
+
+( PinGraphic
+	( Graphic )
+	( _x _y _br )
+	( Copy GetBrush SetBrush concatGS draw getExtent ~PinGraphic )
+)
+
+( PSPin
+	( PostScriptView )
+	( )
+	( Definition GetClassId IsA )
+)
+
+( SlidingPin
+	( SlidingEllipse )
+	( )
+	( Draw )
+)
+
+( FixedPin
+	( Rubberband )
+	( _cx _cy _rad )
+	( Draw GetOriginal )
+)
+
+( Placement
+	( MonoGlyph )
+	( layout_ )
+	( allocate draw pick print request ~Placement )
+)
+
+( CenterLayout
+	( Layout )
+	( dimension_ alignment_ )
+	( allocate request ~CenterLayout )
+)
+
+( FixedLayout
+	( Layout )
+	( dimension_ span_ )
+	( allocate request ~FixedLayout )
+)
+
+( VariableLayout
+	( Layout )
+	( dimension_ stretch_ shrink_ )
+	( allocate request ~VariableLayout )
+)
+
+( NaturalLayout
+	( Layout )
+	( dimension_ natural_ )
+	( allocate request ~NaturalLayout )
+)
+
+( MarginLayout
+	( Layout )
+	( lnatural_ lstretch_ lshrink_ rnatural_ rstretch_ rshrink_ bnatural_ bstretch_ bshrink_ tnatural_ tstretch_ tshrink_ requisition_ )
+	( allocate request ~MarginLayout )
+)
+
+( PolyGlyph
+	( Glyph )
+	( impl_ )
+	( append change component count insert modified prepend remove replace undraw ~PolyGlyph )
+)
+
+( PolygonComp
+	( VerticesComp )
+	( )
+	( Copy GetClassId IsA Read Write )
+)
+
+( PolygonView
+	( VerticesView )
+	( )
+	( CreateManipulator GetClassId InterpretManipulator IsA VertexChanged )
+)
+
+( PSPolygon
+	( PSVertices )
+	( )
+	( GetClassId IsA Name )
+)
+
+( Rect
+	( Graphic )
+	( x0 y0 x1 y1 _patbr )
+	( Copy GetBrush GetClassId GetPattern IsA SetBrush SetPattern br br contains draw getExtent intersects pat pat read write )
+)
+
+( FillRect
+	( Rect )
+	( )
+	( Copy GetClassId IsA SetBrush br br contains draw getExtent intersects pat pat )
+)
+
+( Polygon
+	( MultiLine )
+	( )
+	( Copy GetClassId IsA contains draw intersects )
+)
+
+( FillPolygon
+	( Polygon )
+	( )
+	( Copy GetClassId IsA SetBrush br br contains draw getExtent intersects pat pat )
+)
+
+( PrinterInfo
+	( )
+	( color_ brush_ font_ )
+	( )
+)
+
+( PrinterRep
+	( )
+	( out_ page_ info_ x_ y_ text_curx_ text_cury_ text_chars_ text_spaces_ )
+	( )
+)
+
+( Printer
+	( Canvas )
+	( rep_ )
+	( character clip close_path comment curve_to epilog fill flush image line_to move_to new_path page pop_clipping pop_transform prolog push_clipping push_transform resize stencil stroke to_coord to_pixels to_pixels_coord transform ~Printer )
+)
+
+( PSFontImpl
+	( )
+	( name encoding size widths )
+	( )
+)
+
+( PSFont
+	( Font )
+	( impl_ _name _printfont _printsize _printfontandsize _lineHt )
+	( encoding name size width width ~PSFont ~PSFont )
+)
+
+( PSBrush
+	( Brush )
+	( _none _linepat _dashpat _dashpatsize _dashoffset )
+	( )
+)
+
+( PSColor
+	( Color )
+	( _name _r _g _b )
+	( ~PSColor )
+)
+
+( PSFont2
+	( Font )
+	( impl_ _name _printfont _printsize _printfontandsize _lineHt )
+	( encoding name size width width ~PSFont ~PSFont )
+)
+
+( PSPattern
+	( Pattern )
+	( _none _data _graylevel _size )
+	( )
+)
+
+( PostScriptView
+	( PreorderView )
+	( _fonts )
+	( BSplineProc BeginProc BgColor BoundingBox Brush CircleProc ClosedBSplineProc Comments ConstProcs Creator DefinitionProc EllipseProc Emit EndProc FgColor FillProc Font FontNames FullGS GetBox GetClassId GetGridSpacing GetPSFonts GridSpacing IsA LineProc MidpointProc MinGS MinMaxProcs MiscProcs MultiLineProc ObjectProcs PSVersion Pages Pattern PatternProc PolygonProc Prologue RectangleProc SetBgColorProc SetBrushProc SetFgColorProc SetFontProc SetGSProcs SetPSFonts SetPatternProc ShowProc StoreVerticesProc StrokeProc SubsplineProc TextGS TextProc ThirdpointProc Trailer Transformation Version )
+)
+
+( PostScriptViews
+	( PostScriptView )
+	( _views )
+	( Definition Done Emit First GetClassId GetView IsA Last Next Prev SetView Update ~PostScriptViews )
+)
+
+( Raster
+	( Resource )
+	( rep_ )
+	( ascent descent flush height left_bearing peek pheight poke pwidth right_bearing width ~Raster )
+)
+
+( RasterComp
+	( GraphicComp )
+	( _filename )
+	( Copy GetClassId IsA Read Write ~RasterComp )
+)
+
+( RasterView
+	( GraphicView )
+	( )
+	( GetClassId GetGraphic IsA Update )
+)
+
+( PSRaster
+	( PostScriptView )
+	( )
+	( Definition GetClassId IsA )
+)
+
+( RasterRect
+	( Graphic )
+	( raster colorMaker )
+	( Copy GetClassId IsA contains draw getExtent intersects read write )
+)
+
+( RectComp
+	( GraphicComp )
+	( )
+	( Copy GetClassId IsA Read Write )
+)
+
+( RectView
+	( GraphicView )
+	( _reshapeCorner )
+	( CreateHandles CreateManipulator GetClassId GetCorners GetGraphic Interpret InterpretManipulator IsA Update )
+)
+
+( PSRect
+	( PostScriptView )
+	( )
+	( Definition GetClassId IsA )
+)
+
+( regexp
+	( )
+	( startp endp textStart regstart reganch regmust regmlen program )
+	( )
+)
+
+( Regexp2
+	( )
+	( pattern c_pattern )
+	( )
+)
+
+( ReqErr
+	( )
+	( msgid code request detail id message )
+	( Error ~ReqErr )
+)
+
+( Resource
+	( )
+	( refcount_ )
+	( Reference Unreference cleanup ref unref unref_deferred ~Resource )
+)
+
+( Rule
+	( Glyph )
+	( dimension_ color_ thickness_ )
+	( allocate draw request ~Rule )
+)
+
+( HRule
+	( Rule )
+	( )
+	( ~HRule )
+)
+
+( VRule
+	( Rule )
+	( )
+	( ~VRule )
+)
+
+( TBScrollBoxInfo
+	( )
+	( glyph_ allocation_ )
+	( )
+)
+
+( ScrollBox
+	( PolyGlyph Adjustable )
+	( )
+	( first_shown last_shown shown ~ScrollBox )
+)
+
+( TBScrollBox
+	( ScrollBox )
+	( impl_ )
+	( allocate allotment cur_length cur_lower cur_upper draw first_shown last_shown length lower modified page_backward page_forward pick request scroll_backward scroll_forward scroll_to shown undraw upper ~TBScrollBox )
+)
+
+( SelectionManager
+	( Resource )
+	( rep_ )
+	( get_value own put_value retrieve ~SelectionManager )
+)
+
+( SelectionHandler
+	( Resource )
+	( )
+	( handle ~SelectionHandler )
+)
+
+( SessionIOHandler
+	( IOHandler )
+	( session_ display_ )
+	( inputReady )
+)
+
+( PropertyData
+	( )
+	( path value )
+	( )
+)
+
+( OptionDesc
+	( )
+	( name path style value )
+	( )
+)
+
+( Session
+	( )
+	( rep_ )
+	( connect connect disconnect done pending poll quit read read run run_window unread ~Session )
+)
+
+( Shadow
+	( MonoGlyph )
+	( x_offset_ y_offset_ color_ single_ )
+	( allocate draw pick print request ~Shadow )
+)
+
+( SimpleCompositor
+	( Compositor )
+	( )
+	( compose ~SimpleCompositor )
+)
+
+( SliderImpl
+	( )
+	( normal_thumb_ visible_thumb_ thumb_patch_ old_thumb_ min_thumb_size_ dragging_ aborted_ showing_old_thumb_ forward_ backward_ stepper_ xoffset_ yoffset_ )
+	( )
+)
+
+( Slider
+	( ActiveHandler Observer )
+	( impl_ interactor view shown left bottom right top prevl prevb prevr prevt llim blim rlim tlim constrained syncScroll moveType origx origy )
+	( Draw Handle Reconfig Redraw Reshape Resize Update allocate allocate_thumb allocation_changed allot_thumb_major_axis allot_thumb_minor_axis apply_adjustment backward_stepper do_adjustment drag draw forward_stepper minimum_thumb_size move move_to normal_thumb old_thumb press reallocate_thumb redraw_thumb release request undraw update visible_thumb ~Slider ~Slider )
+)
+
+( XSlider
+	( Slider )
+	( adjustable_ xscale_ forward_ backward_ )
+	( allocate_thumb apply_adjustment disconnect move_to ~XSlider )
+)
+
+( YSlider
+	( Slider )
+	( adjustable_ yscale_ forward_ backward_ )
+	( allocate_thumb apply_adjustment disconnect move_to ~YSlider )
+)
+
+( XYSlider
+	( Slider )
+	( x_adjustable_ y_adjustable_ xscale_ yscale_ )
+	( allocate_thumb apply_adjustment disconnect move_to ~XYSlider )
+)
+
+( SlotComp
+	( Connector )
+	( _mobility )
+	( GetClassId GetMobility Interpret IsA Read SetMobility Uninterpret Write )
+)
+
+( SlotView
+	( ConnectorView )
+	( )
+	( CreateManipulator GetClassId GetGraphic Interpret InterpretManipulator IsA NewSubject Update )
+)
+
+( SlotGraphic
+	( Graphic )
+	( _x _y _length _br )
+	( Copy GetBrush SetBrush concatGS draw getExtent ~SlotGraphic )
+)
+
+( HSlotComp
+	( SlotComp )
+	( )
+	( Connect Copy GetClassId IsA )
+)
+
+( HSlotView
+	( SlotView )
+	( )
+	( GetClassId IsA NewSubject )
+)
+
+( VSlotComp
+	( SlotComp )
+	( )
+	( Connect Copy GetClassId IsA )
+)
+
+( VSlotView
+	( SlotView )
+	( )
+	( GetClassId IsA NewSubject )
+)
+
+( PSSlot
+	( PostScriptView )
+	( )
+	( Definition GetClassId IsA )
+)
+
+( SMFKitInfo
+	( Resource )
+	( style_ thickness_ check_scale_ radio_scale_ mover_size_ slider_size_ color_ checkmark_ shadow1_ shadow2_ )
+	( ~SMFKitInfo )
+)
+
+( SMFKitFrame
+	( BevelFrame )
+	( state_ info_ )
+	( draw draw_frame ~SMFKitFrame )
+)
+
+( SMFKitButtonFrame
+	( SMFKitFrame )
+	( )
+	( draw_frame pick ~SMFKitButtonFrame )
+)
+
+( SMFKitPushButtonFrame
+	( SMFKitButtonFrame )
+	( minwidth_ )
+	( request ~SMFKitPushButtonFrame )
+)
+
+( SMFKitMenuItemFrame
+	( SMFKitButtonFrame )
+	( )
+	( draw_frame ~SMFKitMenuItemFrame )
+)
+
+( SMFKitGlyph
+	( Glyph )
+	( info_ )
+	( allocate ~SMFKitGlyph )
+)
+
+( SMFKitCheckmark
+	( SMFKitGlyph )
+	( state_ font_ )
+	( draw request ~SMFKitCheckmark )
+)
+
+( SMFKitIndicator
+	( SMFKitGlyph )
+	( state_ )
+	( draw request ~SMFKitIndicator )
+)
+
+( SMFKitRadioFlag
+	( SMFKitGlyph )
+	( state_ font_ )
+	( draw request ~SMFKitRadioFlag )
+)
+
+( SMFKitRadioItem
+	( SMFKitRadioFlag )
+	( )
+	( draw ~SMFKitRadioItem )
+)
+
+( SMFKitDefaultArrow
+	( SMFKitGlyph )
+	( font_ )
+	( draw request ~SMFKitDefaultArrow )
+)
+
+( SMFKitThumb
+	( SMFKitGlyph )
+	( dimension_ ridges_ flags_ )
+	( draw ~SMFKitThumb )
+)
+
+( SMFKitImpl
+	( )
+	( kit_ layout_ info_ info_list_ )
+	( )
+)
+
+( SMFKit
+	( WidgetKit )
+	( impl_ )
+	( bright_inset_frame check_box_look check_menu_item_look default_button_look down_mover_look enlarger_look gui inset_frame left_mover_look menu_item_look menu_item_separator_look menubar_item_look menubar_look outset_frame palette_button_look panner_look pulldown_look pullright_look push_button_look radio_button_look radio_menu_item_look reducer_look right_mover_look scroll_bar_look slider_look style_changed up_mover_look ~SMFKit )
+)
+
+( SplineComp
+	( VerticesComp )
+	( )
+	( Copy GetClassId IsA Read Write )
+)
+
+( SplineView
+	( VerticesView )
+	( )
+	( CreateManipulator GetClassId InterpretManipulator IsA VertexChanged )
+)
+
+( PSSpline
+	( PSVertices )
+	( )
+	( GetClassId IsA Name )
+)
+
+( ClosedSplineComp
+	( VerticesComp )
+	( )
+	( Copy GetClassId IsA Read Write )
+)
+
+( ClosedSplineView
+	( VerticesView )
+	( )
+	( CreateManipulator GetClassId InterpretManipulator IsA VertexChanged )
+)
+
+( PSClosedSpline
+	( PSVertices )
+	( )
+	( GetClassId IsA Name )
+)
+
+( BSpline
+	( MultiLine )
+	( )
+	( Copy GetClassId IsA contains draw intersects )
+)
+
+( ClosedBSpline
+	( BSpline )
+	( )
+	( Copy GetClassId IsA contains draw intersects )
+)
+
+( FillBSpline
+	( ClosedBSpline )
+	( )
+	( Copy GetClassId IsA SetBrush br br contains draw getExtent intersects pat pat )
+)
+
+( StateVar
+	( )
+	( _views _conn )
+	( Attach Copy Detach GetClassId GetSubstId IsA Notify Read Write operator= ~StateVar )
+)
+
+( NameVar
+	( StateVar )
+	( _name )
+	( Copy GetClassId GetName IsA Read SetName Write operator= )
+)
+
+( CompNameVar
+	( NameVar )
+	( _comp )
+	( Copy GetClassId GetComponent IsA PartOf Read SetComponent UpdateName Write operator= )
+)
+
+( ModifStatusVar
+	( StateVar )
+	( _modified _component _vars )
+	( Copy GetClassId GetComponent GetModifStatus IsA Read SetComponent SetModifStatus Write operator= )
+)
+
+( MagnifVar
+	( StateVar )
+	( _magnif )
+	( Copy GetClassId GetMagnif IsA Read SetMagnif Write operator= )
+)
+
+( GravityVar
+	( StateVar )
+	( _active )
+	( Activate Copy GetClassId IsA IsActive Read Write operator= )
+)
+
+( FontVar
+	( StateVar )
+	( _psfont )
+	( Copy GetClassId GetFont IsA Read SetFont Write operator= ~FontVar )
+)
+
+( BrushVar
+	( StateVar )
+	( _psbrush )
+	( Copy GetBrush GetClassId IsA Read SetBrush Write operator= ~BrushVar )
+)
+
+( PatternVar
+	( StateVar )
+	( _pspattern )
+	( Copy GetClassId GetPattern IsA Read SetPattern Write operator= ~PatternVar )
+)
+
+( ColorVar
+	( StateVar )
+	( _psfgcolor _psbgcolor )
+	( Copy GetBgColor GetClassId GetFgColor IsA Read SetColors Write operator= ~ColorVar )
+)
+
+( StateVarView
+	( MonoScene )
+	( _subject )
+	( Init Reconfig SetSubject Stale Update ~StateVarView )
+)
+
+( TextInteractor
+	( Interactor )
+	( _text _alignment )
+	( Reconfig Redraw ~TextInteractor )
+)
+
+( BrushInteractor
+	( Interactor )
+	( _brush _fg _bg )
+	( Reconfig Redraw ~BrushInteractor )
+)
+
+( PatternInteractor
+	( Interactor )
+	( _pattern _fg _bg )
+	( Reconfig Redraw ~PatternInteractor )
+)
+
+( NameVarView
+	( StateVarView )
+	( )
+	( Init Stale )
+)
+
+( FileNameVarView
+	( StateVarView )
+	( _relative )
+	( Init )
+)
+
+( CompNameVarView
+	( StateVarView )
+	( _relative )
+	( Init )
+)
+
+( ModifStatusVarView
+	( StateVarView )
+	( _prevVal _prevProt )
+	( Init Reconfig Stale )
+)
+
+( MagnifVarView
+	( StateVarView )
+	( _prevVal )
+	( Init Stale )
+)
+
+( GravityVarView
+	( StateVarView )
+	( _prevVal )
+	( Init Stale )
+)
+
+( FontVarView
+	( StateVarView )
+	( _prevVal )
+	( Init Stale )
+)
+
+( BrushVarView
+	( StateVarView )
+	( _prevVal _prevFg _prevBg _colorSubj )
+	( Init Stale ~BrushVarView )
+)
+
+( PatternVarView
+	( StateVarView )
+	( _prevVal _prevFg _prevBg _colorSubj )
+	( Init Stale ~PatternVarView )
+)
+
+( Stencil
+	( Graphic )
+	( image mask )
+	( Copy GetClassId IsA contains draw getExtent intersects read write )
+)
+
+( StencilComp
+	( GraphicComp )
+	( _filename )
+	( Copy GetClassId IsA Read Write ~StencilComp )
+)
+
+( StencilView
+	( GraphicView )
+	( )
+	( GetClassId GetGraphic IsA Update )
+)
+
+( PSStencil
+	( PostScriptView )
+	( )
+	( Definition GetClassId IsA )
+)
+
+( Stepper
+	( Button )
+	( start_delay_ next_delay_ timer_ )
+	( adjust press release start_stepping stop_stepping ~Stepper )
+)
+
+( GroupCmd
+	( Command )
+	( _executed _group )
+	( Copy Execute GetClassId IsA Read Reversible Unexecute Write ~GroupCmd )
+)
+
+( UngroupCmd
+	( Command )
+	( _executed _kids )
+	( Copy Execute GetClassId IsA Unexecute ~UngroupCmd )
+)
+
+( FrontCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Unexecute )
+)
+
+( BackCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Unexecute )
+)
+
+( ValueString
+	( String )
+	( )
+	( null_terminated ~ValueString )
+)
+
+( Style
+	( Resource )
+	( rep_ )
+	( add_trigger add_trigger_any alias alias alias_count append attribute attribute attribute_count child children find_attribute load_file load_list load_property name name parent remove remove_attribute remove_trigger remove_trigger_any ~Style )
+)
+
+( Superpose
+	( Layout )
+	( layout_ count_ )
+	( allocate request ~Superpose )
+)
+
+( Target
+	( MonoGlyph )
+	( sensitivity_ )
+	( pick ~Target )
+)
+
+( TelltaleState
+	( Resource Observable )
+	( )
+	( ~TelltaleState )
+)
+
+( BreakSet
+	( )
+	( demerits_ natural_ stretch_ shrink_ breaks_ size_ count_ next_ prev_ )
+	( )
+)
+
+( TeXCompositor
+	( Compositor )
+	( penalty_ )
+	( compose ~TeXCompositor )
+)
+
+( TextComp
+	( GraphicComp )
+	( )
+	( Copy GetClassId Interpret IsA Read Uninterpret Write )
+)
+
+( TextView
+	( GraphicView )
+	( )
+	( CreateManipulator GetClassId GetGraphic Interpret InterpretManipulator IsA TextChanged Update )
+)
+
+( TextGraphic
+	( ULabel )
+	( _lineHt )
+	( Copy contains draw getExtent intersects operator!= operator== )
+)
+
+( PSText
+	( PostScriptView )
+	( )
+	( Definition GetClassId IsA )
+)
+
+( TransformSetter
+	( MonoGlyph )
+	( transformer_ natural_allocation_ )
+	( allocate draw pick print request transform transformer transformer transformer ~TransformSetter )
+)
+
+( TransformFitter
+	( TransformSetter )
+	( )
+	( transform ~TransformFitter )
+)
+
+( TIFFRasterImpl
+	( )
+	( tif_ raster_ bitspersample_ samplesperpixel_ photometric_ orientation_ redcmap_ greencmap_ bluecmap_ BWmap_ PALmap_ )
+	( )
+)
+
+( TIFFRaster
+	( )
+	( )
+	( )
+)
+
+( Tile
+	( Layout )
+	( dimension_ requisition_ )
+	( allocate request ~Tile )
+)
+
+( TileReversed
+	( Layout )
+	( dimension_ requisition_ )
+	( allocate request ~TileReversed )
+)
+
+( TileFirstAligned
+	( Layout )
+	( dimension_ requisition_ )
+	( allocate request ~TileFirstAligned )
+)
+
+( TileReversedFirstAligned
+	( Layout )
+	( dimension_ requisition_ )
+	( allocate request ~TileReversedFirstAligned )
+)
+
+( TransferFunct
+	( )
+	( )
+	( Copy Evaluate GetClassId GetSubstId IsA Read Write ~TransferFunct )
+)
+
+( TF_2Port
+	( TransferFunct )
+	( )
+	( ChangedOutput Evaluate GetClassId GetInput GetOutput Inputs IsA Outputs SetInput SetOutput Transfer )
+)
+
+( TF_Direct
+	( TF_2Port )
+	( _input _output _changed )
+	( ChangedOutput Copy GetClassId GetInput GetOutput Inputs IsA Outputs Read SetInput SetOutput Transfer Write )
+)
+
+( Transformer
+	( Resource )
+	( identity_ mat00 mat01 mat10 mat11 mat20 mat21 )
+	( inverse_transform inverse_transform invert matrix postmultiply premultiply rotate scale skew transform transform translate ~Transformer )
+)
+
+( MoveCmd
+	( Command )
+	( _dx _dy )
+	( Copy GetClassId IsA Read Write )
+)
+
+( ScaleCmd
+	( Command )
+	( _sx _sy _align )
+	( Copy GetClassId IsA Read Write )
+)
+
+( RotateCmd
+	( Command )
+	( _angle )
+	( Copy GetClassId IsA Read Write )
+)
+
+( UArray
+	( )
+	( _buf _bufsize _count )
+	( )
+)
+
+( UControl
+	( Control )
+	( _info )
+	( SetControlInfo )
+)
+
+( UControlInteractor
+	( Interactor )
+	( _info _picture _label _highlighted )
+	( Highlight Invert Redraw SetControlInfo ~UControlInteractor )
+)
+
+( CommandControl
+	( UControl )
+	( )
+	( Busy Do Done )
+)
+
+( PanelControl
+	( UControl )
+	( )
+	( Do Down Enter Leave Select )
+)
+
+( HPanelControl
+	( PanelControl )
+	( )
+	( )
+)
+
+( VPanelControl
+	( PanelControl )
+	( )
+	( )
+)
+
+( CommandInteractor
+	( UControlInteractor )
+	( )
+	( Reconfig Resize )
+)
+
+( PanelInteractor
+	( UControlInteractor )
+	( _orient )
+	( Reconfig Resize )
+)
+
+( UHashElem
+	( )
+	( _key )
+	( ~UHashElem )
+)
+
+( UHashTable
+	( )
+	( _nslots _slot )
+	( CreateElem Equal Hash Register Unregister ~UHashTable )
+)
+
+( ULabel
+	( Graphic )
+	( _string _font )
+	( Copy GetFont GetPattern SetFont contains draw getExtent intersects ~ULabel )
+)
+
+( UList
+	( )
+	( _object _next _prev )
+	( ~UList )
+)
+
+( UMapElem
+	( )
+	( )
+	( id tag ~UMapElem )
+)
+
+( UMap
+	( )
+	( _elems )
+	( FindId FindTag ~UMap )
+)
+
+( History
+	( UMapElem )
+	( _comp _past _future )
+	( id tag ~History )
+)
+
+( HistoryMap
+	( UMap )
+	( )
+	( )
+)
+
+( DirtyCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Unexecute )
+)
+
+( Unidraw
+	( )
+	( _catalog _world _editors _deadEditors _alive _updated _histories _histlen )
+	( Close CloseAll CloseDependents Open Opened Process Quit Run Update ~Unidraw )
+)
+
+( PageGraphic
+	( Graphic )
+	( _width _height _br )
+	( Copy GetBrush SetBrush draw getExtent ~PageGraphic )
+)
+
+( UPage
+	( )
+	( _graphic )
+	( GetGraphic ~UPage )
+)
+
+( UStencil
+	( Graphic )
+	( _image _mask )
+	( Copy GetPattern contains draw getExtent intersects ~UStencil )
+)
+
+( VerticesComp
+	( GraphicComp )
+	( )
+	( GetClassId IsA )
+)
+
+( VerticesView
+	( GraphicView )
+	( _reshapePt )
+	( CreateHandles GetClassId GetGraphic GetVertices Interpret IsA Update VertexChanged )
+)
+
+( PSVertices
+	( PostScriptView )
+	( )
+	( Definition GetClassId IsA Name )
+)
+
+( Vertices
+	( Graphic )
+	( _x _y _count _extent )
+	( Copy GetOriginal extentCached operator!= operator== uncacheExtent ~Vertices )
+)
+
+( NormSizeCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Reversible )
+)
+
+( RedToFitCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Reversible )
+)
+
+( CenterCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Reversible )
+)
+
+( GridCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Reversible )
+)
+
+( GridSpacingCmd
+	( Command )
+	( _dialog )
+	( Copy Execute GetClassId IsA Reversible ~GridSpacingCmd )
+)
+
+( GravityCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Reversible )
+)
+
+( OrientationCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Reversible )
+)
+
+( CloseEditorCmd
+	( Command )
+	( )
+	( Copy Execute GetClassId IsA Reversible )
+)
+
+( ViewerGraphic
+	( Picture )
+	( _view )
+	( )
+)
+
+( ViewerView
+	( GraphicView )
+	( _viewer _vg )
+	( GetViewer Update ~ViewerView )
+)
+
+( Viewer
+	( GraphicBlock )
+	( _editor _damage _gview _page _grid _orientation _viewerView )
+	( Adjust Align CenterOp Constrain Draw GetDamage GetEditor GetGraphic GetGraphicBox GetGraphicView GetGrid GetOrientation GetPage GetSelection Handle IncurTextDisplayDamage InitRubberband InitTextDisplay LimitMagnification Magnify Manipulate MomentaryUseTool Reconfig Redraw ReduceToFit Reorient Resize SetGraphicView SetGrid SetMagnification SetOrientation SetPage Update UpdateMagnifVar UseTool UseTool ViewCategory ~Viewer )
+)
+
+( Window
+	( )
+	( rep_ )
+	( align bind bottom bound canvas compute_geometry configure cursor cursor default_geometry display display do_map glyph grab_pointer height is_mapped left lower map move place pop_cursor pplace push_cursor raise receive repair resize set_attributes set_props style target unbind ungrab_pointer unmap width ~Window )
+)
+
+( ManagedWindow
+	( Window )
+	( rep_ )
+	( compute_geometry deiconify focus_event icon icon icon_bitmap icon_bitmap icon_mask icon_mask iconify resize set_props wm_delete ~ManagedWindow )
+)
+
+( ApplicationWindow
+	( ManagedWindow )
+	( )
+	( compute_geometry set_props )
+)
+
+( TopLevelWindow
+	( ManagedWindow )
+	( )
+	( group_leader group_leader set_props )
+)
+
+( TransientWindow
+	( TopLevelWindow )
+	( )
+	( configure set_attributes transient_for transient_for )
+)
+
+( PopupWindow
+	( Window )
+	( )
+	( set_attributes )
+)
+
+( IconWindow
+	( ManagedWindow )
+	( )
+	( do_map )
+)
+
+( XYMarker
+	( MonoGlyph )
+	( canvas_ overlay_ underlay_ marked_ left_ right_ top_ bottom_ )
+	( allocate draw undraw ~XYMarker )
+)
+
+( Adjuster
+	( Interactor )
+	( view plain hit mask delay timer shown highlighted )
+	( AdjustView Handle Highlight Reconfig Redraw Reshape ~Adjuster )
+)
+
+( Zoomer
+	( Adjuster )
+	( factor )
+	( AdjustView ~Zoomer )
+)
+
+( Enlarger
+	( Zoomer )
+	( )
+	( ~Enlarger )
+)
+
+( Reducer
+	( Zoomer )
+	( )
+	( ~Reducer )
+)
+
+( Mover
+	( Adjuster )
+	( moveType )
+	( AdjustView ~Mover )
+)
+
+( LeftMover
+	( Mover )
+	( )
+	( ~LeftMover )
+)
+
+( RightMover
+	( Mover )
+	( )
+	( ~RightMover )
+)
+
+( UpMover
+	( Mover )
+	( )
+	( ~UpMover )
+)
+
+( DownMover
+	( Mover )
+	( )
+	( ~DownMover )
+)
+
+( Banner
+	( Interactor )
+	( left middle right highlight lw mw rw lx mx rx inverse )
+	( Reconfig Redraw Resize Update )
+)
+
+( CompletionEditor
+	( StringEditor )
+	( complete_ completions_ count_ )
+	( HandleChar ~CompletionEditor )
+)
+
+( Control
+	( MonoScene )
+	( state_ enabled_ parent_ )
+	( Busy Close Do Done Down Enable Enter Grab Handle IsGrabbing Leave Open Select Skip Unselect Up )
+)
+
+( ControlState
+	( Subject )
+	( status selection action next prev )
+	( Deactivate NotifySelection )
+)
+
+( FileBrowser2
+	( StringBrowser )
+	( impl_ dir lastpath regexp directory_regexp mode directory_mode )
+	( Acceptable Update adjustable drag focus_in focus_out keystroke press refresh release select ~FileBrowser ~FileBrowser )
+)
+
+( FileChooser2
+	( StringChooser )
+	( impl_ title subtitle )
+	( Accept Update UpdateBrowser UpdateEditor dismiss reread selected ~FileChooser ~FileChooser )
+)
+
+( Frame
+	( MonoScene )
+	( left )
+	( Reconfig Redraw Resize ~Frame )
+)
+
+( ShowFrame
+	( Frame )
+	( )
+	( Handle HandleInput InsideFrame ~ShowFrame )
+)
+
+( TitleFrame
+	( ShowFrame )
+	( banner )
+	( InsideFrame Wrap ~TitleFrame )
+)
+
+( BorderFrame
+	( ShowFrame )
+	( normal )
+	( InsideFrame Redraw ~BorderFrame )
+)
+
+( ShadowFrame
+	( Frame )
+	( )
+	( Redraw ~ShadowFrame )
+)
+
+( MarginFrame
+	( Frame )
+	( hmargin hshrink hstretch vmargin vshrink vstretch )
+	( Reconfig Redraw Resize ~MarginFrame )
+)
+
+( InteractorHandler
+	( Handler )
+	( interactor_ )
+	( event ~InteractorHandler )
+)
+
+( Interactor
+	( Glyph )
+	( shape canvas perspective xmax ymax input output parent style classname instance cursensor window world insert_window managed_window cursor_ canvas_type_ )
+	( Activate Adjust Deactivate Draw GetComponents Handle Highlight Orphan Reconfig Redraw RedrawList Reshape Resize Update allocate draw pick request ~Interactor )
+)
+
+( InteractorWindow
+	( Window )
+	( interactor_ parent_ )
+	( bind receive set_attributes target unbind ~InteractorWindow )
+)
+
+( MatchEditor
+	( StringEditor )
+	( pattern match_on_keystroke )
+	( HandleChar Match ~MatchEditor )
+)
+
+( Message
+	( Interactor )
+	( text alignment pad highlighted )
+	( Highlight Realign Reconfig Redraw ~Message )
+)
+
+( Painter
+	( Resource )
+	( font foreground background br pattern style curx cury xoff yoff matrix rep )
+	( BSpline Circle ClearRect Clip ClosedBSpline Copy Curve CurveTo Ellipse FillBSpline FillCircle FillEllipse FillPolygon FillRect Line MultiLine MultiPoint NoClip Point Polygon RasterRect Rect SetOverwrite SetPlaneMask Stencil Text Text Text Text )
+)
+
+( Panner
+	( MonoScene )
+	( size adjusters slider )
+	( Reconfig ~Panner )
+)
+
+( Slider2
+	( Interactor )
+	( impl_ interactor view shown left bottom right top prevl prevb prevr prevt llim blim rlim tlim constrained syncScroll moveType origx origy )
+	( Draw Handle Reconfig Redraw Reshape Resize Update allocate allocate_thumb allocation_changed allot_thumb_major_axis allot_thumb_minor_axis apply_adjustment backward_stepper do_adjustment drag draw forward_stepper minimum_thumb_size move move_to normal_thumb old_thumb press reallocate_thumb redraw_thumb release request undraw update visible_thumb ~Slider ~Slider )
+)
+
+( Perspective
+	( Resource )
+	( x0 y0 width height curx cury curwidth curheight sx sy lx ly views )
+	( )
+)
+
+( Rubberband
+	( Resource )
+	( output canvas drawn trackx offx tracky offy )
+	( Draw Erase Redraw SetCanvas SetPainter Track ~Rubberband )
+)
+
+( RubberEllipse
+	( Rubberband )
+	( centerx radiusx centery radiusy )
+	( CurrentRadii Draw GetCurrent GetOriginal OriginalRadii )
+)
+
+( SlidingEllipse
+	( RubberEllipse )
+	( refx refy )
+	( CurrentRadii GetCurrent OriginalRadii )
+)
+
+( RubberCircle
+	( RubberEllipse )
+	( )
+	( CurrentRadii Draw OriginalRadii )
+)
+
+( RubberPointList
+	( Rubberband )
+	( x y count )
+	( )
+)
+
+( RubberVertex
+	( RubberPointList )
+	( rubberPt )
+	( GetCurrent GetOriginal )
+)
+
+( RubberHandles
+	( RubberVertex )
+	( d )
+	( Draw Track )
+)
+
+( RubberSpline
+	( RubberVertex )
+	( )
+	( Draw )
+)
+
+( RubberClosedSpline
+	( RubberVertex )
+	( )
+	( Draw )
+)
+
+( SlidingPointList
+	( RubberPointList )
+	( refx refy )
+	( Draw GetCurrent GetOriginal Track )
+)
+
+( SlidingLineList
+	( SlidingPointList )
+	( )
+	( Draw )
+)
+
+( ScalingLineList
+	( RubberPointList )
+	( newx newy centerx centery width height )
+	( Draw GetCurrent GetOriginal Track Update ~ScalingLineList )
+)
+
+( RotatingLineList
+	( RubberPointList )
+	( newx newy centerx centery refx refy )
+	( Draw GetCurrent GetOriginal Track Update ~RotatingLineList )
+)
+
+( RubberGroup
+	( Rubberband )
+	( list cur )
+	( Draw Erase SetCanvas SetPainter Track ~RubberGroup )
+)
+
+( RubberLine
+	( Rubberband )
+	( fixedx fixedy movingx movingy )
+	( Draw GetCurrent GetOriginal )
+)
+
+( RubberAxis
+	( RubberLine )
+	( )
+	( GetCurrent )
+)
+
+( SlidingLine
+	( RubberLine )
+	( refx refy )
+	( GetCurrent )
+)
+
+( ScalingLine
+	( RubberLine )
+	( centerx centery width height )
+	( GetCurrent )
+)
+
+( RotatingLine
+	( RubberLine )
+	( centerx centery refx refy )
+	( GetCurrent )
+)
+
+( RubberRect
+	( Rubberband )
+	( fixedx fixedy movingx movingy )
+	( Draw GetCurrent GetOriginal )
+)
+
+( RubberSquare
+	( RubberRect )
+	( )
+	( GetCurrent )
+)
+
+( SlidingRect
+	( RubberRect )
+	( refx refy )
+	( GetCurrent )
+)
+
+( StretchingRect
+	( RubberRect )
+	( side )
+	( GetCurrent )
+)
+
+( ScalingRect
+	( RubberRect )
+	( centerx centery width height )
+	( GetCurrent )
+)
+
+( RotatingRect
+	( Rubberband )
+	( left right centerx refx bottom top centery refy )
+	( Draw GetCurrent GetOriginal )
+)
+
+( GrowingVertices
+	( Rubberband )
+	( x y count bufsize origbufsize curPt origPt handleSize )
+	( AddVertex AppendVertex Draw DrawHandles DrawVertices GetCurrent GetCurrent GetOriginal GetOriginal RemoveVertex ~GrowingVertices )
+)
+
+( GrowingMultiLine
+	( GrowingVertices )
+	( )
+	( DrawVertices )
+)
+
+( GrowingPolygon
+	( GrowingVertices )
+	( )
+	( DrawVertices )
+)
+
+( GrowingBSpline
+	( GrowingVertices )
+	( )
+	( DrawVertices )
+)
+
+( GrowingClosedBSpline
+	( GrowingVertices )
+	( )
+	( DrawVertices )
+)
+
+( Scene
+	( Interactor )
+	( propagate )
+	( DoChange DoInsert DoLower DoMove DoRaise DoRemove Highlight Orphan Wrap ~Scene )
+)
+
+( MonoScene
+	( Scene )
+	( interior_ )
+	( DoChange DoInsert DoRemove Draw GetComponents Reconfig Resize )
+)
+
+( ScrollBar
+	( MonoScene )
+	( interactor size )
+	( ~ScrollBar )
+)
+
+( HScrollBar
+	( ScrollBar )
+	( )
+	( Reconfig ~HScrollBar )
+)
+
+( VScrollBar
+	( ScrollBar )
+	( )
+	( Reconfig ~VScrollBar )
+)
+
+( Scroller
+	( Interactor )
+	( interactor size view shown scale tracking syncScroll )
+	( Resize ~Scroller )
+)
+
+( HScroller
+	( Scroller )
+	( )
+	( Handle Reconfig Redraw Update ~HScroller )
+)
+
+( VScroller
+	( Scroller )
+	( )
+	( Handle Reconfig Redraw Update ~VScroller )
+)
+
+( Sensor
+	( Resource )
+	( mask down up )
+	( operator= ~Sensor )
+)
+
+( Shape
+	( )
+	( width height hstretch vstretch hshrink vshrink aspect hunits vunits )
+	( )
+)
+
+( StringBrowser
+	( Interactor )
+	( rows columns uniqueSel singleClick clickDelay highlight subject done strbuf strbufsize strcount selbuf selbufsize selcount display lineheight lasttime lastx lasty lastdot lastmark )
+	( Adjust Handle HandleChar LeftButtonDown Reconfig Redraw Resize ~StringBrowser )
+)
+
+( StringChooser
+	( Dialog )
+	( _sedit _browser _focus )
+	( Accept CanFocus Choice Handle HandleFocus SwitchFocus UpdateBrowser UpdateEditor ~StringChooser )
+)
+
+( StringEditor
+	( Interactor )
+	( text left right subject done sample buffer size display )
+	( Handle HandleChar Reconfig Redraw Resize ~StringEditor )
+)
+
+( Subject
+	( Resource )
+	( rep_ )
+	( Attach Detach IsView Notify ~Subject )
+)
+
+( TextBuffer
+	( )
+	( text length size linecount lastline lastindex )
+	( Delete Insert ~TextBuffer )
+)
+
+( TextDisplay
+	( )
+	( painter canvas autosized xmin xmax ymin ymax x0 y0 width lineheight tabwidth lines maxlines firstline lastline topline bottomline widestline caretline caretindex caretstyle )
+	( )
+)
+
+( TextEditor
+	( Interactor )
+	( text display dot mark tabsize lineheight highlight shaperows shapecolumns scrollalign )
+	( Adjust Reconfig Redraw Resize ~TextEditor )
+)
+
+( TGlue
+	( )
+	( shape )
+	( )
+)
+
+( Tray
+	( Scene )
+	( nelements head tail bg tsolver )
+	( DoChange DoInsert DoRemove Draw GetComponents Reconfig Reshape Resize )
+)
+
+( Viewport
+	( MonoScene )
+	( align background cwidth cheight )
+	( Adjust DoMove Reconfig Redraw Resize )
+)
+
+( World
+	( )
+	( current_ session_ display_ )
+	( RingBell SetAutoRepeat SetFeedback SetKeyClick SetScreen argc argv background classname display done double_buffered flush font foreground height name pending pheight poll property_is_on property_value pwidth quit read read run session shaped_windows style sync unread width ~World )
+)
+
+( Graphic
+	( Persistent )
+	( identity caching parent fillBg fg bg tag t painters p )
+	( BgFilled Contains Copy Draw Draw DrawClipped Erase Erase EraseClipped FillBg GetBgColor GetBrush GetCenter GetClassId GetCluster GetFgColor GetFont GetPattern HasChildren Intersects IsA SetBrush SetColors SetFont SetPattern concat concatGS concatTransformer contains draw drawClipped erase eraseClipped extentCached getExtent intersects invalidateCaches operator= read uncacheChildren uncacheExtent uncacheParents write ~Graphic )
+)
+
+( FullGraphic
+	( Graphic )
+	( pat brush font )
+	( Copy GetBrush GetClassId GetFont GetPattern IsA SetBrush SetFont SetPattern read write )
+)
+
+( Cache
+	( )
+	( size hashTable )
+	( )
+)
+
+( Directory
+	( )
+	( impl_ )
+	( close count index is_directory name path ~Directory )
+)
+
+( Dispatcher
+	( )
+	( )
+	( )
+)
+
+( File
+	( )
+	( rep_ )
+	( close length limit name ~File )
+)
+
+( InputFile
+	( File )
+	( )
+	( read ~InputFile )
+)
+
+( StdInput
+	( InputFile )
+	( )
+	( length read ~StdInput )
+)
+
+( HashTable
+	( )
+	( entries count )
+	( Hash Match )
+)
+
+( GraphicToPainter
+	( HashTable )
+	( canvas box )
+	( Hash Match )
+)
+
+( Host
+	( )
+	( name_ )
+	( )
+)
+
+( Instance
+	( FullGraphic )
+	( refGr )
+	( Copy GetClassId IsA contains draw drawClipped getExtent intersects read write )
+)
+
+( IOHandler
+	( )
+	( )
+	( exceptionRaised inputReady outputReady timerExpired ~IOHandler )
+)
+
+( iosb
+	( ios )
+	( _binary _swapped )
+	( )
+)
+
+( istreamb
+	( iosb istream )
+	( )
+	( )
+)
+
+( ostreamb
+	( iosb ostream )
+	( )
+	( )
+)
+
+( iostreamb
+	( istreamb ostreamb )
+	( )
+	( )
+)
+
+( Math
+	( )
+	( )
+	( )
+)
+
+( Memory
+	( )
+	( )
+	( )
+)
+
+( ObjectMan
+	( Persistent )
+	( userInitializer userCreator lastuid lastuidOffset currentOffset filename objCache objMap objStore root )
+	( GetClassId IsA read write )
+)
+
+( Persistent
+	( )
+	( )
+	( Clean GetClassId GetCluster IsA IsDirty Save Touch getUID initialize read readObjects write writeObjects ~Persistent )
+)
+
+( PFile
+	( )
+	( name fd )
+	( )
+)
+
+( PColor
+	( Persistent )
+	( value )
+	( GetClassId IsA read write )
+)
+
+( PPattern
+	( Persistent )
+	( data value )
+	( GetClassId IsA read write )
+)
+
+( PBrush
+	( Persistent )
+	( p value )
+	( GetClassId IsA read write )
+)
+
+( PFont
+	( Persistent )
+	( name count value )
+	( GetClassId IsA read write )
+)
+
+( Ref
+	( )
+	( )
+	( )
+)
+
+( RefList
+	( Ref )
+	( next prev )
+	( )
+)
+
+( RpcHdr
+	( )
+	( _request _ndata )
+	( )
+)
+
+( RpcPeer
+	( IOHandler )
+	( _lPath _lPort _service _running _remote _rHost )
+	( createReaderAndWriter createReaderAndWriter inputReady ~RpcPeer )
+)
+
+( RpcReader
+	( IOHandler )
+	( _nfcns _function _client _delete _fd )
+	( connectionClosed inputReady map ~RpcReader )
+)
+
+( RpcRegistry
+	( )
+	( )
+	( )
+)
+
+( RpcService
+	( IOHandler )
+	( _path _port _service _running )
+	( createReader inputReady ~RpcService )
+)
+
+( rpcstream
+	( iostreamb )
+	( _buf _incomplete_request )
+	( )
+)
+
+( RpcWriter
+	( )
+	( _server _delete _host )
+	( )
+)
+
+( String
+	( )
+	( data_ length_ )
+	( case_insensitive_equal case_insensitive_equal convert convert convert convert hash null_terminated operator!= operator!= operator< operator< operator<= operator<= operator= operator= operator== operator== operator> operator> operator>= operator>= search set_to_substr set_value set_value substr ~String )
+)
+
+( CopyString
+	( String )
+	( )
+	( null_terminated operator= operator= set_value set_value ~CopyString )
+)
+
+( NullTerminatedString
+	( String )
+	( allocated_ )
+	( null_terminated operator= operator= ~NullTerminatedString )
+)
+
+( UniqueString
+	( String )
+	( table_ pool_ )
+	( hash null_terminated operator== operator== ~UniqueString )
+)
+
+( BitmapRep
+	( )
+	( )
+	( )
+)
+
+( BrushRep
+	( )
+	( display_ dash_list_ dash_count_ width_ )
+	( )
+)
+
+( CanvasDamage
+	( )
+	( left bottom right top )
+	( )
+)
+
+( TextRenderInfo
+	( )
+	( canvas_ drawgc_ x0_ y0_ width_ curx_ cury_ text_ cur_text_ spaces_ items_ )
+	( )
+)
+
+( PathRenderInfo
+	( )
+	( curx_ cury_ point_ cur_point_ end_point_ )
+	( )
+)
+
+( CanvasRep
+	( )
+	( display_ window_ xdrawable_ width_ height_ pwidth_ pheight_ damaged_ on_damage_list_ repairing_ damage_ drawbuffer_ copybuffer_ clip_ brush_ color_ font_ clipping_ empty_ drawgc_ copygc_ op_ stipple_ pixel_ brush_width_ dash_list_ dash_count_ xfont_ text_twobyte_ text_reencode_ font_is_scaled_ transformed_ transformers_ clippers_ text_ path_ )
+	( )
+)
+
+( ColorRep
+	( )
+	( visual_ op_ masking_ xcolor_ stipple_ )
+	( )
+)
+
+( CursorRep
+	( )
+	( fg_ bg_ display_ xcursor_ )
+	( make_xcursor ~CursorRep )
+)
+
+( CursorRepData
+	( CursorRep )
+	( x_ y_ pat_ mask_ )
+	( make_xcursor ~CursorRepData )
+)
+
+( CursorRepBitmap
+	( CursorRep )
+	( pat_ mask_ )
+	( make_xcursor ~CursorRepBitmap )
+)
+
+( CursorRepFont
+	( CursorRep )
+	( font_ pat_ mask_ )
+	( make_xcursor ~CursorRepFont )
+)
+
+( CursorRepXFont
+	( CursorRep )
+	( code_ )
+	( make_xcursor ~CursorRepXFont )
+)
+
+( DisplayRep
+	( )
+	( display_ screen_ root_ visuals_ default_visual_ width_ height_ pwidth_ pheight_ style_ grabbers_ damaged_ selections_ wtable_ )
+	( )
+)
+
+( XDrag
+	( )
+	( )
+	( )
+)
+
+( EventRep
+	( )
+	( xevent_ display_ window_ pointer_x_ pointer_y_ pointer_root_x_ pointer_root_y_ location_valid_ has_pointer_location_ )
+	( )
+)
+
+( FontRep
+	( Resource )
+	( display_ font_ scale_ unscaled_ name_ encoding_ size_ entry_ )
+	( )
+)
+
+( FontFamilyRep
+	( )
+	( display_ count_ min_weight_ max_weight_ min_width_ max_width_ min_slant_ max_slant_ min_size_ max_size_ names_ weights_ slants_ widths_ sizes_ )
+	( )
+)
+
+( PainterRep
+	( )
+	( fillgc dashgc fillbg overwrite xor clipped display xclip )
+	( )
+)
+
+( PatternRep
+	( )
+	( display_ pixmap_ )
+	( )
+)
+
+( RasterRep
+	( )
+	( display_ modified_ left_ bottom_ right_ top_ width_ height_ pwidth_ pheight_ image_ pixmap_ gc_ )
+	( )
+)
+
+( SelectionManagerRep
+	( )
+	( xdisplay_ name_ x_req_ owner_ convert_ lose_ done_ ok_ fail_ )
+	( )
+)
+
+( WindowOverlayInfo
+	( )
+	( id_ type_ transparent_ layer_ )
+	( )
+)
+
+( WindowVisualInfo
+	( )
+	( display_ screen_ depth_ visual_ cmap_ overlay_ )
+	( )
+)
+
+( WindowVisual
+	( )
+	( info_ ctable_ rgbtable_ localmap_ localmapsize_ red_ red_shift_ green_ green_shift_ blue_ blue_shift_ white_ xor_ )
+	( )
+)
+
+( ManagedWindowHintInfo
+	( )
+	( style_ hints_ dpy_ xwindow_ pwidth_ pheight_ display_ )
+	( )
+)
+
+( ManagedWindowRep
+	( )
+	( icon_ icon_bitmap_ icon_mask_ group_leader_ transient_for_ )
+	( )
+)
+
+( ostream
+	( ios )
+	( )
+	( )
+)
+
+( istream
+	( ios )
+	( _gcount )
+	( )
+)
+
+( iostream
+	( istream ostream )
+	( _gcount )
+	( )
+)
+
+( Iostream_init
+	( )
+	( )
+	( )
+)
+
+( _ios_fields
+	( )
+	( _strbuf _tie _width _flags _fill _state _exceptions _precision _arrays )
+	( )
+)
+
+( ios
+	( _ios_fields )
+	( )
+	( )
+)
+)

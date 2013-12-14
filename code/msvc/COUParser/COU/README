@@ -1,0 +1,144 @@
+This is a repository for object-oriented classlibrary samples. Only the structure
+of a library is made public. The source code remains proprietary. We appreciate 
+any contribution that you could make to this benchmark base. Please contact us
+through the coordinates given below.
+
+
+What is this about ?
+--------------------
+
+In order to calculate the amount of space that dispatch tables take up in 
+an object-oriented application, one needs to have the names of all classes,
+the inheritance graph, and, for each class, the names of all the messages that
+the particular class defines. This gives enough information to build up the
+necessary datastructures. We have done this for a number of message dispatch
+techniques in order to compare their space overhead in [Dri95]. This repository 
+gathers self-contained classlibraries from as many oo-languages/models/systems 
+as possible. No source code is included in any of the samples, so if you send us
+a sample based on a proprietary library, you are not giving away information that
+is worth anything in industry.
+
+We also try to get the names of defined instance variables, because this may be
+important for future experiments. Most samples currently lack that information, 
+however. In some, like SELF, there is no distinction and accessor messages for
+instance variables are listed with the other messages.
+
+There may be other uses for this information, such as object metrics, class 
+hierarchy analysis, you name it. Everyone is hereby invited to use this 
+information in as many ways as possible. Just refer to this base in any papers
+in which you use them.
+
+
+What is the format of the samples ?
+-----------------------------------
+
+All samples are ascii-files (for portability), containing some information about
+the sample, the programming language, a contact adress (of the person that provided 
+the sample), some numbers of the sample, all preceded by a colon. Then comes the sample 
+itself, in the format described below:
+
+; this is just a template of an example
+; from no language in particular
+; by Karel Driesen, karel@cs.ucsb.edu
+; it has more than 2 classes and a bunch of message selectors
+
+(
+( <classname1>
+  ( <baseclass1> .. <baseclassn> )
+  ( <instvar1> .. <instvarn> )
+  ( <messagename1> .. <messagenamen> )
+)
+
+..
+
+( <classnamen>
+  ( <baseclass1> .. <baseclassn> )
+  ( <instvar1> .. <instvarn> )
+  ( <messagename1> .. <messagenamen> )
+)
+)
+
+
+So, in scheme-parlance, we have a list of classes, each of which is a list of four elements:
+- a classname
+- a list of baseclasses (or superclasses), which can have 0 (for root classes), 
+  1 (for single inheritance libraries), or more (multiple inheritance) elements.
+- a list of instance variable names
+- a list of messagenames, *defined* in the class. Usually this is not empty.
+
+
+Isn't it easier to make up my own samples ?
+-------------------------------------------
+
+No. Although it is easy to build a quick and dirty random classlibrary generator,
+it is very hard to make it generate samples that bear more than a superficial
+resemblance to what is really out there in the field. If one would build such a 
+generator, one would need to compare it with as many real samples as possible to
+guarantee that it generates the right stuff, so even then this base would be useful.
+
+The only situation in which even a naive generator can be adequate, is in stress-testing 
+your algorithms for speed or memory requirements. For instance, classlibraries in which 
+every class inherits from 10 other classes are hard to find. A generator can give you 
+such a library.
+
+I am BTW willing to include any such generators in this base, because even non-representative
+data can be used for comparing techniques, as long as it is public. 
+
+That is the second reason why making up your own samples is rather stupid: anyone
+who wants to compare two techniques has to implement them all over again. If you 
+have a technique that takes a lot of implementation effort, others will not compare
+to you unless you publish tests on publicly available data. If you want to get out of
+obscurity, use public data for your tests. Otherwise you risk being ignored.
+
+
+Hey, SELF doesn't have classes ! What are you trying to sell me here ?
+----------------------------------------------------------------------
+
+Some languages do not have a class concept. However, for efficiency reasons, behavior
+is almost always shared between individual objects. To give each object a copy of 
+the message code for all messages it understands may be simple, but wastes a lot
+of space. In SELF, shared behavior is implemented through "maps", which are invisible
+to a programmer and effectively correspond to Smalltalk classes. They are not as chiselled
+in stone as Smalltalk classes, however.
+
+This shared behavior is also inherited. An incremental change to one or more classes
+gives a new class with extra behavior. Even if delegation is used in a language, this can
+usually be modelled with classes and inheritance, and for a message dispatch implementation
+would make little difference. This is mostly because the common case is that the target of
+delegations doesn't change dynamically.
+
+So even though a OO-language can lack the concept of a class and of inheritance, 
+something will usually take its place in such a way as can be represented (we hope)
+by our format.
+
+
+How can I contribute to this neat idea ?
+----------------------------------------
+
+If you have a classlibrary that is not already in the base, that is self-contained
+(i.e. it constitutes a complete program), and that shares at most half of its 
+classes with other samples in the base, then you can send this in the format described 
+above to me. I will test it, possibly adjust the format and make the sample public.
+
+Sometimes it is also necessary to convert special characters (like "'", "," , "(")
+into strings. When I do this, I first search the whole sample for the replacement
+string (for instance "quote", "comma" or "leftbracket"). If it is not there, I replace
+all instances of the character with this string. This operation does not disturb the 
+inheritance structure.
+
+
+Who do I send it to ?
+---------------------
+
+Karel Driesen 
+Department of Computer Science
+RSL-lab 2122 Engineering I
+University of California
+Santa Barbara, CA 93106
+
+tel(lab):  (1-805) 893-4394
+fax(lab):  (1-805) 893-8553
+
+email: karel@cs.ucsb.edu
+www: http://www.cs.ucsb.edu/~karel
+

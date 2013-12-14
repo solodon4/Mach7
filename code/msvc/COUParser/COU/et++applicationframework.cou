@@ -1,0 +1,2226 @@
+; etclasses
+; from  wothke@ubilab.ubs.ch (Juergen Wothke)
+; was generated using the ET++Application-Framework-Classes. 
+; There are >100 classes but ET++ does not use multiple inheritance
+
+(
+( AccessMembers        
+	( )
+	( dummy )
+	( ClassName Member ~AccessMembers )
+)
+
+( AccessObjPtrs
+	( AccessMembers )
+	( inObject )
+	( FoundPointer Member )
+)
+
+( Alert
+	( Dialog )
+	( alerts text textview image buttons )
+	( DoMakeContent InspectorId Show )
+)
+
+( AppRpcConnection
+	( StreamConnection )
+	( checkTimer deltaCheckInterval polling connected )
+	( Dispatch Error Received ServerQuit SetTimeout )
+)
+
+( RpcCheckTimer
+	( )
+	( )
+	( )
+)
+
+( ApplIntHandler
+	( SysEvtHandler )
+	( )
+	( Notify )
+)
+
+( ClientData
+	( )
+	( self interpreter )
+	( )
+)
+
+( Application
+	( Manager )
+	( fileDialog version mainDocumentType lastWindowPos )
+	( About AddDocument CanOpen CloseAllDocuments Control Debug DoMakeDocuments DoMakeManager DoMenuCommand DoOnError DoParseOptions DoSetupInterpreter DoSetupMenu ExtCommand GetInitialWindowPos GetNewDocumentPos MakeFileDialog MakeInitManager NewManager OpenDocument ParseCommandLine Quit RemoveManager Run )
+)
+
+( BackgroundItem
+	( CompositeVObject )
+	( ink )
+	( DrawInner PrintOn ReadFrom SetExtent SetOrigin )
+)
+
+( XPMelem
+	( )
+	( name pixel )
+	( )
+)
+
+( Bitmap
+	( Ink )
+	( cmapper dbm )
+	( PrintOn ReadFrom SetInk Show deepclone )
+)
+
+( SmartBitmap
+	( )
+	( size bits bm name )
+	( )
+)
+
+( BitSet
+	( Object )
+	( m )
+	( Hash IsEqual PrintOn ReadFrom )
+)
+
+( BitSetIter
+	( )
+	( cb pos )
+	( )
+)
+
+( Matte
+	( CompositeVObject )
+	( border )
+	( GetMinSize PrintOn ReadFrom SetExtent SetOrigin )
+)
+
+( BorderItem
+	( CompositeVObject )
+	( )
+	( Draw GetMinSize SetExtent SetOrigin )
+)
+
+( rcinfo
+	( )
+	( wd ht bs hfixed vfixed )
+	( )
+)
+
+( SplitMover
+	( Command )
+	( constrainRect delta rc sbox where minsize result normsize iwhere )
+	( TrackConstrain TrackFeedback TrackMouse )
+)
+
+( Box
+	( CompositeVObject )
+	( gap align colsrows )
+	( GetMinSize PrintOn ReadFrom SetExtent SetOrigin )
+)
+
+( HBox
+	( Box )
+	( )
+	( )
+)
+
+( VBox
+	( Box )
+	( )
+	( )
+)
+
+( SplitHandle
+	( VObject )
+	( )
+	( DoLeftButtonDownCommand Draw GetMinSize )
+)
+
+( Button
+	( CompositeVObject )
+	( )
+	( DoLeftButtonDownCommand DoTrackMouse DrawHighlight Flush GetMinSize SetOrigin )
+)
+
+( ButtonCommand
+	( Command )
+	( item lastinside inside )
+	( TrackFeedback TrackMouse )
+)
+
+( ActionButton
+	( Button )
+	( )
+	( Control DrawInner GetMinSize )
+)
+
+( StateButton
+	( Button )
+	( state )
+	( DoTrackMouse PrintOn ReadFrom SetValue )
+)
+
+( VObjectButton
+	( StateButton )
+	( )
+	( DrawInner GetMinSize )
+)
+
+( RadioButton
+	( StateButton )
+	( )
+	( DrawInner GetMinSize SetOrigin )
+)
+
+( ToggleButton
+	( StateButton )
+	( )
+	( DrawInner GetMinSize SetOrigin )
+)
+
+( MarkToggleButton
+	( StateButton )
+	( )
+	( Control DrawInner SetOrigin )
+)
+
+( ByteArray
+	( Object )
+	( cont cap )
+	( Compare Hash InspectorId IsEqual PrintOn ReadFrom )
+)
+
+( ChangeDialog
+	( FindDialog )
+	( ei2 scopecl change changeAll )
+	( Control DoChange DoChangeAll DoMakeContent DoSetup )
+)
+
+( CheapText
+	( Text )
+	( next size cont )
+	( CopyInStr GetLineAccess InitNew MakeIterator MakeScratchText PrintOn PrintOnAsPureText ReadFrom ReadFromAsPureText ReplaceRange Search Size operatorleftsquarebracketrightsquarebracket)
+)
+
+( CheapTextIter
+	( TextIter )
+	( font )
+	( Token operatorleftbracketrightbracket )
+)
+
+( Class
+	( Object )
+	( classptr super loadsuper className declFileName implFileName proto version loadversion myId size declFileLine implFileLine instanceCount subclasses methods )
+	( AsString Compare Hash IsEqual PrintOn ReadAndMap Show )
+)
+
+( CumSortedObjList
+	( SortedObjList )
+	( )
+	( CompareObjects )
+)
+
+( ClassManager
+	( Object )
+	( classTable sorted )
+	( )
+)
+
+( CLib
+	( )
+	( )
+	( )
+)
+
+( ClipBoard
+	( Object )
+	( data )
+	( )
+)
+
+( Clipper
+	( VObject )
+	( minExtent relOrigin shift scale vop bgcolor deleteVop )
+	( Add AutoScroll CollectParts ConstrainScroll ContainerPoint Control Detect DispatchEvents DrawInner Enable ExtentChanged Focus GetMinSize GetViewedRect InspectorId InvalidateViewRect Open PrintOn ReadEvent ReadFrom Remove RevealAlign RevealRect Scroll SendDown SetContainer SetExtent SetOrigin TrackInContent )
+)
+
+( Cluster
+	( Box )
+	( )
+	( )
+)
+
+( IdRange
+	( )
+	( NextRange start length )
+	( )
+)
+
+( CodeTextView
+	( VObjectTextView )
+	( autoIndent cursorPos needsReformat commentStyle functionStyle classDeclStyle plainStyle )
+	( CursorPos DoCursorKeyCommand DoKeyCommand DoLeftButtonDownCommand DoMenuCommand DoObserve DoOtherEventCommand MakePrettyPrinter SetFont )
+)
+
+( CodeAnalyzer
+	( )
+	( line text )
+	( ClassDecl Comment Doit End FoundClassDecl FoundComment FoundEndOfLineComment FoundFunctionOrMethod Function IsClassDecl Start )
+)
+
+( PrettyPrinter
+	( CodeAnalyzer )
+	( stext st commentStyle functionStyle classDeclStyle plainStyle )
+	( ClassDecl Comment End Function Start )
+)
+
+( CollectionView
+	( View )
+	( coll selection gap minExtent xPos yPos rows cols defaultItem )
+	( ClearSelection CollectParts ConstrainScroll Detect DoKeyCommand DoLeftButtonDownCommand DoObserve DoSelect Draw DrawGrid GetMinSize Open PrintOn PrintOnWhenObserving ReadFrom SetOrigin Update )
+)
+
+( CellSelector
+	( Command )
+	( lvp itemptr last item dontstuck )
+	( TrackFeedback TrackMouse )
+)
+
+( MultiSelCollView
+	( CollectionView )
+	( )
+	( ClearSelection DoLeftButtonDownCommand )
+)
+
+( MultiCellSelector
+	( Command )
+	( view itemptr last shift_key do_select first_track first_item clicks )
+	( TrackMouse )
+)
+
+( ColorMapper
+	( RefCounted )
+	( cnt id )
+	( ChangeRGB HasMask IsGrey MapColors MaxPixel Pixel2RGB PrintOn RGB2Pixel ReadFrom )
+)
+
+( MonoMapper
+	( ColorMapper )
+	( )
+	( IsGrey MaxPixel Pixel2RGB RGB2Pixel )
+)
+
+( IndexMapper
+	( ColorMapper )
+	( size maxsize map mask )
+	( ChangeRGB HasMask IsGrey MapColors MaxPixel Pixel2RGB PrintOn RGB2Pixel ReadFrom )
+)
+
+( DirectMapper
+	( ColorMapper )
+	( )
+	( IsGrey MapColors MaxPixel Pixel2RGB RGB2Pixel )
+)
+
+( ColorCell
+	( VObject )
+	( rc )
+	( DrawAll )
+)
+
+( CPicker
+	( Box )
+	( )
+	( DoMakeContent GetColor SetColor SetContainer )
+)
+
+( ColorSlider
+	( VBox )
+	( num slider )
+	( Control )
+)
+
+( ColorWheel
+	( VObject )
+	( sectors circles maxix sz hsv palette border cache )
+	( DoLeftButtonDownCommand Draw GetMinSize )
+)
+
+( PickerCommand
+	( Command )
+	( wheel )
+	( TrackFeedback TrackMouse )
+)
+
+( HSVPicker
+	( CPicker )
+	( valslider alpha wheel hNum sNum )
+	( AsString Control DoMakeContent GetColor SetColor )
+)
+
+( RGBPicker
+	( CPicker )
+	( red green blue alpha )
+	( AsString Control DoMakeContent GetColor SetColor )
+)
+
+( PalettePicker
+	( CPicker )
+	( cv c )
+	( AsString Control DoMakeContent GetColor SetColor )
+)
+
+( ColorPicker
+	( Dialog )
+	( oldcell newcell color oldcolor pickers border current )
+	( Control DoMakeContent DoSetDefaults DoSetup )
+)
+
+( Command
+	( Object )
+	( CmdNumber CmdName state type )
+	( Commit DoIt Done InspectorId RedoIt TrackConstrain TrackFeedback TrackMouse UndoIt )
+)
+
+( CommandProcessor
+	( RefCounted )
+	( cap changeCount )
+	( FinishFrom GetAt PerformNormalCommand )
+)
+
+( SingleCommandProcessor
+	( CommandProcessor )
+	( lastCmd )
+	( FinishFrom GetAt PerformNormalCommand )
+)
+
+( UnboundedCommandProcessor
+	( CommandProcessor )
+	( cmdHistory )
+	( FinishFrom GetAt PerformNormalCommand )
+)
+
+( BoundedCommandProcessor
+	( CommandProcessor )
+	( mem start size )
+	( FinishFrom GetAt PerformNormalCommand )
+)
+
+( Iterator1
+	( Iterator )
+	( op n )
+	( Reset operatorleftbracketrightbracket )
+)
+
+( CompositeVObject
+	( VObject )
+	( list islist )
+	( Add At DoObserve MakeIterator PrintOn ReadFrom Remove SetAt SetExtent SetOrigin Size )
+)
+
+( ConverterDialog
+	( Dialog )
+	( collView converterList )
+	( Control DoMakeContent DoSetup )
+)
+
+( Converter
+	( Object )
+	( filters )
+	( CanConvert CanConvertTo Convert ConvertTo )
+)
+
+( CType
+	( )
+	( code name hexval )
+	( )
+)
+
+( Data
+	( RefCounted )
+	( flags bits modtime uniqueid sizehint name creator type classtype typematcher )
+	( AsObject CanConvert CheckTypes FullName GetBitmap GetContents GetParent GetStreamBuf HasContents MakeObject PrintOn ReadFrom SaveObject ShortName UpdateFields )
+)
+
+( FileData
+	( Data )
+	( lookDeep converter )
+	( GetContents GetParent GetStreamBuf MakeObject PrintOn ReadFrom SaveObject ShortName UpdateFields deepclone )
+)
+
+( StreamBufData
+	( Data )
+	( sb )
+	( GetStreamBuf )
+)
+
+( ObjectData
+	( Data )
+	( object )
+	( CanConvert MakeObject PrintOn ReadFrom )
+)
+
+( Date
+	( )
+	( sec msec )
+	( )
+)
+
+( BitmapCache
+	( )
+	( clock wcmid org dbm )
+	( )
+)
+
+( BitmapInfo
+	( )
+	( extent bitsperpixel numcomponents rowpad rowlen )
+	( )
+)
+
+( DevBitmap
+	( RefCounted )
+	( size depth changed )
+	( BytesPerLine DevAllocBitmap DevBitBlt DevFloydSteinberg DevHalftone DevMapColors DevMapDirect DevScaleBitmap GetPixel GetRow MakeCopy PrepareBitmap ReadData SetData SetPixel SetRow WriteData ~DevBitmap )
+)
+
+( DevFont
+	( )
+	( )
+	( CharAsBitmap )
+)
+
+( Dialog
+	( Manager )
+	( actionId )
+	( AboutToDismiss Control DoCreateDialog DoMakeContent DoMakeMenuBar DoRestore DoSave DoSetDefaults DoSetup DoStore EnableItem GetInitialPos GetInitialWindowSize ShowAt )
+)
+
+( DialogView
+	( View )
+	( dialogRoot )
+	( CollectParts Detect DispatchEvents DoCreateDialog Draw EnableItem ExtentChanged GetMinSize Open SetExtent SetOrigin )
+)
+
+( Directory
+	( )
+	( dummy )
+	( operatorleftbracketrightbracket ~Directory )
+)
+
+( Dir
+	( )
+	( dir )
+	( )
+)
+
+( DirectoryDialog
+	( FileDialog )
+	( gDirectoryDialog selectButton )
+	( Control DoMakeMenuBar DoSetup MakeButtons MakeFileItem WrongType )
+)
+
+( Document
+	( Manager )
+	( docType docData )
+	( AboutToLoad CanLoad Close CollectParts DoFileIsAlreadyOpen DoMakeMenuBar DoMenuCommand DoRead DoReadData DoSetupInterpreter DoSetupMenu DoWrite ExtCommand Load LoadData MakeBackup MakeCmdProcessor MakeFileDialog MakeMenu Modified Revert Save SaveAs SavedChanges Store UniqueId )
+)
+
+( EditDialog
+	( Manager )
+	( textView tvClipper )
+	( Control DoMakeContent DoMakeMenuBar GetInitialWindowSize MakeCmdProcessor )
+)
+
+( EnvParser
+	( )
+	( ifp )
+	( Char KeyValue )
+)
+
+( ReadEnvParser
+	( EnvParser )
+	( level )
+	( KeyValue )
+)
+
+( WriteEnvParser
+	( EnvParser )
+	( ofp )
+	( Char KeyValue )
+)
+
+( EnvRec
+	( Object )
+	( name value type level changed op op2 )
+	( Compare InspectorId )
+)
+
+( Env
+	( Object )
+	( table terminated )
+	( )
+)
+
+( EvtHandler
+	( Object )
+	( id )
+	( Control DispatchInterpreterCommand DoIdleCommand DoMenuCommand DoSetupInterpreter DoSetupMenu ExtCommand GetInterpreter GetMenu GetNextHandler Input InputKbd KbdFocus PerformCommand PrintOn ReadFrom Send SendDown SetFirstHandler )
+)
+
+( ExceptionContext
+	( )
+	( buf )
+	( )
+)
+
+( Expander
+	( Box )
+	( )
+	( )
+)
+
+( HExpander
+	( Expander )
+	( )
+	( )
+)
+
+( VExpander
+	( Expander )
+	( )
+	( )
+)
+
+( TextViewOverlay
+	( )
+	( cl tv currentfield ct noupdate )
+	( )
+)
+
+( Field
+	( VObject )
+	( font minwidth )
+	( Compare Draw GetLines GetMinSize GetStringForDrawing IsEqual PrintOn ReadFrom )
+)
+
+( EditField
+	( Field )
+	( )
+	( Control DispatchEvents DoMenuCommand DoSetupMenu Draw GetStringForEditing Input KbdFocus Open SetExtent SetOrigin ValidateString )
+)
+
+( TextField
+	( EditField )
+	( text )
+	( AsString PrintOn ReadFrom ValidateString )
+)
+
+( MultiLineField
+	( TextField )
+	( lines )
+	( GetLines PrintOn ReadFrom )
+)
+
+( FormatField
+	( EditField )
+	( format )
+	( PrintOn ReadFrom )
+)
+
+( IntField
+	( FormatField )
+	( value minVal maxVal )
+	( AsString GetStringForDrawing PrintOn ReadFrom ValidateString )
+)
+
+( FloatField
+	( FormatField )
+	( _dummy0 value _dummy1 minVal _dummy2 maxVal )
+	( AsString GetStringForDrawing PrintOn ReadFrom ValidateString )
+)
+
+( RegExpField
+	( TextField )
+	( regex errmsg )
+	( PrintOn ReadFrom ValidateString )
+)
+
+( Filebuf
+	( StreamBuf )
+	( fd opened mapped )
+	( Overflow Seek Underflow )
+)
+
+( FileDialog
+	( Dialog )
+	( eti title initDir flags collview pathList doc fileData openButton pathPopup scroller current confDiag symbolic_path_name fileList dirList )
+	( ChangeDirectory Control DoMakeContent DoMakeMenuBar DoMenuCommand DoRestore DoSetDefaults DoSetup DoSetupMenu InputKbd MakeButtons MakeFileItem OpenOrChangeDir UpdateList UpdatePath WrongType )
+)
+
+( FileItem
+	( HBox )
+	( data )
+	( AsString Compare )
+)
+
+( ConfigureDiag
+	( Dialog )
+	( collView scroller toggle_pers_button remove_button fileDirMode )
+	( Control DoMakeContent DoSetDefaults DoSetup DoStore )
+)
+
+( Filler
+	( VObject )
+	( minsize ink )
+	( Draw GetMinSize PrintOn ReadFrom )
+)
+
+( FindChange
+	( )
+	( )
+	( )
+)
+
+( FindDialog
+	( Dialog )
+	( rex tvp ei1 modecl optionscl find atEnd atBegin )
+	( Control DoFind DoMakeContent DoSetDefaults DoSetup SendDown )
+)
+
+( FontFamily
+	( Object )
+	( fid fixed fmap )
+	( CollectParts InspectorId )
+)
+
+( Font
+	( Object )
+	( cw face size ils ht bs width ff dft )
+	( AsString CharAsBitmap Hash IsEqual PrintOn ReadAndMap )
+)
+
+( FontManager
+	( Object )
+	( fmap )
+	( CollectParts MakeFont MapFont ScaleFont )
+)
+
+( Form
+	( Box )
+	( )
+	( )
+)
+
+( GapText
+	( Text )
+	( size length part1len part2len gaplen body part2body body2 )
+	( CopyInStr GetLineAccess InitNew MakeIterator MakeScratchText PrintOn PrintOnAsPureText ReadFrom ReadFromAsPureText ReplaceRange Search Size operatorleftsquarebracketrightsquarebracket )
+)
+
+( GapTextIter
+	( TextIter )
+	( nextFontChange escape st sp )
+	( Reset Token operatorleftbracketrightbracket )
+)
+
+( GotoDialog
+	( Dialog )
+	( view line )
+	( DoMakeContent DoSetDefaults )
+)
+
+( GraphNodeMover
+	( Command )
+	( gvp gnp item oldcursor delta )
+	( DoIt TrackFeedback TrackMouse UndoIt )
+)
+
+( GraphNode
+	( TreeNode )
+	( constrainingNodes nonTreeOutEdges inEdges )
+	( Draw )
+)
+
+( GraphView
+	( TreeView )
+	( paths refs nodes )
+	( DoCreateDialog DoCreateRoot DoLeftButtonDownCommand DoMiddleButtonDownCommand Draw MakeChildrenIter MakeSubPartsIter )
+)
+
+( GraphPath
+	( VObject )
+	( nodes gvp width ink free )
+	( Draw )
+)
+
+( GraphReference
+	( VObject )
+	( nodes referto gvp width ink free )
+	( Draw DrawConnection )
+)
+
+( GridSelector
+	( Command )
+	( gridview range anchor code sel )
+	( TrackFeedback TrackMouse )
+)
+
+( gridinfo
+	( )
+	( x y bs )
+	( )
+)
+
+( GridView
+	( View )
+	( border selection cache modified grid )
+	( CellSize CheckCache ClearSelection DoLeftButtonDownCommand Draw DrawCell DrawGridRect GetColOrigin GetColWidth GetColsRows GetGap GetMinSize GetRowBase GetRowHeight GetRowOrigin SetSelection )
+)
+
+( ImageItem
+	( VObject )
+	( bmp base deleteBitmap )
+	( DoObserve Draw GetMinSize PrintOn ReadFrom )
+)
+
+( Ink
+	( Object )
+	( id )
+	( IsEqual PrintOn ReadAndMap ReadFrom SetInk )
+)
+
+( RGB
+	( )
+	( red green blue alpha )
+	( )
+)
+
+( NamedRGB
+	( Object )
+	( rgb name NamedRGBMap )
+	( )
+)
+
+( HSVColor
+	( )
+	( hue saturation value alpha )
+	( )
+)
+
+( RGBColor
+	( Ink )
+	( prec rgb port )
+	( PrintOn ReadAndMap ReadFrom SetInk )
+)
+
+( DashedRGBColor
+	( RGBColor )
+	( )
+	( SetInk )
+)
+
+( RGBColorCell
+	( RGBColor )
+	( )
+	( PrintOn ReadAndMap ReadFrom SetInk )
+)
+
+( InkManager
+	( Object )
+	( sharedinks )
+	( ~InkManager )
+)
+
+( Interpreter
+	( Object )
+	( )
+	( DoMenuCommand Eval GetResult InstallCommand InstallCommandNum LoadSourceFile MenuCommandDone SetResult )
+)
+
+( Layout
+	( )
+	( dummy )
+	( Adorn GetMinSize GetValue SetExtent SetOrigin )
+)
+
+( LineItem
+	( VObject )
+	( lineWidth minLength dir )
+	( Draw GetMinSize PrintOn ReadFrom )
+)
+
+( ListBox
+	( Dialog )
+	( selected scroller collView list )
+	( Control DoMakeContent )
+)
+
+( Look
+	( )
+	( backgroundColor disableInk popUpMenuLayout pullDownMenuLayout menuLineLayout menuItemLayout scrollButtonLayout radioButtonLayout toggleButtonLayout scrollBarLayout actionButtonLayout defaultButtonLayout popupButtonLayout sliderLayout thumbLayout fieldBorderLayout fieldLayout windowBorderLayout menuBarLayout sashLayout progressBarLayout scaleLayout scaleThumbLayout groupLayout frameLayout )
+	( DrawHighlight ~Look )
+)
+
+( FindFocus
+	( )
+	( focus first last prev next found )
+	( )
+)
+
+( Manager
+	( EvtHandler )
+	( wtype wflags nextManager managers menu menubar window icon firstHandler cmdp dismiss name toolname tvo isopen wasopen )
+	( AboutToDismiss AddManager Close CollectParts Control DoMakeContent DoMakeIcon DoMakeMenuBar DoMakeWindows DoMenuCommand DoSetupInterpreter DoSetupMenu ExtCommand FindManager GetInitialPos GetInitialWindowPos GetInitialWindowSize GetMenu GetNextHandler Iconize InputKbd InspectorId IsEqual MakeCmdProcessor MakeMenu MakeWindows Open PerformCommand RemoveManager Run SendDown SetFirstHandler SetName SetWindowTitle Show UniqueId )
+)
+
+( ManyOfCluster
+	( Cluster )
+	( )
+	( Control )
+)
+
+( Mark
+	( Object )
+	( pos len state )
+	( Compare PrintOn ReadFrom deepclone )
+)
+
+( MarkList
+	( Object )
+	( marks doRemove )
+	( FreeAll PrintOn ReadFrom )
+)
+
+( MarkerItem
+	( VisualMark )
+	( name type )
+	( Draw PrintOn ReadFrom )
+)
+
+( ChangeMarkerCommand
+	( Command )
+	( item newName oldName newType oldType )
+	( DoIt UndoIt )
+)
+
+( Math
+	( )
+	( Pi E )
+	( )
+)
+
+( MemBuf
+	( StreamBuf )
+	( )
+	( overflow )
+)
+
+( MouseTracker
+	( Command )
+	( last vop menu exitRect )
+	( TrackFeedback TrackMouse )
+)
+
+( MenuButtonItem
+	( StateButton )
+	( )
+	( AsString Compare DrawInner GetMinSize InputKbd SetExtent SetOrigin )
+)
+
+( Menu
+	( Manager )
+	( view selection clipper resetAll dimAll nextHandler )
+	( Control DoMakeWindows GetInitialPos GetNextHandler MakeMenuItem PrintOn Pulldown ReadFrom )
+)
+
+( MenuItemSelector
+	( Command )
+	( mb last )
+	( TrackFeedback TrackMouse )
+)
+
+( MenuBar
+	( Box )
+	( mb help )
+	( DispatchEvents Draw GetMinSize SetExtent SetOrigin )
+)
+
+( Metric
+	( )
+	( extent base )
+	( )
+)
+
+( ChangeMessage
+	( Object )
+	( what part id )
+	( )
+)
+
+( FindMember
+	( AccessMembers )
+	( lookfor offset len type op classp )
+	( Member )
+)
+
+( Object
+	( )
+	( isa _an _accessMembers flags )
+	( AsString Clone CollectParts Compare DestroyObserverColl DoError DoObserve FreeAll GetObservers Hash InitNew InspectorId IsA IsEqual MakeObserverColl Members PrintOn PrintOnWhenObserving ReadAndMap ReadFrom Send SetObserverColl deepclone ~Object )
+)
+
+( DoDelayChanges
+	( )
+	( op )
+	( )
+)
+
+( ObjectTable
+	( Object )
+	( lastobject died tab table size tally iterlevel delayed rdelayed convoi seed cumconvoi )
+	( )
+)
+
+( ObjectTableIter
+	( Iterator )
+	( cursor fromClass members )
+	( operatorleftbracketrightbracket )
+)
+
+( ObjInt
+	( Object )
+	( val )
+	( AsString Compare Hash IsEqual PrintOn ReadFrom )
+)
+
+( OneOfCluster
+	( Cluster )
+	( )
+	( Control )
+)
+
+( Panner
+	( Slider )
+	( cl )
+	( Control DoObserve GetMinSize )
+)
+
+( PathLookup
+	( Object )
+	( path paths )
+	( Scan )
+)
+
+( PathIter
+	( )
+	( ip )
+	( )
+)
+
+( PictPort
+	( PrintPort )
+	( pagebuf lastpos lastdia lastextent lastfont lastpsz laststartangle lastendangle lastcap lastink2 map pict )
+	( DevClip DevClosePage DevFillOval DevFillPolygon DevFillRRect DevFillRect DevFillWedge DevGiveHint DevOpenPage DevShowBitmap DevShowChar DevShowPicture DevStrokeLine DevStrokeOval DevStrokePolygon DevStrokeRRect DevStrokeRect DevStrokeWedge )
+)
+
+( Picture
+	( Object )
+	( buf length map bbox )
+	( CollectParts PrintOn ReadFrom Show )
+)
+
+( PictureItem
+	( VObject )
+	( pic base deletePicture )
+	( DoObserve Draw GetMinSize PrintOn ReadFrom )
+)
+
+( C_Point
+	( )
+	( x y )
+	( )
+)
+
+( Point
+	( )
+	( x y )
+	( )
+)
+
+( MenuButton
+	( StateButton )
+	( menu )
+	( CollectParts PrintOn ReadFrom )
+)
+
+( PopupButton
+	( MenuButton )
+	( )
+	( Control DispatchEvents DoTrackMouse Draw GetMinSize SetContainer )
+)
+
+( PullDownButton
+	( MenuButton )
+	( )
+	( DoTrackMouse DrawHighlight )
+)
+
+( MenuItem
+	( MenuButton )
+	( lastxpos enterxpos )
+	( DoTrackMouse DrawInner GetMinSize SetOrigin )
+)
+
+( GrState
+	( )
+	( port clip origin scalex scaley )
+	( )
+)
+
+( Port
+	( SysEvtHandler )
+	( port tbport tbink tbpos tblastpos tbbbox origin cliprect fillink penpos pensize penink pencap textpos textink textfont lastink ignore hascolor depth scale scalex scaley sfont lastfdp )
+	( DevClip DevDrawArrow DevFillOval DevFillOval2 DevFillPolygon DevFillPolygon2 DevFillRRect DevFillRRect2 DevFillRect DevFillWedge DevFillWedge2 DevGiveHint DevImageCacheBegin DevImageCacheEnd DevScale DevSetColor DevSetDashed DevSetGrey DevSetOther DevSetPattern DevShowBitmap DevShowChar DevShowPicture DevShowTextBatch DevStrokeLine DevStrokeLine2 DevStrokeOval DevStrokeOval2 DevStrokePolygon DevStrokePolygon2 DevStrokeRRect DevStrokeRRect2 DevStrokeRect DevStrokeRect2 DevStrokeWedge DevStrokeWedge2 GetCursor SetCursor SetWaitCursor ~Port )
+)
+
+( ImageCache
+	( )
+	( b vr r valid )
+	( )
+)
+
+( Printer
+	( Object )
+	( pdia settings )
+	( CanPrint CanSave ClosePage DoCreatePrintDialog Finish GetName GetSettings LoadSettings MakePrintPort MakeSettings OpenPage Start StoreSettings )
+)
+
+( PrintDialog
+	( Dialog )
+	( saveDialog scroller collview options from to title no clu printernames )
+	( Control DoMakeContent DoSetDefaults DoSetup )
+)
+
+( PrinterSettings
+	( Object )
+	( paperSize topLeftMargin bottomRightMargin name showgrid )
+	( PrintOn ReadFrom )
+)
+
+( PrintManager
+	( Object )
+	( printers currSettings currPrinter vobject )
+	( MakePrintDialog PrintPage )
+)
+
+( SmartPrintManager
+	( )
+	( pm )
+	( )
+)
+
+( PrintPort
+	( Port )
+	( bbox pagebbox )
+	( DevClosePage DevOpenPage )
+)
+
+( ProgEnv
+	( Object )
+	( )
+	( AddObjectViewPolicy EditSourceOf FileOfClass HasObjectView InspectClick InspectObject ShowInHierarchy ShowInObjStruBrowser ShowInheritancePath ShowObjectView Start Universe )
+)
+
+( ObjectViewPolicy
+	( Object )
+	( )
+	( ShowView ViewName )
+)
+
+( SmartProgenv
+	( )
+	( pe )
+	( )
+)
+
+( AnyProgEnv
+	( Object )
+	( )
+	( InspectAny )
+)
+
+( SmartAnyProgEnv
+	( )
+	( pe )
+	( )
+)
+
+( Progress
+	( Object )
+	( curr max timeout )
+	( Abort SetMessage SetStop SetUp SetVal )
+)
+
+( AlarmHandler
+	( SysEvtHandler )
+	( progress )
+	( Notify )
+)
+
+( ProgressBar
+	( VObject )
+	( val )
+	( Draw GetMinSize )
+)
+
+( ProgressDialog
+	( Dialog )
+	( box bar ti stop stoppable quit )
+	( Control DoMakeContent Show )
+)
+
+( ProgressImpl
+	( Progress )
+	( pb bar ti alarmhandler stoppable )
+	( Abort SetMessage SetStop SetUp SetVal )
+)
+
+( ProgressFilter
+	( StreamBuf )
+	( )
+	( Overflow Underflow )
+)
+
+( PttyChars
+	( )
+	( erase kill rprnt susp intr quit eof )
+	( )
+)
+
+( PttyConnection
+	( )
+	( dummy )
+	( BecomeConsole CleanupPtty Echo GetFile GetFileNo GetMode GetPid GetPttyChars KillChild RawOrCBreak Read SetSize SubmitToSlave ~PttyConnection )
+)
+
+( Rectangle
+	( )
+	( origin extent )
+	( )
+)
+
+( RefCounted
+	( Object )
+	( refcnt )
+	( InitNew )
+)
+
+( re_pattern_buffer
+	( )
+	( buffer allocated used fastmap translate fastmap_accurate can_be_null )
+	( )
+)
+
+( re_registers
+	( )
+	( start end )
+	( )
+)
+
+( Region
+	( )
+	( bbox buf cap )
+	( )
+)
+
+( RegionRectIter
+	( )
+	( s next )
+	( )
+)
+
+( OldRegion
+	( )
+	( size rl bbox )
+	( )
+)
+
+( RegExRegs
+	( )
+	( start end )
+	( )
+)
+
+( RegularExp
+	( Object )
+	( pb source result caseSensitive fastSearch )
+	( InspectorId MatchWordPattern PrintOn ReadFrom )
+)
+
+( SmartRegularExp
+	( )
+	( expr re )
+	( )
+)
+
+( ScrollBarButton
+	( Button )
+	( dir )
+	( DrawInner GetMinSize )
+)
+
+( ScrollBarThumb
+	( Thumb )
+	( )
+	( Draw GetMinSize )
+)
+
+( ScrollBarSlider
+	( Slider )
+	( )
+	( Draw GetMinSize MakeThumb )
+)
+
+( ScrollBar
+	( Expander )
+	( slider dir )
+	( Control Draw MakePart MakeParts SetContainer )
+)
+
+( Scroller
+	( CompositeVObject )
+	( sb vf vop ms controls visibleControls )
+	( Control Draw GetMinSize Input MakeClipper MakeScrollBar Open PrintOn ReadFrom SetExtent SetOrigin )
+)
+
+( Separator
+	( VObject )
+	( )
+	( DrawInner Enable GetMinSize )
+)
+
+( ShellTool
+	( Manager )
+	( shellcnt view shClipper text fd cnt )
+	( Control DoMakeContent DoMakeMenuBar DoSetupMenu ExtCommand GetInitialWindowSize )
+)
+
+( PttyInputHandler
+	( SysEvtHandler )
+	( fp tv )
+	( Notify )
+)
+
+( ShellZombieHandler
+	( SysEvtHandler )
+	( sh )
+	( Notify )
+)
+
+( ShellTextView
+	( TextView )
+	( noEchoBuffer lastSubmit maxLogSize state pendingCR pttyc pttycstr argv linebuf pttyinp zombieHandler pttycon outputCursor inputCursor inpQueue doReveal inReceive )
+	( BecomeConsole CleanupDeath CntrlChar DeleteRequest DoKeyCommand DoMenuCommand DoReveal DoSetupMenu Done Draw GetTerm GetTermCap InsertReceivedText IsIdle Paste PrintOn ProcessOutput ReadFrom Received Reconnect RevealOutput SelectAll SetText SlaveDied Start Submit SubmitInterrupt )
+)
+
+( ThumbMover
+	( Command )
+	( thumborigin slider )
+	( TrackFeedback TrackMouse )
+)
+
+( Slider
+	( CompositeVObject )
+	( thumb dir feedback minVal maxVal currVal bubbleSize )
+	( DoLeftButtonDownCommand Draw GetCursor GetMinSize MakeThumb SetContainer SetOrigin )
+)
+
+( Thumb
+	( VObject )
+	( slider dir )
+	( DoLeftButtonDownCommand Draw GetCursor GetMinSize )
+)
+
+( PagerCommand
+	( Command )
+	( slider part )
+	( TrackFeedback TrackMouse )
+)
+
+( SplitBar
+	( VObject )
+	( splitframe vertical )
+	( DoLeftButtonDownCommand DrawInner SetOrigin )
+)
+
+( SplitScroller
+	( Scroller )
+	( )
+	( Control )
+)
+
+( Splitter
+	( CompositeVObject )
+	( split ms vop )
+	( Control GetMinSize Open PrintOn ReadFrom SendDown SetExtent SetOrigin )
+)
+
+( StaticTextView
+	( View )
+	( text formatter painter pager align wrap drawViewBorder horExtend border nLines lines marks cline cYPosition )
+	( AsString CharToLine CharToPoint CollectParts ContentRectForPrinting Draw DrawLine GetMinSize InspectorId InvalidateRange InvalidateRange IsReadOnly LineToPoint NextPageBreak PointToLine PointToPoint PrintAdorn PrintOn ReadFrom Repair RepairAll SetExtent SetFont SetString SetText )
+)
+
+( FreeNode
+	( )
+	( next )
+	( )
+)
+
+( Chunk
+	( )
+	( next storage )
+	( )
+)
+
+( MemPool
+	( )
+	( chunks freeList lastIndex chunkSize allocated recycled freed objSize )
+	( )
+)
+
+( Storage
+	( )
+	( dummy )
+	( )
+)
+
+( Stream
+	( )
+	( it deepclone delete_StreamBuf bp state all )
+	( ~Stream )
+)
+
+( OStream
+	( Stream )
+	( dd )
+	( Print )
+)
+
+( IStream
+	( Stream )
+	( tied_to )
+	( Scan )
+)
+
+( StreamBuf
+	( )
+	( sb base ptr gptr eptr alloc fpos )
+	( Close Overflow Seek Underflow overflow underflow ~StreamBuf )
+)
+
+( ConnectionStack
+	( )
+	( cons )
+	( )
+)
+
+( KeyValueAssoc
+	( Object )
+	( key proxy )
+	( Hash IsEqual )
+)
+
+( block
+	( )
+	( len pos buf )
+	( )
+)
+
+( Message
+	( Object )
+	( from to serial data )
+	( PrintOn ReadFrom )
+)
+
+( StreamConnection
+	( SysEvtHandler )
+	( rm wqueue queue error serial sid name timeout )
+	( Dispatch Dispatch2 Error HasInterest Notify Received ServerQuit SetTimeout )
+)
+
+( Dispatchable
+	( SysEvtHandler )
+	( omb imb os is id port )
+	( Dispatch GetName PrintOn ReadFrom )
+)
+
+( Service
+	( Dispatchable )
+	( name svcs isDeleted )
+	( Dispatch ExtCommand GetName )
+)
+
+( ServiceConnection
+	( Service )
+	( connectionPort connectionId nextid proxymap )
+	( ExtCommand GetName PrintOn ReadFrom )
+)
+
+( ServiceConnectionSvc
+	( ServiceConnection )
+	( )
+	( Dispatch )
+)
+
+( ServiceConnectionProxy
+	( ServiceConnection )
+	( )
+	( )
+)
+
+( Proxy
+	( Dispatchable )
+	( service )
+	( GetName Hash PrintOn ReadFrom )
+)
+
+( ProxyReference
+	( Proxy )
+	( id )
+	( PrintOn ReadAndMap ReadFrom )
+)
+
+( ObjectProxy
+	( Proxy )
+	( )
+	( Dispatch InitNew ResetCaches )
+)
+
+( ObjectSvc
+	( Proxy )
+	( obj )
+	( Dispatch DoObserve )
+)
+
+( CellEditField
+	( EditField )
+	( sgridview editcell )
+	( GetStringForEditing Input ValidateString )
+)
+
+( StringGridView
+	( GridView )
+	( tf )
+	( CalculateTab CellSize DispatchEvents DrawCell GetAlign GetString SetExtent SetOrigin SetString TabField )
+)
+
+( StringInputDiag
+	( Dialog )
+	( pattern desc init )
+	( DoMakeContent Hook )
+)
+
+( StyledText
+	( GapText )
+	( charStyles paraStyles styleHere applyStyleHere )
+	( Cut GetCharStyle GetCurrentCharStyle GetNextFontChange GetParaStyle InitNew PrintOn ReadFrom ReadFromAsPureText ReplaceCharStyles ReplaceParaStyles ReplaceRange ResetCurrentCharStyle SetCharStyle SetFStringVL SetParaStyle )
+)
+
+( SymbolTable
+	( Object )
+	( table size allocsize )
+	( )
+)
+
+( Symbol
+	( )
+	( id )
+	( )
+)
+
+( SysEvtHandler
+	( Object )
+	( owner resourceId )
+	( Error HasInterest IsEqual Notify )
+)
+
+( System
+	( Object )
+	( done errorstr osid fileInputHandler fileOutputHandler zombieHandler signalHandler asyncSignalHandler timeoutHandler workHandler cleanupList syncTimers asyncTimers level anyremoved )
+	( Abort AcceptConnection AccessPathName AddHandler AddTimer AnnounceTcpService AnnounceUnixService CanRead CanWrite ChangeDirectory ConnectTcpService ConnectUnixService Control CreateDirectory DirName DispatchOneEvent Exit ExpandPathName GetError GetPathInfo GetPid Getenv HomeDirectory Init MakeDirectory MakePttyConnection Now OpenConnection RemoveHandler RemoveTimer Setenv Unsetenv Wait Which WorkingDirectory ~System )
+)
+
+( VisualMark
+	( Mark )
+	( )
+	( Base CalcExtent Draw GetExtent GetVObject Input SendDown SetContainer WantsInput )
+)
+
+( TextChanges
+	( )
+	( from to size pagination )
+	( )
+)
+
+( Text
+	( Object )
+	( charStyle paraStyle marks observers tabWidth )
+	( AsString Copy CopyInStr Cut DestroyObserverColl GetCharStyle GetCurrentCharStyle GetLineAccess GetMarkChar GetNextFontChange GetObservers GetParaStyle GetVisualMarkAt GrowSize Hash InitNew Insert InsertStr InspectorId IsEqual IsVisualMark MakeIterator MakeObserverColl MakeScratchText Paste PrintOn PrintOnAsPureText ReadFrom ReadFromAsPureText ReplaceRange ResetCurrentCharStyle Search SetCharStyle SetFStringVL SetObserverColl SetParaStyle Size operatorleftsquarebracketrightsquarebracket )
+)
+
+( TextIter
+	( )
+	( ce upto unget ct )
+	( FontAt GetLastPos GetPos Reset SetPos Token Unget operatorleftbracketrightbracket ~TextIter )
+)
+
+( AutoTextIter
+	( )
+	( ti )
+	( )
+)
+
+( TextBox
+	( Dialog )
+	( textField title )
+	( AsString DoMakeContent )
+)
+
+( RangeSelector
+	( Command )
+	( tv startp endp range )
+	( DoMove DoPress TrackMouse )
+)
+
+( ExtendRangeSelector
+	( RangeSelector )
+	( swap first )
+	( DoMove DoPress )
+)
+
+( QuickPasteSelector
+	( RangeSelector )
+	( from to )
+	( TrackMouse )
+)
+
+( DragAndDropSelector
+	( Command )
+	( from to dst tv t moved paste delta oldcursor )
+	( TrackFeedback TrackMouse )
+)
+
+( TextCommand
+	( Command )
+	( tv oldText oldStart oldEnd )
+	( RedoIt )
+)
+
+( CutCopyCommand
+	( TextCommand )
+	( )
+	( DoIt UndoIt )
+)
+
+( PasteCommand
+	( TextCommand )
+	( pastetext newStart newEnd moved )
+	( DoIt UndoIt )
+)
+
+( MoveTextCommand
+	( Command )
+	( from to dst tv mt )
+	( DoIt UndoIt )
+)
+
+( TypingCommand
+	( TextCommand )
+	( backspaceBuf newText newStart )
+	( RedoIt UndoIt )
+)
+
+( CharStyleCommand
+	( TextCommand )
+	( newStyles oldStyles tvp st mode style )
+	( DoIt RedoIt UndoIt )
+)
+
+( ParaStyleCommand
+	( TextCommand )
+	( newStyles oldStyles tvp st mode style notify )
+	( DoIt RedoIt UndoIt )
+)
+
+( LineDesc
+	( )
+	( lnAscent lnHeight )
+	( )
+)
+
+( LineMark
+	( Mark )
+	( ld lw )
+	( )
+)
+
+( TextFormatter
+	( Object )
+	( lines nMarks nLines nAlloc )
+	( DoFormat )
+)
+
+( SimpleFormatter
+	( TextFormatter )
+	( )
+	( DoFormat )
+)
+
+( FoldingFormatter
+	( TextFormatter )
+	( text start end width nWords wx cx )
+	( DoFormat )
+)
+
+( TextPager
+	( Object )
+	( )
+	( NextPageBreak Repaginate )
+)
+
+( LinePager
+	( TextPager )
+	( )
+	( NextPageBreak )
+)
+
+( TextItem
+	( VObject )
+	( text font border )
+	( AsString Compare Draw GetMinSize IsEqual PrintOn ReadFrom SetExtent )
+)
+
+( VObjectMark
+	( VisualMark )
+	( vop )
+	( Base CalcExtent CollectParts Draw FreeAll GetExtent GetVObject Input PrintOn ReadFrom SendDown SetContainer WantsInput )
+)
+
+( ReferenceMark
+	( VisualMark )
+	( vop container filename sizeHint )
+	( Base CollectParts Draw FreeAll GetExtent GetVObject Input PrintOn ReadFrom SendDown SetContainer WantsInput )
+)
+
+( outmap
+	( )
+	( c code )
+	( )
+)
+
+( TextPainter
+	( Object )
+	( linebuf line ps sp graphicChar nextFontChange )
+	( Draw Map )
+)
+
+( TextReader
+	( Object )
+	( st cstyles pstyles pos runlen paralen flushed face font ink size paraProp )
+	( )
+)
+
+( CharStyleSpec
+	( )
+	( font face size ink xor )
+	( )
+)
+
+( CharStyleChange
+	( )
+	( what st )
+	( )
+)
+
+( CharDesc
+	( )
+	( fp ink subScript )
+	( )
+)
+
+( CharStyle
+	( Object )
+	( c )
+	( IsEqual PrintOn ReadAndMap deepclone )
+)
+
+( CharStyleManager
+	( OrdCollection )
+	( )
+	( )
+)
+
+( SmartCharStyles
+	( )
+	( cm )
+	( )
+)
+
+( TabStop
+	( )
+	( kind x )
+	( )
+)
+
+( ParaTabs
+	( )
+	( ntabs stops size )
+	( )
+)
+
+( ParaDesc
+	( )
+	( alignment flags charStyle rightIndent leftIndent firstIndent spacing spaceBefore spaceAfter tabs )
+	( )
+)
+
+( ParaStyle
+	( Object )
+	( p )
+	( IsEqual PrintOn ReadAndMap deepclone )
+)
+
+( ParaStyleManager
+	( OrdCollection )
+	( )
+	( )
+)
+
+( SmartParaStyles
+	( )
+	( pm )
+	( )
+)
+
+( SelPoint
+	( )
+	( ch line viewp )
+	( )
+)
+
+( TextView
+	( StaticTextView )
+	( scratchText updateSelection start end inTextSelector enabled active stopChars typing findChange escapeMode )
+	( Bottom ClearSelection Copy CursorPos Cut DelChar DeleteRequest DoCursorKeyCommand DoKeyCommand DoLeftButtonDownCommand DoMenuCommand DoObserve DoSetupInterpreter DoSetupMenu Draw DrawCaret Enable GetCursor GetInterpreter HasSelection Home InitNew IsReadOnly KbdFocus MakeTypingCommand Paste PasteData PrintOnWhenObserving ReadFrom RepairAll SelectAll SelectRegExpr SetString SetText ShowSelection )
+)
+
+( Time
+	( )
+	( val )
+	( )
+)
+
+( Token
+	( )
+	( Code Flags At Pos )
+	( )
+)
+
+( TreeView
+	( DialogView )
+	( gap layout connType tree oldtree selection )
+	( Collapse DispatchEvents DoCreateDialog DoMenuCommand GetNodeSelector HasSelection MakeChildrenIter MakeTreeNode NodeAsVObject NodeSelected OpenTreeNode PrintOn ReadFrom SetExtent SetSelection )
+)
+
+( line
+	( )
+	( d link )
+	( )
+)
+
+( polygon
+	( )
+	( lower upper )
+	( )
+)
+
+( TreeNode
+	( CompositeVObject )
+	( offset contour )
+	( Detect DispatchEvents DoLeftButtonDownCommand DoMiddleButtonDownCommand Draw GetCursor GetMinSize Highlight Open Outline2 SetExtent SetOrigin )
+)
+
+( TreeNodeSelector
+	( Command )
+	( item inside lastinside clicks )
+	( TrackFeedback TrackMouse )
+)
+
+( CFileTypeMatcher
+	( TypeMatcher )
+	( )
+	( GetBitmap MatchExtension MatchNameAndContents )
+)
+
+( OFileTypeMatcher
+	( TypeMatcher )
+	( )
+	( GetBitmap MatchExtension MatchNameAndContents )
+)
+
+( DirectoryMatcher
+	( TypeMatcher )
+	( )
+	( GetBitmap MatchPathName )
+)
+
+( ExecMatcher
+	( TypeMatcher )
+	( )
+	( GetBitmap MatchNameAndContents )
+)
+
+( TypeMatcher
+	( Object )
+	( type extension tag priority ascii matchers sorted )
+	( Compare GetBitmap MatchContents MatchExtension MatchNameAndContents MatchPathName )
+)
+
+( _flags
+	( )
+	( dummy )
+	( )
+)
+
+( _bool
+	( )
+	( dummy )
+	( )
+)
+
+( _enum
+	( )
+	( dummy )
+	( )
+)
+
+( View
+	( VObject )
+	( clippers nexthandler focus )
+	( ClearContainer ClearSelection ConstrainScroll ContentRectForPrinting DoCursorKeyCommand DoFunctionKeyCommand DoMenuCommand DoObserve DoOtherFunctionKeyCommand DoSetupMenu DrawAll ExtentChanged GetNextHandler GetViewedRect HasSelection Input InspectorId InvalidateRect IsReadOnly NextPageBreak Open PasteData PrintAdorn RevealAlign RevealRect Scroll SetContainer SetExtent ShowInAllClippers ShowSelection Update )
+)
+
+( VObject
+	( EvtHandler )
+	( container contentRect )
+	( Add At ClearContainer CollectParts ContainerPoint ContainsPoint Detect DispatchEvents DoCursorKeyCommand DoFunctionKeyCommand DoKeyCommand DoLeftButtonDownCommand DoMiddleButtonDownCommand DoOtherEventCommand DoOtherFunctionKeyCommand DoRightButtonDownCommand DoTrackMouse Draw DrawAll DrawHighlight DrawInner Enable ExtentChanged Focus FreeAll GetCursor GetMinSize GetMover GetNextHandler GetStretcher GetViewedRect Highlight Input InvalidateRect InvalidateViewRect MakeIterator Open Outline2 PrintOn ReadEvent ReadFrom Remove RemoveFromContainer RevealAlign RevealRect Scroll SendDown SetAt SetContainer SetExtent SetOrigin Size TrackInContent )
+)
+
+( VObjectCommand
+	( Command )
+	( vop oldRect lastRect constrainRect newRect delta grid newcursor oldcursor firstmove hysterese )
+	( DoIt TrackConstrain TrackFeedback TrackMouse UndoIt )
+)
+
+( VObjectMover
+	( VObjectCommand )
+	( origin )
+	( TrackMouse )
+)
+
+( VObjectStretcher
+	( VObjectCommand )
+	( minSize p1 p2 corner )
+	( TrackConstrain TrackMouse )
+)
+
+( VObjectPair
+	( HBox )
+	( )
+	( )
+)
+
+( VisualMarkList
+	( SortedObjList )
+	( )
+	( CompareObjects )
+)
+
+( VObjectText
+	( StyledText )
+	( visualMarks tv )
+	( CollectParts GetMarkChar GetVisualMarkAt InitNew IsVisualMark PrintOn ReadFrom ReadFromAsPureText ReplaceCharStyles ReplaceRange SetCharStyle )
+)
+
+( StretchWrapperStretcher
+	( Command )
+	( newExtent oldExtent vob maxRect )
+	( DoIt TrackConstrain TrackFeedback TrackMouse UndoIt )
+)
+
+( VObjectTextView
+	( TextView )
+	( )
+	( Control DispatchEvents GetCursor PasteData ReadFrom SetOrigin SetText )
+)
+
+( PasteVObjectCommand
+	( TextCommand )
+	( vtv vmp vt newStart newEnd )
+	( DoIt RedoIt UndoIt )
+)
+
+( StretchWrapper
+	( CompositeVObject )
+	( interiorOffset extentDiff border interior )
+	( Control DoKeyCommand DoLeftButtonDownCommand Draw GetCursor GetMinSize KbdFocus PrintOn ReadFrom SendDown SetExtent SetOrigin )
+)
+
+( Window
+	( Clipper )
+	( active cursor portDesc manager inner wtype wflags )
+	( ExtentChanged Focus GetCursor GetNextHandler InvalidateRect Open ReadEvent SetExtent SetOrigin )
+)
+
+( WindowColorMap
+	( RefCounted )
+	( cnt changed rw grey id )
+	( DevAllocateAndSetCell DevIndex2RGB DevInstall DevMakeCopy DevRGB2Index DevRGB2Index2 )
+)
+
+( WindowIndexMapper
+	( WindowColorMap )
+	( length realmap graymap rgbmap )
+	( DevIndex2RGB DevRGB2Index )
+)
+
+( WindowPort
+	( Port )
+	( win pushbacktoken havepushbacktoken overlay exitloop cursor state inval lastpos portrect wcmap )
+	( DevBell DevFullscreen DevGetEvent DevGetRect DevGrab DevHide DevIconize DevImageCacheBegin DevImageCacheEnd DevScrollRect DevSetColor DevSetColor2 DevSetCursor DevSetExtent DevSetIconTitle DevSetMousePos DevSetOrigin DevSetTitle DevShow DevTop DevUpdate GetCursor SetCursor SetWaitCursor )
+)
+
+( batchInfo
+	( )
+	( b r p )
+	( )
+)
+
+( MenuBorderItem
+	( CompositeVObject )
+	( l )
+	( Draw GetMinSize SetExtent SetOrigin )
+)
+
+( WindowSystem
+	( SysEvtHandler )
+	( batch lasttime fullscreen grabport lastClick Clicks screenRect allwins wcmap set_wait_depth )
+	( DevBell DevCheckSelection DevHaveSelection Init MakeDevBitmap MakeFontManager MakeWindow MakeWindowBorder RemoveWindow graphicDelay )
+)
+
+( GrShowWaitCursor
+	( )
+	( dummy )
+	( )
+)
+
+( Zoomer
+	( Scroller )
+	( defaultzoom )
+	( DoMenuCommand DoSetupMenu MakeClipper )
+)
+
+( Collection
+	( Container )
+	( )
+	( Add AddAll Clone Collect Detect Empty FreeAll GrowBy PrintOn ReadFrom Remove RemoveAll RemovePtr Select )
+)
+
+( DeletedObject
+	( Object )
+	( )
+	( )
+)
+
+( Container
+	( Object )
+	( size nDeleted iterCount iterHead currentContainer )
+	( AnyElement Capacity Find FindPtr Hash InitNew InspectorId IsEqual MakeIterator OccurrencesOf OccurrencesOfPtr PrintOn ReadFrom RemoveDeleted )
+)
+
+( Iter
+	( )
+	( seq )
+	( )
+)
+
+( ContainerTypes
+	( )
+	( )
+	( )
+)
+
+( Dictionary
+	( Container )
+	( ignore ht )
+	( Capacity Clone Empty FreeAll InitNew MakeIterator PrintOn PutAtKey PutAtKeyIfAbsent ReadFrom RemoveKey )
+)
+
+( DictionaryIterator
+	( Iterator )
+	( pix ht dt )
+	( GetContainer Reset operatorleftbracketrightbracket )
+)
+
+( IdDictionary
+	( Dictionary )
+	( )
+	( InitNew )
+)
+
+( DictionaryHashTable
+	( HashTable )
+	( keys vals )
+	( AddAt Assign AtKey DoRehash Empty FindKey KeyAt MakeNew NullAt RemoveKey SetKeyAt SetValueAt Swap ValueAt )
+)
+
+( HashTable
+	( Object )
+	( equal hash lowWatermark highWatermark capacity mySize size cInvalidIndex )
+	( Add Assign AtNextIndex AtPrevIndex DoRehash Empty Find GetInitialIndex IndexOf KeyAt MakeNew NewCapacity NullAt PrintOn ReadFrom Rehash Remove RemoveSlot SetKeyAt Swap ~HashTable )
+)
+
+( IteratorBase
+	( )
+	( dummy )
+	( Reset operatorleftbracketrightbracket ~IteratorBase )
+)
+
+( Iterator
+	( IteratorBase )
+	( activated terminated next prev )
+	( Detach GetContainer Reset )
+)
+
+( Iterator0
+	( Iterator )
+	( )
+	( Reset operatorleftbracketrightbracket )
+)
+
+( IterIter
+	( )
+	( head ci )
+	( )
+)
+
+( ObjArray
+	( SeqCollection )
+	( cont lb )
+	( Add At Compare FreeAll Hash IndexOf IndexOfPtr InitNew IsEqual MakeIterator PrintOn ReadFrom Remove RemoveAt RemovePtr )
+)
+
+( ObjArrayIter
+	( Iterator )
+	( ce cs )
+	( Filter Reset operatorleftbracketrightbracket )
+)
+
+( ObjLink
+	( Object )
+	( next prev obj )
+	( FreeAll )
+)
+
+( ObjList
+	( SeqCollection )
+	( head )
+	( AddRelative DeleteLink Empty FreeAll InitNew MakeIterator NewLink RemoveRelative primAddAt primAt primIndexOf primIndexOfPtr primPutAt primRemoveAt )
+)
+
+( ObjListIter
+	( Iterator )
+	( list ce )
+	( Detach GetContainer Reset operatorleftbracketrightbracket )
+)
+
+( RevObjListIter
+	( ObjListIter )
+	( )
+	( operatorleftbracketrightbracket )
+)
+
+( OrdCollection
+	( SeqCollection )
+	( cDefaultCapacity cMinExpand cShrinkFactor cont capacity gapStart gapSize )
+	( CheckInvariant Empty FreeAll InitNew MakeIterator primAddAt primAt primIndexOf primIndexOfPtr primPutAt primRemoveAt )
+)
+
+( OrdCollectionIter
+	( Iterator )
+	( seq ce )
+	( Detach GetContainer OnAddAt OnEmpty OnRemoveAt operatorleftbracketrightbracket )
+)
+
+( RevOrdCollectionIter
+	( OrdCollectionIter )
+	( )
+	( OnAddAt OnEmpty OnRemoveAt operatorleftbracketrightbracket )
+)
+
+( TabEntry
+	( )
+	( prv nxt )
+	( )
+)
+
+( RobustHashTable
+	( HashTable )
+	( tab seq client )
+	( Assign AtNextIndex AtPrevIndex Empty GetInitialIndex KeyAt MakeNew NullAt Rehash RemoveSlot SetKeyAt Swap )
+)
+
+( RunArray
+	( Object )
+	( cont runs size count length theRun runOffset )
+	( FreeAll InspectorId PrintOn ReadFrom )
+)
+
+( RunArrayIter
+	( )
+	( ce ci cp cs )
+	( )
+)
+
+( SeqCollection
+	( Collection )
+	( )
+	( Add AddAfter AddAfterPtr AddAt AddBefore AddBeforePtr AddFirst AddLast AddRelative After AfterPtr AnyElement At Before BeforePtr Find FindPtr First IndexOf IndexOfPtr Last PutAt Remove RemoveAfter RemoveAfterPtr RemoveAt RemoveBefore RemoveBeforePtr RemoveDeleted RemoveFirst RemoveLast RemovePtr RemoveRelative primAddAt primAt primIndexOf primIndexOfPtr primPutAt primRemoveAt )
+)
+
+( Set
+	( Collection )
+	( ht )
+	( Add Capacity Empty Find FindPtr FreeAll InitNew MakeIterator OccurrencesOf OccurrencesOfPtr Remove RemovePtr )
+)
+
+( SetIter
+	( Iterator )
+	( set ht pix saved )
+	( GetContainer Reset operatorleftbracketrightbracket )
+)
+
+( IdSet
+	( Set )
+	( )
+	( InitNew )
+)
+
+( SortedObjList
+	( ObjList )
+	( )
+	( Add AddAfter AddAfterPtr AddBefore AddBeforePtr AddFirst AddLast CompareObjects PutAt )
+)
+)
