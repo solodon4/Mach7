@@ -350,84 +350,72 @@ private:
 
             intptr_t cur_vtbl = st1->vtbl;
 
-        Compare:
-
             if (XTL_LIKELY(cur_vtbl != vtbl))
             {
-                if (XTL_LIKELY(cur_vtbl)) // The entry pointed to by cache entry is occupied
+                // NOTE: We don't check if the entry is occupied as even when 
+                //       it is not, the vtbl may be elsewhere in the cache due 
+                //       to changes to k and l after update.
+                std::atomic<stored_type*>* pce2;
+                stored_type*  st2 = eager_find(vtbl,pce2);
+
+                if (st2 || (st2 = thorough_find(vtbl,pce2))) // vtbl is already in the cache
                 {
-                    std::atomic<stored_type*>* pce2;
-                    stored_type*  st2 = eager_find(vtbl,pce2);
+                    XTL_ASSERT(st2->vtbl == vtbl);
+                    XTL_ASSERT(pce2);
+                    XTL_ASSERT(pce2->load()); // NOTE: stronger *pce2 == st2 may not necessarily hold anymore
 
-                    if (st2 || (st2 = thorough_find(vtbl,pce2))) // vtbl is already in the cache
+                    stored_type* expected1 = st1;
+
+                    if (ce1.compare_exchange_strong(expected1, st2)) // ce1 = st2;
                     {
-                        XTL_ASSERT(st2->vtbl == vtbl);
-                        XTL_ASSERT(pce2);
-                        XTL_ASSERT(pce2->load()); // NOTE: stronger *pce2 == st2 may not necessarily hold anymore
+                        XTL_ASSERT(expected1 == st1); // successful call puts old value into 1st argument
 
-                        stored_type* expected1 = st1;
-
-                        if (ce1.compare_exchange_strong(expected1, st2)) // ce1 = st2;
-                        {
-                            XTL_ASSERT(expected1 == st1); // successful call puts old value into 1st argument
-
-                            // Now both ce1 and ce2 point to *st2
-                            stored_type* expected2 = st2;
+                        // Now both ce1 and ce2 point to *st2
+                        stored_type* expected2 = st2;
                             
-                            if (pce2->compare_exchange_strong(expected2, st1))
-                            {
-                                // This is ideal path: we successfully swapped ce1 and ce2
-                                return st2;
-                            }
-                            else
-                            {
-                                // This means another thread managed to update ce2.
-                                // Find any cache entry pointing to *st2 and update it atomically to point to *st1
-                                replace(st2,st1);
-                                return st2;
-                            }
+                        if (pce2->compare_exchange_strong(expected2, st1))
+                        {
+                            // This is ideal path: we successfully swapped ce1 and ce2
+                            return st2;
                         }
                         else
                         {
-                            // This means another thread managed to update ce1
-                            goto Start;
+                            // This means another thread managed to update ce2.
+                            // Find any cache entry pointing to *st2 and update it atomically to point to *st1
+                            replace(st2,st1);
+                            return st2;
                         }
                     }
-                    else // vtbl is not in the cache
+                    else
                     {
-                        while (!is_full())
-                        {
-                            std::atomic<stored_type*>* pce2;
-                            stored_type*  st2 = eager_find(0,pce2);
-                            
-                            if (st2 || (st2 = thorough_find(0,pce2))) // vtbl is already in the cache
-                            {
-                                XTL_ASSERT(pce2);
-                                XTL_ASSERT(pce2->load()); // NOTE: stronger *pce2 == st2 may not necessarily hold anymore
-
-                                std::intptr_t null_vtbl = 0;
-
-                                if (st2->vtbl.compare_exchange_strong(null_vtbl, vtbl)) // essentially: ce->vtbl = vtbl;
-                                {
-                                    ++used;
-                                    return st2;
-                                }
-                            }
-                        }
-
-                        // There are no empty slots, we return 0.
-                        return nullptr;
+                        // This means another thread managed to update ce1
+                        goto Start;
                     }
                 }
-                else // The entry pointed to by cache entry is NOT occupied
+                else // vtbl is not in the cache
                 {
-                    // FIX: vtbl can already be elsewhere in the cache because of change to k and l after update!
-                    if (st1->vtbl.compare_exchange_strong(cur_vtbl, vtbl)) // essentially: ce->vtbl = vtbl;
-                        ++used;
-                    else // Someone occupied the entry in the mean time, new 
-                         // value of cur_vtbl will be the occupied value, so
-                         // we don't have to re-read it
-                        goto Compare;
+                    while (!is_full())
+                    {
+                        std::atomic<stored_type*>* pce2;
+                        stored_type*  st2 = eager_find(0,pce2);
+                            
+                        if (st2 || (st2 = thorough_find(0,pce2))) // vtbl is already in the cache
+                        {
+                            XTL_ASSERT(pce2);
+                            XTL_ASSERT(pce2->load()); // NOTE: stronger *pce2 == st2 may not necessarily hold anymore
+
+                            std::intptr_t null_vtbl = 0;
+
+                            if (st2->vtbl.compare_exchange_strong(null_vtbl, vtbl)) // essentially: ce->vtbl = vtbl;
+                            {
+                                ++used;
+                                return st2;
+                            }
+                        }
+                    }
+
+                    // There are no empty slots, we return 0.
+                    return nullptr;
                 }
             }
 

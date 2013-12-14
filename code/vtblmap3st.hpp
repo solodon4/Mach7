@@ -247,42 +247,36 @@ private:
 
             if (XTL_UNLIKELY(ce->vtbl != vtbl))
             {
-                if (XTL_LIKELY(ce->vtbl))
-                {
-                    stored_type** cv;
+                // NOTE: We don't check if the entry is occupied as even when 
+                //       it is not, the vtbl may be elsewhere in the cache due 
+                //       to changes to k and l after update.
+                stored_type** cv;
 
-                    // See if vtbl is elsewhere in the cache
+                // See if vtbl is elsewhere in the cache
+                for (size_t i = 0; i <= cache_mask; ++i)
+                    if (cache[i]->vtbl == vtbl) // if so ...
+                    {
+                        cv = &cache[i]; // swap it with the right position
+                        goto Swap;
+                    }
+
+                // vtbl is not in the cache
+                if (used <= cache_mask) // there are empty slots in cache
                     for (size_t i = 0; i <= cache_mask; ++i)
-                        if (cache[i]->vtbl == vtbl) // if so ...
+                        if (cache[i]->vtbl == 0) // find the first empty slot
                         {
+                            cache[i]->vtbl = vtbl; // assign vtbl to it
+                            ++used;
                             cv = &cache[i]; // swap it with the right position
                             goto Swap;
                         }
 
-                    // vtbl is not in the cache
-                    if (used <= cache_mask) // there are empty slots in cache
-                        for (size_t i = 0; i <= cache_mask; ++i)
-                            if (cache[i]->vtbl == 0) // find the first empty slot
-                            {
-                                cache[i]->vtbl = vtbl; // assign vtbl to it
-                                ++used;
-                                cv = &cache[i]; // swap it with the right position
-                                goto Swap;
-                            }
-
-                    // There are no empty slots, we return the slot in which it
-                    // is supposed to be, the caller should check vtbl of the 
-                    // returned entry to ensure it has vtbl he was looking for.
-                    return ce;
+                // There are no empty slots, we return the slot in which it
+                // is supposed to be, the caller should check vtbl of the 
+                // returned entry to ensure it has vtbl he was looking for.
+                return ce;
 Swap:
-                    std::swap(ce,*cv);
-                }
-                else
-                {
-                    // FIX: vtbl can already be elsewhere in the cache because of change to k and l after update!
-                    ce->vtbl = vtbl;
-                    ++used;
-                }
+                std::swap(ce,*cv);
             }
 
             return ce;

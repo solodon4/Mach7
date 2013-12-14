@@ -13,7 +13,7 @@
 #include "testshape.hpp"
 //#define XTL_DEFAULT_SYNTAX 'P'
 //#include "match.hpp"                // Support for Match statement
-#include "type_switch1.hpp"        // Slower by now than the above
+#include "type_switch.hpp"        // Slower by now than the above
 
 //------------------------------------------------------------------------------
 

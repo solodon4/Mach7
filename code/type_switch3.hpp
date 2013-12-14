@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "vtblmap3st-2.hpp"
+#include "vtblmap3st-3.hpp"
 #include "metatools.hpp"
 
 //------------------------------------------------------------------------------
@@ -55,14 +55,15 @@ enum { default_layout = size_t(~0) };
 ///       initialize cache with 0, however through experiments we can see
 ///       that having default here is quite a bit faster than having case 0
 ///       because one less branch should be generated
-#define Match2(s0,s1) {                                                        \
+#define Match3(s0,s1,s2) {                                                     \
         struct match_uid_type {};                                              \
         enum { is_inside_case_clause = 0 };                                    \
         enum { __base_counter = XTL_COUNTER };                                 \
         XTL_MATCH_SUBJECT_POLYMORPHIC(0,s0)                                    \
         XTL_MATCH_SUBJECT_POLYMORPHIC(1,s1)                                    \
+        XTL_MATCH_SUBJECT_POLYMORPHIC(2,s2)                                    \
         XTL_PRELOADABLE_LOCAL_STATIC(vtblmap<type_switch_info>,__vtbl2lines_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
-        type_switch_info& __switch_info = __vtbl2lines_map.get(subject_ptr0,subject_ptr1); \
+        type_switch_info& __switch_info = __vtbl2lines_map.get(subject_ptr0,subject_ptr1,subject_ptr2); \
         switch (__switch_info.target) {                                        \
         default: {
 
@@ -74,10 +75,11 @@ enum { default_layout = size_t(~0) };
 ///       to   "Program Database (/Zi)", which is the default in Release builds,
 ///       but not in Debug. This is a known bug of Visual C++ described here:
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
-#define Case2(C0,C1)                                                           \
+#define Case3(C0,C1,C2)                                                        \
         }                                                                      \
         if (XTL_UNLIKELY(__casted_ptr0 = dynamic_cast<const C0*>(subject_ptr0)) && \
-            XTL_UNLIKELY(__casted_ptr1 = dynamic_cast<const C1*>(subject_ptr1)))   \
+            XTL_UNLIKELY(__casted_ptr1 = dynamic_cast<const C1*>(subject_ptr1)) && \
+            XTL_UNLIKELY(__casted_ptr2 = dynamic_cast<const C2*>(subject_ptr2)))   \
         {                                                                      \
             enum { target_label = XTL_COUNTER-__base_counter, is_inside_case_clause = 1 }; \
             if (XTL_LIKELY(__switch_info.target == 0))                         \
@@ -85,20 +87,23 @@ enum { default_layout = size_t(~0) };
                 __switch_info.target = target_label;                           \
                 __switch_info.offset[0] = intptr_t(__casted_ptr0)-intptr_t(subject_ptr0); \
                 __switch_info.offset[1] = intptr_t(__casted_ptr1)-intptr_t(subject_ptr1); \
+                __switch_info.offset[2] = intptr_t(__casted_ptr2)-intptr_t(subject_ptr2); \
             }                                                                  \
         case target_label:                                                     \
             auto& match0 = *adjust_ptr<C0>(subject_ptr0,__switch_info.offset[0]); \
             auto& match1 = *adjust_ptr<C1>(subject_ptr1,__switch_info.offset[1]); \
+            auto& match2 = *adjust_ptr<C2>(subject_ptr2,__switch_info.offset[2]); \
             XTL_UNUSED(match0);                                                \
-            XTL_UNUSED(match1);
+            XTL_UNUSED(match1);                                                \
+            XTL_UNUSED(match2);
 
-#define Otherwise2()                                                           \
+#define Otherwise3()                                                           \
         static_assert(is_inside_case_clause, "Otherwise() must follow actual clauses! If you are trying to use it as a default sub-clause, use When() instead"); \
-        Case2(source_type0,source_type1)
+        Case3(source_type0,source_type1,source_type2)
 
-#define EndMatch2                                                              \
+#define EndMatch3                                                              \
         }                                                                      \
-        if (XTL_UNLIKELY((__casted_ptr0 == 0 && __casted_ptr1 == 0 && __switch_info.target == 0))) \
+        if (XTL_UNLIKELY((__casted_ptr0 == 0 && __casted_ptr1 == 0 && __casted_ptr2 == 0 && __switch_info.target == 0))) \
         {                                                                      \
             enum { target_label = XTL_COUNTER-__base_counter };                \
             __switch_info.target = target_label;                               \

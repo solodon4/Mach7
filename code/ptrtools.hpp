@@ -44,8 +44,8 @@ template <typename T> const std::type_info& vtbl_typeid(std::intptr_t vtbl)
 {
 #ifdef _MSC_VER
     // FIX: The SEH handler below works in debug but not in release builds
-    //__try { return typeid(*reinterpret_cast<const T*>(&vtbl)); }
-    //__except(EXCEPTION_EXECUTE_HANDLER) { return typeid(void); }
+    __try { return typeid(*reinterpret_cast<const T*>(&vtbl)); }
+    __except(EXCEPTION_EXECUTE_HANDLER) { return typeid(void); }
     XTL_UNUSED(vtbl);
     return typeid(void);
 #else
@@ -63,12 +63,16 @@ template <typename T> const std::type_info& vtbl_typeid(std::intptr_t vtbl)
 #endif
 }
 
-template <typename T> inline const std::type_info& vtbl_typeid(const void* p) { return vtbl_typeid<T>(*reinterpret_cast<const std::intptr_t*>(p)); }
+template <typename T> 
+inline const std::type_info& vtbl_typeid(const void* p) 
+{
+    return vtbl_typeid<T>(*reinterpret_cast<const std::intptr_t*>(p)); 
+}
 
 struct polymorphic_dummy { virtual ~polymorphic_dummy(){} };
 
 inline const std::type_info& vtbl_typeid(std::intptr_t vtbl) { return vtbl_typeid<polymorphic_dummy>(vtbl); }
-inline const std::type_info& vtbl_typeid(const void* p) { return vtbl_typeid<polymorphic_dummy>(p); }
+inline const std::type_info& vtbl_typeid(const void* p)      { return vtbl_typeid<polymorphic_dummy>(p); }
 
 //------------------------------------------------------------------------------
 
@@ -86,8 +90,9 @@ template <>         struct requires_bits<0>  { enum { value = 1 }; };
 /// Finds the number of trailing zeros in v.
 /// The following code to count trailing zeros was taken from:
 /// http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightFloatCast
-inline unsigned int trailing_zeros(unsigned int v)
+inline uint32_t trailing_zeros(uint32_t v)
 {
+    static_assert(sizeof(v) == sizeof(float), "trailing_zeros function assumes float to be of same size as uint32_t");
 #ifdef _MSC_VER
   #pragma warning( push )
   #pragma warning( disable : 4146 ) // warning C4146: unary minus operator applied to unsigned type, result still unsigned
@@ -132,3 +137,61 @@ inline size_t req_bits(size_t v)
 };
 
 //------------------------------------------------------------------------------
+
+/// Interleaves bits of two numbers (aka Morton numbers).
+/// The following code to interleave bits was taken from:
+/// http://graphics.stanford.edu/~seander/bithacks.html#InterleaveTableObvious
+inline uint32_t interleave(
+    uint32_t x, ///< Interleave lower 16 bits of x and y, so the bits of x
+    uint32_t y  ///< are in the even positions and bits from y in the odd;
+)
+{
+    // x and y must initially be less than 65536.
+    x &= 0xFFFF;
+    y &= 0xFFFF;
+
+    x = (x | (x << 8)) & 0x00FF00FF;
+    x = (x | (x << 4)) & 0x0F0F0F0F;
+    x = (x | (x << 2)) & 0x33333333;
+    x = (x | (x << 1)) & 0x55555555;
+
+    y = (y | (y << 8)) & 0x00FF00FF;
+    y = (y | (y << 4)) & 0x0F0F0F0F;
+    y = (y | (y << 2)) & 0x33333333;
+    y = (y | (y << 1)) & 0x55555555;
+
+    return x | (y << 1); // the resulting 32-bit Morton Number.  
+};
+
+//------------------------------------------------------------------------------
+
+/// Interleaves bits of three numbers (aka Morton numbers).
+/// The following code to interleave bits was taken from:
+/// http://stackoverflow.com/questions/1024754/how-to-compute-a-3d-morton-number-interleave-the-bits-of-3-ints
+inline uint32_t interleave(
+    uint32_t x, ///< Interleave lower 10 bits of x, y and z, so the bits
+    uint32_t y, ///< of x are in the mod 0 positions, bits from y in mod 1
+    uint32_t z  ///< and bits from z in mod 2 positions;
+)
+{
+    x &= 0x03FF;
+    y &= 0x03FF;
+    z &= 0x03FF;
+
+    x = (x | (x << 16)) & 0x030000FF;
+    x = (x | (x <<  8)) & 0x0300F00F;
+    x = (x | (x <<  4)) & 0x030C30C3;
+    x = (x | (x <<  2)) & 0x09249249;
+
+    y = (y | (y << 16)) & 0x030000FF;
+    y = (y | (y <<  8)) & 0x0300F00F;
+    y = (y | (y <<  4)) & 0x030C30C3;
+    y = (y | (y <<  2)) & 0x09249249;
+
+    z = (z | (z << 16)) & 0x030000FF;
+    z = (z | (z <<  8)) & 0x0300F00F;
+    z = (z | (z <<  4)) & 0x030C30C3;
+    z = (z | (z <<  2)) & 0x09249249;
+
+    return x | (y << 1) | (z << 2);
+}

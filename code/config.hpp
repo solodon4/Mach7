@@ -514,6 +514,53 @@
 
 //------------------------------------------------------------------------------
 
+#define XTL_REPEAT_WITH_0(s,m,...)
+#define XTL_REPEAT_WITH_1(s,m,...)                                      m(0,__VA_ARGS__)
+#define XTL_REPEAT_WITH_2(s,m,...) XTL_REPEAT_WITH_1(s,m,__VA_ARGS__) s m(1,__VA_ARGS__)
+#define XTL_REPEAT_WITH_3(s,m,...) XTL_REPEAT_WITH_2(s,m,__VA_ARGS__) s m(2,__VA_ARGS__)
+#define XTL_REPEAT_WITH_4(s,m,...) XTL_REPEAT_WITH_3(s,m,__VA_ARGS__) s m(3,__VA_ARGS__)
+#define XTL_REPEAT_WITH_5(s,m,...) XTL_REPEAT_WITH_4(s,m,__VA_ARGS__) s m(4,__VA_ARGS__)
+#define XTL_REPEAT_WITH_6(s,m,...) XTL_REPEAT_WITH_5(s,m,__VA_ARGS__) s m(5,__VA_ARGS__)
+#define XTL_REPEAT_WITH_7(s,m,...) XTL_REPEAT_WITH_6(s,m,__VA_ARGS__) s m(6,__VA_ARGS__)
+#define XTL_REPEAT_WITH_8(s,m,...) XTL_REPEAT_WITH_7(s,m,__VA_ARGS__) s m(7,__VA_ARGS__)
+#define XTL_REPEAT_WITH_9(s,m,...) XTL_REPEAT_WITH_8(s,m,__VA_ARGS__) s m(8,__VA_ARGS__)
+
+/// Repeats macro m(i) n times (separated by s) with i in [0..n-1]
+#define XTL_REPEAT_WITH(s,n,m,...) XTL_REPEAT_WITH_ ## n(s,m,__VA_ARGS__)
+/// Equivalent to #XTL_REPEAT_WITH with empty separator
+#define XTL_REPEAT(n,m,...) XTL_REPEAT_WITH(,n,m,__VA_ARGS__)
+
+#define XTL_ENUM_0(m,...)
+#define XTL_ENUM_1(m,...)                             m(0,__VA_ARGS__)
+#define XTL_ENUM_2(m,...) XTL_ENUM_1(m,__VA_ARGS__) , m(1,__VA_ARGS__)
+#define XTL_ENUM_3(m,...) XTL_ENUM_2(m,__VA_ARGS__) , m(2,__VA_ARGS__)
+#define XTL_ENUM_4(m,...) XTL_ENUM_3(m,__VA_ARGS__) , m(3,__VA_ARGS__)
+#define XTL_ENUM_5(m,...) XTL_ENUM_4(m,__VA_ARGS__) , m(4,__VA_ARGS__)
+#define XTL_ENUM_6(m,...) XTL_ENUM_5(m,__VA_ARGS__) , m(5,__VA_ARGS__)
+#define XTL_ENUM_7(m,...) XTL_ENUM_6(m,__VA_ARGS__) , m(6,__VA_ARGS__)
+#define XTL_ENUM_8(m,...) XTL_ENUM_7(m,__VA_ARGS__) , m(7,__VA_ARGS__)
+#define XTL_ENUM_9(m,...) XTL_ENUM_8(m,__VA_ARGS__) , m(8,__VA_ARGS__)
+
+/// Equivalent to #XTL_REPEAT_WITH with separator being a comma
+#define XTL_ENUM(n,m,...) XTL_ENUM_ ## n(m,__VA_ARGS__)
+
+//------------------------------------------------------------------------------
+
+#define XTL_SELECT_ARG_0(a0, ...) a0
+#define XTL_SELECT_ARG_1(a0,a1, ...) a1
+#define XTL_SELECT_ARG_2(a0,a1,a2, ...) a2
+#define XTL_SELECT_ARG_3(a0,a1,a2,a3, ...) a3
+#define XTL_SELECT_ARG_4(a0,a1,a2,a3,a4, ...) a4
+#define XTL_SELECT_ARG_5(a0,a1,a2,a3,a4,a5, ...) a5
+#define XTL_SELECT_ARG_6(a0,a1,a2,a3,a4,a5,a6, ...) a6
+#define XTL_SELECT_ARG_7(a0,a1,a2,a3,a4,a5,a6,a7, ...) a7
+#define XTL_SELECT_ARG_8(a0,a1,a2,a3,a4,a5,a6,a7,a8, ...) a8
+#define XTL_SELECT_ARG_9(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9, ...) a9
+
+#define XTL_SELECT_ARG(i, ...) XTL_APPLY_VARIADIC_MACRO(XTL_SELECT_ARG_ ## i,(__VA_ARGS__))
+
+//------------------------------------------------------------------------------
+
 #define XTL_RSEQ_N() 63,62,61,60,59,58,57,56,55,54,53,52,51,50,49,48,47,46,45,44,43,42,41,40,39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0
 #define    XTL_ARG_N( _1, _2, _3, _4, _5, _6, _7, _8, _9,_10, _11,_12,_13,_14,_15,_16,_17,_18,_19,_20, _21,_22,_23,_24,_25,_26,_27,_28,_29,_30, _31,_32,_33,_34,_35,_36,_37,_38,_39,_40, _41,_42,_43,_44,_45,_46,_47,_48,_49,_50, _51,_52,_53,_54,_55,_56,_57,_58,_59,_60, _61,_62,_63,      N,...) N 
 #define XTL_ARG_N_EX( _1, _2, _3, _4, _5, _6, _7, _8, _9,_10, _11,_12,_13,_14,_15,_16,_17,_18,_19,_20, _21,_22,_23,_24,_25,_26,_27,_28,_29,_30, _31,_32,_33,_34,_35,_36,_37,_38,_39,_40, _41,_42,_43,_44,_45,_46,_47,_48,_49,_50, _51,_52,_53,_54,_55,_56,_57,_58,_59,_60, _61,_62,_63,Dummy,N,...) N 
