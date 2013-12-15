@@ -65,8 +65,8 @@ struct constr1
 
     explicit constr1(const P1&  p1) noexcept : m_p1(p1)            {}
     explicit constr1(      P1&& p1) noexcept : m_p1(std::move(p1)) {}
-    /// Move constructor
-    constr1(constr1&& src)          noexcept : m_p1(std::move(src.m_p1)) {}
+    constr1(const constr1&  src)    noexcept : m_p1(          src.m_p1 ) {} ///< Copy constructor    
+    constr1(      constr1&& src)    noexcept : m_p1(std::move(src.m_p1)) {} ///< Move constructor
     constr1& operator=(const constr1&); ///< Assignment is not allowed for this class
 
     /// Helper function that does the actual structural matching once we have
@@ -138,8 +138,8 @@ struct constr1<T,layout,P1,typename std::enable_if<std::is_same<T,typename P1::t
 
     explicit constr1(const P1&  p1) noexcept : m_p1(p1)            {}
     explicit constr1(      P1&& p1) noexcept : m_p1(std::move(p1)) {}
-    /// Move constructor
-    constr1(constr1&& src)          noexcept : m_p1(std::move(src.m_p1)) {}
+    constr1(const constr1&  src)    noexcept : m_p1(          src.m_p1 ) {} ///< Copy constructor    
+    constr1(      constr1&& src)    noexcept : m_p1(std::move(src.m_p1)) {} ///< Move constructor
     constr1& operator=(const constr1&); ///< Assignment is not allowed for this class
 
     /// Helper function that does the actual structural matching once we have
@@ -196,8 +196,8 @@ struct constr2
     constr2(      P1&& p1, const P2&  p2) noexcept : m_p1(std::move(p1)), m_p2(          p2 ) {}
     constr2(const P1&  p1,       P2&& p2) noexcept : m_p1(          p1 ), m_p2(std::move(p2)) {}
     constr2(      P1&& p1,       P2&& p2) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)) {}
-    /// Move constructor
-    constr2(constr2&& src)                noexcept : m_p1(std::move(src.m_p1)), m_p2(std::move(src.m_p2)) {}
+    constr2(const constr2&  src) noexcept : m_p1(          src.m_p1 ), m_p2(          src.m_p2 ) {} ///< Copy constructor    
+    constr2(      constr2&& src) noexcept : m_p1(std::move(src.m_p1)), m_p2(std::move(src.m_p2)) {} ///< Move constructor
     constr2& operator=(const constr2&); ///< Assignment is not allowed for this class
 
     /// Helper function that does the actual structural matching once we have
@@ -266,8 +266,8 @@ struct constr3
     constr3(      P1&& p1, const P2&  p2,       P3&& p3) noexcept : m_p1(std::move(p1)), m_p2(          p2 ), m_p3(std::move(p3)) {}
     constr3(const P1&  p1,       P2&& p2,       P3&& p3) noexcept : m_p1(          p1 ), m_p2(std::move(p2)), m_p3(std::move(p3)) {}
     constr3(      P1&& p1,       P2&& p2,       P3&& p3) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)), m_p3(std::move(p3)) {}
-    /// Move constructor
-    constr3(constr3&& src) noexcept : m_p1(std::move(src.m_p1)), m_p2(std::move(src.m_p2)), m_p3(std::move(src.m_p3)) {}
+    constr3(const constr3&  src) noexcept : m_p1(          src.m_p1 ), m_p2(          src.m_p2 ), m_p3(          src.m_p3 ) {} ///< Copy constructor    
+    constr3(      constr3&& src) noexcept : m_p1(std::move(src.m_p1)), m_p2(std::move(src.m_p2)), m_p3(std::move(src.m_p3)) {} ///< Move constructor
     constr3& operator=(const constr3&); ///< Assignment is not allowed for this class
 
     /// Helper function that does the actual structural matching once we have
@@ -348,8 +348,8 @@ struct constr4
     constr4(      P1&& p1, const P2&  p2,       P3&& p3,       P4&& p4) noexcept : m_p1(std::move(p1)), m_p2(          p2 ), m_p3(std::move(p3)), m_p4(std::move(p4)) {}
     constr4(const P1&  p1,       P2&& p2,       P3&& p3,       P4&& p4) noexcept : m_p1(          p1 ), m_p2(std::move(p2)), m_p3(std::move(p3)), m_p4(std::move(p4)) {}
     constr4(      P1&& p1,       P2&& p2,       P3&& p3,       P4&& p4) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)), m_p3(std::move(p3)), m_p4(std::move(p4)) {}
-    /// Move constructor
-    constr4(constr4&& src) noexcept : m_p1(std::move(src.m_p1)), m_p2(std::move(src.m_p2)), m_p3(std::move(src.m_p3)), m_p4(std::move(src.m_p4)) {}
+    constr4(const constr4&  src) noexcept : m_p1(          src.m_p1 ), m_p2(          src.m_p2 ), m_p3(          src.m_p3 ), m_p4(          src.m_p4 ) {} ///< Copy constructor    
+    constr4(      constr4&& src) noexcept : m_p1(std::move(src.m_p1)), m_p2(std::move(src.m_p2)), m_p3(std::move(src.m_p3)), m_p4(std::move(src.m_p4)) {} ///< Move constructor
     constr4& operator=(const constr4&); ///< Assignment is not allowed for this class
 
     /// Helper function that does the actual structural matching once we have

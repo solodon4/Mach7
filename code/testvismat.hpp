@@ -59,44 +59,13 @@ static int some_numbers[256] = {
 
 //------------------------------------------------------------------------------
 
-void run_timings(
+extern void run_timings(
         std::vector<Shape*>&    shapes, 
         std::vector<long long>& timingsV, 
         std::vector<long long>& timingsM,
         size_t& aV,
         size_t& aM
-     )
-{
-    XTL_ASSERT(timingsM.size() == timingsV.size());
-
-    size_t N = shapes.size();
-    size_t M = timingsV.size();
-
-    for (size_t m = 0; m < M; ++m)
-    {
-        unsigned char j = 0;
-        time_stamp liStart1 = get_time_stamp();
-
-        for (size_t i = 0; i < N; ++i)
-            aV += do_visit(*shapes[i],some_numbers[j++]);
-
-        time_stamp liFinish1 = get_time_stamp();
-
-        j = 0;
-
-        time_stamp liStart2 = get_time_stamp();
-
-        for (size_t i = 0; i < N; ++i)
-            aM += do_match(*shapes[i],some_numbers[j++]);
-
-        time_stamp liFinish2 = get_time_stamp();
-
-        XTL_ASSERT(aV==aM);
-
-        timingsV[m] = liFinish1-liStart1;
-        timingsM[m] = liFinish2-liStart2;
-    }
-}
+     );
 
 //------------------------------------------------------------------------------
 

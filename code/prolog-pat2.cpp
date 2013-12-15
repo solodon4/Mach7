@@ -13,6 +13,7 @@
 #include <cstdarg>
 #include <iostream>
 #include <iomanip>
+#include <iterator>
 #include <map>
 #include <list>
 #include <string>
@@ -20,6 +21,13 @@
 #include <vector>
 
 #include "config.hpp"
+
+#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && (XTL_GCC_VERSION >= 40600)
+    #define XTL_RANGE_FOR 1
+#else
+    #define XTL_RANGE_FOR 0
+#endif
+
 
 //------------------------------------------------------------------------------
 
@@ -340,7 +348,7 @@ template <> struct bindings<Comment>   { CM(0,Comment::text);   };
 
 //------------------------------------------------------------------------------
 
-using mch::C; // Enable use of constructor pattern without namespace qualification
+using namespace mch; // Enable use of pattern-matching constructs without namespace qualification
 
 //------------------------------------------------------------------------------
 
@@ -350,11 +358,10 @@ std::ostream& operator<<(std::ostream& os, const Term& t)
 
     std::string s;
     int         n;
-    mch::var<int> m;
+    var<int>    m;
     double      f;
     const Term* hd;
     const List* tl;
-    mch::wildcard _;
 
     Match(t)
     {
@@ -364,14 +371,24 @@ std::ostream& operator<<(std::ostream& os, const Term& t)
     Case(C<String>(s))   return os << s;
     Case(C<Variable>(s)) return os << s;
   //Case(C<Operator>(s)) return os << s;
-    Case(C<Structure>(s,_,mch::all(C<Integer>(m)))) 
+    Case(C<Structure>(s,_,all(C<Integer>(m)))) 
         os << "all integers  " << m;
-    Case(C<Structure>(s,_,mch::exist(C<Integer>(m |= m >= 9)))) 
+    Case(C<Structure>(s,_,exist(C<Integer>(m |= m >= 9)))) 
         os << "exist integer " << m;
     Case(C<Structure>(s)) 
         os << s << '(';
-        for (auto p = match0.terms.begin(); p != match0.terms.end(); ++p)
-            os << (p == match0.terms.begin() ? "" : ",") << **p;
+#if XTL_RANGE_FOR
+        for (auto t : match0.terms) os << *t << ',';
+#else
+        std::transform(
+            match0.terms.begin(), 
+            match0.terms.end(), 
+            std::ostream_iterator<const Term&>(os,","), 
+            [](const Term* p) -> const Term& { return *p; }
+        );
+        //for (auto p = match0.terms.begin(); p != match0.terms.end(); ++p)
+        //    os << (p == match0.terms.begin() ? "" : ",") << **p;
+#endif
         return os << ')';
     Case(C<List>(hd,tl))
         os << '[' << *hd;
@@ -379,10 +396,11 @@ std::ostream& operator<<(std::ostream& os, const Term& t)
             os << ',' << *l->head;
         return os << ']';
     Case(C<Comment>(s)) return os << s;
+    Otherwise()         return os << "???";
     }
     EndMatch
 
-    return os << "???";
+    return os; // To prevent all control path warning
 }
 
 //------------------------------------------------------------------------------
@@ -395,10 +413,10 @@ inline bool operator!=(const Term& left, const Term& right) { return !(left == r
 bool operator==(const Term& left, const Term& right)
 {
     //std::clog << "(" << left << ',' << right << ')' << std::endl;
-    mch::var<std::string> s;
-    mch::var<int>         n;
-    mch::var<double>      f;
-    mch::var<const Term&> h,t;
+    var<std::string> s;
+    var<int>         n;
+    var<double>      f;
+    var<const Term&> h,t;
 
     Match(left,right)
     {
@@ -407,11 +425,19 @@ bool operator==(const Term& left, const Term& right)
     Case(C<Float>(f),         C<Float>(+f)        ) return true;
     Case(C<String>(s),        C<String>(+s)       ) return true;
     Case(C<Variable>(s),      C<Variable>(+s)     ) return true;
-    Case(C<Structure>(s,n),   C<Structure>(+s,+n) )
-        for (int i = 0; i < n; ++i)
-            if (*match0.terms[i] != *match1.terms[i])
-                return false;
-        return true;
+  //Case(C<Structure>(s,n,p), C<Structure>(+s,+n,q |= **p++ == **q++) )
+  //Case(C<Structure>(s,n,p), C<Structure>(+s,+n,all(+**p++)) )
+    Case(C<Structure>(s,n),   C<Structure>(+s,+n) ) 
+        return std::equal(
+                    match0.terms.begin(), 
+                    match0.terms.end(), 
+                    match1.terms.begin(), 
+                    [](const Term* p, const Term* q) { return *p == *q; }
+               );
+        //for (int i = 0; i < n; ++i)
+        //    if (*match0.terms[i] != *match1.terms[i])
+        //        return false;
+        //return true;
     Case(C<List>(&h,&t),      C<List>(&+h,&+t)    ) return true;
     Case(C<List>(&h,nullptr), C<List>(&+h,nullptr)) return true;
     Case(C<Comment>(s),       C<Comment>(+s)      ) return true;
@@ -491,11 +517,12 @@ typedef std::pair<Term*,Term*>      term_pair;
 
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+
 bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
 {
-    mch::var<std::string> s;
-    mch::var<size_t>      n;
-    mch::wildcard         _;
+    var<std::string> s;
+    var<size_t>      n;
 
     while (!pairs.empty())
     {

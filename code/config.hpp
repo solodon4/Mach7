@@ -327,12 +327,12 @@
     #define XTL_DEBUG_ONLY(...) __VA_ARGS__
     /// Our own version of assert macro because of the fact that normal assert was 
     /// not always removed in the release builds.
-    #define XTL_ASSERT(x) if (!(x)) { std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']' << std::endl; std::abort(); }
+    #define XTL_ASSERT(...) if (!(__VA_ARGS__)) { std::cerr << #__VA_ARGS__ " in file " << __FILE__ << '[' << __LINE__ << ']' << std::endl; std::abort(); }
 #else
     #define XTL_DEBUG_ONLY(...)
     /// Our own version of assert macro because of the fact that normal assert was 
     /// not always removed in the release builds.
-    #define XTL_ASSERT(x)
+    #define XTL_ASSERT(...)
 #endif
 
 /// Our own version of assert macro because of the fact that normal assert was 
@@ -443,6 +443,7 @@
 #define XTL_REPEAT_WITH_7(s,m,...) XTL_REPEAT_WITH_6(s,m,__VA_ARGS__) s m(6,__VA_ARGS__)
 #define XTL_REPEAT_WITH_8(s,m,...) XTL_REPEAT_WITH_7(s,m,__VA_ARGS__) s m(7,__VA_ARGS__)
 #define XTL_REPEAT_WITH_9(s,m,...) XTL_REPEAT_WITH_8(s,m,__VA_ARGS__) s m(8,__VA_ARGS__)
+#define XTL_REPEAT_WITH_10(s,m,...) XTL_REPEAT_WITH_9(s,m,__VA_ARGS__) s m(9,__VA_ARGS__)
 
 /// Repeats macro m(i) n times (separated by s) with i in [0..n-1]
 #define XTL_REPEAT_WITH(s,n,m,...) XTL_REPEAT_WITH_ ## n(s,m,__VA_ARGS__)

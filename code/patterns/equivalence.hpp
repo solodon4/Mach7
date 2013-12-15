@@ -23,11 +23,12 @@ template <typename E1>
 struct equivalence
 {
     static_assert(is_expression<E1>::value, "Argument E of an equivalence pattern must be a lazy expression");
-    static_assert(!is_var<E1>::value,       "Attempting to host var<> directly. Use filter() to wrap it into ref<>");
+    static_assert(!is_var<E1>::value,       "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
-    explicit equivalence(const E1& e1) : m_e1(e1) {}
-    explicit equivalence(E1&& e1) noexcept : m_e1(std::move(e1)) {}
-    equivalence(equivalence&& e) noexcept : m_e1(std::move(e.m_e1)) {}
+    explicit equivalence(const E1&  e) noexcept : m_e1(          e ) {}
+    explicit equivalence(      E1&& e) noexcept : m_e1(std::move(e)) {}
+    equivalence(const equivalence&  e) noexcept : m_e1(          e.m_e1 ) {} ///< Copy constructor    
+    equivalence(      equivalence&& e) noexcept : m_e1(std::move(e.m_e1)) {} ///< Move constructor
     equivalence& operator=(const equivalence&); ///< Assignment is not allowed for this class
 
     typedef typename E1::result_type result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
@@ -45,13 +46,6 @@ struct equivalence
 
     E1 m_e1;
 };
-
-/// Convenience function to create unary expression
-template <typename E1>
-    auto make_equivalence(E1&& e1) noexcept -> XTL_RETURN
-    (
-        equivalence<typename underlying<E1>::type>(std::forward<E1>(e1))
-    )
 
 //------------------------------------------------------------------------------
 
@@ -85,15 +79,4 @@ inline auto operator+(E1&& e1) noexcept
                          );
 }
 
-/*
-template <typename E1>
-inline auto operator+(E1&& e1) noexcept ->
-typename std::enable_if<
-            mch::is_expression<E1>::value,
-            mch::equivalence<typename mch::underlying<decltype(mch::filter(std::forward<E1>(e1)))>::type>
-         >::type
-{
-    return mch::make_equivalence(mch::filter(std::forward<E1>(e1)));
-}
-*/
 //------------------------------------------------------------------------------

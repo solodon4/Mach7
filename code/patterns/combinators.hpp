@@ -31,15 +31,15 @@ struct conjunction
 {
     static_assert(is_pattern<P1>::value, "Argument P1 of a conjunction-pattern must be a pattern");
     static_assert(is_pattern<P2>::value, "Argument P2 of a conjunction-pattern must be a pattern");
-    static_assert(!is_var<P1>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref<>");
-    static_assert(!is_var<P2>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref<>");
+    static_assert(!is_var<P1>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
+    static_assert(!is_var<P2>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
     conjunction(const P1&  p1, const P2&  p2) noexcept : m_p1(          p1 ), m_p2(          p2 ) {}
     conjunction(      P1&& p1, const P2&  p2) noexcept : m_p1(std::move(p1)), m_p2(          p2 ) {}
     conjunction(const P1&  p1,       P2&& p2) noexcept : m_p1(          p1 ), m_p2(std::move(p2)) {}
     conjunction(      P1&& p1,       P2&& p2) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)) {}
-    /// Move constructor
-    conjunction(conjunction&& c)  noexcept : m_p1(std::move(c.m_p1)), m_p2(std::move(c.m_p2)) {}
+    conjunction(const conjunction&  c) noexcept : m_p1(          c.m_p1 ), m_p2(          c.m_p2 ) {} ///< Copy constructor    
+    conjunction(      conjunction&& c) noexcept : m_p1(std::move(c.m_p1)), m_p2(std::move(c.m_p2)) {} ///< Move constructor
     conjunction& operator=(const conjunction&); ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
@@ -79,15 +79,15 @@ struct disjunction
 {
     static_assert(is_pattern<P1>::value, "Argument P1 of a disjunction-pattern must be a pattern");
     static_assert(is_pattern<P2>::value, "Argument P2 of a disjunction-pattern must be a pattern");
-    static_assert(!is_var<P1>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref<>");
-    static_assert(!is_var<P2>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref<>");
+    static_assert(!is_var<P1>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
+    static_assert(!is_var<P2>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
     disjunction(const P1&  p1, const P2&  p2) noexcept : m_p1(          p1 ), m_p2(          p2 ) {}
     disjunction(      P1&& p1, const P2&  p2) noexcept : m_p1(std::move(p1)), m_p2(          p2 ) {}
     disjunction(const P1&  p1,       P2&& p2) noexcept : m_p1(          p1 ), m_p2(std::move(p2)) {}
     disjunction(      P1&& p1,       P2&& p2) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)) {}
-    /// Move constructor
-    disjunction(disjunction&& c)  noexcept : m_p1(std::move(c.m_p1)), m_p2(std::move(c.m_p2)) {}
+    disjunction(const disjunction&  c) noexcept : m_p1(          c.m_p1 ), m_p2(          c.m_p2 ) {} ///< Copy constructor    
+    disjunction(      disjunction&& c) noexcept : m_p1(std::move(c.m_p1)), m_p2(std::move(c.m_p2)) {} ///< Move constructor
     disjunction& operator=(const disjunction&); ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
@@ -126,12 +126,12 @@ template <typename P1>
 struct negation
 {
     static_assert(is_pattern<P1>::value, "Argument P1 of a negation-pattern must be a pattern");
-    static_assert(!is_var<P1>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref<>");
+    static_assert(!is_var<P1>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
     negation(const P1&  p1) noexcept : m_p1(p1) {}
     negation(      P1&& p1) noexcept : m_p1(std::move(p1)) {}
-    /// Move constructor
-    negation(negation&& c)  noexcept : m_p1(std::move(c.m_p1)) {}
+    negation(const negation&  c) noexcept : m_p1(          c.m_p1 ) {} ///< Copy constructor    
+    negation(      negation&& c) noexcept : m_p1(std::move(c.m_p1)) {} ///< Move constructor
     negation& operator=(const negation&); ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for

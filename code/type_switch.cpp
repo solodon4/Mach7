@@ -503,7 +503,7 @@ Shape* make_shape(size_t i)
 
 //------------------------------------------------------------------------------
 
-#include "testvismat.hpp"    // Utilities for timing tests
+#include "testvismat1.hpp"    // Utilities for timing tests
 
 //------------------------------------------------------------------------------
 

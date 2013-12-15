@@ -3,10 +3,10 @@
 ///
 /// This file is a part of pattern matching testing suite.
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -15,9 +15,25 @@
 //#define XTL_TIMING_METHOD_2 1
 #include "timing.hpp"
 
+//------------------------------------------------------------------------------
+
+#if defined(XTL_TIMING_METHOD_1)
+    XTL_MESSAGE("Timing method 1: based on QueryPerformanceCounter()")
+#elif defined(XTL_TIMING_METHOD_2)
+    XTL_MESSAGE("Timing method 2: based on rdtsc register")
+#elif defined(XTL_TIMING_METHOD_3)
+    XTL_MESSAGE("Timing method 3: based on clock()")
+#endif
+
+//------------------------------------------------------------------------------
+
 #include <iostream>
 
+//------------------------------------------------------------------------------
+
 const size_t T = 10000000;
+
+//------------------------------------------------------------------------------
 
 int main()
 {
@@ -42,5 +58,8 @@ int main()
         }
 
     mch::time_stamp liFinish1 = mch::get_time_stamp();
-    std::cout << "r=" << r << " u=" << u << " timing=" << mch::cycles((liFinish1-liStart1)/T) << " cycles/iteration" << std::endl;
+    std::cout << liStart1 << '-' << liFinish1 << ':' << (liFinish1-liStart1) << std::endl;
+    std::cout << "r=" << r << " u=" << u << " timing=" << mch::cycles(liFinish1-liStart1)/T << " cycles/iteration" << std::endl;
 }
+
+//------------------------------------------------------------------------------

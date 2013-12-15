@@ -77,9 +77,9 @@ enum { default_layout = size_t(~0) };
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
 #define Case3(C0,C1,C2)                                                        \
         }                                                                      \
-        if (XTL_UNLIKELY(__casted_ptr0 = dynamic_cast<const C0*>(subject_ptr0)) && \
-            XTL_UNLIKELY(__casted_ptr1 = dynamic_cast<const C1*>(subject_ptr1)) && \
-            XTL_UNLIKELY(__casted_ptr2 = dynamic_cast<const C2*>(subject_ptr2)))   \
+        if (XTL_UNLIKELY((__casted_ptr0 = dynamic_cast<const C0*>(subject_ptr0)) != 0) && \
+            XTL_UNLIKELY((__casted_ptr1 = dynamic_cast<const C1*>(subject_ptr1)) != 0) && \
+            XTL_UNLIKELY((__casted_ptr2 = dynamic_cast<const C2*>(subject_ptr2)) != 0))   \
         {                                                                      \
             enum { target_label = XTL_COUNTER-__base_counter, is_inside_case_clause = 1 }; \
             if (XTL_LIKELY(__switch_info.target == 0))                         \

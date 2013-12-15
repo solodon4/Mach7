@@ -139,40 +139,40 @@ void test_primitive(TT (&values)[N])
 
     // Testing reference pattern. NOTE: This pattern in never explicitly created by the user!
               T   n;
-    const ref<T> cr(n);
-          ref<T> mr(n);
+    const ref0<T> cr(n);
+          ref0<T> mr(n);
     // Against modifiable subjects
     XTL_VERIFY(test(           values,cr)        == N);       // Pattern Non-modifiable l-value
     XTL_VERIFY(test(           values,mr)        == N);       // Pattern Modifiable l-value    
-    XTL_VERIFY(test(           values,ref<T>(n)) == N);       // Pattern R-value               
+    XTL_VERIFY(test(           values,ref0<T>(n)) == N);       // Pattern R-value               
     // Against non-modifiable subjects
     XTL_VERIFY(test((const_arr)values,cr)        == N);       // Pattern Non-modifiable l-value
     XTL_VERIFY(test((const_arr)values,mr)        == N);       // Pattern Modifiable l-value    
-    XTL_VERIFY(test((const_arr)values,ref<T>(n)) == N);       // Pattern R-value               
+    XTL_VERIFY(test((const_arr)values,ref0<T>(n)) == N);       // Pattern R-value               
 
     // Testing reference pattern for const T&
-    // FIX: Perhaps ref<const T&> should behave as a value pattern, but right
+    // FIX: Perhaps ref0<const T&> should behave as a value pattern, but right
     //      now it fails to compile due to assignment to its bound const reference
     /*
-    const ref<const T&> crcr(n);
-          ref<const T&> crmr(n);
+    const ref0<const T&> crcr(n);
+          ref0<const T&> crmr(n);
     XTL_VERIFY(test(values,crcr) == N);            // Pattern Non-modifiable l-value
     XTL_VERIFY(test(values,crmr) == N);            // Pattern Modifiable l-value    
-    XTL_VERIFY(test(values,ref<const T&>(n)) == N);// Pattern R-value               
+    XTL_VERIFY(test(values,ref0<const T&>(n)) == N);// Pattern R-value               
 
     XTL_VERIFY((const T&)crcr == c);
     XTL_VERIFY((const T&)crmr == c);
     */
     // Testing reference pattern for T&
-    // FIX: Weird why this is allowed to compiler since we form a & to a & in ref<>::m_var
-    const ref<T&> mrcr(n);
-          ref<T&> mrmr(n);
+    // FIX: Weird why this is allowed to compiler since we form a & to a & in ref0<>::m_var
+    const ref0<T&> mrcr(n);
+          ref0<T&> mrmr(n);
     // Against modifiable subjects
     XTL_VERIFY(test(           values,mrcr) == N);            // Pattern Non-modifiable l-value
     XTL_VERIFY(test(           values,mrmr) == N);            // Pattern Modifiable l-value    
-    XTL_VERIFY(test(           values,ref<T&>(n)) == N);      // Pattern R-value               
+    XTL_VERIFY(test(           values,ref0<T&>(n)) == N);      // Pattern R-value               
     // Against non-modifiable subjects
-    // Correctly fails to compile as ref<T&> will try to bind for modification
+    // Correctly fails to compile as ref0<T&> will try to bind for modification
 
     XTL_VERIFY((T&)mrcr == c);
     XTL_VERIFY((T&)mrmr == c);
@@ -409,12 +409,9 @@ void test_combinators(TT (&values)[N])
 #include <string>
 
 //------------------------------------------------------------------------------
-#include <complex>
+
 int main()
 {
-    std::complex<double> cd;
-    std::real(cd);
-     auto p = (double (&)(const std::complex<double>&))std::real<double>;
     // NOTE: The sume of first and last element should not be in the array!
     int         ints[]    = {-7,-1,0,1,2};
     double      doubles[] = {-2.57,-1.0,0,1.77,2,3.1415926};
@@ -447,6 +444,7 @@ int main()
     test_combinators(int_ptrs);
     test_combinators(double_ptrs);
     test_combinators(string_ptrs);
+
 }
 
 //------------------------------------------------------------------------------

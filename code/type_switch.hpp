@@ -84,7 +84,7 @@
 ///       http://connect.microsoft.com/VisualStudio/feedback/details/375836/-line-not-seen-as-compile-time-constant
 #define Case(C)                                                                \
         }                                                                      \
-        if (XTL_UNLIKELY(__casted_ptr = dynamic_cast<const C*>(subject_ptr)))  \
+        if (XTL_UNLIKELY((__casted_ptr = dynamic_cast<const C*>(subject_ptr)) != 0)) \
         {                                                                      \
             enum { target_label = XTL_COUNTER-__base_counter };                \
             if (XTL_LIKELY(__switch_info.target == 0))                         \

@@ -10,7 +10,6 @@
 /// All rights reserved.
 ///
 
-#include <typeinfo>
 #include <utility>
 #include <ostream>
 #include "config.hpp"
@@ -52,10 +51,8 @@ public:
     object_of(const T& t) : m_value(t) {}
     virtual bool operator==(const object& obj) const
     {
-        //if (const object_of* o = dynamic_cast<const object_of*>(&obj))
-        if (typeid(*this) == typeid(obj))
+        if (const object_of* o = dynamic_cast<const object_of*>(&obj))
         {
-            const object_of* o = static_cast<const object_of*>(&obj);
             return m_value == o->m_value;
         }
 
@@ -82,57 +79,56 @@ object_of<T>* make_obj(const T& t)
 struct pattern
 {
     virtual ~pattern() {}
-    virtual bool matches(const object*) = 0;
+    virtual bool matches(const object&) = 0;
 };
 
 //------------------------------------------------------------------------------
 
-struct wildcard_pattern : pattern
+struct wildcard : pattern
 {
-    virtual bool matches(const object*) { return true; }
+    virtual bool matches(const object&) { return true; }
 };
 
 //------------------------------------------------------------------------------
 
-struct value_pattern : pattern
+struct value : pattern
 {
-    virtual ~value_pattern() { delete m_obj; }
-    value_pattern(object* obj) : m_obj(obj) {}
-    virtual bool matches(const object* obj) 
+    value(object& obj) : m_obj(obj) {}
+    virtual bool matches(const object& obj) 
     {
-        return *m_obj == *obj; 
+        return m_obj == obj; 
     }
-    object* m_obj;
+    object& m_obj;
 };
 
 //------------------------------------------------------------------------------
 
 template <typename T>
-value_pattern* val(const T& t)
+value val(const T& t)
 {
-    return new value_pattern(make_obj(t));
+    return value(*make_obj(t));
 }
 
 //------------------------------------------------------------------------------
 
-struct variable_pattern : pattern
+struct variable : pattern
 {
-    variable_pattern(object*& obj_ref) : m_obj_ref(obj_ref) {}
-    virtual bool matches(const object* obj) 
+    variable(object*& obj_ref) : m_obj_ref(obj_ref) {}
+    virtual bool matches(const object& obj) 
     {
-        m_obj_ref = const_cast<object*>(obj); 
+        m_obj_ref = const_cast<object*>(&obj); 
         return true;
     }
     object*& m_obj_ref;
 private:
-    variable_pattern& operator=(const variable_pattern&); // = delete;
+    variable& operator=(const variable&); // = delete;
 };
 
 //------------------------------------------------------------------------------
 
-variable_pattern* var(object*& obj)
+variable var(object*& obj)
 {
-    return new variable_pattern(obj);
+    return variable(obj);
 }
 
 //------------------------------------------------------------------------------
@@ -147,6 +143,16 @@ const size_t T = 10000000;
 
 int main()
 {
+    object* val1 = make_obj(7);
+    object* val2 = make_obj(42);
+    object* val3 = 0;
+    value    pat1 = val(42);
+    variable pat2 = var(val3);
+    std::cout << std::boolalpha << (*val1==*val2) << std::endl;
+    std::cout << std::boolalpha << pat1.matches(*val1) << std::endl;
+    std::cout << std::boolalpha << pat2.matches(*val2) << " binds " << *val3 << std::endl;
+    std::cout << " binds " << *val3 << std::endl;
+
     int tests[]   = {2,3,5,7,11,13,17,19,23,29,31};
     const size_t N = XTL_ARR_SIZE(tests);
     object* objects[N] = {};
@@ -158,18 +164,18 @@ int main()
     size_t u = 0;
 
     object*  v = 0;
-    pattern* val_pat = val(17);
-    pattern* var_pat = var(v);
-    pattern*  wc_pat = new wildcard_pattern;
+    value    val_pat = val(17);
+    variable var_pat = var(v);
+    wildcard  wc_pat;
 
     mch::time_stamp liStart1 = mch::get_time_stamp();
 
     for (size_t j = 0; j < T; ++j)
         for (size_t i = 0; i < N; ++i)
         {
-            if (val_pat->matches(objects[i])) r+=1;
-            if (var_pat->matches(objects[i])) r+=2;
-            if ( wc_pat->matches(objects[i])) r+=4;
+            if (val_pat.matches(*objects[i])) r+=1;
+            if (var_pat.matches(*objects[i])) r+=2;
+            if ( wc_pat.matches(*objects[i])) r+=4;
             u += r;
             //std::cout << "r=" << r << " u=" << u << std::endl;
         }

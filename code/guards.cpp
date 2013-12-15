@@ -3,7 +3,7 @@
 ///
 /// This file is a part of pattern matching testing suite.
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
 /// Copyright (C) 2011-2012 Texas A&M University.

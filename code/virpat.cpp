@@ -3,10 +3,10 @@
 ///
 /// This file is a part of pattern matching testing suite.
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -14,6 +14,18 @@
 #include <ostream>
 #include "config.hpp"
 #include "timing.hpp"
+
+//------------------------------------------------------------------------------
+
+#if defined(XTL_TIMING_METHOD_1)
+    XTL_MESSAGE("Timing method 1: based on QueryPerformanceCounter()")
+#elif defined(XTL_TIMING_METHOD_2)
+    XTL_MESSAGE("Timing method 2: based on rdtsc register")
+#elif defined(XTL_TIMING_METHOD_3)
+    XTL_MESSAGE("Timing method 3: based on clock()")
+#endif
+
+//------------------------------------------------------------------------------
 
 /// CONS: We need to foresee a root hierarchy before matching
 struct object
@@ -29,6 +41,8 @@ struct object
             return os << "nullptr";
     }
 };
+
+//------------------------------------------------------------------------------
 
 template <typename T>
 class object_of : public object
@@ -52,11 +66,15 @@ private:
     T m_value;
 };
 
+//------------------------------------------------------------------------------
+
 template <typename T>
 object_of<T>* make_obj(const T& t)
 {
     return new object_of<T>(t);
 }
+
+//------------------------------------------------------------------------------
 
 struct pattern
 {
@@ -64,10 +82,14 @@ struct pattern
     virtual bool matches(const object*) = 0;
 };
 
+//------------------------------------------------------------------------------
+
 struct wildcard_pattern : pattern
 {
     virtual bool matches(const object*) { return true; }
 };
+
+//------------------------------------------------------------------------------
 
 struct value_pattern : pattern
 {
@@ -80,11 +102,15 @@ struct value_pattern : pattern
     object* m_obj;
 };
 
+//------------------------------------------------------------------------------
+
 template <typename T>
 value_pattern* val(const T& t)
 {
     return new value_pattern(make_obj(t));
 }
+
+//------------------------------------------------------------------------------
 
 struct variable_pattern : pattern
 {
@@ -99,14 +125,22 @@ private:
     variable_pattern& operator=(const variable_pattern&); // = delete;
 };
 
+//------------------------------------------------------------------------------
+
 variable_pattern* var(object*& obj)
 {
     return new variable_pattern(obj);
 }
 
+//------------------------------------------------------------------------------
+
 #include <iostream>
 
+//------------------------------------------------------------------------------
+
 const size_t T = 10000000;
+
+//------------------------------------------------------------------------------
 
 int main()
 {
@@ -148,5 +182,8 @@ int main()
         }
 
     mch::time_stamp liFinish1 = mch::get_time_stamp();
-    std::cout << "outcome=" << r << " xxx=" << u << " timing=" << mch::cycles((liFinish1-liStart1)/T) << " cycles/iteration" << std::endl;
+    std::cout << liStart1 << '-' << liFinish1 << ':' << (liFinish1-liStart1) << std::endl;
+    std::cout << "outcome=" << r << " xxx=" << u << " timing=" << mch::cycles(liFinish1-liStart1)/T << " cycles/iteration" << std::endl;
 }
+
+//------------------------------------------------------------------------------

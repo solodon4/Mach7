@@ -57,17 +57,6 @@ template <typename E1, typename E2> struct either_is_expression { static const b
 
 //------------------------------------------------------------------------------
 
-/// A common function used to provide convenience to the users by converting 
-/// constant values into value patterns and regular variables into variable 
-/// patterns. Various parts of the Mach7 library call this function to enable 
-/// this behavior. This particular overload does nothing on patterns, other 
-/// overloads can be found in the header with primitive patterns.
-template <typename P> 
-inline typename std::enable_if<is_pattern<P>::value, P>::type 
-filter(P&& p) noexcept { return std::forward<P>(p); }
-
-//------------------------------------------------------------------------------
-
 /// eval represents a set of overloads defined on our #LazyExpression.
 /// \note This generic function should never be called, instead, you must 
 ///       include header file of the specific lazy expression, which will

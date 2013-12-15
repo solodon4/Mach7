@@ -3,11 +3,11 @@
 ///
 /// This file helps generating repetetive textual patterns for all operators defined in exprtmpl.hpp
 ///
-/// \author Yuriy Solodkyy
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// \note This file is a part of XTL library http://parasol.tamu.edu/xtl/
-///
-/// Copyright (C) 2011, Texas A&M University.  All rights reserved.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
+/// All rights reserved.
 ///
 /// \note Inclusion guards are not provided on purpose cause this file may be
 ///       included several times.
@@ -27,7 +27,7 @@
 #define FOR_EACH_BINARY_OPERATOR_DEFINED
 #endif
 
-FOR_EACH_UNARY_OPERATOR(mch::negation         ,- )
+FOR_EACH_UNARY_OPERATOR(mch::unary_minus      ,- )
 FOR_EACH_UNARY_OPERATOR(mch::bit_complement   ,~ )
 FOR_EACH_UNARY_OPERATOR(mch::bool_complement  ,! )
 

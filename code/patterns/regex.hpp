@@ -80,7 +80,12 @@ inline regex0 rex(const char* re) noexcept { return regex0(re); }
 template <typename P1>
 inline auto rex(const char* re, P1&& p1) noexcept -> XTL_RETURN
 (
-    regex1<decltype(filter(std::forward<P1>(p1)))>(re, filter(std::forward<P1>(p1)))
+    regex1<
+        typename underlying<decltype(filter(std::forward<P1>(p1)))>::type
+    >(
+        re, 
+        filter(std::forward<P1>(p1))
+     )
 )
 
 //------------------------------------------------------------------------------
