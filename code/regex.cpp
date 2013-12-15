@@ -11,6 +11,7 @@
 ///
 
 #include "match.hpp"                // Support for Match statement
+#include "patterns/combinators.hpp" // Support for pattern combinators
 #include "patterns/guard.hpp"       // Support for guard patterns
 #include "patterns/n+k.hpp"         // Support for n+k patterns
 #include "patterns/regex.hpp"       // Support for regular expression patterns
@@ -32,7 +33,7 @@ int main()
 
     for (size_t i = 0, n = sizeof(strings)/sizeof(strings[0]); i < n; ++i)
     {
-        mch::variable<int> area_code;
+        mch::var<int> area_code;
 
         std::cout << strings[i] << " is a ";
 
@@ -44,7 +45,7 @@ int main()
             With(mch::rex("([A-Z]+)-([0-9]+)-([0-9]+)", area_code)) std::cout << "Something with area code " << area_code; break;
             With(mch::rex("[0-9]+"))                                std::cout << "Number"; break;
             With(mch::rex("[A-Za-z_][A-Za-z_0-9]*"))                std::cout << "Identifier"; break;
-            Otherwise()                                        std::cout << "UNRECOGNIZED"; break;
+            Otherwise()                                             std::cout << "UNRECOGNIZED"; break;
         }
         EndMatch
 

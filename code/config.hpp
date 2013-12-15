@@ -327,19 +327,17 @@
     #define XTL_DEBUG_ONLY(...) __VA_ARGS__
     /// Our own version of assert macro because of the fact that normal assert was 
     /// not always removed in the release builds.
-    #define XTL_ASSERT(x) if (!(x)) { std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'; std::abort(); }
-    /// Our own version of assert macro because of the fact that normal assert was 
-    /// not always removed in the release builds.
-    #define XTL_VERIFY(x) if (!(x)) std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'
+    #define XTL_ASSERT(x) if (!(x)) { std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']' << std::endl; std::abort(); }
 #else
     #define XTL_DEBUG_ONLY(...)
     /// Our own version of assert macro because of the fact that normal assert was 
     /// not always removed in the release builds.
     #define XTL_ASSERT(x)
-    /// Our own version of assert macro because of the fact that normal assert was 
-    /// not always removed in the release builds.
-    #define XTL_VERIFY(x) if (!(x)) std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'
 #endif
+
+/// Our own version of assert macro because of the fact that normal assert was 
+/// not always removed in the release builds.
+#define XTL_VERIFY(x) if (!(x)) std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']' << std::endl
 
 //------------------------------------------------------------------------------
 

@@ -11,6 +11,7 @@
 ///
 
 #include "match.hpp"                // Support for Match statement
+#include "patterns/combinators.hpp" // Support for pattern combinators
 #include "patterns/constructor.hpp" // Support for constructor patterns
 #include "patterns/guard.hpp"       // Support for guard patterns
 #include "patterns/n+k.hpp"         // Support for n+k patterns

@@ -63,10 +63,11 @@ struct constr1
     /// for example. Requirement of #Pattern concept.
     template <typename S> struct accepted_type_for { typedef T type; };
 
-    explicit constr1(const P1& p1) : m_p1(p1) {}
-    explicit constr1(P1&& p1) noexcept : m_p1(std::move(p1)) {}
-    constr1(constr1&& src) noexcept : m_p1(std::move(src.m_p1)) {}
-    constr1& operator=(const constr1&); // No assignment
+    explicit constr1(const P1&  p1) noexcept : m_p1(p1)            {}
+    explicit constr1(      P1&& p1) noexcept : m_p1(std::move(p1)) {}
+    /// Move constructor
+    constr1(constr1&& src)          noexcept : m_p1(std::move(src.m_p1)) {}
+    constr1& operator=(const constr1&); ///< Assignment is not allowed for this class
 
     /// Helper function that does the actual structural matching once we have
     /// uncovered a value of the target type. Applies to a const argument!
@@ -135,10 +136,11 @@ struct constr1<T,layout,P1,typename std::enable_if<std::is_same<T,typename P1::t
     /// for example. Requirement of #Pattern concept.
     template <typename S> struct accepted_type_for { typedef T type; };
 
-    explicit constr1(const P1& p1) : m_p1(p1) {}
-    explicit constr1(P1&& p1) noexcept : m_p1(std::move(p1)) {}
-    constr1(constr1&& src) noexcept : m_p1(std::move(src.m_p1)) {}
-    constr1& operator=(const constr1&); // No assignment
+    explicit constr1(const P1&  p1) noexcept : m_p1(p1)            {}
+    explicit constr1(      P1&& p1) noexcept : m_p1(std::move(p1)) {}
+    /// Move constructor
+    constr1(constr1&& src)          noexcept : m_p1(std::move(src.m_p1)) {}
+    constr1& operator=(const constr1&); ///< Assignment is not allowed for this class
 
     /// Helper function that does the actual structural matching once we have
     /// uncovered a value of the target type. Applies to a const argument!
@@ -190,10 +192,13 @@ struct constr2
     /// for example. Requirement of #Pattern concept.
     template <typename S> struct accepted_type_for { typedef T type; };
 
-    constr2(const P1& p1, const P2& p2) : m_p1(p1), m_p2(p2) {}
-    constr2(P1&& p1, P2&& p2) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)) {}
-    constr2(constr2&& src) noexcept : m_p1(std::move(src.m_p1)), m_p2(std::move(src.m_p2)) {}
-    constr2& operator=(const constr2&); // No assignment
+    constr2(const P1&  p1, const P2&  p2) noexcept : m_p1(          p1 ), m_p2(          p2 ) {}
+    constr2(      P1&& p1, const P2&  p2) noexcept : m_p1(std::move(p1)), m_p2(          p2 ) {}
+    constr2(const P1&  p1,       P2&& p2) noexcept : m_p1(          p1 ), m_p2(std::move(p2)) {}
+    constr2(      P1&& p1,       P2&& p2) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)) {}
+    /// Move constructor
+    constr2(constr2&& src)                noexcept : m_p1(std::move(src.m_p1)), m_p2(std::move(src.m_p2)) {}
+    constr2& operator=(const constr2&); ///< Assignment is not allowed for this class
 
     /// Helper function that does the actual structural matching once we have
     /// uncovered a value of the target type. Applies to a const argument!
@@ -202,8 +207,8 @@ struct constr2
         XTL_ASSERT(t); // This helper function assumes t cannot be a nullptr
         return apply_expression(m_p1, t, bindings<T,layout>::member0()) // error C2027: use of undefined type 'bindings<type_being_matched,layout>'
             && apply_expression(m_p2, t, bindings<T,layout>::member1()) // here means you did not provide bindings for type_being_matched and layout
-             ? t                                                             // described in the details of error message. See #bindings and #CM
-             : 0;                                                            // error: incomplete type 'bindings<type_being_matched, layout>' used in nested name specifier (see above description for Visual C++)
+             ? t                                                        // described in the details of error message. See #bindings and #CM
+             : 0;                                                       // error: incomplete type 'bindings<type_being_matched, layout>' used in nested name specifier (see above description for Visual C++)
     }
     /// Helper function that does the actual structural matching once we have
     /// uncovered a value of the target type. Applies to a non-const argument!
@@ -212,8 +217,8 @@ struct constr2
         XTL_ASSERT(t); // This helper function assumes t cannot be a nullptr
         return apply_expression(m_p1, t, bindings<T,layout>::member0()) // error C2027: use of undefined type 'bindings<type_being_matched,layout>'
             && apply_expression(m_p2, t, bindings<T,layout>::member1()) // here means you did not provide bindings for type_being_matched and layout
-             ? t                                                             // described in the details of error message. See #bindings and #CM
-             : 0;                                                            // error: incomplete type 'bindings<type_being_matched, layout>' used in nested name specifier (see above description for Visual C++)
+             ? t                                                        // described in the details of error message. See #bindings and #CM
+             : 0;                                                       // error: incomplete type 'bindings<type_being_matched, layout>' used in nested name specifier (see above description for Visual C++)
     }
 
     ///@{
@@ -253,10 +258,17 @@ struct constr3
     /// for example. Requirement of #Pattern concept.
     template <typename S> struct accepted_type_for { typedef T type; };
 
-    constr3(const P1& p1, const P2& p2, const P3& p3) : m_p1(p1), m_p2(p2), m_p3(p3) {}
-    constr3(P1&& p1, P2&& p2, P3&& p3) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)), m_p3(std::move(p3)) {}
+    constr3(const P1&  p1, const P2&  p2, const P3&  p3) noexcept : m_p1(          p1 ), m_p2(          p2 ), m_p3(          p3 ) {}
+    constr3(      P1&& p1, const P2&  p2, const P3&  p3) noexcept : m_p1(std::move(p1)), m_p2(          p2 ), m_p3(          p3 ) {}
+    constr3(const P1&  p1,       P2&& p2, const P3&  p3) noexcept : m_p1(          p1 ), m_p2(std::move(p2)), m_p3(          p3 ) {}
+    constr3(      P1&& p1,       P2&& p2, const P3&  p3) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)), m_p3(          p3 ) {}
+    constr3(const P1&  p1, const P2&  p2,       P3&& p3) noexcept : m_p1(          p1 ), m_p2(          p2 ), m_p3(std::move(p3)) {}
+    constr3(      P1&& p1, const P2&  p2,       P3&& p3) noexcept : m_p1(std::move(p1)), m_p2(          p2 ), m_p3(std::move(p3)) {}
+    constr3(const P1&  p1,       P2&& p2,       P3&& p3) noexcept : m_p1(          p1 ), m_p2(std::move(p2)), m_p3(std::move(p3)) {}
+    constr3(      P1&& p1,       P2&& p2,       P3&& p3) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)), m_p3(std::move(p3)) {}
+    /// Move constructor
     constr3(constr3&& src) noexcept : m_p1(std::move(src.m_p1)), m_p2(std::move(src.m_p2)), m_p3(std::move(src.m_p3)) {}
-    constr3& operator=(const constr3&); // No assignment
+    constr3& operator=(const constr3&); ///< Assignment is not allowed for this class
 
     /// Helper function that does the actual structural matching once we have
     /// uncovered a value of the target type. Applies to a const argument!
@@ -266,7 +278,7 @@ struct constr3
         return apply_expression(m_p1, t, bindings<T,layout>::member0()) // error C2027: use of undefined type 'bindings<type_being_matched,layout>'
             && apply_expression(m_p2, t, bindings<T,layout>::member1()) // here means you did not provide bindings for type_being_matched and layout
             && apply_expression(m_p3, t, bindings<T,layout>::member2()) // described in the details of error message. See #bindings and #CM
-             ? t                                                             // error: incomplete type 'bindings<type_being_matched, layout>' used in nested name specifier (see above description for Visual C++)
+             ? t                                                        // error: incomplete type 'bindings<type_being_matched, layout>' used in nested name specifier (see above description for Visual C++)
              : 0;
     }
     /// Helper function that does the actual structural matching once we have
@@ -277,7 +289,7 @@ struct constr3
         return apply_expression(m_p1, t, bindings<T,layout>::member0()) // error C2027: use of undefined type 'bindings<type_being_matched,layout>'
             && apply_expression(m_p2, t, bindings<T,layout>::member1()) // here means you did not provide bindings for type_being_matched and layout
             && apply_expression(m_p3, t, bindings<T,layout>::member2()) // described in the details of error message. See #bindings and #CM
-             ? t                                                             // error: incomplete type 'bindings<type_being_matched, layout>' used in nested name specifier (see above description for Visual C++)
+             ? t                                                        // error: incomplete type 'bindings<type_being_matched, layout>' used in nested name specifier (see above description for Visual C++)
              : 0;
     }
 
@@ -320,10 +332,25 @@ struct constr4
     /// for example. Requirement of #Pattern concept.
     template <typename S> struct accepted_type_for { typedef T type; };
 
-    constr4(const P1& p1, const P2& p2, const P3& p3, const P4& p4) : m_p1(p1), m_p2(p2), m_p3(p3), m_p4(p4) {}
-    constr4(P1&& p1, P2&& p2, P3&& p3, P4&& p4) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)), m_p3(std::move(p3)), m_p4(std::move(p4)) {}
+    constr4(const P1&  p1, const P2&  p2, const P3&  p3, const P4&  p4) noexcept : m_p1(          p1 ), m_p2(          p2 ), m_p3(          p3 ), m_p4(          p4 ) {}
+    constr4(      P1&& p1, const P2&  p2, const P3&  p3, const P4&  p4) noexcept : m_p1(std::move(p1)), m_p2(          p2 ), m_p3(          p3 ), m_p4(          p4 ) {}
+    constr4(const P1&  p1,       P2&& p2, const P3&  p3, const P4&  p4) noexcept : m_p1(          p1 ), m_p2(std::move(p2)), m_p3(          p3 ), m_p4(          p4 ) {}
+    constr4(      P1&& p1,       P2&& p2, const P3&  p3, const P4&  p4) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)), m_p3(          p3 ), m_p4(          p4 ) {}
+    constr4(const P1&  p1, const P2&  p2,       P3&& p3, const P4&  p4) noexcept : m_p1(          p1 ), m_p2(          p2 ), m_p3(std::move(p3)), m_p4(          p4 ) {}
+    constr4(      P1&& p1, const P2&  p2,       P3&& p3, const P4&  p4) noexcept : m_p1(std::move(p1)), m_p2(          p2 ), m_p3(std::move(p3)), m_p4(          p4 ) {}
+    constr4(const P1&  p1,       P2&& p2,       P3&& p3, const P4&  p4) noexcept : m_p1(          p1 ), m_p2(std::move(p2)), m_p3(std::move(p3)), m_p4(          p4 ) {}
+    constr4(      P1&& p1,       P2&& p2,       P3&& p3, const P4&  p4) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)), m_p3(std::move(p3)), m_p4(          p4 ) {}
+    constr4(const P1&  p1, const P2&  p2, const P3&  p3,       P4&& p4) noexcept : m_p1(          p1 ), m_p2(          p2 ), m_p3(          p3 ), m_p4(std::move(p4)) {}
+    constr4(      P1&& p1, const P2&  p2, const P3&  p3,       P4&& p4) noexcept : m_p1(std::move(p1)), m_p2(          p2 ), m_p3(          p3 ), m_p4(std::move(p4)) {}
+    constr4(const P1&  p1,       P2&& p2, const P3&  p3,       P4&& p4) noexcept : m_p1(          p1 ), m_p2(std::move(p2)), m_p3(          p3 ), m_p4(std::move(p4)) {}
+    constr4(      P1&& p1,       P2&& p2, const P3&  p3,       P4&& p4) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)), m_p3(          p3 ), m_p4(std::move(p4)) {}
+    constr4(const P1&  p1, const P2&  p2,       P3&& p3,       P4&& p4) noexcept : m_p1(          p1 ), m_p2(          p2 ), m_p3(std::move(p3)), m_p4(std::move(p4)) {}
+    constr4(      P1&& p1, const P2&  p2,       P3&& p3,       P4&& p4) noexcept : m_p1(std::move(p1)), m_p2(          p2 ), m_p3(std::move(p3)), m_p4(std::move(p4)) {}
+    constr4(const P1&  p1,       P2&& p2,       P3&& p3,       P4&& p4) noexcept : m_p1(          p1 ), m_p2(std::move(p2)), m_p3(std::move(p3)), m_p4(std::move(p4)) {}
+    constr4(      P1&& p1,       P2&& p2,       P3&& p3,       P4&& p4) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)), m_p3(std::move(p3)), m_p4(std::move(p4)) {}
+    /// Move constructor
     constr4(constr4&& src) noexcept : m_p1(std::move(src.m_p1)), m_p2(std::move(src.m_p2)), m_p3(std::move(src.m_p3)), m_p4(std::move(src.m_p4)) {}
-    constr4& operator=(const constr4&); // No assignment
+    constr4& operator=(const constr4&); ///< Assignment is not allowed for this class
 
     /// Helper function that does the actual structural matching once we have
     /// uncovered a value of the target type. Applies to a const argument!
@@ -416,9 +443,16 @@ inline auto C() noexcept -> XTL_RETURN(cons_ex(view<T,layout>()))
 /// #ref and constants into #value.
 /// \note This version will be called from #cons with a non-#view target type
 template <typename T, size_t layout, typename P1>
-inline constr1<T,layout,P1> cons_ex(const view<T,layout>&, P1&& p1) noexcept
+inline constr1<T,layout,
+            typename underlying<P1>::type
+       > 
+cons_ex(const view<T,layout>&, P1&& p1) noexcept
 {
-    return constr1<T,layout,P1>(std::forward<P1>(p1));
+    return constr1<T,layout,
+            typename underlying<P1>::type
+           >(
+            std::forward<P1>(p1)
+           );
 }
 
 /// 1-argument version of a helper function to #cons that accepts arguments that
@@ -426,9 +460,16 @@ inline constr1<T,layout,P1> cons_ex(const view<T,layout>&, P1&& p1) noexcept
 /// #ref and constants into #value.
 /// \note This version will be called from #cons that had its target type a #view
 template <typename T, size_t layout, typename P1>
-inline constr1<T,layout,P1> cons_ex(const view<view<T,layout>>&, P1&& p1) noexcept
+inline constr1<T,layout,
+            typename underlying<P1>::type
+       > 
+cons_ex(const view<view<T,layout>>&, P1&& p1) noexcept
 {
-    return constr1<T,layout,P1>(std::forward<P1>(p1));
+    return constr1<T,layout,
+            typename underlying<P1>::type
+           >(
+            std::forward<P1>(p1)
+           );
 }
 
 /// A 1-argument version of a tree-pattern constructor. Target type is allowed
@@ -464,9 +505,16 @@ inline auto C(P1&& p1) noexcept -> XTL_RETURN
 /// #ref and constants into #value.
 /// \note This version will be called from #cons with a non-#view target type
 template <typename T, size_t layout, typename P1, typename P2>
-inline constr2<T,layout,P1,P2> cons_ex(const view<T,layout>&, P1&& p1, P2&& p2) noexcept
+inline constr2<T,layout,
+            typename underlying<P1>::type,
+            typename underlying<P2>::type
+       > 
+cons_ex(const view<T,layout>&, P1&& p1, P2&& p2) noexcept
 {
-    return constr2<T,layout,P1,P2>(
+    return constr2<T,layout,
+            typename underlying<P1>::type,
+            typename underlying<P2>::type
+           >(
             std::forward<P1>(p1),
             std::forward<P2>(p2)
            );
@@ -477,9 +525,16 @@ inline constr2<T,layout,P1,P2> cons_ex(const view<T,layout>&, P1&& p1, P2&& p2) 
 /// #ref and constants into #value.
 /// \note This version will be called from #cons that had its target type a #view
 template <typename T, size_t layout, typename P1, typename P2>
-inline constr2<T,layout,P1,P2> cons_ex(const view<view<T,layout>>&, P1&& p1, P2&& p2) noexcept
+inline constr2<T,layout,
+            typename underlying<P1>::type,
+            typename underlying<P2>::type
+       > 
+cons_ex(const view<view<T,layout>>&, P1&& p1, P2&& p2) noexcept
 {
-    return constr2<T,layout,P1,P2>(
+    return constr2<T,layout,
+            typename underlying<P1>::type,
+            typename underlying<P2>::type
+           >(
             std::forward<P1>(p1),
             std::forward<P2>(p2)
            );
@@ -520,9 +575,18 @@ inline auto C(P1&& p1, P2&& p2) noexcept -> XTL_RETURN
 /// #ref and constants into #value.
 /// \note This version will be called from #cons with a non-#view target type
 template <typename T, size_t layout, typename P1, typename P2, typename P3>
-inline constr3<T,layout,P1,P2,P3> cons_ex(const view<T,layout>&, P1&& p1, P2&& p2, P3&& p3) noexcept
+inline constr3<T,layout,
+            typename underlying<P1>::type,
+            typename underlying<P2>::type,
+            typename underlying<P3>::type
+       > 
+cons_ex(const view<T,layout>&, P1&& p1, P2&& p2, P3&& p3) noexcept
 {
-    return constr3<T,layout,P1,P2,P3>(
+    return constr3<T,layout,
+            typename underlying<P1>::type,
+            typename underlying<P2>::type,
+            typename underlying<P3>::type
+           >(
             std::forward<P1>(p1),
             std::forward<P2>(p2),
             std::forward<P3>(p3)
@@ -534,9 +598,18 @@ inline constr3<T,layout,P1,P2,P3> cons_ex(const view<T,layout>&, P1&& p1, P2&& p
 /// #ref and constants into #value.
 /// \note This version will be called from #cons that had its target type a #view
 template <typename T, size_t layout, typename P1, typename P2, typename P3>
-inline constr3<T,layout,P1,P2,P3> cons_ex(const view<view<T,layout>>&, P1&& p1, P2&& p2, P3&& p3) noexcept
+inline constr3<T,layout,
+            typename underlying<P1>::type,
+            typename underlying<P2>::type,
+            typename underlying<P3>::type
+       > 
+cons_ex(const view<view<T,layout>>&, P1&& p1, P2&& p2, P3&& p3) noexcept
 {
-    return constr3<T,layout,P1,P2,P3>(
+    return constr3<T,layout,
+            typename underlying<P1>::type,
+            typename underlying<P2>::type,
+            typename underlying<P3>::type
+           >(
             std::forward<P1>(p1),
             std::forward<P2>(p2),
             std::forward<P3>(p3)
@@ -580,9 +653,20 @@ inline auto C(P1&& p1, P2&& p2, P3&& p3) noexcept -> XTL_RETURN
 /// #ref and constants into #value.
 /// \note This version will be called from #cons with a non-#view target type
 template <typename T, size_t layout, typename P1, typename P2, typename P3, typename P4>
-inline constr4<T,layout,P1,P2,P3,P4> cons_ex(const view<T,layout>&, P1&& p1, P2&& p2, P3&& p3, P4&& p4) noexcept
+inline constr4<T,layout,
+            typename underlying<P1>::type,
+            typename underlying<P2>::type,
+            typename underlying<P3>::type,
+            typename underlying<P4>::type
+       > 
+cons_ex(const view<T,layout>&, P1&& p1, P2&& p2, P3&& p3, P4&& p4) noexcept
 {
-    return constr4<T,layout,P1,P2,P3,P4>(
+    return constr4<T,layout,
+            typename underlying<P1>::type,
+            typename underlying<P2>::type,
+            typename underlying<P3>::type,
+            typename underlying<P4>::type
+           >(
             std::forward<P1>(p1),
             std::forward<P2>(p2),
             std::forward<P3>(p3),
@@ -595,9 +679,20 @@ inline constr4<T,layout,P1,P2,P3,P4> cons_ex(const view<T,layout>&, P1&& p1, P2&
 /// #ref and constants into #value.
 /// \note This version will be called from #cons that had its target type a #view
 template <typename T, size_t layout, typename P1, typename P2, typename P3, typename P4>
-inline constr4<T,layout,P1,P2,P3,P4> cons_ex(const view<view<T,layout>>&, P1&& p1, P2&& p2, P3&& p3, P4&& p4) noexcept
+inline constr4<T,layout,
+            typename underlying<P1>::type,
+            typename underlying<P2>::type,
+            typename underlying<P3>::type,
+            typename underlying<P4>::type
+       > 
+cons_ex(const view<view<T,layout>>&, P1&& p1, P2&& p2, P3&& p3, P4&& p4) noexcept
 {
-    return constr4<T,layout,P1,P2,P3,P4>(
+    return constr4<T,layout,
+            typename underlying<P1>::type,
+            typename underlying<P2>::type,
+            typename underlying<P3>::type,
+            typename underlying<P4>::type
+           >(
             std::forward<P1>(p1),
             std::forward<P2>(p2),
             std::forward<P3>(p3),

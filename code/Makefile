@@ -61,6 +61,11 @@ all: default syntax timing cmp
 # Build all targets by default
 default: 	$(TARGETS)
 
+# Setting .SECONDARY to blank disables deletion of intermediate files by make
+#.SECONDARY:
+
+#include $(DEP_FILES)
+
 # Build documentation
 doc: 	$(SOURCES)
 	@(cd doxygen; doxygen mach7.dxg)
@@ -94,6 +99,26 @@ ver:
 	@echo --------------------------------------------------------------------------------
 	@echo Compiling $@ ...
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+%.dep: %.cpp
+	set -e; $(CXX) -M $(INCLUDES) -c $< \
+		| sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' > $@; \
+	[ -s $@ ] || rm -f $@
+
+%.tab.cpp %.tab.hpp: %.y
+	@echo --------------------------------------------------------------------------------
+	@echo Creating parser $@ ...
+	bison -d -v -o $@ $<
+
+%.yy.cpp: %.l
+	@echo --------------------------------------------------------------------------------
+	@echo Creating lexer $@ ...
+	flex -o$@ $<
+
+#%.y: %.yyy
+#	@echo --------------------------------------------------------------------------------
+#	@echo Instrumenting parser $@ ...
+#	sed -f ypp.sed $< > $@
 
 tags: skeleton.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_VISITOR_FORWARDING=1 -DXTL_DEFAULT_SYNTAX=\'f\' -DXTL_REP_TEST -o time-fwd-special-kind-rep.exe skeleton.cxx

@@ -11,6 +11,7 @@
 ///
 
 #include "match.hpp"                // Support for Match statement
+#include "patterns/combinators.hpp" // Support for pattern combinators
 #include "patterns/constructor.hpp" // Support for constructor patterns
 #include "patterns/guard.hpp"       // Support for guard patterns
 #include "patterns/n+k.hpp"         // Support for n+k patterns
@@ -46,11 +47,11 @@ int gcd(int a, int b)
 
 struct gcd_functor
 {
-    template <class A> 
-    A operator()(A&& m, A&& n) const
-    { 
-        return gcd(std::forward<A>(m),std::forward<A>(n)); 
-    }
+    template <class A, class B> 
+    auto operator()(A&& a, B&& b) const -> XTL_RETURN
+    (
+        gcd(std::forward<A>(a),std::forward<B>(b))
+    );
 };
 
 template <typename E1, typename E2> auto gcd(E1&& e1, E2&& e2) -> XTL_RETURN_ENABLE_IF

@@ -27,7 +27,7 @@ struct existential
     explicit existential(const P1& p1) : m_p1(p1) {}
     explicit existential(P1&& p1) noexcept : m_p1(std::move(p1)) {}
     existential(existential&& e) noexcept : m_p1(std::move(e.m_p1)) {}
-    existential& operator=(const existential&); // No assignment
+    existential& operator=(const existential&); ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
@@ -72,7 +72,7 @@ struct universal
     explicit universal(const P1& p1) : m_p1(p1) {}
     explicit universal(P1&& p1) noexcept : m_p1(std::move(p1)) {}
     universal(universal&& e) noexcept : m_p1(std::move(e.m_p1)) {}
-    universal& operator=(const universal&); // No assignment
+    universal& operator=(const universal&); ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 

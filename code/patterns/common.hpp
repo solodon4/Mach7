@@ -63,8 +63,8 @@ template <typename E1, typename E2> struct either_is_expression { static const b
 /// this behavior. This particular overload does nothing on patterns, other 
 /// overloads can be found in the header with primitive patterns.
 template <typename P> 
-inline typename std::enable_if< is_pattern<P>::value, typename std::remove_reference<P>::type>::type 
-filter(P&& p) noexcept { return std::move(p); }
+inline typename std::enable_if<is_pattern<P>::value, P>::type 
+filter(P&& p) noexcept { return std::forward<P>(p); }
 
 //------------------------------------------------------------------------------
 

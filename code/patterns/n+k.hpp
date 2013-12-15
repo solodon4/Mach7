@@ -60,11 +60,13 @@ template <typename F, typename E1>
 struct expr<F,E1>
 {
     static_assert(is_expression<E1>::value, "Argument E1 of a unary expression-pattern must be a lazy expression");
+    static_assert(!is_var<E1>::value,       "Attempting to host var<> directly. Use filter() to wrap it into ref<>");
 
-    explicit expr(const E1& e1) : m_e1(e1) {}
-    explicit expr(E1&& e1) noexcept : m_e1(std::move(e1)) {}
+    explicit expr(const E1&  e1) noexcept : m_e1(          e1 ) {}
+    explicit expr(      E1&& e1) noexcept : m_e1(std::move(e1)) {}
+    /// Move constructor
     expr(expr&& e) noexcept : m_e1(std::move(e.m_e1)) {}
-    expr& operator=(const expr&); // No assignment
+    expr& operator=(const expr&); ///< Assignment is not allowed for this class
 
     typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>()))>::type result_type;    ///< Type of result when used in expression. Requirement of #LazyExpression concept // We needed to add remove_const here as MSVC was returning const T
 
@@ -79,8 +81,10 @@ struct expr<F,E1>
     template <typename U>
     bool operator()(const U& u) const { return solve(*this,u); }
 
-    E1 m_e1;
+    E1 m_e1; ///< Expression template with the 1st operand
 };
+
+//------------------------------------------------------------------------------
 
 /// Expression pattern for binary operation
 template <typename F, typename E1, typename E2>
@@ -88,11 +92,16 @@ struct expr
 {
     static_assert(is_expression<E1>::value, "Argument E1 of a binary expression-pattern must be a lazy expression");
     static_assert(is_expression<E2>::value, "Argument E2 of a binary expression-pattern must be a lazy expression");
+    static_assert(!is_var<E1>::value,       "Attempting to host var<> directly. Use filter() to wrap it into ref<>");
+    static_assert(!is_var<E2>::value,       "Attempting to host var<> directly. Use filter() to wrap it into ref<>");
 
-    expr(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
-    expr(E1&& e1, E2&& e2) noexcept : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
+    expr(const E1&  e1, const E2&  e2) noexcept : m_e1(          e1 ), m_e2(          e2 ) {}
+    expr(      E1&& e1, const E2&  e2) noexcept : m_e1(std::move(e1)), m_e2(          e2 ) {}
+    expr(const E1&  e1,       E2&& e2) noexcept : m_e1(          e1 ), m_e2(std::move(e2)) {}
+    expr(      E1&& e1,       E2&& e2) noexcept : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
+    /// Move constructor
     expr(expr&& e) noexcept : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {}
-    expr& operator=(const expr&); // No assignment
+    expr& operator=(const expr&); ///< Assignment is not allowed for this class
 
     typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>(),std::declval<typename E2::result_type>()))>::type result_type;    ///< Type of result when used in expression. Requirement of #LazyExpression concept // We needed to add remove_const here as MSVC was returning const T
 
@@ -107,8 +116,8 @@ struct expr
     template <typename U>
     bool operator()(const U& u) const { return solve(*this,u); }
 
-    E1 m_e1;
-    E2 m_e2;
+    E1 m_e1; ///< Expression template with the 1st operand
+    E2 m_e2; ///< Expression template with the 2nd operand
 };
 
 //------------------------------------------------------------------------------

@@ -25,6 +25,7 @@ namespace mch ///< Mach7 library namespace
 /// use of this variable will make sure the actual member is never invoked!
 struct wildcard
 {
+    wildcard() {}
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
     /// type, because there is no a single accepted type for a #wildcard pattern
@@ -211,6 +212,9 @@ struct var<T&>
 
     /// Helper conversion operator to let the variable be used in some places
     /// where T was allowed
+    /// \note If you get assertion here, it means you are trying to use the 
+    ///       value of this reference variable before it was bound (i.e. used 
+    ///       in pattern matching context to get its value).
     operator result_type&() const noexcept { XTL_ASSERT(m_value); return *m_value; }
 
     /// Member that will hold matching value in case of successful matching
@@ -218,6 +222,13 @@ struct var<T&>
 };
 
 //------------------------------------------------------------------------------
+
+/// #is_var is a helper meta-predicate that is true only when P=var<T>
+/// We use it to check that patterns that take other patterns as arguments do 
+/// not accidentally host var<> directly as it will create a different var object.
+/// Every var<> pattern must be wrapped into ref<> with the help of #filter()!
+template <typename P> struct is_var         { static const bool value = false; };
+template <typename T> struct is_var<var<T>> { static const bool value = true;  };
 
 /// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
 template <typename T> struct is_pattern_<var<T>>    { static const bool value = true; };
@@ -233,6 +244,7 @@ struct ref
 {
     explicit ref(T& var) : m_var(var) {}
     ref(ref&& v) noexcept : m_var(v.m_var) {}
+    ref& operator=(const ref&); ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
@@ -262,8 +274,9 @@ template <class T>
 struct ref<var<T>>
 {
     explicit ref(var<T>& var) : m_var(var) {}
-    ref(ref&& v) noexcept : m_var(v.m_var) {}
-    ref& operator=(const ref&); // No assignment
+    ref(const ref&  v) noexcept : m_var(v.m_var) {} // Copy constructor
+    ref(      ref&& v) noexcept : m_var(v.m_var) {} // Move constructor
+    ref& operator=(const ref&); ///< Assignment is not allowed for this class
 
     typedef typename var<T>::result_type result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
 
@@ -286,6 +299,36 @@ struct ref<var<T>>
 
 //------------------------------------------------------------------------------
 
+/// A reference to a user provided variable
+template <class T>
+struct ref<const var<T>>
+{
+    explicit ref(const var<T>& var) : m_var(var) {}
+    ref(const ref&  v) noexcept : m_var(v.m_var) {} // Copy constructor
+    ref(      ref&& v) noexcept : m_var(v.m_var) {} // Move constructor
+    ref& operator=(const ref&); ///< Assignment is not allowed for this class
+
+    typedef typename var<T>::result_type result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
+
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef result_type type; };
+
+    operator const result_type&() const noexcept { return (const result_type&)m_var; } // FIX: avoid implicit conversion in lazy expressions
+    //operator       result_type&() const noexcept { return       (result_type&)m_var; }
+
+    /// We report that matching succeeded and bind the value
+    bool operator()(const result_type& t) const { return m_var(t); }
+    bool operator()(      result_type& t) const { return m_var(t); }
+
+    /// Member that will hold matching value in case of successful matching
+    const var<T>& m_var;
+};
+
+//------------------------------------------------------------------------------
+
 /// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
 template <typename T> struct is_pattern_<ref<T>>    { static const bool value = true; };
 
@@ -295,13 +338,14 @@ template <typename T> struct is_expression_<ref<T>> { static const bool value = 
 //------------------------------------------------------------------------------
 
 /// Convenience function for creating variable patterns out of existing variables
-//template <class T> inline ref<T> var(T& t) { return ref<T>(t); }
+template <class T> inline ref<T> var_from(T& t) { return ref<T>(t); }
 
 //------------------------------------------------------------------------------
 
-template <typename T> inline                                                ref<var<T>>       filter( var<T>& t) noexcept { return ref<var<T>>(t); }
-template <typename T> inline typename std::enable_if<!is_pattern<T>::value,   value<T>>::type filter(const T& t) noexcept { return value<T>(t); }
-template <typename T> inline typename std::enable_if<!is_pattern<T>::value,     ref<T>>::type filter(      T& t) noexcept { return ref<T>(t); }
+template <typename T> inline                                        ref<const var<T>>       filter(const var<T>& t) noexcept { return ref<const var<T>>(t); } // We need this because some patterns may not need to modify the variable: e.g. equivalence
+template <typename T> inline                                        ref<      var<T>>       filter(      var<T>& t) noexcept { return ref<      var<T>>(t); } // This one is needed for patterns that will modify the variable.
+template <typename T> inline typename std::enable_if<!is_pattern<T>::value, value<T>>::type filter(const T& t) noexcept { return value<T>(t); }
+template <typename T> inline typename std::enable_if<!is_pattern<T>::value,   ref<T>>::type filter(      T& t) noexcept { return ref<T>(t); }
 
 //------------------------------------------------------------------------------
 
@@ -309,16 +353,17 @@ template <typename T> inline typename std::enable_if<!is_pattern<T>::value,     
 /// Set of overloads capable of decomposing an expression template that models
 /// an Expression concept and evaluating it.
 /// \note See header files of other patterns for more overloads!
-template <typename T> inline const T& eval(const value<T>& e)     { return e.m_value; }
-template <typename T> inline const T& eval(const var<T>& e)       { return e.m_value; }
-template <typename T> inline       T& eval(      var<T>& e)       { return e.m_value; }
-template <typename T> inline const T& eval(const var<T&>& e)      { return *e.m_value; }
-template <typename T> inline       T& eval(      var<T&>& e)      { return *e.m_value; }
-template <typename T> inline const T& eval(const ref<T>& e)       { return e.m_var; }
-template <typename T> inline       T& eval(      ref<T>& e)       { return e.m_var; }
-template <typename T> inline const T& eval(const ref<var<T>>&  e) { return eval(e.m_var); }
-template <typename T> inline       T& eval(      ref<var<T>>&  e) { return eval(e.m_var); }
-//template <typename T> inline const T& eval(const ref<var<T&>>& e) { return *e.m_var.m_value; }
+template <typename T> inline const T& eval(const value<T>&           e) { return e.m_value; }
+template <typename T> inline const T& eval(const var<T >&            e) { return e.m_value; }
+template <typename T> inline       T& eval(      var<T >&            e) { return e.m_value; }
+template <typename T> inline const T& eval(const var<T&>&            e) { XTL_ASSERT(e.m_value); return *e.m_value; } ///< \note If you get assertion here, it means you are trying to use the value of this reference variable before it was bound (i.e. used in pattern matching context to get its value).
+template <typename T> inline       T& eval(      var<T&>&            e) { XTL_ASSERT(e.m_value); return *e.m_value; } ///< \note If you get assertion here, it means you are trying to use the value of this reference variable before it was bound (i.e. used in pattern matching context to get its value).
+template <typename T> inline const T& eval(const ref<          T >&  e) { return e.m_var; }
+template <typename T> inline       T& eval(      ref<          T >&  e) { return e.m_var; }
+template <typename T> inline     auto eval(const ref<      var<T>>&  e) -> decltype(eval(e.m_var)) { return eval(e.m_var); }
+template <typename T> inline     auto eval(      ref<      var<T>>&  e) -> decltype(eval(e.m_var)) { return eval(e.m_var); }
+template <typename T> inline     auto eval(const ref<const var<T>>&  e) -> decltype(eval(e.m_var)) { return eval(e.m_var); }
+template <typename T> inline     auto eval(      ref<const var<T>>&  e) -> decltype(eval(e.m_var)) { return eval(e.m_var); }
 ///@}
 
 //------------------------------------------------------------------------------

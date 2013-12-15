@@ -27,7 +27,7 @@ struct address
     explicit address(const P1& p1) : m_p1(p1) {}
     explicit address(P1&& p1) noexcept : m_p1(std::move(p1)) {}
     address(address&& e) noexcept : m_p1(std::move(e.m_p1)) {}
-    address& operator=(const address&); // No assignment
+    address& operator=(const address&); ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 

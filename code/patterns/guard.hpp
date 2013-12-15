@@ -31,7 +31,7 @@ struct guard
     guard(      P1&& p1, const E2&  e2) noexcept : m_p1(std::move(p1)), m_e2(e2) {}
     guard(      P1&& p1,       E2&& e2) noexcept : m_p1(std::move(p1)), m_e2(std::move(e2)) {}
     guard(guard&& e) noexcept : m_p1(std::move(e.m_p1)), m_e2(std::move(e.m_e2)) {}
-    guard& operator=(const guard&); // No assignment
+    guard& operator=(const guard&); ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
