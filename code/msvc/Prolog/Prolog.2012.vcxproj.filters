@@ -72,9 +72,15 @@
     <ClInclude Include="..\..\patterns\solvers.hpp">
       <Filter>Header Files\patterns</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\patterns\address.hpp">
+      <Filter>Header Files\patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\patterns\quantifiers.hpp">
+      <Filter>Header Files\patterns</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\prolog-pat2.cxx">
+    <ClCompile Include="..\..\prolog-pat2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

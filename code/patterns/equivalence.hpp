@@ -29,7 +29,7 @@ struct equivalence
     equivalence(equivalence&& e) noexcept : m_e1(std::move(e.m_e1)) {}
     equivalence& operator=(const equivalence&); // No assignment
 
-    typedef typename E1::result_type result_type;
+    typedef typename E1::result_type result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
@@ -40,6 +40,7 @@ struct equivalence
     operator result_type() const { return eval(m_e1); } // FIX: avoid implicit conversion in lazy expressions
 
     bool operator()(const result_type& u) const { return u == eval(m_e1); }
+    bool operator()(      result_type& u) const { return u == eval(m_e1); }
 
     E1 m_e1;
 };

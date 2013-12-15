@@ -163,63 +163,155 @@ struct var
 //------------------------------------------------------------------------------
 
 /// Variable binding for a pointer type
-template <class T>
-struct var<const T*>
-{
-    var() : m_value() {}
-    var(var&& v) noexcept : m_value(std::move(v.m_value)) {}
+//template <class T>
+//template <class T>
+//struct var<T*>
+//{
+//    var() : m_value_ptr() {}
+//    var(var&& v) noexcept : m_value_ptr(std::move(v.m_value_ptr)) {}
+//
+//    /// Type function returning a type that will be accepted by the pattern for
+//    /// a given subject type S. We use type function instead of an associated 
+//    /// type, because there is no a single accepted type for a #wildcard pattern
+//    /// for example. Requirement of #Pattern concept.
+//    template <typename S> struct accepted_type_for { typedef T* type; };
+//
+//    typedef T* result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
+//
+//    /// We may be applied to a value of a base type, so first we have to figure
+//    /// out whether they dynamic type is actually T. We report match only if it is
+//    template <typename U>
+//    bool operator()(U* u) const
+//    {
+//        if (T* t = dynamic_cast<T*>(u))
+//            return operator()(*t);
+//        else
+//            return false;
+//    }
+//
+//    /// This distinguishes the case when type of the variable matches type of the member
+//    bool operator()(T* t) const
+//    {
+//        // NOTE: This will also assign the null pointer. Should it?
+//        m_value_ptr = t;
+//        return true;
+//    }
+//
+//    //var& operator=(const T* t) { m_value_ptr = t; return *this; }
+//
+//    /// Helper conversion operator to let the variable be used in some places
+//    /// where T* is expected
+//    operator T*() const noexcept { return m_value_ptr; }
+//
+//    /// A helper member to let the wrapping variable be used as a pointer
+//    T* operator->() const noexcept { return m_value_ptr; }
+//
+//    /// A helper member to let the wrapping variable be used as a pointer
+//    T& operator*()  const noexcept { return *m_value_ptr; }
+//
+//    /// Member that will hold matching value in case of successful matching
+//    mutable T* m_value_ptr;
+//};
+//struct var<const T*>
+//{
+//    var() : m_value() {}
+//    var(var&& v) noexcept : m_value(std::move(v.m_value)) {}
+//
+//    /// Type function returning a type that will be accepted by the pattern for
+//    /// a given subject type S. We use type function instead of an associated 
+//    /// type, because there is no a single accepted type for a #wildcard pattern
+//    /// for example. Requirement of #Pattern concept.
+//    template <typename S> struct accepted_type_for { typedef const T* type; };
+//
+//    typedef const T* result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
+//
+//    /// We may be applied to a value of a base type, so first we have to figure
+//    /// out whether they dynamic type is actually T. We report match only if it is
+//    template <typename U>
+//    bool operator()(const U* u) const
+//    {
+//        if (const T* t = dynamic_cast<const T*>(u))
+//        {
+//            m_value = t;
+//            return true;
+//        }
+//        else
+//            return false;
+//    }
+//
+//    var& operator=(const T* t) { m_value = t; return *this; }
+//
+//    /// This distinguishes the case when type of the variable matches type of the member
+//    bool operator()(const T* t) const
+//    {
+//        // NOTE: This will also assign the null pointer. Should it?
+//        m_value = t;
+//        return true;
+//    }
+//
+//    /// Helper conversion operator to let the variable be used in some places
+//    /// where T* is expected
+//    operator const T*() const noexcept { return m_value; }
+//
+//    /// A helper member to let the wrapping variable be used as a pointer
+//    const T* operator->() const noexcept { return m_value; }
+//
+//    /// A helper member to let the wrapping variable be used as a pointer
+//    const T& operator*()  const noexcept { return *m_value; }
+//
+//    /// Member that will hold matching value in case of successful matching
+//    mutable const T* m_value;
+//};
 
-    /// Type function returning a type that will be accepted by the pattern for
-    /// a given subject type S. We use type function instead of an associated 
-    /// type, because there is no a single accepted type for a #wildcard pattern
-    /// for example. Requirement of #Pattern concept.
-    template <typename S> struct accepted_type_for { typedef const T* type; };
+//------------------------------------------------------------------------------
 
-    typedef const T* result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
-
-    /// We may be applied to a value of a base type, so first we have to figure
-    /// out whether they dynamic type is actually T. We report match only if it is
-    template <typename U>
-    bool operator()(const U* u) const
-    {
-        if (const T* t = dynamic_cast<const T*>(u))
-        {
-            m_value = t;
-            return true;
-        }
-        else
-            return false;
-    }
-
-    var& operator=(const T* t) { m_value = t; return *this; }
-
-    /// This distinguishes the case when type of the variable matches type of the member
-    bool operator()(const T* t) const
-    {
-        // NOTE: This will also assign the null pointer. Should it?
-        m_value = t;
-        return true;
-    }
-
-    /// Helper conversion operator to let the variable be used in some places
-    /// where T* is expected
-    operator const T*() const noexcept { return m_value; }
-
-    /// A helper member to let the wrapping variable be used as a pointer
-    const T* operator->() const noexcept { return m_value; }
-
-    /// A helper member to let the wrapping variable be used as a pointer
-    const T& operator*()  const noexcept { return *m_value; }
-
-    /// Member that will hold matching value in case of successful matching
-    mutable const T* m_value;
-};
+/// Variable binding for a pointer type
+//template <class T>
+//struct var<const T&>
+//{
+//    var() : m_value() {}
+//    var(var&& v) noexcept : m_value(std::move(v.m_value)) {}
+//
+//    /// Type function returning a type that will be accepted by the pattern for
+//    /// a given subject type S. We use type function instead of an associated 
+//    /// type, because there is no a single accepted type for a #wildcard pattern
+//    /// for example. Requirement of #Pattern concept.
+//    template <typename S> struct accepted_type_for { typedef T type; };
+//
+//    typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
+//
+//    /// We may be applied to a value of a base type, so first we have to figure
+//    /// out whether they dynamic type is actually T. We report match only if it is
+//    template <typename U>
+//    bool operator()(const U& u) const
+//    {
+//        if (const T* t = dynamic_cast<const T*>(&u))
+//            return operator()(*t);
+//        else
+//            return false;
+//    }
+//
+//    /// This distinguishes the case when type of the variable matches type of the member
+//    bool operator()(const T& t) const
+//    {
+//        // NOTE: This will also assign the null pointer. Should it?
+//        m_value = &t;
+//        return true;
+//    }
+//
+//    /// Helper conversion operator to let the variable be used in some places
+//    /// where T was allowed
+//    operator const result_type&() const noexcept { XTL_ASSERT(m_value); return *m_value; }
+//
+//    /// Member that will hold matching value in case of successful matching
+//    mutable const T* m_value;
+//};
 
 //------------------------------------------------------------------------------
 
 /// Variable binding for a pointer type
 template <class T>
-struct var<const T&>
+struct var<T&>
 {
     var() : m_value() {}
     var(var&& v) noexcept : m_value(std::move(v.m_value)) {}
@@ -230,7 +322,7 @@ struct var<const T&>
     /// for example. Requirement of #Pattern concept.
     template <typename S> struct accepted_type_for { typedef T type; };
 
-    typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
+    typedef typename std::remove_const<T>::type result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
 
     /// We may be applied to a value of a base type, so first we have to figure
     /// out whether they dynamic type is actually T. We report match only if it is
@@ -238,16 +330,21 @@ struct var<const T&>
     bool operator()(const U& u) const
     {
         if (const T* t = dynamic_cast<const T*>(&u))
-        {
-            m_value = t;
-            return true;
-        }
+            return operator()(*t);
         else
             return false;
     }
 
     /// This distinguishes the case when type of the variable matches type of the member
-    bool operator()(const T& t) const
+    bool operator()(const result_type& t) const
+    {
+        // NOTE: This will also assign the null pointer. Should it?
+        m_value = &t;
+        return true;
+    }
+
+    /// This distinguishes the case when type of the variable matches type of the member
+    bool operator()(result_type& t) const
     {
         // NOTE: This will also assign the null pointer. Should it?
         m_value = &t;
@@ -256,10 +353,10 @@ struct var<const T&>
 
     /// Helper conversion operator to let the variable be used in some places
     /// where T was allowed
-    operator const result_type&() const noexcept { XTL_ASSERT(m_value); return *m_value; }
+    operator result_type&() const noexcept { XTL_ASSERT(m_value); return *m_value; }
 
     /// Member that will hold matching value in case of successful matching
-    mutable const T* m_value;
+    mutable T* m_value;
 };
 
 //------------------------------------------------------------------------------
@@ -276,7 +373,7 @@ template <typename T> struct is_expression_<var<T>> { static const bool value = 
 template <class T>
 struct ref
 {
-    explicit ref(T& var) : m_var(&var) {}
+    explicit ref(T& var) : m_var(var) {}
     ref(ref&& v) noexcept : m_var(v.m_var) {}
 
     /// Type function returning a type that will be accepted by the pattern for
@@ -286,17 +383,18 @@ struct ref
     template <typename S> struct accepted_type_for { typedef T type; };
 
     typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
-    operator const result_type&() const noexcept { return *m_var; }// FIX: avoid implicit conversion in lazy expressions
+    operator const result_type&() const noexcept { return m_var; } // FIX: avoid implicit conversion in lazy expressions
+    //operator       result_type&() const noexcept { return m_var; }
 
     /// We report that matching succeeded and bind the value
     bool operator()(const T& t) const
     {
-        *m_var = t;
+        m_var = t;
         return true;
     }
 
     /// Member that will hold matching value in case of successful matching
-    T* m_var;
+    T& m_var;
 };
 
 //------------------------------------------------------------------------------
@@ -309,25 +407,25 @@ struct ref<var<T>>
     ref(ref&& v) noexcept : m_var(v.m_var) {}
     ref& operator=(const ref&); // No assignment
 
+    typedef typename var<T>::result_type result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
+
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
     /// type, because there is no a single accepted type for a #wildcard pattern
     /// for example. Requirement of #Pattern concept.
-    template <typename S> struct accepted_type_for { typedef T type; };
+    template <typename S> struct accepted_type_for { typedef result_type type; };
 
-    typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
-    operator const result_type&() const noexcept { return (const result_type&)m_var; }// FIX: avoid implicit conversion in lazy expressions
+    operator const result_type&() const noexcept { return (const result_type&)m_var; } // FIX: avoid implicit conversion in lazy expressions
+    //operator       result_type&() const noexcept { return       (result_type&)m_var; }
 
     /// We report that matching succeeded and bind the value
-    bool operator()(const T& t) const
-    {
-        return m_var(t);
-    }
+    bool operator()(const result_type& t) const { return m_var(t); }
+    bool operator()(      result_type& t) const { return m_var(t); }
 
     /// Member that will hold matching value in case of successful matching
     var<T>& m_var;
 };
-
+/*
 template <class T>
 struct ref<var<const T&>>
 {
@@ -353,7 +451,7 @@ struct ref<var<const T&>>
     /// Member that will hold matching value in case of successful matching
     var<const T&>& m_var;
 };
-
+*/
 //------------------------------------------------------------------------------
 
 /// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
@@ -371,7 +469,7 @@ template <typename T> struct is_expression_<ref<T>> { static const bool value = 
 
 template <typename T> inline                                                ref<var<T>>       filter( var<T>& t) noexcept { return ref<var<T>>(t); }
 template <typename T> inline typename std::enable_if<!is_pattern<T>::value,   value<T>>::type filter(const T& t) noexcept { return value<T>(t); }
-template <typename T> inline typename std::enable_if<!is_pattern<T>::value, ref<T>>::type     filter(      T& t) noexcept { return ref<T>(t); }
+template <typename T> inline typename std::enable_if<!is_pattern<T>::value,     ref<T>>::type filter(      T& t) noexcept { return ref<T>(t); }
 
 //------------------------------------------------------------------------------
 
@@ -379,11 +477,16 @@ template <typename T> inline typename std::enable_if<!is_pattern<T>::value, ref<
 /// Set of overloads capable of decomposing an expression template that models
 /// an Expression concept and evaluating it.
 /// \note See header files of other patterns for more overloads!
-template <typename T> inline const T& eval(const value<T>& e)           { return e.m_value; }
-template <typename T> inline const T& eval(const var<T>& e)             { return e.m_value; }
-template <typename T> inline const T& eval(const ref<T>& e)             { return *e.m_var; }
-template <typename T> inline const T& eval(const ref<var<T>>& e)        { return e.m_var.m_value; }
-template <typename T> inline const T& eval(const ref<var<const T&>>& e) { return *e.m_var.m_value; }
+template <typename T> inline const T& eval(const value<T>& e)     { return e.m_value; }
+template <typename T> inline const T& eval(const var<T>& e)       { return e.m_value; }
+template <typename T> inline       T& eval(      var<T>& e)       { return e.m_value; }
+template <typename T> inline const T& eval(const var<T&>& e)      { return *e.m_value; }
+template <typename T> inline       T& eval(      var<T&>& e)      { return *e.m_value; }
+template <typename T> inline const T& eval(const ref<T>& e)       { return e.m_var; }
+template <typename T> inline       T& eval(      ref<T>& e)       { return e.m_var; }
+template <typename T> inline const T& eval(const ref<var<T>>&  e) { return eval(e.m_var); }
+template <typename T> inline       T& eval(      ref<var<T>>&  e) { return eval(e.m_var); }
+//template <typename T> inline const T& eval(const ref<var<T&>>& e) { return *e.m_var.m_value; }
 ///@}
 
 //------------------------------------------------------------------------------

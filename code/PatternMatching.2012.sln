@@ -83,6 +83,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Versity.2012", "msvc\Versit
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Prolog.2012", "msvc\Prolog\Prolog.2012.vcxproj", "{CAAD1BF1-17E3-48C3-B3B1-2E89565DB8FE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RedBlackTree.2012", "msvc\RedBlackTree\RedBlackTree.2012.vcxproj", "{17C9468C-4F34-4F3F-B666-F3B09AF3CA5D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -346,6 +348,12 @@ Global
 		{CAAD1BF1-17E3-48C3-B3B1-2E89565DB8FE}.Release|Win32.ActiveCfg = Release|Win32
 		{CAAD1BF1-17E3-48C3-B3B1-2E89565DB8FE}.Release|Win32.Build.0 = Release|Win32
 		{CAAD1BF1-17E3-48C3-B3B1-2E89565DB8FE}.Release|x64.ActiveCfg = Release|Win32
+		{17C9468C-4F34-4F3F-B666-F3B09AF3CA5D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{17C9468C-4F34-4F3F-B666-F3B09AF3CA5D}.Debug|Win32.Build.0 = Debug|Win32
+		{17C9468C-4F34-4F3F-B666-F3B09AF3CA5D}.Debug|x64.ActiveCfg = Debug|Win32
+		{17C9468C-4F34-4F3F-B666-F3B09AF3CA5D}.Release|Win32.ActiveCfg = Release|Win32
+		{17C9468C-4F34-4F3F-B666-F3B09AF3CA5D}.Release|Win32.Build.0 = Release|Win32
+		{17C9468C-4F34-4F3F-B666-F3B09AF3CA5D}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -387,6 +395,7 @@ Global
 		{BBCEC67C-0689-45A4-AE93-5F2B156E0111} = {B07B73E3-8D06-4D87-A794-6800FCEFE78B}
 		{A97C0849-4AEB-478F-A0EE-947DEA5ACEF1} = {B07B73E3-8D06-4D87-A794-6800FCEFE78B}
 		{CAAD1BF1-17E3-48C3-B3B1-2E89565DB8FE} = {B07B73E3-8D06-4D87-A794-6800FCEFE78B}
+		{17C9468C-4F34-4F3F-B666-F3B09AF3CA5D} = {B07B73E3-8D06-4D87-A794-6800FCEFE78B}
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true

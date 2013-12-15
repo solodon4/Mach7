@@ -10,35 +10,10 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\config.hpp" />
-    <ClInclude Include="..\..\patterns\address.hpp" />
-    <ClInclude Include="..\..\patterns\any.hpp" />
-    <ClInclude Include="..\..\patterns\bindings.hpp" />
-    <ClInclude Include="..\..\patterns\combinators.hpp" />
-    <ClInclude Include="..\..\patterns\common.hpp" />
-    <ClInclude Include="..\..\patterns\constructor.hpp" />
-    <ClInclude Include="..\..\patterns\equivalence.hpp" />
-    <ClInclude Include="..\..\patterns\exprtmpl.hpp" />
-    <ClInclude Include="..\..\patterns\guard.hpp" />
-    <ClInclude Include="..\..\patterns\n+k.hpp" />
-    <ClInclude Include="..\..\patterns\primitive.hpp" />
-    <ClInclude Include="..\..\patterns\quantifiers.hpp" />
-    <ClInclude Include="..\..\patterns\regex.hpp" />
-    <ClInclude Include="..\..\patterns\solvers.hpp" />
-    <ClInclude Include="..\..\type_switchN.hpp" />
-    <ClInclude Include="..\..\vtblmap4.hpp" />
-    <ClInclude Include="..\..\vtblmap4st-1.hpp" />
-    <ClInclude Include="..\..\vtblmap4st-2.hpp" />
-    <ClInclude Include="..\..\vtblmap4st-3.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\prolog-pat2.cpp" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{CAAD1BF1-17E3-48C3-B3B1-2E89565DB8FE}</ProjectGuid>
+    <ProjectGuid>{17C9468C-4F34-4F3F-B666-F3B09AF3CA5D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Test2012</RootNamespace>
+    <RootNamespace>RedBlackTree</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -74,10 +49,10 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -86,22 +61,28 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>XTL_PROFILING=1;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="red-black-tree.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="red-black-tree.cpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

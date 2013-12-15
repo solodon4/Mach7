@@ -11,8 +11,8 @@
 ::     build test   - Test all built examples
 ::     build timing - Build with a given version of MS VC++
 ::                                                                           
-:: This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-:: Copyright (C) 2005-2012 Texas A&M University.
+:: This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+:: Copyright (C) 2011-2012 Texas A&M University.
 :: All rights reserved.
 :: 
 
@@ -23,9 +23,15 @@ if "%1" == "/?" findstr "^::" "%~f0" & goto END
 rem Set-up variables :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 set CXX=cl.exe
-set CXXFLAGS=/D "XTL_VIRTUAL=virtual" /D "XTL_PROFILING=1" /Zi /nologo /EHsc /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /I%BOOST% /IC:\Projects\PatternMatching\
+rem Debug version of compiler flags
+rem CXXFLAGS=/D "XTL_VIRTUAL=virtual" /D "XTL_PROFILING=1" /D "XTL_MAX_LOG_INC=1" /D "XTL_LEAKED_NEW_LOCATIONS" /Zi /nologo /EHsc /W3 /WX- /Od /RTC1        /Oy-         /Gm  /MTd /GS       /fp:precise /Zc:wchar_t /Zc:forScope /Gd /analyze- /errorReport:queue /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_UNICODE" /D "UNICODE"  /I%BOOST% /IC:\Projects\PatternMatching\
+rem Release version of compiler flags
+set CXXFLAGS=/D "XTL_VIRTUAL=virtual" /D "XTL_PROFILING=1" /D "XTL_MAX_LOG_INC=1"                               /Zi /nologo /EHsc /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT  /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /I%BOOST% /IC:\Projects\PatternMatching\
 rem          /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /Fp"Release\SyntheticSelectRandom.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb" 
 rem Slower: =/Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot      /GL /GF /Gm- /MT /GS- /Gy  /fp:precise /Zc:wchar_t /Zc:forScope /Gr           /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /I%BOOST% 
+rem Debug version of linker flags
+rem LNKFLAGS=/INCREMENTAL    /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST    /ALLOWISOLATION /SUBSYSTEM:CONSOLE /DEBUG                  /TLBID:1 /DYNAMICBASE    /NXCOMPAT /ERRORREPORT:QUEUE 
+rem Release version of linker flags
 set LNKFLAGS=/INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST:NO /ALLOWISOLATION /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /ERRORREPORT:QUEUE 
 rem /OUT:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.exe" /INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST /ManifestFile:"Release\SyntheticSelectRandom.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /PGD:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pgd" /LTCG /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /MACHINE:X86 /ERRORREPORT:QUEUE 
 set M=X86
@@ -80,7 +86,7 @@ goto BUILD_ARG
 :BUILD_ALL :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 rem User didn't provide any arguments, assume all .cpp files in the current folder
-for %%i in (*.cpp *.cxx *.c) do call :SUB_BUILD_FILE "%%i"
+for %%i in (*.hpp) do call :SUB_BUILD_FILE "%%i"
 echo Build log has been saved to %logfile%
 goto END
 
@@ -94,8 +100,8 @@ if exist %filename%.exe (
     <nul (set/p output=- exe exist ) 
 ) else (
     <nul (set/p output=- compiling ) 
-    echo [[ %CXX% %CXXFLAGS% %1 /Fo%filename%.obj /Fe%filename%.exe /link %LNKFLAGS% /MACHINE:%M% ]] >> %logfile% 2>&1
-            %CXX% %CXXFLAGS% %1 /Fo%filename%.obj /Fe%filename%.exe /link %LNKFLAGS% /MACHINE:%M%    >> %logfile% 2>&1
+    echo [[ %CXX% %CXXFLAGS% %filename%*.cpp /Fe%filename%.exe /link %LNKFLAGS% /MACHINE:%M% ]] >> %logfile% 2>&1
+            %CXX% %CXXFLAGS% %filename%*.cpp /Fe%filename%.exe /link %LNKFLAGS% /MACHINE:%M%    >> %logfile% 2>&1
     if errorlevel 1 <nul (set/p output=- error) & goto HANDLE_TEMPORARIES
 )
 if "%PGO%"=="" goto HANDLE_TEMPORARIES
@@ -103,8 +109,8 @@ if exist %filename%-pgo.exe (
     <nul (set/p output=- pgo exists) 
 ) else (
     <nul (set/p output=- instrumenting )
-    echo [[ %CXX% %CXXFLAGS% %1 /Fo%filename%-pgo.obj /Fe%filename%-pgo.exe /link %LNKFLAGS% /MACHINE:%M% /PGD:"%filename%-pgo.pgd" /LTCG:PGINSTRUMENT ]] >> %logfile% 2>&1
-            %CXX% %CXXFLAGS% %1 /Fo%filename%-pgo.obj /Fe%filename%-pgo.exe /link %LNKFLAGS% /MACHINE:%M% /PGD:"%filename%-pgo.pgd" /LTCG:PGINSTRUMENT    >> %logfile% 2>&1
+    echo [[ %CXX% %CXXFLAGS% %filename%*.cpp /Fe%filename%-pgo.exe /link %LNKFLAGS% /MACHINE:%M% /PGD:"%filename%-pgo.pgd" /LTCG:PGINSTRUMENT ]] >> %logfile% 2>&1
+            %CXX% %CXXFLAGS% %filename%*.cpp /Fe%filename%-pgo.exe /link %LNKFLAGS% /MACHINE:%M% /PGD:"%filename%-pgo.pgd" /LTCG:PGINSTRUMENT    >> %logfile% 2>&1
     if errorlevel 1 <nul (set/p output=- error) & goto HANDLE_TEMPORARIES
     <nul (set/p output=- profiling )
     %filename%-pgo.exe > nul

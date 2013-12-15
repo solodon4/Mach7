@@ -36,8 +36,8 @@ struct address
     template <typename S> struct accepted_type_for; // Intentionally no definition
     template <typename S> struct accepted_type_for<S*> { typedef typename P1::template accepted_type_for<S>::type* type; };
 
-    template <typename T>
-    bool operator()(const T* t) const { return t && m_p1(*t); }
+    template <typename T> bool operator()(const T* t) const { return t && m_p1(*t); }
+    template <typename T> bool operator()(      T* t) const { return t && m_p1(*t); }
 
     P1 m_p1;
 };

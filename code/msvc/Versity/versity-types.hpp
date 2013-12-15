@@ -85,3 +85,11 @@ std::ostream& operator<<(std::ostream&, const TyPrim&);
 std::ostream& operator<<(std::ostream&, const Val&);
 std::ostream& operator<<(std::ostream&, const Reg&);
 std::ostream& operator<<(std::ostream&, const Inst&);
+
+bool operator==(const TyPrim&, const TyPrim&);
+bool operator==(const    Val&, const    Val&);
+bool operator==(const    Reg&, const    Reg&);
+
+inline bool operator!=(const TyPrim& a, const TyPrim& b) { return !(a == b); }
+inline bool operator!=(const    Val& a, const    Val& b) { return !(a == b); }
+inline bool operator!=(const    Reg& a, const    Reg& b) { return !(a == b); }

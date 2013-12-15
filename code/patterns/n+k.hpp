@@ -66,7 +66,7 @@ struct expr<F,E1>
     expr(expr&& e) noexcept : m_e1(std::move(e.m_e1)) {}
     expr& operator=(const expr&); // No assignment
 
-    typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>()))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
+    typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>()))>::type result_type;    ///< Type of result when used in expression. Requirement of #LazyExpression concept // We needed to add remove_const here as MSVC was returning const T
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
@@ -94,7 +94,7 @@ struct expr
     expr(expr&& e) noexcept : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {}
     expr& operator=(const expr&); // No assignment
 
-    typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>(),std::declval<typename E2::result_type>()))>::type result_type; // We needed to add remove_const here as MSVC was returning const T
+    typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>(),std::declval<typename E2::result_type>()))>::type result_type;    ///< Type of result when used in expression. Requirement of #LazyExpression concept // We needed to add remove_const here as MSVC was returning const T
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 

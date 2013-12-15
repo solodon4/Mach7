@@ -22,7 +22,7 @@
 //------------------------------------------------------------------------------
 
 /// Predefined value representing a layout used by default when none is specified.
-enum { default_layout = size_t(~0) };
+//enum { default_layout = size_t(~0) };
 
 //------------------------------------------------------------------------------
 
@@ -33,7 +33,6 @@ enum { default_layout = size_t(~0) };
         auto const subject_ptr##N = mch::addr(subject_ref##N);                 \
         typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(*subject_ptr##N)>::type source_type##N; \
         typedef source_type##N target_type##N;                                 \
-        enum { target_layout##N = default_layout };                            \
         XTL_ASSERT(("Trying to match against a nullptr",subject_ptr##N));      \
         auto& match##N = *subject_ptr##N;                                      \
         XTL_UNUSED(match##N);

@@ -11,6 +11,7 @@
 ::     build timing - Build with a given version of MS VC++
 ::     build cmp    - Build all executables for comparison with other languages
 ::     build clean  - Clean all examples
+::     build check  - Run those executables for which there are correct_output/*.out files and check that output is the same
 ::     build test   - Test all built examples
 ::                                                                           
 :: This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
@@ -26,10 +27,12 @@ rem Set-up variables :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 set CXX=cl.exe
 rem List of compiler options: http://technet.microsoft.com/en-us/library/fwkeyyhe(v=vs.110).aspx
-set CXXFLAGS=/wd4007 /Zi /nologo /EHsc /W4 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /I%BOOST% 
+rem NOTE: Specifying /GL in VC11 fails to link code that uses our decl_helper for some reason. Linker's /LTCG is used only when /GL is passed and vice versa
+rem set CXXFLAGS=/nologo /W4 /EHsc /O2
+set CXXFLAGS=/wd4007 /Zi /nologo /EHsc /W4 /WX- /O2 /Ob2 /Oi /Ot /Oy-     /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /I%BOOST% 
 rem          /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /Fp"Release\SyntheticSelectRandom.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb" 
 rem Slower: =/wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot      /GL /GF /Gm- /MT /GS- /Gy  /fp:precise /Zc:wchar_t /Zc:forScope /Gr           /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /I%BOOST% 
-set LNKFLAGS=/INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST:NO /ALLOWISOLATION /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /ERRORREPORT:QUEUE 
+set LNKFLAGS=/INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST:NO /ALLOWISOLATION /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /ERRORREPORT:QUEUE 
 rem /OUT:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.exe" /INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST /ManifestFile:"Release\SyntheticSelectRandom.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /PGD:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pgd" /LTCG /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /MACHINE:X86 /ERRORREPORT:QUEUE 
 set M=X86
 
@@ -57,6 +60,7 @@ echo Build log from %date% at %time% >> %logfile%
 if "%1" == "pgo"    shift && set PGO=1      && goto PARSE_CMD_LINE
 if "%1" == "tmp"    shift && set KEEP_TMP=1 && goto PARSE_CMD_LINE
 if "%1" == "clean"  del *.obj *.exe *.pdb *.idb *.intermediate.manifest *.out cmp_haskell.hi cmp_haskell.o cmp_ocaml.cmi cmp_ocaml.cmx > nul 2>&1 && goto END
+if "%1" == "check"  shift && goto CHECK
 if "%1" == "test"   shift && goto TEST
 
 rem Set-up Visual C++ Environment Variables ::::::::::::::::::::::::::::::::::::
@@ -94,6 +98,7 @@ for %%i in (*.cpp) do call :SUB_BUILD_FILE "%%i"
 call :BUILD_SYNTAX
 call :BUILD_CMP
 call :BUILD_TIMING
+call :CHECK_ALL
 echo Build log has been saved to %logfile%
 goto END
 
@@ -155,6 +160,35 @@ echo.
 echo ======================================== [ %1 ]
 if not exist %~n1.*in %1
 if     exist %~n1.*in for %%i in (%~n1.*in) do echo. && echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ { "%%i" } && type "%%i" && echo. && echo ---------------------------------------- && %1 < "%%i"
+goto END
+
+:CHECK :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+if "%1" == "" goto CHECK_ALL
+
+:CHECK_ARG :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+rem Iterate through all the arguments that were passed and check them
+for %%i in (%1) do call :SUB_CHECK_FILE "%%i"
+shift
+if "%1" == "" goto END
+goto CHECK_ARG
+
+:CHECK_ALL :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+rem User didn't provide any arguments, assume all .exe files in the current folder
+for %%i in (*.exe) do call :SUB_CHECK_FILE "%%i"
+goto END
+
+:SUB_CHECK_FILE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+set filename=%~n1
+if not exist correct_output/%filename%.out goto END
+<nul (set/p output= %filename%.out 	) 
+%1 > current.out 2>&1
+fc current.out correct_output/%~n1.out | FIND "FC: no dif" > nul 
+if errorlevel 1 (<nul (set/p output= ) & call :SUB_COLOR_TEXT 0C "differ") else (<nul (set/p output= OK))
+echo.
 goto END
 
 :BUILD_TIMING ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
