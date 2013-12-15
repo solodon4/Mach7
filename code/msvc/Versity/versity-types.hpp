@@ -81,6 +81,8 @@ struct InstBin      : Inst { Op operation; Reg* arg1; Reg* arg2; Reg* dest; Inst
 struct InstUn       : Inst { Op operation; Reg* arg1; Reg* dest;            InstUn  (const std::string& op, Reg* a1, Reg* d) : operation(op), arg1(a1), dest(d) {} };
 struct InstMove     : Inst { Reg* src; Reg* dest;                           InstMove(Reg* s, Reg* d) : src(s), dest(d) {} };
 
+typedef std::vector<Inst*> instruction_stream_type;
+
 std::ostream& operator<<(std::ostream&, const TyPrim&);
 std::ostream& operator<<(std::ostream&, const Val&);
 std::ostream& operator<<(std::ostream&, const Reg&);

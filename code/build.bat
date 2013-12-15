@@ -5,14 +5,26 @@
 :: Version 1.0 from 4th February 2012
 ::
 :: Usage:
-::     build [ pgo | tmp ] [ filemask*.cpp ... ]
-::     build        - Build all examples using the most recent MS VC++ compiler
+::
+::     build [ pgo | tmp | <ver> ] [ filemask*.cpp ... ]
+::     build        - Build all examples using the most recent MS Visual C++ compiler installed
 ::     build syntax - Build all supported library options combination for syntax variations
-::     build timing - Build with a given version of MS VC++
+::     build timing - Build all supported library options combination for timing variations
 ::     build cmp    - Build all executables for comparison with other languages
-::     build clean  - Clean all examples
-::     build check  - Run those executables for which there are correct_output/*.out files and check that output is the same
-::     build test   - Test all built examples
+::     build clean  - Clean all built examples
+::     build test   -   Run all built examples
+::     build check  -   Run those examples for which there are correct_output/*.out files and check that output is the same
+::
+:: Modifiers:
+::            pgo   - Perform Profile-Guided Optimization on produced executables
+::            tmp   - Keep temporaries
+::           <ver>  - Use a specific version of Visual C++ to compiler the source 
+::                    code. <ver> can be one of the following:
+::                     - 2003 - Visual C++  7.1
+::                     - 2005 - Visual C++  8.0
+::                     - 2008 - Visual C++  9.0
+::                     - 2010 - Visual C++ 10.0
+::                     - 2012 - Visual C++ 11.0
 ::                                                                           
 :: This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
 :: Copyright (C) 2011-2012 Texas A&M University.
@@ -50,31 +62,48 @@ set logfile=build-%yy%-%mm%-%dd%-%hh%-%mn%.log
 :LOG_FILE_READY
 
 echo. > %logfile%
-echo XTL Pattern Matching Build Script >> %logfile%
+echo Mach7 Build Script >> %logfile%
 echo Version 1.0 from 2012-02-04 >> %logfile%
 echo. >> %logfile%
 echo Build log from %date% at %time% >> %logfile%
 
 :PARSE_CMD_LINE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-if "%1" == "pgo"    shift && set PGO=1      && goto PARSE_CMD_LINE
-if "%1" == "tmp"    shift && set KEEP_TMP=1 && goto PARSE_CMD_LINE
-if "%1" == "clean"  del *.obj *.exe *.pdb *.idb *.intermediate.manifest *.out cmp_haskell.hi cmp_haskell.o cmp_ocaml.cmi cmp_ocaml.cmx > nul 2>&1 && goto END
-if "%1" == "check"  shift && goto CHECK
-if "%1" == "test"   shift && goto TEST
+rem Parse modifiers
 
-rem Set-up Visual C++ Environment Variables ::::::::::::::::::::::::::::::::::::
+if "%1" == "pgo"       shift && set PGO=1                         && goto PARSE_CMD_LINE
+if "%1" == "tmp"       shift && set KEEP_TMP=1                    && goto PARSE_CMD_LINE
+if "%1" == "2012"      shift && set VS_COMN_TOOLS=%VS110COMNTOOLS%&& goto PARSE_CMD_LINE
+if "%1" == "2010"      shift && set VS_COMN_TOOLS=%VS100COMNTOOLS%&& goto PARSE_CMD_LINE
+if "%1" == "2008"      shift && set VS_COMN_TOOLS=%VS90COMNTOOLS%&&  goto PARSE_CMD_LINE
+if "%1" == "2005"      shift && set VS_COMN_TOOLS=%VS80COMNTOOLS%&&  goto PARSE_CMD_LINE
+if "%1" == "2003"      shift && set VS_COMN_TOOLS=%VS71COMNTOOLS%&&  goto PARSE_CMD_LINE
 
-if not "%VS110COMNTOOLS%" == "" call "%VS110COMNTOOLS%vsvars32.bat" && goto PROCEED
-if not "%VS100COMNTOOLS%" == "" call "%VS100COMNTOOLS%vsvars32.bat" && goto PROCEED
-if not "%VS90COMNTOOLS%"  == "" call "%VS90COMNTOOLS%vsvars32.bat"  && goto PROCEED
-if not "%VS80COMNTOOLS%"  == "" call "%VS80COMNTOOLS%vsvars32.bat"  && goto PROCEED
-if not "%VS71COMNTOOLS%"  == "" call "%VS71COMNTOOLS%vsvars32.bat"  && goto PROCEED
+rem Parse commands
+
+if "%1" == "clean"     del *.obj *.exe *.pdb *.idb *.intermediate.manifest *.out cmp_haskell.hi cmp_haskell.o cmp_ocaml.cmi cmp_ocaml.cmx > nul 2>&1 && goto END
+if "%1" == "check"     shift && goto CHECK
+if "%1" == "test"      shift && goto TEST
+
+rem Subsequent commands require Visual C++ environment variables to be set up.
+
+if not "%VS_COMN_TOOLS%" == "" goto PROCEED
+
+rem Detect most recent version of the Visual C++ installed :::::::::::::::::::::
+
+if not "%VS110COMNTOOLS%" == "" set VS_COMN_TOOLS=%VS110COMNTOOLS%&& goto PROCEED
+if not "%VS100COMNTOOLS%" == "" set VS_COMN_TOOLS=%VS100COMNTOOLS%&& goto PROCEED
+if not "%VS90COMNTOOLS%"  == "" set VS_COMN_TOOLS=%VS90COMNTOOLS%&&  goto PROCEED
+if not "%VS80COMNTOOLS%"  == "" set VS_COMN_TOOLS=%VS80COMNTOOLS%&&  goto PROCEED
+if not "%VS71COMNTOOLS%"  == "" set VS_COMN_TOOLS=%VS71COMNTOOLS%&&  goto PROCEED
 
 echo ERROR: Unable to find installation of MS Visual C++ on this computer
 goto END
 
 :PROCEED :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+rem Set-up Visual C++ Environment Variables
+call "%VS_COMN_TOOLS%vsvars32.bat"
 
 setlocal
 

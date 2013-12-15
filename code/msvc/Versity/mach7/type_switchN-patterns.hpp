@@ -31,7 +31,6 @@
 #define XTL_MATCH_SUBJECT(N,s)                                                 \
         auto&&     subject_ref##N = s;                                         \
         auto const subject_ptr##N = mch::addr(subject_ref##N);                 \
-        intptr_t   __vtbl##N = mch::vtbl_of(subject_ptr##N);                   \
         typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(*subject_ptr##N)>::type source_type##N; \
         typedef source_type##N target_type##N;                                 \
         XTL_ASSERT(("Trying to match against a nullptr",subject_ptr##N));      \
@@ -66,7 +65,7 @@
         XTL_REPEAT(N,XTL_MATCH_SUBJECT_POLYMORPHIC_FROM,__VA_ARGS__)           \
         typedef mch::vtbl_map<N,mch::type_switch_info<N>> vtbl_map_type;       \
         XTL_PRELOADABLE_LOCAL_STATIC(vtbl_map_type,__vtbl2case_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
-        mch::type_switch_info<N>& __switch_info = __vtbl2case_map.get(XTL_ENUM(N,XTL_PREFIX,__vtbl)); \
+        mch::type_switch_info<N>& __switch_info = __vtbl2case_map.get(XTL_ENUM(N,XTL_PREFIX,subject_ptr)); \
         switch (__switch_info.target) {                                        \
         default: {{{
 

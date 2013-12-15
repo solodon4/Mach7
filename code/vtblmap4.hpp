@@ -223,7 +223,11 @@ private:
         cache_descriptor(
             const size_t       log_size, ///< Parameter k of the cache - the log of the size of the cache                
             const bit_offset_t shifts[N],///< Parameter l of the cache - number of irrelevant bits on the right to remove
+        #if defined(XTL_NO_RVALREF)
+            cache_descriptor&  old       ///< cache_descriptor we will supposedly replace
+        #else
             cache_descriptor&& old       ///< cache_descriptor we will supposedly replace
+        #endif
         ) :
             cache_mask( (1<<log_size) - 1 ),
             //optimal_shift(shifts),
@@ -388,21 +392,20 @@ public:
     ///
     /// \note The function returns the value "by reference" to indicate that you 
     ///       may take address or change the value of the cell!
-    inline T& get(const void* p0, ...) noexcept
+    inline T& get(intptr_t vtbl0, ...) noexcept
     {
         XTL_ASSERT(descriptor); // Allocated in constructor, deallocated in destructor
 
-        intptr_t vtbl[N] = {*reinterpret_cast<const intptr_t*>(p0)};
+        intptr_t vtbl[N] = {vtbl0};
 
         va_list vl;
-        va_start(vl,p0);
+        va_start(vl,vtbl0);
 
         for (size_t i = 1; i < N; i++)
         {
-            const void* p = va_arg(vl,void*);
-            XTL_ASSERT(p); // Must be ensured by caller
-            vtbl[i] = *reinterpret_cast<const intptr_t*>(p);
-            XTL_ASSERT(vtbl[i]); // Must be a valid vtbl pointer
+            intptr_t vtbl_i = va_arg(vl,intptr_t);
+            XTL_ASSERT(vtbl_i); // Must be a valid vtbl pointer
+            vtbl[i] = vtbl_i;
         }
 
         va_end(vl);
@@ -593,7 +596,11 @@ T& vtbl_map<N,T>::update(const intptr_t (&vtbl)[N])
         #if defined(DBG_NEW)
             #undef new
         #endif
-        descriptor = new(no) cache_descriptor(no,zo,std::move(*old));
+        #if defined(XTL_NO_RVALREF)
+            descriptor = new(no) cache_descriptor(no,zo,*old);
+        #else
+            descriptor = new(no) cache_descriptor(no,zo,std::move(*old));
+        #endif
         #if defined(DBG_NEW)
             #define new DBG_NEW
         #endif

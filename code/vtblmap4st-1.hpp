@@ -113,7 +113,11 @@ private:
         cache_descriptor(
             const size_t       log_size, ///< Parameter k of the cache - the log of the size of the cache                
             const size_t       shift,    ///< Parameter l of the cache - number of irrelevant bits on the right to remove
+        #if defined(XTL_NO_RVALREF)
+            cache_descriptor&  old       ///< cache_descriptor we will supposedly replace
+        #else
             cache_descriptor&& old       ///< cache_descriptor we will supposedly replace
+        #endif
         ) :
             cache_mask( (1<<log_size) - 1 ),
             optimal_shift(shift),
@@ -265,11 +269,10 @@ public:
     ///
     /// \note The function returns the value "by reference" to indicate that you 
     ///       may take address or change the value of the cell!
-    inline T& get(const void* p) noexcept
+    inline T& get(const intptr_t vtbl) noexcept
     {
         XTL_ASSERT(descriptor); // Allocated in constructor, deallocated in destructor
 
-        const intptr_t vtbl = *reinterpret_cast<const intptr_t*>(p);
         typename cache_descriptor::stored_type*& ce = (*descriptor)[vtbl];
 
         XTL_ASSERT(vtbl); // Since this represents VTBL pointer it cannot be null
@@ -428,7 +431,11 @@ T& vtbl_map<1,T>::update(intptr_t vtbl)
         #if defined(DBG_NEW)
             #undef new
         #endif
-        descriptor = new(no) cache_descriptor(no,zo,std::move(*old));
+        #if defined(XTL_NO_RVALREF)
+            descriptor = new(no) cache_descriptor(no,zo,*old);
+        #else
+            descriptor = new(no) cache_descriptor(no,zo,std::move(*old));
+        #endif
         #if defined(DBG_NEW)
             #define new DBG_NEW
         #endif

@@ -15,15 +15,43 @@
 
 #include "config.hpp"
 #include <cstddef>
-#include <cstdint>
 #include <typeinfo>
-#ifdef _MSC_VER
-#include <excpt.h>
+#if defined(_MSC_VER)
+    #include <excpt.h>
+#endif
+#if !defined(_MSC_VER) || _MSC_VER >= 1600 
+    #include <cstdint>
+#else
+    // FIX: These are all workarounds to support earlier versions of compilers
+    //      for the type switching functionality only, which does not require
+    //      C++11, only variadic macros.
+    #include <crtdefs.h>
+    namespace std { typedef ::intptr_t intptr_t; }
+    typedef uintptr_t  uint32_t; // FIX: workaround for now
 #endif
 
 namespace mch ///< Mach7 library namespace
 {
 
+//------------------------------------------------------------------------------
+
+/// Generic function that obtains a value of a primary vtbl-pointer from a 
+/// polymorphic object, pointed to by p.
+/// \note This default implementation assumes the vtbl-pointer is located at 
+///       offset 0 from the address, pointed to by p and the user is responsible
+///       to overload this function for class hierarchies, where this is not the case.
+inline std::intptr_t vtbl_of(const void* p)
+{
+    return *reinterpret_cast<const std::intptr_t*>(p);
+}
+/*
+template <typename T>
+inline std::intptr_t vtbl_of(const T* p)
+{
+    static_assert(std::is_polymorphic<T>::value, "Class T does not have any virtual functions");
+    return vtbl_of(static_cast<const void*>(p));
+}
+*/
 //------------------------------------------------------------------------------
 
 template <typename T> inline const T* adjust_ptr(const void* p, std::ptrdiff_t offset) { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
