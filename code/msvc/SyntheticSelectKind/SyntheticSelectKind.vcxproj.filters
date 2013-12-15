@@ -23,9 +23,6 @@
     <ClInclude Include="..\..\config.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\exprtmpl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\loop_over_numbers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

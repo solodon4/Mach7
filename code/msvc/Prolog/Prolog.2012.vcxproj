@@ -26,11 +26,8 @@
     <ClInclude Include="..\..\patterns\quantifiers.hpp" />
     <ClInclude Include="..\..\patterns\regex.hpp" />
     <ClInclude Include="..\..\patterns\solvers.hpp" />
-    <ClInclude Include="..\..\type_switchN.hpp" />
+    <ClInclude Include="..\..\type_switchN-patterns.hpp" />
     <ClInclude Include="..\..\vtblmap4.hpp" />
-    <ClInclude Include="..\..\vtblmap4st-1.hpp" />
-    <ClInclude Include="..\..\vtblmap4st-2.hpp" />
-    <ClInclude Include="..\..\vtblmap4st-3.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\prolog-pat2.cpp" />
@@ -38,7 +35,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{CAAD1BF1-17E3-48C3-B3B1-2E89565DB8FE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Test2012</RootNamespace>
+    <RootNamespace>Prolog</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

@@ -145,7 +145,11 @@ int myeval(const Expr* e)
 {
     Match(e)
     {
-    Case(Value, n)   return n;    Case(Plus,  a,b) return myeval(a) + myeval(b);    Case(Minus, a,b) return myeval(a) - myeval(b);    Case(Times, a,b) return myeval(a) * myeval(b);    Case(Divide,a,b) return myeval(a) / myeval(b);
+    Case(Value, n)   return n;
+    Case(Plus,  a,b) return myeval(a) + myeval(b);
+    Case(Minus, a,b) return myeval(a) - myeval(b);
+    Case(Times, a,b) return myeval(a) * myeval(b);
+    Case(Divide,a,b) return myeval(a) / myeval(b);
     }
     EndMatch
 }

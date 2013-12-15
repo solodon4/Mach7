@@ -24,12 +24,13 @@
 /// - Fallthrough behavior             \see #XTL_FALL_THROUGH
 /// - Use of { & } around case clauses \see #XTL_USE_BRACES
 /// - Declarations in case clause      \see #XTL_CLAUSE_DECL
+/// Most of the combinations from this set are built with: make syntax
 ///
 /// Options for logging and debugging
 /// - Compile-time messages            \see #XTL_MESSAGE_ENABLED
 /// - Trace of performance             \see #XTL_DUMP_PERFORMANCE
 /// - Trace of memory leaks with lines \see #XTL_LEAKED_NEW_LOCATIONS
-/// Most of the combinations of from this set are built with: make syntax
+/// - Trace of conditions likeliness   \see #XTL_TRACE_LIKELINESS 
 ///
 /// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
@@ -42,6 +43,8 @@
 
 #if defined(_DEBUG)
     #if defined(_MSC_VER)
+        #include "debug.hpp"
+
         // Enable memory leak tracing in debug builds
         #define _CRTDBG_MAP_ALLOC
         #include <stdlib.h>
@@ -58,20 +61,6 @@
                 #define new DBG_NEW
             #endif
         #endif
-
-        /// We make this class parameterized only because we want subsequent 
-        /// uses of it be generated from this header file. For this we need 
-        /// linker to throw away duplicates of #instances initialization.
-        template <typename F, F& f>
-        struct call_on_last_instance
-        {
-            call_on_last_instance() { ++instances; }
-           ~call_on_last_instance() { if (--instances == 0) f(); }
-            static size_t instances;
-        };
-
-        template <typename F, F& f>
-        size_t call_on_last_instance<F,f>::instances = 0;
 
         /// \note The following declaration attempts to call _CrtDumpMemoryLeaks 
         ///       as late as possible, however the order of initialization of 
@@ -91,7 +80,7 @@
         ///
         /// \see  For more information on Finding Memory Leaks Using the CRT Library, 
         ///       see http://msdn.microsoft.com/en-us/library/x98tx3cf(v=vs.100).aspx
-        static call_on_last_instance<decltype(_CrtDumpMemoryLeaks),_CrtDumpMemoryLeaks> dummy_to_call_leak_dumping_at_exit;
+        static mch::call_on_last_instance<decltype(_CrtDumpMemoryLeaks),_CrtDumpMemoryLeaks> dummy_to_call_leak_dumping_at_exit;
     #endif
 
     #include <iostream>            // We refer to std::cerr in debug mode
@@ -104,6 +93,20 @@
     #define XTL_DUMP_PERFORMANCE 0
 #endif
 #define XTL_DUMP_PERFORMANCE_ONLY(...)   UCL_PP_IF(UCL_PP_NOT(XTL_DUMP_PERFORMANCE), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
+
+//------------------------------------------------------------------------------
+
+#if !defined(XTL_TRACE_LIKELINESS)
+    #define XTL_TRACE_LIKELINESS XTL_DUMP_PERFORMANCE
+#endif
+
+#if XTL_TRACE_LIKELINESS
+    #include "debug.hpp"
+    #define XTL_LIKELY(c) (mch::trace_likeliness<true,__LINE__,decltype(XTL_FUNCTION)>(c,#c,__FILE__))
+    #define XTL_UNLIKELY(c) (mch::trace_likeliness<false,__LINE__,decltype(XTL_FUNCTION)>(c,#c,__FILE__))
+#endif
+
+//------------------------------------------------------------------------------
 
 #if !defined(XTL_MESSAGE_ENABLED)
     /// Flag enabling compile-time messages from the library
@@ -481,6 +484,38 @@
 
 //------------------------------------------------------------------------------
 
+#define XTL_PREV_0  00
+#define XTL_PREV_1  0
+#define XTL_PREV_2  1
+#define XTL_PREV_3  2
+#define XTL_PREV_4  3
+#define XTL_PREV_5  4
+#define XTL_PREV_6  5
+#define XTL_PREV_7  6
+#define XTL_PREV_8  7
+#define XTL_PREV_9  8
+#define XTL_PREV_10 9
+
+#define XTL_PREV(i) XTL_PREV_##i
+
+//------------------------------------------------------------------------------
+
+#define XTL_SUCC_0 1
+#define XTL_SUCC_1 2
+#define XTL_SUCC_2 3
+#define XTL_SUCC_3 4
+#define XTL_SUCC_4 5
+#define XTL_SUCC_5 6
+#define XTL_SUCC_6 7
+#define XTL_SUCC_7 8
+#define XTL_SUCC_8 9
+#define XTL_SUCC_9 10
+#define XTL_SUCC_10 PLEASE_EXTEND_XTL_SUCC
+
+#define XTL_SUCC(i) XTL_SUCC_##i
+
+//------------------------------------------------------------------------------
+
 #define XTL_RSEQ_N() 63,62,61,60,59,58,57,56,55,54,53,52,51,50,49,48,47,46,45,44,43,42,41,40,39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0
 #define    XTL_ARG_N( _1, _2, _3, _4, _5, _6, _7, _8, _9,_10, _11,_12,_13,_14,_15,_16,_17,_18,_19,_20, _21,_22,_23,_24,_25,_26,_27,_28,_29,_30, _31,_32,_33,_34,_35,_36,_37,_38,_39,_40, _41,_42,_43,_44,_45,_46,_47,_48,_49,_50, _51,_52,_53,_54,_55,_56,_57,_58,_59,_60, _61,_62,_63,      N,...) N 
 #define XTL_ARG_N_EX( _1, _2, _3, _4, _5, _6, _7, _8, _9,_10, _11,_12,_13,_14,_15,_16,_17,_18,_19,_20, _21,_22,_23,_24,_25,_26,_27,_28,_29,_30, _31,_32,_33,_34,_35,_36,_37,_38,_39,_40, _41,_42,_43,_44,_45,_46,_47,_48,_49,_50, _51,_52,_53,_54,_55,_56,_57,_58,_59,_60, _61,_62,_63,Dummy,N,...) N 
@@ -611,13 +646,15 @@
         #define XTL_SUPPORTS_ALLOCA
     #endif
 
-    /// Macros to use compiler's branch hinting. 
-    /// \note These macros are only to be used in Case macro expansion, not in 
-    ///       user's code since they explicitly expect a pointer argument
-    /// \note We use ... (__VA_ARGS__ parameters) to allow expressions 
-    ///       containing comma as argument. Essentially this is a one arg macro
-    #define   XTL_LIKELY(...) (__VA_ARGS__)
-    #define XTL_UNLIKELY(...) (__VA_ARGS__)
+    #if !XTL_TRACE_LIKELINESS
+        /// Macros to use compiler's branch hinting. 
+        /// \note These macros are only to be used in Case macro expansion, not in 
+        ///       user's code since they explicitly expect a pointer argument
+        /// \note We use ... (__VA_ARGS__ parameters) to allow expressions 
+        ///       containing comma as argument. Essentially this is a one arg macro
+        #define   XTL_LIKELY(...) (__VA_ARGS__)
+        #define XTL_UNLIKELY(...) (__VA_ARGS__)
+    #endif
 
     /// A macro that is supposed to be put before the function definition whose inlining should be disabled
     #define XTL_DO_NOT_INLINE_BEGIN __pragma(auto_inline (off))
@@ -653,14 +690,15 @@
         #define XTL_SUPPORTS_VLA
     #endif
 
-    /// Macros to use compiler's branch hinting. 
-    /// \note These macros are only to be used in Case macro expansion, not in 
-    ///       user's code since they explicitly expect a pointer argument
-    /// \note We use ... (__VA_ARGS__ parameters) to allow expressions 
-    ///       containing comma as argument. Essentially this is a one arg macro
-    #define   XTL_LIKELY(...) (__builtin_expect((long int)(__VA_ARGS__), 1))
-    #define XTL_UNLIKELY(...) (__builtin_expect((long int)(__VA_ARGS__), 0))
-
+    #if !XTL_TRACE_LIKELINESS
+        /// Macros to use compiler's branch hinting. 
+        /// \note These macros are only to be used in Case macro expansion, not in 
+        ///       user's code since they explicitly expect a pointer argument
+        /// \note We use ... (__VA_ARGS__ parameters) to allow expressions 
+        ///       containing comma as argument. Essentially this is a one arg macro
+        #define   XTL_LIKELY(...) (__builtin_expect((long int)(__VA_ARGS__), 1))
+        #define XTL_UNLIKELY(...) (__builtin_expect((long int)(__VA_ARGS__), 0))
+    #endif
     /// A macro that is supposed to be put before the function definition whose inlining should be disabled
     #define XTL_DO_NOT_INLINE_BEGIN __attribute__ ((noinline))
     /// A macro that is supposed to be put after  the function definition whose inlining should be disabled
@@ -704,7 +742,12 @@
 #else
     #define XTL_CPP0X_TYPENAME 
 #endif
-#define XTL_CPP0X_TEMPLATE XTL_NON_GCC_ONLY(template)
+
+#if defined(__GNUC__)
+    #define XTL_CPP0X_TEMPLATE 
+#else
+    #define XTL_CPP0X_TEMPLATE template 
+#endif
 
 //------------------------------------------------------------------------------
 
@@ -728,6 +771,9 @@
     #define XTL_WARNING_IGNORE_CONSTANT_CONDITIONAL XTL_PRAGMA(warning( disable : 4127 )) // warning C4127: conditional expression is constant
     /// Macro that disables warning on manipulating pointers with reinterpret_cast
     #define XTL_WARNING_IGNORE_STRICT_ALIASING      
+
+    #pragma warning( disable : 4351 ) // warning C4351: new behavior: elements of array ... will be default initialized
+
 #elif defined(__GNUC__)
     /// Helper macro to use the sandard _Pragma operator
     #define XTL_PRAGMA(x) _Pragma(#x)

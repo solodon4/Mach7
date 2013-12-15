@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <queue>
 #include <sstream>
 
 #if !defined(XTL_TEST_ALL_NON_LEAFS)
@@ -18,7 +19,9 @@ extern int yyparse(void);
 extern int yy_flex_debug;
 int yydebug;
 class_map all_classes;
-size_t max_classes_per_unit = 700;
+size_t max_classes_per_unit  = 700;
+size_t number_of_arguments   = 1;
+size_t max_clauses_per_match = 128;
 
 //------------------------------------------------------------------------------
 
@@ -60,6 +63,32 @@ class_set all_derived_from(const ClassDescriptor* b)
     for (class_map::const_iterator p = all_classes.begin(); p != all_classes.end(); ++p)
         if (p->second->is_derived_from(b))
             result.insert(p->second);
+
+    return result;
+}
+
+//------------------------------------------------------------------------------
+
+class_set some_derived_from(const ClassDescriptor* b, size_t n)
+{
+    class_set result;
+
+    std::queue<const ClassDescriptor*> work;
+
+    work.push(b);
+
+    while (!work.empty())
+    {
+        const ClassDescriptor* c = work.front();
+        work.pop();
+        result.insert(c);
+
+        if (result.size() >= n)
+            break;
+
+        for (class_set::const_iterator p = c->derived.begin(); p != c->derived.end(); ++p)
+            work.push(*p);
+    }
 
     return result;
 }
@@ -213,9 +242,10 @@ void print_make_roots(std::ostream& os = std::cout)
 
 //------------------------------------------------------------------------------
 
-size_t print_match_root(const ClassDescriptor* r, std::ostream& os = std::cout)
+size_t print_match_root_n(size_t n, const ClassDescriptor* r, std::ostream& os = std::cout)
 {
-    class_set derived = all_derived_from(r);
+    size_t m = (size_t)std::pow(double(max_clauses_per_match),1.0/double(n));
+    class_set derived = some_derived_from(r, m); //all_derived_from(r);
 
     if (derived.size() < 2)
         return 0; // Ignore hierarchies with one class only
@@ -224,15 +254,55 @@ size_t print_match_root(const ClassDescriptor* r, std::ostream& os = std::cout)
 
     std::sort(top_sorted.begin(), top_sorted.end(), cd_ptr_less);
 
-    os << "int match_" << r->name << "(c_" << r->name << "* s)\n{\n    Match(s)\n    {\n";
+    os << "int match_" << r->name /*<< '_' << n*/ << '(';
+    for (size_t i = 0; i < n; ++i) os << (i ? ", c_" : "c_") << r->name << "* s" << (i+1);
+    os << ")\n{\n    Match(";
+    for (size_t i = 0; i < n; ++i) os << (i ? ",s" : "s") << (i+1);
+    os << ")\n    {\n";
 
-    size_t i = 0;
+    std::vector<size_t> x(n+1);
+    size_t i = 0, k = 0, t = top_sorted.size();
 
-    for (class_seq::const_iterator p = top_sorted.begin(); p != top_sorted.end(); ++p)
-        os << "    Case(c_" << (*p)->name << ") return " << i++ << ";\n";
+    do
+    {
+        os << "    Case(";
+        for (size_t j = 0; j < n; ++j) os << (j ? ",c_" : "c_") << top_sorted[x[n-j-1]]->name;
+        os << ") return " << i++ << ";\n";
 
-    os << "    }\n    EndMatch\n    return -1;\n}\n\n";
+        while (x[k] == t-1)
+            x[k++] = 0;
+
+        ++x[k];
+        k = 0;
+    } while (x[n]==0);
+
+    os << "    }\n    EndMatch // There was" << std::setw(5) << i << " case clauses\n    return -1;\n}\n\n";
     return i;
+}
+
+//------------------------------------------------------------------------------
+
+size_t print_match_root(const ClassDescriptor* r, std::ostream& os = std::cout)
+{
+    return print_match_root_n(number_of_arguments, r, os);
+    //class_set derived = all_derived_from(r);
+
+    //if (derived.size() < 2)
+    //    return 0; // Ignore hierarchies with one class only
+
+    //class_seq top_sorted(derived.begin(),derived.end());
+
+    //std::sort(top_sorted.begin(), top_sorted.end(), cd_ptr_less);
+
+    //os << "int match_" << r->name << "(c_" << r->name << "* s)\n{\n    Match(s)\n    {\n";
+
+    //size_t i = 0;
+
+    //for (class_seq::const_iterator p = top_sorted.begin(); p != top_sorted.end(); ++p)
+    //    os << "    Case(c_" << (*p)->name << ") return " << i++ << ";\n";
+
+    //os << "    }\n    EndMatch\n    return -1;\n}\n\n";
+    //return i;
 }
 
 //------------------------------------------------------------------------------
@@ -345,7 +415,7 @@ void print_preprocessor_directives(
         << "// Children: " << std::setw(4) << c_min << " -- " << std::setw(7) << std::setprecision(5) << double(c_avg)/(all-leafs) << " -- " << std::setw(4) << c_max << " (min/avg/max) based on " << std::setw(4) << all-leafs << " non leafs\n"
            "\n"
            "#include \"testutils.hpp\"\n"
-           "#include \"match.hpp\"\n\n"
+           "#include \"type_switchN.hpp\"\n\n"
            "#if !defined(XTL_VIRTUAL)\n"
            "#define XTL_VIRTUAL\n"
            "#endif // XTL_VIRTUAL\n\n";
@@ -446,7 +516,7 @@ void print_multiple_units(const std::string& base_name)
             //hpp << std::endl << "extern int match_" << root->name << "(c_" << root->name << "* s); // has " << std::setw(2) << m2 << " cases for ";
             //print_class_names(root->bases.begin(), root->bases.end(), hpp);
             //hpp << std::endl;
-            fnc << "    std::cout << test(&make_" << root->name << ",&match_" << root->name << ") << std::endl;\n";
+            fnc << "    std::cout << mch::test(&make_" << root->name << ",&match_" << root->name << ") << std::endl;\n";
         }
     }
 
@@ -459,7 +529,7 @@ void print_multiple_units(const std::string& base_name)
     for (int i = 1; i <= n; ++i)
         cpp << "    test" << std::setfill('0') << std::setw(2) << i << "();\n";
 
-    cpp << "    print_xtl_macros();\n}\n";
+    cpp << "    mch::print_xtl_macros();\n}\n";
     cpp.close();
 }
 
@@ -484,10 +554,10 @@ void print_single_unit(const std::string& base_name)
         if (r->is_leaf())
             continue; // Ignore hierarchies with one class only
 
-        cpp << "    std::cout << test(&make_" << r->name << ",&match_" << r->name << ") << std::endl;\n";
+        cpp << "    std::cout << mch::test(&make_" << r->name << ",&match_" << r->name << ") << std::endl;\n";
     }
     
-    cpp << "    print_xtl_macros();\n}\n";
+    cpp << "    mch::print_xtl_macros();\n}\n";
 }
 
 //------------------------------------------------------------------------------
@@ -521,7 +591,7 @@ int main(int argc, char* argv[])
     {
         if (argc < 2)
         {
-            std::cerr << "Usage: " << argv[0] << " filename.cou [max_classes_per_unit]" << std::endl;
+            std::cerr << "Usage: " << argv[0] << " filename.cou [max_classes_per_unit [number_of_arguments]]" << std::endl;
             return 1;
         }
 
@@ -540,6 +610,17 @@ int main(int argc, char* argv[])
             if (!(ss >> max_classes_per_unit))
             {
                 std::cerr << "Error: max_classes_per_unit (" << argv[2] << ") has to be integer" << std::endl;
+                return 3;
+            }
+        }
+
+        if (argc > 3)
+        {
+            std::stringstream ss(argv[3]);
+
+            if (!(ss >> number_of_arguments))
+            {
+                std::cerr << "Error: number_of_arguments (" << argv[3] << ") has to be integer" << std::endl;
                 return 3;
             }
         }

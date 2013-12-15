@@ -52,7 +52,7 @@ struct regex1 : std::regex
     explicit regex1(const char* re, const P1&  p1) noexcept : std::regex(re), m_p1(p1) {}
     explicit regex1(const char* re,       P1&& p1) noexcept : std::regex(re), m_p1(std::move(p1)) {}
              regex1(regex1&& r)                    noexcept : std::regex(std::move(r)), m_p1(std::move(r.m_p1)) {}
-    regex1& operator=(const regex1&); // No assignment
+    regex1& operator=(const regex1&); ///< Assignment is not allowed for this class
 
 
     bool operator()(const std::string& s) const noexcept { return operator()(s.c_str()); }
@@ -80,7 +80,12 @@ inline regex0 rex(const char* re) noexcept { return regex0(re); }
 template <typename P1>
 inline auto rex(const char* re, P1&& p1) noexcept -> XTL_RETURN
 (
-    regex1<decltype(filter(std::forward<P1>(p1)))>(re, filter(std::forward<P1>(p1)))
+    regex1<
+        typename underlying<decltype(filter(std::forward<P1>(p1)))>::type
+    >(
+        re, 
+        filter(std::forward<P1>(p1))
+     )
 )
 
 //------------------------------------------------------------------------------

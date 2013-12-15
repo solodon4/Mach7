@@ -165,8 +165,8 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 /// A macro that will be passed arguments to case statement. This should include
 /// the first type parameter that will be used as a dummy. This is required to
 /// be able to handle 0 non-type parameters.
-#define  BCS(...) typedef          get_param<bindings>::type D; BCS_(XTL_NARG(__VA_ARGS__),##__VA_ARGS__);
-#define TBCS(...) typedef typename get_param<bindings>::type D; BCS_(XTL_NARG(__VA_ARGS__),##__VA_ARGS__);
+#define  BCS(...) typedef          get_param<bindings>::type D; BCS_(XTL_NARG(__VA_ARGS__),##__VA_ARGS__)
+#define TBCS(...) typedef typename get_param<bindings>::type D; BCS_(XTL_NARG(__VA_ARGS__),##__VA_ARGS__)
 
 //------------------------------------------------------------------------------
 
@@ -330,7 +330,7 @@ template<>                        struct target_disambiguator<const int> { typed
 /// - When-clause should open less braces than Qua and Case to allow sub-clauses
 /// - Case and Qua clauses should open the same amount of braces since they can
 ///   be mixed in the same statement e.g. Otherwise is resolved to Case clause.
-/// - Match statement baseed on switch should introduce more open braces than
+/// - Match statement based on switch should introduce more open braces than
 ///   its Case-clauses to allow optional { } surrounding clauses.
 /// - Scopes are generally as following:
 ///   * Match-level scope to introduce subject_ptr, source_type, __base_counter

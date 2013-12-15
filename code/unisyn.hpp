@@ -44,7 +44,7 @@ const size_t reserved_extra_kinds = 1;
 #if !defined(SKV)
     /// Macro to be used in global scope to set the smallest kind value N for the 
     /// class hierarchy rooted at C. When it is not used, 0 is assumed.
-    #define SKV(C,N) mch::smallest_kind_is<N> smallest_kind_value_helper(const C&);
+    #define SKV(C,N) mch::smallest_kind_is<N> smallest_kind_value_helper(const C&)
 #else
     #error Macro SKV used by the pattern-matching library has already been defined
 #endif

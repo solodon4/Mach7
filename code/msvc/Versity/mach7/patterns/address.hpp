@@ -23,11 +23,13 @@ template <typename P1>
 struct address
 {
     static_assert(is_pattern<P1>::value, "Argument P1 of an address pattern must be a pattern");
+    static_assert(!is_var<P1>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
-    explicit address(const P1& p1) : m_p1(p1) {}
-    explicit address(P1&& p1) noexcept : m_p1(std::move(p1)) {}
-    address(address&& e) noexcept : m_p1(std::move(e.m_p1)) {}
-    address& operator=(const address&); // No assignment
+    explicit address(const P1&  p) noexcept : m_p1(          p ) {}
+    explicit address(      P1&& p) noexcept : m_p1(std::move(p)) {}
+    address(const address&  e) noexcept : m_p1(          e.m_p1 ) {} ///< Copy constructor
+    address(      address&& e) noexcept : m_p1(std::move(e.m_p1)) {} ///< Move constructor
+    address& operator=(const address&); ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
@@ -59,10 +61,16 @@ template <typename P1>
 inline auto operator&(P1&& p1) noexcept
         -> typename std::enable_if<
                         mch::is_pattern<P1>::value,
-                        mch::address<decltype(mch::filter(std::forward<P1>(p1)))>
+                        mch::address<
+                            typename mch::underlying<decltype(mch::filter(std::forward<P1>(p1)))>::type
+                        >
                     >::type
 {
-    return mch::address<decltype(mch::filter(std::forward<P1>(p1)))>(mch::filter(std::forward<P1>(p1)));
+    return mch::address<
+                        typename mch::underlying<decltype(mch::filter(std::forward<P1>(p1)))>::type
+                    >(
+                        mch::filter(std::forward<P1>(p1))
+                    );
 }
 
 //------------------------------------------------------------------------------

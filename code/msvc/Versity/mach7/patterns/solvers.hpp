@@ -40,7 +40,7 @@ inline bool solve(const var<T>& e, const S& r)
 
 // Solver for variable (reference)
 template <typename T, typename S>
-inline bool solve(const ref<T>& e, const S& r)
+inline bool solve(const ref2<T>& e, const S& r)
 {
     return e(r);
 }

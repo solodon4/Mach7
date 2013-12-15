@@ -64,6 +64,7 @@ struct target_of<view<T,L>>
     /// Macro to define member's position within decomposition of a given data type
     /// Example: CM(0,MyClass::member) or CM(1,external_func)
     /// \note Use this macro only inside specializations of #bindings
+    /// \note The macro should be followed by a semicolon!
     /// \note We use variadic macro parameter here in order to be able to handle 
     ///       templates, which might have commas, otherwise just a second argument
     ///       would be sufficient.
@@ -87,6 +88,7 @@ struct target_of<view<T,L>>
     /// carries a distinct integral value that uniquely identifies the derived 
     /// type.  Used in the decomposition of the base class.
     /// \note Use this macro only inside specializations of #bindings
+    /// \note The macro should be followed by a semicolon!
     /// \note We use variadic macro parameter here in order to be able to handle 
     ///       templates, which might have commas, otherwise just a single argument
     ///       would be sufficient.
@@ -96,7 +98,7 @@ struct target_of<view<T,L>>
         {                                                           \
             return unary(&__VA_ARGS__);                             \
         }                                                           \
-        bool kind_selector_dummy() const noexcept;
+        bool kind_selector_dummy() const noexcept
 #else
     #error Macro KS used by the pattern-matching library has already been defined
 #endif
@@ -109,10 +111,11 @@ struct target_of<view<T,L>>
     ///        argument are unique, which is also the class whose bindings define 
     ///        the KS macro.
     /// \note Use this macro only inside specializations of #bindings
+    /// \note The macro should be followed by a semicolon!
     /// \note We use variadic macro parameter here in order to be able to handle 
     ///       templates, which might have commas, otherwise just a single argument
     ///       would be sufficient.
-    #define KV(T, ...) typedef T root_type; enum { kind_value = __VA_ARGS__ };
+    #define KV(T, ...) typedef T root_type; enum { kind_value = __VA_ARGS__ }
 #else
     #error Macro KV used by the pattern-matching library has already been defined
 #endif
@@ -123,10 +126,11 @@ struct target_of<view<T,L>>
     /// dividing these numbers onto sum of frequencies of all classes, statically
     /// allowable by a given match statement (derived from a source type).
     /// \note Use this macro only inside specializations of #bindings
+    /// \note The macro should be followed by a semicolon!
     /// \note We use variadic macro parameter here in order to be able to handle 
     ///       templates, which might have commas, otherwise just a single argument
     ///       would be sufficient.
-    #define FQ(...) enum { fq = __VA_ARGS__ };
+    #define FQ(...) enum { fq = __VA_ARGS__ }
 #else
     #error Macro FQ used by the pattern-matching library has already been defined
 #endif
@@ -134,6 +138,7 @@ struct target_of<view<T,L>>
 #if !defined(FQS)
     /// Macro to define a function that returns expected frequency of a given type.
     /// The syntax of the function should be: size_t f(const source_type&);
+    /// \note The macro should be followed by a semicolon!
     /// FIX: Make sure there is no re-entrancy problems when pattern matching is
     ///      used inside of the frequency function f to uncover source type.
     #define FQS(f)                                                  \
@@ -141,7 +146,7 @@ struct target_of<view<T,L>>
         {                                                           \
             return ::f(*reinterpret_cast<const XTL_CPP0X_TYPENAME get_param<bindings>::type*>(&vtbl)); \
         }                                                           \
-        bool frequency_dummy() const noexcept;
+        bool frequency_dummy() const noexcept
 #else
     #error Macro FQS used by the pattern-matching library has already been defined
 #endif
@@ -154,6 +159,7 @@ struct target_of<view<T,L>>
     /// that will be overriden in all subclasses in the following way:
     /// void SubClass::raise() const { throw *this; }
     /// \note Use this macro only inside specializations of #bindings
+    /// \note The macro should be followed by a semicolon!
     /// \note We use variadic macro parameter here in order to be able to handle 
     ///       templates, which might have commas, otherwise just a single argument
     ///       would be sufficient.
@@ -162,7 +168,7 @@ struct target_of<view<T,L>>
         {                                                           \
             return unary(&__VA_ARGS__);                             \
         }                                                           \
-        bool raise_selector_dummy() const noexcept;
+        bool raise_selector_dummy() const noexcept
 #else
     #error Macro RS used by the pattern-matching library has already been defined
 #endif

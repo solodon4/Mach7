@@ -20,7 +20,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\extractor.cpp">
+    <ClCompile Include="..\..\predicate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

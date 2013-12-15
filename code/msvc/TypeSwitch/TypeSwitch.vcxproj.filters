@@ -21,9 +21,6 @@
     <ClInclude Include="..\..\type_switch.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\vtblmap2.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\type_switch.cpp">

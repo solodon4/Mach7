@@ -59,7 +59,7 @@ static int some_numbers[256] = {
 
 //------------------------------------------------------------------------------
 
-extern void run_timings(
+extern size_t run_timings(
         std::vector<Shape*>&    shapes, 
         std::vector<long long>& timingsV, 
         std::vector<long long>& timingsM,
@@ -108,7 +108,7 @@ static const size_t num_extra_threads = 1;
 
 //------------------------------------------------------------------------------
 
-void run_timings_parallel(
+size_t run_timings_parallel(
         std::vector<Shape*>&    shapes, 
         std::vector<long long>& timingsV, 
         std::vector<long long>& timingsM,
@@ -179,6 +179,8 @@ void run_timings_parallel(
         timingsV[m] = liFinish1-liStart1;
         timingsM[m] = liFinish2-liStart2;
     }
+
+    return N; // Number of iterations per measurement
 }
 
 #endif // XTL_MULTI_THREADING
@@ -189,7 +191,7 @@ verdict test_sequential()
 {
     std::cout << "=================== Sequential Test ===================" << std::endl;
 
-    size_t a1 = 0, a2 = 0;
+    size_t n = 0, a1 = 0, a2 = 0;
     std::vector<long long> mediansV(K); // Final verdict of medians for each of the K experiments with visitors
     std::vector<long long> mediansM(K); // Final verdict of medians for each of the K experiments with matching
     std::vector<long long> timingsV(M);
@@ -201,10 +203,16 @@ verdict test_sequential()
 
     for (size_t k = 0; k < K; ++k)
     {
-        run_timings(shapes, timingsV, timingsM, a1, a2);
-        mediansV[k] = display("AreaVisSeq", timingsV);
-        mediansM[k] = display("AreaMatSeq", timingsM);
-        std::cout << "\t\t" << verdict(mediansV[k], mediansM[k]) << std::endl;
+        n = run_timings(shapes, timingsV, timingsM, a1, a2);
+        mediansV[k] = display("AreaVisSeq", timingsV, n);
+        mediansM[k] = display("AreaMatSeq", timingsM, n);
+
+        std::ios_base::fmtflags fmt = std::cout.flags(); // use cout flags function to save original format
+        std::cout << "\t\t" << verdict(n, mediansV[k], mediansM[k]) << "\t\t" 
+                  << " a1=" << std::setw(8) << std::hex << a1 
+                  << " a2=" << std::setw(8) << std::hex << a2 
+                  << std::endl;
+        std::cout.flags(fmt); // restore format
     }
 
     for (size_t i = 0; i < N; ++i)
@@ -221,7 +229,7 @@ verdict test_sequential()
 
     std::sort(mediansV.begin(), mediansV.end());
     std::sort(mediansM.begin(), mediansM.end());
-    return verdict(mediansV[K/2],mediansM[K/2]);
+    return verdict(n,mediansV[K/2],mediansM[K/2]);
 }
 
 //------------------------------------------------------------------------------
@@ -233,28 +241,34 @@ verdict test_randomized()
 #endif
     std::cout << "=================== Randomized Test ===================" << std::endl;
 
-    size_t a1 = 0, a2 = 0;
+    size_t n = 0, a1 = 0, a2 = 0;
     std::vector<long long> mediansV(K); // Final verdict of medians for each of the K experiments with visitors
     std::vector<long long> mediansM(K); // Final verdict of medians for each of the K experiments with matching
     std::vector<long long> timingsV(M);
     std::vector<long long> timingsM(M);
     std::vector<Shape*>    shapes(N);
 
+    for (size_t i = 0; i < N; ++i)
+        shapes[i] = make_shape(rand());
+
     for (size_t k = 0; k < K; ++k)
     {
-        for (size_t i = 0; i < N; ++i)
-            shapes[i] = make_shape(rand());
+        n = run_timings(shapes, timingsV, timingsM, a1, a2);
+        mediansV[k] = display("AreaVisRnd", timingsV, n);
+        mediansM[k] = display("AreaMatRnd", timingsM, n);
+        
+        std::ios_base::fmtflags fmt = std::cout.flags(); // use cout flags function to save original format
+        std::cout << "\t\t" << verdict(n, mediansV[k], mediansM[k]) << "\t\t" 
+                  << " a1=" << std::setw(8) << std::hex << a1 
+                  << " a2=" << std::setw(8) << std::hex << a2 
+                  << std::endl;
+        std::cout.flags(fmt); // restore format
+    }
 
-        run_timings(shapes, timingsV, timingsM, a1, a2);
-        mediansV[k] = display("AreaVisRnd", timingsV);
-        mediansM[k] = display("AreaMatRnd", timingsM);
-        std::cout << "\t\t" << verdict(mediansV[k], mediansM[k]) << std::endl;
-
-        for (size_t i = 0; i < N; ++i)
-        {
-            delete shapes[i];
-            shapes[i] = 0;
-        }
+    for (size_t i = 0; i < N; ++i)
+    {
+        delete shapes[i];
+        shapes[i] = 0;
     }
 
     if (a1 != a2)
@@ -265,7 +279,7 @@ verdict test_randomized()
 
     std::sort(mediansV.begin(), mediansV.end());
     std::sort(mediansM.begin(), mediansM.end());
-    return verdict(mediansV[K/2],mediansM[K/2]);
+    return verdict(n,mediansV[K/2],mediansM[K/2]);
 }
 
 //------------------------------------------------------------------------------
@@ -274,7 +288,7 @@ verdict test_repetitive()
 {
     std::cout << "=================== Repetitive Test ===================" << std::endl;
 
-    size_t a1 = 0, a2 = 0;
+    size_t n = 0, a1 = 0, a2 = 0;
     std::vector<long long> mediansV(K); // Final verdict of medians for each of the K experiments with visitors
     std::vector<long long> mediansM(K); // Final verdict of medians for each of the K experiments with matching
     std::vector<long long> timingsV(M);
@@ -286,10 +300,16 @@ verdict test_repetitive()
         for (size_t i = 0; i < N; ++i)
             shapes[i] = make_shape((k+i)*2-k-2*i);
 
-        run_timings(shapes, timingsV, timingsM, a1, a2);
-        mediansV[k] = display("AreaVisRep", timingsV);
-        mediansM[k] = display("AreaMatRep", timingsM);
-        std::cout << "\t\t" << verdict(mediansV[k], mediansM[k]) << std::endl;
+        n = run_timings(shapes, timingsV, timingsM, a1, a2);
+        mediansV[k] = display("AreaVisRep", timingsV, n);
+        mediansM[k] = display("AreaMatRep", timingsM, n);
+        
+        std::ios_base::fmtflags fmt = std::cout.flags(); // use cout flags function to save original format
+        std::cout << "\t\t" << verdict(n, mediansV[k], mediansM[k]) << "\t\t" 
+                  << " a1=" << std::setw(8) << std::hex << a1 
+                  << " a2=" << std::setw(8) << std::hex << a2 
+                  << std::endl;
+        std::cout.flags(fmt); // restore format
 
         for (size_t i = 0; i < N; ++i)
         {
@@ -306,7 +326,7 @@ verdict test_repetitive()
 
     std::sort(mediansV.begin(), mediansV.end());
     std::sort(mediansM.begin(), mediansM.end());
-    return verdict(mediansV[K/2],mediansM[K/2]);
+    return verdict(n,mediansV[K/2],mediansM[K/2]);
 }
 
 //------------------------------------------------------------------------------

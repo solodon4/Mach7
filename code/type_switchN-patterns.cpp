@@ -100,7 +100,7 @@ void do_match(const Shape* s0, const Shape* s1)
 
 //------------------------------------------------------------------------------
 
-void do_match(Shape* s0, const Shape* s1, const Shape* s2)
+void do_match(Shape* s0, Shape* s1, Shape* s2)
 {
     const char* text = "unknown";
 
@@ -251,7 +251,7 @@ void do_match(Shape* s0, Shape* s1, Shape* s2, Shape* s3)
     Case(t, t, t, c) text = "T,T,T,C"; break;
     Case(t, t, c, t) text = "T,T,C,T"; break;
     
-    Otherwise()            text = "other"; break;
+    Otherwise()      text = "other"; break;
     }
     EndMatch
 

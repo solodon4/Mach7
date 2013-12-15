@@ -162,6 +162,17 @@ struct var
         return true;
     }
 
+    /// This operator is used when the type of the subject is different from
+    /// the type of the variable. By default, we try to execute the assignment,
+    /// but then check that the values are equal. This often helps when trying 
+    /// to match a negative value against an unsigned variable.
+    template <typename U>
+    bool operator()(const U& u) const
+    {
+        m_value = u;
+        return m_value == u;
+    }
+
     var& operator=(const T& t) { m_value = t; return *this; }
 
     /// Helper conversion operator to let the variable be used in some places
@@ -291,6 +302,17 @@ struct ref0
     {
         m_var = t;
         return true;
+    }
+
+    /// This operator is used when the type of the subject is different from
+    /// the type of the variable. By default, we try to execute the assignment,
+    /// but then check that the values are equal. This often helps when trying 
+    /// to match a negative value against an unsigned variable.
+    template <typename U>
+    bool operator()(const U& u) const
+    {
+        m_var = u;
+        return m_var == u;
     }
 
     /// Member that will hold matching value in case of successful matching

@@ -21,6 +21,7 @@
 #include "equivalence.hpp"    // Equivalence pattern
 #include "guard.hpp"          // Guard pattern
 #include "n+k.hpp"            // n+k pattern
+#include "predicate.hpp"      // Predicate patterns
 #include "primitive.hpp"      // Value, Variable and Wildcard patterns
 #include "quantifiers.hpp"    // Quantifiers
 #include "regex.hpp"          // Regular expression pattern

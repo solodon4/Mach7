@@ -1,3 +1,15 @@
+#
+# \file
+#
+# Makefile for building and testing RedBlackTree example.
+#
+# \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+#
+# This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+# Copyright (C) 2011-2012 Texas A&M University.
+# All rights reserved.
+#
+
 TARGETS = red-black-tree.exe
 SOURCES = $(shell ls *.cpp)
 OS      = $(shell uname -s)
@@ -10,20 +22,19 @@ endif
 
 INCLUDES = -I../..
 LIBS     = -lstdc++
-CXXFLAGS = $(INCLUDES) -Wall -time -O2 -DNDEBUG -std=gnu++0x $(EXTRAFLAGS)
+CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -time -O2 -DNDEBUG -std=gnu++0x $(EXTRAFLAGS)
 LIBFLAGS = $(LIBS)
 AR       = ar
 
 .SUFFIXES: .cpp .o
 
-# Create lists of object files from the source file lists.
-
-OBJECTS = ${SOURCES:.cpp=.o}
+# Create a list of object files from the source file lists.
+OBJECTS  = ${SOURCES:.cpp=.o}
 
 DEP_FILES = $(SOURCES:.cpp=.dep)
 
 # Setting .SECONDARY to blank disables deletion of intermediate files by make
-#.SECONDARY:
+.SECONDARY:
 
 #include $(DEP_FILES)
 
@@ -31,6 +42,7 @@ DEP_FILES = $(SOURCES:.cpp=.dep)
 
 all: $(TARGETS)
 
+# A rule to build .exe file out of a .o file
 %.exe: $(OBJECTS)
 	@echo --------------------------------------------------------------------------------
 	@echo Linking $@ ...
@@ -41,6 +53,7 @@ all: $(TARGETS)
 	@echo
 	@echo
 
+# A rule to build .o file out of a .cpp file
 %.o: %.cpp
 	@echo --------------------------------------------------------------------------------
 	@echo Compiling $@ ...
@@ -68,3 +81,11 @@ all: $(TARGETS)
 
 clean:
 	rm -rf $(TARGETS) $(OBJECTS) $(DEP_FILES) *.output *.tab.cpp *.tab.hpp *.yy.cpp
+
+# A rule to create GraphViz .dot file with graph representation of header inclusions
+includes.dot:
+	grep -R --include=*.hpp "#include" * | sed -e "s/^/\"/g" -e "s/:/\"/g" -e "s/\/\/.*//g" -e "s/\"[A-Za-z0-9_\.\/-]*\//\"/g" -e "s/\(<.*>\)/\1\n\1 [color=red,shape=box]/g" -e "s/#include/ -> /g" -e "1 { s/^/digraph Includes {\nrankdir=TB;\nratio=0.44;\n/g }" -e "$$ { s/$$/\n}\n/g }" > includes.dot
+
+# A rule to convert the above GraphViz .dot file into actual picture
+includes.png: includes.dot
+	dot.exe -Tpng -oincludes.png includes.dot

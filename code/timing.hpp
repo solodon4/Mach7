@@ -15,7 +15,7 @@
 // This one is for pure convenience to let us choose which method to measure
 // with when several are available.
 #if (!defined(XTL_TIMING_METHOD_1) && !defined(XTL_TIMING_METHOD_2) && !defined(XTL_TIMING_METHOD_3))
-    #if   defined(_WIN32)
+    #if   defined(_MSC_VER)
         /// This timing method would work on Windows systems starting from Windows 2000
         #define XTL_TIMING_METHOD_1
     #elif defined(__GNUC__)
@@ -58,16 +58,27 @@ namespace mch ///< Mach7 library namespace
 namespace mch ///< Mach7 library namespace
 {
 
+#if 0
+    /// The type used to record a time stamp. The type must have operator- defined.
+    typedef unsigned long long int time_stamp;
+    /// The type capable of holding a difference of two time stamps.
+    typedef   signed long long int time_stamp_diff;
     // The following code is taken from: http://en.wikipedia.org/wiki/Time_Stamp_Counter
     extern "C" {
-#if 1
         inline unsigned long long int rdtsc(void)
         {
             unsigned long long int x;
             __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
             return x;
         }
+    }
 #else
+    /// The type used to record a time stamp. The type must have operator- defined.
+    typedef uint64_t  time_stamp;
+    /// The type capable of holding a difference of two time stamps.
+    typedef  int64_t  time_stamp_diff;
+    // The following code is taken from: http://en.wikipedia.org/wiki/Time_Stamp_Counter
+    extern "C" {
         inline uint64_t rdtsc() {
         uint32_t lo, hi;
         __asm__ __volatile__ (      // serialize
@@ -77,19 +88,15 @@ namespace mch ///< Mach7 library namespace
         __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
         return (uint64_t)hi << 32 | lo;
       }
-#endif
     }
-    /// The type used to record a time stamp. The type must have operator- defined.
-    typedef uint64_t  time_stamp;
-    /// The type capable of holding a difference of two time stamps.
-    typedef  int64_t  time_stamp_diff;
+#endif
     /// Returns a current time stamp.
     inline time_stamp get_time_stamp() { return rdtsc(); }
     /// Returns how many time stamps are there in 1 second (frequency).
     inline time_stamp get_frequency()
     {
         return 2530000000; // FIX: This ideally has to be MGz of computer we are running on as approximated below
-        unsigned long long int cycles[2];
+        time_stamp cycles[2];
         cycles[0] = rdtsc();
         usleep(100000); // Sleep for 1/10th of a second
         cycles[1] = rdtsc();
@@ -114,6 +121,9 @@ namespace mch ///< Mach7 library namespace
     inline time_stamp get_time_stamp() { return clock(); }
     /// Returns how many time stamps are there in 1 second (frequency).
     inline time_stamp get_frequency()  { return CLOCKS_PER_SEC; }
+    /// Estimates the number of cycles in a given time_stamp_diff value
+    /// FIX: Not implemented!
+    inline time_stamp_diff cycles(time_stamp_diff tsd)  { return tsd; }
 } // of namespace mch
 
 #else

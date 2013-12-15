@@ -165,7 +165,6 @@
     <ClInclude Include="..\..\memoized_cast.hpp" />
     <ClInclude Include="..\..\metatools.hpp" />
     <ClInclude Include="..\..\operators_preprocessed.hpp" />
-    <ClInclude Include="..\..\patterns.hpp" />
     <ClInclude Include="..\..\ptrtools.hpp" />
     <ClInclude Include="..\..\rnd.hpp" />
     <ClInclude Include="..\..\testshape.hpp" />

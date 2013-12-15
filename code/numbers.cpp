@@ -3,10 +3,10 @@
 ///
 /// This file is a part of pattern matching testing suite.
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -31,17 +31,36 @@ fib (2*n+1) = (fib(n+1))^2 + (fib n   )^2
 #include <math.h>
 #include <iostream>
 #include "testshape.hpp"
+#include "testutils.hpp"
+
+using namespace mch; // Mach7's library namespace
 
 //------------------------------------------------------------------------------
 
 int factorial(int n)
 {
-    mch::var<int> m;
+    var<int> m;
 
-	if (mch::C<int>(0)(n))   return 1;
-	if (mch::C<int>(m+1)(n)) return (m+1)*factorial(m);
+	if (C<int>(0)(n))   return 1;
+	if (C<int>(m+1)(n)) return (m+1)*factorial(m);
 	XTL_ASSERT(!"Should never happen");	
     return 0;
+}
+
+//------------------------------------------------------------------------------
+
+int fac(int n)
+{
+    unsigned short m;
+
+    Match (n)
+    {
+      When(0) return 1;
+      When(1) return 1;
+      When(m) return m*fac(m-1);
+      When(_) return 0;
+    }
+    EndMatch
 }
 
 //------------------------------------------------------------------------------
@@ -75,19 +94,19 @@ double power_opt(double x, int n)
 
 double power1(double x, int n)
 {
-	mch::var<int> m;
+	var<int> m;
 
-	if (mch::C<int>(0)(n))     return 1.0;
-    if (mch::C<int>(1)(n))     return x;
-	if (mch::C<int>(m*2)(n))   return sqr(power1(x,m));
-	if (mch::C<int>(m*2+1)(n)) return x*power1(x,2*m);
+	if (C<int>(0)(n))     return 1.0;
+    if (C<int>(1)(n))     return x;
+	if (C<int>(m*2)(n))   return sqr(power1(x,m));
+	if (C<int>(m*2+1)(n)) return x*power1(x,2*m);
 }
 
 //------------------------------------------------------------------------------
 
 double power2(double x, int n)
 {
-    mch::var<int> m;
+    var<int> m;
 
     Match(n)
     {
@@ -125,19 +144,19 @@ int fib_opt(int n)
 
 int fib1(int n)
 {
-    mch::var<int> m;
+    var<int> m;
 
-    if (mch::C<int>(1)(n))     return 1;
-    if (mch::C<int>(2)(n))     return 1;
-    if (mch::C<int>(m*2)(n))   return sqr(fib1(m+1)) - sqr(fib1(m-1));
-    if (mch::C<int>(m*2+1)(n)) return sqr(fib1(m+1)) + sqr(fib1(m));
+    if (C<int>(1)(n))     return 1;
+    if (C<int>(2)(n))     return 1;
+    if (C<int>(m*2)(n))   return sqr(fib1(m+1)) - sqr(fib1(m-1));
+    if (C<int>(m*2+1)(n)) return sqr(fib1(m+1)) + sqr(fib1(m));
 }
 
 //------------------------------------------------------------------------------
 
 int fib2(int n)
 {
-    mch::var<int> m;
+    var<int> m;
 
     Match(n)
     {
@@ -189,12 +208,15 @@ Shape* make_shape(size_t)
 
 //------------------------------------------------------------------------------
 
-#include "testvismat.hpp"    // Utilities for timing tests
+#include "testvismat1.hpp"    // Utilities for timing tests
 
 //------------------------------------------------------------------------------
 
 int main()
 {
+    std::cout << fac(-1);
+    std::cout << fac(0) << fac(1) << fac(2) << fac(3) << fac(4) << std::endl;
+
 	double x = 2.0;
 
 	for (int i = 0; i < 10; ++i)

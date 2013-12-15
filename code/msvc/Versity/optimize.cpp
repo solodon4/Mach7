@@ -1,7 +1,7 @@
 #include "versity-bindings.hpp"
 #include "type_switchN-patterns.hpp"
 #include "patterns/address.hpp"        // Address pattern
-//#include "patterns/combinators.hpp"    // Pattern combinators
+#include "patterns/combinators.hpp"    // Pattern combinators
 #include "patterns/constructor.hpp"    // Constructor pattern
 #include "patterns/equivalence.hpp"    // Equivalence pattern
 #include "patterns/guard.hpp"          // Guard pattern
@@ -50,34 +50,36 @@ void renameRegs(
 
     std::string op;
     var<Reg&> a, b, c;
+    // Convenience pattern that will match either src or dst register by value
+    auto either_reg = &val(src) || &val(dst);
 
-    while(p != q) {
-        bool stop;
+    while(p != q)
+    {
+        bool stop = false;
 
         Match(**p)
-        Case(C<InstMove>(_, &b)      ) stop = (*b.m_value==src || *b.m_value==dst); break;
-        Case(C<InstUn  >(_, _, &b)   ) stop = (*b.m_value==src || *b.m_value==dst); break;
-        Case(C<InstBin >(_, _, _, &c)) stop = (*c.m_value==src || *c.m_value==dst); break;
-        Otherwise() stop = false;
+        Case(C<InstMove>(_,       either_reg)) stop = true; break;
+        Case(C<InstUn  >(_, _,    either_reg)) stop = true; break;
+        Case(C<InstBin >(_, _, _, either_reg)) stop = true; break;
         EndMatch
 
         Match(**p)
         Case(C<InstMove>(&a, &b))
             Reg*  d = !stop ? rename(b) : std::move(b.m_value);
             Inst* i = new InstMove(rename(a),               d);
-            delete *p;
+            //delete *p;
             *p = i;
             break;
         Case(C<InstUn>(C<Op>(op), &a, &b))
             Reg*  d = !stop ? rename(b) : std::move(b.m_value);
             Inst* i = new InstUn(op, rename(a),             d);
-            delete *p;
+            //delete *p;
             *p = i;
             break;
         Case(C<InstBin>(C<Op>(op), &a, &b, &c))
             Reg*  d = !stop ? rename(c) : std::move(c.m_value);
             Inst* i = new InstBin(op, rename(a), rename(b), d);
-            delete *p;
+            //delete *p;
             *p = i;
             break;
         EndMatch
@@ -138,14 +140,15 @@ void renameRegsMove(
     bool doRename = chooseReg(b, d, src, dst);
     
     Inst* i = new InstMove(&a, dst);
-    delete x1_ref;
+    //delete x1_ref;
     x1_ref = i;
 
     if (doRename) {
         renameRegs(*src, *dst, p_ref, q);
     }
 
-    x2_out = *p_ref++;
+    //delete x2_out
+    x2_out = p_ref == q ? *p_ref++ : nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -159,6 +162,7 @@ void renameRegsMove(
 //    where (doRename, src, dst) = chooseReg b d
 
 void renameRegsUn(
+    std::string& op,
     Reg& a,
     Reg& b,
     Reg& d,
@@ -167,21 +171,21 @@ void renameRegsUn(
     instruction_stream_type::iterator& p_ref,
     const instruction_stream_type::iterator q)
 {
-    std::string op;
     Reg* src;
     Reg* dst;
 
     bool doRename = chooseReg(b, d, src, dst);
     
     Inst* i = new InstUn(op, &a, dst);
-    delete x1_ref;
+    //delete x1_ref;
     x1_ref = i;
 
     if (doRename) {
         renameRegs(*src, *dst, p_ref, q);
     }
 
-    x2_out = *p_ref++;
+    //delete x2_out
+    x2_out = p_ref == q ? *p_ref++ : nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -195,6 +199,7 @@ void renameRegsUn(
 //    where (doRename, src, dst) = chooseReg d e
 
 void renameRegsBin(
+    std::string& op,
     Reg& a,
     Reg& b,
     Reg& d,
@@ -204,23 +209,91 @@ void renameRegsBin(
     instruction_stream_type::iterator& p_ref,
     const instruction_stream_type::iterator q)
 {
-    std::string op;
     Reg* src;
     Reg* dst;
 
     bool doRename = chooseReg(d, e, src, dst);
     
     Inst* i = new InstBin(op, &a, &b, dst);
-    delete x1_ref;
+    //delete x1_ref;
     x1_ref = i;
 
     if (doRename) {
         renameRegs(*src, *dst, p_ref, q);
     }
 
-    x2_out = *p_ref++;
+    //delete x2_out
+    x2_out = p_ref == q ? *p_ref++ : nullptr;
 }
 
+// peep3 (x1:x2:x3:xs) = case x1 of
+//     InstMove a b -> case x2 of
+//                          InstMove c d     | b == c               -> case x3 of
+//                                                                          InstMove _ f    | b == f -> peep3 $ (InstMove a d):x3:xs
+//                                                                          InstUn _ _ f    | b == f -> peep3 $ (InstMove a d):x3:xs
+//                                                                          InstBin _ _ _ f | b == f -> peep3 $ (InstMove a d):x3:xs
+//                                                                          _ -> x1:(peep3 $ x2:x3:xs)
+//                          InstMove _ _                            -> case x3 of
+//                                                                          InstMove e g     | b == g && b == e                   -> peep3 $ x2:(InstMove a g):x3:xs
+//                                                                          InstUn op e g    | b == g && b == e                   -> peep3 $ x2:(InstUn op a g):x3:xs
+//                                                                          InstBin op e f g | (b == g) && ((b == e) && (b /= f)) -> peep3 $ x2:(InstBin op a f g):xs
+//                                                                          InstBin op e f g | (b == g) && ((b /= e) && (b == f)) -> peep3 $ x2:(InstBin op e a g):xs
+//                                                                          InstBin op e f g | (b == g) && ((b == e) && (b == f)) -> peep3 $ x2:(InstBin op a a g):xs
+//                                                                          _ -> x1:(peep3 $ x2:x3:xs)
+//                          InstUn _ c d     | b == c               -> case x3 of
+//                                                                          InstMove _ f    | b == f -> peep3 $ (InstMove a d):x3:xs
+//                                                                          InstUn _ _ f    | b == f -> peep3 $ (InstMove a d):x3:xs
+//                                                                          InstBin _ _ _ f | b == f -> peep3 $ (InstMove a d):x3:xs
+//                                                                          _ -> x1:(peep3 $ x2:x3:xs)
+//                          InstBin op c d e | (b == d) && (b /= c) -> case x3 of
+//                                                                          InstMove _ f    | b == f -> peep3 $ (InstBin op c a e):x3:xs
+//                                                                          InstUn _ _ f    | b == f -> peep3 $ (InstBin op c a e):x3:xs
+//                                                                          InstBin _ _ _ f | b == f -> peep3 $ (InstBin op c a e):x3:xs
+//                                                                          _ -> x1:(peep3 $ x2:x3:xs)
+//                          InstBin op c d e | (b /= d) && (b == c) -> case x3 of
+//                                                                          InstMove _ f    | b == f -> peep3 $ (InstBin op a d e):x3:xs
+//                                                                          InstUn _ _ f    | b == f -> peep3 $ (InstBin op a d e):x3:xs
+//                                                                          InstBin _ _ _ f | b == f -> peep3 $ (InstBin op a d e):x3:xs
+//                                                                          _ -> x1:(peep3 $ x2:x3:xs)
+//                          InstBin op c d e | (b == d) && (b == c) -> case x3 of
+//                                                                          InstMove _ f    | b == f -> peep3 $ (InstBin op a a e):x3:xs
+//                                                                          InstUn _ _ f    | b == f -> peep3 $ (InstBin op a a e):x3:xs
+//                                                                          InstBin _ _ _ f | b == f -> peep3 $ (InstBin op a a e):x3:xs
+//                                                                          _ -> x1:(peep3 $ x2:x3:xs)
+//                          _ -> x1:(peep3 $ x2:x3:xs)
+//     _ -> x1:(peep3 $ x2:x3:xs)
+/*
+instruction_stream_type::iterator peep3(
+    instruction_stream_type::iterator& p, 
+    instruction_stream_type::iterator& q,
+    instruction_stream_type::iterator& r)
+{
+    var<Reg&> a, b, c, d, e, f, g;
+    std::string op;
+
+    Inst* x1 = *p++;
+
+    if (p == q) {
+        *r++ = x1;
+        return;
+    }
+
+    Inst* x2 = *p++;
+
+    if (p == q) {
+        *r++ = x1;
+        *r++ = x2;
+        return;
+    }
+
+    Inst* x3 = *p++;
+
+    do {
+    } while (p != q);
+
+    return r;
+}
+*/
 //------------------------------------------------------------------------------
 
 //peep2 (x1:x2:xs) = case x1 of
@@ -242,7 +315,7 @@ void renameRegsBin(
 //peep2 (x:xs) = x:(peep2 xs)
 //peep2 [] = []
 
-void peep2(
+instruction_stream_type::iterator peep2(
     instruction_stream_type::iterator& p, 
     instruction_stream_type::iterator& q,
     instruction_stream_type::iterator& r)
@@ -250,47 +323,122 @@ void peep2(
     var<Reg&> a, b, c, d;
     std::string op;
 
-    Inst* x1 = *p++; // FIX: Check == q
-    Inst* x2 = *p++; // FIX: Check == q
+    Inst* x1 = *p++;
 
-    Match(*x1,*x2)
-    {
-    Case(C<InstMove>(&a,&b), C<InstMove>(&+b,&+a) ) delete x2; x2 = *p++; break;
-  //Case(C<InstMove>(&a,&b), C<InstMove>(&+b,&d)  ) renameRegsMove(a,b,d,x1,x2,p,q); break;
-    Case(C<InstMove>(&a,&b), C<InstUn>(C<Op>(op),&+b,&+b) ) 
-        InstUn* i = new InstUn(op,std::move(a.m_value),std::move(b.m_value)); 
-        delete x1; delete x2; 
-        x1 = i;
-        x2 = *p++; 
-        break;
-    Case(C<InstMove>(&a,&b), C<InstBin>(C<Op>(op), &+b, &d |= d!=b, &+b) ) 
-        InstBin* i = new InstBin(op,std::move(a.m_value),std::move(d.m_value),std::move(b.m_value));
-        delete x1; delete x2;
-        x1 = i;
-        x2 = *p++; 
-        break;
+    if (p == q) {
+        *r++ = x1;
+        return r;
     }
-    EndMatch
+
+    Inst* x2 = *p++;
+
+    do {
+        Match(*x1,*x2)
+        {
+        Case(C<InstMove>(&a,&b), C<InstMove>(&+b,&+a))
+            // delete x2
+            x2 = p != q ? *p++ : nullptr;
+            break;
+        Case(C<InstMove>(&a,&b), C<InstMove>(&+b,&d))
+            renameRegsMove(a,b,d,x1,x2,p,q);
+            break;
+        Case(C<InstMove>(&a,&b), C<InstUn>(C<Op>(op),&+b,&+b))
+            InstUn* i = new InstUn(op,a.m_value,b.m_value);
+            //delete x1; delete x2;
+            x1 = i;
+            x2 = p != q ? *p++ : nullptr;
+            break;
+        Case(C<InstMove>(&a,&b), C<InstBin>(C<Op>(op),&+b, &d |= d!=b, &+b)) 
+            InstBin* i = new InstBin(op,a.m_value,d.m_value,b.m_value);
+            //delete x1; delete x2;
+            x1 = i;
+            x2 = p != q ? *p++ : nullptr;
+            break;
+        Case(C<InstMove>(&a,&b), C<InstBin>(C<Op>(op),&c |= c != b ,&d |= d==b, &+b)) 
+            InstBin* i = new InstBin(op,c.m_value,a.m_value,b.m_value);
+            //delete x1; delete x2;
+            x1 = i;
+            x2 = p != q ? *p++ : nullptr;
+            break;
+        Case(C<InstMove>(&a,&b), C<InstBin>(C<Op>(op),&+b,&d |= d==b, &+b)) 
+            InstBin* i = new InstBin(op,a.m_value,a.m_value,b.m_value);
+            //delete x1; delete x2;
+            x1 = i;
+            x2 = p != q ? *p++ : nullptr;
+            break;
+        Case(C<InstUn>(C<Op>(op),&a,&b), C<InstMove>(&+b,&d))
+            renameRegsUn(op,a,b,d,x1,x2,p,q);
+            break;
+        Case(C<InstBin>(C<Op>(op),&a,&b,&c), C<InstMove>(&+c,&d))
+            renameRegsBin(op,a,b,c,d,x1,x2,p,q);
+            break;
+        Otherwise()
+            *r++ = x1;
+            x1   = x2;
+            x2 = p != q ? *p++ : nullptr;
+            break;
+        }
+        EndMatch
+    } while (p != q);
+
+    *r++ = x1;
+
+    return r;
 }
 
 //------------------------------------------------------------------------------
 
-void peep1(
-    instruction_stream_type::const_iterator& p, 
-    instruction_stream_type::const_iterator& q,
-    instruction_stream_type::iterator&       r)
+//peep1 (x1:xs) = case x1 of
+//    InstMove a b | a == b -> peep1 xs
+//                 | otherwise -> if doRename
+//                                   then x1:(renameRegs src dst xs)
+//                                   else x1:(peep1 xs)
+//                                where (doRename, src, dst) = chooseReg a b
+//                                      rename reg = if reg == src
+//                                                      then dst
+//                                                      else reg
+//    _ -> x1:(peep1 xs)
+
+//peep1 [] = []
+
+instruction_stream_type::iterator peep1(
+    instruction_stream_type::iterator& p, 
+    instruction_stream_type::iterator& q,
+    instruction_stream_type::iterator& r)
 {
-    var<const Reg&> a;
+    var<Reg&> a, b;
+    Inst *x;
 
     while (p != q)
     {
-        Match(**p++)
+        x = *p++;
+
+        Match(*x)
         {
-        Case(C<InstMove>(&a, &+a)) break;
-        Otherwise() *r++ = &match0;
+        Case(C<InstMove>(&a, &+a))
+            //delete x;
+            break;
+        Case(C<InstMove>(_, _))
+            Reg *src;
+            Reg *dst;
+            bool doRename = chooseReg(a, b, src, dst);
+
+            if (doRename) {
+                renameRegs(*src, *dst, p, q);
+            }
+
+            *r++ = x;
+
+            break;
+
+        Otherwise()
+            *r++ = x;
+            break;
         }
         EndMatch
     }
+
+    return r;
 }
 
 //------------------------------------------------------------------------------

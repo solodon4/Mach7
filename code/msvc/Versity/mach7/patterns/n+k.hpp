@@ -60,11 +60,13 @@ template <typename F, typename E1>
 struct expr<F,E1>
 {
     static_assert(is_expression<E1>::value, "Argument E1 of a unary expression-pattern must be a lazy expression");
+    static_assert(!is_var<E1>::value,       "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
-    explicit expr(const E1& e1) : m_e1(e1) {}
-    explicit expr(E1&& e1) noexcept : m_e1(std::move(e1)) {}
-    expr(expr&& e) noexcept : m_e1(std::move(e.m_e1)) {}
-    expr& operator=(const expr&); // No assignment
+    explicit expr(const E1&  e1) noexcept : m_e1(          e1 ) {}
+    explicit expr(      E1&& e1) noexcept : m_e1(std::move(e1)) {}
+    expr(const expr&  e) noexcept : m_e1(          e.m_e1 ) {} ///< Copy constructor    
+    expr(      expr&& e) noexcept : m_e1(std::move(e.m_e1)) {} ///< Move constructor
+    expr& operator=(const expr&); ///< Assignment is not allowed for this class
 
     typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>()))>::type result_type;    ///< Type of result when used in expression. Requirement of #LazyExpression concept // We needed to add remove_const here as MSVC was returning const T
 
@@ -79,8 +81,10 @@ struct expr<F,E1>
     template <typename U>
     bool operator()(const U& u) const { return solve(*this,u); }
 
-    E1 m_e1;
+    E1 m_e1; ///< Expression template with the 1st operand
 };
+
+//------------------------------------------------------------------------------
 
 /// Expression pattern for binary operation
 template <typename F, typename E1, typename E2>
@@ -88,11 +92,16 @@ struct expr
 {
     static_assert(is_expression<E1>::value, "Argument E1 of a binary expression-pattern must be a lazy expression");
     static_assert(is_expression<E2>::value, "Argument E2 of a binary expression-pattern must be a lazy expression");
+    static_assert(!is_var<E1>::value,       "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
+    static_assert(!is_var<E2>::value,       "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
-    expr(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
-    expr(E1&& e1, E2&& e2) noexcept : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
-    expr(expr&& e) noexcept : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {}
-    expr& operator=(const expr&); // No assignment
+    expr(const E1&  e1, const E2&  e2) noexcept : m_e1(          e1 ), m_e2(          e2 ) {}
+    expr(      E1&& e1, const E2&  e2) noexcept : m_e1(std::move(e1)), m_e2(          e2 ) {}
+    expr(const E1&  e1,       E2&& e2) noexcept : m_e1(          e1 ), m_e2(std::move(e2)) {}
+    expr(      E1&& e1,       E2&& e2) noexcept : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
+    expr(const expr&  e) noexcept : m_e1(          e.m_e1 ), m_e2(          e.m_e2 ) {} ///< Copy constructor
+    expr(      expr&& e) noexcept : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {} ///< Move constructor
+    expr& operator=(const expr&); ///< Assignment is not allowed for this class
 
     typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>(),std::declval<typename E2::result_type>()))>::type result_type;    ///< Type of result when used in expression. Requirement of #LazyExpression concept // We needed to add remove_const here as MSVC was returning const T
 
@@ -107,8 +116,8 @@ struct expr
     template <typename U>
     bool operator()(const U& u) const { return solve(*this,u); }
 
-    E1 m_e1;
-    E2 m_e2;
+    E1 m_e1; ///< Expression template with the 1st operand
+    E2 m_e2; ///< Expression template with the 2nd operand
 };
 
 //------------------------------------------------------------------------------
@@ -254,15 +263,15 @@ inline auto operator<<(std::ostream& os, E&& e) throw()
 ///      This was choosing the wrong overload, so maybe we should replace all operators
 ///      in that way, of rely on later GCC version where this (presumably) is fixed.
 #define FOR_EACH_UNARY_OPERATOR(FF,S)                                           \
-    template <typename T>                                         inline auto XTL_CONCATENATE(operator,S)(      mch::var<T>&         v) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::ref<mch::var<T>>(v))) \
+    template <typename T>                                         inline auto XTL_CONCATENATE(operator,S)(      mch::var<T>&         v) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::ref2<mch::var<T>>(v))) \
     template <typename T>                                         inline auto XTL_CONCATENATE(operator,S)(const mch::value<T>&       v) noexcept -> XTL_RETURN(mch::make_expr<FF>(v))                        \
     template <typename F1, typename E1>                           inline auto XTL_CONCATENATE(operator,S)(const mch::expr<F1,E1>&    v) noexcept -> XTL_RETURN(mch::make_expr<FF>(v))                        \
     template <typename F1, typename E1, typename E2>              inline auto XTL_CONCATENATE(operator,S)(const mch::expr<F1,E1,E2>& v) noexcept -> XTL_RETURN(mch::make_expr<FF>(v))
 #define FOR_EACH_BINARY_OPERATOR(FF,S)                                          \
-  /*template <typename T,  typename E>                            inline auto XTL_CONCATENATE(operator,S)(      mch::var<T>&         v,       E&&                  e) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::ref<mch::var<T>>(v),mch::filter(std::forward<E>(e))))*/ \
-    template <typename T,  typename E>                            inline auto XTL_CONCATENATE(operator,S)(      mch::var<T>&         v,       E&&                  e) noexcept -> mch::expr<FF,mch::ref<mch::var<T>>,decltype(mch::filter(std::forward<E>(e)))> { return mch::make_expr<FF>(mch::ref<mch::var<T>>(v),mch::filter(std::forward<E>(e))); } \
-  /*template <typename T,  typename E>                            inline auto XTL_CONCATENATE(operator,S)(      E&&                  e,            mch::var<T>&    v) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::filter(std::forward<E>(e)),mch::ref<mch::var<T>>(v)))*/ \
-    template <typename T,  typename E>                            inline auto XTL_CONCATENATE(operator,S)(      E&&                  e,            mch::var<T>&    v) noexcept -> mch::expr<FF,decltype(mch::filter(std::forward<E>(e))),mch::ref<mch::var<T>>> { return mch::make_expr<FF>(mch::filter(std::forward<E>(e)),mch::ref<mch::var<T>>(v)); } \
+  /*template <typename T,  typename E>                            inline auto XTL_CONCATENATE(operator,S)(      mch::var<T>&         v,       E&&                  e) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::ref2<mch::var<T>>(v),mch::filter(std::forward<E>(e))))*/ \
+    template <typename T,  typename E>                            inline auto XTL_CONCATENATE(operator,S)(      mch::var<T>&         v,       E&&                  e) noexcept -> mch::expr<FF,mch::ref2<mch::var<T>>,decltype(mch::filter(std::forward<E>(e)))> { return mch::make_expr<FF>(mch::ref2<mch::var<T>>(v),mch::filter(std::forward<E>(e))); } \
+  /*template <typename T,  typename E>                            inline auto XTL_CONCATENATE(operator,S)(      E&&                  e,            mch::var<T>&    v) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::filter(std::forward<E>(e)),mch::ref2<mch::var<T>>(v)))*/ \
+    template <typename T,  typename E>                            inline auto XTL_CONCATENATE(operator,S)(      E&&                  e,            mch::var<T>&    v) noexcept -> mch::expr<FF,decltype(mch::filter(std::forward<E>(e))),mch::ref2<mch::var<T>>> { return mch::make_expr<FF>(mch::filter(std::forward<E>(e)),mch::ref2<mch::var<T>>(v)); } \
     template <typename T,  typename E>                            inline auto XTL_CONCATENATE(operator,S)(const mch::value<T>&       v,       E&&                  e) noexcept -> XTL_RETURN(mch::make_expr<FF>(v,mch::filter(std::forward<E>(e)))) \
     template <typename T,  typename E>                            inline auto XTL_CONCATENATE(operator,S)(      E&&                  e, const mch::value<T>&       v) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::filter(std::forward<E>(e)),v)) \
     template <typename F1, typename E1, typename E>               inline auto XTL_CONCATENATE(operator,S)(const mch::expr<F1,E1>&    v,       E&&                  e) noexcept -> XTL_RETURN(mch::make_expr<FF>(v,mch::filter(std::forward<E>(e)))) \
@@ -270,13 +279,13 @@ inline auto operator<<(std::ostream& os, E&& e) throw()
     template <typename F1, typename E1, typename E2, typename E>  inline auto XTL_CONCATENATE(operator,S)(const mch::expr<F1,E1,E2>& v,       E&&                  e) noexcept -> XTL_RETURN(mch::make_expr<FF>(v,mch::filter(std::forward<E>(e)))) \
     template <typename F1, typename E1, typename E2, typename E>  inline auto XTL_CONCATENATE(operator,S)(      E&&                  e, const mch::expr<F1,E1,E2>& v) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::filter(std::forward<E>(e)),v)) \
     template <typename T,  typename U>                            inline auto XTL_CONCATENATE(operator,S)(const mch::value<T>&       v, const mch::value<U>&       c) noexcept -> XTL_RETURN(mch::make_expr<FF>(v,c)) \
-    template <typename T,  typename U>                            inline auto XTL_CONCATENATE(operator,S)(      mch::var<T>&         v,       mch::var<U>&         w) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::ref<mch::var<T>>(v),mch::ref<mch::var<T>>(w))) \
+    template <typename T,  typename U>                            inline auto XTL_CONCATENATE(operator,S)(      mch::var<T>&         v,       mch::var<U>&         w) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::ref2<mch::var<T>>(v),mch::ref2<mch::var<T>>(w))) \
     template <typename F1, typename E1, typename E2,                           \
               typename F2, typename E3, typename E4>              inline auto XTL_CONCATENATE(operator,S)(const mch::expr<F1,E1,E2>& a, const mch::expr<F2,E3,E4>& b) noexcept -> XTL_RETURN(mch::make_expr<FF>(a,b)) \
-    template <typename T,  typename U>                            inline auto XTL_CONCATENATE(operator,S)(      mch::var<T>&         v, const mch::value<U>&       c) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::ref<mch::var<T>>(v),c)) \
-    template <typename T,  typename U>                            inline auto XTL_CONCATENATE(operator,S)(const mch::value<U>&       c,       mch::var<T>&         v) noexcept -> XTL_RETURN(mch::make_expr<FF>(c,mch::ref<mch::var<T>>(v))) \
-    template <typename T,  typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(const mch::expr<F1,E1,E2>& e,       mch::var<T>&         v) noexcept -> XTL_RETURN(mch::make_expr<FF>(e,mch::ref<mch::var<T>>(v))) \
-    template <typename T,  typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(      mch::var<T>&         v, const mch::expr<F1,E1,E2>& e) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::ref<mch::var<T>>(v),e)) \
+    template <typename T,  typename U>                            inline auto XTL_CONCATENATE(operator,S)(      mch::var<T>&         v, const mch::value<U>&       c) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::ref2<mch::var<T>>(v),c)) \
+    template <typename T,  typename U>                            inline auto XTL_CONCATENATE(operator,S)(const mch::value<U>&       c,       mch::var<T>&         v) noexcept -> XTL_RETURN(mch::make_expr<FF>(c,mch::ref2<mch::var<T>>(v))) \
+    template <typename T,  typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(const mch::expr<F1,E1,E2>& e,       mch::var<T>&         v) noexcept -> XTL_RETURN(mch::make_expr<FF>(e,mch::ref2<mch::var<T>>(v))) \
+    template <typename T,  typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(      mch::var<T>&         v, const mch::expr<F1,E1,E2>& e) noexcept -> XTL_RETURN(mch::make_expr<FF>(mch::ref2<mch::var<T>>(v),e)) \
     template <typename T,  typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(const mch::expr<F1,E1,E2>& e, const mch::value<T>&       c) noexcept -> XTL_RETURN(mch::make_expr<FF>(e,c))                       \
     template <typename T,  typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(const mch::value<T>&       c, const mch::expr<F1,E1,E2>& e) noexcept -> XTL_RETURN(mch::make_expr<FF>(c,e))
 #endif

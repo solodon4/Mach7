@@ -39,7 +39,9 @@ rem Set-up variables :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 set CXX=cl.exe
 rem List of compiler options: http://technet.microsoft.com/en-us/library/fwkeyyhe(v=vs.110).aspx
-rem NOTE: Specifying /GL in VC11 fails to link code that uses our decl_helper for some reason. Linker's /LTCG is used only when /GL is passed and vice versa
+rem NOTE: Specifying /GL in VC11 fails to link code that uses our decl_helper for some reason.
+rem       However not specifying /GL fails when trying to do PGO.
+rem       Linker's /LTCG is used only when /GL is passed and vice versa.
 rem set CXXFLAGS=/nologo /W4 /EHsc /O2
 set CXXFLAGS=/wd4007 /Zi /nologo /EHsc /W4 /WX- /O2 /Ob2 /Oi /Ot /Oy-     /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /I%BOOST% 
 rem          /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /Fp"Release\SyntheticSelectRandom.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb" 
@@ -71,8 +73,8 @@ echo Build log from %date% at %time% >> %logfile%
 
 rem Parse modifiers
 
-if "%1" == "pgo"       shift && set PGO=1                         && goto PARSE_CMD_LINE
-if "%1" == "tmp"       shift && set KEEP_TMP=1                    && goto PARSE_CMD_LINE
+if "%1" == "pgo"       shift && set PGO=1&&                          goto PARSE_CMD_LINE
+if "%1" == "tmp"       shift && set KEEP_TMP=1&&                     goto PARSE_CMD_LINE
 if "%1" == "2012"      shift && set VS_COMN_TOOLS=%VS110COMNTOOLS%&& goto PARSE_CMD_LINE
 if "%1" == "2010"      shift && set VS_COMN_TOOLS=%VS100COMNTOOLS%&& goto PARSE_CMD_LINE
 if "%1" == "2008"      shift && set VS_COMN_TOOLS=%VS90COMNTOOLS%&&  goto PARSE_CMD_LINE
@@ -104,6 +106,10 @@ goto END
 
 rem Set-up Visual C++ Environment Variables
 call "%VS_COMN_TOOLS%vsvars32.bat"
+
+rem Account for a problem with some PGO flags described above.
+if "%PGO%"=="1" set CXXFLAGS=%CXXFLAGS% /GL 
+if "%PGO%"=="1" set LNKFLAGS=%LNKFLAGS% /LTCG
 
 setlocal
 

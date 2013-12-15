@@ -13,6 +13,7 @@
 #pragma once
 
 #include "rnd.hpp"
+#include "testutils.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -44,18 +45,6 @@ inline size_t get_tag(size_t n) { return n; }
 #define NUMBER_OF_DERIVED 100
 #endif
 
-#if !defined(XTL_INLINE_TIMED_FUNCS)
-#define XTL_INLINE_TIMED_FUNCS 0
-#endif
-
-#if XTL_INLINE_TIMED_FUNCS
-#define XTL_TIMED_FUNC_BEGIN XTL_FORCE_INLINE_BEGIN
-#define XTL_TIMED_FUNC_END   XTL_FORCE_INLINE_END
-#else
-#define XTL_TIMED_FUNC_BEGIN XTL_DO_NOT_INLINE_BEGIN
-#define XTL_TIMED_FUNC_END   XTL_DO_NOT_INLINE_END
-#endif
-
 //------------------------------------------------------------------------------
 
 const size_t invalid = size_t(-1);
@@ -69,7 +58,7 @@ struct ShapeVisitor;
 struct OtherBase
 {
     OtherBase() : m_foo(0xAAAAAAAA) {}
-    virtual int foo() { return m_foo; };
+    virtual int foo() { return m_foo; }
 
     int m_foo;
 };

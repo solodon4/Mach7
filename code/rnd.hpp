@@ -45,10 +45,17 @@ inline size_t get_seed(size_t n)
     return n == 0 ? XTL_RND_SEED : get_seed(n-1) * 214013L + 2531011L;
 }
 
+inline size_t get_seed_fast(size_t n)
+{
+    size_t result = XTL_RND_SEED;
+    for (size_t i = 0; i < n; ++i) result = result * 214013L + 2531011L;
+    return result;
+}
+
 /// A run-time equivalent of the above
 inline size_t get_rnd(size_t n)
 {
-    return (get_seed(n+1) >> 16) & 0x7fff;
+    return (get_seed_fast(n+1) >> 16) & 0x7fff;
 }
 
 } // of namespace mch

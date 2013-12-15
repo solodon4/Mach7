@@ -1,10 +1,18 @@
 #include "red-black-tree.hpp"
 #include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <sstream>
+
+#include "../../type_switchN-patterns.hpp"
+#include "../../patterns/all.hpp"
+using namespace mch;
 
 template <typename K>
 struct node_of : node
 {
     node_of(const K& k, node_of* parent = nullptr) : node(red,parent), key(k) {}
+    node_of(node_color c, node_of* l, const K& k, node_of* r) : node(c,0,l,r), key(k) {}
 
     void inorder(void (*f)(const node_of&)) const
     {
@@ -23,6 +31,16 @@ struct node_of : node
 
     K key;
 };
+
+namespace mch ///< Mach7 library namespace
+{
+template <typename T> struct bindings<node_of<T>> { 
+    CM(0,node_of<T>::m_color); 
+    CM(1,node_of<T>::left); 
+    CM(2,node_of<T>::key); 
+    CM(3,node_of<T>::right); 
+};
+} // of namespace mch
 
 template <typename K>
 struct red_black_tree
@@ -89,6 +107,92 @@ struct red_black_tree
         node::remove(*reinterpret_cast<node**>(&root),n);
     }
 
+    //type color = R | B
+    //type 'a tree = E | T of color * 'a tree * 'a * 'a tree
+    //
+    //let balance = function  
+    //  | B, T (R, T (R,a,x,b), y, c), z, d  
+    //  | B, T (R, a, x, T (R,b,y,c)), z, d  
+    //  | B, a, x, T (R, T (R,b,y,c), z, d)  
+    //  | B, a, x, T (R, b, y, T (R,c,z,d)) -> T (R, T (B,a,x,b), y, T (B,c,z,d))  
+    //  | col, a, x, b                      -> T (col, a, x, b) 
+    node_type* balance(node::node_color color, node_type* left, const K& key, node_type* right)
+    {
+        const node::node_color B = node::node_color::black;
+        const node::node_color R = node::node_color::red;
+        typedef node_type T;
+        node::node_color col;
+        var<T*> a, b, c, d;
+        var<K&> x, y, z;
+
+        Match(color, left, key, right)
+        {
+        Case(B, C<T>(R, C<T>(R, a, x, b), y, c), z, d) return new T(R, new T(B,a,x,b), y, new T(B,c,z,d));
+        Case(B, C<T>(R, a, x, C<T>(R, b, y, c)), z, d) return new T(R, new T(B,a,x,b), y, new T(B,c,z,d));
+        Case(B, a, x, C<T>(R, C<T>(R, b, y, c), z, d)) return new T(R, new T(B,a,x,b), y, new T(B,c,z,d));
+        Case(B, a, x, C<T>(R, b, y, C<T>(R, c, z, d))) return new T(R, new T(B,a,x,b), y, new T(B,c,z,d));
+        Case(col, a, x, b)                             return new T(col, a, x, b);
+        }
+        EndMatch
+
+/*
+        if (color == B)
+        {
+            //if (match(color,left,key,right).
+            //    with((B, C<T>(R, C<T>(R, a, x, b), y, c), z, d)
+            //      || (B, C<T>(R, a, x, C<T>(R, b, y, c)), z, d)
+            //      || (B, a, x, C<T>(R, C<T>(R, b, y, c), z, d))
+            //      || (B, a, x, C<T>(R, b, y, C<T>(R, c, z, d)))
+            //    ))
+            //    return new T(R, new T(B,a,x,b), y, new T(B,c,z,d));
+
+            Match(left,right)
+            {
+            Case(C<T>(R, C<T>(R, a, x, b), y, c), d) z = key; return new T(R, new T(B,a,x,b), y, new T(B,c,z,d));
+            Case(C<T>(R, a, x, C<T>(R, b, y, c)), d) z = key; return new T(R, new T(B,a,x,b), y, new T(B,c,z,d));
+            Case(a, C<T>(R, C<T>(R, b, y, c), z, d)) x = key; return new T(R, new T(B,a,x,b), y, new T(B,c,z,d));
+            Case(a, C<T>(R, b, y, C<T>(R, c, z, d))) x = key; return new T(R, new T(B,a,x,b), y, new T(B,c,z,d));
+            }
+            EndMatch
+
+            //Match(color,left,key,right)
+            //{
+            //Case(B, C<T>(R, C<T>(R, a, x, b), y, c), z, d) return new T(R, new T(B,a,x,b), y, new T(B,c,z,d));
+            //Case(B, C<T>(R, a, x, C<T>(R, b, y, c)), z, d) return new T(R, new T(B,a,x,b), y, new T(B,c,z,d));
+            //Case(B, a, x, C<T>(R, C<T>(R, b, y, c), z, d)) return new T(R, new T(B,a,x,b), y, new T(B,c,z,d));
+            //Case(B, a, x, C<T>(R, b, y, C<T>(R, c, z, d))) return new T(R, new T(B,a,x,b), y, new T(B,c,z,d));
+            //}
+            //EndMatch
+        }
+        else
+            return new T(c, a, x, b);
+*/
+    } 
+
+    node_type* ins(node_type* s, const K& x)
+    {
+        var<node::node_color> c;
+        var<node_type*>  a, b;
+        var<K&>          y;
+
+        Match(s)
+        {
+        Case(val(nullptr))
+            return new node_type(node::red,nullptr,x,nullptr);
+        Case(C<node_type>(c,a,y,b))
+	        if (x < y) return balance(c, ins(a,x), y, b); else 
+            if (x > y) return balance(c, a, y, ins(b,x)); else
+	        return s;
+        }
+        EndMatch
+    }
+
+    node_type* insert(const K& x, node_type* s)
+    {
+        node_type* r = ins(s,x);
+        r->m_color = node::black;
+        return r;
+    }
 };
 
 template <typename T>
@@ -97,14 +201,47 @@ void show(const node_of<T>& n)
     std::cout << n.key << ',';
 }
 
+std::fstream f;
+
+template <typename T>
+void dot(const node_of<T>& n)
+{
+    f << '\"' << &n << "\"[color=" << (n.m_color == node::red ? "red" : "black") << ", label=" << n.key << "]" << std::endl;
+    //if (n.parent) f << '\"' << &n << "\" -> \"" << n.parent << "\" [label=P]" << std::endl;
+    if (n.left)   f << '\"' << &n << "\" -> \"" << n.left   << "\" [label=L,color=" << (n.left->parent  == &n ? "blue" : "red") << "]" << std::endl;
+    if (n.right)  f << '\"' << &n << "\" -> \"" << n.right  << "\" [label=R,color=" << (n.right->parent == &n ? "blue" : "red") << "]" << std::endl;
+}
+
+template <typename T>
+void print_dot(const red_black_tree<T>& rbt)
+{
+    static int i = 0;
+    std::stringstream ss;
+    ss << "rbt" << std::setw(2) << std::setfill('0') << i++ << ".dot";
+    f.open(ss.str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
+    if (f)
+    {
+        f << "digraph RBT {" << std::endl;
+        if (rbt.root) rbt.root->inorder(&dot<T>);
+        f << "}" << std::endl;
+        f.close();
+    }
+}
+
 int main()
 {
     red_black_tree<int> rbt;
     int values[] = {7,3,2,8,3,0,9,1,5};
-    for (size_t i = 0, n = sizeof(values)/sizeof(values[0]); i < n; ++i)
+    const size_t n = sizeof(values)/sizeof(values[0]);
+    for (size_t i = 0; i < n; ++i)
+    {
+        print_dot(rbt);
         rbt.insert(values[i]);
+    }
     rbt.root->inorder(&show<int>);
-    for (size_t i = 0, n = sizeof(values)/sizeof(values[0]); i < n; ++i)
+    print_dot(rbt);
+    return 0;
+    for (size_t i = 0; i < n; ++i)
         rbt.remove(values[i]);
     rbt.root->inorder(&show<int>);
 }

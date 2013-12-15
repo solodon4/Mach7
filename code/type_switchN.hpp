@@ -157,10 +157,6 @@ enum { default_layout = size_t(~0) };
 //#define Case7(x0,x1,x2,x3,x4,x5,x6)    CaseN(7,x0,x1,x2,x3,x4,x5,x6)   
 //#define Case8(x0,x1,x2,x3,x4,x5,x6,x7) CaseN(8,x0,x1,x2,x3,x4,x5,x6,x7)
 
-//#define OtherwiseN(N)                                                          \
-//        static_assert(is_inside_case_clause, "Otherwise() must follow actual clauses! If you are trying to use it as a default sub-clause, use When() instead"); \
-//        CaseN(N,XTL_ENUM(N,XTL_PREFIX,source_type))
-
 #define Otherwise()                                                            \
             static_assert(is_inside_case_clause, "Otherwise() must follow actual clauses! If you are trying to use it as a default sub-clause, use When() instead"); \
         }                                                                      \
@@ -179,16 +175,6 @@ enum { default_layout = size_t(~0) };
 //#define Otherwise6() OtherwiseN(6)
 //#define Otherwise7() OtherwiseN(7)
 //#define Otherwise8() OtherwiseN(8)
-
-//#define EndMatchN(N)                                                           \
-//        }                                                                      \
-//        if (XTL_UNLIKELY((__switch_info.target == 0 /* && XTL_REPEAT_WITH(&&,N,XTL_PREFIX,__casted_ptr)*/))) \
-//        {                                                                      \
-//            enum { target_label = XTL_COUNTER-__base_counter };                \
-//            __switch_info.target = target_label;                               \
-//            case target_label: ;                                               \
-//        }                                                                      \
-//        }}
 
 /// General EndMatch statement
 #define EndMatch                                                               \

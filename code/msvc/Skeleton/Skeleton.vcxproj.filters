@@ -41,9 +41,6 @@
     <ClInclude Include="..\..\operators_preprocessed.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\patterns.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\ptrtools.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

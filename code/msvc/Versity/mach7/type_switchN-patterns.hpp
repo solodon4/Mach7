@@ -19,6 +19,27 @@
 #include "vtblmap4.hpp"
 #include "metatools.hpp"
 
+namespace mch ///< Mach7 library namespace
+{
+
+//------------------------------------------------------------------------------
+
+/// FIX: This specialization doesn't actually help/work as expected as get<UID>
+///      at the time of this instantiation is not yet set<UID>.
+template <size_t N, typename T, typename UID>
+struct preallocated<vtbl_map<N,T>,UID>
+{
+    static vtbl_map<N,T> value;
+};
+
+template <size_t N, typename T, typename UID>
+vtbl_map<N,T> preallocated<vtbl_map<N,T>,UID>::value(deferred_constant<vtbl_count_t>::get<UID>::value);
+
+} // of namespace mch
+
+#define XTL_GET_TYPES_NUM_ESTIMATE   (mch::deferred_constant<mch::vtbl_count_t>::get<match_uid_type>::value)
+#define XTL_SET_TYPES_NUM_ESTIMATE(N) mch::deferred_constant<mch::vtbl_count_t>::set<match_uid_type,(N)>::value_ptr
+
 //------------------------------------------------------------------------------
 
 /// Predefined value representing a layout used by default when none is specified.
@@ -55,6 +76,8 @@
 /// A common macro used in repetitions to prefix the iterator with given token
 #define XTL_PREFIX(n,...) __VA_ARGS__##n
 
+#define XTL_GET_VTLB_OF_SUBJECT(N,...) mch::vtbl_of(subject_ptr##N)
+
 //------------------------------------------------------------------------------
 
 /// Helper macro for #Match
@@ -63,9 +86,10 @@
         enum { is_inside_case_clause = 0, number_of_subjects = N };            \
         enum { __base_counter = XTL_COUNTER };                                 \
         XTL_REPEAT(N,XTL_MATCH_SUBJECT_POLYMORPHIC_FROM,__VA_ARGS__)           \
+        const intptr_t __vtbl[N] = {XTL_ENUM(N,XTL_GET_VTLB_OF_SUBJECT)};      \
         typedef mch::vtbl_map<N,mch::type_switch_info<N>> vtbl_map_type;       \
         XTL_PRELOADABLE_LOCAL_STATIC(vtbl_map_type,__vtbl2case_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
-        mch::type_switch_info<N>& __switch_info = __vtbl2case_map.get(XTL_ENUM(N,XTL_PREFIX,subject_ptr)); \
+        mch::type_switch_info<N>& __switch_info = __vtbl2case_map.get(__vtbl); \
         switch (__switch_info.target) {                                        \
         default: {{{
 
@@ -81,7 +105,7 @@
 
 #define XTL_DECLARE_TARGET_TYPES(i,...)                                        \
         static_assert(mch::is_pattern<decltype(XTL_SELECT_ARG(i,__VA_ARGS__))>::value,"With-clause expects patterns as its arguments"); \
-        typedef mch::underlying<decltype(XTL_SELECT_ARG(i,__VA_ARGS__))>::type::accepted_type_for<source_type##i>::type target_type##i;
+        typedef /*typename*/ mch::underlying<decltype(XTL_SELECT_ARG(i,__VA_ARGS__))>::type::/*template*/ accepted_type_for<source_type##i>::type target_type##i;
 #define XTL_DYN_CAST_FROM(i,...) (__casted_ptr##i = dynamic_cast<const target_type##i*>(subject_ptr##i)) != 0
 #define XTL_ASSIGN_OFFSET(i,...) __switch_info.offset[i] = intptr_t(__casted_ptr##i)-intptr_t(subject_ptr##i);
 #define XTL_ADJUST_PTR_FROM(i,...) auto& match##i = *mch::adjust_ptr<target_type##i>(subject_ptr##i,__switch_info.offset[i]);
@@ -134,6 +158,7 @@
         if (XTL_UNLIKELY((__switch_info.target == 0)))                         \
         {                                                                      \
             enum { target_label = XTL_COUNTER-__base_counter };                \
+            XTL_SET_TYPES_NUM_ESTIMATE(target_label-1);                        \
             __switch_info.target = target_label;                               \
             case target_label: ;                                               \
         }                                                                      \

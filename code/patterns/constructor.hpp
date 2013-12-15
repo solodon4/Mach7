@@ -46,6 +46,8 @@ struct constr0
     template <typename U>       T* operator()(      U& u) const noexcept { return operator()(&u); }
                           const T* operator()(const T* t) const noexcept { return t; }
                                 T* operator()(      T* t) const noexcept { return t; }
+                          const T* operator()(const T& t) const noexcept { return &t; }
+                                T* operator()(      T& t) const noexcept { return &t; }
     ///@}
 };
 
@@ -105,9 +107,11 @@ struct constr1
     template <typename U>       T* operator()(      U& u) const { return operator()(&u); }
                           const T* operator()(const T* t) const { return t ? match_structure(t) : 0; }
                                 T* operator()(      T* t) const { return t ? match_structure(t) : 0; }
+                          const T* operator()(const T& t) const { return match_structure(&t); } // We assume references to be checked for not nullptr
+                                T* operator()(      T& t) const { return match_structure(&t); } // and don't check it here to save on performance
     ///@}
 
-    P1 m_p1; ///< Expression representing 1st operand
+    P1 m_p1; ///< Pattern representing 1st operand
 };
 
 /// This is a specialization of the general one-argument construction pattern
@@ -172,9 +176,11 @@ struct constr1<T,layout,P1,typename std::enable_if<std::is_same<T,typename P1::t
     template <typename U>       T* operator()(      U& u) const { return operator()(&u); }
                           const T* operator()(const T* t) const { return t ? match_structure(t) : 0; }
                                 T* operator()(      T* t) const { return t ? match_structure(t) : 0; }
+                          const T* operator()(const T& t) const { return match_structure(&t); } // We assume references to be checked for not nullptr
+                                T* operator()(      T& t) const { return match_structure(&t); } // and don't check it here to save on performance
     ///@}
 
-    P1 m_p1; ///< Expression representing 1st operand
+    P1 m_p1; ///< Pattern representing 1st operand
 };
 
 //------------------------------------------------------------------------------
@@ -236,10 +242,12 @@ struct constr2
     template <typename U>       T* operator()(      U& u) const { return operator()(&u); }
                           const T* operator()(const T* t) const { return t ? match_structure(t) : 0; }
                                 T* operator()(      T* t) const { return t ? match_structure(t) : 0; }
+                          const T* operator()(const T& t) const { return match_structure(&t); } // We assume references to be checked for not nullptr
+                                T* operator()(      T& t) const { return match_structure(&t); } // and don't check it here to save on performance
     ///@}
 
-    P1 m_p1; ///< Expression representing 1st operand
-    P2 m_p2; ///< Expression representing 2nd operand
+    P1 m_p1; ///< Pattern representing 1st operand
+    P2 m_p2; ///< Pattern representing 2nd operand
 };
 
 //------------------------------------------------------------------------------
@@ -308,11 +316,13 @@ struct constr3
     template <typename U>       T* operator()(      U& u) const { return operator()(&u); }
                           const T* operator()(const T* t) const { return t ? match_structure(t) : 0; }
                                 T* operator()(      T* t) const { return t ? match_structure(t) : 0; }
+                          const T* operator()(const T& t) const { return match_structure(&t); } // We assume references to be checked for not nullptr
+                                T* operator()(      T& t) const { return match_structure(&t); } // and don't check it here to save on performance
     ///@}
 
-    P1 m_p1; ///< Expression representing 1st operand
-    P2 m_p2; ///< Expression representing 2nd operand
-    P3 m_p3; ///< Expression representing 3rd operand
+    P1 m_p1; ///< Pattern representing 1st operand
+    P2 m_p2; ///< Pattern representing 2nd operand
+    P3 m_p3; ///< Pattern representing 3rd operand
 };
 
 //------------------------------------------------------------------------------
@@ -392,12 +402,14 @@ struct constr4
     template <typename U>       T* operator()(      U& u) const { return operator()(&u); }
                           const T* operator()(const T* t) const { return t ? match_structure(t) : 0; }
                                 T* operator()(      T* t) const { return t ? match_structure(t) : 0; }
+                          const T* operator()(const T& t) const { return match_structure(&t); } // We assume references to be checked for not nullptr
+                                T* operator()(      T& t) const { return match_structure(&t); } // and don't check it here to save on performance
     ///@}
 
-    P1 m_p1; ///< Expression representing 1st operand
-    P2 m_p2; ///< Expression representing 2nd operand
-    P3 m_p3; ///< Expression representing 3rd operand
-    P4 m_p4; ///< Expression representing 4th operand
+    P1 m_p1; ///< Pattern representing 1st operand
+    P2 m_p2; ///< Pattern representing 2nd operand
+    P3 m_p3; ///< Pattern representing 3rd operand
+    P4 m_p4; ///< Pattern representing 4th operand
 };
 
 //------------------------------------------------------------------------------

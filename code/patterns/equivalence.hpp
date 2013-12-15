@@ -57,6 +57,11 @@ template <typename E1> struct is_expression_<equivalence<E1>> { static const boo
 
 //------------------------------------------------------------------------------
 
+template <typename E1>              
+inline typename equivalence<E1>::result_type eval(const equivalence<E1>& e) { return eval(e.m_e1); }
+
+//------------------------------------------------------------------------------
+
 } // of namespace mch
 
 //------------------------------------------------------------------------------

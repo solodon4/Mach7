@@ -3,14 +3,15 @@
 ///
 /// This file is a part of pattern matching testing suite.
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
 #include "testshape.hpp"
+#include "testutils.hpp"
 #include "match.hpp"
 
 //------------------------------------------------------------------------------
@@ -163,7 +164,7 @@ Shape* make_shape(size_t i)
 
 //------------------------------------------------------------------------------
 
-#include "testvismat.hpp"    // Utilities for timing tests
+#include "testvismat1.hpp"    // Utilities for timing tests
 
 //------------------------------------------------------------------------------
 

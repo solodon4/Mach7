@@ -13,7 +13,7 @@
 #pragma once
 
 #include <complex>
-//#include "patterns.hpp"
+#include "equivalence.hpp"
 
 namespace mch ///< Mach7 library namespace
 {
@@ -107,6 +107,41 @@ inline bool solve(const expr<addition,value<T>,E1>& e, const S& r)
 
 //------------------------------------------------------------------------------
 
+// Solver for the first argument of addition: a+b == r => a == r-b
+template <typename E1, typename E2, typename S>
+inline bool solve(const expr<addition,E1,equivalence<E2>>& e, const S& r)
+{
+    typedef S source_type;               // The type a subject
+    typedef typename E1::result_type target_type; // The type of a target expression
+
+    // NOTE: The following conditions are known at compile time and we rely here
+    //       on compiler eliminating dead branches. The reason we do this as 
+    //       opposed making enable_if-ed overloads is to avoid the exponensial
+    //       explosion of cases we'll have to add to make overloading unambiguous!
+    auto v = eval(e.m_e2);
+    XTL_STATIC_IF(std::is_unsigned<target_type>::value) 
+        return v < r && solve(e.m_e1,r-v);
+    else
+        return solve(e.m_e1,r-v);
+}
+
+// Solver for the second argument of addition: a+b == r => b == r-a
+template <typename E1, typename E2, typename S>
+inline bool solve(const expr<addition,equivalence<E1>,E2>& e, const S& r)
+{
+    // NOTE: The following conditions are known at compile time and we rely here
+    //       on compiler eliminating dead branches. The reason we do this as 
+    //       opposed making enable_if-ed overloads is to avoid the exponensial
+    //       explosion of cases we'll have to add to make overloading unambiguous!
+    auto v = eval(e.m_e1);
+    XTL_STATIC_IF(std::is_unsigned<typename E2::result_type>::value) 
+        return v < r && solve(e.m_e2,r-v);
+    else
+        return solve(e.m_e2,r-v);
+}
+
+//------------------------------------------------------------------------------
+
 // Solver for the first argument of subtraction: a-b == r => a == r+b
 template <typename E1, typename T, typename S>
 inline bool solve(const expr<subtraction,E1,value<T>>& e, const S& r)
@@ -119,6 +154,22 @@ template <typename E1, typename T, typename S>
 inline bool solve(const expr<subtraction,value<T>,E1>& e, const S& r)
 {
     return solve(e.m_e2,e.m_e1.m_value-r) && eval(e) == r;
+}
+
+//------------------------------------------------------------------------------
+
+// Solver for the first argument of subtraction: a-b == r => a == r+b
+template <typename E1, typename E2, typename S>
+inline bool solve(const expr<subtraction,E1,equivalence<E2>>& e, const S& r)
+{
+    return solve(e.m_e1,r+eval(e.m_e2)) && eval(e) == r;
+}
+
+// Solver for the second argument of subtraction: a-b == r => b == a-r
+template <typename E1, typename E2, typename S>
+inline bool solve(const expr<subtraction,equivalence<E1>,E2>& e, const S& r)
+{
+    return solve(e.m_e2,eval(e.m_e1)-r) && eval(e) == r;
 }
 
 //------------------------------------------------------------------------------

@@ -24,10 +24,11 @@ struct existential
 {
     static_assert(is_pattern<P1>::value, "Argument P1 of an existential quantifier pattern must be a pattern");
 
-    explicit existential(const P1& p1) : m_p1(p1) {}
-    explicit existential(P1&& p1) noexcept : m_p1(std::move(p1)) {}
-    existential(existential&& e) noexcept : m_p1(std::move(e.m_p1)) {}
-    existential& operator=(const existential&); // No assignment
+    explicit existential(const P1&  p) noexcept : m_p1(          p ) {}
+    explicit existential(      P1&& p) noexcept : m_p1(std::move(p)) {}
+    existential(const existential&  e) noexcept : m_p1(          e.m_p1 ) {} ///< Copy constructor
+    existential(      existential&& e) noexcept : m_p1(std::move(e.m_p1)) {} ///< Move constructor
+    existential& operator=(const existential&); ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
@@ -55,12 +56,17 @@ template <typename P1> struct is_pattern_<existential<P1>> { static const bool v
 //------------------------------------------------------------------------------
 
 template <typename P1>
-inline auto exist(P1&& p1) noexcept -> mch::existential<decltype(mch::filter(std::forward<P1>(p1)))>
+inline auto exist(P1&& p1) noexcept 
+        -> existential<
+                typename underlying<decltype(filter(std::forward<P1>(p1)))>::type
+           >
 {
-    return mch::existential<decltype(mch::filter(std::forward<P1>(p1)))>(mch::filter(std::forward<P1>(p1)));
+    return existential<
+                typename underlying<decltype(filter(std::forward<P1>(p1)))>::type
+           >(
+                filter(std::forward<P1>(p1))
+            );
 }
-
-//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 
@@ -69,10 +75,11 @@ struct universal
 {
     static_assert(is_pattern<P1>::value, "Argument P1 of an universal quantifier pattern must be a pattern");
 
-    explicit universal(const P1& p1) : m_p1(p1) {}
-    explicit universal(P1&& p1) noexcept : m_p1(std::move(p1)) {}
-    universal(universal&& e) noexcept : m_p1(std::move(e.m_p1)) {}
-    universal& operator=(const universal&); // No assignment
+    explicit universal(const P1&  p1) noexcept : m_p1(          p1 ) {}
+    explicit universal(      P1&& p1) noexcept : m_p1(std::move(p1)) {}
+    universal(const universal&  e) noexcept : m_p1(          e.m_p1 ) {} ///< Copy constructor
+    universal(      universal&& e) noexcept : m_p1(std::move(e.m_p1)) {} ///< Move constructor
+    universal& operator=(const universal&); ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
@@ -100,9 +107,16 @@ template <typename P1> struct is_pattern_<universal<P1>> { static const bool val
 //------------------------------------------------------------------------------
 
 template <typename P1>
-inline auto all(P1&& p1) noexcept -> mch::universal<decltype(mch::filter(std::forward<P1>(p1)))>
+inline auto all(P1&& p1) noexcept
+        -> universal<
+                typename underlying<decltype(filter(std::forward<P1>(p1)))>::type
+           >
 {
-    return mch::universal<decltype(mch::filter(std::forward<P1>(p1)))>(mch::filter(std::forward<P1>(p1)));
+    return universal<
+                typename underlying<decltype(filter(std::forward<P1>(p1)))>::type
+           >(
+                filter(std::forward<P1>(p1))
+            );
 }
 
 //------------------------------------------------------------------------------

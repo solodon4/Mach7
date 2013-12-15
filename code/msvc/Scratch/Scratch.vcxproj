@@ -14,7 +14,7 @@
     <ClInclude Include="..\..\..\..\Documents and Settings\Yuriy Solodkyy\Downloads\Benchmarks\Class Hierarchies\2012-04-08\3\digitalk3.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\extractor.cpp" />
+    <ClCompile Include="..\..\predicate.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BBCEC67C-0689-45A4-AE93-5F2B156E0111}</ProjectGuid>

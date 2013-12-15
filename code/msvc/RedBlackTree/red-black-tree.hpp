@@ -6,7 +6,7 @@ class node
 {
 public:
 
-    enum node_color { red, black } color;
+    enum node_color { red, black } m_color;
     node* parent;
     node* left;
     node* right;
@@ -17,13 +17,13 @@ public:
         node* l = nullptr, 
         node* r = nullptr
     ) : 
-        color(k),
+        m_color(k),
         parent(p), 
         left(l), 
         right(r)
     {}
     virtual ~node() { if (left) delete left; if (right) delete right; }
-
+    node_color color() const { return this ? m_color : black; }
     node* grandparent() const { return this && parent ? parent->parent : nullptr; }
     node* sibling() const { return this == parent->left ? parent->right : parent->left; }
     node* uncle() const
@@ -86,16 +86,16 @@ public:
         XTL_ASSERT(n->left == NULL || n->right == NULL);
         node* child = n->right ? n->right : n->left;
 
-        if (n->color == black) 
+        if (n->color() == black) 
         {
-            n->color = child->color;
+            n->m_color = child->color();
             n->delete_case1(*reinterpret_cast<node**>(&root));
         }
 
         replace_node(root, n, child);
 
         if (!n->parent && child)
-            child->color = black;
+            child->m_color = black;
 
         delete n;
     }
@@ -129,13 +129,13 @@ protected:
     void insert_case1(node*& root)
     {
         if (!parent)
-            color = black;
+            m_color = black;
         else
             insert_case2(root);
     }
     void insert_case2(node*& root)
     {
-        if (parent->color == black)
+        if (parent->color() == black)
             return; /* Tree is still valid */
         else
             insert_case3(root);
@@ -144,12 +144,12 @@ protected:
     {
         node* u = uncle();
 
-        if (u && u->color == red) 
+        if (u && u->color() == red) 
         {
-            parent->color = black;
-            u->color = black;
+            parent->m_color = black;
+            u->m_color = black;
             node* g = grandparent();
-            g->color = red;
+            g->m_color = red;
             g->insert_case1(root);
         } 
         else
@@ -175,8 +175,8 @@ protected:
     {
         node* g = grandparent();
 
-        parent->color = black;
-        g->color = red;
+        parent->m_color = black;
+        g->m_color = red;
         if (this == parent->left)
             g->rotate_right(root);
         else
@@ -187,9 +187,9 @@ protected:
     {
         node* s = sibling();
 
-        if (s->color == red) {
-            parent->color = red;
-            s->color = black;
+        if (s->color() == red) {
+            parent->m_color = red;
+            s->m_color = black;
             if (this == parent->left)
                 parent->rotate_left(root);
             else
@@ -201,12 +201,12 @@ protected:
     {
         node* s = sibling();
 
-        if (parent->color   == black &&
-            s->color        == black &&
-            s->left->color  == black &&
-            s->right->color == black) 
+        if (parent->color()   == black &&
+            s->color()        == black &&
+            s->left->color()  == black &&
+            s->right->color() == black) 
         {
-            s->color = red;
+            s->m_color = red;
             parent->delete_case1(root);
         } 
         else
@@ -216,13 +216,13 @@ protected:
     {
         node* s = sibling();
 
-        if (parent->color   == red   &&
-            s->color        == black &&
-            s->left->color  == black &&
-            s->right->color == black)
+        if (parent->color()   == red   &&
+            s->color()        == black &&
+            s->left->color()  == black &&
+            s->right->color() == black)
         {
-            s->color = red;
-            parent->color = black;
+            s->m_color = red;
+            parent->m_color = black;
         }
         else
             delete_case5(root);
@@ -231,27 +231,27 @@ protected:
     {
         node* s = sibling();
 
-        if  (s->color == black) 
+        if  (s->color() == black) 
         { /* this if statement is trivial,
           due to case 2 (even though case 2 changed the sibling to a sibling's child,
           the sibling's child can't be red, since no red parent can have a red child). */
             /* the following statements just force the red to be on the left of the left of the parent,
             or right of the right, so case six will rotate correctly. */
             if (this == parent->left     &&
-                s->right->color == black &&
-                s->left->color  == red)
+                s->right->color() == black &&
+                s->left->color()  == red)
             { /* this last test is trivial too due to cases 2-4. */
-                s->color = red;
-                s->left->color = black;
+                s->m_color = red;
+                s->left->m_color = black;
                 s->rotate_right(root);
             }
             else
                 if (this == parent->right    &&
-                    s->left->color  == black &&
-                    s->right->color == red)
+                    s->left->color()  == black &&
+                    s->right->color() == red)
                 {/* this last test is trivial too due to cases 2-4. */
-                    s->color = red;
-                    s->right->color = black;
+                    s->m_color = red;
+                    s->right->m_color = black;
                     s->rotate_left(root);
                 }
         }
@@ -261,17 +261,17 @@ protected:
     {
         node* s = sibling();
 
-        s->color = parent->color;
-        parent->color = black;
+        s->m_color = parent->color();
+        parent->m_color = black;
 
         if (this == parent->left)
         {
-            s->right->color = black;
+            s->right->m_color = black;
             parent->rotate_left(root);
         }
         else
         {
-            s->left->color = black;
+            s->left->m_color = black;
             parent->rotate_right(root);
         }
     }

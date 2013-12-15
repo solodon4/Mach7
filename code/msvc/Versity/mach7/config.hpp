@@ -327,19 +327,17 @@
     #define XTL_DEBUG_ONLY(...) __VA_ARGS__
     /// Our own version of assert macro because of the fact that normal assert was 
     /// not always removed in the release builds.
-    #define XTL_ASSERT(x) if (!(x)) { std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'; std::abort(); }
-    /// Our own version of assert macro because of the fact that normal assert was 
-    /// not always removed in the release builds.
-    #define XTL_VERIFY(x) if (!(x)) std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'
+    #define XTL_ASSERT(...) if (!(__VA_ARGS__)) { std::cerr << #__VA_ARGS__ " in file " << __FILE__ << '[' << __LINE__ << ']' << std::endl; std::abort(); }
 #else
     #define XTL_DEBUG_ONLY(...)
     /// Our own version of assert macro because of the fact that normal assert was 
     /// not always removed in the release builds.
-    #define XTL_ASSERT(x)
-    /// Our own version of assert macro because of the fact that normal assert was 
-    /// not always removed in the release builds.
-    #define XTL_VERIFY(x) if (!(x)) std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']'
+    #define XTL_ASSERT(...)
 #endif
+
+/// Our own version of assert macro because of the fact that normal assert was 
+/// not always removed in the release builds.
+#define XTL_VERIFY(x) if (!(x)) std::cerr << #x " in file " << __FILE__ << '[' << __LINE__ << ']' << std::endl
 
 //------------------------------------------------------------------------------
 
@@ -382,13 +380,6 @@
 //------------------------------------------------------------------------------
 
 #define XTL_FUNCTION __func__
-
-//------------------------------------------------------------------------------
-
-#if defined(_MSC_VER) && _MSC_VER < 1700 
-    /// Visual C++ 2012 supports alignof(T)
-    #define alignof(T) __alignof(T)
-#endif
 
 //------------------------------------------------------------------------------
 
@@ -452,6 +443,7 @@
 #define XTL_REPEAT_WITH_7(s,m,...) XTL_REPEAT_WITH_6(s,m,__VA_ARGS__) s m(6,__VA_ARGS__)
 #define XTL_REPEAT_WITH_8(s,m,...) XTL_REPEAT_WITH_7(s,m,__VA_ARGS__) s m(7,__VA_ARGS__)
 #define XTL_REPEAT_WITH_9(s,m,...) XTL_REPEAT_WITH_8(s,m,__VA_ARGS__) s m(8,__VA_ARGS__)
+#define XTL_REPEAT_WITH_10(s,m,...) XTL_REPEAT_WITH_9(s,m,__VA_ARGS__) s m(9,__VA_ARGS__)
 
 /// Repeats macro m(i) n times (separated by s) with i in [0..n-1]
 #define XTL_REPEAT_WITH(s,n,m,...) XTL_REPEAT_WITH_ ## n(s,m,__VA_ARGS__)
@@ -560,29 +552,6 @@
 
 //------------------------------------------------------------------------------
 
-#if !defined(_DEBUG)
-    #if defined(__GNUC__)
-        #define XTL_SUPPORTS_VLA
-    #elif defined(_MSC_VER)
-        #define XTL_SUPPORTS_ALLOCA
-    #endif
-#endif
-
-//------------------------------------------------------------------------------
-
-#if defined(XTL_SUPPORTS_VLA)
-    #define XTL_VLA(v,T,n,N)  T v[n]
-    #define XTL_VLAZ(v,T,n,N) T v[n]; std::memset(v,0,n*sizeof(T))
-#elif defined(XTL_SUPPORTS_ALLOCA)
-    #define XTL_VLA(v,T,n,N)  T* v = static_cast<T*>(alloca(n*sizeof(T)))
-    #define XTL_VLAZ(v,T,n,N) T* v = static_cast<T*>(alloca(n*sizeof(T))); std::memset(v,0,n*sizeof(T))
-#else
-    #define XTL_VLA(v,T,n,N)  T v[N]
-    #define XTL_VLAZ(v,T,n,N) T v[N] = {}
-#endif
-
-//------------------------------------------------------------------------------
-
 #if defined(_MSC_VER)
     #define XTL_MSC_ONLY(...)     __VA_ARGS__
     #define XTL_NON_MSC_ONLY(...)
@@ -604,28 +573,43 @@
 
 //------------------------------------------------------------------------------
 
-#if defined(_MSC_VER) || defined(__GNUC__) && (XTL_GCC_VERSION < 40600)
+// This part re-defines various language facilities that can be emulated or 
+// ignored in older compilers in order to support more compilers for the type
+// switching functionality, which does not require C++11.
+
+// MS Visual C++ workarounds
+
+#if defined(_MSC_VER)
+
+    #if _MSC_VER < 1700 
+        /// Visual C++ 2012 supports alignof(T)
+        #if !defined(alignof)
+            #define alignof(T) __alignof(T)
+        #endif
+    #endif
+    #if _MSC_VER < 1600 
+        #if !defined(static_assert)
+            /// Microsoft had their own macro
+            #define static_assert(cond,text) _STATIC_ASSERT(cond)
+        #endif
+        #if !defined(nullptr)
+            /// Turn nullptr into 0 for compilers not supporting it
+            #define nullptr 0
+        #endif
+        /// Indicate no support of r-value references
+        #define XTL_NO_RVALREF
+    #endif
     #if _MSC_VER == 1700
         /// Visual C++ 2012 has check that we do not redefine noexcept, but doesn't implement it yet
         #define _ALLOW_KEYWORD_MACROS 1
     #endif
-    /// Turn noexcept into throw() for compilers not supporting it
-    #define noexcept throw()
-#endif
-
-//------------------------------------------------------------------------------
-
-#if defined(_MSC_VER) && _MSC_VER < 1600 || defined(__GNUC__) && (XTL_GCC_VERSION < 40600)
-    #if !defined(nullptr)
-        /// Turn nullptr into 0 for compilers not supporting it
-         //((void *)0)
-        #define nullptr 0
+    #if !defined(noexcept)
+        /// Turn noexcept into throw() for compilers not supporting it
+        #define noexcept throw()
     #endif
-#endif
-
-//------------------------------------------------------------------------------
-
-#if defined(_MSC_VER)
+    #if !defined(_DEBUG)
+        #define XTL_SUPPORTS_ALLOCA
+    #endif
 
     /// Macros to use compiler's branch hinting. 
     /// \note These macros are only to be used in Case macro expansion, not in 
@@ -644,7 +628,30 @@
     #define XTL_FORCE_INLINE_BEGIN __forceinline
     /// A macro that is supposed to be put after  the function definition whose body must be inlined
     #define XTL_FORCE_INLINE_END
-#else
+
+#endif
+
+// GNU C++ workarounds
+
+#if defined(__GNUC__)
+
+    #if XTL_GCC_VERSION < 40600
+        #if !defined(noexcept)
+            /// Turn noexcept into throw() for compilers not supporting it
+            #define noexcept throw()
+        #endif
+        #if !defined(nullptr)
+            /// Turn nullptr into 0 for compilers not supporting it
+            #define nullptr 0
+        #endif
+    #endif
+    #if XTL_GCC_VERSION < 40300
+        /// Indicate no support of r-value references
+        #define XTL_NO_RVALREF
+    #endif
+    #if !defined(_DEBUG)
+        #define XTL_SUPPORTS_VLA
+    #endif
 
     /// Macros to use compiler's branch hinting. 
     /// \note These macros are only to be used in Case macro expansion, not in 
@@ -664,6 +671,19 @@
     #define XTL_FORCE_INLINE_BEGIN __attribute__ ((always_inline)) static inline 
     /// A macro that is supposed to be put after  the function definition whose body must be inlined
     #define XTL_FORCE_INLINE_END
+#endif
+
+//------------------------------------------------------------------------------
+
+#if defined(XTL_SUPPORTS_VLA)
+    #define XTL_VLA(v,T,n,N)  T v[n]
+    #define XTL_VLAZ(v,T,n,N) T v[n]; std::memset(v,0,n*sizeof(T))
+#elif defined(XTL_SUPPORTS_ALLOCA)
+    #define XTL_VLA(v,T,n,N)  T* v = static_cast<T*>(alloca(n*sizeof(T)))
+    #define XTL_VLAZ(v,T,n,N) T* v = static_cast<T*>(alloca(n*sizeof(T))); std::memset(v,0,n*sizeof(T))
+#else
+    #define XTL_VLA(v,T,n,N)  T v[N]
+    #define XTL_VLAZ(v,T,n,N) T v[N] = {}
 #endif
 
 //------------------------------------------------------------------------------

@@ -76,12 +76,13 @@ Shape* make_shape(size_t i)
 
 //------------------------------------------------------------------------------
 
-#include "testvismat.hpp"    // Utilities for timing tests
+#include "testvismat1.hpp"    // Utilities for timing tests
 
 //------------------------------------------------------------------------------
 
 int main()
 {
+    using namespace mch;
     verdict pp = test_repetitive();
     verdict ps = test_sequential();
     verdict pr = test_randomized();

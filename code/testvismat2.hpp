@@ -23,7 +23,7 @@ namespace mch ///< Mach7 library namespace
 
 //------------------------------------------------------------------------------
 
-void run_timings(
+size_t run_timings(
         std::vector<Shape*>&    shapes, 
         std::vector<long long>& timingsV, 
         std::vector<long long>& timingsM,
@@ -60,6 +60,8 @@ void run_timings(
         timingsV[m] = liFinish1-liStart1;
         timingsM[m] = liFinish2-liStart2;
     }
+
+    return N/2; // Number of iterations per measurement
 }
 
 //------------------------------------------------------------------------------

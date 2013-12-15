@@ -16,6 +16,8 @@
 #include "config.hpp"
 #include <cstddef>
 #include <typeinfo>
+#include <type_traits>
+
 #if defined(_MSC_VER)
     #include <excpt.h>
 #endif
@@ -28,6 +30,20 @@
     #include <crtdefs.h>
     namespace std { typedef ::intptr_t intptr_t; }
     typedef uintptr_t  uint32_t; // FIX: workaround for now
+#endif
+
+#if defined(__GNUC__) && XTL_GCC_VERSION < 40600
+namespace std
+{
+    /// GCC of some version prior to 4.6.1 (not sure which exactly) does not 
+    /// provide std::addressof. The following workaround is borrowed from:
+    /// http://en.cppreference.com/w/cpp/memory/addressof
+    template <typename T>
+    T* addressof(T& arg) 
+    {
+        return reinterpret_cast<T*>(&const_cast<char&>(reinterpret_cast<const volatile char&>(arg)));
+    }
+} // of namespace std
 #endif
 
 namespace mch ///< Mach7 library namespace
@@ -50,12 +66,17 @@ inline std::intptr_t vtbl_of(const void* p)
 template <typename T> inline const T* adjust_ptr(const void* p, std::ptrdiff_t offset) { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
 template <typename T> inline       T* adjust_ptr(      void* p, std::ptrdiff_t offset) { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)+offset); }
 
+template <typename T, typename S> inline auto adjust_ptr_if_polymorphic(const S* p, std::ptrdiff_t offset) -> typename std::enable_if< std::is_polymorphic<S>::value,const T*>::type { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
+template <typename T, typename S> inline auto adjust_ptr_if_polymorphic(const S* p, std::ptrdiff_t       ) -> typename std::enable_if<!std::is_polymorphic<S>::value,const T*>::type { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)); }
+template <typename T, typename S> inline auto adjust_ptr_if_polymorphic(      S* p, std::ptrdiff_t offset) -> typename std::enable_if< std::is_polymorphic<S>::value,      T*>::type { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)+offset); }
+template <typename T, typename S> inline auto adjust_ptr_if_polymorphic(      S* p, std::ptrdiff_t       ) -> typename std::enable_if<!std::is_polymorphic<S>::value,      T*>::type { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)); }
+
 //------------------------------------------------------------------------------
 
-template <typename T> inline const T* addr(const T* t) { return  t; }
-template <typename T> inline       T* addr(      T* t) { return  t; }
-template <typename T> inline const T* addr(const T& t) { return &t; }
-template <typename T> inline       T* addr(      T& t) { return &t; }
+template <typename T> inline const T* addr(const T* t) { return t; }
+template <typename T> inline       T* addr(      T* t) { return t; }
+template <typename T> inline const T* addr(const T& t) { return std::addressof(t); }
+template <typename T> inline       T* addr(      T& t) { return std::addressof(t); }
 
 //------------------------------------------------------------------------------
 
@@ -162,18 +183,62 @@ inline size_t req_bits(size_t v)
 
 //------------------------------------------------------------------------------
 
-#if 0
-
-template <typename dummy>
-struct MortonTable256
+/// A dummy template class to let the linker unify all the instances of the same 
+/// table without us having to bother to keep a dedicated .cpp file around.
+/// All the tables are spreadNxM where N is number of input bits and M is 
+/// the number of bits to spread by e.g. 2 means make it every 2nd bit
+template <typename dummy = void>
+struct morton
 {
-    static const unsigned short array[256];
+    static const uint32_t spread8x4[256];
+    static const uint16_t spread8x2[256];
+    static const uint16_t spread4x4[16];
+    static const uint16_t spread4x2[16];
 };
 
 //------------------------------------------------------------------------------
 
-template <typename dummy>
-const unsigned short MortonTable256<dummy>::array[256]    =
+template <typename _>
+const uint32_t morton<_>::spread8x4[256] =
+{
+    0x00000000, 0x00000001, 0x00000010, 0x00000011, 0x00000100, 0x00000101, 0x00000110, 0x00000111,
+    0x00001000, 0x00001001, 0x00001010, 0x00001011, 0x00001100, 0x00001101, 0x00001110, 0x00001111,
+    0x00010000, 0x00010001, 0x00010010, 0x00010011, 0x00010100, 0x00010101, 0x00010110, 0x00010111,
+    0x00011000, 0x00011001, 0x00011010, 0x00011011, 0x00011100, 0x00011101, 0x00011110, 0x00011111,
+    0x00100000, 0x00100001, 0x00100010, 0x00100011, 0x00100100, 0x00100101, 0x00100110, 0x00100111,
+    0x00101000, 0x00101001, 0x00101010, 0x00101011, 0x00101100, 0x00101101, 0x00101110, 0x00101111,
+    0x00110000, 0x00110001, 0x00110010, 0x00110011, 0x00110100, 0x00110101, 0x00110110, 0x00110111,
+    0x00111000, 0x00111001, 0x00111010, 0x00111011, 0x00111100, 0x00111101, 0x00111110, 0x00111111,
+    0x01000000, 0x01000001, 0x01000010, 0x01000011, 0x01000100, 0x01000101, 0x01000110, 0x01000111,
+    0x01001000, 0x01001001, 0x01001010, 0x01001011, 0x01001100, 0x01001101, 0x01001110, 0x01001111,
+    0x01010000, 0x01010001, 0x01010010, 0x01010011, 0x01010100, 0x01010101, 0x01010110, 0x01010111,
+    0x01011000, 0x01011001, 0x01011010, 0x01011011, 0x01011100, 0x01011101, 0x01011110, 0x01011111,
+    0x01100000, 0x01100001, 0x01100010, 0x01100011, 0x01100100, 0x01100101, 0x01100110, 0x01100111,
+    0x01101000, 0x01101001, 0x01101010, 0x01101011, 0x01101100, 0x01101101, 0x01101110, 0x01101111,
+    0x01110000, 0x01110001, 0x01110010, 0x01110011, 0x01110100, 0x01110101, 0x01110110, 0x01110111,
+    0x01111000, 0x01111001, 0x01111010, 0x01111011, 0x01111100, 0x01111101, 0x01111110, 0x01111111,
+    0x10000000, 0x10000001, 0x10000010, 0x10000011, 0x10000100, 0x10000101, 0x10000110, 0x10000111,
+    0x10001000, 0x10001001, 0x10001010, 0x10001011, 0x10001100, 0x10001101, 0x10001110, 0x10001111,
+    0x10010000, 0x10010001, 0x10010010, 0x10010011, 0x10010100, 0x10010101, 0x10010110, 0x10010111,
+    0x10011000, 0x10011001, 0x10011010, 0x10011011, 0x10011100, 0x10011101, 0x10011110, 0x10011111,
+    0x10100000, 0x10100001, 0x10100010, 0x10100011, 0x10100100, 0x10100101, 0x10100110, 0x10100111,
+    0x10101000, 0x10101001, 0x10101010, 0x10101011, 0x10101100, 0x10101101, 0x10101110, 0x10101111,
+    0x10110000, 0x10110001, 0x10110010, 0x10110011, 0x10110100, 0x10110101, 0x10110110, 0x10110111,
+    0x10111000, 0x10111001, 0x10111010, 0x10111011, 0x10111100, 0x10111101, 0x10111110, 0x10111111,
+    0x11000000, 0x11000001, 0x11000010, 0x11000011, 0x11000100, 0x11000101, 0x11000110, 0x11000111,
+    0x11001000, 0x11001001, 0x11001010, 0x11001011, 0x11001100, 0x11001101, 0x11001110, 0x11001111,
+    0x11010000, 0x11010001, 0x11010010, 0x11010011, 0x11010100, 0x11010101, 0x11010110, 0x11010111,
+    0x11011000, 0x11011001, 0x11011010, 0x11011011, 0x11011100, 0x11011101, 0x11011110, 0x11011111,
+    0x11100000, 0x11100001, 0x11100010, 0x11100011, 0x11100100, 0x11100101, 0x11100110, 0x11100111,
+    0x11101000, 0x11101001, 0x11101010, 0x11101011, 0x11101100, 0x11101101, 0x11101110, 0x11101111,
+    0x11110000, 0x11110001, 0x11110010, 0x11110011, 0x11110100, 0x11110101, 0x11110110, 0x11110111,
+    0x11111000, 0x11111001, 0x11111010, 0x11111011, 0x11111100, 0x11111101, 0x11111110, 0x11111111,
+};
+
+//------------------------------------------------------------------------------
+
+template <typename _>
+const uint16_t morton<_>::spread8x2[256] =
 {
     0x0000, 0x0001, 0x0004, 0x0005, 0x0010, 0x0011, 0x0014, 0x0015, 
     0x0040, 0x0041, 0x0044, 0x0045, 0x0050, 0x0051, 0x0054, 0x0055, 
@@ -211,21 +276,21 @@ const unsigned short MortonTable256<dummy>::array[256]    =
 
 //------------------------------------------------------------------------------
 
-/// Interleaves bits of two numbers (aka Morton numbers).
-/// The following code to interleave bits was taken from:
-/// http://graphics.stanford.edu/~seander/bithacks.html#InterleaveTableLookup
-inline uint32_t interleave(
-    uint16_t x, ///< Interleave lower 16 bits of x and y, so the bits of x
-    uint16_t y  ///< are in the even positions and bits from y in the odd;
-)
+template <typename _>
+const uint16_t morton<_>::spread4x4[16] =
 {
-    return  MortonTable256<void>::array[y >> 8]   << 17 | 
-            MortonTable256<void>::array[x >> 8]   << 16 |
-            MortonTable256<void>::array[y & 0xFF] <<  1 | 
-            MortonTable256<void>::array[x & 0xFF];
-}
+    0x0000, 0x0001, 0x0010, 0x0011, 0x0100, 0x0101, 0x0110, 0x0111,
+    0x1000, 0x1001, 0x1010, 0x1011, 0x1100, 0x1101, 0x1110, 0x1111,
+};
 
-#else
+//------------------------------------------------------------------------------
+
+template <typename _>
+const uint16_t morton<_>::spread4x2[16] =
+{
+    0x0000, 0x0001, 0x0004, 0x0005, 0x0010, 0x0011, 0x0014, 0x0015, 
+    0x0040, 0x0041, 0x0044, 0x0045, 0x0050, 0x0051, 0x0054, 0x0055, 
+};
 
 //------------------------------------------------------------------------------
 
@@ -233,24 +298,60 @@ inline uint32_t interleave(
 /// The following code to interleave bits was taken from:
 /// http://graphics.stanford.edu/~seander/bithacks.html#InterleaveBMN
 inline uint32_t interleave(
-    uint16_t x, ///< Interleave lower 16 bits of x and y, so the bits of x
-    uint16_t y  ///< are in the even positions and bits from y in the odd;
+    register uint32_t x, ///< Interleave lower 16 bits of x and y, so the bits of x
+    register uint32_t y  ///< are in the even positions and bits from y in the odd;
 )
 {
-    x = (x | (x << 8)) & 0x00FF00FF;
-    x = (x | (x << 4)) & 0x0F0F0F0F;
-    x = (x | (x << 2)) & 0x33333333;
-    x = (x | (x << 1)) & 0x55555555;
+    x &= 0xFFFF;
+    y &= 0xFFFF;
 
-    y = (y | (y << 8)) & 0x00FF00FF;
-    y = (y | (y << 4)) & 0x0F0F0F0F;
-    y = (y | (y << 2)) & 0x33333333;
-    y = (y | (y << 1)) & 0x55555555;
+    x = (x | (x << 8)) & 0x00FF00FF; // 00000000111111110000000011111111
+    x = (x | (x << 4)) & 0x0F0F0F0F; // 00001111000011110000111100001111
+    x = (x | (x << 2)) & 0x33333333; // 00110011001100110011001100110011
+    x = (x | (x << 1)) & 0x55555555; // 01010101010101010101010101010101
+
+    y = (y | (y << 8)) & 0x00FF00FF; // 00000000111111110000000011111111
+    y = (y | (y << 4)) & 0x0F0F0F0F; // 00001111000011110000111100001111
+    y = (y | (y << 2)) & 0x33333333; // 00110011001100110011001100110011
+    y = (y | (y << 1)) & 0x55555555; // 01010101010101010101010101010101
 
     return x | (y << 1); // the resulting 32-bit Morton Number.  
 }
 
-#endif
+//------------------------------------------------------------------------------
+
+/// Interleaves bits of two numbers (aka Morton numbers).
+/// The following code to interleave bits was taken from:
+/// http://graphics.stanford.edu/~seander/bithacks.html#InterleaveTableLookup
+inline uint32_t interleave8x2(
+    register uint32_t x, ///< Interleave lower 16 bits of x and y, so the bits of x
+    register uint32_t y  ///< are in the even positions and bits from y in the odd;
+)
+{
+    return morton<>::spread8x2[x      & 0xFF]
+         | morton<>::spread8x2[x >> 8 & 0xFF] << 16
+         | morton<>::spread8x2[y      & 0xFF] <<  1
+         | morton<>::spread8x2[y >> 8 & 0xFF] << 17 
+         ;
+}
+
+//------------------------------------------------------------------------------
+
+inline uint32_t interleave4x2(
+    register uint32_t x, ///< Interleave lower 16 bits of x and y, so the bits of x
+    register uint32_t y  ///< are in the even positions and bits from y in the odd;
+)
+{
+    return morton<>::spread4x2[x      & 0x0F] 
+         | morton<>::spread4x2[x >> 4 & 0x0F] << 8 
+         | morton<>::spread4x2[x >> 8 & 0x0F] << 16 
+         | morton<>::spread4x2[x >>12 & 0x0F] << 24
+         | morton<>::spread4x2[y      & 0x0F] << 1
+         | morton<>::spread4x2[y >> 4 & 0x0F] << 9 
+         | morton<>::spread4x2[y >> 8 & 0x0F] << 17 
+         | morton<>::spread4x2[y >>12 & 0x0F] << 25
+         ;
+}
 
 //------------------------------------------------------------------------------
 
@@ -258,9 +359,9 @@ inline uint32_t interleave(
 /// The following code to interleave bits was taken from:
 /// http://stackoverflow.com/questions/1024754/how-to-compute-a-3d-morton-number-interleave-the-bits-of-3-ints
 inline uint32_t interleave(
-    uint16_t x, ///< Interleave lower 10 bits of x, y and z, so the bits
-    uint16_t y, ///< of x are in the mod 0 positions, bits from y in mod 1
-    uint16_t z  ///< and bits from z in mod 2 positions;
+    register uint32_t x, ///< Interleave lower 10 bits of x, y and z, so the bits
+    register uint32_t y, ///< of x are in the mod 0 positions, bits from y in mod 1
+    register uint32_t z  ///< and bits from z in mod 2 positions;
 )
 {
     x &= 0x03FF;
@@ -287,6 +388,77 @@ inline uint32_t interleave(
 
 //------------------------------------------------------------------------------
 
+inline uint32_t interleave8x4(
+    register uint32_t x,
+    register uint32_t y,
+    register uint32_t z,
+    register uint32_t w
+)
+{
+    return morton<>::spread8x4[x      & 0xFF] 
+         | morton<>::spread8x4[y      & 0xFF] << 1
+         | morton<>::spread8x4[z      & 0xFF] << 2 
+         | morton<>::spread8x4[w      & 0xFF] << 3
+         ;
+}
+
+//------------------------------------------------------------------------------
+
+inline uint32_t interleave4x4(
+    register uint32_t x,
+    register uint32_t y,
+    register uint32_t z,
+    register uint32_t w
+)
+{
+    return morton<>::spread4x4[x      & 0x0F] 
+         | morton<>::spread4x4[x >> 4 & 0x0F] << 16     
+         | morton<>::spread4x4[y      & 0x0F] << 1
+         | morton<>::spread4x4[y >> 4 & 0x0F] << 17
+         | morton<>::spread4x4[z      & 0x0F] << 2
+         | morton<>::spread4x4[z >> 4 & 0x0F] << 18 
+         | morton<>::spread4x4[w      & 0x0F] << 3
+         | morton<>::spread4x4[w >> 4 & 0x0F] << 19
+         ;
+}
+
+//------------------------------------------------------------------------------
+
+/// Interleaves bits of two numbers (aka Morton numbers).
+/// The following code to interleave bits was taken from:
+/// http://graphics.stanford.edu/~seander/bithacks.html#InterleaveBMN
+inline uint32_t interleave(
+    register uint32_t x,
+    register uint32_t y,
+    register uint32_t z,
+    register uint32_t w
+)
+{
+    x &= 0xFF;                        // x = 00000000 00000000 00000000 ABCDEFGH
+    y &= 0xFF;                        // y = 00000000 00000000 00000000 ABCDEFGH
+    z &= 0xFF;                        // z = 00000000 00000000 00000000 ABCDEFGH
+    w &= 0xFF;                        // w = 00000000 00000000 00000000 ABCDEFGH
+
+    x = (x | (x << 12)) & 0x000F000F; // x = 00000000 0000ABCD 00000000 0000EFGH
+    y = (y | (y << 12)) & 0x000F000F; // y = 00000000 0000ABCD 00000000 0000EFGH
+    z = (z | (z << 12)) & 0x000F000F; // z = 00000000 0000ABCD 00000000 0000EFGH
+    w = (w | (w << 12)) & 0x000F000F; // w = 00000000 0000ABCD 00000000 0000EFGH
+
+    x = (x | (x <<  6)) & 0x03030303; // x = 000000AB 000000CD 000000EF 000000GH 
+    y = (y | (y <<  6)) & 0x03030303; // y = 000000AB 000000CD 000000EF 000000GH 
+    z = (z | (z <<  6)) & 0x03030303; // z = 000000AB 000000CD 000000EF 000000GH 
+    w = (w | (w <<  6)) & 0x03030303; // w = 000000AB 000000CD 000000EF 000000GH 
+
+    x = (x | (x <<  3)) & 0x11111111; // x = 000A000B 000C000D 000E000F 000G000H
+    y = (y | (y <<  3)) & 0x11111111; // y = 000A000B 000C000D 000E000F 000G000H
+    z = (z | (z <<  3)) & 0x11111111; // z = 000A000B 000C000D 000E000F 000G000H
+    w = (w | (w <<  3)) & 0x11111111; // w = 000A000B 000C000D 000E000F 000G000H
+
+    return x | (y << 1) | (z << 2) | (w << 3); // the resulting 32-bit Morton Number.  
+}
+
+//------------------------------------------------------------------------------
+
 /// Interleaves bits of N numbers (aka Morton numbers).
 /// FIX: Replace condition on j to better handle odd numbers.
 template <typename T, size_t N>
@@ -304,10 +476,27 @@ inline T interleave(const T (&vtbl)[N])
 
 //------------------------------------------------------------------------------
 
+// Current tests for the choice of interleave implementation for compilers:
+//       GCC 4.5.2:                 GCC 4.6.1:                 Visual C++ 10:             Visual C++ 11:                     
+// _x2 - 53% faster V= 65 M= 42   - 45% faster V= 55 M= 38   -  9% faster V= 51 M= 47   - 13% faster V= 55 M= 48  
+// 8x2 - 58% faster V= 61 M= 39 * - 64% faster V= 56 M= 34 * - 13% faster V= 50 M= 44 * - 17% faster V= 52 M= 44 * // Fastest for all 4
+// 4x2 - 50% faster V= 62 M= 41   - 59% faster V= 59 M= 37   -  9% faster V= 50 M= 46   -  3% faster V= 52 M= 50   
+
+// _x4 - 54% faster V= 64 M= 41   - 89% slower V= 58 M=111   -256% slower V= 54 M=194 * -102% slower V= 54 M=110  
+// 8x4 - 56% faster V= 61 M= 39 * - 68% slower V= 60 M=101   -306% slower V= 54 M=222 + - 70% slower V= 53 M= 92 *
+// 4x4 - 48% faster V= 65 M= 44   - 59% faster V= 60 M= 37 * -866% slower V= 52 M=508   -107% slower V= 55 M=114  
+
 inline intptr_t interleave(const intptr_t (&vtbl)[1]) { return vtbl[0]; }
-inline intptr_t interleave(const intptr_t (&vtbl)[2]) { return interleave(vtbl[0],vtbl[1]); }
+inline intptr_t interleave(const intptr_t (&vtbl)[2]) { return interleave8x2(vtbl[0],vtbl[1]); }
 inline intptr_t interleave(const intptr_t (&vtbl)[3]) { return interleave(vtbl[0],vtbl[1],vtbl[2]); }
-inline intptr_t interleave(const intptr_t (&vtbl)[4]) { return interleave(interleave(vtbl[0],vtbl[1]),interleave(vtbl[2],vtbl[3])); }
+#if defined(__GNUC__)
+inline intptr_t interleave(const intptr_t (&vtbl)[4]) { return interleave4x4(vtbl[0],vtbl[1],vtbl[2],vtbl[3]); }
+#elif defined(_MSC_VER)
+inline intptr_t interleave(const intptr_t (&vtbl)[4]) { return interleave8x4(vtbl[0],vtbl[1],vtbl[2],vtbl[3]); }
+#else
+inline intptr_t interleave(const intptr_t (&vtbl)[4]) { return interleave(vtbl[0],vtbl[1],vtbl[2],vtbl[3]); }
+//inline intptr_t interleave(const intptr_t (&vtbl)[4]) { return interleave(interleave(vtbl[0],vtbl[1]),interleave(vtbl[2],vtbl[3])); }
+#endif
 
 //------------------------------------------------------------------------------
 

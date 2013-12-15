@@ -20,8 +20,8 @@ enum { cart = mch::default_layout, plar = 1 };
 
 namespace mch ///< Mach7 library namespace
 {
-#if defined(_MSC_VER) && _MSC_VER >= 1700
-/// Visual C++ 2012 introduced a weird overload for numeric types T for 
+#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && XTL_GCC_VERSION > 40700
+/// C++ 11 introduced a weird overload for numeric types T for 
 /// std::real<T>, std::imag<T>, std::abs<T> and std::arg<T>, which messed up our
 /// nice syntax, and which is why we had to take address of member-functions
 /// or do the explicit cast first:

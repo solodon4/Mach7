@@ -3,10 +3,10 @@
 ///
 /// This file is a part of pattern matching testing suite.
 ///
-/// \autor Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of the XTL framework (http://parasol.tamu.edu/xtl/).
-/// Copyright (C) 2005-2012 Texas A&M University.
+/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
+/// Copyright (C) 2011-2012 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -51,7 +51,7 @@ struct gcd_functor
     auto operator()(A&& a, B&& b) const -> XTL_RETURN
     (
         gcd(std::forward<A>(a),std::forward<B>(b))
-    );
+    )
 };
 
 template <typename E1, typename E2> auto gcd(E1&& e1, E2&& e2) -> XTL_RETURN_ENABLE_IF
@@ -80,7 +80,7 @@ inline bool solve(const expr<sqrt_functor,E1>& e, const S& r)
 }
 
 template <>
-inline bool solve(const expr<division,ref<var<double>>,ref<var<double>>>& e, const double& r)
+inline bool solve(const expr<division,ref2<var<double>>,ref2<var<double>>>& e, const double& r)
 {
     // n/m = 3.1415926 => n=22,m=7
     long m[2][2] = {
@@ -160,8 +160,8 @@ int main()
     }
     EndMatch
 
-  //var<size_t> m1 = 12;
-    var<size_t> m2 = 3;
+  //var<size_t> m1(12);
+    var<size_t> m2( 3);
 
     Match(n)
     {

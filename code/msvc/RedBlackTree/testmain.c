@@ -75,10 +75,25 @@ void print_tree_helper(rbtree_node n, int indent) {
     }
 }
 
+
 int main() {
-    int i;
+    static int values[9] = {7,3,2,8,3,0,9,1,5};
+    int i,n;
     rbtree t = rbtree_create();
     print_tree(t);
+
+    for (i = 0, n = sizeof(values)/sizeof(values[0]); i < n; ++i)
+        rbtree_insert(t, (void*)values[i], (void*)i, compare_int);
+
+    printf("------------------------------------------\n");
+    print_tree(t);
+
+    for (i = 0, n = sizeof(values)/sizeof(values[0]); i < n; ++i)
+        rbtree_delete(t, (void*)values[i], compare_int);
+
+    printf("------------------------------------------\n");
+    print_tree(t);
+    printf("------------------------------------------\n");
 
     for(i=0; i<5000; i++) {
         int x = rand() % 10000;

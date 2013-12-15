@@ -138,7 +138,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\config.hpp" />
     <ClInclude Include="..\..\type_switch.hpp" />
-    <ClInclude Include="..\..\vtblmap2.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\type_switch.cpp" />

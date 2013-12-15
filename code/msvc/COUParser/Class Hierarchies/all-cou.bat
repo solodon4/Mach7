@@ -41,8 +41,8 @@ set filename=%~n1
 echo Processing %1 ...
 echo ======================================== [ %filename%.cpp ] >> %logfile%
 rem couparser.exe < %1 > %filename%.dot 2>> %logfile%
-if     "%filename%"=="self-system" couparser.exe %1 200 >> %logfile% 2>&1
-if not "%filename%"=="self-system" couparser.exe %1 700 >> %logfile% 2>&1
+if     "%filename%"=="self-system" couparser.exe %1 200 2 >> %logfile% 2>&1
+if not "%filename%"=="self-system" couparser.exe %1 700 2 >> %logfile% 2>&1
 rem couparser.exe %1     >> %logfile% 2>&1
 rem g++.exe -Wall -time -O2 -DNDEBUG -std=c++0x -I"C:\Projects\PatternMatching" -o %filename%.exe %filename%*.cpp >> %logfile% 2>&1
 rem if exist %filename%.o del /Q %filename%.o

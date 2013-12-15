@@ -15,15 +15,19 @@
 //------------------------------------------------------------------------------
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <numeric>
 #include <string>
+#include <typeinfo>
 #include <vector>
 #include "config.hpp"
 #include "timing.hpp"
+
+#define NO_RANDOMIZATION
 
 namespace mch ///< Mach7 library namespace
 {
@@ -40,10 +44,24 @@ namespace mch ///< Mach7 library namespace
 
 //------------------------------------------------------------------------------
 
+#if !defined(XTL_INLINE_TIMED_FUNCS)
+#define XTL_INLINE_TIMED_FUNCS 0
+#endif
+
+#if XTL_INLINE_TIMED_FUNCS
+#define XTL_TIMED_FUNC_BEGIN XTL_FORCE_INLINE_BEGIN
+#define XTL_TIMED_FUNC_END   XTL_FORCE_INLINE_END
+#else
+#define XTL_TIMED_FUNC_BEGIN XTL_DO_NOT_INLINE_BEGIN
+#define XTL_TIMED_FUNC_END   XTL_DO_NOT_INLINE_END
+#endif
+
+//------------------------------------------------------------------------------
+
 #if defined(XTL_PROFILING) || defined(_DEBUG)
 const size_t N = 10000; // Number of times visitor and matching procedure is invoked in one time measuring
-const size_t M = 101;   // Number of times time measuring is done
-const size_t K = 3;     // Number of experiment repetitions. Each experiment is M*N iterations
+const size_t M = 5;     // Number of times time measuring is done
+const size_t K = 1;     // Number of experiment repetitions. Each experiment is M*N iterations
 #else
 const size_t N = 10000; // Number of times visitor and matching procedure is invoked in one time measuring
 const size_t M = 101;   // Number of times time measuring is done
@@ -54,15 +72,17 @@ const size_t K = 100;   // Number of experiment repetitions. Each experiment is 
 
 struct verdict
 {
-    verdict(long long v = 0, long long m = 0) : vis_time(v), mat_time(m) {}
-    long long vis_time;
-    long long mat_time;
+    verdict(size_t N, long long v = 0, long long m = 0) : iterations(N), vis_time(v), mat_time(m) {}
+	size_t    iterations; ///< The number of iterations both timings represent
+    long long vis_time;   ///< Time of the existing technique
+    long long mat_time;   ///< Time of new (our) technique
 };
 
 //------------------------------------------------------------------------------
 
 inline std::ostream& operator<<(std::ostream& os, const verdict& r)
 {
+	size_t    N = r.iterations;
     long long v = r.vis_time;
     long long m = r.mat_time;
 
@@ -117,7 +137,7 @@ inline void statistics(std::vector<T>& measurements, T& min, T& max, T& avg, T& 
 
 //------------------------------------------------------------------------------
 
-inline long long display(const char* name, std::vector<long long>& timings)
+inline long long display(const char* name, std::vector<long long>& timings, size_t N)
 {
     long long min, max, avg, med, dev;
 
@@ -125,17 +145,19 @@ inline long long display(const char* name, std::vector<long long>& timings)
 
     std::fstream file;
    
-    file.open(std::string(name)+".csv", std::fstream::out | std::fstream::app);
+    file.open((std::string(name)+".csv").c_str(), std::fstream::out | std::fstream::app);
 
     if (file)
     {
+#if !defined(_MSC_VER) || _MSC_VER >= 1600
         // This will convert timings into cycles per iteration
         std::transform(
             timings.begin(), 
             timings.end(), 
             std::ostream_iterator<long long>(file, ", "), 
-            [](long long t) { return cycles(t)/N; }
+            [N](long long t) { return cycles(t)/N; }
         );
+#endif
         file << "End" << std::endl;
     }
 
@@ -161,9 +183,37 @@ inline long long display(const char* name, std::vector<long long>& timings)
 
 //------------------------------------------------------------------------------
 
+/// Our make functions used for testing map numbers 0..N-1 to N different objects.
+/// We iterate until we create different objects and then return only different ones.
+template <typename Object>
+std::vector<Object*> all_objects(Object* (*make)(int))
+{
+    std::vector<Object*> result;
+    Object* first = make(0);
+    result.push_back(first);
+
+    for (size_t i = 1; ; ++i)
+    {
+        Object* obj = make(i);
+        if (typeid(*obj) != typeid(*first))
+            result.push_back(obj);
+        else
+        {
+            delete obj;
+            break;
+        }
+    }
+
+    return result;
+}
+
+//------------------------------------------------------------------------------
+
 template <typename Object>
 inline long long test(Object* (*make)(int), int (*match)(Object*))
 {
+    std::vector<Object*> unique_objects = all_objects(make);
+    const size_t unique_objects_size = unique_objects.size();
     size_t a = 0; // Accumulator to make sure compiler doesn't take some loop invariants out
     size_t j = 0; // Incremental number for the current path/object combination. Ensures all path get tested.
     std::vector<long long> medians(K); // Final verdict of medians for each of the K experiments
@@ -172,11 +222,13 @@ inline long long test(Object* (*make)(int), int (*match)(Object*))
 
     for (size_t k = 0; k < K; ++k)
     {
-        for (size_t n = 0; n < N; ++n)
-            objects[n] = make(j++);
-
         for (size_t m = 0; m < M; ++m)
         {
+            // Since we limit N to account for number of arguments, we rotate
+            // available objects in a loop to let each object be matched
+            for (size_t n = 0; n < N; ++n)
+                objects[n] = unique_objects[j++ % unique_objects_size];
+
             time_stamp liStart  = get_time_stamp();
 
             for (size_t i = 0; i < N; ++i)
@@ -186,14 +238,466 @@ inline long long test(Object* (*make)(int), int (*match)(Object*))
             timings[m] = liFinish-liStart;
         }
 
-        for (size_t n = 0; n < N; ++n)
-            delete objects[n];
-
-        medians[k] = display("test", timings); // We are looking for a median per N iterations
+        medians[k] = display("test", timings, N); // We are looking for a median per N iterations
     }
+
+    // Destroy all the unique objects
+    for (size_t n = 0; n < unique_objects_size; ++n)
+        delete unique_objects[n];
 
     std::sort(medians.begin(), medians.end());
     return cycles(medians[K/2])/N;
+}
+
+//------------------------------------------------------------------------------
+
+template <typename Object>
+inline long long test(Object* (*make)(int), int (*match)(Object*,Object*))
+{
+    std::vector<Object*> unique_objects = all_objects(make);
+    const size_t unique_objects_size = unique_objects.size();
+    size_t N = std::sqrt(::mch::N); // Since we are going to do N*N iterations
+    size_t a = 0; // Accumulator to make sure compiler doesn't take some loop invariants out
+    size_t j = 0; // Incremental number for the current path/object combination. Ensures all path get tested.
+    std::vector<long long> medians(K); // Final verdict of medians for each of the K experiments
+    std::vector<Object*>   objects(N);
+    std::vector<long long> timings(M);
+
+    for (size_t k = 0; k < K; ++k)
+    {
+        for (size_t m = 0; m < M; ++m)
+        {
+            // Since we limit N to account for number of arguments, we rotate
+            // available objects in a loop to let each object be matched
+            for (size_t n = 0; n < N; ++n)
+                objects[n] = unique_objects[j++ % unique_objects_size];
+
+            time_stamp liStart  = get_time_stamp();
+
+            for (size_t i = 0; i < N; ++i)
+            for (size_t j = 0; j < N; ++j)
+                a += match(objects[i],objects[j]);
+
+            time_stamp liFinish = get_time_stamp();
+            timings[m] = liFinish-liStart;
+        }
+
+        medians[k] = display("test", timings, N); // We are looking for a median per N iterations
+    }
+
+    // Destroy all the unique objects
+    for (size_t n = 0; n < unique_objects_size; ++n)
+        delete unique_objects[n];
+
+    std::sort(medians.begin(), medians.end());
+    return cycles(medians[K/2])/(N*N);
+}
+
+//------------------------------------------------------------------------------
+
+template <typename Object>
+inline long long test(Object* (*make)(int), int (*match)(Object*,Object*,Object*))
+{
+    std::vector<Object*> unique_objects = all_objects(make);
+    const size_t unique_objects_size = unique_objects.size();
+    size_t N = std::cbrt(::mch::N); // Since we are going to do N*N*N iterations
+    size_t a = 0; // Accumulator to make sure compiler doesn't take some loop invariants out
+    size_t j = 0; // Incremental number for the current path/object combination. Ensures all path get tested.
+    std::vector<long long> medians(K); // Final verdict of medians for each of the K experiments
+    std::vector<Object*>   objects(N);
+    std::vector<long long> timings(M);
+
+    for (size_t k = 0; k < K; ++k)
+    {
+        for (size_t m = 0; m < M; ++m)
+        {
+            // Since we limit N to account for number of arguments, we rotate
+            // available objects in a loop to let each object be matched
+            for (size_t n = 0; n < N; ++n)
+                objects[n] = unique_objects[j++ % unique_objects_size];
+
+            time_stamp liStart  = get_time_stamp();
+
+            for (size_t i = 0; i < N; ++i)
+            for (size_t j = 0; j < N; ++j)
+            for (size_t l = 0; l < N; ++l)
+                a += match(objects[i],objects[j],objects[l]);
+
+            time_stamp liFinish = get_time_stamp();
+            timings[m] = liFinish-liStart;
+        }
+
+        medians[k] = display("test", timings, N); // We are looking for a median per N iterations
+    }
+
+    // Destroy all the unique objects
+    for (size_t n = 0; n < unique_objects_size; ++n)
+        delete unique_objects[n];
+
+    std::sort(medians.begin(), medians.end());
+    return cycles(medians[K/2])/(N*N*N);
+}
+
+//------------------------------------------------------------------------------
+
+template <typename Object>
+inline long long test(Object* (*make)(int), int (*match)(Object*,Object*,Object*,Object*))
+{
+    std::vector<Object*> unique_objects = all_objects(make);
+    const size_t unique_objects_size = unique_objects.size();
+    size_t N = std::sqrt(std::sqrt(::mch::N)); // Since we are going to do N*N*N*N iterations
+    size_t a = 0; // Accumulator to make sure compiler doesn't take some loop invariants out
+    size_t j = 0; // Incremental number for the current path/object combination. Ensures all path get tested.
+    std::vector<long long> medians(K); // Final verdict of medians for each of the K experiments
+    std::vector<Object*>   objects(N);
+    std::vector<long long> timings(M);
+
+    for (size_t k = 0; k < K; ++k)
+    {
+        for (size_t m = 0; m < M; ++m)
+        {
+            // Since we limit N to account for number of arguments, we rotate
+            // available objects in a loop to let each object be matched
+            for (size_t n = 0; n < N; ++n)
+                objects[n] = unique_objects[j++ % unique_objects_size];
+
+            time_stamp liStart  = get_time_stamp();
+
+            for (size_t i = 0; i < N; ++i)
+            for (size_t j = 0; j < N; ++j)
+            for (size_t l = 0; l < N; ++l)
+            for (size_t h = 0; h < N; ++h)
+                a += match(objects[i],objects[j],objects[l],objects[h]);
+
+            time_stamp liFinish = get_time_stamp();
+            timings[m] = liFinish-liStart;
+        }
+
+        medians[k] = display("test", timings, N); // We are looking for a median per N iterations
+    }
+
+    // Destroy all the unique objects
+    for (size_t n = 0; n < unique_objects_size; ++n)
+        delete unique_objects[n];
+
+    std::sort(medians.begin(), medians.end());
+    return cycles(medians[K/2])/(N*N*N);
+}
+
+//------------------------------------------------------------------------------
+
+template <typename R, typename A, R (&f1)(A), R (&f2)(A)>
+inline size_t get_timings1(
+        std::vector<A>&         arguments, 
+        std::vector<long long>& timings1, 
+        std::vector<long long>& timings2,
+        R&                      a1,
+        R&                      a2
+     )
+{
+    XTL_ASSERT(timings1.size() == timings2.size());
+
+    size_t N = arguments.size();
+    size_t M = timings1.size();
+
+    for (size_t m = 0; m < M; ++m)
+    {
+        time_stamp liStart1 = get_time_stamp();
+
+        for (size_t i = 0; i < N; ++i)
+            a1 += f1(arguments[i]);
+
+        time_stamp liFinish1 = get_time_stamp();
+
+        time_stamp liStart2 = get_time_stamp();
+
+        for (size_t i = 0; i < N; ++i)
+            a2 += f2(arguments[i]);
+
+        time_stamp liFinish2 = get_time_stamp();
+
+        XTL_ASSERT(a1==a2);
+
+        timings1[m] = liFinish1-liStart1;
+        timings2[m] = liFinish2-liStart2;
+    }
+
+	return N; // Number of iterations per measurement
+}
+
+//------------------------------------------------------------------------------
+
+template <typename R, typename A, R (&f1)(A), R (&f2)(A)>
+inline verdict get_timings1(std::vector<A>& arguments)
+{
+	size_t N = 0;
+    std::vector<long long> medians1(K); // Final verdict of medians for each of the K experiments with visitors
+    std::vector<long long> medians2(K); // Final verdict of medians for each of the K experiments with matching
+    std::vector<long long> timings1(M); 
+    std::vector<long long> timings2(M);
+    R a1 = R();
+    R a2 = R();
+
+    for (size_t k = 0; k < K; ++k)
+    {
+        N = get_timings1<R,A,f1,f2>(arguments, timings1, timings2, a1, a2);
+        medians1[k] = display("F1", timings1, N);
+        medians2[k] = display("F2", timings2, N);
+        
+        std::ios_base::fmtflags fmt = std::cout.flags(); // use cout flags function to save original format
+        std::cout << "\t\t" << verdict(N, medians1[k], medians2[k]) << "\t\t" 
+                  << " a1=" << std::setw(8) << std::hex << a1 
+                  << " a2=" << std::setw(8) << std::hex << a2 
+                  << std::endl;
+        std::cout.flags(fmt); // restore format
+    }
+
+    if (a1 != a2)
+    {
+        std::cout << "ERROR: Invariant " << a1 << "==" << a2 << " doesn't hold." << std::endl;
+        exit(42);
+    }
+
+    std::sort(medians1.begin(), medians1.end());
+    std::sort(medians2.begin(), medians2.end());
+    return verdict(N,medians1[K/2],medians2[K/2]);
+}
+
+//------------------------------------------------------------------------------
+
+template <typename R, typename A, R (&f1)(A,A), R (&f2)(A,A)>
+inline size_t get_timings2(
+        std::vector<A>&         arguments, 
+        std::vector<long long>& timings1, 
+        std::vector<long long>& timings2,
+        R&                      a1,
+        R&                      a2
+     )
+{
+    XTL_ASSERT(timings1.size() == timings2.size());
+
+    size_t N = arguments.size();
+    size_t M = timings1.size();
+
+    for (size_t m = 0; m < M; ++m)
+    {
+        time_stamp liStart1 = get_time_stamp();
+
+        for (size_t i = 0; i < N-1; i += 2)
+            a1 += f1(arguments[i],arguments[i+1]);
+
+        time_stamp liFinish1 = get_time_stamp();
+
+        time_stamp liStart2 = get_time_stamp();
+
+        for (size_t i = 0; i < N-1; i += 2)
+            a2 += f2(arguments[i],arguments[i+1]);
+
+        time_stamp liFinish2 = get_time_stamp();
+
+        XTL_ASSERT(a1==a2);
+
+        timings1[m] = liFinish1-liStart1;
+        timings2[m] = liFinish2-liStart2;
+    }
+
+	return N/2; // Number of iterations per measurement
+}
+
+//------------------------------------------------------------------------------
+
+template <typename R, typename A, R (&f1)(A,A), R (&f2)(A,A)>
+inline verdict get_timings2(std::vector<A>& arguments)
+{
+	size_t N = 0;
+    std::vector<long long> medians1(K); // Final verdict of medians for each of the K experiments with visitors
+    std::vector<long long> medians2(K); // Final verdict of medians for each of the K experiments with matching
+    std::vector<long long> timings1(M); 
+    std::vector<long long> timings2(M);
+    R a1 = R();
+    R a2 = R();
+
+    for (size_t k = 0; k < K; ++k)
+    {
+        N = get_timings2<R,A,f1,f2>(arguments, timings1, timings2, a1, a2);
+        medians1[k] = display("F1", timings1, N);
+        medians2[k] = display("F2", timings2, N);
+        
+        std::ios_base::fmtflags fmt = std::cout.flags(); // use cout flags function to save original format
+        std::cout << "\t\t" << verdict(N, medians1[k], medians2[k]) << "\t\t" 
+                  << " a1=" << std::setw(8) << std::hex << a1 
+                  << " a2=" << std::setw(8) << std::hex << a2 
+                  << std::endl;
+        std::cout.flags(fmt); // restore format
+    }
+
+    if (a1 != a2)
+    {
+        std::cout << "ERROR: Invariant " << a1 << "==" << a2 << " doesn't hold." << std::endl;
+        exit(42);
+    }
+
+    std::sort(medians1.begin(), medians1.end());
+    std::sort(medians2.begin(), medians2.end());
+    return verdict(N,medians1[K/2],medians2[K/2]);
+}
+
+//------------------------------------------------------------------------------
+
+template <typename R, typename A, R (&f1)(A,A,A), R (&f2)(A,A,A)>
+inline size_t get_timings3(
+        std::vector<A>&         arguments, 
+        std::vector<long long>& timings1, 
+        std::vector<long long>& timings2,
+        R&                      a1,
+        R&                      a2
+     )
+{
+    XTL_ASSERT(timings1.size() == timings2.size());
+
+    size_t N = arguments.size();
+    size_t M = timings1.size();
+
+    for (size_t m = 0; m < M; ++m)
+    {
+        time_stamp liStart1 = get_time_stamp();
+
+        for (size_t i = 0; i < N-2; i += 3)
+            a1 += f1(arguments[i],arguments[i+1],arguments[i+2]);
+
+        time_stamp liFinish1 = get_time_stamp();
+
+        time_stamp liStart2 = get_time_stamp();
+
+        for (size_t i = 0; i < N-2; i += 3)
+            a2 += f2(arguments[i],arguments[i+1],arguments[i+2]);
+
+        time_stamp liFinish2 = get_time_stamp();
+
+        XTL_ASSERT(a1==a2);
+
+        timings1[m] = liFinish1-liStart1;
+        timings2[m] = liFinish2-liStart2;
+    }
+
+	return N/3; // Number of iterations per measurement
+}
+
+//------------------------------------------------------------------------------
+
+template <typename R, typename A, R (&f1)(A,A,A), R (&f2)(A,A,A)>
+inline verdict get_timings3(std::vector<A>& arguments)
+{
+	size_t N = 0;
+    std::vector<long long> medians1(K); // Final verdict of medians for each of the K experiments with visitors
+    std::vector<long long> medians2(K); // Final verdict of medians for each of the K experiments with matching
+    std::vector<long long> timings1(M); 
+    std::vector<long long> timings2(M);
+    R a1 = R();
+    R a2 = R();
+
+    for (size_t k = 0; k < K; ++k)
+    {
+        N = get_timings3<R,A,f1,f2>(arguments, timings1, timings2, a1, a2);
+        medians1[k] = display("F1", timings1, N);
+        medians2[k] = display("F2", timings2, N);
+        
+        std::ios_base::fmtflags fmt = std::cout.flags(); // use cout flags function to save original format
+        std::cout << "\t\t" << verdict(N, medians1[k], medians2[k]) << "\t\t" 
+                  << " a1=" << std::setw(8) << std::hex << a1 
+                  << " a2=" << std::setw(8) << std::hex << a2 
+                  << std::endl;
+        std::cout.flags(fmt); // restore format
+    }
+
+    if (a1 != a2)
+    {
+        std::cout << "ERROR: Invariant " << a1 << "==" << a2 << " doesn't hold." << std::endl;
+        exit(42);
+    }
+
+    std::sort(medians1.begin(), medians1.end());
+    std::sort(medians2.begin(), medians2.end());
+    return verdict(N,medians1[K/2],medians2[K/2]);
+}
+
+//------------------------------------------------------------------------------
+
+template <typename R, typename A, R (&f1)(A,A,A,A), R (&f2)(A,A,A,A)>
+inline size_t get_timings4(
+        std::vector<A>&         arguments, 
+        std::vector<long long>& timings1, 
+        std::vector<long long>& timings2,
+        R&                      a1,
+        R&                      a2
+     )
+{
+    XTL_ASSERT(timings1.size() == timings2.size());
+
+    size_t N = arguments.size();
+    size_t M = timings1.size();
+
+    for (size_t m = 0; m < M; ++m)
+    {
+        time_stamp liStart1 = get_time_stamp();
+
+        for (size_t i = 0; i < N-3; i += 4)
+            a1 += f1(arguments[i],arguments[i+1],arguments[i+2],arguments[i+3]);
+
+        time_stamp liFinish1 = get_time_stamp();
+
+        time_stamp liStart2 = get_time_stamp();
+
+        for (size_t i = 0; i < N-3; i += 4)
+            a2 += f2(arguments[i],arguments[i+1],arguments[i+2],arguments[i+3]);
+
+        time_stamp liFinish2 = get_time_stamp();
+
+        XTL_ASSERT(a1==a2);
+
+        timings1[m] = liFinish1-liStart1;
+        timings2[m] = liFinish2-liStart2;
+    }
+
+	return N/4; // Number of iterations per measurement
+}
+
+//------------------------------------------------------------------------------
+
+template <typename R, typename A, R (&f1)(A,A,A,A), R (&f2)(A,A,A,A)>
+inline verdict get_timings4(std::vector<A>& arguments)
+{
+    size_t N = 0;
+    std::vector<long long> medians1(K); // Final verdict of medians for each of the K experiments with visitors
+    std::vector<long long> medians2(K); // Final verdict of medians for each of the K experiments with matching
+    std::vector<long long> timings1(M); 
+    std::vector<long long> timings2(M);
+    R a1 = R();
+    R a2 = R();
+
+    for (size_t k = 0; k < K; ++k)
+    {
+        N = get_timings4<R,A,f1,f2>(arguments, timings1, timings2, a1, a2);
+        medians1[k] = display("F1", timings1, N);
+        medians2[k] = display("F2", timings2, N);
+        
+        std::ios_base::fmtflags fmt = std::cout.flags(); // use cout flags function to save original format
+        std::cout << "\t\t" << verdict(N, medians1[k], medians2[k]) << "\t\t" 
+                  << " a1=" << std::setw(8) << std::hex << a1 
+                  << " a2=" << std::setw(8) << std::hex << a2 
+                  << std::endl;
+        std::cout.flags(fmt); // restore format
+    }
+
+    if (a1 != a2)
+    {
+        std::cout << "ERROR: Invariant " << a1 << "==" << a2 << " doesn't hold." << std::endl;
+        exit(42);
+    }
+
+    std::sort(medians1.begin(), medians1.end());
+    std::sort(medians2.begin(), medians2.end());
+    return verdict(N,medians1[K/2],medians2[K/2]);
 }
 
 //------------------------------------------------------------------------------

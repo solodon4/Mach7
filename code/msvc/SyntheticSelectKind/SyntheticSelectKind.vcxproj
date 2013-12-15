@@ -140,7 +140,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\config.hpp" />
-    <ClInclude Include="..\..\exprtmpl.hpp" />
     <ClInclude Include="..\..\loop_over_numbers.hpp" />
     <ClInclude Include="..\..\loop_over_operators.hpp" />
   </ItemGroup>

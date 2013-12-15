@@ -26,7 +26,7 @@
 OS       = $(shell uname -s)
 LIBS     = -lstdc++
 INCLUDES = 
-CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -time -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++0x \
+CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -time -s -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++0x \
 #-fno-omit-frame-pointer \
 #-fno-rtti
 LIBFLAGS = $(LIBS)
