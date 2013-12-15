@@ -197,4 +197,20 @@ inline auto raise_selector(const T* p) -> XTL_RETURN
 
 //------------------------------------------------------------------------------
 
+//template <typename T, typename C, T C::*m>
+//T mem_field(const C& c)
+//{
+//    return c.*m;
+//}
+//
+////------------------------------------------------------------------------------
+//
+//template <typename T, typename C, T (C::*f)() const>
+//T mem_func(const C& c)
+//{
+//    return (c.*f)();
+//}
+
+//------------------------------------------------------------------------------
+
 } // of namespace mch

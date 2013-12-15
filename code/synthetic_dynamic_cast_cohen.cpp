@@ -67,8 +67,8 @@ template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(
 
 //------------------------------------------------------------------------------
 
-template <size_t N> struct depth     { enum { value = mch::requires_bits<N>::value+1 }; };
-template <>         struct depth<0>  { enum { value = 1 }; };
+template <size_t N> struct depth     { static const size_t value = mch::requires_bits<N>::value+1; };
+template <>         struct depth<0>  { static const size_t value = 1; };
 
 //------------------------------------------------------------------------------
 

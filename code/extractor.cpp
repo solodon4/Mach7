@@ -34,16 +34,16 @@ int main()
     double r;
     double i;
 
-    if (mch::cons<std::complex<double>>(r,i)(c))
+    if (mch::C<std::complex<double>>(r,i)(c))
         std::cout << '(' << r << ',' << i << ')' << std::endl;
 
-    if (mch::cons<std::complex<double>, plar>(r,i)(c))
+    if (mch::C<std::complex<double>, plar>(r,i)(c))
         std::cout << "The polar form of " << c << " is " << r << "*e^i*" << i << "rad " << std::polar(r,i) << std::endl;
 
-    if (mch::cons<cartesian>(r,i)(c))
+    if (mch::C<cartesian>(r,i)(c))
         std::cout << '(' << r << ',' << i << ')' << std::endl;
 
-    if (mch::cons<polar>(r,i)(c))
+    if (mch::C<polar>(r,i)(c))
         std::cout << "The polar form of " << c << " is " << r << "*e^i*" << i << "rad " << std::polar(r,i) << std::endl;
 
     std::cout << '(' << std::real(c) << ',' << std::imag(c) << ')' << std::endl;

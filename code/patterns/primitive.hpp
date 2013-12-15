@@ -25,18 +25,29 @@ namespace mch ///< Mach7 library namespace
 /// use of this variable will make sure the actual member is never invoked!
 struct wildcard
 {
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef S type; };
+
     // NOTE: We don't need the below application anymore since we have a
     //       specialization that never applies the actual member before
     //       passing it to this meta variable that matches everything.
     // NOTE: We add it anyways for unlikely cases when user uses wildcard in the
     //       left hand side of a guard
+#if defined(__GNUC__)
+    template <typename T>
+    bool operator()(const T&) const noexcept { return true; }
+#else
     bool operator()(...) const noexcept { return true; }
+#endif
 };
 
 //------------------------------------------------------------------------------
 
 /// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
-template <> struct is_pattern_<wildcard> { enum { value = true }; };
+template <> struct is_pattern_<wildcard> { static const bool value = true; };
 
 //------------------------------------------------------------------------------
 
@@ -60,23 +71,53 @@ inline bool apply_expression(const wildcard&,       C*, M) noexcept
 template <class T>
 struct value
 {
-    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef T type; };
+
     typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
     explicit value(const T& t) : m_value(t) {}
     explicit value(T&& t) noexcept : m_value(std::move(t)) {}
     value(value&& v) noexcept : m_value(std::move(v.m_value)) {}
     bool operator()(const T& t) const noexcept { return m_value == t; }
-    operator result_type() const noexcept { return m_value; }// FIX: avoid implicit conversion in lazy expressions
+    operator const result_type&() const noexcept { return m_value; }// FIX: avoid implicit conversion in lazy expressions
     T m_value;
 };
 
 //------------------------------------------------------------------------------
 
+// GCC before 4.6 doesn't support nullptr and nullptr_t, while many will live 
+// without this specialization
+#if !defined(__GNUC__) || (XTL_GCC_VERSION >= 40600)
+
+/// Specialization of the value pattern to be able to compare with nullptr
+template <>
+struct value<std::nullptr_t>
+{
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for; // Intentionally no definition
+    template <typename S> struct accepted_type_for<S*> { typedef const S* type; };
+
+    typedef std::nullptr_t result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
+    explicit value(const std::nullptr_t&) {}
+    bool operator()(const void* p) const noexcept { return p == nullptr; }
+    operator result_type() const noexcept { return nullptr; }// FIX: avoid implicit conversion in lazy expressions
+};
+
+#endif
+
+//------------------------------------------------------------------------------
+
 /// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
-template <typename T> struct is_pattern_<value<T>>    { enum { value = true }; };
+template <typename T> struct is_pattern_<value<T>>    { static const bool value = true; };
 
 /// #is_expression_ is a helper meta-predicate that separates lazily evaluatable expressions we support
-template <typename T> struct is_expression_<value<T>> { enum { value = true }; };
+template <typename T> struct is_expression_<value<T>> { static const bool value = true; };
 
 //------------------------------------------------------------------------------
 
@@ -87,14 +128,19 @@ template <class T> inline value<T> val(T&& t) { return value<T>(std::forward<T>(
 
 /// Variable binding for a value type
 template <class T>
-struct variable
+struct var
 {
-    variable() : m_value() {}
-    /*explicit*/ variable(const T& t) : m_value(t) {}
-    /*explicit*/ variable(T&& t) noexcept : m_value(std::move(t)) {}
-    variable(variable&& v) noexcept : m_value(std::move(v.m_value)) {}
+    var() : m_value() {}
+    /*explicit*/ var(const T& t) : m_value(t) {}
+    /*explicit*/ var(T&& t) noexcept : m_value(std::move(t)) {}
+    var(var&& v) noexcept : m_value(std::move(v.m_value)) {}
 
-    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef T type; };
+
     typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
 
     /// We report that matching succeeded and bind the value
@@ -104,11 +150,11 @@ struct variable
         return true;
     }
 
-    variable& operator=(const T& t) { m_value = t; return *this; }
+    var& operator=(const T& t) { m_value = t; return *this; }
 
     /// Helper conversion operator to let the variable be used in some places
     /// where T was allowed
-    operator const T&() const noexcept { return m_value; }
+    operator const result_type&() const noexcept { return m_value; }
 
     /// Member that will hold matching value in case of successful matching
     mutable T m_value;
@@ -118,12 +164,17 @@ struct variable
 
 /// Variable binding for a pointer type
 template <class T>
-struct variable<const T*>
+struct var<const T*>
 {
-    variable() : m_value() {}
-    variable(variable&& v) noexcept : m_value(std::move(v.m_value)) {}
+    var() : m_value() {}
+    var(var&& v) noexcept : m_value(std::move(v.m_value)) {}
 
-    typedef const T* accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef const T* type; };
+
     typedef const T* result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
 
     /// We may be applied to a value of a base type, so first we have to figure
@@ -140,7 +191,7 @@ struct variable<const T*>
             return false;
     }
 
-    variable& operator=(const T* t) { m_value = t; return *this; }
+    var& operator=(const T* t) { m_value = t; return *this; }
 
     /// This distinguishes the case when type of the variable matches type of the member
     bool operator()(const T* t) const
@@ -168,12 +219,17 @@ struct variable<const T*>
 
 /// Variable binding for a pointer type
 template <class T>
-struct variable<const T&>
+struct var<const T&>
 {
-    variable() : m_value() {}
-    variable(variable&& v) noexcept : m_value(std::move(v.m_value)) {}
+    var() : m_value() {}
+    var(var&& v) noexcept : m_value(std::move(v.m_value)) {}
 
-    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef T type; };
+
     typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
 
     /// We may be applied to a value of a base type, so first we have to figure
@@ -200,7 +256,7 @@ struct variable<const T&>
 
     /// Helper conversion operator to let the variable be used in some places
     /// where T was allowed
-    operator const T&() const noexcept { XTL_ASSERT(m_value); return *m_value; }
+    operator const result_type&() const noexcept { XTL_ASSERT(m_value); return *m_value; }
 
     /// Member that will hold matching value in case of successful matching
     mutable const T* m_value;
@@ -209,23 +265,28 @@ struct variable<const T&>
 //------------------------------------------------------------------------------
 
 /// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
-template <typename T> struct is_pattern_<variable<T>>    { enum { value = true }; };
+template <typename T> struct is_pattern_<var<T>>    { static const bool value = true; };
 
 /// #is_expression_ is a helper meta-predicate that separates lazily evaluatable expressions we support
-template <typename T> struct is_expression_<variable<T>> { enum { value = true }; };
+template <typename T> struct is_expression_<var<T>> { static const bool value = true; };
 
 //------------------------------------------------------------------------------
 
 /// A reference to a user provided variable
 template <class T>
-struct var_ref
+struct ref
 {
-    explicit var_ref(T& var) : m_var(&var) {}
-    var_ref(var_ref&& v) noexcept : m_var(v.m_var) {}
+    explicit ref(T& var) : m_var(&var) {}
+    ref(ref&& v) noexcept : m_var(v.m_var) {}
 
-    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef T type; };
+
     typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
-    operator result_type() const noexcept { return *m_var; }// FIX: avoid implicit conversion in lazy expressions
+    operator const result_type&() const noexcept { return *m_var; }// FIX: avoid implicit conversion in lazy expressions
 
     /// We report that matching succeeded and bind the value
     bool operator()(const T& t) const
@@ -242,45 +303,75 @@ struct var_ref
 
 /// A reference to a user provided variable
 template <class T>
-struct var_ref<variable<T>>
+struct ref<var<T>>
 {
-    explicit var_ref(variable<T>& var) : m_var(&var) {}
-    var_ref(var_ref&& v) noexcept : m_var(v.m_var) {}
+    explicit ref(var<T>& var) : m_var(var) {}
+    ref(ref&& v) noexcept : m_var(v.m_var) {}
+    ref& operator=(const ref&); // No assignment
 
-    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef T type; };
+
     typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
-    operator result_type() const noexcept { return *m_var; }// FIX: avoid implicit conversion in lazy expressions
+    operator const result_type&() const noexcept { return (const result_type&)m_var; }// FIX: avoid implicit conversion in lazy expressions
 
     /// We report that matching succeeded and bind the value
     bool operator()(const T& t) const
     {
-        *m_var = t;
-        return true;
+        return m_var(t);
     }
 
     /// Member that will hold matching value in case of successful matching
-    variable<T>* m_var;
+    var<T>& m_var;
+};
+
+template <class T>
+struct ref<var<const T&>>
+{
+    explicit ref(var<const T&>& var) : m_var(var) {}
+    ref(ref&& v) noexcept : m_var(v.m_var) {}
+    ref& operator=(const ref&); // No assignment
+
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef T type; };
+
+    typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
+    operator const result_type&() const noexcept { return (const result_type&)m_var; }// FIX: avoid implicit conversion in lazy expressions
+
+    /// We report that matching succeeded and bind the value
+    bool operator()(const T& t) const
+    {
+        return m_var(t);
+    }
+
+    /// Member that will hold matching value in case of successful matching
+    var<const T&>& m_var;
 };
 
 //------------------------------------------------------------------------------
 
 /// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
-template <typename T> struct is_pattern_<var_ref<T>>    { enum { value = true }; };
+template <typename T> struct is_pattern_<ref<T>>    { static const bool value = true; };
 
 /// #is_expression_ is a helper meta-predicate that separates lazily evaluatable expressions we support
-template <typename T> struct is_expression_<var_ref<T>> { enum { value = true }; };
+template <typename T> struct is_expression_<ref<T>> { static const bool value = true; };
 
 //------------------------------------------------------------------------------
 
 /// Convenience function for creating variable patterns out of existing variables
-template <class T> inline var_ref<T> var(T& t) { return var_ref<T>(t); }
+//template <class T> inline ref<T> var(T& t) { return ref<T>(t); }
 
 //------------------------------------------------------------------------------
 
-template <typename T> inline                                             var_ref<variable<T>> filter(variable<T>& t) noexcept { return var_ref<variable<T>>(t); }
-template <typename T> inline typename std::enable_if<!is_pattern<T>::value,   value<T>>::type filter(    const T& t) noexcept { return value<T>(t); }
-template <typename T> inline typename std::enable_if<!is_pattern<T>::value, var_ref<T>>::type filter(          T& t) noexcept { return var_ref<T>(t); }
-template <typename P> inline typename std::enable_if< is_pattern<P>::value, typename std::remove_reference<P>::type>::type filter(P&& p) noexcept { return std::move(p); }
+template <typename T> inline                                                ref<var<T>>       filter( var<T>& t) noexcept { return ref<var<T>>(t); }
+template <typename T> inline typename std::enable_if<!is_pattern<T>::value,   value<T>>::type filter(const T& t) noexcept { return value<T>(t); }
+template <typename T> inline typename std::enable_if<!is_pattern<T>::value, ref<T>>::type     filter(      T& t) noexcept { return ref<T>(t); }
 
 //------------------------------------------------------------------------------
 
@@ -288,10 +379,11 @@ template <typename P> inline typename std::enable_if< is_pattern<P>::value, type
 /// Set of overloads capable of decomposing an expression template that models
 /// an Expression concept and evaluating it.
 /// \note See header files of other patterns for more overloads!
-template <typename T> T inline eval(const value<T>& e)             { return e.m_value; }
-template <typename T> T inline eval(const variable<T>& e)          { return e.m_value; }
-template <typename T> T inline eval(const var_ref<T>& e)           { return *e.m_var; }
-template <typename T> T inline eval(const var_ref<variable<T>>& e) { return e.m_var->m_value; }
+template <typename T> inline const T& eval(const value<T>& e)           { return e.m_value; }
+template <typename T> inline const T& eval(const var<T>& e)             { return e.m_value; }
+template <typename T> inline const T& eval(const ref<T>& e)             { return *e.m_var; }
+template <typename T> inline const T& eval(const ref<var<T>>& e)        { return e.m_var.m_value; }
+template <typename T> inline const T& eval(const ref<var<const T&>>& e) { return *e.m_var.m_value; }
 ///@}
 
 //------------------------------------------------------------------------------

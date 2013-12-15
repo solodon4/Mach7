@@ -31,7 +31,7 @@ inline bool solve(const value<T>& e, const S& r)
 
 // Solver for variable
 template <typename T, typename S>
-inline bool solve(const variable<T>& e, const S& r)
+inline bool solve(const var<T>& e, const S& r)
 {
     return e(r);
 }
@@ -40,16 +40,16 @@ inline bool solve(const variable<T>& e, const S& r)
 
 // Solver for variable (reference)
 template <typename T, typename S>
-inline bool solve(const var_ref<T>& e, const S& r)
+inline bool solve(const ref<T>& e, const S& r)
 {
     return e(r);
 }
 
 //------------------------------------------------------------------------------
 
-// Solver for the only argument of negation: -a == r => a == -r
+// Solver for the only argument of unary_minus: -a == r => a == -r
 template <typename E1, typename S>
-inline bool solve(const expr<negation,E1>& e, const S& r)
+inline bool solve(const expr<unary_minus,E1>& e, const S& r)
 {
     return solve(e.m_e1,-r);
 }
@@ -174,13 +174,13 @@ inline bool solve(const expr<division,value<T>,E1>& e, const S& r)
 template <typename T1, typename T2>
 struct is_complex_and_scalar
 {
-    enum { value = false };
+    static const bool value = false;
 };
 
 template <typename T>
 struct is_complex_and_scalar<std::complex<T>,T>
 {
-    enum { value = true };
+    static const bool value = true;
 };
 /*
 // Solver for algebraic decomposition of complex

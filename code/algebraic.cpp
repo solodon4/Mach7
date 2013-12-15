@@ -79,7 +79,7 @@ inline bool solve(const expr<sqrt_functor,E1>& e, const S& r)
 }
 
 template <>
-inline bool solve(const expr<division,var_ref<variable<double>>,var_ref<variable<double>>>& e, const double& r)
+inline bool solve(const expr<division,ref<var<double>>,ref<var<double>>>& e, const double& r)
 {
     // n/m = 3.1415926 => n=22,m=7
     long m[2][2] = {
@@ -126,26 +126,26 @@ int main()
 {
     using namespace mch; // Mach7's library namespace
 
-    const    std::complex<double>  i(0.0,1.0);
-             std::complex<double>  c(1,1);
-    variable<std::complex<double>> d;
-    variable<double> a,b,r,f;
+    const std::complex<double>  i(0.0,1.0);
+          std::complex<double>  c(1,1);
+      var<std::complex<double>> d;
+      var<double> a,b,r,f;
 
     std::cout << a << "+"    << b << "*i" << std::endl;
 
-  //if (cons<std::complex<double>>(b*i)(i))   std::cout << b << "*i" << std::endl;
-    if (cons<std::complex<double>>(b*i+a)(i)) std::cout << a << "+"    << b << "*i" << std::endl;
-    if (cons<double>(sqrt(a))(4.0))   std::cout << "sqrt("  << a << ")=4" << std::endl;
-    if (cons<double>(a/b)(3.1415926)) std::cout << "3.1415926=" << a << "/" << b << std::endl;
-    if (cons<double>(-a)(3.1415926))  std::cout << "-3.1415926=" << a << std::endl;
+  //if (C<std::complex<double>>(b*i)(i))   std::cout << b << "*i" << std::endl;
+    if (C<std::complex<double>>(b*i+a)(i)) std::cout << a << "+"    << b << "*i" << std::endl;
+    if (C<double>(sqrt(a))(4.0))   std::cout << "sqrt("  << a << ")=4" << std::endl;
+    if (C<double>(a/b)(3.1415926)) std::cout << "3.1415926=" << a << "/" << b << std::endl;
+    if (C<double>(-a)(3.1415926))  std::cout << "-3.1415926=" << a << std::endl;
 
-  //if (cons<std::complex<double>>(i*a)(c)) std::cout << "(2,2) + " << a << " * i" << std::endl;
-    if (cons<std::complex<double>>(d*i)(c)) std::cout << d << " * i" << std::endl;
-	if (cons<std::complex<double>>(i)(c))   std::cout << "i" << std::endl;
-    if (cons<std::complex<double>>(d)(c))   std::cout << d << std::endl;
+  //if (C<std::complex<double>>(i*a)(c)) std::cout << "(2,2) + " << a << " * i" << std::endl;
+    if (C<std::complex<double>>(d*i)(c)) std::cout << d << " * i" << std::endl;
+	if (C<std::complex<double>>(i)(c))   std::cout << "i" << std::endl;
+    if (C<std::complex<double>>(d)(c))   std::cout << d << std::endl;
 
     int n = 3;
-    variable<size_t> m;
+    var<size_t> m;
 
     Match(n)
     {
@@ -159,8 +159,8 @@ int main()
     }
     EndMatch
 
-  //variable<size_t> m1 = 12;
-    variable<size_t> m2 = 3;
+  //var<size_t> m1 = 12;
+    var<size_t> m2 = 3;
 
     Match(n)
     {

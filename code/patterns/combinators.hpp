@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "common.hpp"
+#include "primitive.hpp" // FIX: Ideally this should be common.hpp, but GCC seem to disagree: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=55460
 
 namespace mch ///< Mach7 library namespace
 {
@@ -25,25 +25,37 @@ struct conjunction
 {
     static_assert(is_pattern<P1>::value, "Argument P1 of a conjunction-pattern must be a pattern");
     static_assert(is_pattern<P2>::value, "Argument P2 of a conjunction-pattern must be a pattern");
-    static_assert(std::is_same<
-                      typename P1::accepted_type,
-                      typename P2::accepted_type
-                  >::value,"The type accepted by patterns in conjunction must be the same");
 
     conjunction(const P1& p1, const P2& p2) : m_p1(p1), m_p2(p2) {}
     conjunction(P1&& p1, P2&& p2) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)) {}
     conjunction(conjunction&& c)  noexcept : m_p1(std::move(c.m_p1)), m_p2(std::move(c.m_p2)) {}
+    conjunction& operator=(const conjunction&); // No assignment
 
-    typedef typename P1::accepted_type accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> 
+    struct accepted_type_for 
+    { 
+        static_assert(std::is_same<
+                          typename P1::template accepted_type_for<S>::type,
+                          typename P2::template accepted_type_for<S>::type
+                      >::value,"The type accepted by patterns in conjunction must be the same");
+        typedef typename P1::template accepted_type_for<S>::type type; 
+    };
 
-    bool operator()(const accepted_type& subject) const { return m_p1(subject) && m_p2(subject); }
+    /// We parameterize over accepted type since the actually accepted type is 
+    /// a function of the subject type.
+    template <typename T>
+    bool operator()(const T& subject) const { return m_p1(subject) && m_p2(subject); }
 
     P1 m_p1; ///< The 1st pattern in conjunction
     P2 m_p2; ///< The 2nd pattern in conjunction
 };
 
 /// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
-template <typename P1, typename P2> struct is_pattern_<conjunction<P1,P2>> { enum { value = true /*is_pattern<P1>::value && is_pattern<P2>::value*/ }; };
+template <typename P1, typename P2> struct is_pattern_<conjunction<P1,P2>> { static const bool value = true /*is_pattern<P1>::value && is_pattern<P2>::value*/; };
 
 //------------------------------------------------------------------------------
 
@@ -53,18 +65,30 @@ struct disjunction
 {
     static_assert(is_pattern<P1>::value, "Argument P1 of a disjunction-pattern must be a pattern");
     static_assert(is_pattern<P2>::value, "Argument P2 of a disjunction-pattern must be a pattern");
-    static_assert(std::is_same<
-                      typename P1::accepted_type,
-                      typename P2::accepted_type
-                  >::value,"The type accepted by patterns in disjunction must be the same");
 
     disjunction(const P1& p1, const P2& p2) : m_p1(p1), m_p2(p2) {}
     disjunction(P1&& p1, P2&& p2) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)) {}
     disjunction(disjunction&& c)  noexcept : m_p1(std::move(c.m_p1)), m_p2(std::move(c.m_p2)) {}
+    disjunction& operator=(const disjunction&); // No assignment
 
-    typedef typename P1::accepted_type accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> 
+    struct accepted_type_for 
+    { 
+        static_assert(std::is_same<
+                          typename P1::template accepted_type_for<S>::type,
+                          typename P2::template accepted_type_for<S>::type
+                      >::value,"The type accepted by patterns in disjunction must be the same");
+        typedef typename P1::template accepted_type_for<S>::type type; 
+    };
 
-    bool operator()(const accepted_type& subject) const { return m_p1(subject) || m_p2(subject); }
+    /// We parameterize over accepted type since the actually accepted type is 
+    /// a function of the subject type.
+    template <typename T>
+    bool operator()(const T& subject) const { return m_p1(subject) || m_p2(subject); }
 
     P1 m_p1; ///< The 1st pattern of disjunction combinator
     P2 m_p2; ///< The 2nd pattern of disjunction combinator
@@ -72,7 +96,7 @@ struct disjunction
 
 
 /// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
-template <typename P1, typename P2> struct is_pattern_<disjunction<P1,P2>> { enum { value = true /*is_pattern<P1>::value && is_pattern<P2>::value*/ }; };
+template <typename P1, typename P2> struct is_pattern_<disjunction<P1,P2>> { static const bool value = true /*is_pattern<P1>::value && is_pattern<P2>::value*/; };
 
 //------------------------------------------------------------------------------
 
@@ -85,64 +109,87 @@ struct negation
     negation(const P1& p1) : m_p1(p1) {}
     negation(P1&& p1) noexcept : m_p1(std::move(p1)) {}
     negation(negation&& c)  noexcept : m_p1(std::move(c.m_p1)) {}
+    negation& operator=(const negation&); // No assignment
 
-    typedef typename P1::accepted_type accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for : P1::template accepted_type_for<S> { typedef S type; };
 
-    bool operator()(const accepted_type& subject) const { return !m_p1(subject); }
+    /// We parameterize over accepted type since the actually accepted type is 
+    /// a function of the subject type.
+    template <typename T>
+    bool operator()(const T& subject) const { return !m_p1(subject); }
 
     P1 m_p1; ///< The argument pattern of negation combinator
 };
 
 /// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
-template <typename P1> struct is_pattern_<negation<P1>> { enum { value = true /*is_pattern<P1>::value*/ }; };
-
-//------------------------------------------------------------------------------
-
-template <typename P1, typename P2>
-inline auto operator&&(P1&& p1, P2&& p2) noexcept 
-        -> typename std::enable_if<is_pattern<P1>::value && 
-                                   is_pattern<P2>::value, 
-                                   conjunction<typename underlying<P1>::type,
-                                               typename underlying<P2>::type>
-                                  >::type 
-{
-    return conjunction<
-                typename underlying<P1>::type,
-                typename underlying<P2>::type
-           >(
-                std::forward<P1>(p1),
-                std::forward<P2>(p2)
-            );
-}
-
-//------------------------------------------------------------------------------
-
-template <typename P1, typename P2>
-inline auto operator||(P1&& p1, P2&& p2) noexcept 
-        -> typename std::enable_if<is_pattern<P1>::value && 
-                                   is_pattern<P2>::value, 
-                                   disjunction<typename underlying<P1>::type,
-                                               typename underlying<P2>::type>
-                                  >::type 
-{
-    return disjunction<
-                typename underlying<P1>::type,
-                typename underlying<P2>::type
-           >(
-                std::forward<P1>(p1),
-                std::forward<P2>(p2)
-            );
-}
-
-//------------------------------------------------------------------------------
-
-template <typename P1>
-inline auto operator!(P1&& p) noexcept 
-        -> typename std::enable_if<is_pattern<P1>::value, negation<typename underlying<P1>::type>>::type 
-{
-    return negation<typename underlying<P1>::type>(std::forward<P1>(p));
-}
+template <typename P1> struct is_pattern_<negation<P1>> { static const bool value = true /*is_pattern<P1>::value*/; };
 
 //------------------------------------------------------------------------------
 
 } // of namespace mch
+
+//------------------------------------------------------------------------------
+
+/// \note This operator has to be in the global namespace as Pi is unrestricted
+///       and ADL won't work to find it!
+template <typename P1, typename P2>
+inline auto operator&&(P1&& p1, P2&& p2) noexcept
+        -> typename std::enable_if<
+                        mch::either_is_pattern<P1,P2>::value,
+                        mch::conjunction<
+                            decltype(mch::filter(std::forward<P1>(p1))),
+                            decltype(mch::filter(std::forward<P2>(p2)))
+                        >
+                    >::type
+{
+    return mch::conjunction<
+                            decltype(mch::filter(std::forward<P1>(p1))),
+                            decltype(mch::filter(std::forward<P2>(p2)))
+                        >(
+                            mch::filter(std::forward<P1>(p1)),
+                            mch::filter(std::forward<P2>(p2))
+                         );
+}
+
+//------------------------------------------------------------------------------
+
+/// \note This operator has to be in the global namespace as Pi is unrestricted
+///       and ADL won't work to find it!
+template <typename P1, typename P2>
+inline auto operator||(P1&& p1, P2&& p2) noexcept
+        -> typename std::enable_if<
+                        mch::either_is_pattern<P1,P2>::value,
+                        mch::disjunction<
+                            decltype(mch::filter(std::forward<P1>(p1))),
+                            decltype(mch::filter(std::forward<P2>(p2)))
+                        >
+                    >::type
+{
+    return mch::disjunction<
+                            decltype(mch::filter(std::forward<P1>(p1))),
+                            decltype(mch::filter(std::forward<P2>(p2)))
+                        >(
+                            mch::filter(std::forward<P1>(p1)),
+                            mch::filter(std::forward<P2>(p2))
+                         );
+}
+
+//------------------------------------------------------------------------------
+
+/// \note This operator has to be in the global namespace as Pi is unrestricted
+///       and ADL won't work to find it!
+template <typename P1>
+inline auto operator!(P1&& p1) noexcept 
+        -> typename std::enable_if<
+                        mch::is_pattern<P1>::value, 
+                        mch::negation<decltype(mch::filter(std::forward<P1>(p1)))>
+                    >::type 
+{
+    return mch::negation<decltype(mch::filter(std::forward<P1>(p1)))>(mch::filter(std::forward<P1>(p1)));
+}
+
+//------------------------------------------------------------------------------

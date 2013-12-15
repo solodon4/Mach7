@@ -79,14 +79,14 @@ inline const std::type_info& vtbl_typeid(const void* p)      { return vtbl_typei
 
 //------------------------------------------------------------------------------
 
-template <size_t N> struct requires_bits_    { enum { value = requires_bits_<(N+1)/2>::value+1 }; };
-template <>         struct requires_bits_<1> { enum { value = 0 }; };
-template <>         struct requires_bits_<0> { enum { value = 0 }; };
+template <size_t N> struct requires_bits_    { static const size_t value = requires_bits_<(N+1)/2>::value+1; };
+template <>         struct requires_bits_<1> { static const size_t value = 0; };
+template <>         struct requires_bits_<0> { static const size_t value = 0; };
 
 /// Returns the amount of bits required to represent a given number.
 /// Compile-time version of #req_bits
-template <size_t N> struct requires_bits     { enum { value = requires_bits_<(N+1)>::value }; };
-template <>         struct requires_bits<0>  { enum { value = 1 }; };
+template <size_t N> struct requires_bits     { static const size_t value = requires_bits_<(N+1)>::value; };
+template <>         struct requires_bits<0>  { static const size_t value = 1; };
 
 //------------------------------------------------------------------------------
 

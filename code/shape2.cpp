@@ -44,13 +44,13 @@ double area(const Shape& shape)
     loc  x,y,z;
     double r,s;
 
-    if (mch::cons<Circle>(_,r)(shape))
+    if (mch::C<Circle>(_,r)(shape))
         return 3.14 * r * r;
 
-    if (mch::cons<Square>(_,s)(shape))
+    if (mch::C<Square>(_,s)(shape))
         return s * s;
 
-    if (mch::cons<Triangle>(x,y,z)(shape))
+    if (mch::C<Triangle>(x,y,z)(shape))
         return heron(x,y,z);
 
     XTL_ASSERT(!"Inexhaustive search");
@@ -62,13 +62,13 @@ double area_ptr(const Shape& shape)
     loc    *x,*y,*z;
     double *r,*s;
 
-    if (mch::cons<Circle>(_,r)(shape))
+    if (mch::C<Circle>(_,r)(shape))
         return 3.14 * *r * *r;
 
-    if (mch::cons<Square>(_,s)(shape))
+    if (mch::C<Square>(_,s)(shape))
         return *s * *s;
 
-    if (mch::cons<Triangle>(x,y,z)(shape))
+    if (mch::C<Triangle>(x,y,z)(shape))
         return heron(*x,*y,*z);
 
     XTL_ASSERT(!"Inexhaustive search");
@@ -79,21 +79,21 @@ loc center(/*const*/ Shape& shape)
 {
     loc c;
 
-    if (mch::cons<Circle>(c/*,_*/)(shape))
+    if (mch::C<Circle>(c/*,_*/)(shape))
         return c;
 
     double x,y,s;
 
-    if (mch::cons<Square>(
-            mch::cons<loc>(x,y),s)(shape))
+    if (mch::C<Square>(
+            mch::C<loc>(x,y),s)(shape))
         return loc(x+s/2,y+s/2);
 
     double x1,y1,x2,y2,x3,y3;
 
-    if (mch::cons<Triangle>(
-            mch::cons<loc>(x1,y1),
-            mch::cons<loc>(x2,y2),
-            mch::cons<loc>(x3,y3)
+    if (mch::C<Triangle>(
+            mch::C<loc>(x1,y1),
+            mch::C<loc>(x2,y2),
+            mch::C<loc>(x3,y3)
                        )(shape))
         return loc((x1+x2+x3)/3,(y1+y2+y3)/3);
 
@@ -103,9 +103,9 @@ loc center(/*const*/ Shape& shape)
 
 int dummy(Shape* s)
 {
-    if (mch::cons<Circle>()(s))   return 1;
-    if (mch::cons<Square>()(s))   return 2;
-    if (mch::cons<Triangle>()(s)) return 3;
+    if (mch::C<Circle>()(s))   return 1;
+    if (mch::C<Square>()(s))   return 2;
+    if (mch::C<Triangle>()(s)) return 3;
     XTL_ASSERT(!"Inexhaustive search");
     return 0;
 }
@@ -124,44 +124,44 @@ void foo(Shape* s)
     loc  x,y,z;
     double a;
 
-    //if (mch::cons<Circle>(x |= x == val(loc(1,1)), a)(s))
+    //if (mch::C<Circle>(x |= x == val(loc(1,1)), a)(s))
     //    std::cout << "Matched against guard" << a << std::endl;
 
-    if (mch::cons<Circle>(x,4.0)(s))
+    if (mch::C<Circle>(x,4.0)(s))
         std::cout << "Circle with center " << x << " and FIXED radius " << std::endl;
 
-    if (mch::cons<Circle>(x,a)(s))
+    if (mch::C<Circle>(x,a)(s))
         std::cout << "Circle with center " << x << " and radius " << a << std::endl;
     else
-    if (mch::cons<Square>(x,a)(s))
+    if (mch::C<Square>(x,a)(s))
         std::cout << "Square with top left " << x << " and side " << a << std::endl;
     else
-    if (mch::cons<Triangle>(x,y,z)(s))
+    if (mch::C<Triangle>(x,y,z)(s))
         std::cout << "Triangle with corners " << x << ',' << y << ',' << z << std::endl;
 }
 
 void bar(ADTShape& s)
 {
-    mch::variable<cloc>  x,y,z;
-    mch::variable<double> a;
+    mch::var<cloc>  x,y,z;
+    mch::var<double> a;
 
 #ifndef POD_ONLY
-    if (mch::cons<ADTShapeEx,ADTShape::circle>(x,a)(s))
+    if (mch::C<ADTShapeEx,ADTShape::circle>(x,a)(s))
         std::cout << "ADTCircleEx with center " << x << " and radius " << a << std::endl;
     else
-    if (mch::cons<ADTShapeEx,ADTShape::square>(x,a)(s))
+    if (mch::C<ADTShapeEx,ADTShape::square>(x,a)(s))
         std::cout << "ADTSquareEx with top left " << x << " and side " << a << std::endl;
     else
-    if (mch::cons<ADTShapeEx,ADTShape::triangle>(x,y,z)(s))
+    if (mch::C<ADTShapeEx,ADTShape::triangle>(x,y,z)(s))
         std::cout << "ADTTriangleEx with corners " << x << ',' << y << ',' << z << std::endl;
 #endif
-    if (mch::cons<ADTShape,ADTShape::circle>(x,a)(s))
+    if (mch::C<ADTShape,ADTShape::circle>(x,a)(s))
         std::cout << "ADTCircle with center " << x << " and radius " << a << std::endl;
     else
-    if (mch::cons<ADTShape,ADTShape::square>(x,a)(s))
+    if (mch::C<ADTShape,ADTShape::square>(x,a)(s))
         std::cout << "ADTSquare with top left " << x << " and side " << a << std::endl;
     else
-    if (mch::cons<ADTShape,ADTShape::triangle>(x,y,z)(s))
+    if (mch::C<ADTShape,ADTShape::triangle>(x,y,z)(s))
         std::cout << "ADTTriangle with corners " << x << ',' << y << ',' << z << std::endl;
 }
 

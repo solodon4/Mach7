@@ -54,9 +54,9 @@ void do_match(const Shape* s0)
 {
     const char* text = "unknown";
 
-    mch::variable<const Circle&>   c;
-    mch::variable<const Square&>   s;
-    mch::variable<const Triangle&> t;
+    mch::var<const Circle&>   c;
+    mch::var<const Square&>   s;
+    mch::var<const Triangle&> t;
 
     Match(s0)
     {
@@ -76,9 +76,9 @@ void do_match(const Shape* s0, const Shape* s1)
 {
     const char* text = "unknown";
 
-    mch::variable<const Circle&>   c;
-    mch::variable<const Square&>   s;
-    mch::variable<const Triangle&> t;
+    mch::var<const Circle&>   c;
+    mch::var<const Square&>   s;
+    mch::var<const Triangle&> t;
 
     Match(s0,s1)
     {
@@ -104,9 +104,9 @@ void do_match(Shape* s0, const Shape* s1, const Shape* s2)
 {
     const char* text = "unknown";
 
-    mch::variable<const Circle&>   c;
-    mch::variable<const Square&>   s;
-    mch::variable<const Triangle&> t;
+    mch::var<const Circle&>   c;
+    mch::var<const Square&>   s;
+    mch::var<const Triangle&> t;
 
     Match(s0,s1,s2)
     {
@@ -153,9 +153,9 @@ void do_match(Shape* s0, Shape* s1, Shape* s2, Shape* s3)
 {
     const char* text = "unknown";
 
-    mch::variable<const Circle&>   c;
-    mch::variable<const Square&>   s;
-    mch::variable<const Triangle&> t;
+    mch::var<const Circle&>   c;
+    mch::var<const Square&>   s;
+    mch::var<const Triangle&> t;
 
     Match(s0,s1,s2,s3)
     {

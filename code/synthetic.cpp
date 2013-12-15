@@ -44,7 +44,7 @@ XTL_TIMED_FUNC_BEGIN
 size_t do_match(const Shape& s, size_t)
 {
     #define FOR_EACH_MAX  NUMBER_OF_DERIVED-1
-    #define FOR_EACH_N(N) if (mch::cons<shape_kind<N>>()(s)) return N;
+    #define FOR_EACH_N(N) if (mch::C<shape_kind<N>>()(s)) return N;
     #include "loop_over_numbers.hpp"
     #undef  FOR_EACH_N
     #undef  FOR_EACH_MAX

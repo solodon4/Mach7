@@ -60,7 +60,7 @@
 // TODO: Overload comma operator on patterns to handle multiple subjects
 // TODO: Make the following two syntaxes work:
 //        - if (match(c).with(re,im)) ...
-//        - if (cons<complex<float>>(re,im) == c) ...
+//        - if (C<complex<float>>(re,im) == c) ...
 //        - if (Po(P1,...,Pn).matches(v))
 // FIX:  number of clauses is only used for MatchP at the moment, not for MatchG
 
@@ -262,8 +262,8 @@ template <class T> inline void ignore_unused_warning(T const&) {}
         XTL_UNUSED(matched);
 
 #define XTL_SUBCLAUSE_FIRST           XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(false)) XTL_NON_USE_BRACES_ONLY({)
-#define XTL_SUBCLAUSE_OPEN(...)                                       XTL_STATIC_IF(UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true,   XTL_LIKELY(mch::cons<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
-#define XTL_SUBCLAUSE_CONTINUE(...) } XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(mch::cons<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
+#define XTL_SUBCLAUSE_OPEN(...)                                       XTL_STATIC_IF(UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true,   XTL_LIKELY(mch::C<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
+#define XTL_SUBCLAUSE_CONTINUE(...) } XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(mch::C<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
 //#define XTL_SUBCLAUSE_PATTERN(...)} XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(filter(__VA_ARGS__)(*matched)))) {
 #define XTL_SUBCLAUSE_PATTERN(...)                                    XTL_STATIC_IF(UCL_PP_IF(UCL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(filter(__VA_ARGS__)(*matched)))) {
 #define XTL_SUBCLAUSE_CLOSE         }                            XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(is_inside_case_clause) break;)
@@ -385,9 +385,9 @@ template<>                        struct target_disambiguator<const int> { typed
 /// Macro that defines the with-clause for the above switch
 #define WithP(...)                                                             \
         XTL_SUBCLAUSE_CLOSE }}                                                 \
-        XTL_REDUNDANCY_CATCH(mch::underlying<decltype(__VA_ARGS__)>::type::accepted_type)     \
+        XTL_REDUNDANCY_CATCH(mch::underlying<decltype(__VA_ARGS__)>::type::accepted_type_for<source_type>::type) \
         {                                                                      \
-            XTL_CLAUSE_COMMON(mch::underlying<decltype(__VA_ARGS__)>::type::accepted_type);   \
+            XTL_CLAUSE_COMMON(mch::underlying<decltype(__VA_ARGS__)>::type::accepted_type_for<source_type>::type); \
             enum { target_label = XTL_COUNTER-__base_counter };                \
             __casted_ptr = dynamic_cast<const target_type*>(subject_ptr);      \
             if (XTL_UNLIKELY(__casted_ptr))                                    \
@@ -579,15 +579,15 @@ template<>                        struct target_disambiguator<const int> { typed
             {{ XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
-#define QuaS(C,...)                                                            \
+#define QuaS(T,...)                                                            \
         XTL_SUBCLAUSE_CLOSE }}                                                 \
-        XTL_REDUNDANCY_CATCH(C)                                                \
+        XTL_REDUNDANCY_CATCH(T)                                                \
         { /* Clause */                                                         \
-            XTL_CLAUSE_COMMON(C);                                              \
+            XTL_CLAUSE_COMMON(T);                                              \
             XTL_NON_REDUNDANCY_ONLY(case XTL_COUNTER-__base_counter:)          \
-            if (auto matched = mch::cons<C>()(subject_ptr))                         \
+            if (auto matched = mch::C<T>()(subject_ptr))                       \
             { /* Sequential */                                                 \
-                XTL_CLAUSE_DECL_ONLY(C(*matched));                             \
+                XTL_CLAUSE_DECL_ONLY(T(*matched));                             \
                 XTL_UNUSED(matched);                                           \
                 XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
 
@@ -612,12 +612,12 @@ template<>                        struct target_disambiguator<const int> { typed
         {{ XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
-#define QuaS(C,...)                                                            \
+#define QuaS(T,...)                                                            \
         XTL_SUBCLAUSE_CLOSE }}{                                                \
-        XTL_CLAUSE_COMMON(C);                                                  \
-        if (auto matched = mch::cons<C>()(subject_ptr))                             \
+        XTL_CLAUSE_COMMON(T);                                                  \
+        if (auto matched = mch::C<T>()(subject_ptr))                           \
         {                                                                      \
-            XTL_CLAUSE_DECL_ONLY(C(*matched));                                 \
+            XTL_CLAUSE_DECL_ONLY(T(*matched));                                 \
             XTL_UNUSED(matched);                                               \
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
 
@@ -714,9 +714,9 @@ template<>                        struct target_disambiguator<const int> { typed
 /// Macro that defines the case statement for the above switch
 #define WithQ(...)                                                             \
         XTL_SUBCLAUSE_CLOSE }}                                                 \
-        XTL_REDUNDANCY_CATCH(mch::underlying<decltype(__VA_ARGS__)>::type::accepted_type) \
+        XTL_REDUNDANCY_CATCH(mch::underlying<decltype(__VA_ARGS__)>::type::accepted_type_for<source_type>::type) \
         {                                                                      \
-            typedef mch::underlying<decltype(__VA_ARGS__)>::type::accepted_type C;  \
+            typedef mch::underlying<decltype(__VA_ARGS__)>::type::accepted_type_for<source_type>::type C;  \
             typedef XTL_CPP0X_TYPENAME switch_traits::                         \
                     XTL_CPP0X_TEMPLATE disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::source_type)>:: \
                     XTL_CPP0X_TEMPLATE parameter<C> target_specific;           \
@@ -773,7 +773,7 @@ template<>                        struct target_disambiguator<const int> { typed
 ///   types and forwards the call to Qua
 /// * Otherwise(v1,...,vn) - equivalent to Case-clause with subject type used
 ///   as a target type. It is an irrefutable clause and should be last.
-/// * With(p) - takes a single pattern as an argument. With(cons<T>(p1,...,pn))
+/// * With(p) - takes a single pattern as an argument. With(C<T>(p1,...,pn))
 ///   is essentially the same as Qua(T,p1,...,pn), but With can take other patterns        
 /// * When(p1,...,pn) - this is a subclause. They are executed sequentially on the
 ///   matched value of the last clause (or a subject if none).

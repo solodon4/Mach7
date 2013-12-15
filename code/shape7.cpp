@@ -143,7 +143,7 @@ int main()
 
     //wildcard _;
     //double   x;
-    mch::variable<double> v;
+    mch::var<double> v;
     loc      l;
     //cloc     cl;
 

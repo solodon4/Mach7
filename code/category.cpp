@@ -116,10 +116,10 @@ const Either<S, T>* lift_ex(const Either<X, Y>& e, S f(X), T g(Y))
 	X x;
 	Y y;
 
-	if (mch::cons<Left<X, Y> >(x)(e))
+	if (mch::C<Left<X, Y> >(x)(e))
 		return left<S, T>(f(x));
 	else
-	if (mch::cons<Right<X, Y> >(y)(e))
+	if (mch::C<Right<X, Y> >(y)(e))
 		return right<S, T>(g(y));
 	else
 		return 0;
@@ -170,8 +170,8 @@ void test(const C& c)
 	typedef type_variable<1> T;
 	typedef type_variable<2> A;
 
-	if (cons<std::vector<T,A> >(c))
+	if (C<std::vector<T,A> >(c))
 	else
-	if (cons<std::list<T,A> >(c))
+	if (C<std::list<T,A> >(c))
 }
 */

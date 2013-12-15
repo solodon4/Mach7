@@ -23,7 +23,7 @@ namespace mch ///< Mach7 library namespace
 // Functors implementing a particular operation for any pair of types
 //==============================================================================
 
-struct negation        { template <class A>          auto operator()(A&& a)        const -> decltype(-std::forward<A>(a))     { return -std::forward<A>(a); } };
+struct unary_minus     { template <class A>          auto operator()(A&& a)        const -> decltype(-std::forward<A>(a))     { return -std::forward<A>(a); } };
 struct bit_complement  { template <class A>          auto operator()(A&& a)        const -> decltype(~std::forward<A>(a))     { return ~std::forward<A>(a); } };
 struct bool_complement { template <class A>          auto operator()(A&& a)        const -> decltype(!std::forward<A>(a))     { return !std::forward<A>(a); } };
 
@@ -46,7 +46,7 @@ struct greater_equal   { template <class A, class B> auto operator()(A&& a, B&& 
 struct less            { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) <  std::forward<B>(b)) { return std::forward<A>(a) <  std::forward<B>(b); } };
 struct less_equal      { template <class A, class B> auto operator()(A&& a, B&& b) const -> decltype(std::forward<A>(a) <= std::forward<B>(b)) { return std::forward<A>(a) <= std::forward<B>(b); } };
 
-//struct negation        { template <class A>          auto operator()(const A& a)             const -> decltype(-a)     { return -a; } };
+//struct unary_minus     { template <class A>          auto operator()(const A& a)             const -> decltype(-a)     { return -a; } };
 //struct bit_complement  { template <class A>          auto operator()(const A& a)             const -> decltype(~a)     { return ~a; } };
 //struct bool_complement { template <class A>          auto operator()(const A& a)             const -> decltype(!a)     { return !a; } };
 //
@@ -76,8 +76,8 @@ template <typename F> struct solver;
 
 //------------------------------------------------------------------------------
 
-// Solver for negation operation
-template <> struct solver<negation>
+// Solver for unary_minus operation
+template <> struct solver<unary_minus>
 {
     // Solver for the first argument: -a == r => a == -r
     template <class A> 
@@ -226,10 +226,10 @@ inline bool do_solve(F f, const A1& a1, A2& a2, const decltype(f(a1,a2))& r)
 
 //------------------------------------------------------------------------------
 
-// Solver for negation operation
+// Solver for unary_minus operation
 // Solver for the first argument: -a == r => a == -r
 template <class A>
-inline bool do_solve(negation, A& a, const decltype(-a)& r)
+inline bool do_solve(unary_minus, A& a, const decltype(-a)& r)
 {
     a = -r;
     return -a == r;

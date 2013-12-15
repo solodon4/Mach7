@@ -19,6 +19,8 @@
 #include <utility>
 #include <vector>
 
+#include "config.hpp"
+
 //------------------------------------------------------------------------------
 
 /// The word-like entities in the Prolog language are called Terms. 
@@ -310,35 +312,49 @@ inline Comment*   K(const char*  v) { return new Comment(v); }
 //------------------------------------------------------------------------------
 
 #include "type_switchN-patterns.hpp"
-#include "patterns/constructor.hpp"
-#include "patterns/primitive.hpp"
-#include "patterns/equivalence.hpp"
-#include "patterns/combinators.hpp"
-
-#define C cons
+#include "patterns/address.hpp"        // Address pattern
+#include "patterns/combinators.hpp"    // Pattern combinators
+#include "patterns/constructor.hpp"    // Constructor pattern
+#include "patterns/equivalence.hpp"    // Equivalence pattern
+#include "patterns/guard.hpp"          // Guard pattern
+#include "patterns/n+k.hpp"            // n+k pattern
+#include "patterns/primitive.hpp"      // Value, Variable and Wildcard patterns
+#include "patterns/quantifiers.hpp"    // Quantifiers
+//#include "patterns/sequence.hpp"       // Sequence pattern
 
 //------------------------------------------------------------------------------
 
+namespace mch ///< Mach7 library namespace
+{
 template <> struct bindings<Atom>      { CM(0,Atom::value);     };
 template <> struct bindings<Number>    { };
 template <> struct bindings<Integer>   { CM(0,Integer::value);  };
 template <> struct bindings<Float>     { CM(0,Float::value);    };
 template <> struct bindings<String>    { CM(0,String::value);   };
 template <> struct bindings<Variable>  { CM(0,Variable::name);  };
-template <> struct bindings<Structure> { CM(1,Structure::arity); CM(0,Structure::name); }; // FIX: MSVC doesn't compile this unless we go in exactly that order!!!
+template <> struct bindings<Structure> { CM(1,Structure::arity); CM(0,Structure::name); CM(2,Structure::terms); }; // FIX: MSVC doesn't compile this unless we go in exactly that order!!!
 template <> struct bindings<List>      { CM(0,List::head);      CM(1,List::tail); };
 template <> struct bindings<Operator>  { CM(0,Operator::name);  };
 template <> struct bindings<Comment>   { CM(0,Comment::text);   };
+} // of namespace mch
+
+//------------------------------------------------------------------------------
+
+using mch::C; // Enable use of constructor pattern without namespace qualification
 
 //------------------------------------------------------------------------------
 
 std::ostream& operator<<(std::ostream& os, const Term& t)
 {
+//    std::clog << '[' << &t << ']';
+
     std::string s;
     int         n;
+    mch::var<int> m;
     double      f;
     const Term* hd;
     const List* tl;
+    mch::wildcard _;
 
     Match(t)
     {
@@ -348,6 +364,10 @@ std::ostream& operator<<(std::ostream& os, const Term& t)
     Case(C<String>(s))   return os << s;
     Case(C<Variable>(s)) return os << s;
   //Case(C<Operator>(s)) return os << s;
+    Case(C<Structure>(s,_,mch::all(C<Integer>(m)))) 
+        os << "all integers  " << m;
+    Case(C<Structure>(s,_,mch::exist(C<Integer>(m |= m >= 9)))) 
+        os << "exist integer " << m;
     Case(C<Structure>(s)) 
         os << s << '(';
         for (auto p = match0.terms.begin(); p != match0.terms.end(); ++p)
@@ -367,47 +387,35 @@ std::ostream& operator<<(std::ostream& os, const Term& t)
 
 //------------------------------------------------------------------------------
 
-template <typename P1, typename P2>
-inline auto foo(P1&& p1, P2&& p2) noexcept 
-        -> typename std::enable_if<is_pattern<P1>::value + 
-                                   is_pattern<P2>::value, 
-                                   conjunction<typename underlying<P1>::type,
-                                               typename underlying<P2>::type>
-                                  >::type 
-{
-    return conjunction<
-                typename underlying<P1>::type,
-                typename underlying<P2>::type
-           >(
-                std::forward<P1>(p1),
-                std::forward<P2>(p2)
-            );
-}
+bool operator==(const Term&, const Term&);
+inline bool operator!=(const Term& left, const Term& right) { return !(left == right); }
+
+//------------------------------------------------------------------------------
 
 bool operator==(const Term& left, const Term& right)
 {
-    variable<std::string> s1,s2;
-    variable<int>         n;
-    variable<double>      f;
-    variable<const Term*> h0,h1;
-    const List* t0,*t1;
-    wildcard _;
-
-    foo(s1,s2);
+    //std::clog << "(" << left << ',' << right << ')' << std::endl;
+    mch::var<std::string> s;
+    mch::var<int>         n;
+    mch::var<double>      f;
+    mch::var<const Term&> h,t;
 
     Match(left,right)
     {
-    Case(C<Atom>(s1&&s2), C<Atom>(+(s1&&s2))     ) return s1==s2;
-    Case(C<Integer>(n),   C<Integer>(+n)  ) return true;
-    Case(C<Float>(f),     C<Float>(+f)    ) return true;
-  //Case(C<Number>(s),    C<Number>(s)    ) return false;
-    Case(C<String>(s),    C<String>(+s)   ) return true;
-    Case(C<Variable>(s),  C<Variable>(+s) ) return true;
-  //Case(C<Operator>(s),  C<Operator>(s)  ) return false;
-    Case(C<Structure>(s), C<Structure>(+s)) return match0.terms == match1.terms;
-    Case(C<List>(h0,t0),  C<List>(h1,t1)  ) return *h0 == *h1 && (t0 && t1 ? *t0 == *t1 : t0 == t1);
-    Case(C<Comment>(s),   C<Comment>(+s)  ) return true;
-    Otherwise()                             return false;
+    Case(C<Atom>(s),          C<Atom>(+s)         ) return true;
+    Case(C<Integer>(n),       C<Integer>(+n)      ) return true;
+    Case(C<Float>(f),         C<Float>(+f)        ) return true;
+    Case(C<String>(s),        C<String>(+s)       ) return true;
+    Case(C<Variable>(s),      C<Variable>(+s)     ) return true;
+    Case(C<Structure>(s,n),   C<Structure>(+s,+n) )
+        for (int i = 0; i < n; ++i)
+            if (*match0.terms[i] != *match1.terms[i])
+                return false;
+        return true;
+    Case(C<List>(&h,&t),      C<List>(&+h,&+t)    ) return true;
+    Case(C<List>(&h,nullptr), C<List>(&+h,nullptr)) return true;
+    Case(C<Comment>(s),       C<Comment>(+s)      ) return true;
+    Otherwise()                                     return false;
     }
     EndMatch
 
@@ -427,12 +435,18 @@ bool occurs(const Term& what, const Term& where)
     Match(where)
     {
     Case(C<Structure>())
+#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && (XTL_GCC_VERSION >= 40600)
         for (auto t : match0.terms)
             if (occurs(what,*t))
                 return true;
+#else
+        for (auto p = match0.terms.begin(); p != match0.terms.end(); ++p)
+            if (occurs(what,**p))
+                return true;
+#endif
         return false;
     Case(C<List>(hd,tl)) 
-        return occurs(what,*hd) || tl && occurs(what,*tl);
+        return occurs(what,*hd) || (tl && occurs(what,*tl));
     }
     EndMatch
 
@@ -452,8 +466,13 @@ Term* subs(const Term* what, Term* with, Term* where)
     Match(where)
     {
     Case(C<Structure>())
+#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && (XTL_GCC_VERSION >= 40600)
         for (auto& t : match0.terms)
             t = subs(what,with,t);
+#else
+        for (auto p = match0.terms.begin(); p != match0.terms.end(); ++p)
+            *p = subs(what,with,*p);
+#endif
         return &match0;
     Case(C<List>(hd,tl)) 
         match0.head = subs(what,with,hd);
@@ -474,6 +493,10 @@ typedef std::pair<Term*,Term*>      term_pair;
 
 bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
 {
+    mch::var<std::string> s;
+    mch::var<size_t>      n;
+    mch::wildcard         _;
+
     while (!pairs.empty())
     {
         term_pair p = pairs.front();
@@ -484,55 +507,66 @@ bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
         if (*p.first == *p.second) 
             continue;
 
+DoAgain:
+
+        Match(p.first, p.second)
+        {
         // Decompose rule: If a pair has the same functor and length of the 
         // compound term (and the first rule doesn't apply), remove the functor 
         // and add the pairs of the remaining expressions to the set: 
         // e.g. {<f(a,b,c),f(A,B,C)>} becomes {<a,A>, <b,B>, <c,C>}
-        if (Structure* s1 = dynamic_cast<Structure*>(p.first))
-        if (Structure* s2 = dynamic_cast<Structure*>(p.second))
-        if (s1->arity() == s2->arity() && s1->name == s2->name)
-        {
-            for (size_t i = 0, n = s1->arity(); i < n; ++i)
-                pairs.push_back(term_pair(s1->terms[i],s2->terms[i]));
+        Case(C<Structure>(s,n), C<Structure>(+s,+n))
+            for (size_t i = 0; i < n; ++i)
+                pairs.push_back(term_pair(match0.terms[i], match1.terms[i]));
 
             continue;
-        }
-        else
-            return false;
-
         // Orient rule: If the first expressions of the pair is not a variable 
         // and the second is, just switch the expression (we will need this 
         // step to instantiate variables): e.g.  <t,X> becomes <X,t>
-        if (!dynamic_cast<Variable*>(p.first) && 
-             dynamic_cast<Variable*>(p.second))
+        Case(!C<Variable>(), C<Variable>())
             std::swap(p.first,p.second);
-
+            goto DoAgain;
         // Variable Elimination: If the first expression is a variable and 
         // doesn't occur in the second, you can drop the pair and add the 
         // instantiation to the substitution-set: 
         // e.g. {<X,f(G)>};{} becomes {}; {X -> f(G)}
-        if (Variable* v = dynamic_cast<Variable*>(p.first))
-        if (occurs(*v,*p.second))
-            return false;
-        else
-        {
-            substitutions[v->name] = p.second;
-
-            // Substitute variable in existing terms in substitution
-            for (auto& x : substitutions)
-                x.second = subs(v,p.second,x.second);
-
-            // Substitute variable in the current instantiations set
-            for (auto& q : pairs)
+        Case(C<Variable>(s), _)
+            if (!occurs(match0,match1))
             {
-                q.first  = subs(v,p.second,q.first);
-                q.second = subs(v,p.second,q.second);
+                substitutions[s] = &match1;
+
+#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && (XTL_GCC_VERSION >= 40600)
+                // Substitute variable in existing terms in substitution
+                for (auto& x : substitutions)
+                    x.second = subs(&match0,&match1,x.second);
+
+                // Substitute variable in the current instantiations set
+                for (auto& q : pairs)
+                {
+                    q.first  = subs(&match0,&match1,q.first);
+                    q.second = subs(&match0,&match1,q.second);
+                }
+#else
+                // Substitute variable in existing terms in substitution
+                for (auto p = substitutions.begin(); p != substitutions.end(); ++p)
+                    p->second = subs(&match0,&match1,p->second);
+
+                // Substitute variable in the current instantiations set
+                for (auto p = pairs.begin(); p != pairs.end(); ++p)
+                {
+                    p->first  = subs(&match0,&match1,p->first);
+                    p->second = subs(&match0,&match1,p->second);
+                }
+#endif
+
+                continue;
             }
-
-            continue;
+            //else
+            //    return false;
+        Otherwise()
+            return false; // None of the rules applies
         }
-
-        return false; // None of the rules applies
+        EndMatch
     }
 
     return true;
@@ -550,8 +584,13 @@ void unify(Term* t1, Term* t2)
     pairs.push_back(term_pair(t1,t2));
 
     if (unify(pairs, substitutions))
+#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && (XTL_GCC_VERSION >= 40600)
         for (const auto& x : substitutions)
             std::cout << std::setw(8) << x.first << " -> " << *x.second << std::endl;
+#else
+        for (auto p = substitutions.begin(); p != substitutions.end(); ++p)
+            std::cout << std::setw(8) << p->first << " -> " << *p->second << std::endl;
+#endif
     else
         std::cout << "\tERROR: Unable to unify" << std::endl;
 
@@ -563,13 +602,22 @@ int main()
 {
     Term* terms[] = {
         A("atom"),
+        A("atom"),
+        I(42),
         I(42),
         F(3.14),
+        F(3.14),
+        L("$string$"),
         L("$string$"),
         V("X"),
+        V("X"),
+        S("test", 5, A("a1"), I(7), F(3.1415926), L("$sss$"), V("X")),
         S("test", 5, A("a1"), I(7), F(3.1415926), L("$sss$"), V("X")),
         L(2, A("a2"), V("Y")),
+        L(2, A("a2"), V("Y")),
         O("==",0),
+        O("==",0),
+        K("% comment"),
         K("% comment"),
         // ----
         A("atom2"),
@@ -578,6 +626,7 @@ int main()
         L("$string2$"),
         V("Y"),
         S("test", 5, A("a1"), I(8), F(3.1415926), L("$sss$"), V("X")),
+        S("test", 5, I(7), I(8), I(9), I(10), I(11)),
         L(2, A("a2"), V("Z")),
         O("!=",0),
         K("% another comment")

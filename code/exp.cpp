@@ -154,9 +154,9 @@ const Expr* factorize(const Expr* e)
 {
     const Expr *e1, *e2, *e3, *e4;
 
-    if (mch::cons<Plus>(
-            mch::cons<Times>(e1,e2),
-            mch::cons<Times>(e3,e4)
+    if (mch::C<Plus>(
+            mch::C<Times>(e1,e2),
+            mch::C<Times>(e3,e4)
         )(e))
     {
         if (e1 == e3)
@@ -170,15 +170,15 @@ const Expr* factorize(const Expr* e)
 /*
 const Expr* factorize1(const Expr* e)
 {
-    variable<const Expr*> e1, e2, e3, e4;
-    if (mch::cons<Plus>(
-            mch::cons<Times>(e1,e2), 
-            mch::cons<Times>(e3 |= e1 == e3,e4)
+    var<const Expr*> e1, e2, e3, e4;
+    if (mch::C<Plus>(
+            mch::C<Times>(e1,e2), 
+            mch::C<Times>(e3 |= e1 == e3,e4)
         )(e)) return new Times(e1, new Plus(e2,e4));
     else
-    if (mch::cons<Plus>(
-            mch::cons<Times>(e1,e2), 
-            mch::cons<Times>(e3,e4 |= e2 == e4)
+    if (mch::C<Plus>(
+            mch::C<Times>(e1,e2), 
+            mch::C<Times>(e3,e4 |= e2 == e4)
         )(e)) return new Times(new Plus(e1,e3), e4);
     else
     return e;

@@ -50,7 +50,7 @@ const size_t reserved_extra_kinds = 1;
 #endif
 
 /// Predefined structure that will be used when user did specify smallest kind with #SKV macro
-template <size_t N> struct smallest_kind_is { enum { value = N }; };
+template <size_t N> struct smallest_kind_is { static const size_t value = N; };
 /// When the user did not specify the smallest kind with #SKV macro, assume it is 0
 smallest_kind_is<0> smallest_kind_value_helper(...);
 
@@ -59,7 +59,7 @@ template <typename T>
 struct smallest_kind
 {
     typedef decltype(smallest_kind_value_helper(std::declval<T>())) type;
-    enum { value = type::value };
+    static const size_t value = type::value;
 };
 
 /// Convenience meta-function to get the original kind associated with the class T

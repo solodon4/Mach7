@@ -27,7 +27,7 @@ namespace mch ///< Mach7 library namespace
 ///
 
 /// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
-template <typename T> struct is_pattern_ { enum { value = false }; };
+template <typename T> struct is_pattern_ { static const bool value = false; };
 
 /// #is_pattern is a helper meta-predicate capable of distinguishing all our patterns
 template <typename T> struct is_pattern : is_pattern_<typename underlying<T>::type> {};
@@ -41,22 +41,30 @@ template <typename T> struct is_pattern : is_pattern_<typename underlying<T>::ty
 ///
 
 /// #is_expression_ is a helper meta-predicate that separates lazily evaluatable expressions we support
-template <typename T> struct is_expression_ { enum { value = false }; };
+template <typename T> struct is_expression_ { static const bool value = false; };
 
 /// #is_expression is a helper meta-predicate that separates lazily evaluatable expressions we support
 template <typename T> struct is_expression : is_expression_<typename underlying<T>::type> {};
+
+//------------------------------------------------------------------------------
 
 /// #either_is_expression is a only used to workaround a compiler stack overflow 
 /// problem in MSVC when we were overloading operator||(E1&&,E2&&) and had || in
 /// enabling condition for that overload. Now we use either_is_expression there 
 /// instead.
-#ifdef _MSC_VER
-/// FIX: Fails to compile from MSVC IDE, but ok from command line
-/// TODO: This is not even needed for tests on type switch - separate code
-template <typename E1, typename E2> struct either_is_expression { enum { value = is_expression<E1>::value /*|| is_expression<E2>::value*/ }; };
-#else
-template <typename E1, typename E2> struct either_is_expression { enum { value = is_expression<E1>::value || is_expression<E2>::value }; };
-#endif
+template <typename P1, typename P2> struct either_is_pattern    { static const bool value =    is_pattern<P1>::value ||    is_pattern<P2>::value; };
+template <typename E1, typename E2> struct either_is_expression { static const bool value = is_expression<E1>::value || is_expression<E2>::value; };
+
+//------------------------------------------------------------------------------
+
+/// A common function used to provide convenience to the users by converting 
+/// constant values into value patterns and regular variables into variable 
+/// patterns. Various parts of the Mach7 library call this function to enable 
+/// this behavior. This particular overload does nothing on patterns, other 
+/// overloads can be found in the header with primitive patterns.
+template <typename P> 
+inline typename std::enable_if< is_pattern<P>::value, typename std::remove_reference<P>::type>::type 
+filter(P&& p) noexcept { return std::move(p); }
 
 //------------------------------------------------------------------------------
 

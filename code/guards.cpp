@@ -32,7 +32,7 @@ typedef mch::view<std::complex<double>,plar> polar;
 int main()
 {
     const std::complex<double> i(0.0,1.0);
-    mch::variable<double> a,b,r,f;
+    mch::var<double> a,b,r,f;
     mch::wildcard _;
 
     Match(i)

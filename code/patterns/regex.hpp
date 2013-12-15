@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "primitive.hpp"
+#include "common.hpp"
 #include <regex>
 #include <string>
 
@@ -24,7 +24,12 @@ namespace mch ///< Mach7 library namespace
 /// RegEx pattern of 0 arguments
 struct regex0 : std::regex
 {
-    typedef std::string accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef std::string type; };
+
     regex0(const char* re) : std::regex(re) {}
     bool operator()(const std::string& s) const noexcept { return operator()(s.c_str()); }
     bool operator()(const char*        s) const noexcept { std::cmatch m; return regex_match(s,m,*this); }
@@ -38,11 +43,16 @@ struct regex1 : std::regex
 {
     static_assert(is_pattern<P1>::value,    "Argument P1 of a regex-pattern must be a pattern");
 
-    typedef std::string accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef std::string type; };
 
     explicit regex1(const char* re, const P1&  p1) noexcept : std::regex(re), m_p1(p1) {}
     explicit regex1(const char* re,       P1&& p1) noexcept : std::regex(re), m_p1(std::move(p1)) {}
              regex1(regex1&& r)                    noexcept : std::regex(std::move(r)), m_p1(std::move(r.m_p1)) {}
+    regex1& operator=(const regex1&); // No assignment
 
 
     bool operator()(const std::string& s) const noexcept { return operator()(s.c_str()); }
@@ -53,7 +63,7 @@ struct regex1 : std::regex
         if (regex_match(s,m,*this))
         {
             XTL_ASSERT(m.size() >= 1); // There should be enough capture groups for each of the pattern arguments
-            typename P1::accepted_type m1;
+            typename P1::template accepted_type_for<std::string>::type m1;
             std::stringstream ss(m[1]);
             return (ss >> m1) && m_p1(m1);
         }
@@ -75,8 +85,8 @@ inline auto rex(const char* re, P1&& p1) noexcept -> XTL_RETURN
 
 //------------------------------------------------------------------------------
 
-template <>            struct is_pattern_<regex0>     { enum { value = true }; };
-template <typename P1> struct is_pattern_<regex1<P1>> { enum { value = true }; };
+template <>            struct is_pattern_<regex0>     { static const bool value = true; };
+template <typename P1> struct is_pattern_<regex1<P1>> { static const bool value = true; };
 
 //------------------------------------------------------------------------------
 

@@ -1,0 +1,1 @@
+[InstMove (Ext TyDouble "d") (Tmp TyDouble 0),InstMove (Tmp TyDouble 0) (Ext TyDouble "c"),InstMove (Ext TyDouble "b") (Tmp TyDouble 0),InstMove (Tmp TyDouble 0) (Ext TyDouble "a")]

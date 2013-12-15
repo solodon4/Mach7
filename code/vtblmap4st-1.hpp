@@ -163,6 +163,8 @@ private:
             }
         }
 
+        cache_descriptor& operator=(const cache_descriptor&); ///< No assignment
+
         bool is_full() const { return used > cache_mask; } ///< Checks whether cache is full
         size_t  size() const { return cache_mask+1; }      ///< Number of entries in cache
 
@@ -223,7 +225,7 @@ public:
         #undef new
     #endif
     vtbl_map(const char* fl, size_t ln, const char* fn, const vtbl_count_t expected_size = min_expected_size) : 
-        descriptor(new(min_log_size) cache_descriptor(min_log_size)),
+        descriptor(new(req_bits(expected_size-1)) cache_descriptor(req_bits(expected_size-1))),
         last_table_size(0),
         collisions_before_update(initial_collisions_before_update),
         file(fl), 
@@ -244,7 +246,7 @@ public:
         #undef new
     #endif
     vtbl_map(const vtbl_count_t expected_size = min_expected_size) : 
-        descriptor(new(min_log_size) cache_descriptor(min_log_size)),
+        descriptor(new(req_bits(expected_size-1)) cache_descriptor(req_bits(expected_size-1))),
         collisions_before_update(initial_collisions_before_update)
         XTL_DUMP_PERFORMANCE_ONLY(,file("unspecified"), line(0), func("unspecified"), updates(0), clauses(expected_size), hits(0), misses(0), collisions(0))
     {}
@@ -331,7 +333,7 @@ template <typename T>
 T& vtbl_map<1,T>::update(intptr_t vtbl)
 {
     XTL_ASSERT(descriptor); // Allocated in constructor, deallocated in destructor
-    XTL_ASSERT(last_table_size < descriptor->used); // We will only call this if size changed
+    XTL_ASSERT(last_table_size < descriptor->used || descriptor->is_full()); // We will only call this if size changed
 
     // FIX: vtbl might already exist in old descriptor and if it happens to be the first one, it won't be taken into consideration
     intptr_t diff = 0;

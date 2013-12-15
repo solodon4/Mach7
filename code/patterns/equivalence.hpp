@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "common.hpp"
+#include "primitive.hpp" // FIX: Ideally this should be common.hpp, but GCC seem to disagree: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=55460
 
 namespace mch ///< Mach7 library namespace
 {
@@ -27,13 +27,19 @@ struct equivalence
     explicit equivalence(const E1& e1) : m_e1(e1) {}
     explicit equivalence(E1&& e1) noexcept : m_e1(std::move(e1)) {}
     equivalence(equivalence&& e) noexcept : m_e1(std::move(e.m_e1)) {}
+    equivalence& operator=(const equivalence&); // No assignment
 
     typedef typename E1::result_type result_type;
-    typedef result_type accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef result_type type; };
 
     operator result_type() const { return eval(m_e1); } // FIX: avoid implicit conversion in lazy expressions
 
-    bool operator()(const accepted_type& u) const { return u == eval(m_e1); }
+    bool operator()(const result_type& u) const { return u == eval(m_e1); }
 
     E1 m_e1;
 };
@@ -41,10 +47,10 @@ struct equivalence
 //------------------------------------------------------------------------------
 
 /// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
-template <typename E1> struct is_pattern_<equivalence<E1>>    { enum { value = true }; };
+template <typename E1> struct is_pattern_<equivalence<E1>>    { static const bool value = true; };
 
 /// #is_expression_ is a helper meta-predicate that separates lazily evaluatable expressions we support
-template <typename E1> struct is_expression_<equivalence<E1>> { enum { value = true }; };
+template <typename E1> struct is_expression_<equivalence<E1>> { static const bool value = true; };
 
 //------------------------------------------------------------------------------
 
@@ -54,11 +60,14 @@ template <typename E1> struct is_expression_<equivalence<E1>> { enum { value = t
 
 /// \note This operator has to be in the global namespace as E is unrestricted
 ///       and ADL won't work to find it!
-template <typename E>
-inline auto operator+(E&& e) throw() 
-        -> typename std::enable_if<mch::is_expression<E>::value, mch::equivalence<typename mch::underlying<E>::type>>::type 
+template <typename E1>
+inline auto operator+(E1&& e1) noexcept
+        -> typename std::enable_if<
+                        mch::is_expression<E1>::value,
+                        mch::equivalence<decltype(mch::filter(std::forward<E1>(e1)))>
+                    >::type
 {
-    return mch::equivalence<typename mch::underlying<E>::type>(std::forward<E>(e));
+    return mch::equivalence<decltype(mch::filter(std::forward<E1>(e1)))>(mch::filter(std::forward<E1>(e1)));
 }
 
 //------------------------------------------------------------------------------

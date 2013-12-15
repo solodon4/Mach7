@@ -22,7 +22,7 @@ int main()
     for (size_t i = 0, n = sizeof(values)/sizeof(values[0]); i < n; ++i)
     {
 #if 1
-        mch::variable<int> area_code;
+        mch::var<int> area_code;
         std::cout << values[i] << " is ";
         Match(values[i])
         {

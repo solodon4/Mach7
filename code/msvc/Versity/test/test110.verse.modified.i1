@@ -1,0 +1,7 @@
+[InstMove (Lit (ValDouble 10.0)) (Ext TyDouble "m"),
+InstUn (Op "-") (Lit (ValDouble 9.81)) (Ext TyDouble "g"),
+InstBin (Op "*") (Ext TyDouble "g") (Ext TyDouble "m") (Ext TyDouble "f"),
+InstBin (Op "/") (Ext TyDouble "f") (Ext TyDouble "m") (Ext TyDouble "a"),
+InstMove (Lit (ValDouble 0.1)) (Ext TyDouble "dt"),
+InstBin (Op "/") (Ext TyDouble "a") (Ext TyDouble "dt") (Ext TyDouble "v"),
+InstBin (Op "/") (Ext TyDouble "v") (Ext TyDouble "dt") (Ext TyDouble "x")]

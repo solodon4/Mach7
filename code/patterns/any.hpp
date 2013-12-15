@@ -25,18 +25,25 @@ template <typename T>
 struct one_of
 {
     one_of(std::initializer_list<T>&& init) : m_elements(std::move(init)) {}
-    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef T type; };
+
     bool operator()(const T& s) const noexcept 
     {
         return std::find(m_elements.begin(),m_elements.end(),s) != m_elements.end(); 
     }
+
     std::initializer_list<T> m_elements;
 };
 
 //------------------------------------------------------------------------------
 
 /// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
-template <typename T> struct is_pattern_<one_of<T>> { enum { value = true }; };
+template <typename T> struct is_pattern_<one_of<T>> { static const bool value = true; };
 
 //------------------------------------------------------------------------------
 

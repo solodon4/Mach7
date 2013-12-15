@@ -19,6 +19,8 @@
 #include <utility>
 #include <vector>
 
+#include "config.hpp"
+
 //------------------------------------------------------------------------------
 
 /// The word-like entities in the Prolog language are called Terms. 
@@ -313,8 +315,6 @@ inline Comment*   K(const char*  v) { return new Comment(v); }
 #include "patterns/constructor.hpp"
 #include "patterns/primitive.hpp"
 
-#define C mch::cons
-
 //------------------------------------------------------------------------------
 
 namespace mch ///< Mach7 library namespace
@@ -325,11 +325,15 @@ template <> struct bindings<Integer>   { CM(0,Integer::value);  };
 template <> struct bindings<Float>     { CM(0,Float::value);    };
 template <> struct bindings<String>    { CM(0,String::value);   };
 template <> struct bindings<Variable>  { CM(0,Variable::name);  };
-template <> struct bindings<Structure> { CM(1,Structure::arity); CM(0,Structure::name); }; // FIX: MSVC doesn't compile this unless we go in exactly that order!!!
+template <> struct bindings<Structure> { CM(1,Structure::arity); CM(0,Structure::name); CM(2,Structure::terms); }; // FIX: MSVC doesn't compile this unless we go in exactly that order!!!
 template <> struct bindings<List>      { CM(0,List::head);      CM(1,List::tail); };
 template <> struct bindings<Operator>  { CM(0,Operator::name);  };
 template <> struct bindings<Comment>   { CM(0,Comment::text);   };
 } // of namespace mch
+
+//------------------------------------------------------------------------------
+
+using mch::C; // Enable use of constructor pattern without namespace qualification
 
 //------------------------------------------------------------------------------
 
@@ -365,6 +369,11 @@ std::ostream& operator<<(std::ostream& os, const Term& t)
 
     return os << "???";
 }
+
+//------------------------------------------------------------------------------
+
+bool operator==(const Term&, const Term&);
+inline bool operator!=(const Term& left, const Term& right) { return !(left == right); }
 
 //------------------------------------------------------------------------------
 
@@ -408,9 +417,15 @@ bool occurs(const Term& what, const Term& where)
     Match(where)
     {
     Case(C<Structure>())
+#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && (XTL_GCC_VERSION >= 40600)
         for (auto t : match0.terms)
             if (occurs(what,*t))
                 return true;
+#else
+        for (auto p = match0.terms.begin(); p != match0.terms.end(); ++p)
+            if (occurs(what,**p))
+                return true;
+#endif
         return false;
     Case(C<List>(hd,tl)) 
         return occurs(what,*hd) || (tl && occurs(what,*tl));
@@ -433,8 +448,13 @@ Term* subs(const Term* what, Term* with, Term* where)
     Match(where)
     {
     Case(C<Structure>())
+#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && (XTL_GCC_VERSION >= 40600)
         for (auto& t : match0.terms)
             t = subs(what,with,t);
+#else
+        for (auto p = match0.terms.begin(); p != match0.terms.end(); ++p)
+            *p = subs(what,with,*p);
+#endif
         return &match0;
     Case(C<List>(hd,tl)) 
         match0.head = subs(what,with,hd);
@@ -531,8 +551,13 @@ void unify(Term* t1, Term* t2)
     pairs.push_back(term_pair(t1,t2));
 
     if (unify(pairs, substitutions))
+#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && (XTL_GCC_VERSION >= 40600)
         for (const auto& x : substitutions)
             std::cout << std::setw(8) << x.first << " -> " << *x.second << std::endl;
+#else
+        for (auto p = substitutions.begin(); p != substitutions.end(); ++p)
+            std::cout << std::setw(8) << p->first << " -> " << *p->second << std::endl;
+#endif
     else
         std::cout << "\tERROR: Unable to unify" << std::endl;
 
@@ -544,13 +569,22 @@ int main()
 {
     Term* terms[] = {
         A("atom"),
+        A("atom"),
+        I(42),
         I(42),
         F(3.14),
+        F(3.14),
+        L("$string$"),
         L("$string$"),
         V("X"),
+        V("X"),
+        S("test", 5, A("a1"), I(7), F(3.1415926), L("$sss$"), V("X")),
         S("test", 5, A("a1"), I(7), F(3.1415926), L("$sss$"), V("X")),
         L(2, A("a2"), V("Y")),
+        L(2, A("a2"), V("Y")),
         O("==",0),
+        O("==",0),
+        K("% comment"),
         K("% comment"),
         // ----
         A("atom2"),

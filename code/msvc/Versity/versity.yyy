@@ -1,0 +1,192 @@
+/*
+	Grammar for Versity
+*/
+
+%{
+#include "versity-types.hpp"
+#include "versity-defs.hpp"
+
+using namespace std;
+
+int  yyparse(void);
+int  yylex(void);
+void yyerror(const char *str)
+{
+    extern int g_line;
+    extern char* yytext;
+    cerr << "error[" << g_line << "]: " << str << endl;
+    cerr << "before symbol: " << yytext << endl;
+}
+
+%}
+
+%union
+{
+    std::string* m_str;
+    double       m_flt;
+    int          m_int;
+}
+
+%start program
+
+%token Op
+%token InstBin 
+%token InstUn  
+%token InstMove
+%token Ext
+%token Tmp
+%token Lit
+%token TyChar   
+%token TyUChar  
+%token TyShort  
+%token TyUShort 
+%token TyInt    
+%token TyUInt   
+%token TyLong   
+%token TyULong  
+%token TyLLong  
+%token TyULLong 
+%token TyFloat  
+%token TyDouble 
+%token TyCharN  
+%token TyUCharN 
+%token TyShortN 
+%token TyUShortN
+%token TyIntN   
+%token TyUIntN  
+%token TyLongN  
+%token TyULongN 
+%token TyLLongN 
+%token TyULLongN
+%token TyFloatN 
+%token TyDoubleN
+%token ValDouble 
+%token ValFloat  
+%token ValChar   
+%token ValUChar  
+%token ValShort  
+%token ValUShort 
+%token ValInt    
+%token ValUInt   
+%token ValLong   
+%token ValULong  
+%token ValLLong  
+%token ValULLong 
+%token ValDoubleN
+%token ValFloatN 
+%token ValCharN  
+%token ValUCharN 
+%token ValShortN 
+%token ValUShortN
+%token ValIntN   
+%token ValUIntN  
+%token ValLongN  
+%token ValULongN 
+%token ValLLongN 
+%token ValULLongN
+
+%token <m_str> String
+%token <m_str> Char
+%token <m_str> Float
+%token <m_int> Int
+
+
+%printer    { debug_stream() << *$$; } String
+%destructor { delete $$; } String
+
+%%
+
+program	: '[' instructions ']'
+	;
+
+instructions	
+    : instructions ',' inst
+	| inst
+	;
+
+inst
+    : InstBin  op  reg reg reg
+    | InstUn   op  reg reg
+    | InstMove reg reg
+    ;
+
+op  : '(' Op String ')'
+    ;
+
+reg 
+    : '(' Ext ty_prim String ')'
+    | '(' Tmp ty_prim Int ')'
+    | '(' Lit '(' val ')' ')'
+    ;
+
+ty_prim   
+    : TyChar  
+    | TyUChar 
+    | TyShort 
+    | TyUShort
+    | TyInt   
+    | TyUInt  
+    | TyLong  
+    | TyULong 
+    | TyLLong 
+    | TyULLong
+    | TyFloat  
+    | TyDouble
+    | TyCharN   Int
+    | TyUCharN  Int
+    | TyShortN  Int
+    | TyUShortN Int
+    | TyIntN    Int
+    | TyUIntN   Int
+    | TyLongN   Int
+    | TyULongN  Int
+    | TyLLongN  Int
+    | TyULLongN Int
+    | TyFloatN  Int
+    | TyDoubleN Int
+    ;
+
+
+val
+    : ValDouble  Float
+    | ValFloat   Float 
+    | ValChar    Char  
+    | ValUChar   Char 
+    | ValShort   Int 
+    | ValUShort  Int
+    | ValInt     Int   
+    | ValUInt    Int  
+    | ValLong    Int  
+    | ValULong   Int 
+    | ValLLong   Int 
+    | ValULLong  Int
+    | ValDoubleN '[' float_list ']'
+    | ValFloatN  '[' float_list ']'
+    | ValCharN   '[' char_list  ']'
+    | ValUCharN  '[' char_list  ']'
+    | ValShortN  '[' int_list   ']'
+    | ValUShortN '[' int_list   ']'
+    | ValIntN    '[' int_list   ']'
+    | ValUIntN   '[' int_list   ']'
+    | ValLongN   '[' int_list   ']'
+    | ValULongN  '[' int_list   ']'
+    | ValLLongN  '[' int_list   ']'
+    | ValULLongN '[' int_list   ']'
+    ;
+
+float_list 
+    : float_list Float
+    | /* empty */
+    ;
+
+char_list 
+    : char_list String
+    | /* empty */
+    ;
+ 
+int_list   
+    : int_list Int
+    | /* empty */
+    ;
+
+%%

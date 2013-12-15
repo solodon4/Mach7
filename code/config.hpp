@@ -615,6 +615,16 @@
 
 //------------------------------------------------------------------------------
 
+#if defined(_MSC_VER) && _MSC_VER < 1600 || defined(__GNUC__) && (XTL_GCC_VERSION < 40600)
+    #if !defined(nullptr)
+        /// Turn nullptr into 0 for compilers not supporting it
+         //((void *)0)
+        #define nullptr 0
+    #endif
+#endif
+
+//------------------------------------------------------------------------------
+
 #if defined(_MSC_VER)
 
     /// Macros to use compiler's branch hinting. 

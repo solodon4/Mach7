@@ -35,7 +35,7 @@ enum { default_layout = size_t(~0) };
         typedef source_type##N target_type##N;                                 \
         enum { target_layout##N = default_layout };                            \
         XTL_ASSERT(("Trying to match against a nullptr",subject_ptr##N));      \
-        auto const match##N = subject_ptr##N;                                  \
+        auto& match##N = *subject_ptr##N;                                      \
         XTL_UNUSED(match##N);
 
 //------------------------------------------------------------------------------
@@ -82,11 +82,11 @@ enum { default_layout = size_t(~0) };
 
 #define XTL_DECLARE_TARGET_TYPES(i,...)                                        \
         static_assert(mch::is_pattern<decltype(XTL_SELECT_ARG(i,__VA_ARGS__))>::value,"With-clause expects patterns as its arguments"); \
-        typedef mch::underlying<decltype(XTL_SELECT_ARG(i,__VA_ARGS__))>::type::accepted_type target_type##i;
+        typedef mch::underlying<decltype(XTL_SELECT_ARG(i,__VA_ARGS__))>::type::accepted_type_for<source_type##i>::type target_type##i;
 #define XTL_DYN_CAST_FROM(i,...) (__casted_ptr##i = dynamic_cast<const target_type##i*>(subject_ptr##i)) != 0
 #define XTL_ASSIGN_OFFSET(i,...) __switch_info.offset[i] = intptr_t(__casted_ptr##i)-intptr_t(subject_ptr##i);
 #define XTL_ADJUST_PTR_FROM(i,...) auto& match##i = *mch::adjust_ptr<target_type##i>(subject_ptr##i,__switch_info.offset[i]);
-#define XTL_MATCH_PATTERN_TO_TARGET(i,...) XTL_SELECT_ARG(i,__VA_ARGS__)(match##i)
+#define XTL_MATCH_PATTERN_TO_TARGET(i,...) (XTL_SELECT_ARG(i,__VA_ARGS__))(match##i)
 
 /// Helper macro for #Case
 /// NOTE: It is possible to have if conditions sequenced instead of &&, but that

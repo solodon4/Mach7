@@ -34,9 +34,9 @@ int main()
     for (size_t j = 0; j < T; ++j)
         for (size_t i = 0; i < N; ++i)
         {
-            if (mch::cons<int>(17)(tests[i])) r+=1;
-            if (mch::cons<int>( v)(tests[i])) r+=2;
-            if (mch::cons<int>( _)(tests[i])) r+=4;
+            if (mch::C<int>(17)(tests[i])) r+=1;
+            if (mch::C<int>( v)(tests[i])) r+=2;
+            if (mch::C<int>( _)(tests[i])) r+=4;
             u += r;
             //std::cout << "r=" << r << " u=" << u << std::endl;
         }

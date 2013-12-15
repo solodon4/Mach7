@@ -13,7 +13,7 @@
 #pragma once
 
 #include "bindings.hpp"
-#include "primitive.hpp"
+#include "primitive.hpp" // FIX: Ideally this should be common.hpp, but GCC seem to disagree: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=55460
 #include <cstddef>
 
 namespace mch ///< Mach7 library namespace
@@ -25,7 +25,11 @@ namespace mch ///< Mach7 library namespace
 template <typename T, size_t layout>
 struct constr0
 {
-    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef T type; };
 
     ///@{
     /// Constructor patterns can be uniformly matched against pointers and 
@@ -43,8 +47,6 @@ struct constr0
                           const T* operator()(const T* t) const noexcept { return t; }
                                 T* operator()(      T* t) const noexcept { return t; }
     ///@}
-
-    //template <typename E> expr_or<constr0,E> operator|(const E& e) const noexcept { return expr_or<constr0,E>(*this,e); }
 };
 
 //------------------------------------------------------------------------------
@@ -55,11 +57,16 @@ struct constr1
 {
     static_assert(is_pattern<P1>::value, "Argument P1 of constructor-pattern must be a pattern");
 
-    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef T type; };
 
     explicit constr1(const P1& p1) : m_p1(p1) {}
     explicit constr1(P1&& p1) noexcept : m_p1(std::move(p1)) {}
     constr1(constr1&& src) noexcept : m_p1(std::move(src.m_p1)) {}
+    constr1& operator=(const constr1&); // No assignment
 
     /// Helper function that does the actual structural matching once we have
     /// uncovered a value of the target type. Applies to a const argument!
@@ -67,9 +74,9 @@ struct constr1
     {
         XTL_ASSERT(t); // This helper function assumes t cannot be a nullptr
         return apply_expression(m_p1, t, bindings<T,layout>::member0()) // error C2027: use of undefined type 'bindings<type_being_matched,layout>'
-             ? t                                                             // here means you did not provide bindings for type_being_matched and layout
-             : 0;                                                            // described in the details of error message. See #bindings and #CM
-                                                                             // error: incomplete type 'bindings<type_being_matched, layout>' used in nested name specifier (see above description for Visual C++)
+                ? t                                                     // here means you did not provide bindings for type_being_matched and layout
+                : 0;                                                    // described in the details of error message. See #bindings and #CM
+                                                                        // error: incomplete type 'bindings<type_being_matched, layout>' used in nested name specifier (see above description for Visual C++)
     }
     /// Helper function that does the actual structural matching once we have
     /// uncovered a value of the target type. Applies to a non-const argument!
@@ -77,9 +84,9 @@ struct constr1
     {
         XTL_ASSERT(t); // This helper function assumes t cannot be a nullptr
         return apply_expression(m_p1, t, bindings<T,layout>::member0()) // error C2027: use of undefined type 'bindings<type_being_matched,layout>'
-             ? t                                                             // here means you did not provide bindings for type_being_matched and layout
-             : 0;                                                            // described in the details of error message. See #bindings and #CM
-                                                                             // error: incomplete type 'bindings<type_being_matched, layout>' used in nested name specifier (see above description for Visual C++)
+                ? t                                                     // here means you did not provide bindings for type_being_matched and layout
+                : 0;                                                    // described in the details of error message. See #bindings and #CM
+                                                                        // error: incomplete type 'bindings<type_being_matched, layout>' used in nested name specifier (see above description for Visual C++)
     }
 
     ///@{
@@ -98,8 +105,6 @@ struct constr1
                           const T* operator()(const T* t) const { return t ? match_structure(t) : 0; }
                                 T* operator()(      T* t) const { return t ? match_structure(t) : 0; }
     ///@}
-
-    //template <typename E> expr_or<constr1,E> operator|(const E& e) const noexcept { return expr_or<constr1,E>(*this,e); }
 
     P1 m_p1; ///< Expression representing 1st operand
 };
@@ -120,15 +125,20 @@ struct constr1
 /// FIX: Add extra condition that makes sure the type of first subcomponent is
 ///      not the same as the type itself!
 template <typename T, size_t layout, typename P1>
-struct constr1<T,layout,P1,typename std::enable_if<std::is_same<T,typename P1::accepted_type>::value>::type>
+struct constr1<T,layout,P1,typename std::enable_if<std::is_same<T,typename P1::template accepted_type_for<T>::type>::value>::type>
 {
     static_assert(is_pattern<P1>::value, "Argument P1 of constructor-pattern must be a pattern");
 
-    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef T type; };
 
     explicit constr1(const P1& p1) : m_p1(p1) {}
     explicit constr1(P1&& p1) noexcept : m_p1(std::move(p1)) {}
     constr1(constr1&& src) noexcept : m_p1(std::move(src.m_p1)) {}
+    constr1& operator=(const constr1&); // No assignment
 
     /// Helper function that does the actual structural matching once we have
     /// uncovered a value of the target type. Applies to a const argument!
@@ -161,8 +171,6 @@ struct constr1<T,layout,P1,typename std::enable_if<std::is_same<T,typename P1::a
                           const T* operator()(const T* t) const { return t ? match_structure(t) : 0; }
                                 T* operator()(      T* t) const { return t ? match_structure(t) : 0; }
     ///@}
-
-    //template <typename E> expr_or<constr1,E> operator|(const E& e) const noexcept { return expr_or<constr1,E>(*this,e); }
 
     P1 m_p1; ///< Expression representing 1st operand
 };
@@ -176,11 +184,16 @@ struct constr2
     static_assert(is_pattern<P1>::value, "Argument P1 of constructor-pattern must be a pattern");
     static_assert(is_pattern<P2>::value, "Argument P2 of constructor-pattern must be a pattern");
 
-    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef T type; };
 
     constr2(const P1& p1, const P2& p2) : m_p1(p1), m_p2(p2) {}
     constr2(P1&& p1, P2&& p2) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)) {}
     constr2(constr2&& src) noexcept : m_p1(std::move(src.m_p1)), m_p2(std::move(src.m_p2)) {}
+    constr2& operator=(const constr2&); // No assignment
 
     /// Helper function that does the actual structural matching once we have
     /// uncovered a value of the target type. Applies to a const argument!
@@ -219,8 +232,6 @@ struct constr2
                           const T* operator()(const T* t) const { return t ? match_structure(t) : 0; }
                                 T* operator()(      T* t) const { return t ? match_structure(t) : 0; }
     ///@}
-
-    //template <typename E> expr_or<constr2,E> operator|(const E& e) const noexcept { return expr_or<constr2,E>(*this,e); }
 
     P1 m_p1; ///< Expression representing 1st operand
     P2 m_p2; ///< Expression representing 2nd operand
@@ -236,11 +247,16 @@ struct constr3
     static_assert(is_pattern<P2>::value, "Argument P2 of constructor-pattern must be a pattern");
     static_assert(is_pattern<P3>::value, "Argument P3 of constructor-pattern must be a pattern");
 
-    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef T type; };
 
     constr3(const P1& p1, const P2& p2, const P3& p3) : m_p1(p1), m_p2(p2), m_p3(p3) {}
     constr3(P1&& p1, P2&& p2, P3&& p3) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)), m_p3(std::move(p3)) {}
     constr3(constr3&& src) noexcept : m_p1(std::move(src.m_p1)), m_p2(std::move(src.m_p2)), m_p3(std::move(src.m_p3)) {}
+    constr3& operator=(const constr3&); // No assignment
 
     /// Helper function that does the actual structural matching once we have
     /// uncovered a value of the target type. Applies to a const argument!
@@ -281,8 +297,6 @@ struct constr3
                           const T* operator()(const T* t) const { return t ? match_structure(t) : 0; }
                                 T* operator()(      T* t) const { return t ? match_structure(t) : 0; }
     ///@}
-
-    //template <typename E> expr_or<constr3,E> operator|(const E& e) const noexcept { return expr_or<constr3,E>(*this,e); }
 
     P1 m_p1; ///< Expression representing 1st operand
     P2 m_p2; ///< Expression representing 2nd operand
@@ -300,11 +314,16 @@ struct constr4
     static_assert(is_pattern<P3>::value, "Argument P3 of constructor-pattern must be a pattern");
     static_assert(is_pattern<P4>::value, "Argument P4 of constructor-pattern must be a pattern");
 
-    typedef T accepted_type; ///< Type accepted by the pattern. Requirement of #Pattern concept
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef T type; };
 
     constr4(const P1& p1, const P2& p2, const P3& p3, const P4& p4) : m_p1(p1), m_p2(p2), m_p3(p3), m_p4(p4) {}
     constr4(P1&& p1, P2&& p2, P3&& p3, P4&& p4) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)), m_p3(std::move(p3)), m_p4(std::move(p4)) {}
     constr4(constr4&& src) noexcept : m_p1(std::move(src.m_p1)), m_p2(std::move(src.m_p2)), m_p3(std::move(src.m_p3)), m_p4(std::move(src.m_p4)) {}
+    constr4& operator=(const constr4&); // No assignment
 
     /// Helper function that does the actual structural matching once we have
     /// uncovered a value of the target type. Applies to a const argument!
@@ -348,8 +367,6 @@ struct constr4
                                 T* operator()(      T* t) const { return t ? match_structure(t) : 0; }
     ///@}
 
-    //template <typename E> expr_or<constr4,E> operator|(const E& e) const noexcept { return expr_or<constr4,E>(*this,e); }
-
     P1 m_p1; ///< Expression representing 1st operand
     P2 m_p2; ///< Expression representing 2nd operand
     P3 m_p3; ///< Expression representing 3rd operand
@@ -360,7 +377,7 @@ struct constr4
 
 /// 0-argument version of a helper function to #cons that accepts arguments that
 /// have been already preprocessed with #filter to convert regular variables into
-/// #var_ref and constants into #value.
+/// #ref and constants into #value.
 /// \note This version will be called from #cons with a non-#view target type
 template <typename T, size_t layout>
 inline constr0<T,layout> cons_ex(const view<T,layout>&) noexcept
@@ -370,7 +387,7 @@ inline constr0<T,layout> cons_ex(const view<T,layout>&) noexcept
 
 /// 0-argument version of a helper function to #cons that accepts arguments that
 /// have been already preprocessed with #filter to convert regular variables into
-/// #var_ref and constants into #value.
+/// #ref and constants into #value.
 /// \note This version will be called from #cons that had its target type a #view
 template <typename T, size_t layout>
 inline constr0<T,layout> cons_ex(const view<view<T,layout>>&) noexcept
@@ -381,7 +398,7 @@ inline constr0<T,layout> cons_ex(const view<view<T,layout>>&) noexcept
 /// A 0-argument version of a tree-pattern constructor. Target type is allowed
 /// to be a #view here.
 template <typename T>
-inline auto cons() noexcept -> XTL_RETURN(cons_ex(view<T>()))
+inline auto C() noexcept -> XTL_RETURN(cons_ex(view<T>()))
 
 /// A 0-argument version of a tree-pattern constructor that takes layout in
 /// addition to the target type.
@@ -390,13 +407,13 @@ inline auto cons() noexcept -> XTL_RETURN(cons_ex(view<T>()))
 ///       layouts. Any layout different from #default_layout passed here will
 ///       result in a compile time error.
 template <typename T, size_t layout>
-inline auto cons() noexcept -> XTL_RETURN(cons_ex(view<T,layout>()))
+inline auto C() noexcept -> XTL_RETURN(cons_ex(view<T,layout>()))
 
 //------------------------------------------------------------------------------
 
 /// 1-argument version of a helper function to #cons that accepts arguments that
 /// have been already preprocessed with #filter to convert regular variables into
-/// #var_ref and constants into #value.
+/// #ref and constants into #value.
 /// \note This version will be called from #cons with a non-#view target type
 template <typename T, size_t layout, typename P1>
 inline constr1<T,layout,P1> cons_ex(const view<T,layout>&, P1&& p1) noexcept
@@ -406,7 +423,7 @@ inline constr1<T,layout,P1> cons_ex(const view<T,layout>&, P1&& p1) noexcept
 
 /// 1-argument version of a helper function to #cons that accepts arguments that
 /// have been already preprocessed with #filter to convert regular variables into
-/// #var_ref and constants into #value.
+/// #ref and constants into #value.
 /// \note This version will be called from #cons that had its target type a #view
 template <typename T, size_t layout, typename P1>
 inline constr1<T,layout,P1> cons_ex(const view<view<T,layout>>&, P1&& p1) noexcept
@@ -417,7 +434,7 @@ inline constr1<T,layout,P1> cons_ex(const view<view<T,layout>>&, P1&& p1) noexce
 /// A 1-argument version of a tree-pattern constructor. Target type is allowed
 /// to be a #view here.
 template <typename T, typename P1>
-inline auto cons(P1&& p1) noexcept -> XTL_RETURN
+inline auto C(P1&& p1) noexcept -> XTL_RETURN
 (
     cons_ex(
         view<T>(),
@@ -432,7 +449,7 @@ inline auto cons(P1&& p1) noexcept -> XTL_RETURN
 ///       layouts. Any layout different from #default_layout passed here will
 ///       result in a compile time error.
 template <typename T, size_t layout, typename P1>
-inline auto cons(P1&& p1) noexcept -> XTL_RETURN
+inline auto C(P1&& p1) noexcept -> XTL_RETURN
 (
     cons_ex(
         view<T,layout>(),
@@ -444,7 +461,7 @@ inline auto cons(P1&& p1) noexcept -> XTL_RETURN
 
 /// 2-argument version of a helper function to #cons that accepts arguments that
 /// have been already preprocessed with #filter to convert regular variables into
-/// #var_ref and constants into #value.
+/// #ref and constants into #value.
 /// \note This version will be called from #cons with a non-#view target type
 template <typename T, size_t layout, typename P1, typename P2>
 inline constr2<T,layout,P1,P2> cons_ex(const view<T,layout>&, P1&& p1, P2&& p2) noexcept
@@ -457,7 +474,7 @@ inline constr2<T,layout,P1,P2> cons_ex(const view<T,layout>&, P1&& p1, P2&& p2) 
 
 /// 2-argument version of a helper function to #cons that accepts arguments that
 /// have been already preprocessed with #filter to convert regular variables into
-/// #var_ref and constants into #value.
+/// #ref and constants into #value.
 /// \note This version will be called from #cons that had its target type a #view
 template <typename T, size_t layout, typename P1, typename P2>
 inline constr2<T,layout,P1,P2> cons_ex(const view<view<T,layout>>&, P1&& p1, P2&& p2) noexcept
@@ -471,7 +488,7 @@ inline constr2<T,layout,P1,P2> cons_ex(const view<view<T,layout>>&, P1&& p1, P2&
 /// A 2-argument version of a tree-pattern constructor. Target type is allowed
 /// to be a #view here.
 template <typename T, typename P1, typename P2>
-inline auto cons(P1&& p1, P2&& p2) noexcept -> XTL_RETURN
+inline auto C(P1&& p1, P2&& p2) noexcept -> XTL_RETURN
 (
     cons_ex(
         view<T>(),
@@ -487,7 +504,7 @@ inline auto cons(P1&& p1, P2&& p2) noexcept -> XTL_RETURN
 ///       layouts. Any layout different from #default_layout passed here will
 ///       result in a compile time error.
 template <typename T, size_t layout, typename P1, typename P2>
-inline auto cons(P1&& p1, P2&& p2) noexcept -> XTL_RETURN
+inline auto C(P1&& p1, P2&& p2) noexcept -> XTL_RETURN
 (
     cons_ex(
         view<T,layout>(),
@@ -500,7 +517,7 @@ inline auto cons(P1&& p1, P2&& p2) noexcept -> XTL_RETURN
 
 /// 3-argument version of a helper function to #cons that accepts arguments that
 /// have been already preprocessed with #filter to convert regular variables into
-/// #var_ref and constants into #value.
+/// #ref and constants into #value.
 /// \note This version will be called from #cons with a non-#view target type
 template <typename T, size_t layout, typename P1, typename P2, typename P3>
 inline constr3<T,layout,P1,P2,P3> cons_ex(const view<T,layout>&, P1&& p1, P2&& p2, P3&& p3) noexcept
@@ -514,7 +531,7 @@ inline constr3<T,layout,P1,P2,P3> cons_ex(const view<T,layout>&, P1&& p1, P2&& p
 
 /// 3-argument version of a helper function to #cons that accepts arguments that
 /// have been already preprocessed with #filter to convert regular variables into
-/// #var_ref and constants into #value.
+/// #ref and constants into #value.
 /// \note This version will be called from #cons that had its target type a #view
 template <typename T, size_t layout, typename P1, typename P2, typename P3>
 inline constr3<T,layout,P1,P2,P3> cons_ex(const view<view<T,layout>>&, P1&& p1, P2&& p2, P3&& p3) noexcept
@@ -529,7 +546,7 @@ inline constr3<T,layout,P1,P2,P3> cons_ex(const view<view<T,layout>>&, P1&& p1, 
 /// A 3-argument version of a tree-pattern constructor. Target type is allowed
 /// to be a #view here.
 template <typename T, typename P1, typename P2, typename P3>
-inline auto cons(P1&& p1, P2&& p2, P3&& p3) noexcept -> XTL_RETURN
+inline auto C(P1&& p1, P2&& p2, P3&& p3) noexcept -> XTL_RETURN
 (
     cons_ex(
         view<T>(),
@@ -546,7 +563,7 @@ inline auto cons(P1&& p1, P2&& p2, P3&& p3) noexcept -> XTL_RETURN
 ///       layouts. Any layout different from #default_layout passed here will
 ///       result in a compile time error.
 template <typename T, size_t layout, typename P1, typename P2, typename P3>
-inline auto cons(P1&& p1, P2&& p2, P3&& p3) noexcept -> XTL_RETURN
+inline auto C(P1&& p1, P2&& p2, P3&& p3) noexcept -> XTL_RETURN
 (
     cons_ex(
         view<T,layout>(),
@@ -560,7 +577,7 @@ inline auto cons(P1&& p1, P2&& p2, P3&& p3) noexcept -> XTL_RETURN
 
 /// 4-argument version of a helper function to #cons that accepts arguments that
 /// have been already preprocessed with #filter to convert regular variables into
-/// #var_ref and constants into #value.
+/// #ref and constants into #value.
 /// \note This version will be called from #cons with a non-#view target type
 template <typename T, size_t layout, typename P1, typename P2, typename P3, typename P4>
 inline constr4<T,layout,P1,P2,P3,P4> cons_ex(const view<T,layout>&, P1&& p1, P2&& p2, P3&& p3, P4&& p4) noexcept
@@ -575,7 +592,7 @@ inline constr4<T,layout,P1,P2,P3,P4> cons_ex(const view<T,layout>&, P1&& p1, P2&
 
 /// 4-argument version of a helper function to #cons that accepts arguments that
 /// have been already preprocessed with #filter to convert regular variables into
-/// #var_ref and constants into #value.
+/// #ref and constants into #value.
 /// \note This version will be called from #cons that had its target type a #view
 template <typename T, size_t layout, typename P1, typename P2, typename P3, typename P4>
 inline constr4<T,layout,P1,P2,P3,P4> cons_ex(const view<view<T,layout>>&, P1&& p1, P2&& p2, P3&& p3, P4&& p4) noexcept
@@ -591,7 +608,7 @@ inline constr4<T,layout,P1,P2,P3,P4> cons_ex(const view<view<T,layout>>&, P1&& p
 /// A 4-argument version of a tree-pattern constructor. Target type is allowed
 /// to be a #view here.
 template <typename T, typename P1, typename P2, typename P3, typename P4>
-inline auto cons(P1&& p1, P2&& p2, P3&& p3, P4&& p4) noexcept -> XTL_RETURN
+inline auto C(P1&& p1, P2&& p2, P3&& p3, P4&& p4) noexcept -> XTL_RETURN
 (
     cons_ex(
         view<T>(),
@@ -609,7 +626,7 @@ inline auto cons(P1&& p1, P2&& p2, P3&& p3, P4&& p4) noexcept -> XTL_RETURN
 ///       layouts. Any layout different from #default_layout passed here will
 ///       result in a compile time error.
 template <typename T, size_t layout, typename P1, typename P2, typename P3, typename P4>
-inline auto cons(P1&& p1, P2&& p2, P3&& p3, P4&& p4) noexcept -> XTL_RETURN
+inline auto C(P1&& p1, P2&& p2, P3&& p3, P4&& p4) noexcept -> XTL_RETURN
 (
     cons_ex(
         view<T,layout>(),
@@ -623,11 +640,11 @@ inline auto cons(P1&& p1, P2&& p2, P3&& p3, P4&& p4) noexcept -> XTL_RETURN
 //------------------------------------------------------------------------------
 
 /// #is_pattern_ is a helper meta-predicate capable of distinguishing all our patterns
-template <typename T, size_t L>                                                     struct is_pattern_<constr0<T,L>>              { enum { value = true }; };
-template <typename T, size_t L, typename P1>                                        struct is_pattern_<constr1<T,L,P1>>           { enum { value = true }; };
-template <typename T, size_t L, typename P1, typename P2>                           struct is_pattern_<constr2<T,L,P1,P2>>        { enum { value = true }; };
-template <typename T, size_t L, typename P1, typename P2, typename P3>              struct is_pattern_<constr3<T,L,P1,P2,P3>>     { enum { value = true }; };
-template <typename T, size_t L, typename P1, typename P2, typename P3, typename P4> struct is_pattern_<constr4<T,L,P1,P2,P3,P4>>  { enum { value = true }; };
+template <typename T, size_t L>                                                     struct is_pattern_<constr0<T,L>>              { static const bool value = true; };
+template <typename T, size_t L, typename P1>                                        struct is_pattern_<constr1<T,L,P1>>           { static const bool value = true; };
+template <typename T, size_t L, typename P1, typename P2>                           struct is_pattern_<constr2<T,L,P1,P2>>        { static const bool value = true; };
+template <typename T, size_t L, typename P1, typename P2, typename P3>              struct is_pattern_<constr3<T,L,P1,P2,P3>>     { static const bool value = true; };
+template <typename T, size_t L, typename P1, typename P2, typename P3, typename P4> struct is_pattern_<constr4<T,L,P1,P2,P3,P4>>  { static const bool value = true; };
 
 //------------------------------------------------------------------------------
 
