@@ -27,6 +27,7 @@ fib (2*n+1) = (fib(n+1))^2 + (fib n   )^2
 
 #include "match.hpp"                // Support for Match statement
 #include "patterns/constructor.hpp" // Support for constructor patterns
+#include "patterns/n+k.hpp"         // Support for n+k patterns
 
 #include <math.h>
 #include <iostream>
@@ -104,18 +105,71 @@ double power1(double x, int n)
 
 //------------------------------------------------------------------------------
 
+//double power2(double x, int n)
+//{
+//    var<int> m;
+//
+//    Match(n)
+//    {
+//      When(0)     return 1.0;
+//      When(1)     return x;
+//      When(2*m)   return   sqr(power2(x,m));
+//      When(2*m+1) return x*sqr(power2(x,m));
+//    }
+//    EndMatch
+//}
+
 double power2(double x, int n)
 {
     var<int> m;
-
-    Match(n)
+    do 
     {
-      When(0)     return 1.0;
-      When(1)     return x;
-      When(2*m)   return   sqr(power2(x,m));
-      When(2*m+1) return x*sqr(power2(x,m));
+        struct match_uid_type 
+        {
+        }
+        ;
+        auto&& subject_ref = n;
+        auto const subject_ptr = mch::addr(subject_ref);
+        typedef  mch::underlying<decltype(*subject_ptr)>::type source_type;
+        typedef source_type target_type;
+        enum 
+        {
+            target_layout = mch::default_layout, is_inside_case_clause = 0 
+        }
+        ;
+        if (!(("Trying to match against a nullptr",subject_ptr))) 
+        {
+            std::cerr << "(\"Trying to match against a nullptr\",subject_ptr)" " in file " << "c:\\projects\\patternmatching\\numbers.cpp" << '[' << 111 << ']' << std::endl;
+            std::abort();
+        }
+        ;
+        auto const matched = subject_ptr;
+        (void)matched;
+        ;
+        {
+            {
+                {
+                }
+                if (((mch::C<target_type,target_layout>(0).match_structure(matched))))
+                {
+                    return 1.0;
+                }
+                if (((mch::C<target_type,target_layout>(1).match_structure(matched))))
+                {
+                    return x;
+                }
+                if (((mch::C<target_type,target_layout>(2*m).match_structure(matched))))
+                {
+                    return   sqr(power2(x,m));
+                }
+                if (((mch::C<target_type,target_layout>(2*m+1).match_structure(matched))))
+                {
+                    return x*sqr(power2(x,m));
+                }
+            }
+        }
     }
-    EndMatch
+    while ((false));
 }
 
 //------------------------------------------------------------------------------
@@ -220,10 +274,10 @@ int main()
 	double x = 2.0;
 
 	for (int i = 0; i < 10; ++i)
-		std::cout << x << '^' << i << '=' << power_opt(x,i) << (power_opt(x,i) == power2(x,i) ? "" : "WRONG") << std::endl;
+		std::cout << x << '^' << i << '=' << power2(x,i) << (power_opt(x,i) == power2(x,i) ? "" : "WRONG") << std::endl;
 
 	for (int i = 1; i < 10; ++i)
-		std::cout << "fib(" << i << ")=" << fib_opt(i) << (fib_opt(i) == fib2(i) ? "" : "WRONG") << std::endl;
+		std::cout << "fib(" << i << ")=" << fib2(i) << (fib_opt(i) == fib2(i) ? "" : "WRONG") << std::endl;
 
 	for (int i = 1; i < 10; ++i)
 		std::cout << "factorial(" << i << ")=" << factorial(i) << std::endl;

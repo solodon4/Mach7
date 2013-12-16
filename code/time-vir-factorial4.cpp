@@ -33,26 +33,21 @@ XTL_TIMED_FUNC_END
 
 //------------------------------------------------------------------------------
 
-value    val0 = val(0);
-wildcard wc;
+value_of<int> val0 = value_of<int>(0);
+wildcard  wc;
 
 XTL_TIMED_FUNC_BEGIN
 int fac(const object& n)
 {
-    variable var0;
+    var_of<int>   v;
+    p_plus_c<int> p(v,1);
 
-    if (val0.matches(n)) return 1;
-    if (var0.matches(n))
-    {
-        if (typeid(n) == typeid(object_of<int>))
-        {
-            const object_of<int>* p = static_cast<const object_of<int>*>(var0.m_obj_ref);
-            return p->m_value * fac(object_of<int>(p->m_value-1));
-        }
-        else
-            return 0;
-    }
-    if (  wc.matches(n)) return 0;
+    if (val0.matches(n))
+        return 1;
+    if (p.matches(n))
+        return (v+1) * fac(object_of<int>(v));
+    if (  wc.matches(n))
+        return 0;
 }
 XTL_TIMED_FUNC_END
 

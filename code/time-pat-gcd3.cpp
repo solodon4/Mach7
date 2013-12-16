@@ -34,13 +34,7 @@ inline unsigned int gcd1(const arg_type a) { return gcd1(a.first,a.second); }
 XTL_TIMED_FUNC_BEGIN
 unsigned int gcd1(const unsigned int a, const unsigned int b)
 {
-    if (a > b)
-        return gcd1(a-b,b);
-    else
-    if (a < b)
-        return gcd1(a,b-a);
-    else
-        return a;
+    return b == 0 ? a : gcd1(b, a % b);
 }
 XTL_TIMED_FUNC_END
 
@@ -55,16 +49,13 @@ inline unsigned int gcd2(const arg_type a) { return gcd2(a.first,a.second); }
 XTL_TIMED_FUNC_BEGIN
 unsigned int gcd2(const unsigned int a, const unsigned int b)
 {
-    var<unsigned int> y;
+    var<unsigned int> x,y;
 
     Match(a,b)
     {
-    //Case(a,a)   return a;
-    //Case(a,a+y) return gcd2(a,y);
-    //Case(b+y,b) return gcd2(b,y);
-    Case(_,a)   return a;
-    Case(_,a+y) return gcd2(a,y);
-    Case(b+y,_) return gcd2(b,y);
+    Case(x,0)      return x;
+    Case(x,y)      return gcd2(y, x % y);
+    //Case(x,+x*y+r) return gcd2(b,r);
     }
     EndMatch
 }

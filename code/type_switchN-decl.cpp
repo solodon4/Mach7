@@ -55,10 +55,10 @@ void do_match(const Shape* s0)
 
     Match(s0)
     {
-    Case(const Circle&   a) text = "C"; break;
-    Case(const Square&   a) text = "S"; break;
-    Case(const Triangle& a) text = "T"; break;
-    Otherwise()             text = "other"; break;
+    Case(const Circle&   a) text = "C"; XTL_UNUSED(a); break;
+    Case(const Square&   a) text = "S"; XTL_UNUSED(a); break;
+    Case(const Triangle& a) text = "T"; XTL_UNUSED(a); break;
+    Otherwise()             text = "other";            break;
     }
     EndMatch
 
@@ -73,16 +73,16 @@ void do_match(const Shape* s0, const Shape* s1)
 
     Match(s0,s1)
     {
-  //Case(const Circle&   a, const Circle&   b) text = "C,C"; break;
-    Case(const Circle&   a, const Square&   b) text = "C,S"; break;
-    Case(const Square&   a, const Circle&   b) text = "S,C"; break;
-  //Case(const Square&   a, const Square&   b) text = "S,S"; break;
-    Case(const Square&   a, const Triangle& b) text = "S,T"; break;
-    Case(const Triangle& a, const Square&   b) text = "T,S"; break;
-    Case(const Triangle& a, const Triangle& b) text = "T,T"; break;
-    Case(const Triangle& a, const Circle&   b) text = "T,C"; break;
-    Case(const Circle&   a, const Triangle& b) text = "C,T"; break;
-    Otherwise()                                text = "other"; break;
+  //Case(const Circle&   a, const Circle&   b) text = "C,C"; XTL_UNUSED(a); XTL_UNUSED(b); break;
+    Case(const Circle&   a, const Square&   b) text = "C,S"; XTL_UNUSED(a); XTL_UNUSED(b); break;
+    Case(const Square&   a, const Circle&   b) text = "S,C"; XTL_UNUSED(a); XTL_UNUSED(b); break;
+  //Case(const Square&   a, const Square&   b) text = "S,S"; XTL_UNUSED(a); XTL_UNUSED(b); break;
+    Case(const Square&   a, const Triangle& b) text = "S,T"; XTL_UNUSED(a); XTL_UNUSED(b); break;
+    Case(const Triangle& a, const Square&   b) text = "T,S"; XTL_UNUSED(a); XTL_UNUSED(b); break;
+    Case(const Triangle& a, const Triangle& b) text = "T,T"; XTL_UNUSED(a); XTL_UNUSED(b); break;
+    Case(const Triangle& a, const Circle&   b) text = "T,C"; XTL_UNUSED(a); XTL_UNUSED(b); break;
+    Case(const Circle&   a, const Triangle& b) text = "C,T"; XTL_UNUSED(a); XTL_UNUSED(b); break;
+    Otherwise()                                text = "other";                             break;
     }
     EndMatch
 
@@ -97,37 +97,37 @@ void do_match(Shape* s0, const Shape* s1, const Shape* s2)
 
     Match(s0,s1,s2)
     {
-    Case(Circle&   a, const Circle&   b, const Circle&   c) text = "C,C,C"; break;
-    Case(Circle&   a, const Circle&   b, const Square&   c) text = "C,C,S"; break;
-    Case(Circle&   a, const Square&   b, const Circle&   c) text = "C,S,C"; break;
-    Case(Circle&   a, const Square&   b, const Square&   c) text = "C,S,S"; break;
-    Case(Circle&   a, const Square&   b, const Triangle& c) text = "C,S,T"; break;
-    Case(Circle&   a, const Triangle& b, const Square&   c) text = "C,T,S"; break;
-    Case(Circle&   a, const Triangle& b, const Triangle& c) text = "C,T,T"; break;
-    Case(Circle&   a, const Triangle& b, const Circle&   c) text = "C,T,C"; break;
-    Case(Circle&   a, const Circle&   b, const Triangle& c) text = "C,C,T"; break;
+    Case(Circle&   a, const Circle&   b, const Circle&   c) text = "C,C,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Circle&   a, const Circle&   b, const Square&   c) text = "C,C,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Circle&   a, const Square&   b, const Circle&   c) text = "C,S,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Circle&   a, const Square&   b, const Square&   c) text = "C,S,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Circle&   a, const Square&   b, const Triangle& c) text = "C,S,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Circle&   a, const Triangle& b, const Square&   c) text = "C,T,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Circle&   a, const Triangle& b, const Triangle& c) text = "C,T,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Circle&   a, const Triangle& b, const Circle&   c) text = "C,T,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Circle&   a, const Circle&   b, const Triangle& c) text = "C,C,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
                    
-  //Case(Square&   a, const Circle&   b, const Circle&   c) text = "S,C,C"; break;
-  //Case(Square&   a, const Circle&   b, const Square&   c) text = "S,C,S"; break;
-    Case(Square&   a, const Square&   b, const Circle&   c) text = "S,S,C"; break;
-    Case(Square&   a, const Square&   b, const Square&   c) text = "S,S,S"; break;
-    Case(Square&   a, const Square&   b, const Triangle& c) text = "S,S,T"; break;
-    Case(Square&   a, const Triangle& b, const Square&   c) text = "S,T,S"; break;
-    Case(Square&   a, const Triangle& b, const Triangle& c) text = "S,T,T"; break;
-    Case(Square&   a, const Triangle& b, const Circle&   c) text = "S,T,C"; break;
-  //Case(Square&   a, const Circle&   b, const Triangle& c) text = "S,C,T"; break;
+  //Case(Square&   a, const Circle&   b, const Circle&   c) text = "S,C,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+  //Case(Square&   a, const Circle&   b, const Square&   c) text = "S,C,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Square&   a, const Square&   b, const Circle&   c) text = "S,S,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Square&   a, const Square&   b, const Square&   c) text = "S,S,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Square&   a, const Square&   b, const Triangle& c) text = "S,S,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Square&   a, const Triangle& b, const Square&   c) text = "S,T,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Square&   a, const Triangle& b, const Triangle& c) text = "S,T,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Square&   a, const Triangle& b, const Circle&   c) text = "S,T,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+  //Case(Square&   a, const Circle&   b, const Triangle& c) text = "S,C,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
 
-    Case(Triangle& a, const Circle&   b, const Circle&   c) text = "T,C,C"; break;
-    Case(Triangle& a, const Circle&   b, const Square&   c) text = "T,C,S"; break;
-    Case(Triangle& a, const Square&   b, const Circle&   c) text = "T,S,C"; break;
-    Case(Triangle& a, const Square&   b, const Square&   c) text = "T,S,S"; break;
-    Case(Triangle& a, const Square&   b, const Triangle& c) text = "T,S,T"; break;
-    Case(Triangle& a, const Triangle& b, const Square&   c) text = "T,T,S"; break;
-    Case(Triangle& a, const Triangle& b, const Triangle& c) text = "T,T,T"; break;
-    Case(Triangle& a, const Triangle& b, const Circle&   c) text = "T,T,C"; break;
-    Case(Triangle& a, const Circle&   b, const Triangle& c) text = "T,C,T"; break;
+    Case(Triangle& a, const Circle&   b, const Circle&   c) text = "T,C,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Triangle& a, const Circle&   b, const Square&   c) text = "T,C,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Triangle& a, const Square&   b, const Circle&   c) text = "T,S,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Triangle& a, const Square&   b, const Square&   c) text = "T,S,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Triangle& a, const Square&   b, const Triangle& c) text = "T,S,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Triangle& a, const Triangle& b, const Square&   c) text = "T,T,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Triangle& a, const Triangle& b, const Triangle& c) text = "T,T,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Triangle& a, const Triangle& b, const Circle&   c) text = "T,T,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
+    Case(Triangle& a, const Circle&   b, const Triangle& c) text = "T,C,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); break;
 
-    Otherwise()                        text = "other"; break;
+    Otherwise()                                             text = "other";                                              break;
     }
     EndMatch
 
@@ -142,99 +142,99 @@ void do_match(Shape* s0, Shape* s1, Shape* s2, Shape* s3)
 
     Match(s0,s1,s2,s3)
     {
-    Case(Circle&   a, const Circle&   b, const Circle&   c, const Circle&   t) text = "C,C,C,C"; break;
-    Case(Circle&   a, const Circle&   b, const Circle&   c, const Square&   t) text = "C,C,C,S"; break;
-    Case(Circle&   a, const Circle&   b, const Square&   c, const Circle&   t) text = "C,C,S,C"; break;
-    Case(Circle&   a, const Circle&   b, const Square&   c, const Square&   t) text = "C,C,S,S"; break;
-    Case(Circle&   a, const Circle&   b, const Square&   c, const Triangle& t) text = "C,C,S,T"; break;
-    Case(Circle&   a, const Circle&   b, const Triangle& c, const Square&   t) text = "C,C,T,S"; break;
-    Case(Circle&   a, const Circle&   b, const Triangle& c, const Triangle& t) text = "C,C,T,T"; break;
-    Case(Circle&   a, const Circle&   b, const Triangle& c, const Circle&   t) text = "C,C,T,C"; break;
-    Case(Circle&   a, const Circle&   b, const Circle&   c, const Triangle& t) text = "C,C,C,T"; break;
+    Case(Circle&   a, const Circle&   b, const Circle&   c, const Circle&   t) text = "C,C,C,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Circle&   b, const Circle&   c, const Square&   t) text = "C,C,C,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Circle&   b, const Square&   c, const Circle&   t) text = "C,C,S,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Circle&   b, const Square&   c, const Square&   t) text = "C,C,S,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Circle&   b, const Square&   c, const Triangle& t) text = "C,C,S,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Circle&   b, const Triangle& c, const Square&   t) text = "C,C,T,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Circle&   b, const Triangle& c, const Triangle& t) text = "C,C,T,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Circle&   b, const Triangle& c, const Circle&   t) text = "C,C,T,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Circle&   b, const Circle&   c, const Triangle& t) text = "C,C,C,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
                                                                    
-    Case(Circle&   a, const Square&   b, const Circle&   c, const Circle&   t) text = "C,S,C,C"; break;
-    Case(Circle&   a, const Square&   b, const Circle&   c, const Square&   t) text = "C,S,C,S"; break;
-    Case(Circle&   a, const Square&   b, const Square&   c, const Circle&   t) text = "C,S,S,C"; break;
-    Case(Circle&   a, const Square&   b, const Square&   c, const Square&   t) text = "C,S,S,S"; break;
-    Case(Circle&   a, const Square&   b, const Square&   c, const Triangle& t) text = "C,S,S,T"; break;
-    Case(Circle&   a, const Square&   b, const Triangle& c, const Square&   t) text = "C,S,T,S"; break;
-    Case(Circle&   a, const Square&   b, const Triangle& c, const Triangle& t) text = "C,S,T,T"; break;
-    Case(Circle&   a, const Square&   b, const Triangle& c, const Circle&   t) text = "C,S,T,C"; break;
-    Case(Circle&   a, const Square&   b, const Circle&   c, const Triangle& t) text = "C,S,C,T"; break;
+    Case(Circle&   a, const Square&   b, const Circle&   c, const Circle&   t) text = "C,S,C,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Square&   b, const Circle&   c, const Square&   t) text = "C,S,C,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Square&   b, const Square&   c, const Circle&   t) text = "C,S,S,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Square&   b, const Square&   c, const Square&   t) text = "C,S,S,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Square&   b, const Square&   c, const Triangle& t) text = "C,S,S,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Square&   b, const Triangle& c, const Square&   t) text = "C,S,T,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Square&   b, const Triangle& c, const Triangle& t) text = "C,S,T,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Square&   b, const Triangle& c, const Circle&   t) text = "C,S,T,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Square&   b, const Circle&   c, const Triangle& t) text = "C,S,C,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
                                                                    
-    Case(Circle&   a, const Triangle& b, const Circle&   c, const Circle&   t) text = "C,T,C,C"; break;
-    Case(Circle&   a, const Triangle& b, const Circle&   c, const Square&   t) text = "C,T,C,S"; break;
-    Case(Circle&   a, const Triangle& b, const Square&   c, const Circle&   t) text = "C,T,S,C"; break;
-    Case(Circle&   a, const Triangle& b, const Square&   c, const Square&   t) text = "C,T,S,S"; break;
-    Case(Circle&   a, const Triangle& b, const Square&   c, const Triangle& t) text = "C,T,S,T"; break;
-    Case(Circle&   a, const Triangle& b, const Triangle& c, const Square&   t) text = "C,T,T,S"; break;
-    Case(Circle&   a, const Triangle& b, const Triangle& c, const Triangle& t) text = "C,T,T,T"; break;
-    Case(Circle&   a, const Triangle& b, const Triangle& c, const Circle&   t) text = "C,T,T,C"; break;
-    Case(Circle&   a, const Triangle& b, const Circle&   c, const Triangle& t) text = "C,T,C,T"; break;
+    Case(Circle&   a, const Triangle& b, const Circle&   c, const Circle&   t) text = "C,T,C,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Triangle& b, const Circle&   c, const Square&   t) text = "C,T,C,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Triangle& b, const Square&   c, const Circle&   t) text = "C,T,S,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Triangle& b, const Square&   c, const Square&   t) text = "C,T,S,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Triangle& b, const Square&   c, const Triangle& t) text = "C,T,S,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Triangle& b, const Triangle& c, const Square&   t) text = "C,T,T,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Triangle& b, const Triangle& c, const Triangle& t) text = "C,T,T,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Triangle& b, const Triangle& c, const Circle&   t) text = "C,T,T,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Circle&   a, const Triangle& b, const Circle&   c, const Triangle& t) text = "C,T,C,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
                                                              
                                                              
-    Case(Square&   a, const Circle&   b, const Circle&   c, const Circle&   t) text = "S,C,C,C"; break;
-    Case(Square&   a, const Circle&   b, const Circle&   c, const Square&   t) text = "S,C,C,S"; break;
-    Case(Square&   a, const Circle&   b, const Square&   c, const Circle&   t) text = "S,C,S,C"; break;
-    Case(Square&   a, const Circle&   b, const Square&   c, const Square&   t) text = "S,C,S,S"; break;
-    Case(Square&   a, const Circle&   b, const Square&   c, const Triangle& t) text = "S,C,S,T"; break;
-    Case(Square&   a, const Circle&   b, const Triangle& c, const Square&   t) text = "S,C,T,S"; break;
-    Case(Square&   a, const Circle&   b, const Triangle& c, const Triangle& t) text = "S,C,T,T"; break;
-    Case(Square&   a, const Circle&   b, const Triangle& c, const Circle&   t) text = "S,C,T,C"; break;
-    Case(Square&   a, const Circle&   b, const Circle&   c, const Triangle& t) text = "S,C,C,T"; break;
+    Case(Square&   a, const Circle&   b, const Circle&   c, const Circle&   t) text = "S,C,C,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Circle&   b, const Circle&   c, const Square&   t) text = "S,C,C,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Circle&   b, const Square&   c, const Circle&   t) text = "S,C,S,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Circle&   b, const Square&   c, const Square&   t) text = "S,C,S,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Circle&   b, const Square&   c, const Triangle& t) text = "S,C,S,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Circle&   b, const Triangle& c, const Square&   t) text = "S,C,T,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Circle&   b, const Triangle& c, const Triangle& t) text = "S,C,T,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Circle&   b, const Triangle& c, const Circle&   t) text = "S,C,T,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Circle&   b, const Circle&   c, const Triangle& t) text = "S,C,C,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
                                                                    
-    Case(Square&   a, const Square&   b, const Circle&   c, const Circle&   t) text = "S,S,C,C"; break;
-    Case(Square&   a, const Square&   b, const Circle&   c, const Square&   t) text = "S,S,C,S"; break;
-    Case(Square&   a, const Square&   b, const Square&   c, const Circle&   t) text = "S,S,S,C"; break;
-    Case(Square&   a, const Square&   b, const Square&   c, const Square&   t) text = "S,S,S,S"; break;
-    Case(Square&   a, const Square&   b, const Square&   c, const Triangle& t) text = "S,S,S,T"; break;
-    Case(Square&   a, const Square&   b, const Triangle& c, const Square&   t) text = "S,S,T,S"; break;
-    Case(Square&   a, const Square&   b, const Triangle& c, const Triangle& t) text = "S,S,T,T"; break;
-    Case(Square&   a, const Square&   b, const Triangle& c, const Circle&   t) text = "S,S,T,C"; break;
-    Case(Square&   a, const Square&   b, const Circle&   c, const Triangle& t) text = "S,S,C,T"; break;
+    Case(Square&   a, const Square&   b, const Circle&   c, const Circle&   t) text = "S,S,C,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Square&   b, const Circle&   c, const Square&   t) text = "S,S,C,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Square&   b, const Square&   c, const Circle&   t) text = "S,S,S,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Square&   b, const Square&   c, const Square&   t) text = "S,S,S,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Square&   b, const Square&   c, const Triangle& t) text = "S,S,S,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Square&   b, const Triangle& c, const Square&   t) text = "S,S,T,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Square&   b, const Triangle& c, const Triangle& t) text = "S,S,T,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Square&   b, const Triangle& c, const Circle&   t) text = "S,S,T,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Square&   b, const Circle&   c, const Triangle& t) text = "S,S,C,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
                                                                    
-    Case(Square&   a, const Triangle& b, const Circle&   c, const Circle&   t) text = "S,T,C,C"; break;
-    Case(Square&   a, const Triangle& b, const Circle&   c, const Square&   t) text = "S,T,C,S"; break;
-    Case(Square&   a, const Triangle& b, const Square&   c, const Circle&   t) text = "S,T,S,C"; break;
-    Case(Square&   a, const Triangle& b, const Square&   c, const Square&   t) text = "S,T,S,S"; break;
-    Case(Square&   a, const Triangle& b, const Square&   c, const Triangle& t) text = "S,T,S,T"; break;
-    Case(Square&   a, const Triangle& b, const Triangle& c, const Square&   t) text = "S,T,T,S"; break;
-    Case(Square&   a, const Triangle& b, const Triangle& c, const Triangle& t) text = "S,T,T,T"; break;
-    Case(Square&   a, const Triangle& b, const Triangle& c, const Circle&   t) text = "S,T,T,C"; break;
-    Case(Square&   a, const Triangle& b, const Circle&   c, const Triangle& t) text = "S,T,C,T"; break;
+    Case(Square&   a, const Triangle& b, const Circle&   c, const Circle&   t) text = "S,T,C,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Triangle& b, const Circle&   c, const Square&   t) text = "S,T,C,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Triangle& b, const Square&   c, const Circle&   t) text = "S,T,S,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Triangle& b, const Square&   c, const Square&   t) text = "S,T,S,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Triangle& b, const Square&   c, const Triangle& t) text = "S,T,S,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Triangle& b, const Triangle& c, const Square&   t) text = "S,T,T,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Triangle& b, const Triangle& c, const Triangle& t) text = "S,T,T,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Triangle& b, const Triangle& c, const Circle&   t) text = "S,T,T,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Square&   a, const Triangle& b, const Circle&   c, const Triangle& t) text = "S,T,C,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
                                                              
                                                              
-    Case(Triangle& a, const Circle&   b, const Circle&   c, const Circle&   t) text = "T,C,C,C"; break;
-    Case(Triangle& a, const Circle&   b, const Circle&   c, const Square&   t) text = "T,C,C,S"; break;
-    Case(Triangle& a, const Circle&   b, const Square&   c, const Circle&   t) text = "T,C,S,C"; break;
-    Case(Triangle& a, const Circle&   b, const Square&   c, const Square&   t) text = "T,C,S,S"; break;
-    Case(Triangle& a, const Circle&   b, const Square&   c, const Triangle& t) text = "T,C,S,T"; break;
-    Case(Triangle& a, const Circle&   b, const Triangle& c, const Square&   t) text = "T,C,T,S"; break;
-    Case(Triangle& a, const Circle&   b, const Triangle& c, const Triangle& t) text = "T,C,T,T"; break;
-    Case(Triangle& a, const Circle&   b, const Triangle& c, const Circle&   t) text = "T,C,T,C"; break;
-    Case(Triangle& a, const Circle&   b, const Circle&   c, const Triangle& t) text = "T,C,C,T"; break;
+    Case(Triangle& a, const Circle&   b, const Circle&   c, const Circle&   t) text = "T,C,C,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Circle&   b, const Circle&   c, const Square&   t) text = "T,C,C,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Circle&   b, const Square&   c, const Circle&   t) text = "T,C,S,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Circle&   b, const Square&   c, const Square&   t) text = "T,C,S,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Circle&   b, const Square&   c, const Triangle& t) text = "T,C,S,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Circle&   b, const Triangle& c, const Square&   t) text = "T,C,T,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Circle&   b, const Triangle& c, const Triangle& t) text = "T,C,T,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Circle&   b, const Triangle& c, const Circle&   t) text = "T,C,T,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Circle&   b, const Circle&   c, const Triangle& t) text = "T,C,C,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
                                                                    
-    Case(Triangle& a, const Square&   b, const Circle&   c, const Circle&   t) text = "T,S,C,C"; break;
-    Case(Triangle& a, const Square&   b, const Circle&   c, const Square&   t) text = "T,S,C,S"; break;
-    Case(Triangle& a, const Square&   b, const Square&   c, const Circle&   t) text = "T,S,S,C"; break;
-    Case(Triangle& a, const Square&   b, const Square&   c, const Square&   t) text = "T,S,S,S"; break;
-    Case(Triangle& a, const Square&   b, const Square&   c, const Triangle& t) text = "T,S,S,T"; break;
-    Case(Triangle& a, const Square&   b, const Triangle& c, const Square&   t) text = "T,S,T,S"; break;
-    Case(Triangle& a, const Square&   b, const Triangle& c, const Triangle& t) text = "T,S,T,T"; break;
-    Case(Triangle& a, const Square&   b, const Triangle& c, const Circle&   t) text = "T,S,T,C"; break;
-    Case(Triangle& a, const Square&   b, const Circle&   c, const Triangle& t) text = "T,S,C,T"; break;
+    Case(Triangle& a, const Square&   b, const Circle&   c, const Circle&   t) text = "T,S,C,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Square&   b, const Circle&   c, const Square&   t) text = "T,S,C,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Square&   b, const Square&   c, const Circle&   t) text = "T,S,S,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Square&   b, const Square&   c, const Square&   t) text = "T,S,S,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Square&   b, const Square&   c, const Triangle& t) text = "T,S,S,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Square&   b, const Triangle& c, const Square&   t) text = "T,S,T,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Square&   b, const Triangle& c, const Triangle& t) text = "T,S,T,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Square&   b, const Triangle& c, const Circle&   t) text = "T,S,T,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Square&   b, const Circle&   c, const Triangle& t) text = "T,S,C,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
                                                                    
-    Case(Triangle& a, const Triangle& b, const Circle&   c, const Circle&   t) text = "T,T,C,C"; break;
-    Case(Triangle& a, const Triangle& b, const Circle&   c, const Square&   t) text = "T,T,C,S"; break;
-    Case(Triangle& a, const Triangle& b, const Square&   c, const Circle&   t) text = "T,T,S,C"; break;
-    Case(Triangle& a, const Triangle& b, const Square&   c, const Square&   t) text = "T,T,S,S"; break;
-    Case(Triangle& a, const Triangle& b, const Square&   c, const Triangle& t) text = "T,T,S,T"; break;
-    Case(Triangle& a, const Triangle& b, const Triangle& c, const Square&   t) text = "T,T,T,S"; break;
-    Case(Triangle& a, const Triangle& b, const Triangle& c, const Triangle& t) text = "T,T,T,T"; break;
-    Case(Triangle& a, const Triangle& b, const Triangle& c, const Circle&   t) text = "T,T,T,C"; break;
-    Case(Triangle& a, const Triangle& b, const Circle&   c, const Triangle& t) text = "T,T,C,T"; break;
+    Case(Triangle& a, const Triangle& b, const Circle&   c, const Circle&   t) text = "T,T,C,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Triangle& b, const Circle&   c, const Square&   t) text = "T,T,C,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Triangle& b, const Square&   c, const Circle&   t) text = "T,T,S,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Triangle& b, const Square&   c, const Square&   t) text = "T,T,S,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Triangle& b, const Square&   c, const Triangle& t) text = "T,T,S,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Triangle& b, const Triangle& c, const Square&   t) text = "T,T,T,S"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Triangle& b, const Triangle& c, const Triangle& t) text = "T,T,T,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Triangle& b, const Triangle& c, const Circle&   t) text = "T,T,T,C"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
+    Case(Triangle& a, const Triangle& b, const Circle&   c, const Triangle& t) text = "T,T,C,T"; XTL_UNUSED(a); XTL_UNUSED(b); XTL_UNUSED(c); XTL_UNUSED(t); break;
     
-    Otherwise()                                                                      text = "other";   break;
+    Otherwise()                                                                text = "other";                                                               break;
     }
     EndMatch
 

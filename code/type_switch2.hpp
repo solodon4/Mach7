@@ -61,7 +61,7 @@ enum { default_layout = size_t(~0) };
         enum { __base_counter = XTL_COUNTER };                                 \
         XTL_MATCH_SUBJECT_POLYMORPHIC(0,s0)                                    \
         XTL_MATCH_SUBJECT_POLYMORPHIC(1,s1)                                    \
-        XTL_PRELOADABLE_LOCAL_STATIC(mch::vtblmap<mch::type_switch_info>,__vtbl2lines_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
+        XTL_PRELOADABLE_LOCAL_STATIC(mch::vtblmap<mch::type_switch_info>,__vtbl2lines_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION));\
         mch::type_switch_info& __switch_info = __vtbl2lines_map.get(subject_ptr0,subject_ptr1); \
         switch (__switch_info.target) {                                        \
         default: {

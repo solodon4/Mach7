@@ -253,7 +253,7 @@ struct var<T&>
     /// \note If you get assertion here, it means you are trying to use the 
     ///       value of this reference variable before it was bound (i.e. used 
     ///       in pattern matching context to get its value).
-    operator result_type&() const noexcept { XTL_ASSERT(m_value); return *m_value; }
+    operator const result_type&() const noexcept { XTL_ASSERT(m_value); return *m_value; }
 
     /// Member that will hold matching value in case of successful matching
     mutable T* m_value;

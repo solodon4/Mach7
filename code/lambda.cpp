@@ -57,6 +57,31 @@ std::ostream& operator<<(std::ostream& os, const Term& t)
 
 //------------------------------------------------------------------------------
 
+/// Substitutes every occurence of variable #v in #s with #t.
+Term* substitute(const Term& s, const Var& v, const Term& t) { return nullptr; } 
+
+//------------------------------------------------------------------------------
+
+Term* evaluate(Term* t)
+{
+    var<const Var&>  v;
+    var<const Term&> t1,t2;
+
+    Match(t)
+    {
+    Case(C<Var>()) return &match0;
+    Case(C<Abs>()) return &match0;
+    Case(C<App>(C<Abs>(&v,&t1),&t2)) 
+        return evaluate(substitute(t1,v,t2));
+    Otherwise() std::cerr << "Error: Invalid term";
+    }
+    EndMatch
+
+    return nullptr;
+}
+
+//------------------------------------------------------------------------------
+
 bool operator==(const Term&, const Term&);
 inline bool operator!=(const Term& left, const Term& right) { return !(left == right); }
 
@@ -351,18 +376,17 @@ inline size_t compare_terms2(Term* left, Term* right) { return *left == *right; 
  
 int main()
 {
-    const int N1 = std::sqrt(double(N));
-    std::vector<Term*> arguments(N1);
+    std::vector<Term*> arguments(N);
 
-    for (size_t i = 0; i < N1; ++i)
+    for (size_t i = 0; i < N; ++i)
     {
         arguments[i] = random_term(rand()%1000);
         //std::cout << *arguments[i] << std::endl;
     }
     /*
-    for (size_t i = 0; i < N1; ++i)
+    for (size_t i = 0; i < N; ++i)
     {
-        for (size_t j = 0; j < N1; ++j)
+        for (size_t j = 0; j < N; ++j)
             std::cout << compare_terms1(arguments[i],arguments[j]);
 
         std::cout << "\t" << *arguments[i] << std::endl;

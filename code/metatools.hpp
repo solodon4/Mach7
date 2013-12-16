@@ -6,7 +6,7 @@
 /// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
-/// Copyright (C) 2011-2012 Texas A&M University.
+/// Copyright (C) 2011-2013 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -47,6 +47,13 @@ XTL_MSC_ONLY(template <typename R, typename A1> struct underlying<R(&)(A1)> { ty
 
 //template <typename T> inline T&& identity(T&& t) noexcept { return std::forward<T>(t); } // FIX: This breaks constructor pattern for the case of 1 argument with enable_if ...
 template <typename T> inline T& identity(T& t) noexcept { return t; }
+
+//------------------------------------------------------------------------------
+
+template <typename member_type>   struct member_traits; ///< Intentionally undefined.
+template <typename C, typename R> struct member_traits<R (C::*)() const> { typedef C const class_type; typedef R result_type; };
+template <typename C, typename R> struct member_traits<R (C::*)()      > { typedef C       class_type; typedef R result_type; };
+template <typename C, typename R> struct member_traits<R  C::*         > { typedef C       class_type; typedef R result_type; };
 
 //------------------------------------------------------------------------------
 

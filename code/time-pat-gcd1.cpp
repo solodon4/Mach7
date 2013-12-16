@@ -71,10 +71,11 @@ XTL_TIMED_FUNC_END
 
 int main()
 {
+    const size_t M = 10000; // Largest argument to GCD
     std::vector<arg_type> arguments(N);
 
     for (size_t i = 0; i < N; ++i)
-        arguments[i] = arg_type(rand() + 1, rand() + 1);
+        arguments[i] = arg_type(rand() % M + 1, rand() % M + 1);
 
     verdict v = get_timings1<unsigned int,arg_type,gcd1,gcd2>(arguments);
     std::cout << "Verdict: \t" << v << std::endl;

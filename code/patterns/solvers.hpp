@@ -85,6 +85,8 @@ inline bool solve(const expr<addition,E1,value<T>>& e, const S& r)
     //       on compiler eliminating dead branches. The reason we do this as 
     //       opposed making enable_if-ed overloads is to avoid the exponensial
     //       explosion of cases we'll have to add to make overloading unambiguous!
+    // FIX:  Move first condition of && into if and make both solve calls in else 
+    // FIX:  Why is condition strict v < r? Shouldn't it be v <= r?
     XTL_STATIC_IF(std::is_unsigned<target_type>::value) 
         return e.m_e2.m_value < r && solve(e.m_e1,r-e.m_e2.m_value);
     else
@@ -99,6 +101,8 @@ inline bool solve(const expr<addition,value<T>,E1>& e, const S& r)
     //       on compiler eliminating dead branches. The reason we do this as 
     //       opposed making enable_if-ed overloads is to avoid the exponensial
     //       explosion of cases we'll have to add to make overloading unambiguous!
+    // FIX:  Move first condition of && into if and make both solve calls in else 
+    // FIX:  Why is condition strict v < r? Shouldn't it be v <= r?
     XTL_STATIC_IF(std::is_unsigned<typename E1::result_type>::value) 
         return e.m_e1.m_value < r && solve(e.m_e2,r-e.m_e1.m_value);
     else
@@ -118,6 +122,8 @@ inline bool solve(const expr<addition,E1,equivalence<E2>>& e, const S& r)
     //       on compiler eliminating dead branches. The reason we do this as 
     //       opposed making enable_if-ed overloads is to avoid the exponensial
     //       explosion of cases we'll have to add to make overloading unambiguous!
+    // FIX:  Move first condition of && into if and make both solve calls in else 
+    // FIX:  Why is condition strict v < r? Shouldn't it be v <= r?
     auto v = eval(e.m_e2);
     XTL_STATIC_IF(std::is_unsigned<target_type>::value) 
         return v < r && solve(e.m_e1,r-v);
@@ -133,6 +139,8 @@ inline bool solve(const expr<addition,equivalence<E1>,E2>& e, const S& r)
     //       on compiler eliminating dead branches. The reason we do this as 
     //       opposed making enable_if-ed overloads is to avoid the exponensial
     //       explosion of cases we'll have to add to make overloading unambiguous!
+    // FIX:  Move first condition of && into if and make both solve calls in else 
+    // FIX:  Why is condition strict v < r? Shouldn't it be v <= r?
     auto v = eval(e.m_e1);
     XTL_STATIC_IF(std::is_unsigned<typename E2::result_type>::value) 
         return v < r && solve(e.m_e2,r-v);
@@ -146,6 +154,7 @@ inline bool solve(const expr<addition,equivalence<E1>,E2>& e, const S& r)
 template <typename E1, typename T, typename S>
 inline bool solve(const expr<subtraction,E1,value<T>>& e, const S& r)
 {
+    // FIX:  Shouldn't there be a similar is_unsigned check?
     return solve(e.m_e1,r+e.m_e2.m_value) && eval(e) == r;
 }
 
@@ -153,6 +162,7 @@ inline bool solve(const expr<subtraction,E1,value<T>>& e, const S& r)
 template <typename E1, typename T, typename S>
 inline bool solve(const expr<subtraction,value<T>,E1>& e, const S& r)
 {
+    // FIX:  Shouldn't there be a similar is_unsigned check?
     return solve(e.m_e2,e.m_e1.m_value-r) && eval(e) == r;
 }
 
@@ -162,6 +172,7 @@ inline bool solve(const expr<subtraction,value<T>,E1>& e, const S& r)
 template <typename E1, typename E2, typename S>
 inline bool solve(const expr<subtraction,E1,equivalence<E2>>& e, const S& r)
 {
+    // FIX:  Shouldn't there be a similar is_unsigned check?
     return solve(e.m_e1,r+eval(e.m_e2)) && eval(e) == r;
 }
 
@@ -169,6 +180,7 @@ inline bool solve(const expr<subtraction,E1,equivalence<E2>>& e, const S& r)
 template <typename E1, typename E2, typename S>
 inline bool solve(const expr<subtraction,equivalence<E1>,E2>& e, const S& r)
 {
+    // FIX:  Shouldn't there be a similar is_unsigned check?
     return solve(e.m_e2,eval(e.m_e1)-r) && eval(e) == r;
 }
 

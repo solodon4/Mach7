@@ -16,49 +16,52 @@
 
 //------------------------------------------------------------------------------
 
+template <typename T>
+inline T sqr(const T& x) { return x*x; }
+
+//------------------------------------------------------------------------------
+
 XTL_TIMED_FUNC_BEGIN
-int fac1(int n)
+int fib_opt(int n)
 {
-    if (n >= 0)
-    {
-        if (n == 0)
-            return 1;
-        else
-            return n*fac1(n-1);
-    }
-    else
-        return 0;
+	if (n == 1 || n == 2) 
+        return 1;
+
+    return 
+        n%2 == 0 
+            ? sqr(fib_opt(n/2+1)) - sqr(fib_opt(n/2-1))
+            : sqr(fib_opt(n/2+1)) + sqr(fib_opt(n/2));
 }
 XTL_TIMED_FUNC_END
 
 //------------------------------------------------------------------------------
 
-value    val0 = val(0);
-wildcard wc;
+value_of<int> val1 = value_of<int>(1);
+value_of<int> val2 = value_of<int>(2);
 
 XTL_TIMED_FUNC_BEGIN
-int fac(const object& n)
+int fib(const object& n)
 {
-    variable var0;
+    if (val1.matches(n) || val2.matches(n))
+        return 1;
 
-    if (val0.matches(n)) return 1;
-    if (var0.matches(n))
-    {
-        if (typeid(n) == typeid(object_of<int>))
-        {
-            const object_of<int>* p = static_cast<const object_of<int>*>(var0.m_obj_ref);
-            return p->m_value * fac(object_of<int>(p->m_value-1));
-        }
-        else
-            return 0;
-    }
-    if (  wc.matches(n)) return 0;
+    var_of<int>    v;
+    p_times_c<int> x2(v,2);
+
+    
+    if (x2.matches(n))
+        return sqr(fib(object_of<int>(v+1))) - sqr(fib(object_of<int>(v-1)));
+
+    p_plus_c<int>  p1(x2,1);
+    
+    if (p1.matches(n))
+        return sqr(fib(object_of<int>(v+1))) + sqr(fib(object_of<int>(v)));
 }
 XTL_TIMED_FUNC_END
 
 //------------------------------------------------------------------------------
 
-static const object* args[20] = {
+static const object* args[21] = {
     make_obj(0),
     make_obj(1),
     make_obj(2),
@@ -79,11 +82,13 @@ static const object* args[20] = {
     make_obj(17),
     make_obj(18),
     make_obj(19),
+    make_obj(20),
 };
 
 //------------------------------------------------------------------------------
 
-inline int fac2(int n) { return fac(*args[n]); }
+//inline int fib2(int n) { return fib(*args[n]); }
+inline int fib2(int n) { return fib(object_of<int>(n)); }
 
 //------------------------------------------------------------------------------
 
@@ -94,9 +99,9 @@ int main()
     std::vector<int> arguments(N);
 
     for (size_t i = 0; i < N; ++i)
-        arguments[i] = rand() % 20;
+        arguments[i] = rand() % 20 + 1;
 
-    verdict v = get_timings1<int,int,fac1,fac2>(arguments);
+    verdict v = get_timings1<int,int,fib_opt,fib2>(arguments);
     std::cout << "Verdict: \t" << v << std::endl;
 }
 

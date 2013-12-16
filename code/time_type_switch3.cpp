@@ -82,6 +82,9 @@ struct VisitorFor2 : ShapeVisitor
     const shape_kind<N>& first;
     const shape_kind<M>& second;
     int                  result; 
+
+private:
+    VisitorFor2& operator=(const VisitorFor2&); ///< No assignment operator
 };
 
 //------------------------------------------------------------------------------
@@ -100,6 +103,9 @@ struct VisitorFor : ShapeVisitor
     const shape_kind<N>& first;
     const Shape&         third;
     int                  result; 
+
+private:
+    VisitorFor& operator=(const VisitorFor&); ///< No assignment operator
 };
 
 //------------------------------------------------------------------------------
@@ -117,6 +123,9 @@ struct Visitor : ShapeVisitor
     const Shape& second;
     const Shape& third;
     int          result;
+
+private:
+    Visitor& operator=(const Visitor&); ///< No assignment operator
 };
 
 //------------------------------------------------------------------------------

@@ -517,8 +517,6 @@ typedef std::pair<Term*,Term*>      term_pair;
 
 //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-
 bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
 {
     var<std::string> s;

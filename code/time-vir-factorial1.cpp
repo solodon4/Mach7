@@ -37,7 +37,7 @@ value    val0 = val(0);
 wildcard wc;
 
 XTL_TIMED_FUNC_BEGIN
-int fac(const object& n)
+int fac(const object_of<int>& n)
 {
     variable var0;
 
@@ -58,7 +58,7 @@ XTL_TIMED_FUNC_END
 
 //------------------------------------------------------------------------------
 
-static const object* args[20] = {
+static const object_of<int>* args[20] = {
     make_obj(0),
     make_obj(1),
     make_obj(2),

@@ -11,8 +11,7 @@
 ///
 
 #include <iostream>
-#include "type_switchN-patterns.hpp"
-#include "patterns/all.hpp"
+#include "virpat.hpp"
 #include "testutils.hpp"
 
 //------------------------------------------------------------------------------
@@ -46,27 +45,29 @@ XTL_TIMED_FUNC_END
 
 //------------------------------------------------------------------------------
 
-extern unsigned int gcd2(const unsigned int, const unsigned int);
+extern unsigned int gcd2(const object_of<unsigned int>& a, const object_of<unsigned int>& b);
 
-inline unsigned int gcd2(const arg_type a) { return gcd2(a.first,a.second); }
+inline unsigned int gcd2(const arg_type a) { return gcd2(object_of<unsigned int>(a.first),object_of<unsigned int>(a.second)); }
 
 //------------------------------------------------------------------------------
 
-XTL_TIMED_FUNC_BEGIN
-unsigned int gcd2(const unsigned int a, const unsigned int b)
-{
-    var<unsigned int> y;
+wildcard wc;
 
-    Match(a,b)
-    {
-    //Case(a,a)   return a;
-    //Case(a,a+y) return gcd2(a,y);
-    //Case(b+y,b) return gcd2(b,y);
-    Case(_,a)   return a;
-    Case(_,a+y) return gcd2(a,y);
-    Case(b+y,_) return gcd2(b,y);
-    }
-    EndMatch
+XTL_TIMED_FUNC_BEGIN
+unsigned int gcd2(const object_of<unsigned int>& a, const object_of<unsigned int>& b)
+{
+    value_of<unsigned int> valA(a.m_value);
+
+    if (wc.matches(a) && valA.matches(b)) return a.m_value;
+
+    var_of<unsigned int> y;
+    p_plus_c<unsigned int> pa(y,a.m_value);
+
+    if (wc.matches(a) && pa.matches(b)) return gcd2(a,object_of<unsigned int>(y));
+
+    p_plus_c<unsigned int> pb(y,b.m_value);
+
+    if (pb.matches(a) && wc.matches(b)) return gcd2(b,object_of<unsigned int>(y));
 }
 XTL_TIMED_FUNC_END
 

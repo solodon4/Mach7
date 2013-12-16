@@ -11,8 +11,7 @@
 ///
 
 #include <iostream>
-#include "type_switchN-patterns.hpp"
-#include "patterns/all.hpp"
+#include "virpat.hpp"
 #include "testutils.hpp"
 
 //------------------------------------------------------------------------------
@@ -60,25 +59,29 @@ double power_opt(double x, int n)
 
 //------------------------------------------------------------------------------
 
-extern double power2(const double, const int);
+extern double power2(const double, const object_of<int>&);
 
-inline double power2(const arg_type a) { return power2(a.first,a.second); }
+inline double power2(const arg_type a) { return power2(a.first,object_of<int>(a.second)); }
 
 //------------------------------------------------------------------------------
 
-XTL_TIMED_FUNC_BEGIN
-double power2(const double x, const int n)
-{
-    var<int> m;
+value_of<int> val0 = value_of<int>(0);
+value_of<int> val1 = value_of<int>(1);
 
-    Match(n)
-    {
-      Case(0)     return 1.0;
-      Case(1)     return x;
-      Case(2*m)   return   sqr(power2(x,m));
-      Case(2*m+1) return x*sqr(power2(x,m));
-    }
-    EndMatch
+XTL_TIMED_FUNC_BEGIN
+double power2(const double x, const object_of<int>& n)
+{
+    if (val0.matches(n))     return 1.0;
+    if (val1.matches(n))     return x;
+
+    var_of<int>    m;
+    p_times_c<int> x2(m,2);
+    
+    if (x2.matches(n))       return sqr(power2(x,object_of<int>(m)));
+
+    p_plus_c<int>  p1(x2,1);
+
+    if (p1.matches(n))       return x*sqr(power2(x,object_of<int>(m)));
 }
 XTL_TIMED_FUNC_END
 

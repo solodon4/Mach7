@@ -8,8 +8,8 @@
 0000001100000000000000000000 $string$
 0000000011000000000000000000 X
 0000000011000000000000000000 X
-0000000000110000000000000000 test(a1,7,3.14159,$sss$,X)
-0000000000110000000000000000 test(a1,7,3.14159,$sss$,X)
+0000000000110000000000000000 test(a1,7,3.14159,$sss$,X,)
+0000000000110000000000000000 test(a1,7,3.14159,$sss$,X,)
 0000000000001100000000000000 [a2,Y]
 0000000000001100000000000000 [a2,Y]
 0000000000000011000000000000 all integers  0==()
@@ -21,26 +21,26 @@
 0000000000000000000010000000 3.1415
 0000000000000000000001000000 $string2$
 0000000000000000000000100000 Y
-0000000000000000000000010000 test(a1,8,3.14159,$sss$,X)
-0000000000000000000000001000 all integers  11exist integer 9test(7,8,9,10,11)
+0000000000000000000000010000 test(a1,8,3.14159,$sss$,X,)
+0000000000000000000000001000 all integers  11exist integer 9test(7,8,9,10,11,)
 0000000000000000000000000100 [a2,Z]
 0000000000000000000000000010 all integers  0!=()
 0000000000000000000000000001 % another comment
-Unifying f(a,X,g(y,Y)) and f(Y,b,Z)
+Unifying f(a,X,g(y,Y,),) and f(Y,b,Z,)
        X -> b
        Y -> a
-       Z -> g(y,a)
-Unifying f(X,Y,g(Z)) and f(X,g(h(Z)),Y)
+       Z -> g(y,a,)
+Unifying f(X,Y,g(Z,),) and f(X,g(h(Z,),),Y,)
 	ERROR: Unable to unify
-Unifying p(f(A),g(X)) and p(Y,Y)
+Unifying p(f(A,),g(X,),) and p(Y,Y,)
 	ERROR: Unable to unify
-Unifying p(a,X,h(g(Z))) and p(Z,h(Y),h(Y))
-       X -> h(g(a))
-       Y -> g(a)
+Unifying p(a,X,h(g(Z,),),) and p(Z,h(Y,),h(Y,),)
+       X -> h(g(a,),)
+       Y -> g(a,)
        Z -> a
-Unifying f(X,b,g(Z)) and f(f(Y),Y,g(U))
-       X -> f(b)
+Unifying f(X,b,g(Z,),) and f(f(Y,),Y,g(U,),)
+       X -> f(b,)
        Y -> b
        Z -> U
-Unifying p(X,Y) and p(X,f(Y))
+Unifying p(X,Y,) and p(X,f(Y,),)
 	ERROR: Unable to unify

@@ -185,6 +185,11 @@ inline long long display(const char* name, std::vector<long long>& timings, size
               << std::setw(5) << cycles(avg)/N << "/" 
               << std::setw(4) << cycles(med)/N << " --"
               << std::setw(5) << cycles(max)/N << "]"
+			  << " Cycles/" << std::setw(7) << N << " iterations ["
+              << std::setw(7) << (min) << " --" 
+              << std::setw(8) << (avg) << "/" 
+              << std::setw(7) << (med) << " --"
+              << std::setw(8) << (max) << "]"
 #endif
               << std::endl;
 
