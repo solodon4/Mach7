@@ -71,6 +71,7 @@ Term* evaluate(Term* t)
     {
     Case(C<Var>()) return &match0;
     Case(C<Abs>()) return &match0;
+  //Case(C<Var>() || C<Abs>()) return &match0; // This would be possible instead of above two when common_type of two derived classes will be defined in the language
     Case(C<App>(C<Abs>(&v,&t1),&t2)) 
         return evaluate(substitute(t1,v,t2));
     Otherwise() std::cerr << "Error: Invalid term";

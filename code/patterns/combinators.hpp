@@ -101,7 +101,10 @@ struct disjunction
                           typename P1::template accepted_type_for<S>::type,
                           typename P2::template accepted_type_for<S>::type
                       >::value,"The type accepted by patterns in disjunction must be the same");
-        typedef typename P1::template accepted_type_for<S>::type type; 
+        //typedef typename std::common_type<
+        //                    typename P1::template accepted_type_for<S>::type,
+        //                    typename P2::template accepted_type_for<S>::type
+        //                 >::type type; 
     };
 
     /// We parameterize over accepted type since the actually accepted type is 

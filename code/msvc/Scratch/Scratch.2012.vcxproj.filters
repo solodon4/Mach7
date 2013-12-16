@@ -32,13 +32,28 @@
     <ClCompile Include="..\..\morton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\type_switchN-patterns.cpp">
+    <ClCompile Include="..\..\time-vir-fibonacci.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\COUParser\Benchmarks\Class Hierarchies\et++applicationframework.cpp">
+    <ClCompile Include="..\..\time-vir-gcd2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\COUParser\Benchmarks\Class Hierarchies\et++applicationframework01.cpp">
+    <ClCompile Include="..\..\time-vir-gcd1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\type_switch2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\time-pat-gcd1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\C++ Examples\two sigma\feet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\multima\trunk\src\studio-term-project\cmp\test.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,0 +1,9 @@
+Notice: Output directory `../doc' does not exist. I have created it for you.
+C:/Projects/PatternMatching/typeswitch-from-web/metatools.hpp:127: warning: member with no name found.
+C:/Projects/PatternMatching/typeswitch-from-web/metatools.hpp:128: warning: member with no name found.
+C:/Projects/PatternMatching/typeswitch-from-web/match.hpp:135: warning: Found unknown command `\vtblmap'
+C:/Projects/PatternMatching/typeswitch-from-web/match.hpp:135: warning: Found unknown command `\vtblmap'
+C:/Projects/PatternMatching/typeswitch-from-web/match.hpp:621: warning: Found unknown command `\TMatch'
+C:/Projects/PatternMatching/typeswitch-from-web/match.hpp:621: warning: Found unknown command `\TCase'
+C:/Projects/PatternMatching/typeswitch-from-web/match.hpp:622: warning: Found unknown command `\TEndMatch'
+C:/Projects/PatternMatching/typeswitch-from-web/match.hpp:135: warning: Found unknown command `\vtblmap'

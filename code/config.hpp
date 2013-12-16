@@ -201,7 +201,12 @@
     ///    only work with refutable Qua-clauses, and thus cannot be used in Case-clauses.
     /// \deprecated This macro will likely be deprecated as the fall through behavior
     ///             it offers differs from the fall through behavior of switch statement.
-    #define XTL_FALL_THROUGH 1
+    /// \note Several novices made a mistake of not putting break at the end of the case
+    ///       clause effectively making the Match statement super slow because the code
+    ///       was needlessly checking all the predicates after the matching clause. We
+    ///       should probably make 0 the default just to help novices & avoid questions
+    ///       about poor performance. (Sep 14, 2013)
+    #define XTL_FALL_THROUGH 0
 #endif
 #define XTL_FALL_THROUGH_ONLY(...)     UCL_PP_IF(UCL_PP_NOT(XTL_FALL_THROUGH), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
 #define XTL_NON_FALL_THROUGH_ONLY(...) UCL_PP_IF(           XTL_FALL_THROUGH,  UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
