@@ -6,7 +6,7 @@
 /// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
-/// Copyright (C) 2011-2012 Texas A&M University.
+/// Copyright (C) 2011-2013 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -174,11 +174,11 @@ int main()
 
     verdict pp = test_repetitive();
 //    verdict ps = test_sequential();
-//    verdict pr = test_randomized();
+    verdict pr = test_randomized();
     std::cout << "OVERALL: "
               << "Repetitive: " << pp << "; "
 //              << "Sequential: " << ps << "; "
-//              << "Random: "     << pr 
+              << "Random: "     << pr 
               << std::endl; 
 }
 

@@ -6,7 +6,7 @@
 /// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
-/// Copyright (C) 2011-2012 Texas A&M University.
+/// Copyright (C) 2011-2013 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -87,6 +87,7 @@ struct Shape
     virtual ~Shape() {}
     virtual void accept(ShapeVisitor&) const = 0;
     virtual void raise() const {} // Polymorphic exception idiom: http://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Polymorphic_Exception
+    virtual void raise_ptr() const {} // Polymorphic exception idiom: http://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Polymorphic_Exception
     #define FOR_EACH_MAX NUMBER_OF_VFUNCS-2
     #define FOR_EACH_N(N) virtual void foo ## N() {}
     #include "loop_over_numbers.hpp"

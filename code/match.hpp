@@ -7,7 +7,7 @@
 /// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
-/// Copyright (C) 2011-2012 Texas A&M University.
+/// Copyright (C) 2011-2013 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -481,8 +481,7 @@ template<>                        struct target_disambiguator<const int> { typed
 
 //------------------------------------------------------------------------------
 
-/// Macro that starts the switch on types that carry their own dynamic type as
-/// a distinct integral value in one of their members.
+/// Macro that starts the switch on types that implement polymorphic exception idiom.
 /// \note Unlike the rest of our Match statements, MatchE does not allow {} 
 ///       around the case clauses.
 #define MatchE(s) {                                                            \
@@ -508,6 +507,37 @@ template<>                        struct target_disambiguator<const int> { typed
 #define WhenE(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseE(...) XTL_CLAUSE_OTHERWISE(CaseE,__VA_ARGS__)
 #define EndMatchE       XTL_NON_USE_BRACES_ONLY(}) } catch (...) {} }
+
+//------------------------------------------------------------------------------
+
+/// Macro that starts the switch on types that implement polymorphic exception idiom.
+/// \note The main difference from MatchE above is that we throw this-pointer only
+///       instead of entire object.
+/// \note Unlike the rest of our Match statements, MatchE does not allow {} 
+///       around the case clauses.
+#define MatchX(s) {                                                            \
+        XTL_MATCH_PREAMBULA(s)                                                 \
+        static_assert(has_member_raise_selector<mch::bindings<source_type>>::value, "Before using MatchX, you have to specify raise selector on the subject type using RS macro");\
+        XTL_MESSAGE("WARNING: The use of { and } within MatchX-statement must match XTL_USE_BRACES setting!") \
+        try {                                                                  \
+            subject_ptr->raise_ptr(); /*mch::raise_selector(subject_ptr);*/    \
+            XTL_SUBCLAUSE_FIRST
+
+/// Macro that defines the case statement for the above switch
+#define QuaX(C,...) }}                                                         \
+        catch (C* __matched)                                                   \
+        {                                                                      \
+            XTL_CLAUSE_COMMON(C);                                              \
+            auto matched = __matched;                                          \
+            XTL_CLAUSE_DECL_ONLY(C(*matched));                                 \
+            XTL_UNUSED(matched);                                               \
+            XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
+
+#define CaseX_(C,...)   QuaX(C)
+#define CaseX(...)      XTL_APPLY_VARIADIC_MACRO(CaseX_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define WhenX(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
+#define OtherwiseX(...) XTL_CLAUSE_OTHERWISE(CaseX,__VA_ARGS__)
+#define EndMatchX       XTL_NON_USE_BRACES_ONLY(}) } catch (...) {} }
 
 //------------------------------------------------------------------------------
 

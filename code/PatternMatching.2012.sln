@@ -1,63 +1,63 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Category", "msvc\Category\Category.vcxproj", "{C37B96BE-50D4-44E7-8F98-BD9EDD729CAB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Category", "msvc\Category\Category.2012.vcxproj", "{C37B96BE-50D4-44E7-8F98-BD9EDD729CAB}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Numbers", "msvc\Numbers\Numbers.vcxproj", "{4113E7B2-EAAA-48F1-90E5-AA480B74AB4C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Numbers", "msvc\Numbers\Numbers.2012.vcxproj", "{4113E7B2-EAAA-48F1-90E5-AA480B74AB4C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape1", "msvc\Shape1\Shape1.vcxproj", "{C3F37F3A-9230-45FC-A159-9F514169D82E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape1", "msvc\Shape1\Shape1.2012.vcxproj", "{C3F37F3A-9230-45FC-A159-9F514169D82E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape2", "msvc\Shape2\Shape2.vcxproj", "{19A04D67-63C5-4521-A88D-A31DEE7B7D56}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape2", "msvc\Shape2\Shape2.2012.vcxproj", "{19A04D67-63C5-4521-A88D-A31DEE7B7D56}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape3", "msvc\Shape3\Shape3.vcxproj", "{9AA5EECB-3089-4E97-8213-7ADF91C3A336}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape3", "msvc\Shape3\Shape3.2012.vcxproj", "{9AA5EECB-3089-4E97-8213-7ADF91C3A336}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Synthetic", "msvc\Synthetic\Synthetic.vcxproj", "{2B4B10D9-16E4-450C-B6B8-57668B912E66}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Synthetic", "msvc\Synthetic\Synthetic.2012.vcxproj", "{2B4B10D9-16E4-450C-B6B8-57668B912E66}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SyntheticSelect", "msvc\SyntheticSelect\SyntheticSelect.vcxproj", "{CED311A4-D92A-4893-B968-09455B1CA218}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SyntheticSelect", "msvc\SyntheticSelect\SyntheticSelect.2012.vcxproj", "{CED311A4-D92A-4893-B968-09455B1CA218}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MemoizedCast", "msvc\MemoizedCast\MemoizedCast.vcxproj", "{4588B0C1-9882-4B29-8A7D-DD558717F6B3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MemoizedCast", "msvc\MemoizedCast\MemoizedCast.2012.vcxproj", "{4588B0C1-9882-4B29-8A7D-DD558717F6B3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SyntheticSelectRandom", "msvc\SyntheticSelectRandom\SyntheticSelectRandom.vcxproj", "{50401AFC-D6FA-4209-8BCC-9275C844CDBA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SyntheticSelectRandom", "msvc\SyntheticSelectRandom\SyntheticSelectRandom.2012.vcxproj", "{50401AFC-D6FA-4209-8BCC-9275C844CDBA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Hierarchy", "msvc\Hierarchy\Hierarchy.vcxproj", "{68F21213-DE98-48CA-BC4E-C6D6B1F2C8F2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Hierarchy", "msvc\Hierarchy\Hierarchy.2012.vcxproj", "{68F21213-DE98-48CA-BC4E-C6D6B1F2C8F2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TypeSwitch", "msvc\TypeSwitch\TypeSwitch.vcxproj", "{EB09F464-AB30-4448-9B6E-ED0579D40D1D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TypeSwitch", "msvc\TypeSwitch\TypeSwitch.2012.vcxproj", "{EB09F464-AB30-4448-9B6E-ED0579D40D1D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SyntheticSelectKind", "msvc\SyntheticSelectKind\SyntheticSelectKind.vcxproj", "{C55BE57E-A17D-4FB9-BE7E-14EE27A79839}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SyntheticSelectKind", "msvc\SyntheticSelectKind\SyntheticSelectKind.2012.vcxproj", "{C55BE57E-A17D-4FB9-BE7E-14EE27A79839}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OCamlCmp", "msvc\OCamlCmp\OCamlCmp.vcxproj", "{96D74455-E85C-4AA9-B9B8-C9F73C4EE7A1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OCamlCmp", "msvc\OCamlCmp\OCamlCmp.2012.vcxproj", "{96D74455-E85C-4AA9-B9B8-C9F73C4EE7A1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OCamlCmpKind", "msvc\OCamlCmpKind\OCamlCmpKind.vcxproj", "{2F4D6180-1B94-478F-8A3A-B82A44A88D4F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OCamlCmpKind", "msvc\OCamlCmpKind\OCamlCmpKind.2012.vcxproj", "{2F4D6180-1B94-478F-8A3A-B82A44A88D4F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape5", "msvc\Shape5\Shape5.vcxproj", "{76575FB6-26EB-47E5-8657-C82248593934}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape5", "msvc\Shape5\Shape5.2012.vcxproj", "{76575FB6-26EB-47E5-8657-C82248593934}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GenericSelectRandom", "msvc\GenericSelectRandom\GenericSelectRandom.vcxproj", "{D8A0CC34-5C12-4A37-BE4F-C7D8DDF1415C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GenericSelectRandom", "msvc\GenericSelectRandom\GenericSelectRandom.2012.vcxproj", "{D8A0CC34-5C12-4A37-BE4F-C7D8DDF1415C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GenericSelectKind", "msvc\GenericSelectKind\GenericSelectKind.vcxproj", "{8C0AB457-CC1B-46C7-898A-DA7CE8CC8C94}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GenericSelectKind", "msvc\GenericSelectKind\GenericSelectKind.2012.vcxproj", "{8C0AB457-CC1B-46C7-898A-DA7CE8CC8C94}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape4", "msvc\Shape4\Shape4.vcxproj", "{D059A91F-9353-4D98-85B0-ABF4A65D36ED}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape4", "msvc\Shape4\Shape4.2012.vcxproj", "{D059A91F-9353-4D98-85B0-ABF4A65D36ED}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Expr", "msvc\Expr\Expr.vcxproj", "{AEAC1FBB-C907-438A-9E27-05F95929E274}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Expr", "msvc\Expr\Expr.2012.vcxproj", "{AEAC1FBB-C907-438A-9E27-05F95929E274}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Skeleton", "msvc\Skeleton\Skeleton.vcxproj", "{74DA394A-1378-4FA0-B16D-AB55ED4FE226}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Skeleton", "msvc\Skeleton\Skeleton.2012.vcxproj", "{74DA394A-1378-4FA0-B16D-AB55ED4FE226}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape8", "msvc\Shape8\Shape8.vcxproj", "{0B8B3558-5D89-49C9-8573-A9664FC51382}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape8", "msvc\Shape8\Shape8.2012.vcxproj", "{0B8B3558-5D89-49C9-8573-A9664FC51382}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape6", "msvc\Shape6\Shape6.vcxproj", "{369A364B-4753-4580-9581-D938AE178616}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape6", "msvc\Shape6\Shape6.2012.vcxproj", "{369A364B-4753-4580-9581-D938AE178616}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape7", "msvc\Shape7\Shape7.vcxproj", "{B4136FFF-CA75-43B0-98DA-4CE3FD33C1A2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shape7", "msvc\Shape7\Shape7.2012.vcxproj", "{B4136FFF-CA75-43B0-98DA-4CE3FD33C1A2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SyntheticDynamicCast", "msvc\SyntheticDynamicCast\SyntheticDynamicCast.vcxproj", "{6150394B-CFE6-45BC-A61A-B230772E795A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SyntheticDynamicCast", "msvc\SyntheticDynamicCast\SyntheticDynamicCast.2012.vcxproj", "{6150394B-CFE6-45BC-A61A-B230772E795A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SharedDll1", "msvc\SharedDll1\SharedDll1.vcxproj", "{998B6DDD-17BF-4C45-B169-A5561F7D96E2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SharedDll1", "msvc\SharedDll1\SharedDll1.2012.vcxproj", "{998B6DDD-17BF-4C45-B169-A5561F7D96E2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SharedApp", "msvc\SharedApp\SharedApp.vcxproj", "{AC65F480-E4CD-4C6A-8706-4B7DA2A2EDD2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SharedApp", "msvc\SharedApp\SharedApp.2012.vcxproj", "{AC65F480-E4CD-4C6A-8706-4B7DA2A2EDD2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Syntax", "msvc\Syntax\Syntax.vcxproj", "{3E4BBCDF-422B-4B37-AB9B-2554E4DE8C2B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Syntax", "msvc\Syntax\Syntax.2012.vcxproj", "{3E4BBCDF-422B-4B37-AB9B-2554E4DE8C2B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Guards", "msvc\Guards\Guards.vcxproj", "{68A3833B-5B0A-4D39-A67B-4A29BE73D1C2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Guards", "msvc\Guards\Guards.2012.vcxproj", "{68A3833B-5B0A-4D39-A67B-4A29BE73D1C2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Algebraic", "msvc\Algebraic\Algebraic.vcxproj", "{23496B04-7744-48AB-9EDE-B4591F132E08}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Algebraic", "msvc\Algebraic\Algebraic.2012.vcxproj", "{23496B04-7744-48AB-9EDE-B4591F132E08}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shapes", "Shapes", "{DCDBD38F-B590-446F-908C-65A67E48012A}"
 EndProject
@@ -65,23 +65,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Timing", "Timing", "{8AF064
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Functionality", "Functionality", "{2B8234F3-C543-4AA7-A1F8-377A33560B38}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Regex", "msvc\Regex\Regex.vcxproj", "{ABA0D115-FF44-406E-9405-DA3A7C741E66}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Regex", "msvc\Regex\Regex.2012.vcxproj", "{ABA0D115-FF44-406E-9405-DA3A7C741E66}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VirPat", "msvc\VirPat\VirPat.vcxproj", "{2E3D8256-1BA2-4E37-B03C-E576A1AF3178}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VirPat", "msvc\VirPat\VirPat.2012.vcxproj", "{2E3D8256-1BA2-4E37-B03C-E576A1AF3178}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Misc", "Misc", "{B07B73E3-8D06-4D87-A794-6800FCEFE78B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "COUParser", "msvc\COUParser\COUParser.2010.vcxproj", "{9CD3AD2E-896F-49A8-B7C1-DF0E82502E21}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "COUParser", "msvc\COUParser\COUParser.2012.vcxproj", "{9CD3AD2E-896F-49A8-B7C1-DF0E82502E21}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Versatile", "Versatile", "{D0B1E96D-8C7D-481C-8D90-37D6E67AF34C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultipleSubjects", "msvc\MultipleSubjects\MultipleSubjects.vcxproj", "{B667B318-7BA2-407E-896F-D934D919E824}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultipleSubjects", "msvc\MultipleSubjects\MultipleSubjects.2012.vcxproj", "{B667B318-7BA2-407E-896F-D934D919E824}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Versity.2012", "msvc\Versity\Versity.2012.vcxproj", "{A97C0849-4AEB-478F-A0EE-947DEA5ACEF1}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Prolog.2012", "msvc\Prolog\Prolog.2012.vcxproj", "{CAAD1BF1-17E3-48C3-B3B1-2E89565DB8FE}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RedBlackTree.2012", "msvc\RedBlackTree\RedBlackTree.2012.vcxproj", "{17C9468C-4F34-4F3F-B666-F3B09AF3CA5D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PatternComposition.2012", "msvc\PatternComposition\PatternComposition.2012.vcxproj", "{10701D63-26B7-419E-8195-C1B39F92464F}"
 EndProject
@@ -356,12 +354,6 @@ Global
 		{CAAD1BF1-17E3-48C3-B3B1-2E89565DB8FE}.Release|Win32.ActiveCfg = Release|Win32
 		{CAAD1BF1-17E3-48C3-B3B1-2E89565DB8FE}.Release|Win32.Build.0 = Release|Win32
 		{CAAD1BF1-17E3-48C3-B3B1-2E89565DB8FE}.Release|x64.ActiveCfg = Release|Win32
-		{17C9468C-4F34-4F3F-B666-F3B09AF3CA5D}.Debug|Win32.ActiveCfg = Debug|Win32
-		{17C9468C-4F34-4F3F-B666-F3B09AF3CA5D}.Debug|Win32.Build.0 = Debug|Win32
-		{17C9468C-4F34-4F3F-B666-F3B09AF3CA5D}.Debug|x64.ActiveCfg = Debug|Win32
-		{17C9468C-4F34-4F3F-B666-F3B09AF3CA5D}.Release|Win32.ActiveCfg = Release|Win32
-		{17C9468C-4F34-4F3F-B666-F3B09AF3CA5D}.Release|Win32.Build.0 = Release|Win32
-		{17C9468C-4F34-4F3F-B666-F3B09AF3CA5D}.Release|x64.ActiveCfg = Release|Win32
 		{10701D63-26B7-419E-8195-C1B39F92464F}.Debug|Win32.ActiveCfg = Debug|Win32
 		{10701D63-26B7-419E-8195-C1B39F92464F}.Debug|Win32.Build.0 = Debug|Win32
 		{10701D63-26B7-419E-8195-C1B39F92464F}.Debug|x64.ActiveCfg = Debug|Win32
@@ -456,11 +448,7 @@ Global
 		{9CD3AD2E-896F-49A8-B7C1-DF0E82502E21} = {B07B73E3-8D06-4D87-A794-6800FCEFE78B}
 		{A97C0849-4AEB-478F-A0EE-947DEA5ACEF1} = {B07B73E3-8D06-4D87-A794-6800FCEFE78B}
 		{CAAD1BF1-17E3-48C3-B3B1-2E89565DB8FE} = {B07B73E3-8D06-4D87-A794-6800FCEFE78B}
-		{17C9468C-4F34-4F3F-B666-F3B09AF3CA5D} = {B07B73E3-8D06-4D87-A794-6800FCEFE78B}
 		{3EF70265-E1B8-407A-8C42-27A21AE2E279} = {B07B73E3-8D06-4D87-A794-6800FCEFE78B}
 		{DB6120B6-F996-4A8A-94D6-46E75E0915DB} = {B07B73E3-8D06-4D87-A794-6800FCEFE78B}
-	EndGlobalSection
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

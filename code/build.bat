@@ -11,6 +11,7 @@
 ::     build syntax - Build all supported library options combination for syntax variations
 ::     build timing - Build all supported library options combination for timing variations
 ::     build cmp    - Build all executables for comparison with other languages
+::     build doc    - Build Mach7 documentation
 ::     build clean  - Clean all built examples
 ::     build test   -   Run all built examples
 ::     build check  -   Run those examples for which there are correct_output/*.out files and check that output is the same
@@ -27,7 +28,7 @@
 ::                     - 2012 - Visual C++ 11.0
 ::                                                                           
 :: This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
-:: Copyright (C) 2011-2012 Texas A&M University.
+:: Copyright (C) 2011-2013 Texas A&M University.
 :: All rights reserved.
 :: 
 
@@ -86,6 +87,7 @@ rem Parse commands
 if "%1" == "clean"     del *.obj *.exe *.pdb *.idb *.intermediate.manifest *.out cmp_haskell.hi cmp_haskell.o cmp_ocaml.cmi cmp_ocaml.cmx > nul 2>&1 && goto END
 if "%1" == "check"     shift && goto CHECK
 if "%1" == "test"      shift && goto TEST
+if "%1" == "doc"       shift && goto DOXYGEN
 
 rem Subsequent commands require Visual C++ environment variables to be set up.
 
@@ -226,6 +228,31 @@ if not exist correct_output/%filename%.out goto END
 fc current.out correct_output/%~n1.out | FIND "FC: no dif" > nul 
 if errorlevel 1 (<nul (set/p output= ) & call :SUB_COLOR_TEXT 0C "differ") else (<nul (set/p output= OK))
 echo.
+goto END
+
+:DOXYGEN :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+rem Build documentation
+echo Generating HTML documentation ...
+if not exist doc md doc
+echo ----------------------------------------------------- >> %logfile%
+echo Mach7 documentation log                               >> %logfile%
+echo %date% %time%                                         >> %logfile%
+echo ----------------------------------------------------- >> %logfile%
+if exist doc\html      rmdir /S /Q doc\html                >> %logfile% 2>&1
+if exist doc\mach7.chm erase /F doc\mach7.chm              >> %logfile% 2>&1
+cd doxygen
+doxygen mach7.dxg                                          >> ..\%logfile% 2>&1
+cd ..
+set genres=%errorlevel%
+echo Compiling HTML documentation ...
+echo ----------------------------------------------------- >> %logfile%
+"%ProgramFiles(x86)%\HTML Help Workshop\hhc.exe" doc\html\index.hhp >> %logfile% 2>&1
+set cmplres=%errorlevel%
+move doc\html\mach7.chm doc\mach7.chm                      >> %logfile% 2>&1
+echo ----------------------------------------------------- >> %logfile%
+echo %date% %time%                                         >> %logfile%
+echo Complete:	%genres%/%cmplres%
 goto END
 
 :BUILD_TIMING ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
