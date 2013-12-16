@@ -6,7 +6,7 @@
 /// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
-/// Copyright (C) 2011-2012 Texas A&M University.
+/// Copyright (C) 2011-2013 Texas A&M University.
 /// All rights reserved.
 ///
 
@@ -28,6 +28,16 @@
 #include "timing.hpp"
 
 #define NO_RANDOMIZATION
+
+#if defined(_MSC_VER)
+    // Visual C++ 2010 and 2012 don't seem to provide implementation of std::cbrt
+    namespace std
+    {
+        inline float       cbrt(      float arg) { return pow(arg,      float(1.0/3.0)); }
+        inline double      cbrt(     double arg) { return pow(arg,     double(1.0/3.0)); }
+        inline long double cbrt(long double arg) { return pow(arg,long double(1.0/3.0)); }
+    }
+#endif
 
 namespace mch ///< Mach7 library namespace
 {
@@ -300,7 +310,7 @@ inline long long test(Object* (*make)(int), int (*match)(Object*,Object*,Object*
 {
     std::vector<Object*> unique_objects = all_objects(make);
     const size_t unique_objects_size = unique_objects.size();
-    size_t N = std::cbrt(::mch::N); // Since we are going to do N*N*N iterations
+    size_t N = size_t(std::cbrt(double(::mch::N))); // Since we are going to do N*N*N iterations
     size_t a = 0; // Accumulator to make sure compiler doesn't take some loop invariants out
     size_t j = 0; // Incremental number for the current path/object combination. Ensures all path get tested.
     std::vector<long long> medians(K); // Final verdict of medians for each of the K experiments
@@ -345,7 +355,7 @@ inline long long test(Object* (*make)(int), int (*match)(Object*,Object*,Object*
 {
     std::vector<Object*> unique_objects = all_objects(make);
     const size_t unique_objects_size = unique_objects.size();
-    size_t N = std::sqrt(std::sqrt(::mch::N)); // Since we are going to do N*N*N*N iterations
+    size_t N = size_t(std::sqrt(std::sqrt(::mch::N))); // Since we are going to do N*N*N*N iterations
     size_t a = 0; // Accumulator to make sure compiler doesn't take some loop invariants out
     size_t j = 0; // Incremental number for the current path/object combination. Ensures all path get tested.
     std::vector<long long> medians(K); // Final verdict of medians for each of the K experiments

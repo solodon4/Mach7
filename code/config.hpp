@@ -16,7 +16,7 @@
 /// - Use of static local variables    \see #XTL_PRELOAD_LOCAL_STATIC_VARIABLES
 /// - Use number of case clauses init  \see #XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM
 /// - Certain under-the-hood types     \see #vtbl_count_t
-/// - Certain under-the-hood constants \see #XTL_MIN_LOG_SIZE, #XTL_MAX_LOG_SIZE, #XTL_MAX_LOG_INC, #XTL_LOCAL_CACHE_LOG_SIZE, #XTL_IRRELEVANT_VTBL_BITS
+/// - Certain under-the-hood constants \see #XTL_MIN_LOG_SIZE, #XTL_MAX_LOG_INC, #XTL_MAX_STACK_LOG_SIZE, #XTL_IRRELEVANT_VTBL_BITS
 /// Most of the combinations of from this set are built with: make timing
 ///
 /// Options with semantic or convenience impact
@@ -35,11 +35,17 @@
 /// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
 /// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
-/// Copyright (C) 2011-2012 Texas A&M University.
+/// Copyright (C) 2011-2013 Texas A&M University.
 /// All rights reserved.
 ///
 
 #pragma once
+
+#if !defined(_MSC_VER) && !defined(__GNUC__)
+    #error "We have not experimented with your compiler yet. You are welcome to try to adopt the required definitions, otherwise, send me an email at yuriy.solodkyy@gmail.com mentioning the compiler you'd like supported."
+#elif defined(_MSC_VER) && _MSC_VER < 1600 || defined(__GNUC__) && __GNUC__ < 4
+    #error "While it should be possible to downgrade at least type switching functionality to compilers without C++11 support, we hadn't had a chance to do it yet."
+#endif
 
 #if defined(_DEBUG)
     #if defined(_MSC_VER)
@@ -97,6 +103,8 @@
 //------------------------------------------------------------------------------
 
 #if !defined(XTL_TRACE_LIKELINESS)
+    /// A macro that enables tracing of XTL_LIKELY and XTL_UNLIKELY macros to 
+    /// ensure the actual calls match what we've put in code. Not for user code.
     #define XTL_TRACE_LIKELINESS XTL_DUMP_PERFORMANCE
 #endif
 
@@ -118,6 +126,8 @@
     /// given vtbl pointer and will take it into account during rearranging of the map.
     /// \note This introduces a slight performance overhead to the most frequent path,
     ///       but supposedly will pay when no zero conflict is possible.
+    /// \deprecated This macro will be deprecated as tracing frequency was not improving
+    ///       performance enough to justify the overhead it introduces.
     #define XTL_USE_VTBL_FREQUENCY 0
 #endif
 #define XTL_USE_VTBL_FREQUENCY_ONLY(...) UCL_PP_IF(UCL_PP_NOT(XTL_USE_VTBL_FREQUENCY), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
@@ -127,6 +137,8 @@
     /// will trigger compiler to check case clauses for redundancy.
     /// \warning Do not define this macro in actual builds as the generated code 
     ///          will effectively have a switch statement whose body is never evaluated!
+    /// \note    Only works with older match.hpp as in the library setting this 
+    ///          is only possible for single argument, not for multiple arguments
     #define XTL_REDUNDANCY_CHECKING 0
 #endif
 #define XTL_REDUNDANCY_ONLY(...)     UCL_PP_IF(UCL_PP_NOT(XTL_REDUNDANCY_CHECKING), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
@@ -154,7 +166,7 @@
     /// By default we enable preloading as it makes the code smaller and somewhat faster,
     /// but one should understand that preloading default initializes the object, so 
     /// passing additional arguments or deferred constatnt values is not possible.
-    #define XTL_PRELOAD_LOCAL_STATIC_VARIABLES 1
+    #define XTL_PRELOAD_LOCAL_STATIC_VARIABLES 0
 #endif
 
 #if XTL_PRELOAD_LOCAL_STATIC_VARIABLES
@@ -182,6 +194,8 @@
     ///    explain to novices. 
     ///    An example of such awkwardness is the fact that When-sub-clauses will 
     ///    only work with refutable Qua-clauses, and thus cannot be used in Case-clauses.
+    /// \deprecated This macro will likely be deprecated as the fall through behavior
+    ///             it offers differs from the fall through behavior of switch statement.
     #define XTL_FALL_THROUGH 1
 #endif
 #define XTL_FALL_THROUGH_ONLY(...)     UCL_PP_IF(UCL_PP_NOT(XTL_FALL_THROUGH), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
@@ -274,6 +288,7 @@
 
 #if !defined(XTL_MAX_LOG_SIZE)
     /// Log of the largest cache size to try
+    /// \deprecated This macro is deprecated now and is only used with old vtblmap implementations
     #define XTL_MAX_LOG_SIZE 14
 #endif
 
@@ -284,8 +299,22 @@
 
 #if !defined(XTL_LOCAL_CACHE_LOG_SIZE)
     /// Log of the size of the local cache - the one we use to avoid allocating
-    /// memory from heap in early stages
+    /// memory from heap in early stages.
+    /// \deprecated This macro is deprecated now and is only used with old vtblmap implementations
     #define XTL_LOCAL_CACHE_LOG_SIZE 7
+#endif
+
+#if !defined(XTL_MAX_STACK_LOG_SIZE)
+    /// Log of the maximum stack size the library can use to do some histogram 
+    /// computations. Making this value smaller will still work, however the 
+    /// library may not be able to distinguish optimal and sub-optimal cache 
+    /// parameters.
+    /// A value 20 means the library can allocate an array of up to 2^20 bytes
+    /// on the stack to build a histogram of a given hash function. The actually
+    /// requested value will typically be smaller through the use of VLA in GCC 
+    /// and alloca in MSVC. The full array will be allocate for those compilers
+    /// not providing any similar means.
+    #define XTL_MAX_STACK_LOG_SIZE 18
 #endif
 
 //------------------------------------------------------------------------------

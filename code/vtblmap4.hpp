@@ -50,7 +50,7 @@
 #include <cstdarg>
 #include "ptrtools.hpp"  // Helper functions to work with pointers
 
-#include <iterator> // REMOVE
+//#include <iterator> // REMOVE
 
 #if XTL_DUMP_PERFORMANCE
 // For print out purposes only
@@ -87,12 +87,11 @@ typedef unsigned short vtbl_count_t;
 //------------------------------------------------------------------------------
 
 const bit_offset_t min_log_size      = XTL_MIN_LOG_SIZE; ///< Log of the smallest cache size to start from
-const bit_offset_t max_log_size      = 20; ///< Log of the largest cache size to try
+const bit_offset_t max_stack_log_size= XTL_MAX_STACK_LOG_SIZE; ///< Log of the maximum stack size we can reserve to do some histogram computations.
 const bit_offset_t max_log_inc       = XTL_MAX_LOG_INC;  ///< Log of the maximum allowed increased from the minimum requred log size (1 means twice from the min required size)
 //const vtbl_count_t min_expected_size = 1 << min_log_size;
 const bit_offset_t irrelevant_bits   = XTL_IRRELEVANT_VTBL_BITS;
-const int initial_collisions_before_update = 1;
-const int renewed_collisions_before_update = 16;
+const int initial_collisions_before_update = 64;
 
 //------------------------------------------------------------------------------
 
@@ -308,91 +307,23 @@ private:
         cache_descriptor(
             const size_t       log_size,               ///< Parameter k of the cache - the log of the size of the cache
             const bit_offset_t shift = irrelevant_bits ///< Parameter l of the cache - number of irrelevant bits on the right to remove
-        );// :
-        //    cache_mask( (1<<log_size) - 1 ),
-        //    //optimal_shift(shift),
-        //    used(0)
-        //{
-        //    // Initialize all optimal_shift values with the same value
-        //    std::fill(&optimal_shift[0],&optimal_shift[N],shift);
-
-        //    // Allocate all cache entries in one chunk for better cache performance.
-        //    // Only allocate the difference from need and already present in old ones
-        //    stored_type* cache_entries = new stored_type[1<<log_size];
-
-        //    // Initialize pointers from cache to newly allocated cache entries
-        //    for (size_t i = 0; i <= cache_mask; ++i)
-        //        cache[i] = &cache_entries[i];
-        //}
+        );
 
         /// Creates new cache_descriptor based on parameters k and l of the 
         /// hashing function as well as a reference to the cache_descriptor it
         /// is going to replace.
         cache_descriptor(
-            const size_t       log_size, ///< Parameter k of the cache - the log of the size of the cache                
-            const bit_offset_t shifts[N],///< Parameter l of the cache - number of irrelevant bits on the right to remove
+            const size_t       log_size,    ///< Parameter k of the cache - the log of the size of the cache                
+            const bit_offset_t (&shifts)[N],///< Parameter l of the cache - number of irrelevant bits on the right to remove
         #if defined(XTL_NO_RVALREF)
-            cache_descriptor&  old       ///< cache_descriptor we will supposedly replace
+            cache_descriptor&  old          ///< cache_descriptor we will supposedly replace
         #else
-            cache_descriptor&& old       ///< cache_descriptor we will supposedly replace
+            cache_descriptor&& old          ///< cache_descriptor we will supposedly replace
         #endif
-        );// :
-        //    cache_mask( (1<<log_size) - 1 ),
-        //    //optimal_shift(shifts),
-        //    used(old.used)
-        //{
-        //    XTL_ASSERT(cache_mask >= old.cache_mask); // Since we are going to inherit all its existing elements
-
-        //    for (size_t i = 0; i < N; ++i) optimal_shift[i] = shifts[i]; // Initialize optimal shifts
-
-        //    size_t i = 0;
-
-        //    // Initialize first cache pointers to cache entries from old cache
-        //    for (; i <= old.cache_mask; ++i)
-        //    {
-        //        cache[i] = 0;
-        //        std::swap(cache[i],old.cache[i]);
-        //    }
-
-        //    if (cache_mask - old.cache_mask)
-        //    {
-        //        // Allocate all cache entries in one chunk for better cache performance.
-        //        // Only allocate the difference from need and already present in old ones
-        //        stored_type* cache_entries = new stored_type[cache_mask - old.cache_mask];
-
-        //        // Initialize remaining pointers from cache to newly allocated cache entries
-        //        for (size_t j = 0; i <= cache_mask; ++i, ++j)
-        //            cache[i] = &cache_entries[j];
-        //    }
-
-        //    // Bring elements to their positions in cache
-        //    // With this:    OVERALL: Random: 136% slower V= 66 M=157
-        //    // Without this: OVERALL: Random: 290% slower V= 67 M=262
-        //    put_entries_in_right_place(); // Re-establish invariant
-        //}
+        );
 
         /// Deallocates memory used for elements.
        ~cache_descriptor();
-        //{
-        //    // The elements will be pointing into separate arrays, we want to
-        //    // find all the beginnings of arrays to deallocate them
-        //    std::sort(&cache[0], &cache[cache_mask+1]);
-
-        //    for (size_t i = 0; i <= cache_mask;)
-        //    {
-        //        if (cache[i]) // We check because subsequent descriptor could have moved out entries from this one
-        //        {
-        //            size_t j = i+1;
-        //            for (; j <= cache_mask && intptr_t(cache[j])-intptr_t(cache[j-1]) == sizeof(stored_type); ++j);
-        //            delete[] cache[i];
-        //            i = j;
-        //        }
-        //        else
-        //            ++i;
-        //    }
-        //}
-
-        cache_descriptor& operator=(const cache_descriptor&); ///< No assignment
 
         bool is_full() const { return used > cache_mask; } ///< Checks whether cache is full
         size_t  size() const { return cache_mask+1; }      ///< Number of entries in cache
@@ -422,132 +353,22 @@ private:
         /// entry that correspond to their cache index, unless that entry
         /// is already taken.
         void put_entries_in_right_place();
-        //{
-        //    for (size_t i = 0; i <= cache_mask; ++i)
-        //    {
-        //        size_t k = size_t(~0); // Keeps cache index of the previous swap.
-
-        //        while (cache[i]->occupied()) // There is a valid tuple of vtbl pointers in the entry
-        //        {
-        //            XTL_ASSERT(cache[i]->vtbl[N-1]);        // Either all 0 or all non 0
-        //            size_t j = cache_index(cache[i]->vtbl); // Index of location where it should be
-
-        //            if (j != k && j != i) // where it should be is not where previous one was swapped to and not here
-        //            {
-        //                std::swap(cache[i],cache[j]); // swap current to where it should be
-        //                k = j;                        // remember where we swapped it to
-        //            }
-        //            else
-        //                break;
-        //        }
-        //    }
-        //}
 
         /// Main function that will be used to get a reference to the stored element. 
-        inline stored_type* get(const intptr_t (&vtbl)[N]) noexcept
-        {
-            size_t j = cache_index(vtbl);
-            return get(vtbl,j);
-        }
+        stored_type* get(const intptr_t (&vtbl)[N]) noexcept { return get(vtbl,cache_index(vtbl)); }
+
         /// Optimization for when the cache index has already been computed
-        inline stored_type* get(const intptr_t (&vtbl)[N], size_t j) noexcept;
-        //{
-        //    XTL_ASSERT(j == cache_index(vtbl)); // j must be index of location where vtbl should be
-        //    stored_type*& ce = cache[j]; // Location where it should be
-
-        //    XTL_ASSERT(ce);   // Since we pre-allocate all entries
-        //    // REMOVE! XTL_ASSERT(!ce->is_for(vtbl)); // Callers guarantee this & we rely on it to not check & save performance
-
-        //    //if (XTL_UNLIKELY(ce->is_for(vtbl))) // FIX: Maybe we should eliminate it at all since we check it in vtbl_map::get!
-        //    //    return ce;
-
-        //    // When the entry is occupied, our combination can be elsewhere in 
-        //    // the cache due to collisions, however when the entry is not 
-        //    // occupied, we do not have to search whether it is in the cache as
-        //    // constructor establishes invariant that entries can only be in
-        //    // their place.
-        //    if (XTL_LIKELY(ce->occupied()))
-        //    {
-        //        // Precompute hash of the vtbl array for faster comparisons.
-        //        XTL_VTBL_HASHING(const intptr_t vtbl_hash = get_hash(vtbl);)
-
-        //        // See if (vtbl0,...,vtblN) is elsewhere in the cache
-        //        // Start from j (to account if it is already there) till end
-        //        for (size_t i = j; i <= cache_mask; ++i)
-        //            if (XTL_UNLIKELY(cache[i]->is_for(vtbl XTL_VTBL_HASHING(,vtbl_hash)))) // if so ...
-        //            {
-        //                std::swap(ce,cache[i]); // swap it with the right position
-        //                return ce;
-        //            }
-        //        // If not found, continue from the beginning until j
-        //        for (size_t i = 0; i < j; ++i)
-        //            if (XTL_UNLIKELY(cache[i]->is_for(vtbl XTL_VTBL_HASHING(,vtbl_hash)))) // if so ...
-        //            {
-        //                std::swap(ce,cache[i]); // swap it with the right position
-        //                return ce;
-        //            }
-        //    }
-
-        //    // (vtbl0,...,vtblN) is not in the cache
-        //    if (XTL_LIKELY(used <= cache_mask)) // there are empty slots in cache
-        //    {
-        //        // Start from j (since it can be empty) till end
-        //        for (size_t i = j; i <= cache_mask; ++i)
-        //            if (XTL_UNLIKELY(cache[i]->vacant())) // find the first empty slot
-        //            {
-        //                XTL_ASSERT(cache[i]->vtbl[N-1] == 0); // Either all 0 or all non 0
-        //                *cache[i] = vtbl; //array_copy(vtbl,cache[i]->vtbl);
-        //                ++used;
-        //                std::swap(ce,cache[i]); // swap it with the right position
-        //                return ce;
-        //            }
-        //        // If not found, continue from the beginning until j
-        //        for (size_t i = 0; i < j; ++i)
-        //            if (XTL_UNLIKELY(cache[i]->vacant())) // find the first empty slot
-        //            {
-        //                XTL_ASSERT(cache[i]->vtbl[N-1] == 0); // Either all 0 or all non 0
-        //                *cache[i] = vtbl; //array_copy(vtbl,cache[i]->vtbl);
-        //                ++used;
-        //                std::swap(ce,cache[i]); // swap it with the right position
-        //                return ce;
-        //            }
-        //    }
-
-        //    // There are no empty slots, we return nullptr to indicate this
-        //    return 0;
-        //}
+        stored_type* get(const intptr_t (&vtbl)[N], size_t j) noexcept;
 
         /// Computes the number of entries an existing set of vtbl-pointer tuples 
         /// extended with the new one will occupy in cache of a given #log_size 
         /// with given #offsets
         size_t entries_for(const intptr_t (&vtbl)[N], size_t log_size, const bit_offset_t (&offsets)[N]) const;
-        //{
-        //    // FIX: Ensure we do not run out of stack, since in new implementation we don't have hash tables anymore
-        //    // We do this to not resort to vectors and heap and keep counting on stack
-        //    const intptr_t new_cache_mask       = (1<<log_size)-1;
-        //    const size_t   cache_histogram_size = 1 + new_cache_mask/XTL_BIT_SIZE(intptr_t);
-        //    XTL_VLAZ(cache_histogram, intptr_t, cache_histogram_size, 1 + ((1<<max_log_size) - 1)/XTL_BIT_SIZE(intptr_t)); // Declares intptr_t cache_histogram[cache_histogram_size];
-        //    XTL_BIT_SET(cache_histogram, cache_index(vtbl,offsets,new_cache_mask)); // Mark the entry for new vtbl
 
-        //    // Iterate over vtbl in old cache and see where they are mapped with log size i and offset j
-        //    for (size_t c = 0; c <= this->cache_mask; ++c)
-        //    {
-        //        stored_type* const st = cache[c];
+    private:
 
-        //        XTL_ASSERT(st);
-
-        //        if (st->occupied())
-        //            XTL_BIT_SET(cache_histogram, cache_index(st->vtbl,offsets,new_cache_mask)); // Mark the entry for each vtbl
-        //    }
-
-        //    size_t entries = 0;
-
-        //    // Count the number of used entries
-        //    for (size_t h = 0; h < cache_histogram_size; ++h)
-        //        entries += bits_set(cache_histogram[h]);
-
-        //    return entries;
-        //}
+        cache_descriptor(const cache_descriptor&);            ///< No copy constructor
+        cache_descriptor& operator=(const cache_descriptor&); ///< No assignment operator
 
     }; // of class cache_descriptor
 
@@ -567,6 +388,7 @@ public:
         case_clauses(num_clauses),
         last_table_size(0),
         collisions_before_update(initial_collisions_before_update),
+        prev_collisions_before_update(initial_collisions_before_update),
         file(fl), 
         line(ln),
         func(fn),
@@ -587,7 +409,8 @@ public:
         descriptor(new(min_log_size) cache_descriptor(min_log_size)),
         case_clauses(num_clauses),
         last_table_size(0),
-        collisions_before_update(initial_collisions_before_update)
+        collisions_before_update(initial_collisions_before_update),
+        prev_collisions_before_update(initial_collisions_before_update)
         XTL_DUMP_PERFORMANCE_ONLY(,file("unspecified"), line(0), func("unspecified"), updates(0), hits(0), misses(0), collisions(0))
     {}
     #if defined(DBG_NEW)
@@ -720,6 +543,9 @@ private:
     /// Number of colisions that we will still tolerate before next update
     int collisions_before_update;
 
+    /// Previous number of colisions that we will still tolerate before next update
+    int prev_collisions_before_update;
+
 #if XTL_DUMP_PERFORMANCE
     const char* file;      ///< File in which this vtblmap_of is instantiated
     size_t      line;      ///< Line in the file where it is instantiated
@@ -749,10 +575,9 @@ template <typename T> T vtbl_map<0,T>::dummy;
 //------------------------------------------------------------------------------
 
 template <size_t N, typename T>
-vtbl_map<N,T>::cache_descriptor::
-cache_descriptor(
-    const size_t       log_size,               ///< Parameter k of the cache - the log of the size of the cache
-    const bit_offset_t shift = irrelevant_bits ///< Parameter l of the cache - number of irrelevant bits on the right to remove
+vtbl_map<N,T>::cache_descriptor::cache_descriptor(
+    const size_t       log_size, ///< Parameter k of the cache - the log of the size of the cache
+    const bit_offset_t shift     ///< Parameter l of the cache - number of irrelevant bits on the right to remove
 ) :
     cache_mask( (1<<log_size) - 1 ),
     //optimal_shift(shift),
@@ -773,24 +598,20 @@ cache_descriptor(
 //------------------------------------------------------------------------------
 
 template <size_t N, typename T>
-vtbl_map<N,T>::cache_descriptor::
-cache_descriptor(
-    const size_t       log_size, ///< Parameter k of the cache - the log of the size of the cache                
-    const bit_offset_t shifts[N],///< Parameter l of the cache - number of irrelevant bits on the right to remove
+vtbl_map<N,T>::cache_descriptor::cache_descriptor(
+    const size_t       log_size,    ///< Parameter k of the cache - the log of the size of the cache                
+    const bit_offset_t (&shifts)[N],///< Parameter l of the cache - number of irrelevant bits on the right to remove
 #if defined(XTL_NO_RVALREF)
-    cache_descriptor&  old       ///< cache_descriptor we will supposedly replace
+    cache_descriptor&  old          ///< cache_descriptor we will supposedly replace
 #else
-    cache_descriptor&& old       ///< cache_descriptor we will supposedly replace
+    cache_descriptor&& old          ///< cache_descriptor we will supposedly replace
 #endif
 ) :
     cache_mask( (1<<log_size) - 1 ),
-    //optimal_shift(shifts),
     used(old.used)
 {
     XTL_ASSERT(cache_mask >= old.cache_mask); // Since we are going to inherit all its existing elements
-
-    for (size_t i = 0; i < N; ++i) optimal_shift[i] = shifts[i]; // Initialize optimal shifts
-
+    array_copy(shifts,optimal_shift); // Initialize optimal shifts
     size_t i = 0;
 
     // Initialize first cache pointers to cache entries from old cache
@@ -820,8 +641,7 @@ cache_descriptor(
 //------------------------------------------------------------------------------
 
 template <size_t N, typename T>
-vtbl_map<N,T>::cache_descriptor::
-~cache_descriptor()
+vtbl_map<N,T>::cache_descriptor::~cache_descriptor()
 {
     // The elements will be pointing into separate arrays, we want to
     // find all the beginnings of arrays to deallocate them
@@ -875,10 +695,6 @@ auto vtbl_map<N,T>::cache_descriptor::get(const intptr_t (&vtbl)[N], size_t j) n
     stored_type*& ce = cache[j]; // Location where it should be
 
     XTL_ASSERT(ce);   // Since we pre-allocate all entries
-    // REMOVE! XTL_ASSERT(!ce->is_for(vtbl)); // Callers guarantee this & we rely on it to not check & save performance
-
-    //if (XTL_UNLIKELY(ce->is_for(vtbl))) // FIX: Maybe we should eliminate it at all since we check it in vtbl_map::get!
-    //    return ce;
 
     // When the entry is occupied, our combination can be elsewhere in 
     // the cache due to collisions, however when the entry is not 
@@ -941,12 +757,20 @@ auto vtbl_map<N,T>::cache_descriptor::get(const intptr_t (&vtbl)[N], size_t j) n
 template <size_t N, typename T>
 size_t vtbl_map<N,T>::cache_descriptor::entries_for(const intptr_t (&vtbl)[N], size_t log_size, const bit_offset_t (&offsets)[N]) const
 {
-    // FIX: Ensure we do not run out of stack, since in new implementation we don't have hash tables anymore
-    // We do this to not resort to vectors and heap and keep counting on stack
-    const intptr_t new_cache_mask       = (1<<log_size)-1;
-    const size_t   cache_histogram_size = 1 + new_cache_mask/XTL_BIT_SIZE(intptr_t);
-    XTL_VLAZ(cache_histogram, intptr_t, cache_histogram_size, 1 + ((1<<max_log_size) - 1)/XTL_BIT_SIZE(intptr_t)); // Declares intptr_t cache_histogram[cache_histogram_size];
-    XTL_BIT_SET(cache_histogram, cache_index(vtbl,offsets,new_cache_mask)); // Mark the entry for new vtbl
+    // NOTE: This function should not be inlined because of the use of VLA or 
+    //       alloca. Some compilers have been reported to have errors inlining 
+    //       such functions in a loop. 
+    // NOTE: The use of alloca is discouraged in general! We do this for 
+    //       performance to not resort to vectors and heap and keep counting on stack
+    // NOTE: For very large #log_size values (e.g. #log_size > #max_stack_log_size+3)
+    //       the function does not return the actual number of occupied entires but
+    //       only approximation of thereof (at least that value or larger). This is
+    //       because we wrap over on the largest bit size of the stack allowed.
+    const intptr_t new_cache_mask       = (1<<log_size)-1; // Actual cache mask for the hash function
+    const intptr_t max_stack_mask       = (1<<(max_stack_log_size+3))-1; // Mask for the largest number of bits we are allowed to allocate on stack: +3 is *8 for the number of bits in the allowed stack size
+    const size_t   cache_histogram_size = 1 + std::min(new_cache_mask,max_stack_mask)/XTL_BIT_SIZE(intptr_t); // Number of elements in intptr_t array allocated on the stack
+    XTL_VLAZ(cache_histogram, intptr_t, cache_histogram_size, 1 + max_stack_mask/XTL_BIT_SIZE(intptr_t)); // Declares intptr_t cache_histogram[cache_histogram_size] = {0};
+    XTL_BIT_SET(cache_histogram, cache_index(vtbl,offsets,new_cache_mask) & max_stack_mask); // Mark the entry for new vtbl
 
     // Iterate over vtbl in old cache and see where they are mapped with log size i and offset j
     for (size_t c = 0; c <= this->cache_mask; ++c)
@@ -956,7 +780,7 @@ size_t vtbl_map<N,T>::cache_descriptor::entries_for(const intptr_t (&vtbl)[N], s
         XTL_ASSERT(st);
 
         if (st->occupied())
-            XTL_BIT_SET(cache_histogram, cache_index(st->vtbl,offsets,new_cache_mask)); // Mark the entry for each vtbl
+            XTL_BIT_SET(cache_histogram, cache_index(st->vtbl,offsets,new_cache_mask) & max_stack_mask); // Mark the entry for each vtbl
     }
 
     size_t entries = 0;
@@ -1007,14 +831,13 @@ T& vtbl_map<N,T>::update(const intptr_t (&vtbl)[N])
 //#endif
 
     XTL_DUMP_PERFORMANCE_ONLY(++updates); // Record update
-    collisions_before_update = renewed_collisions_before_update;      // Reset collisions counter
 
     bit_offset_t k  = bit_offset_t(req_bits(descriptor->cache_mask)); // current log_size
     bit_offset_t n  = bit_offset_t(req_bits(std::max<size_t>(descriptor->used,case_clauses))); // needed  log_size. NOTE: case_clauses will be initialized by now
     bit_offset_t m[N];    // highest bit in which vtbls differ
     bit_offset_t z[N];    // lowest bits in which vtbls do not differ
-    bit_offset_t l1 = std::min(max_log_size,std::max(k,n));                          // lower bound for log_size iteration
-    bit_offset_t l2 = std::min(max_log_size,std::max(k,bit_offset_t(n+max_log_inc)));// upper bound for log_size iteration
+    bit_offset_t l1 = std::max(k,n);                          // lower bound for log_size iteration
+    bit_offset_t l2 = std::max(k,bit_offset_t(n+max_log_inc));// upper bound for log_size iteration
     bit_offset_t no = l1; // current estimate of the best log_size
     bit_offset_t zo[N];   // current estimate of the best offset
 
@@ -1031,18 +854,27 @@ T& vtbl_map<N,T>::update(const intptr_t (&vtbl)[N])
         zo[i] = z[i]; // current estimate of the best offset
     }
 
-    size_t max_cache_entries = 0;
-
     //std::clog << "Iterate between: ";
     //std::copy(&z[0],&z[N],std::ostream_iterator<bit_offset_t>(std::clog,","));
     //std::clog << " and ";
     //std::copy(&m[0],&m[N],std::ostream_iterator<bit_offset_t>(std::clog,","));
     //std::clog << std::endl;
 
+#if 0
+    size_t max_cache_entries = 0;
+
     // Iterate over allowed log sizes
     for (bit_offset_t i = l1; i <= l2; ++i)
     {
-        size_t k = 0;
+        bit_offset_t mm[N]; // Largest offset to iterate to taking into account the number of useful bits in argument position s.
+
+        for (size_t s = 0; s < N; ++s) 
+        {
+            bit_offset_t bits_in_arg_mask = (i+N-1-s)/N;
+            mm[s] = m[s] > bits_in_arg_mask && m[s] - bits_in_arg_mask >= z[s] ? m[s] - bits_in_arg_mask : m[s];
+        }
+
+        size_t q = 0;
         union { bit_offset_t x[N+1]; bit_offset_t j[N]; };
 
         array_copy(z,j); // Copy lowest offsets to try
@@ -1068,28 +900,85 @@ T& vtbl_map<N,T>::update(const intptr_t (&vtbl)[N])
                 {
                     // We found size and offset without conflicts, exit both loops
                     i = l2+1; // to exit both for loops
-                    //collisions_before_update = initial_collisions_before_update; // since it is likely that adding another vtbl may still render no conflicts
                     break;
                 }
             }
 
             // Update current offsets to next ones
-            while (x[k] == m[k])
+            while (x[q] == mm[q])
             {
-                x[k] = z[k];
-                ++k;
+                x[q] = z[q];
+                ++q;
             }
 
-            ++x[k];
-            k = 0;
+            ++x[q];
+            q = 0;
         } while (x[N]==0);
     }
 
+#else
+
+    size_t max_cache_entries = descriptor->entries_for(vtbl, l1, descriptor->optimal_shift);
+    array_copy(descriptor->optimal_shift,zo); // Copy current solution as current optimal
+    no = l1;
+
+    // Iterate over allowed log sizes
+    for (bit_offset_t i = l1; i <= l2; ++i)
+    {
+        size_t saved_max_cache_entries = 0;
+
+        // We iterate until we can make improvements to the number of used cache entries
+        while (max_cache_entries > saved_max_cache_entries)
+        {
+            saved_max_cache_entries = max_cache_entries;
+
+            // Try to improve independently each argument position
+            for (size_t s = 0; s < N; ++s) 
+            {
+                bit_offset_t bits_in_arg_mask = (i+N-1-s)/N;
+                bit_offset_t mm = m[s] > bits_in_arg_mask && m[s] - bits_in_arg_mask >= z[s] ? m[s] - bits_in_arg_mask : m[s];
+                bit_offset_t cur = zo[s];
+
+                //XTL_ASSERT(z[s] <= cur && cur <= mm);
+
+                for (bit_offset_t t = z[s]; t <= mm; ++t)
+                {
+                    if (t != cur)
+                    {
+                        zo[s] = t;
+
+                        size_t entries = descriptor->entries_for(vtbl, i, zo); // Count the number of used entries
+
+                        // Update best estimates
+                        if (entries > max_cache_entries)
+                        {
+                            max_cache_entries = entries;
+                            no  = i;
+                            cur = t;
+
+                            if (entries == descriptor->used+1)
+                            {
+                                // We found size and offset without conflicts, exit both loops
+                                i = l2+1; s = N; // to exit both for loops
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                zo[s] = cur;
+            } // of loop over argument positions
+        } // of while there are improvements
+    } // of loop over possible log sizes
+#endif
     if (no < k)
         no = k; // We never shrink, while we preallocate based on number of case clauses or the minimum
 
     if (no != k || !array_equal(descriptor->optimal_shift,zo))
     {
+        // OK, either log size or optimal shifts changed. Reset collisions counter to default one
+        prev_collisions_before_update = collisions_before_update = initial_collisions_before_update;
+
         cache_descriptor* old = descriptor;
         #if defined(DBG_NEW)
             #undef new
@@ -1103,6 +992,11 @@ T& vtbl_map<N,T>::update(const intptr_t (&vtbl)[N])
             #define new DBG_NEW
         #endif
         delete old;
+    }
+    else
+    {
+        // Update hasn't changed anything, increase the number of colisions before next update
+        prev_collisions_before_update = collisions_before_update = prev_collisions_before_update*2;
     }
 
 //#if XTL_DUMP_PERFORMANCE
@@ -1225,8 +1119,8 @@ std::ostream& vtbl_map<N,T>::operator>>(std::ostream& os) const
     bit_offset_t n  = req_bits(vtbl_count-1);   // needed  log_size
     bit_offset_t m  = req_bits(diff);           // highest bit in which vtbls differ
     bit_offset_t z  = trailing_zeros(static_cast<unsigned int>(diff)); // number of lowest bits in which vtbls do not differ
-    bit_offset_t l1 = std::min(max_log_size,std::min(k,n));
-    bit_offset_t l2 = std::min(max_log_size,std::max(k,bit_offset_t(n+max_log_inc)));
+    bit_offset_t l1 = std::min(k,n);
+    bit_offset_t l2 = std::max(k,bit_offset_t(n+max_log_inc));
 
     for (bit_offset_t i = l1; i <= l2; ++i)
     {
