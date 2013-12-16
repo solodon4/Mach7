@@ -41,12 +41,24 @@ look at how use of these features affects the ease of use, performance,
 readability, writability and debugging of the library and the user code that 
 uses it.
 
-Type switching is an open alternative to visitor design pattern that overcomes 
-the restrictions, inconveniences, and difficulties in teaching and using, 
-typically associated with it. Our implementation of it comes close or 
-outperforms the visitor design pattern, which is true even in a library setting 
-using a production-quality compiler, where the performance base-line is 
-already very high.
+Type switching is an open alternative to the visitor design pattern that overcomes 
+the restrictions, inconveniences, and difficulties in teaching and using 
+visitors. Our implementation significantly
+outperforms the visitor design pattern in most cases and roughly equals it otherwise.
+This is the case even though we use a library implementation and highly optimized
+production-quality compilers. An important benefit of our solution is that it does not 
+require any changes to the \Cpp{} object-model or require any computations at load 
+time.
+
+To provide a complete solution, we use the same syntax for closed sets of types, where our
+performance roughly equals the equivalent built-in features in functional languages,
+such as Haskell and OCaml.
+
+We prove the uniqueness of vtbl-pointers in the presence of RTTI. This is 
+potentially useful in other compiler optimizations that depend on the 
+identity of subobjects. Our memoization device can also become valuable in 
+optimizations that require mapping run-time values to execution paths, 
+and is especially useful in library setting.
 
 We describe three techniques that can be used to implement type switching, type 
 testing, pattern matching, predicate dispatching, and other facilities that 
@@ -70,12 +82,12 @@ and cons in comparison to vtable pointer memoization, which we discuss in the pa
 
 These techniques can be used in a compiler and library setting, and support well 
 separate compilation and dynamic linking. They are open to class extensions and 
-interact well with other C++ facilities such as multiple inheritance and 
-templates. The techniques are not specific to C++ and can be adopted in other 
+interact well with other \Cpp{} facilities such as multiple inheritance and 
+templates. The techniques are not specific to \Cpp{} and can be adopted in other 
 languages for similar purposes.
 
 Using the above techniques, we implemented a library for efficient type switching 
-in C++. We used the library to rewrite existing code that relied heavily on 
+in \Cpp{}. We used the library to rewrite existing code that relied heavily on 
 visitors, and discovered that the resulting code became much shorter, simpler, 
 and easier to maintain and comprehend.
 

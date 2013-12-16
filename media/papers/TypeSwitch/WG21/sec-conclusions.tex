@@ -1,0 +1,52 @@
+\section{Conclusions and Future Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:cc}
+
+Type switching is an open alternative to the visitor design pattern that overcomes 
+the restrictions, inconveniences, and difficulties in teaching and using 
+visitors. Our implementation significantly
+outperforms the visitor design pattern in most cases and roughly equals it otherwise.
+This is the case even though we use a library implementation and highly optimized
+production-quality compilers. An important benefit of our solution is that it does not 
+require any changes to the \Cpp{} object-model or require any computations at load 
+time.
+
+To provide a complete solution, we use the same syntax for closed sets of types, where our
+performance roughly equals the equivalent built-in features in functional languages,
+such as Haskell and OCaml.
+
+We prove the uniqueness of vtbl-pointers in the presence of RTTI. This is 
+potentially useful in other compiler optimizations that depend on the 
+identity of subobjects. Our memoization device can also become valuable in 
+optimizations that require mapping run-time values to execution paths, 
+and is especially useful in library setting.
+
+%We describe three techniques that can be used to implement type switching, type 
+%testing, pattern matching, predicate dispatching, and other facilities that 
+%depend on the run-time type of an argument as well as demonstrate their efficiency.
+%
+%The \emph{Memoization Device} is an optimization technique that maps run-time values 
+%to execution paths, allowing to take shortcuts on subsequent runs with the same 
+%value. The technique does not require code duplication and in typical cases adds 
+%only a single indirect assignment to each of the execution paths. It can be 
+%combined with other compiler optimizations and is particularly suitable for use 
+%in a library setting.
+%
+%The \emph{Vtable Pointer Memoization} is a technique based on memoization device that 
+%employs uniqueness of virtual table pointers to not only speed up execution, but 
+%also properly uncover the dynamic type of an object. This technique is a 
+%backbone of our fast type switch as well as memoized dynamic cast optimization.
+%
+%The \emph{TPL Dispatcher} is yet another technique that can be used to 
+%implement best-fit type switching on tagged classes. The technique has its pros 
+%and cons in comparison to vtable pointer memoization, which we discuss in the paper.
+%
+%These techniques can be used in a compiler and library setting, and support well 
+%separate compilation and dynamic linking. They are open to class extensions and 
+%interact well with other \Cpp{} facilities such as multiple inheritance and 
+%templates. The techniques are not specific to \Cpp{} and can be adopted in other 
+%languages for similar purposes.
+%
+%Using these techniques, we implemented a library for efficient type switching 
+%in \Cpp{}. We used it to rewrite a code that relied heavily on 
+%visitors, and discovered that the resulting code became much shorter, simpler, 
+%and easier to maintain and comprehend.

@@ -1,0 +1,821 @@
+\section{Implementation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:impl}
+
+We begin by explaining the traditional object-oriented approach to implementing 
+first class patterns, which is based on run-time compositions through 
+interfaces, and point to its problems and shortcomings. We then explain our 
+approach based on compile-time composition through concepts. Finally, we detail 
+how the patterns fit into and extend our open type switch statement~\cite{TS12}. 
+
+\subsection{Patterns as Objects}
+\label{sec:pao}
+
+The idea of implementing patterns through objects is not new and has been 
+explored before in different languages~\cite{Visser06matchingobjects,geller2010pattern,FuncCSharp,Grace2012}.
+Variations of it differ in where bindings are stored and what is returned as a 
+result of the match, but in its most basic form it consists of the 
+\code{pattern} interface with a virtual function {match} that accepts a subject 
+and returns whether it was accepted or rejected.
+
+%% interface:
+%% 
+%% \begin{lstlisting}[keepspaces,columns=flexible]
+%% struct object { // root of the object class hierarchy
+%%   virtual bool operator==(const object&) const = 0;
+%% };
+%% @\halfline@
+%% struct pattern { // pattern interface
+%%   virtual bool match(const object&) = 0;
+%% };
+%% \end{lstlisting}
+%% 
+%% \noindent
+%% A particular kind of pattern then implements \code{pattern} interface 
+%% accordingly to its logic. A value pattern, for example, will look as following:
+%% 
+%% \begin{lstlisting}[keepspaces,columns=flexible]
+%% struct value : pattern {
+%%   value(const object& obj) : m_obj(obj) {}
+%%   virtual bool match(const object& obj) 
+%%     { return m_obj == obj; }
+%%   const object& m_obj;
+%% };
+%% \end{lstlisting}
+%% 
+%% \noindent
+%% The dual approach of passing a pattern to an object has also been explored, 
+%% notably by Newspeak~\cite{geller2010pattern}, however its default implementation 
+%% (which is rarely overridden in practice) dispatches back to the first solution. 
+%% Regardless of whether the emphasis is made on the pattern or on the object, however,
+%% the solution suffers from the same bottleneck -- the cost of a virtual function 
+%% call(s) and the cost of identifying the dynamic type of either the subject or 
+%% the pattern. We demonstrate in \textsection\ref{sec:patcmp} that the overhead 
+%% incurred by this solution is incomparably larger than the overhead of our 
+%% \emph{patterns as expression templates} approach.
+
+While the approach is open to new patterns and pattern combinators, it has 
+some design problems. For example, mismatch in the type of the subject and the 
+type accepted by the pattern can only be detected at run-time, while in 
+languages with built-in support of pattern matching it is typically detected at 
+type-checking phase. An even greater problem is the performance overhead it 
+introduces, as discussed in \textsection\ref{sec:patcmp}.
+
+%% While the approach is open to new patterns and pattern combinators (the patterns 
+%% are composed at run-time by holding references to other pattern objects), it has 
+%% some design problems. For example, mismatch in the type of the subject and the 
+%% type accepted by the pattern can only be detected at run-time, while in 
+%% languages with built-in support of pattern matching it is typically detected at 
+%% type-checking phase. The approach may also unnecessarily clutter the code by 
+%% requiring lots of similar boilerplate code be written. For example, modeling n+k 
+%% patterns requires additional interface for evaluating the \code{expression}. 
+%% With it, we have a dilemma of whether \code{expression} should be derived from 
+%% \code{pattern}, \code{pattern} from \code{expression}, or neither of those. 
+%% Independently of the choice, implementation of pattern combinators will require 
+%% that the class of the combinator conditionally derives from \code{pattern}, 
+%% \code{expression} or both depending on which of these interfaces its arguments 
+%% implement. On one hand, this will require a separate implementation of the 
+%% combinator for each of the cases, while on the other it makes the combinators 
+%% dependent on something that was only needed to implement n+k patterns.
+
+%To quantify the overhead somewhat, we reimplemented the factorial function from 
+%\textsection\ref{sec:cpppat} using object patterns and timed a million 
+%computations of factorial on arguments ranging from 0 to 10. Depending on the 
+%argument, the approach based on object patterns was 12-22 times slower than 
+%factorial based on \emph{Mach7}. Note that for this experiment we took extra care to 
+%not allocate patterns or intermediary objects on the heap, made sure the bodies 
+%of all virtual functions were also available for inlining since we composed 
+%objects on the stack and thus their complete types were known. We also used a 
+%faster \code{typeid}-check instead of a slower \code{dynamic_cast} to ensure the 
+%safety of unpacking an object. Finally, we repeated the experiment while removing 
+%the safety check altogether (assuming the argument will be of the correct 
+%dynamic type) and could reduce the overhead to 6.74-18 times, which is still too 
+%costly to be considered a viable solution for a modern \Cpp{} use. We show in 
+%\textsection\ref{sec:patcmp} that \emph{Mach7} patterns produce code that is only few 
+%percentage points slower than manualy hand-crafted code without patterns. 
+
+\subsection{Patterns as Expression Templates}
+\label{sec:pat}
+
+Patterns in \emph{Mach7} are represented as objects. They are composed
+ at compile time, based on \Cpp{} concepts. 
+\term{Concept} is the \Cpp{} community's long-established term for a set of 
+requirements for template parameters. Concepts were not included in \Cpp{}11, 
+but techniques for emulating them with 
+\code{enable_if}~\cite{jarvi:03:cuj_arbitrary_overloading} have been in use for 
+a while. In this work, we use the notation for \term{template constraints} -- a 
+lighter version of the concepts proposal~\cite{N3580}, because the actual code 
+is less readable due to numerous idioms used to emulate concepts.
+
+There are two main constraints on which the entire library is built: 
+\code{Pattern} and \code{LazyExpression}.
+
+\begin{lstlisting}
+template <typename P> constexpr bool Pattern() {
+  return Copyable<P>
+      && is_pattern<P>::value
+      && requires (typename S, P p, S s) {
+           bool = { p(s) };
+           AcceptedType<P,S>;
+         };
+}
+\end{lstlisting}
+
+%It requires that any type \code{P} modeling \code{Pattern} concept must also 
+%model \code{Copyable} concept, be explicitly marked as pattern via 
+%\code{is_pattern} trait as well as be
+
+\noindent
+\code{Pattern} constraint is the analog of \code{pattern} interface from the 
+\emph{patterns as objects} solution. Objects of any class \code{P} satisfying 
+this constraint are patterns and can be composed with any other patterns in the 
+library as well as be used in the \code{Match}-statement. We now break down the 
+meaning of the above definition.
+
+Patterns can be passed as arguments of a function, which is why the constraint subsumes a
+\code{Copyable} constraint. Implementation of pattern combinators requires the 
+library to overload certain operators on all the types satisfying the \code{Pattern}
+constraint. To avoid overloading these operators for types that satisfy the 
+requirements accidentally, \code{Pattern} constraint is a semantic constraint 
+and classes that claim to satisfy it have to explicitly state this by specializing  
+\code{is_pattern<P>} trait. The constraint introduces also some syntactic 
+requirements, described by the \code{requires} clause. In particular, patterns 
+require presence of an application operator that serves as an analog of 
+\code{pattern::match(const object&)} interface method in the \emph{patterns as 
+objects} approach; there is no analog of the \code{object} interface, however. 
+The \code{Pattern} constraint itself does not impose any restrictions on the 
+type of the subject \code{S}. Patterns like wildcard pattern will leave this 
+type completely unrestricted, while other patterns may require it to satisfy 
+certain constraints, model a given concept, inherit from a certain type, etc.
+Application operator will typically return a value of type \code{bool} 
+indicating whether the pattern is \subterm{pattern}{accepted} on a given subject 
+(\code{true}) or \subterm{pattern}{rejected} (\code{false}). %For convenience reasons, 
+%application operator is allowed to return any type that is convertible to 
+%\code{bool} instead, e.g. a pointer to a casted subject, which is useful in 
+%emulating the support of \subterm{pattern}{as-patterns}.
+
+Most of the patterns are applicable only to subjects of a given \subterm{type}{expected type} 
+or types convertible to it. This is the case, for example, with value and  
+variable patterns, where the expected type is the type of the underlying value, 
+as well as with constructor pattern, where the expected type is the type of the 
+user-defined type it decomposes. Some patterns, however, do not have a single 
+expected type and may work with subjects of many unrelated types. A wildcard 
+pattern, for example, can accept values of any type without involving a 
+conversion. To account for this, the \code{Pattern} constraint requires presence of 
+a type alias \code{AcceptedType}, which given a pattern of type \code{P} and 
+a subject of type \code{S} returns an expected type \code{AcceptedType<P,S>} 
+that will accept subjects of type \code{S} with no or minimum conversions. 
+By default, the alias is defined in terms of a nested type-function 
+\code{accepted_type_for} as following:
+
+\begin{lstlisting}
+template<typename P, typename S>
+  using AcceptedType = P::accepted_type_for<S>::type;
+\end{lstlisting}
+
+\noindent
+The wildcard pattern defines \code{accepted_type_for} to be an identity 
+function, while variable and value patterns define it to be their underlying 
+type. Here is an example of how variable pattern satisfies the \code{Pattern} 
+constraint:
+
+%struct wildcard {
+%  template <typename S>
+%  struct accepted_type_for { typedef S type; };
+%  template <typename S> 
+%  bool operator()(const S&) const noexcept 
+%    { return true; }
+%};
+%@\halfline@
+%template <typename T>
+%struct value {
+%  template <typename S> 
+%  struct accepted_type_for { typedef T type; };
+%  bool operator()(const T& t) const noexcept 
+%    { return m_value == t; }
+%  T m_value;
+%};
+%@\halfline@
+\begin{lstlisting}
+template <Regular  T> struct var {
+  template <typename> 
+    struct accepted_type_for { typedef T type; };
+  bool operator()(const T& t) const // exact match
+    { m_value = t; return true; }
+  template <Regular  S> 
+  bool operator()(const S& s) const // with conversion
+    { m_value = s; return m_value == s; }
+  mutable T m_value; // value bound during matching
+};
+@\halfline@
+template <Regular  T> struct is_pattern<var<T>> 
+  { static const bool value = true; };
+\end{lstlisting}
+
+%Each of our six pattern kinds implements the application operator according to 
+%the semantics presented in Figure~\ref{exprsem}. The application operator's 
+%result has to be convertible to bool; \code{true} indicates a successful match. 
+%A class might have several overloads of the above operator that distinguish 
+%cases of interest. We summarize the requirements on template parameters of each 
+%of our pattern in Figure~\ref{xt-reqs}.
+%
+%\begin{figure}[h]
+%\centering
+%\begin{tabular}{llll}
+%{\bf Pattern}       & {\bf Parameters}          & {\bf Argument of application operator U}         \\ \hline
+%\code{wildcard}     & --                        & --                                               \\
+%\code{value<T>}     & \code{Regular<T>}         & \code{Convertible<U,T>}                          \\
+%\code{variable<T>}  & \code{Regular<T>}         & \code{Convertible<U,T>}                          \\
+%\code{expr<F,E...>} & \code{LazyExpression<E>}  & \code{Convertible<U,expr<F,E...>::result_type>}  \\
+%\code{guard<E1,E2>} & \code{LazyExpression<Ei>} & any type accepted by \code{E1::operator()}       \\
+%\code{ctor<T,E...>} & \code{Polymorphic<T>}     & \code{Polymorphic<U>} for open encoding          \\
+%                    & \code{Object<T>}          & \code{is_base_and_derived<U,T>} for tag encoding \\
+%\end{tabular}
+%\caption{Requirements on parameters and argument type of an application operator}
+%\label{xt-reqs}
+%\end{figure}
+
+\noindent
+Note that for semantic or efficiency reasons a pattern may have several overloads 
+of application operator as in the example above. The first one is used when no 
+conversion is required and thus the variable pattern is guaranteed to be accepted, while 
+the second may involve a possibly narrowing conversion, which is why we check 
+that the values compare equal after assignment. Similarly, for type checking 
+reasons, \code{accepted_type_for} may and typically will provide several partial 
+or full specializations to limit the set of acceptable subjects. For example, 
+\subterm{pattern combinator}{address combinator} can only be applied to subjects 
+of pointer types, so its implementation will report a compile-timer error when 
+applied to any non-pointer type. 
+%Its implementation manifests this by deriving unrestricted case of the type function 
+%\code{accepted_type_for} from \code{invalid_subject_type<S>}. This will trigger 
+%a static assertion when its associated type \code{type} gets instantiated, 
+%resulting in a compile-time error that states that a given subject type \code{S} 
+%cannot be used as an argument of the address pattern. The second case of the 
+%type function indicates through partial specialization of class templates that 
+%for any subject of a pointer type \code{S*}, the accepted type is going to be a 
+%pointer to the type accepted by the argument pattern \code{P1} of the address 
+%combinator.
+%
+%\begin{lstlisting}
+%template <Pattern P1>
+%struct address
+%{ // ...
+%  template <typename S> 
+%    struct accepted_type_for : invalid_subject_type<S> {};
+%  template <typename S> struct accepted_type_for<S*> {
+%    typedef typename P1::template 
+%      accepted_type_for<S>::type* type;
+%  };
+%  template <typename S>
+%    bool operator()(const S* s) const 
+%      { return s && m_p1(*s); }
+%  P1 m_p1;
+%};
+%\end{lstlisting}
+%
+%\noindent
+%Checking whether a given subject type can be accepted is inherently late and 
+%happens at instantiation time of the nested \code{accepted_type_for} type 
+%function and possibly parameterized application operator. For this reason, 
+%pattern's implementation may have to provide a set of overloads of the 
+%application operator that will be able to accept all possible outcomes of 
+%\code{accepted_type_for<S>::type} on any valid subject type \code{S}.
+
+Guard and n+k patterns, equivalence combinator and potentially some 
+new user-defined patterns, depend on capturing the structure (term) of lazily 
+evaluated expressions. All such expressions are objects of some type \code{E} 
+that must satisfy the \code{LazyExpression} constraint:
+
+\begin{lstlisting}
+template <typename E> constexpr bool LazyExpression() {
+  return Copyable<E> 
+      && is_expression<E>::value
+      && requires (E e) {
+           ResultType<E>;
+           ResultType<E> == { eval(e) };
+           ResultType<E> { e };
+         };
+}
+@\halfline@
+template<typename E> using ResultType = E::result_type;
+\end{lstlisting}
+
+\noindent
+The constraint is again semantic and the classes claiming to satisfy it must 
+assert it through \code{is_expression<E>} trait. Template alias \code{ResultType<E>} 
+is defined to return expression's associated type \code{result_type}, which 
+defines the type of the result of a lazily evaluated expression. Any class 
+satisfying \code{LazyExpression} constraint must also provide an implementation 
+of function \code{eval} that evaluates the result of the expression. Conversion 
+to the \code{result_type} should call \code{eval} on the object in order to 
+allow the use of lazily evaluated expressions in the contexts where their 
+eagerly computed value is expected: e.g. non-pattern matching context of the 
+right hand side of the \code{Case}-clause. Class \code{var<T>}, for example, 
+models concept \code{LazyExpression} as following:
+
+\begin{lstlisting}
+template <Regular T> struct var {
+  // ... definitions from before
+  typedef T result_type; // type when used in expression
+  friend const result_type& eval(const var& v) // eager evaluation
+    { return v.m_value; }
+  operator result_type() const { return eval(*this); }
+};
+\end{lstlisting}
+
+\noindent
+To capture the structure of an expression, the library employs a commonly used 
+technique called ``expression templates''~\cite{Veldhuizen95expressiontemplates, 
+vandevoorde2003c++}. It captures the structure of expression through the type, 
+which for binary addition may look as following:
+
+\begin{lstlisting}[keepspaces,columns=flexible]
+template <LazyExpression E1, LazyExpression E2>
+struct plus {
+  E1 m_e1; E2 m_e2; // subexpressions
+  plus(const E1& e1, const E2& e2) : m_e1(e1), m_e2(e2) {}
+  typedef decltype(std::declval<E1::result_type>() 
+                 + std::declval<E2::result_type>()
+                  ) result_type; // type of result
+  friend result_type eval(const plus& e) 
+    { return eval(e.m_e1) + eval(e.m_e2); }
+  friend plus operator+(const E1& e1, const E2& e2) 
+    { return plus(e1,e2); }
+};
+\end{lstlisting}
+
+\noindent
+The user of the library never sees this definition, instead she implicitly 
+creates its objects with the help of overloaded \code{operator+} on any 
+\code{LazyExpression} arguments. The type itself models \code{LazyExpression} 
+concept as well so that the lazy expressions can be composed. Notice that all 
+the requirements of the concept are implemented in terms of the requirements 
+on the types of the arguments. The key point to efficiency of expression 
+templates is that all the types in the final expression are known at compile 
+time, while all the function calls are trivial and fully inlined. Use of new 
+\Cpp{}11 features like move constructors and perfect forwarding allows us to 
+ensure further that no temporary objects will ever be created at run-time and 
+that the evaluation of the expression template will be as efficient as a hand 
+coded function.
+
+In general, an \term{expression template} is an algebra $\langle T_C,\{f_1,f_2,...\}\rangle$ 
+defined over the set $T_C = \{\tau~|~\tau \models C\}$ of all the types $\tau$ 
+modeling a given concept $C$. Operations $f_i$ allow one to compose new types  
+modeling concept $C$ out of existing ones. In this sense, the types of all lazy 
+expressions in \emph{Mach7} stem from a set of few possibly parameterized basic 
+types like \code{var<T>} and \code{value<T>} (which model \code{LazyExpression}) 
+by applying type functors \code{plus}, \code{minus} ... etc. to them. Every type 
+in the resulting family then has a function \code{eval} defined on it that 
+returns a value of the associated type \code{result_type}. Similarly, the types 
+of all the patterns stem from a set of few possibly parameterized patterns like 
+\code{wildcard}, \code{var<T>}, \code{value<T>}, \code{C<T>} etc. by applying to 
+them pattern combinators like \code{conjunction}, \code{disjunction}, 
+\code{equivalence}, \code{address} etc. The user is allowed to extend both 
+algebras with either basic expressions and patterns or functors and combinators. 
+
+Sets $T_{LazyExpression}$ and $T_{Pattern}$ have non-empty intersection, which 
+slightly complicates the matter. Basic types \code{var<T>} and \code{value<T>} 
+belong to both families and so are some of the combinators: e.g. 
+\code{conjunction}. Since we can only have one overloaded \code{operator&&} for 
+a given combination of argument types, we have to state conditionally whether 
+requirements of \code{Pattern}, \code{LazyExpression} or both are satisfied in a 
+given instantiation of \code{conjunction<T1,T2>} depending on what combination 
+of these concepts the argument types \code{T1} and \code{T2} model. Concepts, 
+unlike interfaces, allow modeling such behavior without multiplying 
+implementations or introducing dependencies.
+
+\subsection{Structural Decomposition}
+\label{sec:bnd}
+
+\emph{Mach7}'s support of constructor patterns \code{C<T>(P1,...,Pn)} requires the 
+library to know which member of class \code{T} should be used as the subject to 
+$P_1$, which should be matched against $P_2$ etc. In functional languages 
+supporting algebraic data types, such decomposition is unambiguous as each 
+variant has only one constructor, which is thus also used as \subterm{constructor}{deconstructor}
+-- a term used by several languages~\cite{padl08,Thorn2012} to define explicitly
+decomposition of a type through pattern matching. In \Cpp{}, a class may have 
+several constructors, which may not even reflect the data members it contains, 
+some of which may be inaccessible or unrepresentative of the class' logic etc. 
+We thus require the user to be more explicit as to class' decomposition, which 
+she does by specializing the library template class \code{bindings}. We decided 
+not to use the name ``deconstructor'' as it is already commonly confused with 
+``destructor'' in \Cpp{}. Here are the definitions required to decompose the 
+lambda terms we introduced in \textsection\ref{sec:cpppat}:
+
+\begin{lstlisting}
+template <> 
+  struct bindings<Var> { Members(Var::name); };
+template <> 
+  struct bindings<Abs> { Members(Abs::var, Abs::body); };
+template <> 
+  struct bindings<App> { Members(App::func, App::arg); };
+\end{lstlisting}
+
+\noindent
+Variadic macro \code{Members} simply expands each of its argument into the 
+following definition, demonstrated here on \code{App::func}:
+
+\begin{lstlisting}
+static inline decltype(&App::func) member1() noexcept 
+  { return &App::func; }
+\end{lstlisting}
+
+\noindent
+Each of such functions returns a pointer-to-member that should be bound in 
+position $i$. The library applies corresponding members to the subject in order 
+to obtain subjects for sub-patterns $P_1,...,P_n$. The functions get inlined so 
+the code to access a member in a given position becomes exactly the same as the 
+code to access that member directly. Note that binding definitions made this way 
+are \emph{non-intrusive} since the original class definition is not touched. 
+They also respect \emph{encapsulation} since only the public members of the 
+target type will be accessible from within \code{bindings} specialization. 
+Members do not have to be data members only, which can be inaccessible, but any 
+of the following three categories:
+
+\begin{compactitem}
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+\item Data member of the target type $T$
+\item Nullary member-function of the target type $T$
+\item Unary external function taking the target type $T$ by pointer, reference or value.
+\end{compactitem}
+
+\noindent
+Binding definitions have to be written only once for a given class hierarchy and 
+can be used everywhere. This is also true for parameterized classes, as can be 
+seen in an example in \textsection\ref{sec:view}. Unfortunately at this point 
+\Cpp{} does not provide any compile-time introspection capabilities to let the 
+library generate some of these definitions implicitly.
+
+\subsection{Algebraic Decomposition}
+\label{sec:slv}
+
+Traditional approaches to generalizing n+k patterns treat matching a pattern 
+$f(x,y)$ against a value $v$ as solving an equation $f(x,y)=v$~\cite{OosterhofThesis}. 
+Such an interpretation is well defined when there are zero or one solutions,
+but alternative interpretations are possible when there are multiple solutions. 
+Instead of discussing which interpretation is the most general or appropriate, 
+we propose to look at n+k patterns as a \term{notational decomposition} of 
+mathematical objects. The elements of such notation are associated with 
+sub-components of the matched mathematical entity, which effectively lets us 
+decompose it into parts. The structure of the expression tree used in the notion
+is an analog of a constructor symbol in structural decomposition, while its 
+leaves are placeholders for parameters to be matched against or inferred from 
+the mathematical object in question. In essence, \term{algebraic decomposition} 
+is to mathematical objects what structural decomposition is to algebraic data 
+types. While the analogy is somewhat ad-hoc, it resembles the situation with 
+operator overloading: you do not strictly need it, but it is so syntactically 
+convenient it is virtually impossible not to have it. We demonstrate this 
+alternative interpretation of the n+k patterns with examples.
+
+\begin{compactitem}
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+\item An expression $n/m$ is often used to decompose a rational number into 
+      numerator and denominator.
+\item Euler notation $a+bi$ with $i$ being an imaginary unit is used to 
+      decompose a complex number into real and imaginary parts. Similarly, 
+      expressions $r(cos \phi + i\mathrm{sin} \phi)$ and $re^{i\phi}$ are used to 
+      decompose it into polar form.
+\item An object representing 2D line can be decomposed with slope-intercept form 
+      $mX+c$, linear equation form $aX+bY=c$ or two-points form 
+      $(Y-y_0)(x_1-x_0)=(y_1-y_0)(X-x_0)$.
+\item An object representing polynomial can be decomposed for a specific degree: 
+      $a_0$, $a_1X^1+a_0$, $a_2X^2+a_1X^1+a_0$ etc.
+\item An element of a vector space can be decomposed along some sub-spaces of 
+      interest. For example a 2D vector can be matched against $(0,0)$, $aX$, 
+      $bY$, $aX+bY$ to separate the general case from those when one or both
+      components of vector are $0$.
+\end{compactitem}
+
+\noindent
+Expressions $i$, $X$ and $Y$ in these examples are not variables, but named 
+constants of some dedicated type that lets the expression be generically 
+decomposed into orthogonal parts. Note also that linear equation and two-point 
+form for decomposing lines already include an equality sign, which makes it 
+hard to give them semantics in an equational approach. It turns out that the 
+equational approach can be generically expressed in our framework for many 
+interesting cases of interest.
+
+%Applying equational approach to floating-point arithmetic creates even more 
+%problems. Even when the solution is unique, it may not be representable by 
+%a given floating-point type and thus not satisfy the equation. Once we settle 
+%for an approximation, we open ourselves to even more decompositions that become 
+%possible with our approach.
+%
+%\begin{compactitem}
+%\setlength{\itemsep}{0pt}
+%\setlength{\parskip}{0pt}
+%\item Matching $n/m$ with integer variables $n$ and $m$ against a floating-point 
+%      value can be given semantics of finding the closest fraction to the 
+%      value.
+%\item Matching an object representing sampling of some random variable against
+%      expressions like $Gaussian(\mu,\sigma^2)$, $Poisson(\lambda)$ or 
+%      $Binomial(n,p)$ can be seen as distribution fitting. 
+%\item Any curve fitting in this sense becomes an application of pattern 
+%      matching. Precision in this case can be a global constant or explicitly 
+%      passed parameter of the matching expression.
+%\end{compactitem}
+
+%\noindent
+%We can make several observations from these examples:
+
+%\begin{compactitem}
+%\setlength{\itemsep}{0pt}
+%\setlength{\parskip}{0pt}
+%\item We might need to have the entire expression available to us in order to 
+%      decompose its parts.
+%\item Matching the same expression can have different meanings depending on 
+%      types of objects composing the expression and the expected result. 
+%\item An algorithm to decompose a given expression may depend on the types of 
+%      objects in it and the type of the result. 
+%\end{compactitem}
+
+%\subsubsection{Solvers}
+
+%\noindent
+The user of our library defines the semantics of decomposing a value of a given 
+type \code{S} against an expression of shape \code{E} by overloading a function: 
+
+\begin{lstlisting}
+template <LazyExpression E, typename S> 
+bool solve(const E&, const S&);
+\end{lstlisting}
+
+\noindent
+The first argument of the function takes an expression template representing a 
+term we are matching against, while the second argument represents the expected 
+result. Note that even though the first argument is passed with const-qualifier, 
+it may still modify state in \code{E}. For example, when \code{E} is 
+\code{var<T>}, the application operator for const-object that will eventually be 
+called will update a mutable member \code{m_value}.
+
+The following example defines a generic solver for multiplication by a 
+constant:
+
+\begin{lstlisting}
+template <LazyExpression E, typename T> 
+    requires Field<E::result_type>()
+bool solve(const mult<E,value<T>>& e, const E::result_type& r)
+    { return solve(e.m_e1,r/eval(e.m_e2)); }
+@\halfline@
+template <LazyExpression E, typename T>
+    requires Integral<E::result_type>()
+bool solve(const mult<E,value<T>>& e, const E::result_type& r) 
+{
+    T t = eval(e.m_e2);
+    return r%t == 0 && solve(e.m_e1,r/t);
+}
+\end{lstlisting}
+
+\noindent
+The first overload is only applicable when the type of the result of the 
+sub-expression models the \code{Field} concept. In this case, we can rely on the 
+presence of a unique inverse and simply call division without any additional 
+checks. The second overload uses integer division, which does not guarantee the 
+unique inverse, and thus we have to verify that the result is divisible by the 
+constant first. This last overload combined with a similar solver for addition 
+of integral types is everything the library needs to know to properly handle the 
+definition of the \code{fib} function from \textsection\ref{sec:cpppat}. It also 
+demonstrates how an equational approach can be generically implemented for a 
+number of expressions.
+
+%A generic solver capable of decomposing a complex value using the Euler 
+%notation is very easy to define by fixing the structure of expression:
+%
+%\begin{lstlisting}[keepspaces]
+%template <LazyExpression E1, LazyExpression E2> 
+%    requires SameType<E1::result_type,E2::result_type>()
+%bool solve(
+%    const plus<mult<E1,value<complex<E1::result_type>>>,E2>& e, 
+%    const complex<E1::result_type>& r);
+%\end{lstlisting}
+%
+%\noindent
+%As we mentioned in \textsection\ref{sec:cpppat}, the template facilities of 
+%\Cpp{} resemble pattern-matching facilities of other languages. Here, we 
+%essentially use these compile-time patterns to describe the structure of the 
+%expression this solver is applicable to: $e_1*c+e_2$ with types of $e_1$ and 
+%$e_2$ being the same as type on which a complex value $c$ is defined. The actual 
+%value of the complex constant $c$ will not be known until run-time, but assuming 
+%its imaginary part is not $0$, we will be able to generically obtain the values 
+%for sub-expressions.
+
+%% Our approach is largely possible due to the fact that the library only serves as 
+%% an interface between expressions and functions defining their semantics and 
+%% algebraic decomposition. The fact that the user explicitly defines the variables 
+%% she would like to use in patterns is also a key as it lets us specialize not 
+%% only on the structure of the expression, but also on the types involved. 
+%% Inference of such types in functional languages would be hard or impossible as the 
+%% expression may have entirely different semantics depending on the types of 
+%% arguments involved. Concept-based overloading simplifies significantly the case 
+%% analysis on the properties of types, making the solvers generic and composable.
+%% The approach is also viable as expressions are decomposed at compile-time and 
+%% not at run-time, letting the compiler inline the entire composition of solvers. 
+
+%An obvious disadvantage of this approach is that the more complex expression 
+%becomes, the more overloads the user will have to provide to cover all 
+%expressions of interest. The set of overloads will also have to be made 
+%unambiguous for any given expression, which may be challenging for novices. An 
+%important restriction of this approach is its inability to detect multiple uses 
+%of the same variable in an expression at compile time. This happens because 
+%expression templates remember the form of an expression in a type, so use of two 
+%variables of the same type is indistinguishable from the use of the same 
+%variable twice. This can be worked around by giving different variables 
+%(slightly) different types or making additional checks as to the structure of 
+%expression at run-time, but that will make the library even more verbose or 
+%incur a significant run-time overhead.
+
+\subsection{Views}
+\label{sec:view}
+
+Any type $T$ may have an arbitrary number of \term{bindings} associated with it, 
+which are specified by varying the second parameter of the \code{bindings} 
+template -- \term{layout}. The layout is a non-type template parameter of an 
+integral type that has a default value and is thus omitted most of the time.
+Support of multiple bindings through layouts in our library effectively enables 
+a facility similar to Wadler's \subterm{pattern}{views}\cite{Wadler87}. Consider:
+
+\begin{lstlisting}
+enum { cartesian = default_layout, polar }; // Layouts
+@\halfline@
+template <typename T> 
+  struct bindings<std::complex<T>>
+    { Members(std::real<T>,std::imag<T>); };
+template <typename T> 
+  struct bindings<std::complex<T>, polar>
+    { Members(std::abs<T>,std::arg<T>); };
+@\halfline@
+template <typename T> 
+  using Cartesian = view<std::complex<T>>;
+template <typename T> 
+  using Polar     = view<std::complex<T>, polar>;
+@\halfline@
+  std::complex<double> c; double a,b,r,f;
+  Match(c)
+    Case(Cartesian<double>>(a,b)) ... // default layout
+    Case(    Polar<double>>(r,f)) ... // view for polar layout
+  EndMatch
+\end{lstlisting}
+
+\noindent
+The \Cpp{} standard effectively enforces the standard library to use Cartesian 
+representation\cite[\textsection26.4-4]{C++11}, which is why we choose the 
+\code{Cartesian} layout to be the default. We then define bindings for each 
+layout and introduce template aliases (an analog of typedefs for parameterized 
+classes) for each of the views. \emph{Mach7} class \code{view<T,l>} binds together a 
+target type with one of its layouts, which can be used everywhere where an 
+original target type was expected.
+
+The important difference from Wadler's solution is that our views can only be 
+used in a match expression and not as a constructor or arguments of a function 
+etc.
+
+\subsection{Match Statement}
+\label{sec:matchstmt}
+
+\code{Match}-statement presented in this paper extends the efficient type switch 
+for \Cpp{}~\cite{TS12}. The core of this extension amounts to ability to handle 
+multiple subjects (both polymorphic and non-polymorphic) 
+(\textsection\ref{sec:multiarg}) as well as the ability to accept patterns in 
+case clauses (\textsection\ref{sec:patcases}).
+
+\subsubsection{Multi-argument Type Switching}
+\label{sec:multiarg}
+
+The core of the proposal for efficient type switching was based on the fact that 
+virtual table pointers (vtbl-pointers) on one hand uniquely identify subobjects 
+in the object, while on the other hand they are perfect for hashing. The optimal 
+hash function $H_{kl}^V$ built for a set of virtual table pointers $V$ seen by a 
+type switch was chosen by varying parameters $k$ and $l$ to minimize the 
+probability of conflict. Parameter $k$ was representing the logarithm of the 
+size of cache, while parameter $l$ was representing the number of smallest bits 
+to ignore.
+
+%We considered two different approaches to extending that solution to $N$ 
+%arguments. The first approach was based on maintaining an $N$-dimensional 
+%table indexed by independent $H_{k_il_i}^{V_i}$ maintained for each of the 
+%arguments $i$. The second approach was to aggregate the information from 
+%multiple vtbl-pointers into a single hash in a hope the hashing would still 
+%maintain its favorable properties. The first approach requires amount of memory 
+%proportional to $O(|V|^N)$ regardless of how many different combinations of 
+%vtbl-pointers came through the statement. The second approach requires the 
+%amount of memory linear in the number of vtbl-pointer combinations seen, which 
+%in the worst case becomes the same $O(|V|^N)$. The first approach requires 
+%lookup in $N$ caches, with each lookup being a subject to potential collisions; 
+%the second approach requires non-trivial computations to aggregate $N$ 
+%vtbl-pointers into a single hash value and may result in potentially more 
+%collisions in comparison to the first approach. Our experience of dealing with 
+%multiple dispatch in \Cpp{} suggests that we rarely see all combinations of 
+%types coming through a given multi-method in real-world applications. With this 
+%in mind, we did not expect all combination of types come through a given 
+%\code{Match}-statement and thus preferred the second solution, which grows 
+%linearly in memory with the number of combinations seen.
+
+In number theory, \emph{Morton order} (aka \emph{Z-order}) is a function that 
+maps multidimensional data to one dimension while preserving locality of the 
+data points~\cite{Morton66}. A Morton number of an $N$-dimensional coordinate 
+point is obtained by interleaving the binary representations of all coordinates.
+The original one-dimensional hash function $H_{kl}^V$ applied to arguments $v \in V$ 
+was producing hash values in a tight range $[0..2^k[$ where $k \in [K,K+1]$ for 
+$2^{K-1} < |V| \leq 2^K$. The produced values were close to each other, which 
+helped improve the performance of cache due to locality of references. The 
+idea is thus to use Morton order on these hash values and not on the original 
+vtbl-pointers in order to maintain the locality of references. To do this, we 
+still maintain a single parameter $k$ reflecting the size of cache, however we 
+keep $N$ parameters $l_i$ -- an optimal offset for argument $i$.
+
+Consider a set $V^N = \{\tpl{v_1^1,...,v_1^N},...,\tpl{v_n^1,...,v_n^N}\}$ of 
+$N$-dimensional tuples representing the set of vtbl-pointer combinations coming 
+through a given \code{Match}-statement. As with one-dimensional case, we 
+restrict the size $2^k$ of the cache to be not larger than twice the closest 
+power of two greater or equal to $n=|V^N|$: i.e. $k \in [K,K+1]$, where 
+$2^{K-1} < |V^N| \leq 2^K$. For a given $k$ and offsets $l_1,...,l_N$ a hash 
+value of a given combination $\tpl{v^1,...,v^N}$ is defined as 
+$H_{kl_1...l_N}(\tpl{v^1,...,v^N})=\mu(\frac{v^1}{2^{l_1}},...,\frac{v^N}{2^{l_N}}) \mod 2^k$, 
+where function $\mu$ returns Morton number (bit interleaving) of $N$ numbers.
+ 
+Similar to one-dimensional case, we vary parameters $k,l_1,...,l_N$ in 
+their finite and small domains to obtain an optimal hash function 
+$H^{V^N}_{kl_1...l_N}$ by minimizing the probability of conflict on values from 
+$V^N$. Unlike the one-dimensional case, we do not try to find the optimal 
+parameters every time we reconfigure the cache. Instead, we only try to improve 
+the parameters to render fewer conflicts in comparison to the number of conflicts 
+rendered by the current configuration. This does not prevent us from eventually 
+converging to the same optimal parameters, which we do over time, but is 
+important for maintaining the amortized complexity of the access constant. 
+%Observe that the domain of each parameter of the optimal hash function 
+%$H^{V^N}_{kl_1...l_N}$ only grows since $V^N$ only grows, while any cache 
+%configuration is also a valid cache configuration in a larger cache, rendering 
+%the same number of conflicts.
+We demonstrate in \textsection\ref{sec:morton} that similarly to one-dimensional 
+case such hash function produces little collisions on real-world class 
+hierarchies, while is simple enough to compute to compete with alternatives 
+dealing with multiple dispatch.
+
+%In practice, the library does not consider all $N$ arguments of a given 
+%\code{Match}-statement, but only the $M$ polymorphic arguments ($M \leq N$). It 
+%then builds an efficient type switch based on those $M$ arguments. The type 
+%switch guarantees efficient dispatch to the first case clause that can possibly 
+%handle a given combination of arguments based on the subset of only polymorphic 
+%arguments. The patterns are then tried sequentially. The underlying type switch 
+%uses pattern's type-function \code{accepted_type_for<Si>} instantiated with the 
+%subject type $Si$ of a given argument $i$ in order to obtain the target type 
+%requested by the pattern in that position.
+
+\subsubsection{Support for Patterns}
+\label{sec:patcases}
+
+Given a statement \code{Match(e_1,...,e_N)} applied to arbitrary expressions $e_i$, the library introduces several 
+names into the scope of the statement: e.g. number of arguments $N$, subject 
+types \code{subject_type_ii} (defined as \code{decltype(e_ii)} modulo type 
+qualifiers), number of polymorphic arguments $M$ etc. When $M > 0$ it also 
+introduces the necessary data structures to implement efficient type 
+switching~\cite{TS12}. Only the $M$ arguments whose \code{subject_type_ii} are 
+polymorphic will be used for fast type switching.
+
+For each case clause \code{Case(p_1,...,p_N)} the library ensures that the 
+number of arguments to the case clause $N$ matches the number of arguments to 
+the \code{Match} statement, and that the type \code{P_ii} of every expression 
+\code{p_ii} passed as its argument models the \code{Pattern} concept. 
+Initially we allowed case clauses to accept less than $N$ patterns, assuming the 
+missing patterns to be the wildcard, however, brittleness of the macro system 
+made us reconsider this. The problem is that macro system is blind to \Cpp{} 
+syntax and template instantiation like \code{A<B,C>} used in a pattern will be 
+treated by the preprocessor as 2 macro arguments. This resulted in errors that 
+were hard for the users to comprehend.
+For each \code{subject_type_ii} it then introduces \code{target_type_ii} into the 
+scope of the case clause, defined as the result of evaluating type function 
+\code{P_ii::accepted_type_for<subject_type_ii>}. This is the type the pattern 
+expects as an argument on the subject of type \code{subject_type_ii} (\textsection\ref{sec:pat}), 
+which is used by the type switching mechanism to properly cast the subject if necessary. 
+The library then introduces names \code{match_ii} of type \code{target_type_ii&} 
+bound to properly casted subjects and available to the user in the right-hand 
+side of the case clause in case of a successful match. The qualifiers applied to 
+the type of \code{match_ii} reflect the qualifiers applied to the type of subject 
+\code{e_ii}. Finally, the library generates the code that sequentially checks 
+each pattern on properly casted subjects, making the clause's body conditional:
+
+\begin{lstlisting}
+if (p_1(match_1) && ... && p_N(match_N)) { /* body */ }
+\end{lstlisting}
+
+\noindent
+When type switching is not involved, the generated code implements the naive 
+backtracking strategy, which is known to be inefficient as it can produce 
+redundant computations~\cite[\textsection 5]{Cardelli84}. More efficient 
+algorithms for compiling pattern matching have been developed 
+since~\cite{Augustsson85,Maranget92,Puel93,OPM01,Maranget08}. Unfortunately, while these 
+algorithms cover most of the typical kinds of patterns, they are not pattern agnostic 
+as they make assumptions about semantics of concrete patterns. A library-based 
+approach to pattern matching is agnostic of the semantics of any given 
+user-defined pattern. The interesting research question in this context would 
+be: what language support is required to be able to optimize open patterns. 
+While we do not address this question in its generality, our solution makes a 
+small step in that direction.
+
+The main advantage from using pattern matching in \emph{Mach7} comes from the fast type 
+switching weaved into the \code{Match}-statement. It effectively skips case 
+clauses that will definitely be rejected because their target types are not 
+subtypes of subjects' dynamic types. This, of course, is only applicable to 
+polymorphic arguments, for non-polymorphic arguments the matching is done 
+naively with cascade of conditional statements.

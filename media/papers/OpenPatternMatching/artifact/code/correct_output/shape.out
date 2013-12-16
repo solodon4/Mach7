@@ -1,0 +1,21 @@
+(0,0)Matched against pattern -1.5
+Matched against subexpression -1.5
+Matched against guard 4
+Matched radius against COMPLEX guard 4
+Matched against subexpression 1
+Circle with center (1,1) and FIXED radius 
+Circle with center (1,1) and radius 4
+Area: 50.24 Center: (1,1)
+Square with top left (2,2) and side 2
+Area: 4 Center: (3,3)
+Triangle with corners (0,0),(0,1),(1,0)
+Area: 0.5 Center: (0.333333,0.333333)
+ADTCircle with center (1,1) and radius 4
+ADTCircle with center (0,0) and radius 2
+ADTCircle with center (1,1) and radius 1
+ADTCircleEx with center (1,1) and radius 4
+ADTCircle with center (1,1) and radius 4
+ADTCircleEx with center (0,0) and radius 2
+ADTCircle with center (0,0) and radius 2
+ADTCircleEx with center (1,1) and radius 1
+ADTCircle with center (1,1) and radius 1

@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <PropertyPageSchema
+      Include="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml" />
+    <AvailableItemName
+      Include="FlexGenerator">
+      <Targets>_FlexGenerator</Targets>
+    </AvailableItemName>
+    <AvailableItemName
+      Include="BisonParser">
+      <Targets>_BisonParser</Targets>
+    </AvailableItemName>
+  </ItemGroup>
+  <UsingTask
+    TaskName="FlexGenerator"
+    TaskFactory="XamlTaskFactory"
+    AssemblyName="Microsoft.Build.Tasks.v4.0">
+    <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml</Task>
+  </UsingTask>
+  <UsingTask
+    TaskName="BisonParser"
+    TaskFactory="XamlTaskFactory"
+    AssemblyName="Microsoft.Build.Tasks.v4.0">
+    <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml</Task>
+  </UsingTask>
+  <Target
+    Name="_FlexGenerator"
+    BeforeTargets="$(FlexGeneratorBeforeTargets)"
+    AfterTargets="$(FlexGeneratorAfterTargets)"
+    Condition="'@(FlexGenerator)' != ''"
+    DependsOnTargets="$(FlexGeneratorDependsOn);ComputeFlexGeneratorOutput"
+    Outputs="%(FlexGenerator.Outputs)"
+    Inputs="%(FlexGenerator.Identity);%(FlexGenerator.AdditionalDependencies);$(MSBuildProjectFile)">
+    <ItemGroup
+      Condition="'@(SelectedFiles)' != ''">
+      <FlexGenerator
+        Remove="@(FlexGenerator)"
+        Condition="'%(Identity)' != '@(SelectedFiles)'" />
+    </ItemGroup>
+    <ItemGroup>
+      <FlexGenerator_tlog
+        Include="%(FlexGenerator.Outputs)"
+        Condition="'%(FlexGenerator.Outputs)' != '' and '%(FlexGenerator.ExcludedFromBuild)' != 'true'">
+        <Source>@(FlexGenerator, '|')</Source>
+      </FlexGenerator_tlog>
+    </ItemGroup>
+    <Message
+      Importance="High"
+      Text="%(FlexGenerator.ExecutionDescription)" />
+    <WriteLinesToFile
+      Condition="'@(FlexGenerator_tlog)' != '' and '%(FlexGenerator_tlog.ExcludedFromBuild)' != 'true'"
+      File="$(IntDir)$(ProjectName).write.1.tlog"
+      Lines="^%(FlexGenerator_tlog.Source);@(FlexGenerator_tlog-&gt;'%(Fullpath)')" />
+    <FlexGenerator
+      Condition="'@(FlexGenerator)' != '' and '%(FlexGenerator.ExcludedFromBuild)' != 'true'"
+      CommandLineTemplate="%(FlexGenerator.CommandLineTemplate)"
+      BackingUpInfo="%(FlexGenerator.BackingUpInfo)"
+      DebuggerOn="%(FlexGenerator.DebuggerOn)"
+      GenFast="%(FlexGenerator.GenFast)"
+      CaseInsensitive="%(FlexGenerator.CaseInsensitive)"
+      CompatibilityOn="%(FlexGenerator.CompatibilityOn)"
+      PerformanceReport="%(FlexGenerator.PerformanceReport)"
+      SuppressDefault="%(FlexGenerator.SuppressDefault)"
+      SuppressWarnings="%(FlexGenerator.SuppressWarnings)"
+      BatchScanner="%(FlexGenerator.BatchScanner)"
+      FastScanner="%(FlexGenerator.FastScanner)"
+      InteractiveScanner="%(FlexGenerator.InteractiveScanner)"
+      NoGenLineDirectives="%(FlexGenerator.NoGenLineDirectives)"
+      TraceMode="%(FlexGenerator.TraceMode)"
+      OutputFile="%(FlexGenerator.OutputFile)"
+      ScannerPrefix="%(FlexGenerator.ScannerPrefix)"
+      SkeletonFile="%(FlexGenerator.SkeletonFile)"
+      TableCompression="%(FlexGenerator.TableCompression)"
+      AdditionalOptions="%(FlexGenerator.AdditionalOptions)"
+      Inputs="%(FlexGenerator.Identity)" />
+  </Target>
+  <PropertyGroup>
+    <ComputeLinkInputsTargets>
+            $(ComputeLinkInputsTargets);
+            ComputeFlexGeneratorOutput;
+          </ComputeLinkInputsTargets>
+    <ComputeLibInputsTargets>
+            $(ComputeLibInputsTargets);
+            ComputeFlexGeneratorOutput;
+          </ComputeLibInputsTargets>
+  </PropertyGroup>
+  <Target
+    Name="ComputeFlexGeneratorOutput"
+    Condition="'@(FlexGenerator)' != ''">
+    <ItemGroup>
+      <FlexGeneratorDirsToMake
+        Condition="'@(FlexGenerator)' != '' and '%(FlexGenerator.ExcludedFromBuild)' != 'true'"
+        Include="%(FlexGenerator.Outputs)" />
+      <Link
+        Include="%(FlexGeneratorDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+      <Lib
+        Include="%(FlexGeneratorDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+      <ImpLib
+        Include="%(FlexGeneratorDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+    </ItemGroup>
+    <MakeDir
+      Directories="@(FlexGeneratorDirsToMake-&gt;'%(RootDir)%(Directory)')" />
+  </Target>
+  <Target
+    Name="_BisonParser"
+    BeforeTargets="$(BisonParserBeforeTargets)"
+    AfterTargets="$(BisonParserAfterTargets)"
+    Condition="'@(BisonParser)' != ''"
+    DependsOnTargets="$(BisonParserDependsOn);ComputeBisonParserOutput"
+    Outputs="%(BisonParser.Outputs)"
+    Inputs="%(BisonParser.Identity);%(BisonParser.AdditionalDependencies);$(MSBuildProjectFile)">
+    <ItemGroup
+      Condition="'@(SelectedFiles)' != ''">
+      <BisonParser
+        Remove="@(BisonParser)"
+        Condition="'%(Identity)' != '@(SelectedFiles)'" />
+    </ItemGroup>
+    <ItemGroup>
+      <BisonParser_tlog
+        Include="%(BisonParser.Outputs)"
+        Condition="'%(BisonParser.Outputs)' != '' and '%(BisonParser.ExcludedFromBuild)' != 'true'">
+        <Source>@(BisonParser, '|')</Source>
+      </BisonParser_tlog>
+    </ItemGroup>
+    <Message
+      Importance="High"
+      Text="%(BisonParser.ExecutionDescription)" />
+    <WriteLinesToFile
+      Condition="'@(BisonParser_tlog)' != '' and '%(BisonParser_tlog.ExcludedFromBuild)' != 'true'"
+      File="$(IntDir)$(ProjectName).write.1.tlog"
+      Lines="^%(BisonParser_tlog.Source);@(BisonParser_tlog-&gt;'%(Fullpath)')" />
+    <BisonParser
+      Condition="'@(BisonParser)' != '' and '%(BisonParser.ExcludedFromBuild)' != 'true'"
+      CommandLineTemplate="%(BisonParser.CommandLineTemplate)"
+      Defines="%(BisonParser.Defines)"
+      NoGenLineDirectives="%(BisonParser.NoGenLineDirectives)"
+      DebuggerOn="%(BisonParser.DebuggerOn)"
+      Verbose="%(BisonParser.Verbose)"
+      FilePrefix="%(BisonParser.FilePrefix)"
+      OutputFile="%(BisonParser.OutputFile)"
+      RenameExternalSymbols="%(BisonParser.RenameExternalSymbols)"
+      AdditionalOptions="%(BisonParser.AdditionalOptions)"
+      Inputs="%(BisonParser.Identity)" />
+  </Target>
+  <PropertyGroup>
+    <ComputeLinkInputsTargets>
+            $(ComputeLinkInputsTargets);
+            ComputeBisonParserOutput;
+          </ComputeLinkInputsTargets>
+    <ComputeLibInputsTargets>
+            $(ComputeLibInputsTargets);
+            ComputeBisonParserOutput;
+          </ComputeLibInputsTargets>
+  </PropertyGroup>
+  <Target
+    Name="ComputeBisonParserOutput"
+    Condition="'@(BisonParser)' != ''">
+    <ItemGroup>
+      <BisonParserDirsToMake
+        Condition="'@(BisonParser)' != '' and '%(BisonParser.ExcludedFromBuild)' != 'true'"
+        Include="%(BisonParser.Outputs)" />
+      <Link
+        Include="%(BisonParserDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+      <Lib
+        Include="%(BisonParserDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+      <ImpLib
+        Include="%(BisonParserDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+    </ItemGroup>
+    <MakeDir
+      Directories="@(BisonParserDirsToMake-&gt;'%(RootDir)%(Directory)')" />
+  </Target>
+</Project>

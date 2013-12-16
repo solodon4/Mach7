@@ -1,26 +1,29 @@
 \section{Related Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:rw}
 
-Language support for pattern matching was first introduced for string 
-manipulation in SNOBOL\cite{SNOBOL64}. SNOBOL4 had patterns as first-class data 
-types providing operations of concatenation and alternation\cite{SNOBOL71}. The 
-first reference to a modern pattern-matching constructs seen in functional 
+Language support for pattern matching was first introduced for string manipulation 
+in COMIT\cite{COMIT58}, which subsequently inspired similar primitives in 
+SNOBOL\cite{SNOBOL64}. SNOBOL4 had string patterns as first-class data types 
+providing operations of concatenation and alternation\cite{SNOBOL71}.
+The first reference to a modern pattern-matching constructs seen in functional 
 languages is usually attributed to Burstall's work on structural 
 induction\cite{Burstall69provingproperties}. Pattern matching was further 
 developed by the functional programming community, most notably 
-Hope\cite{BMS80}, ML\cite{ML90}, Miranda\cite{Miranda85} and 
+Hope\cite{BMS80}, Miranda\cite{Miranda85}, ML\cite{ML90} and 
 Haskell\cite{Haskell98Book}. In the context of object-oriented programming, 
 pattern matching has been first explored in Pizza\cite{Odersky97pizzainto} and 
-Scala\cite{Scala2nd,EmirThesis}.
+Scala\cite{Scala2nd,EmirThesis}. The idea of first class patterns dates back to 
+at least Tullsen's proposal to add them to Haskell~\cite{Tullsen00}, calculus of 
+such patterns has been studied in details by Jay~\cite{Jay09,PatCalc09}.
 
 There are two main approaches to compiling pattern-matching code: the first is 
 based on \emph{backtracking automata} and was introduced by Augustsson\cite{Augustsson85}, 
 the second is based on \emph{decision trees} and was first described by 
 Cardelli\cite{Cardelli84}, though he attributes the technique to Dave MacQueen 
 and Gilles Kahn in their implementation of the Hope compiler \cite{BMS80}.
-Backtracking approach usually generates smaller code, while decision tree 
+Backtracking approach usually generates smaller code~\cite{OPM01}, while decision tree 
 approach produces faster code by ensuring that each primitive test is only 
-performed once. With respect to matching a single expression our library 
+performed once~\cite{Maranget08}. With respect to matching a single expression our library 
 approach follows the naive backtracking approach, however our match statement is 
 based on a highly efficient type switching technique we developed\cite{TypeSwitch} 
 that outperforms similar solutions based on decision trees or visitor design pattern.
@@ -30,7 +33,92 @@ pattern matching and can be used independently. In particular it can be combined
 with either backtracking or decision tree approaches to avoid subsequent 
 decisions on datum that has already been seen.
 
+\emph{MatchO} was one of the first attempts to implement pattern matching without 
+extending the host language~\cite{Visser06matchingobjects}. While the library 
+was essentially providing first class patterns into Java, the amount of 
+syntactic and run-time overhead was overwhelming. The author offers to provide 
+customized syntax to patterns by invoking an inline parser, while to improve 
+performance the author looks into combining visitors and visitor combinators 
+with pattern matching. %This resembles our use of an efficient type switch to 
+%uncover the dynamic type combined with slower but more flexible pattern 
+%matching.
+
+\emph{Functional C\#} was a similar approach to bringing pattern matching into 
+C\# as a library\cite{FuncCSharp}. The approach uses lambda functions and 
+chaining of method calls to create a structure that is then evaluated at 
+run-time for the first successful match. The approach supports a form of 
+active patterns, simple n+k patterns, list and tuple patterns as well as type 
+patterns (without structural decomposition). Unfortunately, the solution scales 
+very poorly for match statements with more than two case clauses as it is 
+essentially based on sequential type tests. Besides, the approach is ill suited 
+for tests involving nesting of patterns.
+
+Both \emph{MatchO} and \emph{Functional C\#} were object-oriented solutions. In 
+functional community, Rhiger explored a similar idea of introducing pattern 
+matching into Haskell as a library~\cite{Rhiger09}. He uses functions to encode 
+patterns and pattern combinators, which allows him to detect pattern 
+misapplication errors at compile time through the Haskell type system. 
+Unfortunately, the purity of a functional language prevents him from expressing 
+variable patterns (more specifically, the bindings they introduce) in a library 
+setting simply, which then affects the overal ellegance of the solution. In 
+particular, it seems to be impossible in his approach to express equivalence 
+patterns or even equivalence combinator as the value of the bound variable is 
+not available in the left-hand side of the matching expression, only in the 
+right-hand side. The library is sufficiently expressive though to express basic 
+patterns (value, wildcard, predicate, etc.), boolean pattern combinators and set 
+patterns. The author reports that his solution requires 2-4 times more 
+reductions than Haskell's built-in pattern matching. He attributes the overhead 
+to currying and continuations passing and hypothsizes that it should be completly 
+eliminated by standard partial evaluation techniques.
+
+\emph{Grace} is another programming language that provides a library solution to 
+pattern matching through objects~\cite{Grace2012}. The language is aimed at 
+teaching various programming paradigms and has an interesting peculiarity: it 
+does not have pre-defined control structures, which instead are expressed 
+directly in the language with the help of partial functions and lambda 
+expressions. The \codeocaml{match}-statement, for example, takes form of a 
+clausal definition \codeocaml{match(e)case(c1)...case(cn)}, specialized for 
+large values of $n$. 
+ 
+this with clausal function  
+definitions i.e. if(c)then(b1)else(b2) with blocks (lambda expressions) passed 
+as second and third parameter. They provide match(e)case(c1)...case(cn) for some 
+large number n (cleanly) and have a workaround that hardcodes in the compiler 
+support for arbitrary number of cases. Patterns are objects in Grace that are 
+composed and applied at run-time. The compiler has some syntactic sugar to 
+denote some most commone ones, but otherwise user-defined patterns have to be 
+created explicitly. Grace has structural subtyping, not a nominative one, so 
+their case analysis is never hierarchical like in our case. The approach does 
+not seem to provide for optimizations.  I spoke with one of the authors, who 
+presented the slides and he said that performance was indeed not a concern for 
+them and only the expressiveness of the language and ease of its teaching to 
+students was. The paper is not directly related to type switch, however it is 
+related to the second pattern-matching paper. It also mentions some interesting 
+works I haven't seen before that we will have to discuss in the second paper. 
 %xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+\emph{Lookup caches} have been long used to reduce the overhead of 
+dynamically-bound message passing in Smalltalk~\cite{UngarPatterson83}. 
+\emph{Inline caching} improves on that by noting that the type of the receiver at a given 
+call site rarely varies so that the call instruction can be speculatively 
+modified to jump directly to a previously looked up method~\cite{Deutsch84}. 
+In this case, the method must ensure that the type of the receiver has 
+not changed and redirect the call to generic lookup otherwise. The effects of 
+inline caching on modern architectures can be seen through hardware call target 
+prediction, which in our case is exemplified by repetitive benchmark: both 
+virtual function calls and the underlying jump-table implementation of the 
+\code{Match}-statement are about twice as fast as usual.
+
+\emph{Polymorphic Inline Caches}~\cite{Holzle:Chambers:Ungar:91} generalize the 
+idea of inline caches further by building a decision tree in the method prologue 
+that caches all lookup results. The main difference of this approach from our 
+work is that it requires code generation at run time, while we do not require
+re-compilation, re-linking or any computations in case of dynamic linking.
+The reason for this is the difference in the initial setting: they map an
+arbitrary number of receiver types to an arbitrary number of implementations, while 
+we map an arbitrary number of receivers to a fixed number of jump 
+targets. This lets us generate code at compile time that incorporates both the 
+initial and memoized execution.
 
 \emph{Extensible Visitors with Default Cases}~\cite[\textsection 
 4.2]{Zenger:2001} attempt to solve the extensibility problem of visitors; 
@@ -75,6 +163,12 @@ might imply a small performance loss if closed functions pattern match on open
 data types}. Our work addresses exactly this problem, showing that it is not 
 only theoretically possible but also practically efficient and in application to 
 a broader problem.
+
+Andrew Kennedy et al~\cite{GADTOOP05} considered encoding of generalized 
+algebraic data types~\cite{SPJ06} using visitor design patterns in C\#.  That 
+translation made essential use of generic methods, the equivalent of ``virtual 
+function template'' (as they would be called if such functionalities existed in 
+C++) to handle some of the open set aspects of GADTs.
 
 Polymorphic variants in OCaml~\cite{garrigue-98} allow the addition of new variants 
 later. They are simpler, however, than object-oriented extensions, as they do not 
@@ -124,8 +218,8 @@ similarly to other object-oriented languages, Tom's handling of them is based on
 highly inefficient \code{instanceof} operator and its equivalents in other 
 languages.
 
-Pattern matching in Scala~\cite{Scala2nd} also allows type patterns and thus type 
-switching. The language supports extensible and hierarchical data types, but 
+Pattern matching in Scala~\cite{Scala2nd} also supports type switching through 
+type patterns. The language supports extensible and hierarchical data types, but 
 their handling in a type switching constructs varies. Sealed classes are handled 
 with an efficient switch over all tags, since sealed classes cannot be extended. 
 Classes that are not sealed are similarly approached with a combination of an 
@@ -135,7 +229,7 @@ Classes that are not sealed are similarly approached with a combination of an
 %can turn any invertible function even user defined into a pattern.
 
 Prop is another language extension that brings pattern matching into 
-C++~\cite{Prop96}. This extension is not focused on pattern 
+\Cpp{}~\cite{Prop96}. This extension is not focused on pattern 
 matching, but is intended for building high performance 
 compiler and language transformation systems. It supports value-, variable-, 
 wildcard-, constructor-, nested-, as-, type- and numerous sequence patterns.
@@ -168,6 +262,26 @@ thus provides a rather lower level pattern-matching functionality that lets one
 simplify work with that hierarchy.  One can think of it as a generalized 
 dynamic\_cast.
 
+Racket also includes a powerful enough macro system that allows it to express a 
+solution to first class patterns in the language entirely as a 
+library~\cite{Tobin-Hochstadt_2010}. The work builds on earlier attempts to 
+bring pattern matching into Scheme, extending it and making it more efficient~\cite{Wright95}.
+
+When the class hierarchy is fixed, one can design a pattern language that involves 
+semantic notions represented by the hierarchy. Pirkelbauer devised a pattern 
+language for Pivot capable of representing various entities in a \Cpp{} program using syntax very close to the \Cpp{} itself. 
+Interestingly, the patterns were translated with a tool into a set of visitors 
+implementing the underlying pattern-matching semantics\cite{PirkelbauerThesis}. 
+Earlier, Cook et al used expression templates to implement a query language for 
+Pivot's class hierarchy~\cite{iql04}. %Our current work is the result of a series 
+%of experimental designs. The library approach was essential to provide 
+%relatively quick turnaround for experiments and for maintaining and improving 
+%performance for our applications.
+
+Newspeak and Grace treat their case statement as combination of partial 
+functions -- functions defined on a restricted domain of inputs. Functional C 
+sharp does ...
+
 Citation\cite{padl08}:
 Very good reference that I have never seen somehow. They have some good usage 
 examples that might be interesting to recreate in our library. It's not a 
@@ -179,8 +293,25 @@ function call overhead, which they plan to optimize in the future work.
 Another interesting thing about this paper is that they coin the term 
 "deconstructor" that I was trying to coin for what we call "bindings", but which 
 Dr. Stroustrup rejected as such that is commonly confused with destructor on the 
-C++ discussion boards. Interestingly, Google didn't show me this paper when I 
+C++ discussion boards. Interestingly, Google did not show me this paper when I 
 was searching word "deconstructor" on the internet back then. 
+
+Robust Scripting via Patterns~\cite{Thorn2012}
+ 
+The paper deals with bringing in pattern matching to a dynamically typed 
+language, namely Thorn. Similarly to Grace, the patterns are first-class 
+citizens. A class may introduce a regular constructor via new keyword and a 
+desctructuring constructor via pat keyword. The comprehension mechanism of 
+regular constructors can then be also used for destructuring constructor in 
+patterns. The paper shows some usage statistics of various patterns in real code 
+at IBM as well as contexts in which they are most oftenly used (Thorn allows 
+patterns in places other than just match statement). As with Grace, the pattern 
+matching is executed the naive way without any optimizations (Thorn is an 
+interpreter) and they do not address the question of how optimization of 
+user-defined patterns can be done generally - which is what would be of interest 
+for a compiler implementation of pattern matching in C++. The related work and 
+references don't add much to what we know already on the subject, the first 
+paper is a better source in this respect. 
 
 Citation\cite{Tobin-Hochstadt_2010}:
 This is the paper that i think Xavier Leroy was talking about on Scheme's 

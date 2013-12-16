@@ -1,0 +1,294 @@
+%-----------------------------------------------------------------------------
+%
+%               Template for sigplanconf LaTeX Class
+%
+% Name:         sigplanconf-template.tex
+%
+% Purpose:      A template for sigplanconf.cls, which is a LaTeX 2e class
+%               file for SIGPLAN conference proceedings.
+%
+% Guide:        Refer to "Author's Guide to the ACM SIGPLAN Class,"
+%               sigplanconf-guide.pdf
+%
+% Author:       Paul C. Anagnostopoulos
+%               Windfall Software
+%               978 371-2316
+%               paul@windfall.com
+%
+% Created:      15 February 2005
+%
+%-----------------------------------------------------------------------------
+
+
+\documentclass{sigplanconf}
+
+% The following \documentclass options may be useful:
+
+% preprint      Remove this option only once the paper is in final form.
+% 10pt          To set in 10-point type instead of 9-point.
+% 11pt          To set in 11-point type instead of 9-point.
+% authoryear    To obtain author/year citation style instead of numeric.
+
+\usepackage{amsmath}
+
+
+\begin{document}
+
+\special{papersize=8.5in,11in}
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
+
+\conferenceinfo{CONF 'yy}{Month d--d, 20yy, City, ST, Country} 
+\copyrightyear{20yy} 
+\copyrightdata{978-1-nnnn-nnnn-n/yy/mm} 
+\doi{nnnnnnn.nnnnnnn}
+
+% Uncomment one of the following two, if you are not going for the 
+% traditional copyright transfer agreement.
+
+%\exclusivelicense                % ACM gets exclusive license to publish, 
+                                  % you retain copyright
+
+%\permissiontopublish             % ACM gets nonexclusive license to publish
+                                  % (paid open-access papers, 
+                                  % short abstracts)
+
+\titlebanner{banner above paper title}        % These are ignored unless
+\preprintfooter{short description of paper}   % 'preprint' option specified.
+
+\title{Title Text}
+\subtitle{Subtitle Text, if any}
+
+\authorinfo{Name1}
+           {Affiliation1}
+           {Email1}
+\authorinfo{Name2\and Name3}
+           {Affiliation2/3}
+           {Email2/3}
+
+\maketitle
+
+\begin{abstract}
+This is the text of the abstract.
+\end{abstract}
+
+\category{CR-number}{subcategory}{third-level}
+
+% general terms are not compulsory anymore, 
+% you may leave them out
+\terms
+term1, term2
+
+\keywords
+keyword1, keyword2
+
+\section{Introduction}
+
+The text of the paper begins here.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+
+
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+More text.
+
+Lots of text.
+
+\appendix
+\section{Appendix Title}
+
+This is the text of the appendix, if you need one.
+
+\acks
+
+Acknowledgments, if needed.
+
+% We recommend abbrvnat bibliography style.
+
+\bibliographystyle{abbrvnat}
+
+% The bibliography should be embedded for final submission.
+
+\begin{thebibliography}{}
+\softraggedright
+
+\bibitem[Smith et~al.(2009)Smith, Jones]{smith02}
+P. Q. Smith, and X. Y. Jones. ...reference text...
+
+\end{thebibliography}
+
+
+\end{document}
+
+%                       Revision History
+%                       -------- -------
+%  Date         Person  Ver.    Change
+%  ----         ------  ----    ------
+
+%  2013.06.29   TU      0.1--4  comments on permission/copyright notices
+

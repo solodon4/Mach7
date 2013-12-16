@@ -1,0 +1,27 @@
+100000000 atom
+010000000 42
+001000000 3.14
+000100000 $string$
+000010000 var
+000001000 test(a1,7,3.14159,$sss$,X)
+000000000 [a2,Y]
+000000010 ==()
+000000001 % comment
+Unifying f(a,X,g(y,Y)) and f(Y,b,Z)
+       X -> b
+       Y -> a
+       Z -> g(y,a)
+Unifying f(X,Y,g(Z)) and f(X,g(h(Z)),Y)
+	ERROR: Unable to unify
+Unifying p(f(A),g(X)) and p(Y,Y)
+	ERROR: Unable to unify
+Unifying p(a,X,h(g(Z))) and p(Z,h(Y),h(Y))
+       X -> h(g(a))
+       Y -> g(a)
+       Z -> a
+Unifying f(X,b,g(Z)) and f(f(Y),Y,g(U))
+       X -> f(b)
+       Y -> b
+       Z -> U
+Unifying p(X,Y) and p(X,f(Y))
+	ERROR: Unable to unify

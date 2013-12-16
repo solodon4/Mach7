@@ -1,0 +1,77 @@
+\section{Conclusions and Future Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:cc}
+
+The \emph{Mach7} library provides functional-style 
+pattern-matching facilities for \Cpp{}. The solution is open to new patterns, 
+with the traditional patterns implemented as an example. It is
+non-intrusive, so it can be applied retroactively. %to any polymorphic or tagged 
+%class hierarchy. It also provides a uniform notation to these different 
+%encodings of algebraic and extensible hierarchical data types in \Cpp{}.
+The library provides efficient and expressive matching on multiple subjects and 
+compares well to multiple dispatch alternatives in terms of both time and space.
+We~also offer an alternative interpretation of the n+k patterns and show how some 
+traditional generalizations of these patterns can be implemented in our library. 
+%to arbitrary expressions by letting the user define   
+%the exact semantics of such patterns. Our approach is more general than traditional approaches 
+%as it does not require an
+%equational view of such patterns. It also avoids hardcoding the 
+%exact semantics of n+k patterns into the language. 
+%
+%We generalize n+k patterns to arbitrary expressions by letting the user define 
+%the exact semantics of such patterns. Our approach is more general than traditional approaches 
+%as it does not require an
+%equational view of such patterns. It also avoids hardcoding the 
+%exact semantics of n+k patterns into the language. 
+%
+%We used the library to rewrite existing code that relied heavily on the 
+%visitor design pattern.
+%Our pattern matching code was much shorter (both source and object code), 
+%simpler, easier to maintain, comprehend, and faster. 
+%This confirmed our view of the visitor pattern as a clever workaround,
+%rather than a good solution to a fundamental problem.
+%The library approach was essential 
+%for experimentation in the context of real programs and for delivering 
+%performance comparable with or superior to conventional techniques in the 
+%context of industrial compilers.
+%
+\emph{Mach7} pattern matching code performs reasonably compared to
+open multi-methods and visitors, demonstrating the effectiveness of the 
+library-based approach.
+
+The work presented here continues our research on pattern matching for 
+\Cpp{}~\cite{TS12}. Due to page limit, we had to omit many interesting 
+details that provide a better insight into our solution. We refer the reader to 
+the first author's PhD thesis~\cite{SolodkyyThesis} for an in-depth discussion 
+of open type switching, open pattern matching and open multi-methods in the 
+context of \Cpp{}.
+
+In the future, we would like to implement an actual language 
+extension that will be capable of working with open patterns.  Given such an extension and its implementation,
+we~would like to look into how code for such 
+patterns can be optimized without hardcoding the knowledge of the semantics of the patterns
+into the compiler. 
+We would also like to experiment with other kinds of patterns (including those defined by the user),
+look at the interaction of patterns with both the standard library and 
+other facilities in the language, and make views less ad-hoc.
+
+%Our generalization of n+k patterns depends on the properties of types involved 
+%in the expression. This should let us experiment not only with generic 
+%functions, but also with their generic inversions in the form of solvers. As 
+%more \Cpp{}11 features become available in compilers it will also be interesting to 
+%look at how use of these features affects the ease of use, performance, 
+%readability, writability and debugging of the library and the user code that 
+%uses it.
+
+%In the nearest future, we would like to make our library to be safe and efficient 
+%in a multi-threaded environment. We would also like to look into providing an 
+%equally efficient and expressive support to multiple subjects, which in turn 
+%would allow us to address asymmetric multiple dispatch.
+
+%From Morten Rhiger:
+%New languages are often constructed by piling new features on top of an existing language's de?nition and by integrating these features in the existing language's implementation. However, it is a sign of expressiveness if new features can be implemented within an
+%existing language without changing its de?nition.
+%Short of macros, functional languages such as Haskell and Standard ML require new
+%features to be expressed in terms of typed higher-order functions. We have demonstrated
+%how to extend - or, in Guy Steele's terminology, to "grow" (Steele Jr., 1999) - Haskell
+%with our own statically typed implementation of pattern matching and we have shown how
+%to extend this framework with patterns not currently supported by Haskell.

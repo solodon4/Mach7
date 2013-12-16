@@ -1,0 +1,91 @@
+\section{Memoized Dynamic Cast}
+\label{sec:memcast}
+
+We saw in Corollary~\ref{crl:vtbl} that the results of \code{dynamic_cast} can 
+be reapplied to a different instance from within the same subobject. This leads 
+to simple idea of memoizing the results of \code{dynamic_cast} and then using 
+them on subsequent casts. In what follows we will only be dealing with the 
+pointer version of the operator since the version on references that has a 
+slight semantic difference can be easily implemented in terms of the pointer one.
+
+The \code{dynamic_cast} operator in \Cpp{} involves two arguments: a value argument 
+representing an object of a known static type as well as a type argument 
+denoting the runtime type we are querying. Its behavior is twofold: on one hand 
+it should be able to determine when the object's dynamic type is not a 
+subtype of the queried type (or when the cast is ambiguous), while on the other 
+it should be able to produce an offset by which to adjust the value argument when it is.
+
+We mimic the syntax of \code{dynamic_cast} by defining:
+
+\begin{lstlisting}
+template <typename T, typename S>
+inline T memoized_cast(S*);
+\end{lstlisting}
+
+\noindent
+which lets the user replace all the uses of \code{dynamic_cast} in the program 
+with \code{memoized_cast} with a simple:
+
+\begin{lstlisting}
+#define dynamic_cast memoized_cast
+\end{lstlisting}
+
+\noindent
+It is important to stress that the offset is not a function of the source and target 
+types of the \code{dynamic_cast} operator, which is why we cannot simply memoize the 
+outcome inside the individual instantiations of \code{memoized_cast}.
+The use of repeated multiple inheritance will result in classes having several 
+different offsets associated with the same pair of source and target types 
+depending on which subobject the cast is performed from. According to 
+corollary~\ref{crl:vtbl}, however, it is a function of target type and the value 
+of the vtbl-pointer stored in the object, because the vtbl-pointer uniquely 
+determines the subobject within the dynamic type. Our memoization of the 
+results of \code{dynamic_cast} should thus be specific to a vtbl-pointer and the 
+target type. 
+
+The easiest way to achieve this would be to use a dedicated global
+\code{vtblmap<std::ptrdiff_t>} (\textsection\ref{sec:sovtp}) per each 
+instantiation of the \code{memoized_cast}. This, however, will create an 
+unnecessarily large amount of vtblmap structures, many of which will be  
+duplicating information and repeating the work already done. This will happen 
+because instantiations of \code{memoized_cast} with same target but different 
+source types can share their vtblmap structures since vtbl pointers of different 
+source types are necessarily different according to Theorem~\ref{thm:vtbl}. 
+
+Even though the above solution can be easily improved to allocates a single 
+vtblmap per target type, an average application might have a lot of different 
+target types. This is especially true for applications that will use our Match 
+statement since we use \code{dynamic_cast} under the hood in each case clause. 
+Indeed our C++ pretty printer was creating 160 vtblmaps of relatively small size 
+each, which was increasing the executable size quite significantly because of 
+numerous instantiations as well as noticably slowed down the compilation time.
+
+To overcome the problem we turn each target type into a runtime instantiation 
+index of the type and allocate a single \code{vtblmap<std::vector<std::ptrdiff_t>>} 
+that associates vtbl pointers with a vector of offsets indexed by target type. 
+The slight performance overhead that is brought by this improvement is specific 
+to our library solution and would not be present in a compiler implementaion. 
+Instead we get a much smaller memory footrpint, which can be made even smaller 
+once we recognize the fact that global type indexing may effectively enumerate 
+target classes that will never appear in the same Match statement. This will 
+result in entries in the vector of offsets that are never used.
+
+Our actual solution uses separate indexing of target types for each source type 
+they are used with, and also allocates a different 
+\code{vtblmap<std::vector<std::ptrdiff_t>>} for each source type. This lets us 
+minimize unused entries within offset vectors by making sure only the plausible 
+target types for a given source type are indexed. This solution should be 
+suitable for most applications since we expect to have a fairly small 
+number of source types for the \code{dynamic_cast} operator and a much larger number 
+of target types. For the unlikely case of a small number of target types and large 
+number of source types we allow the user to revert to the default behavior with a 
+library configuration switch that allocates a single \code{vtblmap} per target type as 
+we have already discussed above.
+
+The use of \code{memoized_cast} to implement the \code{Match}-statement potentially reuses the 
+results of \code{dynamic_cast} computations across multiple independent match 
+statements. This allows leveraging the cost of the expensive first call with a 
+given vtbl-pointer even further across all the match statements inside the 
+program. The above define, with which a user can easily turn all dynamic casts 
+into memoized casts, can be used to speed-up existing code that uses dynamic 
+casting without any refactoring overhead.

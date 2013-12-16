@@ -1,0 +1,442 @@
+\section{Pattern Matching SELL} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:pm}
+
+A Semantically Enhanced Library Language is not a language of its own, but 
+rather a sub-language embedded into another language -- \Cpp{} in our case. The 
+sub-language still has the facilities we typically associate with programming 
+languages e.g. syntax, semantics, type system, but they are constrained by
+the host language. A particular sub-language can often be implemented in 
+different host languages, which is why it is important to describe it 
+independently of its host. We thus shall abstract from describing the 
+exact syntax and semantics of host-language features that are well understood and documented 
+elsewhere~\cite{C++11}.
+
+\subsection{Syntax}
+\label{sec:syn}
+
+\begin{figure}[h]
+\centering
+\begin{tabular}{rcll}
+\Rule{Match Statement}     & $M$       & \is{}  & \code{Match(}$e$\code{)} $\{ \left[C s^*\right]^* \}$ \code{EndMatch} \\
+\Rule{Case Clause}         & $C$       & \is{}  & \code{Qua(}$T\left[,\varpi\right]^*$\code{)}\Alt{}\code{When(}$\varpi^*$\code{)}\Alt{}\code{Case(}$T\left[,x\right]^*$\code{)}\Alt{}\code{Otherwise(}$x^*$\code{)} \\
+\Rule{Target Expression}   & $T$       & \is{}  & $\tau$ \Alt{} $l$ \\
+\Rule{Layout}              & $l$       & \is{}  & $c^{\mathsf{int}}$ \\
+\Rule{Match Expression}    & $m$       & \is{}  & $\pi(e)$ \\
+\Rule{Extended Pattern}    & $\varpi$  & \is{}  & $\pi$ \Alt{} $c$ \Alt{} $x$ \\
+\Rule{Pattern}             & $\pi$     & \is{}  & $\mu$ \Alt{} $\varrho$ \Alt{} $\eta$ \Alt{} $\chi$ \Alt{} $\varsigma$ \Alt{} $\_$ \\
+\Rule{Constructor Pattern} & $\mu$     & \is{}  & \code{match<}$\tau\left[,l\right]$\code{>(}$\varpi^*$\code{)} \\
+\Rule{Guard Pattern}       & $\varrho$ & \is{}  & $\pi \models \xi$ \\
+\Rule{n+k Pattern}         & $\eta$    & \is{}  & $\xi$ \\
+\Rule{Variable Pattern}    & $\chi^{\mathsf{variable}\langle\tau\rangle}$   \\
+\Rule{Value Pattern}       & $\varsigma^{\mathsf{value}\langle\tau\rangle}$ \\
+\Rule{Wildcard Pattern}    & $\_^{\mathsf{wildcard}}$                       \\
+\Rule{Lazy Expression}     & $\xi$     & \is{}  & $\varsigma$ \Alt{} $\chi$ \Alt{} $\xi \oplus c$ \Alt{} $c \oplus \xi$ \Alt{} $\ominus \xi$ \Alt{} $(\xi)$ \Alt{} $\xi \oplus \xi$ \Alt{} $\varphi(\xi^*)$ \\
+\Rule{Lazy Function}       & $\varphi^{\xi^*\rightarrow \xi}$ \\
+\Rule{Unary Operator}      & $\ominus$ & $\in$  & $\lbrace*,\&,+,-,!,\sim\rbrace$ \\
+\Rule{Binary Operator}     & $\oplus$  & $\in$  & $\lbrace*,/,\%,+,-,\ll,\gg,\&,\wedge,|,<,\leq,>,\geq,=,\neq,\&\&,||\rbrace$ \\
+\Rule{Type-Id}             & $\tau$    &        & \Cpp{}\cite[\textsection A.7]{C++11} \\
+\Rule{Statement}           & $s$       &        & \Cpp{}\cite[\textsection A.5]{C++11} \\
+\Rule{Expression}          & $e^\tau$  &        & \Cpp{}\cite[\textsection A.4]{C++11} \\
+\Rule{Constant-Expression} & $c^\tau$  &        & \Cpp{}\cite[\textsection A.4]{C++11} \\
+\Rule{Identifier}          & $x^\tau$  &        & \Cpp{}\cite[\textsection A.2]{C++11} \\
+\end{tabular}
+\caption{Abstract syntax of our pattern-matching SELL}
+\label{syntax}
+\end{figure}
+
+Figure~\ref{syntax} presents the abstract syntax of our pattern-matching SELL. It presents 
+the syntax embedded into the \Cpp{} without sacrificing 
+the clarity of presentation. The idea is to show which interactions are possible 
+within our SELL, while leaving the details of their implementation to 
+\textsection\ref{sec:impl}. Where the specific technique we use to achieve such 
+interactions crucially depends on the types of the entities involved,
+we mention their type in the superscript. This dependence on the 
+type system of the host language was also the reason why we chose abstract 
+syntax over traditional EBNF. We make use 
+of few non-terminals from the host language in order to put our constructs into 
+context.
+
+\emph{Match statement} is an analog of a switch statement with patterns as case 
+clauses. Similar control structures exist in many programming languages and 
+date back to at least Simula's Inspect statement~\cite{Simula67}.
+In a library-based solution, we require it to be closed with a dedicated 
+\code{EndMatch} macro to ensure proper nesting.
+
+We support four kinds of \emph{case clauses}: \code{Qua}, \code{When}, 
+\code{Case}, and \code{Otherwise}.
+The distinction between them is only important for the library 
+implementation and can trivially be inferred in a compiler solution.
+A \code{Qua}-clause is the most general clause taking an  
+expression that identifies the target type as well as a list of extended 
+patterns.
+A \code{Qua}-clause permits nested patterns, but requires all the 
+variables used in the patterns to be explicitly pre-declared. \code{Case}-clause 
+only accepts simple patterns, conveniently introducing all the variables into the 
+clause's scope. 
+A \code{When}-clause takes only patterns while its target type is 
+the subject type.
+An \code{Otherwise} clause is an irrefutable clause that is 
+semantically equivalent to \code{Case}-clause with subject type used as a target 
+type. When used it should be the last clause of the match statement.
+
+A \emph{Target expression} is used by case clauses as either a target type or 
+a constant value, representing \emph{layout}. \emph{Layout} is an enumerator 
+that the user may use to define alternative bindings for the same class. They are 
+discussed in \textsection\ref{sec:bnd}. The use of layout as target 
+expression is only allowed for union encoding of algebraic data types 
+(\textsection\ref{sec:unisyn}), in which case the library assumes the target 
+type to be the subject type.
+
+A \emph{Match expression} is an inline version of the match statement with 
+a single \code{Qua}-clause. Applying a pattern to a subject checks whether the 
+subject matches the pattern.
+
+\emph{Pattern} summarizes all the patterns supported by the library. 
+\emph{Extended pattern} indicates contexts in which our library implicitly 
+permits the use constants as \emph{value patterns} and regular \Cpp{} variables as 
+\emph{variable patterns}. The library recognizes them and transforms into 
+$\varsigma$ and $\chi$ respectively.
+A \emph{Constructor pattern} takes a target type, an optional layout and a list of 
+nested sub-patterns.
+\emph{Guard patterns} are composed from a pattern and a condition separated with 
+\code{|=}.
+We chose operator \code{|=} because of its low precedence 
+allows most other operators to be used inside the 
+condition without parenthesis. The right operand of \code{|=} is allowed to make use of any 
+variables bound in the left operand. When used on arguments of a constructor 
+pattern, it is also allowed to make use of any variables bound by preceding 
+argument positions. 
+\emph{n+k patterns} are a subset of \emph{lazy expressions} for which the user has 
+provided \emph{solvers} -- overloaded functions defining semantics of matching a 
+value against an expression(\textsection~\ref{sec:slv}).
+\emph{Variable patterns} refers to variables whose \Cpp{} type is \code{variable<T>} for 
+any given type \code{T}.
+A \emph{Value pattern} is almost never declared explicitly, 
+but is implicitly introduced by the library in the contexts where $c$ is 
+accepted.
+A \emph{Wildcard pattern} is represented with a constant of type 
+\code{wildcard}.
+A \emph{Lazy expression} refers to lazily evaluated expressions introduced by our SELL, 
+as opposed to eagerly evaluated expressions, directly supported by \Cpp{}. The use 
+of $c$ indicates contexts in which constants can be used as lazy expressions and 
+is similarly replaced with $\varsigma$. \emph{Lazy function} represents 
+functions that can participate in lazy evaluations. Such functions have to be 
+declared in certain way and are discussed in \textsection\ref{sec:slv}. 
+
+\emph{Binary operator} and \emph{unary operator} name a subset of \Cpp{} operators we 
+make use of and provide support for in our pattern-matching library. 
+The remaining syntactic categories refer to non-terminals in the \Cpp{} grammar 
+bearing the same name.
+
+\subsection{Typing Rules}
+
+\begin{figure}[h]
+\begin{mathpar}
+
+\inferrule[T-Var]
+{}
+{\Gamma\vdash \chi : \Variable{T}}
+
+\inferrule[T-Value]
+{}
+{\Gamma\vdash \varsigma : \Value{T}}
+
+\inferrule[T-Wildcard]
+{}
+{\Gamma\vdash \_ : \Wildcard}
+
+\inferrule[T-Unary]
+{\Gamma\vdash \xi : E}
+{\Gamma\vdash \ominus \xi : \ExprU{F_\ominus}{E} }
+
+\inferrule[T-Binary]
+{\Gamma\vdash \xi_1 : E_1 \\ \Gamma\vdash \xi_2 : E_2}
+{\Gamma\vdash \xi_1 \oplus \xi_2 : \ExprB{F_\oplus}{E_1}{E_2} }
+
+%\inferrule[T-Binary-Const-Left]
+%{\Gamma\vdash \xi : E \\ \Gamma\vdash c : T}
+%{\Gamma\vdash c \oplus \xi : \ExprB{F_\oplus}{\Value{T}}{E} }
+
+%\inferrule[T-Binary-Const-Right]
+%{\Gamma\vdash \xi : E \\ \Gamma\vdash c : T}
+%{\Gamma\vdash \xi \oplus c : \ExprB{F_\oplus}{E}{\Value{T}} }
+
+\inferrule[T-Function]
+{\Gamma\vdash \xi_1 : E_1 \\ \cdots \\ \Gamma\vdash \xi_k : E_k}
+{\Gamma\vdash \varphi(\xi_1,\cdots,\xi_k) : \ExprK{F_\varphi}{E_1}{E_k} }
+
+\inferrule[T-Guard]
+{\Gamma\vdash \pi : E_1 \\ \Gamma\vdash \xi : E_2}
+{\Gamma\vdash \pi \models \xi : \Guard{E_1}{E_2} }
+
+\inferrule[T-Constructor]
+{\Gamma\vdash \varpi_1 : E_1 \\ \cdots \\ \Gamma\vdash \varpi_k : E_k}
+{\Gamma\vdash \mathsf{match}\langle T\left[,l\right]\rangle(\varpi_1,\cdots,\varpi_k) : \Cnstr{T\left[,l\right]}{E_1}{E_k} }
+
+%\inferrule[T-Extended-Pattern]
+%{ \varpi = \pi \\ \Gamma\vdash \pi : E}
+%{\Gamma\vdash \varpi : E}
+
+%\inferrule[T-Extended-Value]
+%{ \varpi = c \\ \Gamma\vdash c : T}
+%{\Gamma\vdash \varpi : \Value{T}}
+
+%\inferrule[T-Extended-Var]
+%{ \varpi = x \\ \Gamma\vdash x : T}
+%{\Gamma\vdash \varpi : \Variable{T}}
+
+\end{mathpar}
+\caption{Typing rules for our pattern-matching SELL}
+\label{typing}
+\end{figure}
+
+Figure~\ref{typing} shows rules we use to type expressions in our SELL. The 
+types presented are not necessarily the exact \Cpp{} types we use to encode them, 
+but we keep the correspondence as close as possible to reflect the actual 
+implementation. We use the following type constructors, indicated with their 
+arity: $\CWildcard^0$, $\CValue^1$, $\CVariable^1$, $\CExpr^{1+n}$, $\CGuard^2$, 
+$\CCnstr^{1+n}$. We assume that type variables $T_i$ range over any \Cpp{} types, 
+while $E_i$ only range over types marked with these type constructors, to which 
+we refer as \emph{SELL-types}.
+
+The judgments are of the traditional form $\Gamma\vdash \varpi : E$ that can be 
+interpreted as given a typing environment $\Gamma$, an extended pattern $\varpi$ is 
+given a SELL-type $E$. $\Gamma$ represents the typing context of the \Cpp{} 
+compiler with the allowance for our simplified representation of SELL-types.
+Types $F_\oplus$, $F_\ominus$ and $F_\varphi$ are described in greater details 
+in \textsection\ref{sec:sem}, while for the purpose of typing they can be 
+interpreted as types that uniquely identify operations $\oplus$, $\ominus$ and 
+$\varphi$ respectively.
+
+To avoid confusion we would like to point out that syntactic categories $\chi$, 
+$\varsigma$ and $\_$ are defined as objects of \Cpp{} types \code{value<T>}, 
+\code{variable<T>} and \code{wildcard}, while here we type them with SELL-types 
+$\Value{T}$, $\Variable{T}$ and $\Wildcard$. Internally these types are the same 
+of course.
+
+\subsection{Semantics}
+\label{sec:sem}
+
+We use natural semantics\cite{Kahn87} to describe the semantics of our 
+pattern-matching extension. Because our SELL can be customized in a number of 
+ways, we make use of several semantic functors that let the user define the 
+semantics of the following operations:
+
+\begin{compactitem}
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+\item Type casting: $F_{dc}(\tau,v)$
+\item Lazily evaluated functions: $F_\oplus,F_\ominus,F_\varphi$
+\item Structural decomposition: $\Delta_i^{\tau,l}$
+\item Algebraic decomposition: $\mathsf{solve}(\eta,v)$
+\end{compactitem}
+
+\noindent
+The type of the subject used in pattern matching is not always the same as the 
+type that a given pattern expects. The library in such a case may need to 
+perform type casting of the subject, which may involve but is not limited to 
+down-casting, up-casting, cross-casting or conversion. Depending on the types 
+involved, such casting can be performed in different ways, which is why we 
+abstract from a concrete semantics of such an operation with functor $F_{dc}$. 
+We use the notation $F_{dc}(\tau,v)$ to refer to the result of casting value $v$ 
+to target type $\tau$, which may result in a dedicated value $\nullptr$ that 
+indicates impossibility of such a cast. We discuss various implementations of 
+such a functor in \textsection\ref{sec:unisyn}.
+
+Every function $\varphi$ that the user would like to be able to call lazily 
+requires definition of a functor $F_\varphi$ that defines the semantics of such 
+operation on any given argument types. The library defines such semantic objects 
+$F_\oplus$ and $F_\ominus$ for every binary operation $\oplus$ and unary 
+$\ominus$ it supports. The user is responsible for defining semantic functor 
+$F_\varphi$ for every function $\varphi$ she would like to be able to evaluate 
+lazily or use in a generalized n+k pattern. We show how to define such functors 
+in \textsection\ref{sec:impl}, while here we use the notation $F(v_1,\cdots,v_k)$ 
+to refer to the value representing the result of applying such a functor to 
+values $v_1,\cdots,v_k$.
+
+Each variant of an algebraic data type in a functional language has exactly one 
+constructor, which makes it ideally suitable for structural decomposition of the 
+type with pattern matching. Classes in \Cpp{} are allowed to have multiple 
+constructors, which is why we need a mechanism that would let the user specify 
+structural decomposition of a class. We do this with the help of bindings 
+(\textsection\ref{sec:bnd}) represented here with a functor $\Delta_i^{\tau,l}$. 
+We use the notation $\Delta_i^{\tau,l}(v)$ to refer to the value representing 
+the $i^{th}$ component in layout $l$ of the structural decomposition of a value 
+$v$ of type $\tau$.
+
+Lastly, we let the user define the exact meaning of matching a value $v$ against 
+an expression $\eta$ by case analysis on the structure of $\eta$. The exact 
+details of defining such algebraic decomposition are given in 
+\textsection\ref{sec:slv}, while here we use the notation $\mathsf{solve}(\eta,v)$ 
+to refer to a boolean value indicating whether the generalized n+k pattern 
+$\eta$ was accepted (true) or rejected (false).
+
+We model the run-time environment of our SELL as a map $\Sigma: \chi\rightarrow T$ 
+since our variables $\chi$ either hold a value of type \code{T} or refer to another 
+variable of that type. In addition to meta-variables we have seen already, 
+meta-variables $u,v$ and $b^{bool}$ range over values.
+
+%\subsubsection{Evaluation Rules}
+%\label{sec:eval}
+
+\begin{figure}[h]
+\begin{mathpar}
+
+\inferrule[E-Value]
+{\varsigma = \Value{\tau}(v)}
+{\varsigma \lazyevals v}
+
+\inferrule[E-Var]
+{\chi = \Variable{\tau}(v)}
+{\chi \lazyevals v}
+
+\inferrule[E-Unary]
+{\xi \lazyevals v}
+{\ominus \xi \lazyevals F_\ominus(v)}
+
+\inferrule[E-Binary]
+{\xi_1 \lazyevals v_1 \\ \xi_2 \lazyevals v_2}
+{\xi_1 \oplus \xi_2 \lazyevals F_\oplus(v_1,v_2)}
+
+%\inferrule[E-Binary-Const-Left]
+%{\xi \lazyevals v}
+%{\xi \oplus c \lazyevals F_\oplus(v,c)}
+
+%\inferrule[E-Binary-Const-Right]
+%{\xi \lazyevals v}
+%{c \oplus \xi \lazyevals F_\oplus(c,v)}
+
+\inferrule[E-Function]
+{\xi_1 \lazyevals v_1 \\ \cdots \\ \xi_k \lazyevals v_k}
+{\varphi(\xi_1,\cdots,\xi_k) \lazyevals F_\varphi(v_1,\cdots,v_k)}
+
+\end{mathpar}
+\caption{Evaluation rules}
+\label{evaluation}
+\end{figure}
+
+Figure~\ref{evaluation} shows the evaluation rules used to evaluate lazy expressions 
+that our SELL introduces. The judgments are of the form $\Sigma\vdash \xi \lazyevals v$ 
+stating that lazy expression $\xi$ evaluates to a value $v$ in a run-time 
+environment $\Sigma$. We do not mention the run-time environment in the rules 
+for brevity since the evaluation does not modify it.
+
+%\subsubsection{Semantics of Matching Expressions}
+%\label{sec:semme}
+
+\begin{figure}[h]
+\begin{mathpar}
+\inferrule[P-Wildcard]
+{}
+{\Sigma\vdash \_(v_e) \evals \True,\Sigma}
+
+\inferrule[P-Value]
+{\varsigma \lazyevals u}
+{\Sigma\vdash \varsigma^\tau(v_e) \evals (u=v),\Sigma}
+
+\inferrule[P-Variable]
+{u=F_{dc}(\tau,v_e)}
+{\Sigma\vdash \chi^{\tau}(v_e) \evals (u \neq \nullptr{}),\Sigma[\chi\leftarrow u]}
+
+\inferrule[P-n+k-Pattern]
+{\Sigma\vdash \mathsf{solve}(\xi,v_e) \evals v,\Sigma'}
+{\Sigma\vdash \xi(v_e) \evals v,\Sigma'}
+
+\inferrule[P-Guard]
+{\Sigma\vdash \pi(v_e) \evals b_\pi,\Sigma' \\ \Sigma'\vdash \xi \lazyevals b_\xi}
+{\Sigma\vdash (\pi \models \xi)(v_e) \evals (b_\pi \wedge b_\xi),\Sigma'}
+
+\inferrule[P-Constructor-Nullptr]
+{F_{dc}(\tau,v_e)=\nullptr{}}
+{\Sigma\vdash (\mathsf{match}\langle\tau\left[,l\right]\rangle(\varpi_1,...,\varpi_k))(v_e) \evals \False,\Sigma}
+
+\inferrule[P-Constructor-Reject]
+{ u=F_{dc}(\tau,v_e) \\
+ \Sigma_1    \vdash \varpi_1(\Delta_1^{\tau,l}(u))         \evals \True, \Sigma_2 \\ \cdots \\
+ \Sigma_{i-1}\vdash \varpi_{i-1}(\Delta_{i-1}^{\tau,l}(u)) \evals \True, \Sigma_i \\
+ \Sigma_i    \vdash \varpi_i(\Delta_i^{\tau,l}(u))         \evals \False,\Sigma_{i+1}
+}
+{\Sigma\vdash (\mathsf{match}\langle\tau\left[,l\right]\rangle(\varpi_1,...,\varpi_k))(v_e) \evals \False,\Sigma_{i+1}}
+
+\inferrule[P-Constructor-Accept]
+{ u=F_{dc}(\tau,v_e) \\
+ \Sigma_1    \vdash \varpi_1(\Delta_1^{\tau,l}(u)) \evals \True, \Sigma_2 \\ \cdots \\
+ \Sigma_k    \vdash \varpi_k(\Delta_k^{\tau,l}(u)) \evals \True, \Sigma_{k+1}
+}
+{\Sigma\vdash (\mathsf{match}\langle\tau\left[,l\right]\rangle(\varpi_1,...,\varpi_k))(v_e) \evals \True,\Sigma_{k+1}}
+
+\end{mathpar}
+\caption{Semantics of matching expressions}
+\label{exprsem}
+\end{figure}
+
+The rule set in Figure~\ref{exprsem} deals with pattern application $\pi(e)$, 
+which essentially performs matching of a pattern $\pi$ against an expression 
+$e$. To avoid dealing with the \Cpp{} semantics, we assume that the expression $e$ 
+has already been evaluated to a value $v_e$. Our judgments are thus of the 
+form $\Sigma\vdash \pi(v_e) \evals v,\Sigma'$ that can be interpreted as 
+following: given an environment $\Sigma$ and a value $v_e$ representing the 
+result of evaluating subject expression $e$ according to the \Cpp{} semantics, 
+pattern application $\pi(v_e)$ results in value $v$ and environment $\Sigma'$. 
+
+%\subsubsection{Semantics of Match Statement}
+%\label{sec:semms}
+
+\begin{figure}[h]
+\begin{mathpar}
+\inferrule[Match-True]
+{ v_e \neq \nullptr \\
+ \Sigma      \vdash_{v_e} C_1    \evals \False,\Sigma_1     \\ \cdots \\
+ \Sigma_{i-2}\vdash_{v_e} C_{i-1}\evals \False,\Sigma_{i-1} \\
+ \Sigma_{i-1}\vdash_{v_e} C_i    \evals \True, \Sigma_i
+}
+{\Sigma\vdash \mathsf{Match}(v_e) \{ \left[C_i \vec{s}_i\right]^*_{i=1..n} \} \mathsf{EndMatch} \evals i,\Sigma_i}
+
+\inferrule[Match-False]
+{ v_e \neq \nullptr \\
+ \Sigma      \vdash_{v_e} C_1    \evals \False,\Sigma_1 \\ \cdots \\
+ \Sigma_{n-1}\vdash_{v_e} C_n    \evals \False,\Sigma_n
+}
+{\Sigma\vdash \mathsf{Match}(e) \{ \left[C_i \vec{s}_i\right]^*_{i=1..n} \} \mathsf{EndMatch} \evals 0,\Sigma_n}
+
+\inferrule[Qua]
+{\Sigma \vdash \mathsf{match}\langle\tau,l\rangle(\vec{\varpi})(v_e) \evals b,\Sigma' }
+{\Sigma \vdash_{v_e} \mathsf{Qua}(\tau,\vec{\varpi}) \evals b,\Sigma'[\mathsf{matched}^\tau\rightarrow F_{dc}(\tau,v_e)]}
+
+\inferrule[When]
+{\Sigma \vdash_{v^\tau_e} \mathsf{Qua}(\tau,\vec{\varpi}) \evals b,\Sigma'}
+{\Sigma \vdash_{v^\tau_e}     \mathsf{When}(\vec{\varpi}) \evals b,\Sigma'}
+
+\inferrule[Case]
+{\Delta_i^\tau : \tau \rightarrow \tau_i, i=1..k \\
+ \Sigma[x_i^{\tau_i}\rightarrow\nullptr]_{i=1..k} \vdash_{v_e} \mathsf{Qua}(\tau,x_1,...,x_k) \evals u,\Sigma' }
+{\Sigma \vdash_{v_e} \mathsf{Case}(\tau,x_1,...,x_k) \evals u,\Sigma'}
+
+\inferrule[Otherwise]
+{\Sigma \vdash_{v^\tau_e} \mathsf{Case}(\tau,\vec{x}) \evals u,\Sigma'}
+{\Sigma \vdash_{v^\tau_e} \mathsf{Otherwise}(\vec{x}) \evals u,\Sigma'}
+\end{mathpar}
+\caption{Semantics of match-statement}
+\label{stmtsem}
+\end{figure}
+
+The rule set in Figure~\ref{stmtsem} describes the semantics of a \emph{match 
+statement}. In order to avoid dealing with the semantics of the \Cpp{} statements, 
+we define the semantics of a match-statement to be the index of the matching case 
+clause and the run-time environment right before the clause's statement, or $0$ 
+if none of the clauses matched. The judgments are thus of the form 
+$\Sigma\vdash M \evals v,\Sigma'$ for match statement, and are slightly extended 
+for case clauses $\Sigma\vdash_{v_e} C \evals b,\Sigma'$ with value $v_e$ of a 
+subject that is passed along from the match statement onto the clauses.
+
+The rules essentially describe the first-fit strategy for evaluating the clauses.
+Evaluation of a \code{Qua}-clause is equivalent to evaluation of a corresponding 
+match-expression on a constructor pattern. Successful match will introduce into 
+the local scope of the clause a variable \code{matched} bound to the subject 
+properly casted to the target type $\tau$. Evaluation of \code{When}-clause 
+amounts to evaluation of a corresponding \code{Qua}-clause with target type 
+being the subject type. Evaluation of \code{Case}-clauses amounts to evaluation 
+of \code{Qua}-clauses in the environment extended with variables passed as 
+arguments to the clause. Evaluation of default clause amounts to evaluating a 
+corresponding \code{Case}-clause with target type being the subject type.
+

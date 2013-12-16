@@ -1,0 +1,67 @@
+;;; stream was Stream
+
+(
+ (stream 
+  ()
+  ()
+  (store: flush uptoend nextavailable: space nextchunkput: next: do: nextputall: skipthrough: crtab nextput: contents atend nextmatchfor: next:put: next through: upto: nextavailable:into:startingat: timestamp close fileoutchanges fileoutchangesfor: next:into:startingat: tab: tab cr next:putall:startingat: crtab: emphasis emphasis: contentsspecies print: ))
+ (peekablestream 
+  (stream )
+  ()
+  (filein nextchunk peekfor: skip: skipupto: skipseparators peek ))
+ (positionablestream 
+  (peekablestream )
+  ()
+  (next:into:startingat: uptoall: skiptoall: contentsspecies isempty reset on: settoend positionoutofboundserror: next:putall:startingat: position: contents atend position skip: throughall: ))
+ (internalstream 
+  (positionablestream )
+  ()
+  (size on: reset pastend position: pastendput: on:from:to: contents with: ))
+ (writestream 
+  (internalstream )
+  ()
+  (next writeposition flush on: nextput: contents ))
+ (readwritestream 
+  (writestream )
+  ()
+  (readposition contents next ))
+ (bytecodereadwritestream 
+  (readwritestream )
+  ()
+  (lastcode fixbranchat:with: labelposition removeindex: nextput:with: contentsfrom: on: at: at:put: nextput:with:with: adjustbranchat:by: lastput: ))
+ (textstream 
+  (writestream )
+  ()
+  (emphasis contents emphasis: on: ))
+ (readstream 
+  (internalstream )
+  ()
+  (next flush nextput: readposition ))
+ (externalstream 
+  (positionablestream )
+  ()
+  (nextnumber: wordposition padtonextword padtonextwordput: padto:put: wordposition: nextsignedinteger reopenerror nextlong nextstring nextnumber:put: skipwords: nextstringput: padto: nextwordput: nextword nextlongput: ))
+ (bufferedexternalstream 
+  (externalstream )
+  ()
+  (next:into:startingat: release readposition settoend closed position: commit endtest crlfskip: lineendcr lineendcrlf name crlfnext:into:startingat: atendofdata textofclass: setposition: setlineendcharacter close reopen position binary crlfnext:putall:startingat: setupbufferandlimits lineendconvention: nextbuffer on: writeposition basicatend setbinary: setconnection: closeconnection isbinary contents atend ioconnection pastend getiobuffer reset lineendlf text next:putall:startingat: lineendtransparent size printon: setdependency lineendconvention istext openifclosed removedependency ))
+ (externalwritestream 
+  (bufferedexternalstream )
+  ()
+  (nextbuffer size nextput: reopen atend next closeconnection getiobuffer flush writeposition settoend position position: ))
+ (externalreadstream 
+  (bufferedexternalstream )
+  ()
+  (flush skip: next ))
+ (externalreadappendstream 
+  (externalreadstream )
+  ()
+  (text flush padto:put: textofclass: size nextchunkput: commit nextput: position: print: nextputall: store: binary close writeposition next:putall:startingat: on: lineendconvention: ))
+ (externalreadwritestream 
+  (externalreadstream )
+  ()
+  (position: skip: size flush nextput: fixend ))
+ (random 
+  (stream )
+  ()
+  (setseed next seed: generator: nextput: contents atend flush step )))

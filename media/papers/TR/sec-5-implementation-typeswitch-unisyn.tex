@@ -1,0 +1,68 @@
+\section{Unified Syntax}
+\label{sec:unisyn}
+
+The discussion in this subsection will be irrelevant for a compiler 
+implementation, nevertheless we include it because some of the challenges we 
+came accross as well as techniques we used to overcome them might show up in 
+other active libraries. The problem is that working in a library setting, the 
+toolbox of properties we can automatically infer about user's class hierarchy, 
+match statement, clauses in it, etc. is much more limited than the set of 
+properties a compiler can infer. On one side such additional information may let 
+us generate a better code, but on the other side we understand that it is 
+important not to overburden the user's syntax with every bit of information she 
+can possibly provide us with to generate a better code. Some examples of 
+information we can use to generate a better code even in the library setting 
+include:
+
+\begin{itemize}
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+\item Encoding we are dealing with (\textsection\ref{sec:adt})
+\item Shape of the class hierarchy: flat/deep, single/multiple inheritance etc.
+\item The amount of clauses in the match statement
+\item Presense of Otherwise clause in the match statement
+\item Presence of extensions in dynamically linked libraries
+\end{itemize}
+
+We try to infer the information when we can, but otherwise resort to a usually 
+slower default that will work in all or most of the cases. The major source of 
+inefficiency comes from the fact that macro resolution happens before any 
+meta-programming techniques can be employed and thus the macros have to generate 
+a syntactic structure that can essentially handle all the cases as opposed to 
+the exact case. Each of the macros involved in rendering the syntactic structure 
+of a match statement (e.g. \code{Match}, \code{Case}, \code{Otherwise}) have a 
+version identified with a suffix that is specific to a combination of encoding 
+and shape of the class hierarchy. By default the macros are resolved to a 
+unified version that infers encoding with a template meta-program, but this 
+resolution can be overriden with a configuration flag for a more specific 
+version when all the match statements in user's program satisfy the requirements 
+of that version. The user can also pin-point specific match statement with the 
+most applicable version, but we discourage such use as performance differences 
+are not big enough to justify the exposure of details.
+
+To better understand what is going on, consider the following examples. Case 
+labels for polymorphic base class encoding can be arbitrary, but preferably 
+sequential numbers, while the case labels for tagged class and discriminated 
+union encodings are the actual kind values associated with concrete variants.
+Discriminated union and tagged class encodings can use both types (views in case
+of unions) and kind values to identify the target variant, while polymorphic 
+base class encoding can only use types for that. The latter encoding requires 
+allocation of a static vtblmap in each match statement, not needed by any other 
+encoding, while tagged class encoding on non-flat hierarchy requires the use of 
+default label of the generated switch statement as well as a dedicated case 
+label distinct from all kind values (\textsection\ref{sec:cotc}). 
+When merging these and other requirements into a syntactic structure of a 
+unified version capable of handling any encoding we essentially always have to 
+reserve the use of default label (and thus not use it to generate 
+\code{Otherwise}-clause), allocate an extra dedicated case label, introduce  
+a loop over base classes used by tagged class encoding etc. This is a clear 
+overhead for handling of a discriminated union encoding whose syntactic 
+structure only involves a simple switch over kind values and default label to 
+implement \code{Otherwise}. To minimize the effects of this overhead we rely on 
+compiler's optimizer to inline calls specific to each encoding and either remove 
+branching on conditions that will always be true after inlining or elminate dead 
+code on conditions that will always be false after inlining. Luckily for us 
+today's compilers do a great job in doing just that, rendering our unified 
+version only slightly less efficient than the specialized ones. These 
+differences can be best seen in Figure\ref{relperf} under corresponding entries 
+of \emph{Unified} and \emph{Specialized} columns.

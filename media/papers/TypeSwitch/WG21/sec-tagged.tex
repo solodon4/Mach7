@@ -1,0 +1,94 @@
+\subsection{An Attractive Non-Solution}
+\label{sec:cotc}
+
+%The memoization device outlined in \textsection\ref{sec:memdev} can, in principle, also be 
+%applied to tagged classes. The dynamic cast will be replaced by a small 
+%compile-time template meta-program that checks whether the class associated with 
+%the given tag is derived from the target type of the case clause. If so, a static 
+%cast can be used to obtain the offset.
+
+%Despite its straightforwardness, we felt that it should be possible to do better 
+%than the general solution, given that each class is already identified with a 
+%dedicated constant known at compile time.
+
+While Wirth' linked list encoding was considered slow for subtype testing, it can 
+be adopted for quite efficient type switching on a class hierarchy with no 
+repeated inheritance. The idea is to combine fast switching on closed 
+algebraic datatypes with a loop that tries the tags of base classes when 
+switching on derived tags fails.
+
+%The nominal subtyping of \Cpp{} effectively gives every class multiple types. The 
+%idea is thus to associate with the type not only its most-derived tag, but also 
+%the list of tags of all its base classes. In a compiler implementation such a 
+%list can be stored inside the virtual table of a class, while in our library 
+%solution it is shared between all the instances with the same most-derived tag 
+%in a less efficient global map, associating the tag to its tag list.
+
+For simplicity of presentation we assume a pointer to an array of tags be available 
+directly through the subject's \code{taglist} data member. The array is of 
+variable size: its first element is always the tag of the subject's dynamic 
+type, while its end is marked with a dedicated \code{end_of_list} marker, 
+distinct from all the tags. The tags in between are topologically sorted 
+according to the subtyping relation with incomparable siblings listed in 
+\emph{local precedence order} -- the order of the direct base classes used in 
+the class definition. The list resembles the \emph{class precedence list} of 
+object-oriented descendants of Lisp (e.g. Dylan, Flavors, LOOPS, and CLOS) used 
+there for \emph{linearization} of class hierarchies. 
+We also assume the tag-constant associated with a class \code{Di} is accessible 
+through a static member \code{Di::class_tag}. These simplifications are not 
+essential and the library does not rely on any of them.
+%Instead, the user can retroactively narrate to the library the specific tag 
+%encoding used through a trait-like class.
+
+A type switch, below, %, built on top of a hierarchy of tagged classes, 
+proceeds as 
+a regular switch on the subject's tag. If the jump succeeds, we found an exact 
+match; otherwise, we get into a default clause that obtains the next tag in the
+list and jumps back %to the beginning of the switch statement 
+for a rematch:
+
+\begin{lstlisting}[keepspaces]
+    size_t attempt = 0; 
+    size_t tag = subject->taglist[attempt];
+ReMatch:
+    switch (tag) {
+    default:
+        tag = subject->taglist[++attempt];
+        goto ReMatch;
+    case end_of_list: 
+        break;
+    case D1::class_tag: 
+        D1& match = static_cast<D1&>(*subject); s1;
+        break;
+        ...
+    case Dn::class_tag: 
+        Dn& match = static_cast<Dn&>(*subject); sn;
+        break;
+    }
+\end{lstlisting}
+
+\noindent
+The above structure, which we call a \emph{tag switch}, implements a variation of 
+best-fit semantics based on local precedence order. It lets us dispatch to the case 
+clause of the most-specialized class with an overhead of initializing two 
+local variables, compared to an efficient switch used on algebraic data types. 
+Dispatching to a case clause of a base class will take time roughly proportional 
+to the distance between the matched base class and the derived class in the 
+inheritance graph, thus the technique is not constant. When none of the base 
+class tags was matched, we will necessarily reach the end\_of\_list marker %in the list 
+and exit the loop. %As mentioned before, 
+The default clause, %of the type switch 
+again, can be implemented with a case clause on the subject type's tag: \code{case S::class_tag:}
+
+The efficiency of the above code crucially depends on the set of tags 
+being small and sequential to justify the use of a jump table instead of a
+decision tree to implement the switch. This is usually not a problem in closed 
+hierarchies based on tag encoding since the designer of the hierarchy handpicks 
+the tags herself. The use of a static cast %to obtain proper reference once the most specialized derived class has been established, 
+however, essentially limits the use of 
+this mechanism to non-repeated inheritance only. This only refers to the way target 
+classes inherit from the subject type -- they can freely inherit from other classes. 
+%as long as they inherit the subject type through non-repeated inheritance only. 
+Due to these restrictions, the technique is not open because it may  
+violate independent extensibility. We discuss in \textsection\ref{sec:cmp} that 
+making the technique more open will also eradicate its performance advantages.

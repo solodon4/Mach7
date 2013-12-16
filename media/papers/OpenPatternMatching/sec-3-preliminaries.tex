@@ -1,0 +1,53 @@
+\section{\Cpp{} Concepts} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:prelim}
+
+A constraint is an unconstrained, constexpr function template that takes no 
+arguments and returns bool. constexpr functions are syntactically restricted 
+functions that can be evaluated at compile time. Consider for example the 
+definition of \code{Equality_comparable} constraint:
+
+\begin{lstlisting}
+template<typename T>
+constexpr bool Equality_comparable()
+{
+    return requires (T a, T b) {
+                bool = {a == b};
+                bool = {a != b};
+    };
+}
+\end{lstlisting}
+
+\noindent
+The \code{requires} clause introduces a set of syntactic constraints that the 
+type \code{T} must satisfy. For convenience, it may introduce some formal 
+parameters to avoid using \code{declval<T>}. Here is an incomplete list of some 
+commonly-used syntactic requirements:
+
+\begin{lstlisting}
+e;        // e is a valid expression
+T = {e}   // decltype(e) is convertible to T
+T == {e}; // decltype(e) is the same as T
+typename T::X; // X is an associated type of T
+\end{lstlisting}
+
+The rest of this section is to be completed. Meanwhile, please refer to Sutton 
+et al~\cite{N3580} for the details on the syntax.
+
+%TODO: Describe everything we use from concepts:
+%
+%\begin{itemize}
+%\item concept definition
+%\item refinement of another concept
+%\item associated functions
+%\item associated types
+%\item associated templates (we have those, e.g. accepted\_type\_for)
+%\item default implementation of an associated function
+%\item requires
+%\item concept-based overloading
+%\item decltype
+%\item std::declval
+%\item template aliases
+%\end{itemize}
+%
+%The following concepts can be used as examples since we later refer to them in 
+%the paper: \code{CopyConstructible}, \code{Convertible}.

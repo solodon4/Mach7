@@ -17,14 +17,21 @@
 </HEAD>
 <BODY>
 <H1>Open and Efficient Type Switch for C++</H1>
-<H3>OOPSLA-2012 paper supporting material</H3>
+<P>by 
+<A href="http://parasol.tamu.edu/~yuriys/">Yuriy Solodkyy</A>, 
+<A href="http://parasol.tamu.edu/~gdr/">Gabriel Dos Reis</A> and 
+<A href="http://parasol.tamu.edu/~bs/">Bjarne Stroustrup</A>
+</P>
+<H3><A href="http://doi.acm.org/10.1145/2384616.2384686">OOPSLA-2012 paper</A> supporting material</H3>
 
 <H2>The Library</H2>
 
 <H3><a name="typeswitch">Type Switch</a></H3>
 
 <P>The library source code can be downloaded here: 
-<A href="typeswitch.zip">typeswitch.zip</A>. 
+<A href="typeswitch-2013-02-18.zip">typeswitch-2013-02-18.zip</A>.<BR> <B>NOTE:</B> This version does not provide 
+support of multi-threading. Please wait until next release, we are working on a 
+thread-safe version. <A href="mailto:solodon+typeswitch@gmail.com" title="TypeSwitch Inquiry">Send me an e-mail</A> if you need it sooner.
 </P>
 <P>
 The library is a subset of a larger <A href="#" title="Link to be supplied...">pattern-matching 
@@ -56,9 +63,7 @@ and is only available under GCC at the moment because it depends on the compiler
 implementing C++11 initializer lists.
 </P>
 <P>
-As a larger example you might want to look at the source code of a C++ pretty 
-printer we implemented for the Pivot framework (see below the Code Comparison 
-section and the source files it references).
+As a larger example you might want to look at the source code of a <A href="#codecmp">C++ pretty printer</A> we implemented for the <A href="http://parasol.tamu.edu/pivot/">Pivot framework</A>.
 </P>
 <!--
 <H3><a name="matching">Pattern Matching</a></H3>
@@ -68,6 +73,15 @@ It addresses general pattern matching for C++ and is subject of a separate
 paper. We present the source code here only for completeness.
 </P>
 -->
+<H2>Discussions</H2>
+<P>There have been few discussions of the library on the internet with some 
+relevant questions asked/answered:</P>
+
+<UL>
+<LI>2013-02-24: <A href="http://www.reddit.com/r/cpp/comments/18i8nf/open_and_efficient_type_switch_for/">reddit.com</A>
+<LI>2013-02-13: <A href="http://isocpp.org/blog/2013/02/open-and-efficient-type-switch-for-c-solodkyy-dos-reis-and-stroustrup">isocpp.org</A>
+</UL>
+
 <H2>Synthetic Tests Performance Comparison</H2>
 <P>
 Synthetic tests were designed to compare the run-time performance of visitors 
@@ -234,7 +248,7 @@ vtbl-ptr the data associated with it. If we implement it with sorted vector, the
 red part will shrink to only the non-transparent part.
 </P>
 
-<H2>Code Comparison</H2>
+<H2><a name="codecmp">Code Comparison</a></H2>
 
 <P>The table below presents side-by-side comparison of the code implementing the 
 C++ pretty-printer using visitors (left) and pattern-matching (right).</P>

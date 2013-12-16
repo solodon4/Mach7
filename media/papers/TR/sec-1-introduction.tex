@@ -87,7 +87,7 @@ struct Divide : Expr { Expr* exp1; Expr* exp2; };
 Using our library, we can express matching about as tersely as OCaml:
 
 \begin{lstlisting}[keepspaces,columns=flexible]
-int eval(const Expr* e)
+int eval(const Expr& e)
 {
     Match(e)
     {
@@ -126,14 +126,15 @@ outperforms the handcrafted C++ code based on the \emph{visitor design pattern}
 
 \subsection{Motivation}
 
-The ideas and the library presented here, were motivated by our 
-rather unsatisfactory experiences working with various C++ front-ends and 
-program analysis frameworks~\cite{Pivot09,Phoenix,Clang,Lise}. 
+The ideas and the 
+\emph{Mach7} library were motivated by our unsatisfactory experiences working 
+with various \Cpp{} front-ends and program analysis frameworks~\cite{Pivot09,gdr-2012:liz,Phoenix,Clang}. 
 The problem was not in the frameworks per se, but in the fact that we had to use
 the \emph{visitor design pattern}~\cite{DesignPatterns1993} to inspect, traverse, and 
-elaborate abstract syntax trees to target languages. We found visitors 
-unsuitable to express our application logic, surprisingly hard to teach 
-students, and slow. We found dynamic casts in many places, often nested, 
+elaborate abstract syntax trees of target languages. We found visitors 
+unsuitable to express application logic directly, surprisingly hard to teach 
+students, and often slower than handcrafted workaround techniques. 
+We found dynamic casts in many places, often nested, 
 because users wanted to answer simple structural 
 questions without having to resort to visitors. Users preferred shorter, cleaner, 
 and more direct code to visitors, even at a high cost in performance (assuming 
@@ -143,7 +144,7 @@ types. Thus, our initial goal was to develop a domain-specific library for C++
 to express various predicates on tree-like structures as elegantly as is done in functional 
 languages. This grew into a general high-performance pattern-matching library.
 
-The library is the latest in a series of 5 libraries. The earlier versions were 
+The library is the latest in a series of 7 libraries. The earlier versions were 
 superceded because they failed to meet our standards for notation, performance, 
 or generality. Our standard is set by the principle that a fair comparison must 
 be against the gold standard in a field. For example, if we work on a linear 
@@ -153,7 +154,7 @@ as our standard for closed (compile-time polymorphic) sets of classes and C++
 for uses of the visitor pattern. For generality and simplicity of use, we deemed 
 it essential to do both with a uniform syntax.
 
-\subsection{Expression Problem}
+\subsection{The Expression Problem}
 \label{sec:exp}
 
 %Expression problem is a problem of supporting in a programming language modular 
@@ -170,6 +171,28 @@ it essential to do both with a uniform syntax.
 %restricting extensibility of data, increased verbosity and being hard to teach 
 %and understand, but nevertheless, remains the weapon of choice for interacting 
 %with numerous object-oriented libraries and frameworks. 
+
+Type switching is related to a more general problem manifesting the differences 
+in functional and object-oriented programming styles.
+Conventional algebraic datatypes, as found in most functional languages, allow 
+for easy addition of new functions on existing data types. However, they fall short 
+in extending data types themselves (e.g. with new constructors), which requires 
+modifying the source code. Object-oriented languages make 
+data type extension trivial through inheritance, but the addition of new 
+functions operating on these classes typically requires changes to the class 
+definition. This dilemma is known as the \emph{expression problem}~\cite{Cook90,exprproblem}.
+
+Classes differ from algebraic data types in two important ways. Firstly, they
+are \emph{extensible}, for new variants can be added later by inheriting from
+the base class. Secondly, they are \emph{hierarchical} and thus typically 
+\emph{non-disjoint} since variants can be inherited from other variants and form 
+a subtyping relation between themselves~\cite{Glew99}. In contrast, variants in 
+conventional algebraic data types are \emph{disjoint} and \emph{closed}.
+Some functional languages e.g. ML2000~\cite{ML2000} and its predecessor, Moby, 
+were experimenting with \emph{hierarchical extensible sum types}, which are 
+closer to object-oriented classes then algebraic data types are, but, 
+interestingly, they provided no %neither traditional nor efficient 
+facilities for performing case analysis on them.
 
 Functional languages allow for the easy addition of new functions on existing data 
 types, but fall short in extending data types themselves (e.g. with new constructors), 
@@ -197,10 +220,10 @@ experimenting with \emph{hierarchical extensible sum types}, which are closer to
 object-oriented classes then algebraic data types are, but, interestingly, they 
 did not provide pattern matching facilities on them!
 
-Zenger and Odersky later refined the expression problem in the context of 
+Zenger and Odersky refined the expression problem in the context of 
 independently extensible solutions~\cite{fool12} as a challenge to find an 
 implementation technique that satisfies the following requirements:
-
+%
 \begin{itemize}
 \setlength{\itemsep}{0pt}
 \setlength{\parskip}{0pt}
@@ -233,8 +256,8 @@ Liskov substitution principle~\cite{Lis87}:
 \setlength{\itemsep}{0pt}
 \setlength{\parskip}{0pt}
 \item \emph{Substitutability}: Operations expressed on more general data variants
-      should be applicable to more specific ones that are in a subtyping relation 
-      with them.
+      should be applicable to ones that are more specific
+      (the latter being in a subtyping relation with the former).
 \end{itemize}
 
 %Depending on the semantics of the language's subtyping relation, 
@@ -245,13 +268,13 @@ Liskov substitution principle~\cite{Lis87}:
 \noindent
 We will refer to a solution that satisfies all of the above requirements as \emph{open}. 
 Numerous solutions have been proposed to dealing with the expression problem in both 
-functional and object-oriented camps, but notably very few are truly open, while 
-none has made its way into one of the mainstream languages. We refer the reader 
-to Zenger and Odersky's original manuscript for a discussion of the 
-approaches~\cite{fool12}. Interestingly, most of the discussed object-oriented 
-solutions were focusing on the visitor design pattern~\cite{DesignPatterns1993}, 
-which even today seems to be the most commonly used approach to dealing with the 
-expression problem in practice.
+functional~\cite{garrigue-98,LohHinze2006} and object-oriented 
+camps~\cite{Palsberg98,Krishnamurthi98,Zenger:2001,runabout}, but very few have
+made their way into one of the mainstream languages. We refer the reader to Zenger 
+and Odersky's original manuscript for a discussion of the approaches~\cite{fool12}. 
+Interestingly, most of the discussed object-oriented solutions focused on the visitor design pattern~\cite{DesignPatterns1993} and its extensions, 
+which even today seem to be the most commonly used approach to dealing with the 
+expression problem in object-oriented languages.
 
 \subsection{Visitor Design Pattern}
 \label{sec:vdp}

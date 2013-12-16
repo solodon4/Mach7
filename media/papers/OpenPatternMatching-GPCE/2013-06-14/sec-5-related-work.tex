@@ -1,0 +1,180 @@
+\section{Related Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:rw}
+
+Language support for pattern matching was first introduced for string manipulation 
+in COMIT\cite{COMIT58}, which subsequently inspired similar primitives in 
+SNOBOL\cite{SNOBOL64}. SNOBOL4 had string patterns as first-class data types 
+providing operations of concatenation and alternation\cite{SNOBOL71}.
+The first reference to a modern pattern-matching constructs seen in functional 
+languages is usually attributed to Burstall's work on structural 
+induction\cite{Burstall69provingproperties}. Pattern matching was further 
+developed by the functional programming community, most notably 
+Hope\cite{BMS80}, Miranda\cite{Miranda85}, ML\cite{ML90} and 
+Haskell\cite{Haskell98Book}. In the context of object-oriented programming, 
+pattern matching has been first explored in Pizza\cite{Odersky97pizzainto} and 
+Scala\cite{Scala2nd,EmirThesis}. The idea of first class patterns dates back to 
+at least Tullsen's proposal to add them to Haskell~\cite{Tullsen00}, calculus of 
+such patterns has been studied in details by Jay~\cite{Jay09,PatCalc09}.
+
+There are two main approaches to compiling pattern-matching code: the first is 
+based on \emph{backtracking automata} and was introduced by Augustsson\cite{Augustsson85}, 
+the second is based on \emph{decision trees} and was first described by 
+Cardelli\cite{Cardelli84}, though he attributes the technique to Dave MacQueen 
+and Gilles Kahn in their implementation of the Hope compiler \cite{BMS80}.
+Backtracking approach usually generates smaller code~\cite{OPM01}, while decision tree 
+approach produces faster code by ensuring that each primitive test is only 
+performed once~\cite{Maranget08}. %With respect to matching a single expression our library 
+%approach follows the naive backtracking approach, however our match statement is 
+%based on a highly efficient type switching technique we developed\cite{TS12} 
+%that outperforms similar solutions based on decision trees or visitor design pattern.
+
+\emph{MatchO} was one of the first attempts to implement pattern matching without 
+extending the host language~\cite{Visser06matchingobjects}. While the library 
+was essentially providing first class patterns into Java, the amount of 
+syntactic and run-time overhead was overwhelming. The author offers to provide 
+customized syntax to patterns by invoking an inline parser, while to improve 
+performance the author looks into combining visitors and visitor combinators 
+with pattern matching. %This resembles our use of an efficient type switch to 
+%uncover the dynamic type combined with slower but more flexible pattern 
+%matching.
+
+\emph{Functional C\#} was a similar approach to bringing pattern matching into 
+C\# as a library\cite{FuncCSharp}. The approach uses lambda expressions and 
+chaining of method calls to create a structure that is then evaluated at 
+run-time for the first successful match. The approach supports a form of 
+active patterns, simple n+k patterns, list and tuple patterns as well as type 
+patterns (without structural decomposition). Unfortunately, the solution scales 
+very poorly for match statements with more than two case clauses as it is 
+essentially based on sequential type tests. Besides, the approach is ill suited 
+for tests involving nesting of patterns.
+
+Both \emph{MatchO} and \emph{Functional C\#} were object-oriented solutions. In 
+functional community, Rhiger explored a similar idea of introducing pattern 
+matching into Haskell as a library~\cite{Rhiger09}. He uses functions to encode 
+patterns and pattern combinators, which allows him to detect pattern 
+misapplication errors at compile time through the Haskell type system. 
+Unfortunately, the purity of a functional language prevents him from expressing 
+variable patterns (more specifically, the bindings they introduce) in a library 
+setting simply, which then affects the overall elegance of the solution. In 
+particular, it seems to be impossible in his approach to express equivalence 
+patterns or even equivalence combinator as the value of the bound variable is 
+not available in the left-hand side of the matching expression, only in the 
+right-hand side. The library is sufficiently expressive though to express basic 
+patterns (value, wildcard, predicate, etc.), boolean pattern combinators and set 
+patterns. The author reports that his solution requires 2-4 times more 
+reductions than Haskell's built-in pattern matching. He attributes the overhead 
+to currying and continuations passing and hypothesizes that it should be completely 
+eliminated by standard partial evaluation techniques.
+
+\emph{Racket} has a very powerful macro system that allows it to express open pattern 
+matching in the language entirely as a library~\cite{Tobin-Hochstadt_2010}. 
+The work builds on earlier attempts to bring pattern matching into Scheme, 
+extending it and making it more efficient~\cite{Wright95}. The solution is 
+remarkable in that unlike most of the library approaches to open pattern matching, 
+it does not rely on naive backtracking and in fact encodes the optimized 
+algorithm based on backtracking automata~\cite{Augustsson85,OPM01}. The solution 
+is easy to extend with new kinds of patterns and its only disadvantage is the 
+fact that untyped nature of Racket makes any static checking of patterns hard if 
+possible.
+
+\emph{Grace} is another programming language that provides a library solution to 
+pattern matching through objects~\cite{Grace2012}. The language aims at 
+teaching various programming paradigms and has an interesting peculiarity: it 
+does not have pre-defined control structures, which instead are expressed 
+directly in the language with the help of partial functions and lambda 
+expressions. The \codeocaml{match}-statement, for example, takes form of a 
+clausal definition \codeocaml{match(e)case(c_1)...case(c_n)}, in which case 
+blocks \codeocaml{c_i} are single-argument blocks that take pattern objects as 
+an input. Patterns are objects in Grace. The compiler provides some syntactic 
+sugar to denote some common patterns, but otherwise user-defined patterns have 
+to be explicitly created. They are composed and applied at run-time using the 
+naive backtracking approach without any current provision for optimizations. 
+This is a design choice as Grace is not concerned with performance, but with the 
+expressiveness of the language and ease of teaching different programming 
+paradigms. Unlike many object-oriented languages, Grace does not use nominative 
+subtyping and thus their case analysis is never hierarchical; instead they use 
+structural subtyping, more common of functional languages.
+
+%Newspeak and Grace treat their case statement as combination of partial 
+%functions -- functions defined on a restricted domain of inputs. Functional C 
+%sharp does ...
+
+\emph{Thorn} is dynamically typed scripting language that provides first-class 
+patterns~\cite{Thorn2012}. The pattern matching in Thorn, however, is not 
+brought through a library, instead it is tightly integrated into the language 
+and seamlessly interacts with other constructs. The language defines a handful 
+of atomic patterns and pattern combinators to compose them, and, similar to 
+Newspeak and Grace, uses the duality between partial functions and patterns to 
+support user-defined patterns. The duality is particularly suitable for 
+providing support to structural decomposition of classes: along with a regular 
+constructor, a class may provide destructuring constructor, which allow the use 
+of construction syntax in the pattern-matching context. As with other solutions 
+to first-class patterns we looked at, the pattern matching is currently 
+performed in the naive backtracking way. Unlike the library solutions, however, 
+tighter integration into the language and presence of built-in patterns and 
+pattern combinators should enable at least some of the known optimization 
+techniques mentioned above~\cite{OPM01,Maranget08}, remember that Thorn is an 
+interpreter though.
+
+\emph{Prop} was a language extension that brought pattern matching and term 
+rewriting into \Cpp{}~\cite{Prop96}. The extension aimed at building 
+high-performance compiler and language transformation systems. It did not offer 
+first-class patterns, but supported most of the functional-style patterns and 
+provided an optimizing compiler for both pattern matching and garbage collected 
+term rewriting. \emph{App} was another pattern-matching extension to \Cpp{}~\cite{App}. 
+It provided syntax for defining algebraic data types and pattern matching on 
+them that was very close to Haskell. Unlike Prop, App concentrates on algebraic 
+data type decomposition and only supports wildcard, variable, constructor and a 
+zero pattern -- a value pattern for \code{nullptr}. App also does not provide 
+any optimizations and simply generates a cascade of type tests.
+
+\emph{Tom} is a pattern-matching compiler that took the ideas in Prop much 
+further, banking on the fact that pattern-matching primitives and optimizations 
+on them are language agnostic~\cite{Moreau:2003}. It brings a common 
+pattern-matching and term-rewriting syntax into Java, C and Eiffel, but 
+otherwise can be implemented on top of many other programming languages. Thanks 
+to its distinct syntax, it is transparent to the semantics of the host language 
+and is implemented as a preprocessor to that language. Similar to Prop and App, 
+Tom neither supports first-class patterns, nor is open to new patterns. 
+%Tom is quite 
+%transparent as to the concrete target language used and can potentially be 
+%extended to other target languages besides the three supported now.
+%Tom's goals differ from ours in aiming to be a
+%tree-transformation language similar to Stratego/XT, XDuce and others. 
+%Tom's approach is prone to general problems of any preprocessor based 
+%solution\cite[\textsection 4.3]{SELL}. In particular, it is part of a dedicated tool chain.
+%Our library approach avoids that and lets us employ the \Cpp{} semantics within 
+%patterns: e.g. our patterns work directly on underlying user-defined data 
+%structures, avoiding abstraction penalties. The tight integration with 
+%the language semantics makes our patterns first-class citizens that can be 
+%composed and passed to other functions. 
+
+\emph{Matchete} is a language extension to Java that brings together different flavors 
+of pattern matching: functional-style patterns, Perl-style regular expressions, 
+XPath expressions, Erlang's bit-level patterns etc.~\cite{padl08}. The extension 
+does not try to make patterns first class citizens, and instead concentrates on 
+implementing existing best practices and their tight integration into Java. This 
+also avoids the necessity to remain within boundaries of Java and allows them to 
+improve significantly the syntax. The extension offers a wide variety of 
+built-in patterns, however it does not try to optimize the matching and resorts 
+to naive backtracking. 
+
+\emph{OOMatch} is another Java extension that brings pattern matching and multiple 
+dispatch close together~\cite{OOMatch07thesis}. The approach generalizes 
+multiple dispatch by offering to use patterns as multi-method arguments and then 
+orders overriders based on the specificity of their arguments. This allows 
+avoiding many ambiguities typical of symmetric multiple dispatch, however it 
+does not eliminate them entirely. Similar to others, the approach only deals 
+with a limited set of built-in patterns.
+
+When a class hierarchy is fixed, one can design a pattern language that involves 
+semantic notions represented by the hierarchy. Pirkelbauer devised a pattern 
+language for Pivot~\cite{Pivot09} capable of representing various entities in a 
+\Cpp{} program using syntax very close to the \Cpp{} itself. The patterns were 
+translated with a tool into a set of visitors implementing the underlying 
+pattern-matching semantics efficiently~\cite{PirkelbauerThesis}. Earlier, Cook 
+et al used expression templates to implement a query language for Pivot's class 
+hierarchy~\cite{iql04}. %Our current work is the result of a series 
+%of experimental designs. The library approach was essential to provide 
+%relatively quick turnaround for experiments and for maintaining and improving 
+%performance for our applications.

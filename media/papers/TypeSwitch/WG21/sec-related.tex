@@ -1,0 +1,69 @@
+\section{Related Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:rw}
+
+\emph{Lookup caches} have been long used to reduce the overhead of 
+dynamically-bound message passing in Smalltalk~\cite{UngarPatterson83}. 
+\emph{Inline caching} improves on that by noting that the type of the receiver at a given 
+call site rarely varies so that the call instruction can be speculatively 
+modified to jump directly to a previously looked up method~\cite{Deutsch84}. 
+In this case, the method must ensure that the type of the receiver has 
+not changed and redirect the call to generic lookup otherwise. The effects of 
+inline caching on modern architectures can be seen through hardware call target 
+prediction, which in our case is exemplified by repetitive benchmark: both 
+virtual function calls and the underlying jump-table implementation of the 
+\code{Match}-statement are about twice as fast as usual.
+
+\emph{Polymorphic Inline Caches}~\cite{Holzle:Chambers:Ungar:91} generalize the 
+idea of inline caches further by building a decision tree in the method prologue 
+that caches all lookup results. The main difference of this approach from our 
+work is that it requires code generation at run time, while we do not require
+re-compilation, re-linking or any computations in case of dynamic linking.
+The reason for this is the difference in the initial setting: they map an
+arbitrary number of receiver types to an arbitrary number of implementations, while 
+we map an arbitrary number of receivers to a fixed number of jump 
+targets. This lets us generate code at compile time that incorporates both the 
+initial and memoized execution.
+
+\emph{Extensible Visitors with Defaults}~\cite[\textsection 4.2]{Zenger:2001} 
+offer a solution to the extensibility problem of visitors. The visitation interface 
+hierarchy can easily be grown linearly, but independent extensions by different  
+programmers require manual coordination. In addition to the double dispatch, the 
+solution incurs two additional virtual calls and a dynamic cast for each 
+level of visitor extension. The solution is simpler with virtual inheritance, 
+which adds even more indirections.
+
+L\"{o}h and Hinze proposed to extend Haskell's type system with open data types 
+and open functions~\cite{LohHinze2006}. The solution allows top-level data types 
+and functions to be marked as open with concrete variants and overloads defined 
+anywhere in the program. The semantics of open extension is given by 
+transformation into a single module, which assumes a whole-program view and thus 
+is not an open solution by our definition. Besides, open data types are extensible but not 
+hierarchical, which avoids the problems discussed here.
+
+Andrew Kennedy et al~\cite{GADTOOP05} considered encoding of generalized 
+algebraic data types~\cite{SPJ06} using visitor design patterns in C\#.  That 
+translation made essential use of generic methods, the equivalent of ``virtual 
+function template'' (as they would be called if such functionalities existed in 
+C++) to handle some of the open set aspects of GADTs.
+
+Polymorphic variants in OCaml~\cite{garrigue-98} allow the addition of new 
+variants, while defining subtyping on them. The subtyping, however, is not 
+defined between the variants, but between combinations of them. 
+This maintains disjointness between values from different variants and makes an 
+important distinction between \emph{extensible sum types} like polymorphic 
+variants and \emph{extensible hierarchical sum types} like classes. Our 
+memoization device can be used to implement pattern matching on polymorphic 
+variants as well.
+
+\emph{Tom} is a pattern-matching compiler that can be used together with Java, C or 
+Eiffel to bring a common pattern matching and term rewriting syntax into the 
+languages~\cite{Moreau:2003}. Its type patterns and \code{\%match}
+statement can be used as a type switch, however, their implementation is based 
+on decision trees and an \code{instanceof}-like predicate.
+
+Pattern matching in Scala~\cite{Scala2nd} also supports type switching through 
+type patterns. The language supports extensible and hierarchical data types, but
+their handling in a type switching constructs varies. Sealed classes are handled 
+with an efficient switch over all tags, while extensible classes are  
+handled with a combination of an \code{InstanceOf} operator and a decision 
+tree~\cite{EmirThesis}.

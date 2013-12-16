@@ -1,0 +1,39 @@
+;;; set was Set
+
+(
+ (set 
+  ()
+  ()
+  (changecapacityto: capacity - do: trim at: at:put: initialindexfor:boundedby: collect: size occurrencesof: remove:ifabsent: includes: fixcollisionsfrom: atnewindex:put: nocheckadd: rehash find:ifabsent: fullcheck findelementornil: settally add: representbinaryon: swap:with: grow ))
+ (dictionary 
+  (set )
+  ()
+  (printon: keysandvaluesdo: inspect do: changecapacityto: keynotfounderror: collect: storeon: valuenotfounderror: occurrencesof: remove:ifabsent: includes: add: at: at:put: remove: findkeyornil: declare:from: includesassociation: removeassociation:ifabsent: removeassociation: representbinaryon: findkey:ifabsent: keysdo: associationat:ifabsent: keyatvalue:ifabsent: keys at:ifabsent: removekey:ifabsent: associationsdo: values findkey:ifabsentraise: associationat: removekey: includeskey: keyatvalue: associations select: ))
+ (systemdictionary 
+  (dictionary )
+  ()
+  (rebindallmethods recompilecallson: timestamp: renameclass:as: collectpointersto: organization: evaluateandremember: recompilemethodsforwhich: at:put: copyright versionname flushclassnamecache printon: removeclassnamed: allclassesdo: valueatnewkey:put:atindex:declarefrom: pointersto:do: version copy copyempty: classnames newclassnames settally update:with:from: organization allbehaviorsdo: quickpointersto:do: ))
+ (identitydictionary 
+  (dictionary )
+  ()
+  (swap:with: add: nocheckadd: keysandvaluesdo: settally nocheckadd:with: removedangerouslykey:ifabsent: findkeyornil: removeandcleanupatindex: removeassociation:ifabsent: associationat:ifabsent: keyatvalue:ifabsent: keys at:ifabsent: removekey:ifabsent: do: associationsdo: representbinaryon: at:put: postcopy ))
+ (weakdictionary 
+  (identitydictionary )
+  ()
+  (nocheckadd:with: swap:with: fixcollisionsfrom: includeskey: finalizeelements settally keysandvaluesdo: at:put: do: update:with:from: postcopy keyatvalue:ifabsent: unlockedat:put: at:ifabsent: removekey:ifabsent: removeandcleanupatindex: associationsdo: changecapacityto: ))
+ (handleregistry 
+  (weakdictionary )
+  ()
+  (unregister: registervalueof: register: printon: at: registerallvaluesof: evaluatewithfullprotection: release ))
+ (methoddictionary 
+  (identitydictionary )
+  ()
+  (initialindexfor:boundedby: removekey:ifabsent: methodarray whichselectorsreferto: ))
+ (identityset 
+  (set )
+  ()
+  (findelementornil: ))
+ (signalcollection 
+  (identityset )
+  ()
+  (accepts: handle:from:do: handle:do: )))

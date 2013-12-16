@@ -1,0 +1,82 @@
+\section{(Ab)using Exceptions for Type Switching}
+\label{sec:xpm}
+
+Several authors had noted the relationship between exception handling and type 
+switching before~\cite{Glew99,ML2000}. Not surprisingly, the exception handling 
+mechanism of \Cpp{} can be abused to implement the first-fit semantics of a type 
+switch statement. The idea is to harness the fact that catch-handlers in \Cpp{} 
+essentially use first-fit semantics to decide which one is going to handle a 
+given exception. The only problem is to raise an exception with a static type 
+equal to the dynamic type of the subject.
+
+To do this, we employ the \emph{polymorphic exception} idiom~\cite{PolyExcept} that 
+introduces a virtual function \code{virtual void raise() const = 0;} into the 
+base class, overridden by each derived class in syntactically the same way: 
+\code{throw *this;}. The \code{Match}-statement then simply calls \code{raise} on its subject, 
+while case clauses are turned into catch-handlers. The exact name of the 
+function is not important, and is communicated to the library 
+as \emph{raise selector} with \code{RS} specifier in the same way 
+\emph{kind selector} and \emph{class members} are (\textsection\ref{sec:bnd}). 
+The \code{raise} member function can be seen as an analog of 
+the \code{accept} member function in the visitor design pattern, whose main purpose is 
+to discover subject's most specific type. The analog of a call to \code{visit} 
+to communicate that type is replaced, in this scheme, with exception unwinding 
+mechanism.
+
+Just because we can, it does not mean we should abuse the exception handling 
+mechanism to give us the desired control flow. In the table-driven approach 
+commonly used in high-performance implementations of exception handling, the 
+speed of handling an exception is sacrificed to provide a zero execution-time 
+overhead for when exceptions are not thrown~\cite{Schilling98}. Using exception 
+handling to implement type switching will reverse the common and exceptional 
+cases, significantly degrading performance. As can be seen in 
+Figure\ref{fig:DCastVis1}, matching the type of the first case clause with 
+polymorphic exception approach takes more than 7000 cycles and then grows 
+linearly (with the position of case clause in the match statement), making it the 
+slowest approach. The numbers illustrate why exception handling should only be 
+used to deal with exceptional and not common cases.
+
+Despite its total impracticality, the approach fits well into our unified syntax 
+(\textsection\ref{sec:unisyn}) and gave us a very practical idea of 
+harnessing a \Cpp{} compiler to do \emph{redundancy checking} at compile time.
+
+\subsection{Redundancy Checking}
+\label{sec:redun}
+
+As discussed in \textsection\ref{sec:bg}, redundancy checking is only applicable 
+to first-fit semantics of the match statement, and warns the user of any 
+case clause that will never be entered because of a preceding one being more 
+general.
+
+We provide a library-configuration flag, which, when defined, effectively turns 
+the entire match statement into a try-catch block with handlers accepting the 
+target types of the case clauses. This forces the compiler to give warning when 
+a more general catch handler preceds a more specific one effectively performing 
+redundancy checking for us, e.g.:
+
+\begin{lstlisting}
+filename.cpp(55): warning C4286: 'ipr::Decl*' : is caught by 
+                  base class ('ipr::Stmt*') on line 42
+\end{lstlisting}
+
+\noindent
+Note that the message contains both the line number of the redundant case clause (55) 
+and the line number of the case clause that makes it redundant (42).
+
+Unfortunately, the flag cannot be always enabled, as the case labels of the underlying 
+switch statement have to be eliminated in order to render a syntactically 
+correct program. Nevertheless, we found the redundancy checking facility of the 
+library extremely useful when rewriting visitor-based code: even though the 
+order of overrides in a visitor's implementation does not matter, for some reason 
+more general ones were inclined to happen before specific ones in the code we 
+looked at. Perhaps programmers are inclined to follow the class declaration order when 
+defining and implementing visitors.
+
+A related \emph{completeness checking} -- test of whether a given match 
+statement covers all possible cases -- needs to be reconsidered for extensible 
+data types like classes, since one can always add a new variant to it. 
+Completeness checking in this case may simply become equivalent to ensuring that 
+there is either a default clause in the type switch or a clause with the static type 
+of a subject as a target type. In fact, our library has an analog of a default 
+clause called \code{Otherwise}-clause, which is implemented under the hood 
+exactly as a regular case clause with the subject's static type as a target type.

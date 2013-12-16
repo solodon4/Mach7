@@ -1,0 +1,1 @@
+Accompanying poster to the extended abstract "Open Pattern Matching for C++" by Yuriy Solodkyy, Gabriel Dos Reis and Bjarne Stroustrup. Presented on October 28, 2013 at SPLASH 2013.

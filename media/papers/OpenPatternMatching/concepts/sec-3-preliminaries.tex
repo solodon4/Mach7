@@ -1,0 +1,24 @@
+\section{\Cpp{} Concepts} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:prelim}
+
+TODO: Describe everything we use from concepts:
+
+\begin{itemize}
+\item concept definition
+\item refinement of another concept
+\item associated functions
+\item associated types
+\item associated templates (we have those, e.g. accepted\_type\_for)
+\item default implementation of an associated function
+\item requires
+\item concept-based overloading
+\item decltype
+\item std::declval
+\item template aliases
+\end{itemize}
+
+The following concepts can be used as examples since we later refer to them in 
+the paper: \code{CopyConstructible}, \code{Convertible}.
+
+Concepts were not included in \Cpp{}11, so we emulate them using overloading and 
+\code{enable_if}~\cite{jarvi:03:cuj_arbitrary_overloading}.

@@ -1,0 +1,207 @@
+;;; collection was Collection
+
+(
+ (collection 
+  ()
+  ()
+  (copyempty: size printon: nomatcherror do: notkeyederror notfounderror storeon: collect: maxprint growsize add: emptycollectionerror addall: occurrencesof: detect:ifnone: emptycheck remove:ifabsent: includes: reject: removeall: capacity assortedcollection remove: inject:into: asorderedcollection assortedcollection: asbag asset select: detect: isempty asarray ))
+ (sequenceablecollection 
+  (collection )
+  ()
+  (replaceelementsfrom:to:withsequenceablecollection:startingat: findfirst: previndexof:from:to: replaceelementsfrom:to:withlinkedlist:startingat: replaceelementsfrom:to:witharray:startingat: readstream startingat:replaceelementsin:from:to: replacefrom:to:with: copyfrom:to: replaceelementsfrom:to:withcharacterarray:startingat: replaceelementsfrom:to:withtwobytestring:startingat: copyreplaceall:with: swap:with: atall:put: grow replaceelementsfrom:to:withbyteencodedstring:startingat: replaceelementsfrom:to:withintegerarray:startingat: indexofsubcollection:startingat: indexofsubcollection:startingat:ifabsent: erroroutofbounds do: with:do: replaceelementsfrom:to:withbytearray:startingat: replaceall:with:from:to: findlast: issequenceable indexof: lastindexof: reverse replacefrom:to:with:startingat: keysandvaluesdo: collect: atallput: indexof:ifabsent: last growtoatleast: occurrencesof: writestream replaceelementsfrom:to:withwordarray:startingat: remove:ifabsent: size copywithout: first replaceall:with: identityindexof: copyreplacefrom:to:with: reversedo: hash select: lastindexof:ifabsent: identityindexof:ifabsent: asarray = copywith: nextindexof:from:to: ))
+ (arrayedcollection 
+  (sequenceablecollection )
+  ()
+  (size storeelementsfrom:to:on: defaultelement storeon: add: ))
+ (integerarray 
+  (arrayedcollection )
+  ()
+  (printon: asbytestring defaultelement inspect asstring countbits astwobytestring maxprintelements startingat:replaceelementsin:from:to: ))
+ (bytearray 
+  (integerarray )
+  ()
+  (tilebits32by32stride:width:atx:y:from:stride:width:atx:y:width:height:rule: copybitswidth:atx:y:from:width:atx:y:width:height:rule: replacebytesfrom:to:with:startingat: basicat:put: storeon: tilebitsruleadjustedstride:width:atx:y:from:stride:width:atx:y:width:height:rule: slowencodefrom:into:startingat: sizeinbytes copybitsintegralstride:width:atx:y:from:stride:width:atx:y:width:height:rule: tilebitsclippedstride:width:atx:y:from:stride:width:atx:y:width:height:rule: fastencodeinto: at: at:put: replaceelementsfrom:to:withbytearray:startingat: tilebitsstride:width:atx:y:from:stride:width:atx:y:width:height:rule: copybitsstride:width:atx:y:from:stride:width:atx:y:width:height:rule: basicat: isliteral aspackedstring printon: asbytearray byteat: tilebitsintegralstride:width:atx:y:from:stride:width:atx:y:width:height:rule: asbytestring byteat:put: startingat:replaceelementsin:from:to: copybitsclippedstride:width:atx:y:from:stride:width:atx:y:width:height:rule: tilebitswidth:atx:y:from:width:atx:y:width:height:rule: copybitsruleadjustedstride:width:atx:y:from:stride:width:atx:y:width:height:rule: ))
+ (bossbytes 
+  (bytearray )
+  ()
+  (unsignedshortat:put: longat:put: unsignedlongat:put: objectat:from:baseindex: swapbyteswidth: shortat: replacebytesfrom:with: swapcolumn:with: longat: unsignedlongat: shortobjectat:from:baseindex: unsignedshortat: ))
+ (wordarray 
+  (integerarray )
+  ()
+  (aswordarray replaceelementsfrom:to:withwordarray:startingat: reversebyteorder size startingat:replaceelementsin:from:to: at: at:put: byteorder ))
+ (characterarray 
+  (arrayedcollection )
+  ()
+  (dropvowels: <= >= runlengthfor: > matchespattern:ignorecase:do: displayon:at: sameas: withcrs aslowercase contractto: string startingat:replaceelementsin:from:to: changefrom:to:with: asstring hash asuppercase spellagainst: dropfinalvowels ascomposedtext assymbol asnumber astext copyupto: match: chopto: findstring:startingat: asfilename samecharacters: findstring:startingat:ifabsent: match:ignorecase: emphasisat: < ))
+ (text 
+  (characterarray )
+  ()
+  (asparagraph replacefrom:to:with: copyfrom:to: storeon: emphasizeallwith: emphasisat: runlengthfor: aslowercase findstring:startingat: at: at:put: setstring:setruns: allbold size printon: asuppercase copyreplacefrom:to:with: runs string emphasizefrom:to:with: addemphasis:removeemphasis:allowduplicates: postcopy makeselectorboldin: displayon:at: haschangeofemphasis = astext ))
+ (string 
+  (characterarray )
+  ()
+  (asbytestring <= >= runlengthfor: > sameas: astwobytestring concretestring stringencoding printon: isbyteindexed string copyfrom:to: changefrom:to:with: inspect hash = stringhash isstring indexofsubcollection:startingat: astext asbytearray referstoliteral: storeon: compare: aswordarray haschangeofemphasis isliteral asparagraph concreteindexfor: truecompare: < ))
+ (symbol 
+  (string )
+  ()
+  (isliteral hash assymbol copy selectorpart iscompound = errornomodification classpart numargs replacefrom:to:with:startingat: asstring storeon: iskeyword precedence stringhash isinfix shallowcopy issymbol keywords at:put: ))
+ (bytesymbol 
+  (symbol )
+  ()
+  (stringencoding representbinaryon: string: startingat:replaceelementsin:from:to: at: byteat: species isbyteindexed ))
+ (twobytesymbol 
+  (symbol )
+  ()
+  (string: at: byteorder representbinaryon: reversebyteorder species startingat:replaceelementsin:from:to: stringencoding size ))
+ (twobytestring 
+  (string )
+  ()
+  (reversebyteorder stringencoding size byteat:put: startingat:replaceelementsin:from:to: byteat: sizeinbytes at: at:put: astwobytestring asintegerarray replaceelementsfrom:to:withtwobytestring:startingat: byteorder = ))
+ (byteencodedstring 
+  (string )
+  ()
+  (nextindexof:from:to: nonprimitiveat:put: stringencoding byteat:put: size startingat:replaceelementsin:from:to: byteat: previndexof:from:to: sizeinbytes at: at:put: asintegerarray occurrencesof: isbyteindexed replaceelementsfrom:to:withbyteencodedstring:startingat: = ))
+ (macstring 
+  (byteencodedstring )
+  ()
+  (stringencoding at: at:put: ))
+ (bytestring 
+  (byteencodedstring )
+  ()
+  (asbytestring asintegerarray at:put: at: size stringencoding ))
+ (iso8859l1string 
+  (byteencodedstring )
+  ()
+  (stringencoding at: at:put: ))
+ (gapstring 
+  (string )
+  ()
+  (newstring:size: newfromstring: changefrom:to:with: size replacefrom:to:with: copyfrom:to: isbyteindexed at: at:put: concreteindexfor: nextindexof:from:to: stringencoding replacefrom:to:with:startingat: runlengthfor: newsize: concretestring postcopy compress ))
+ (array 
+  (arrayedcollection )
+  ()
+  (asarray referstoliteral: storeon: printon: isliteral startingat:replaceelementsin:from:to: ))
+ (dependentscollection 
+  (array )
+  ()
+  (updaterequest asdependentswith: asdependentsascollection performupdate:with: updaterequest: update:with:from: asdependentswithout: performupdate: ))
+ (bossreadermap 
+  (array )
+  ()
+  (storage: at: at:put: size primitiveat: baseindex: ))
+ (scannertable 
+  (array )
+  ()
+  (atalllettersput: atalldigitsput: basicat:put: subscriptboundserror: atallput: atdefaultput: at:put: atallseparatorsput: ))
+ (weakarray 
+  (arrayedcollection )
+  ()
+  (indexof:replacewith:startingat:stoppingat: mydependents foralldeadindicesdo:replacingcorpseswith: postcopy storeon: foralldeadindicesdo: nilallcorpsesanddo: species mydependents: ))
+ (runarray 
+  (arrayedcollection )
+  ()
+  (privateadd:remove:to:duplicate: haschange add:remove:duplicate: copyfrom:to: setruns:setvalues: copyfromrun:offset:torun:offset:intoruns:values:startingat: at:setrunandoffset: addfirst: copyreplacefrom:to:with: runs runlengthat: at:setrunoffsetandvalue: addlast: storeon: isincluded:in: values at: size postcopy ))
+ (orderedcollection 
+  (sequenceablecollection )
+  ()
+  (keysandvaluesdo: remove:ifabsent: removelast: removelast reversedo: removeallsuchthat: first add:before: select: isempty add:beforeindex: at: at:put: copywithout: setindices notenoughelementserror setindicesfrom: makeroomatfirst find: removeindex: capacity before: add: after: makeroomatlast representbinaryon: addallfirst: removefirst: removeatindex: addalllast: add:after: copyfrom:to: firstobjecterror nosuchelementerror notfounderror copyempty grow do: addfirst: copyreplacefrom:to:with: lastobjecterror addlast: insert:before: size addlastnocheck: removefirst inspect collect: copywith: last reverse addall: ))
+ (fontdescriptionbundle 
+  (orderedcollection )
+  ()
+  (addfirst: addfont:withquality: fontat: addfont: findmatchon:allowance: installon: addlast: qualityat: ))
+ (sortedcollection 
+  (orderedcollection )
+  ()
+  (indexforinserting: swap:with: reverse add: resort sort:to: sortblock initialize addfirst: = collect: addlast: add:before: addall: addallwithoutsorting: addallfirst: add:after: addalllast: add:beforeindex: representbinaryon: sortblock: at:put: copyempty: ))
+ (spsortedlines 
+  (sortedcollection )
+  ()
+  (tag: addall: closeedge addpolygon: lineto: grow rulemask moveallfirstbelow:to: initialize ))
+ (spactivelines 
+  (sortedcollection )
+  ()
+  (firstintersectionbetween:and: intersectsfromy:toy: intersects:with: removeended swapfrom:to: stopy grow ))
+ (handlercollection 
+  (orderedcollection )
+  ()
+  (on:handle: handlefrom:do: handledo: ))
+ (interval 
+  (sequenceablecollection )
+  ()
+  (initializescanner: reversedo: species storeon: collect: increment add: size printon: at: at:put: remove: do: hash last = setfrom:to:by: first ))
+ (textlineinterval 
+  (interval )
+  ()
+  (start:stop:internalspaces:paddingwidth: initializestart: initializescanner: internalspaces:paddingwidth: internalspaces justifiedtabdeltafor: stop: paddingwidth: internalspaces: justifiedpadfor: paddingwidth slide: = ))
+ (linkedlist 
+  (sequenceablecollection )
+  ()
+  (addlast: isempty removefirst add: removelast size startingat:replaceelementsin:from:to: last at: at:put: remove:ifabsent: addfirst: first do: ))
+ (semaphore 
+  (linkedlist )
+  ()
+  (critical: signal terminateprocess wait initsignals ))
+ (bag 
+  (collection )
+  ()
+  (do: asset add: add:withoccurrences: occurrencesof: remove:ifabsent: includes: initialize: size ))
+ (palette 
+  (collection )
+  ()
+  (indexof: paintbasis includeskey: printon: add: indexof:ifabsent: depth keysandvaluesdo: dithermappingblockfor:ditherscale: indexofpaintnearest: maxindex pixelsandthresholdsfordithering: retainedmediumclass remove:ifabsent: includes: pixelnotfounderror: printconstantnameon: representbinaryon: species at:ifabsent: at: size copyempty: ))
+ (colorpalette 
+  (palette )
+  ()
+  (ismonochrome hascolor paintbasis pixelsandthresholdsfordithering: indexofpaintnearest: hasgrayorcolor indexofpaintnearestluminance: bracketingpixelsfor: retainedmediumclass ))
+ (mappedpalette 
+  (colorpalette )
+  ()
+  (capacity at:ifabsent: indexofpaintnearestluminance: do: storeon: includeskey: setcolors: optimizegraymapresolution hascolor indexofpaintnearest: mapresolution: size emptyinversemap maxindex elementdata colors hash hasgrayorcolor keysandvaluesdo: = mapresolution createinversemap representbinaryon: indexof:ifabsent: ismonochrome ))
+ (monomappedpalette 
+  (mappedpalette )
+  ()
+  (hascolor do: hasgrayorcolor at:ifabsent: dithermappingblockfor:ditherscale: indexofpaintnearest: keysandvaluesdo: indexofpaintnearestluminance: createinversemap ismonochrome setcolors: indexof:ifabsent: ))
+ (fixedpalette 
+  (colorpalette )
+  ()
+  (includeskey: storeon: hascolor maxindex size printon: keysandvaluesdo: hasgrayorcolor pixelsandthresholdsfordithering: indexofpaintnearest: ismonochrome do: hash equalsredmask:redshift:greenmask:greenshift:bluemask:blueshift: indexofpaintnearestluminance: = indexof:ifabsent: at:ifabsent: redshift:redmask:greenshift:greenmask:blueshift:bluemask: ))
+ (coveragepalette 
+  (palette )
+  ()
+  (do: indexof:ifabsent: setmaxpixelvalue: retainedmediumclass indexofpaintnearest: storeon: size maxindex at:ifabsent: hash includeskey: pixelsandthresholdsfordithering: keysandvaluesdo: paintbasis = ))
+ (set 
+  (collection )
+  ()
+  (changecapacityto: capacity - do: trim at: at:put: initialindexfor:boundedby: collect: size occurrencesof: remove:ifabsent: includes: fixcollisionsfrom: atnewindex:put: nocheckadd: rehash find:ifabsent: fullcheck findelementornil: settally add: representbinaryon: swap:with: grow ))
+ (dictionary 
+  (set )
+  ()
+  (printon: keysandvaluesdo: inspect do: changecapacityto: keynotfounderror: collect: storeon: valuenotfounderror: occurrencesof: remove:ifabsent: includes: add: at: at:put: remove: findkeyornil: declare:from: includesassociation: removeassociation:ifabsent: removeassociation: representbinaryon: findkey:ifabsent: keysdo: associationat:ifabsent: keyatvalue:ifabsent: keys at:ifabsent: removekey:ifabsent: associationsdo: values findkey:ifabsentraise: associationat: removekey: includeskey: keyatvalue: associations select: ))
+ (systemdictionary 
+  (dictionary )
+  ()
+  (rebindallmethods recompilecallson: timestamp: renameclass:as: collectpointersto: organization: evaluateandremember: recompilemethodsforwhich: at:put: copyright versionname flushclassnamecache printon: removeclassnamed: allclassesdo: valueatnewkey:put:atindex:declarefrom: pointersto:do: version copy copyempty: classnames newclassnames settally update:with:from: organization allbehaviorsdo: quickpointersto:do: ))
+ (identitydictionary 
+  (dictionary )
+  ()
+  (swap:with: add: nocheckadd: keysandvaluesdo: settally nocheckadd:with: removedangerouslykey:ifabsent: findkeyornil: removeandcleanupatindex: removeassociation:ifabsent: associationat:ifabsent: keyatvalue:ifabsent: keys at:ifabsent: removekey:ifabsent: do: associationsdo: representbinaryon: at:put: postcopy ))
+ (weakdictionary 
+  (identitydictionary )
+  ()
+  (nocheckadd:with: swap:with: fixcollisionsfrom: includeskey: finalizeelements settally keysandvaluesdo: at:put: do: update:with:from: postcopy keyatvalue:ifabsent: unlockedat:put: at:ifabsent: removekey:ifabsent: removeandcleanupatindex: associationsdo: changecapacityto: ))
+ (handleregistry 
+  (weakdictionary )
+  ()
+  (unregister: registervalueof: register: printon: at: registerallvaluesof: evaluatewithfullprotection: release ))
+ (methoddictionary 
+  (identitydictionary )
+  ()
+  (initialindexfor:boundedby: removekey:ifabsent: methodarray whichselectorsreferto: ))
+ (identityset 
+  (set )
+  ()
+  (findelementornil: ))
+ (signalcollection 
+  (identityset )
+  ()
+  (accepts: handle:from:do: handle:do: )))

@@ -1,0 +1,215 @@
+;;; visualcomponent was VisualComponent
+
+(
+ (visualcomponent 
+  ()
+  ()
+  (initialize changedbounds: bounds invalidaterectangle: selectionbackgroundcolor invalidate foregroundcolor scrolloffsetholder: moveto:on:restoring: intersects: objectwantingcontrol flushcaches lookpreferences changedpreferredbounds: follow:while:on: flushcoordinatecaches preferredbounds displayon:at: bounds: selectionforegroundcolor displayon: rectanglerelativeto: moveto:on:restoring:scratch: containspoint: container: backgroundcolor ))
+ (image 
+  (visualcomponent )
+  ()
+  (rotate2:mask:temp: depth rowat:into:startingat: converttopalette:renderedby: improperstoreerror: asimage bitsareallzero setextent:depth:palette:bits: convertforgraphicsdevice:renderedby:painttransfer: copy:from:in:rule: rowat:putall: shrinkby:to: copybitsatx:y:from:atx:y:width:height:rule: rowat:putall:startingat: retainedmediumclass converttopalette:bitsperpixel:renderedby:painttransfer: atpoint: atx:y:put: packedrowsize magnifyby:to: asretainedmedium tile:from:in:rule: tilebitsstride:width:atx:y:from:stride:width:atx:y:width:height:rule: convertforgraphicsdevice:renderedby: atx:y: reflectedinx bitsinstvar islike: packedrowat: bitwidth extent:depth:palette: extent reflectinxto: displayon:at: reflectediny offset displayon: converttopalette: packedrowat:putall: width stride rowat: height convertforgraphicsdevice: copyempty: postcopy reflectinyto: pixelarrayspecies printon: bits fillconvexshapeto: copybitsstride:width:atx:y:from:stride:width:atx:y:width:height:rule: paintbasis bitsperpixel installon: valueatpoint: aspattern setextent:depth:palette: filledshapearound: preferredbounds copyempty rotatedbyquadrants: palette: palette fillconvexshapeto:outlinedby: converttopalette:renderedby:painttransfer: islike:withextent: packedrowat:putall:startingat: scaledextent: spread:from:by:spacing:direction: valueatpoint:put: atpoint:put: fillshapearound:to:outlinedby: rowat:into: shrunkenby: tilebitsatx:y:from:atx:y:width:height:rule: fillshapearound:to: packedrowat:into:startingat: magnifiedby: filledconvexshape packedrowat:into: rotatebyquadrants:to: inherentbitsperpixel ))
+ (depth2image 
+  (image )
+  ()
+  (rowat:into:startingat: atx:y: rowat:putall:startingat: pixelarrayspecies atx:y:put: inherentbitsperpixel ))
+ (depth32image 
+  (image )
+  ()
+  (atx:y: rowat:putall:startingat: rowat:into:startingat: inherentbitsperpixel atx:y:put: ))
+ (depth24image 
+  (image )
+  ()
+  (atx:y: rowat:putall:startingat: rowat:into:startingat: inherentbitsperpixel atx:y:put: ))
+ (depth1image 
+  (image )
+  ()
+  (rowat:into:startingat: atx:y: rowat:putall:startingat: pixelarrayspecies atx:y:put: inherentbitsperpixel ))
+ (depth16image 
+  (image )
+  ()
+  (atx:y: rowat:putall:startingat: rowat:into:startingat: inherentbitsperpixel atx:y:put: ))
+ (depth4image 
+  (image )
+  ()
+  (rowat:into:startingat: atx:y: rowat:putall:startingat: pixelarrayspecies atx:y:put: inherentbitsperpixel ))
+ (depth8image 
+  (image )
+  ()
+  (rowat:into:startingat: atx:y: rowat:putall:startingat: pixelarrayspecies atx:y:put: inherentbitsperpixel ))
+ (icon 
+  (visualcomponent )
+  ()
+  (flushcaches image: buildmask extent mask preferredbounds displayon: ))
+ (visualpart 
+  (visualcomponent )
+  ()
+  (changedpreferredbounds: lookpreferences changedcontainer flash graphicscontext bounds: clearinside invalidaterectangle:repairnow: edgedecorationpolicy displayon: globalpointtolocal: dispatcheskeyboard changedbounds:forcomponent: startup bounds flushcoordinatecaches changedpreferredbounds:forcomponent: invalidate isopen release compositionboundsfor: objectwantingcontrol subviewwantingcontrol setcontroller: invalidaterectangle:repairnow:forcomponent: widgetpolicy getcontroller repairdamage clippingbox topcomponent localpointtoglobal: container container: graphicscontextfor: changedbounds: invalidaterectangle: ))
+ (compositepart 
+  (visualpart )
+  ()
+  (add:in: addcomponent: move:to: computepreferredbounds computedisplayboxfor:indisplaybox: removecomponent: borderedwrapperclass bounds: displayon: layoutcomponentsforbounds: intersects: changedbounds:forcomponent: flushcoordinatecaches changedpreferredbounds:forcomponent: boundedwrapperclass defaultwrapperclass addwrapper: hitdetect: compositionboundsfor: release containspoint: objectwantingcontrol add:in:borderwidth: flushcaches add:at: preferredbounds add:borderedin: newbounds:oldbounds:forwrapper: componentwantingcontrol add: translatingwrapperclass components initialize move:by: remove: wrapperclass ))
+ (borderdecorator 
+  (compositepart )
+  ()
+  (noverticalscrollbar preferredbounds flushcaches usemenubar edgedecorationpolicy component hasverticalscrollbar initialize scrollercomponent nomenubar checkcomponents useverticalscrollbar usehorizontalscrollbar setcomponent: nohorizontalscrollbar resetcomponents hashorizontalscrollbar computedisplayboxfor:indisplaybox: uselocaledgedecorationpolicy edgedecorationpolicy: hasmenubar bounds: ))
+ (dependentcomposite 
+  (compositepart )
+  ()
+  (release model: model setmodel: ))
+ (compositeview 
+  (dependentcomposite )
+  ()
+  (defaultcontrollerclass defaultcontroller setcontroller: getcontroller controller: controller setmodel: ))
+ (dialogview 
+  (compositeview )
+  ()
+  (objectwantingcontrol indentwidth open opentype: indent: leftindent addverticalspace: width: addtextlabel:atx: addwrapper:atx: rightindent: rightindent computeextent closechannel layout:atx: preferredbounds defaultcontrollerclass addwrapper:fromx:tox:maximumheight: addvisual:atx: layout:fromx:tox: yposition addtextlabel: addrow:fromx:tox:collect: addcolumn:fromx:tox:collect: widento: resolvefraction: dispatcheskeyboard initialize addtextfieldon:initially:fromx:tox: addtextfieldon:initially:height:fromx:tox: addwrapper:fromx:tox: addvisual:fromx:tox: addtextfieldon:initially: yposition: addall:inrows:fromx:tox:collect: closechannel: update:with:from: leftindent: ))
+ (dependentpart 
+  (visualpart )
+  ()
+  (release model: update: model setmodel: ))
+ (view 
+  (dependentpart )
+  ()
+  (controller: getcontroller setcontroller: controller defaultcontrollerclass defaultcontroller preferredbounds setmodel: ))
+ (notifierview 
+  (view )
+  ()
+  (defaultcontrollerclass contents contents: displayon: ))
+ (launcherview 
+  (view )
+  ()
+  (displayon: displayline:at:on: displaykeyson: defaultcontrollerclass invalidaterectangle: boundingboxforindex: initialize linegrid selectionindex: indexatpoint: preferredbounds updaterequest ))
+ (booleanwidgetview 
+  (view )
+  ()
+  (update:with:from: isintransition: defaultcontrollerclass isintransition inactiveforegroundcolor isselected transitionholder: initialize release ))
+ (actionbutton 
+  (booleanwidgetview )
+  ()
+  (onvisual:offvisual: initialize preferredbounds setmodel: bevisual: displayon: ))
+ (labeledbooleanview 
+  (booleanwidgetview )
+  ()
+  (bevisual:iftrue: label beradiobutton beswitch betrigger betoggle getfont settextcoloron: usefilling becheckbox preferredbounds initialize bevisual: getimage drawborder displayon: label: ))
+ (scrollbar 
+  (view )
+  ()
+  (initialize markercolor markerdelta computemarkerregion scrollbarcolor movemarker alignmarker: defaultcontrollerclass translatemarker:by: movemarker: computemarkerposition maptodataspace: minmarkerextent lookpreferences translatemarkerby: marker markerthickness alignment behorizontal markeroffset bounds: marker: update:with:from: displayon: bevertical ))
+ (fixedthumbscrollbar 
+  (scrollbar )
+  ()
+  (maptodataspace: alignmarker: computemarkerregion computemarkerposition displayon: ))
+ (fractionalwidgetview 
+  (view )
+  ()
+  (defaultcontrollerclass behorizontal axis: bevertical initialize betwodimensional displayon: markerblock: map: ))
+ (autoscrollingview 
+  (view )
+  ()
+  (changepositionby: scrollby: scrollto: positionto: scrolloffsetholder: initialize validatescrollposition: ))
+ (listview 
+  (autoscrollingview )
+  ()
+  (settotop displayorigin scrolloffsetholder: setnewlist displayselectionindex:on: hideselectionboxon: isempty listlines: lineindexoftop: hideselectionbox bounds selectionindex: computecompositionorigin selectionboxoffset: selectionbox: list: displayobject minimumselection defaultcontrollerclass selection deselect getlist list displayselectionindex:on:within:infcolor:bcolor:vis:clip: displayselectionbox findselection: makeselectionvisible moveselectionbox: initialize displayselectionson:within: model: setnewselection preferredbounds bounds: hiliterectangle:on:fcolor:bcolor: selectionbox update: topdelimiter maximumselection reset displayon: selectionboxoffset topdelimiter: linegrid notopdelimiter nobottomdelimiter topatlineindex: positionlist bottomdelimiter bottomdelimiter: getselectionindex visualextra flushcaches ))
+ (selectioninlistview 
+  (listview )
+  ()
+  (update: on:printitems:oneitem:aspect:change:list:menu:initialselection:useindex: defaultcontrollerclass changemodelselection: useindex list: menumessage getselectionindex getlist initialselection initialize displayablelinesfrom: oneitem useindex: ))
+ (selectionsetinlistview 
+  (selectioninlistview )
+  ()
+  (selectionvisualstring: visualextra getselectionindexes usestrikeout: displayselectionindex:on:within:infcolor:bcolor:vis:clip: selectionvisual: addselectionindex: initialize hiliterectangle:on:fcolor:bcolor: hideselectionindex:on: changemodelselections: removeselectionindex: setnewselections redisplayrectangle:on: list: displayon: selectionindexset defaultcontrollerclass update: displayselectionindex:on: displayselectionboxeson:within:infcolor:bcolor: displayselectionson:within: ))
+ (changelistview 
+  (listview )
+  ()
+  (selectioninterval defaultcontrollerclass displayselectionindex:on:within:infcolor:bcolor:vis:clip: displayremovedon: displayon: ))
+ (composedtextview 
+  (autoscrollingview )
+  ()
+  (model: initialdisplaycontents displayselection: selectionindex: editstring: updatedisplaycontents computemoverectanglefor:old:new: getcontents paragraphinset controller: setstartselectiontostopselection wrappingbox displayinsertionpointfor:on: selectionstartindex: scrolloffsetholder: placeselectionpointat: selectionshowing lineindexoftop: wordwrap: startblock:stopblock: bounds: characterblockforindex: positiontoselection selectionstartindex:stopindex: selectionshowing: displaycontents characterblockatpoint: showselectionboxon:within: resetcontroller initialize displaycontents: stopblock insertionpointboundingboxfor: redisplayrectangle:on: displayon: update: displayfromcharacter:to:startx:on: showselectionfrom:to:on:within: selectfrom:to: displayorigin startblock displaytextin:on: selectandscroll startblock: redisplayafterreplacementat:affectedlines:linedelta: turnselectionoff:within: selectat: select initializeselection initializestartselection:stopselection: displayselectionfrom:to:on: hideselectionfrom:to:on:within: preferredbounds flushcaches displayfromselectionblock:toselectionblock:on:fcolor:bcolor:within: textstyle stopblock: deselect displayobject resetselections defaultcontrollerclass textstyle: hideinsertionpointfor:on: visiblerectanglefrom:to: edittext: selectionstopindex: updaterequest displayselection turnselectionon:within: findselectiondelta newtext: settotop hideselectionfrom:to:on: linegrid topatlineindex: ))
+ (textcollectorview 
+  (composedtextview )
+  ()
+  (changetext: text update: appendentry getcontents ))
+ (textview 
+  (composedtextview )
+  ()
+  (on:aspect:change:menu: update: defaultcontrollerclass initializeselection menumessage getcontents initialselection: acceptmessage ))
+ (debuggertextview 
+  (textview )
+  ()
+  (defaultcontrollerclass update: ))
+ (wrapper 
+  (visualpart )
+  ()
+  (preferredbounds composeandinvalidate flushcaches component release hasborder containspoint: component: flushcoordinatecaches update:with:from: bounds setcomponentboundsto: displayon: rectanglerelativeto: objectwantingcontrol intersects: setcomponent: newbounds:containingbounds: scrolloffsetholder: bounds: printon: ))
+ (translatingwrapper 
+  (wrapper )
+  ()
+  (preferredbounds graphicscontextfor: containspoint: compositionboundsfor: globalpointtolocal: absorigin invalidaterectangle:repairnow:forcomponent: newbounds:containingbounds: setorigin: initialize bounds changedbounds:forcomponent: rectanglerelativeto: setcomponentboundsto: localpointtoglobal: changedpreferredbounds:forcomponent: intersects: displayon: translation ))
+ (layoutwrapper 
+  (translatingwrapper )
+  ()
+  (newbounds:containingbounds: rectanglerelativeto: layout bounds: layout: ))
+ (boundedwrapper 
+  (layoutwrapper )
+  ()
+  (invalidaterectangle:repairnow:forcomponent: setcomponentboundsto: extent: containspoint: intersects: setorigin:extent: bounds bounds: changedbounds:forcomponent: initiallayout initialize changedpreferredbounds:forcomponent: graphicscontextfor: compositionboundsfor: displayon: ))
+ (borderedwrapper 
+  (boundedwrapper )
+  ()
+  (compositionboundsfor: displaybackgroundon:within: insetdisplaybox innerbox graphicscontextfor: border: inset: hasborder inset borderwidthleft:right:top:bottom: computeinsetdisplaybox lookpreferences invalidaterectangle:repairnow:forcomponent: border bordercolor: borderwidth insidecolor borderwidth: insidecolor: insetabsorigin preferredbounds localpointtoglobal: bounds: displayon: insetextent globalpointtolocal: ))
+ (scrollwrapper 
+  (translatingwrapper )
+  ()
+  (clippingbounds initialize setcomponent: scrollgrid scrollverticallyby:on:grid: scrollverticallyby: scrollvertically: mydependents scrollableextent scrolloffset scrollhorizontallyby: compositionbounds mydependents: visibleextent setorigin: scrollhorizontallyby:on:grid: displayupdatescanoccur redisplayrectangle:on: validatescrollposition: scrollhorizontally: postcopy bounds: dataextent update:with:from: updatecontrols changedpreferredbounds:forcomponent: ))
+ (passivitywrapper 
+  (wrapper )
+  ()
+  (isvisible visible: controlactive: graphicscontextfor: visuallyactive invalidaterectangle:repairnow:forcomponent: controlactive objectwantingcontrol inactiveforegroundcolor initialize release update:with:from: visuallyactive: visible iscontrolactive displayon: active: isvisuallyactive lookpreferences ))
+ (graphicsattributeswrapper 
+  (wrapper )
+  ()
+  (graphicscontextfor: attributes displayon: attributes: ))
+ (geometricwrapper 
+  (wrapper )
+  ()
+  (component: objectwantingcontrol bounds: setcomponent: containspoint: flushcaches release preferredbounds intersects: rectanglerelativeto: flushcoordinatecaches displayon: ))
+ (strokingwrapper 
+  (geometricwrapper )
+  ()
+  (bounds linewidth: preferredbounds intersects: linewidth displayon: ))
+ (fillingwrapper 
+  (geometricwrapper )
+  ()
+  (displayon: intersects: ))
+ (widgetspecification 
+  (wrapper )
+  ()
+  (flushcaches model: model resetcomponent installcomponent component ))
+ (button 
+  (widgetspecification )
+  ()
+  (label: label initialize settype: type installcomponent isdefault bedefault ))
+ (cachedimage 
+  (visualcomponent )
+  ()
+  (paintbasis preferredbounds aspattern extent setimage: image asretainedmedium displayon: ))
+ (opaqueimage 
+  (visualcomponent )
+  ()
+  (figure:shape: extent shape preferredbounds displayon: figure ))
+ (textlines 
+  (visualcomponent )
+  ()
+  (displayon: settextstyle: textstyle: linerangefor: bounds visiblerectanglefrom:to: bottom right numberoflines lineindexoftop: textstyle displaylinesin:fortranslation:on: topleft left top extent displayon:at: linegrid getdisplayscanner rightmarginfordisplay topatlineindex: leftmarginfordisplayforline: lineat: width height textat: fontpolicy preferredbounds ))
+ (composedtext 
+  (textlines )
+  ()
+  (characterblockatpoint: startinglineafterreplacingat: composeall ascomposedtext wordwrap:compositionwidth: leftmarginforcompositionforline: compositionwidth:text:style:fitwidth: rightmarginforcomposition centered justified wordwrap rightflush gridwithlead: baseline restindent clearindents rightmarginfordisplay firstindent: leftmarginfordisplayforline: lineat: textat: getcompositionscanner restindent: rightindent: rightindent firstindent asstring text: linetable newlinetable compositionwidth: setalignment: textstyle: asparagraph getcharacterblockscanner string initialize numberoflines iscomposed lineindexofcharacterindex: fontpolicy wordwrap: setcompositionwidth: displayfromcharacter:to:startx:fortranslation:on: hardcopy settext: recomposeafterreplacingfrom:to:withsize: textstyle text fontpolicy: astext setheight: replacefrom:to:with: composefrom:with: characterblockforindex: togglealignment displayon:at: updatecompositionheight nextlineitem:line:with: width height leftflush ))
+ (textlist 
+  (textlines )
+  ()
+  (lines: list:style: width height computewidth lineat: textat: numberoflines flushcaches textstyle textstyle: preferredbounds lines )))

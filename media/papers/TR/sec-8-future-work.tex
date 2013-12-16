@@ -1,6 +1,11 @@
 \section{Future Work} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:fw}
 
+Using a library implementation was essential for experimentation and for being able to
+test our ideas on multiple production-quality compiler systems.
+However, now we hope to re-implement our ideas in a compiler.
+This would allow us to improve further surface syntax, diagnostics, and performance.
+
 In the nearest future, we would like to make our library to be safe and efficient 
 in a multi-threaded environment. Currently it relies heavily on static variables 
 and global state, which will have problems in a multi-threaded environment. 
@@ -22,3 +27,8 @@ have a significant performance overhead, not usually affordable in the kind of
 applications C++ is used for. We therefore would like to experiment with some 
 pattern matching alternatives that will let us work with STL containers 
 efficiently yet expressively as in functional languages.
+%
+%Last but not least we would like to look at providing support for alternative 
+%matching semantics.
+%
+%

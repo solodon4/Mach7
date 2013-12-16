@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\patterns">
+      <UniqueIdentifier>{4d043244-cb60-4342-9623-a328a3d74900}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\type_switchN-patterns.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vtblmap4.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\config.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\patterns\any.hpp">
+      <Filter>Header Files\patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\patterns\bindings.hpp">
+      <Filter>Header Files\patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\patterns\combinators.hpp">
+      <Filter>Header Files\patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\patterns\common.hpp">
+      <Filter>Header Files\patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\patterns\constructor.hpp">
+      <Filter>Header Files\patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\patterns\equivalence.hpp">
+      <Filter>Header Files\patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\patterns\exprtmpl.hpp">
+      <Filter>Header Files\patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\patterns\guard.hpp">
+      <Filter>Header Files\patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\patterns\n+k.hpp">
+      <Filter>Header Files\patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\patterns\primitive.hpp">
+      <Filter>Header Files\patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\patterns\regex.hpp">
+      <Filter>Header Files\patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\patterns\solvers.hpp">
+      <Filter>Header Files\patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\patterns\address.hpp">
+      <Filter>Header Files\patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\patterns\quantifiers.hpp">
+      <Filter>Header Files\patterns</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\prolog-pat2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

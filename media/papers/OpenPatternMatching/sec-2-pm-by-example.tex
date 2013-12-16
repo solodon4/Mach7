@@ -1,0 +1,266 @@
+\section{Pattern Matching by Example} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:bg}
+
+Pattern matching is an abstraction mechanism that provides syntax very close to 
+mathematical notations. It allows the user tersely describe a (possibly 
+infinite) set of values accepted by the pattern. A \emph{pattern} represents a 
+predicate on values, and is usually more concise and readable than equivalent 
+imperative code. An interesting peculiarity about patterns is that a given 
+pattern is rarely repeated in several places in code. This context sensitivity 
+makes them unattractive for code reuse through a dedicated predicate, since the 
+predicate will typically only be used once.
+
+Pattern matching is closely related to \emph{algebraic data types} and 
+\emph{equational reasoning}. In ML and Haskell an \emph{Algebraic Data Type} is 
+a data type each of whose values are picked from a disjoint sum of (possibly 
+recursive) data types, called \emph{variants}. Each variant is marked with a 
+unique symbolic constant called a \emph{constructor}. Constructors provide a 
+convenient way of creating a value of its variant type as well as discriminating 
+among variants through pattern matching. Consider a simple expression language:
+\begin{center}
+$exp$ \is{} $val$ \Alt{} $exp+exp$ \Alt{} $exp-exp$ \Alt{} $exp*exp$ \Alt{} $exp/exp$
+\end{center}
+
+\noindent
+This can be represented in OCaml as an algebraic data type:
+
+\begin{lstlisting}[language=Caml,keepspaces,columns=flexible]
+type expr = Value  of int 
+          | Plus   of expr * expr 
+          | Minus  of expr * expr 
+          | Times  of expr * expr 
+          | Divide of expr * expr ;;
+\end{lstlisting}
+
+\noindent
+The set of values described by such an algebraic data type is defined 
+inductively as the least set closed under constructor functions of its variants.
+A simple evaluator of such expressions can be defined:
+
+\begin{lstlisting}[language=Caml,keepspaces,columns=flexible]
+let rec eval e = match e with 
+            Value  v     -> v 
+          | Plus  (a, b) -> (eval a) + (eval b) 
+          | Minus (a, b) -> (eval a) - (eval b)
+          | Times (a, b) -> (eval a) * (eval b) 
+          | Divide(a, b) -> (eval a) / (eval b) ;;
+\end{lstlisting}
+
+\noindent
+There are two critical differences between algebraic data types and classes in 
+object-oriented languages: definition of an algebraic data type is \emph{closed}, 
+while its variants are \emph{disjoint}. Closedness means that once we have listed 
+all the variants a given algebraic data type may have we cannot extend it with 
+new variants without modifying its definition. Disjointedness means that a value 
+of an algebraic data type belongs to exactly one of its variants. Neither is 
+the case in object-oriented languages. Classes are \emph{extensible},
+since new variants can be added through subclassing, as well as 
+\emph{hierarchical}, since variants are not necessarily disjoint and can form 
+subtyping relation between themselves. The above algebraic data type can be 
+encoded in \Cpp{} as following:
+
+\begin{lstlisting}[columns=flexible]
+struct Expr { virtual @$\sim$@Expr(){}};
+struct Value  : Expr { int value; };
+struct Plus   : Expr { Expr* e1; Expr* e2; }; ...
+struct Divide : Expr { Expr* e1; Expr* e2; };
+\end{lstlisting}
+
+\noindent
+while a similar evaluator in our SELL is almost as terse as OCaml code:
+
+\begin{lstlisting}[columns=flexible]
+int eval(const Expr* e)
+{
+  Match(e) {
+    Case(Value,  n)    return n;
+    Case(Plus,   a, b) return eval(a) + eval(b); 
+    Case(Minus,  a, b) return eval(a) - eval(b);
+    Case(Times,  a, b) return eval(a) * eval(b); 
+    Case(Divide, a, b) return eval(a) / eval(b);
+  } EndMatch
+}
+\end{lstlisting}
+
+\noindent
+An expression \code{e} used as an argument of a \emph{matching expression} or a 
+\emph{match statement}, is usually referred to as \emph{subject}, and its type 
+as a \emph{subject type}. We will also refer to the type of the value expected 
+by a given pattern as a \emph{target type}.
+
+\emph{Polymorphic variants} in OCaml\cite{garrigue-98} and \emph{open data 
+types} in Haskell\cite{LohHinze2006} allow addition of new variants later. 
+These extensions are simpler however as they maintain the 
+disjointedness property: open data types do not introduce any subtyping relation, 
+while the subtyping relation on polymorphic variants relates anonymous 
+combinations of variants and not the variants themselves. In contrast, 
+the \emph{nominative subtyping} of object-oriented languages does not maintain 
+the disjointness property, making objects effectively belong to multiple classes. 
+
+Closedness of algebraic data types is particularly useful for reasoning about 
+programs by case analysis and allows the compiler to perform an automatic 
+\emph{incompleteness} check -- test of whether a given match statement 
+covers all possible cases. Similar reasoning about programs involving extensible 
+data types is more involved as we are dealing with potentially open set of 
+variants. \emph{Completeness} check in such scenario reduces to checking presence 
+of a case that handles the static type of the subject. Absence of such a case,
+however, does not necessarily imply incompleteness, only potential incompleteness, 
+as the answer will depend on the actual set of variants available at run-time.
+
+A related notion of \emph{redundancy} checking arises from the 
+tradition of using \emph{first-fit} strategy in pattern matching. It warns the 
+user of any \emph{case clause} inside a match statement that will 
+never be entered because of a preceding one being more general. Object-oriented 
+languages, typically prefer \emph{best-fit} strategy because it is not prone 
+to errors where semantics of a statement might change depending on the ordering 
+of preceding definitions. 
+
+The patterns used in functions \codeocaml{eval} and \codehaskell{eitherLift} to 
+identify and decompose a concrete variant of an algebraic data types are 
+generally called \emph{tree patterns} or \emph{constructor patterns}. Their 
+analog in object-oriented languages is often referred to as \emph{type pattern} 
+since it may involve type testing and type casting. Special cases of tree patterns  
+are \emph{list patterns} and \emph{tuple patterns} that make use of special list 
+and tuple constructors \codehaskell{:} and \codehaskell{(,,...,)}.
+
+Pattern matching can also be applied to built-in types.
+In Haskell, a factorial can be defined by equations:
+
+\begin{lstlisting}[language=Haskell]
+factorial 0 = 1
+factorial n = n * factorial (n-1)
+\end{lstlisting}
+
+\noindent
+Here 0 in the left hand side of the first \emph{equation} is an example of a 
+\emph{value pattern} that will only match when the actual argument passed is 0. 
+The \emph{variable pattern} \codehaskell{n} in the left hand side of the second 
+equation will match any value, \emph{binding} variable \codehaskell{n} to it in 
+the right hand side of equation. The \emph{wildcard pattern} \codehaskell{_}  
+will match any value, neither binding it to a variable nor even obtaining it. 
+Value patterns, variable patterns and wildcard patterns are  
+generally called \emph{primitive patterns}. Patterns like variable and wildcard 
+patterns that never fail to match are called \emph{irrefutable}, in contrast to 
+\emph{refutable} patterns like value patterns, which may fail to match.
+
+In Haskell 98\cite{Haskell98Book} factorial could alternatively be defined as:
+
+\begin{lstlisting}[language=Haskell]
+factorial 0 = 1
+factorial (n+1) = (n+1) * factorial n
+\end{lstlisting}
+
+\noindent
+The \codehaskell{(n+1)} pattern in the left hand side of equation is an example of 
+\emph{n+k pattern}. According to its informal semantics ``Matching an $n+k$ 
+pattern (where $n$ is a variable and $k$ is a positive integer literal) against 
+a value $v$ succeeds if $v \ge k$, resulting in the binding of $n$ to $v-k$, and 
+fails otherwise''\cite{haskell98}. n+k patterns were introduced into Haskell to 
+let users express inductive functions on natural numbers in much the same way as 
+functions defined through case analysis on algebraic data types. Besides 
+succinct notation, this could facilitate automatic proof of 
+termination of such functions by the compiler.
+However, numerous debates over semantics and usefulness of n+k patterns
+resulted in their removal from the Haskell 
+2010 standard\cite{haskell2010}. Generalization of n+k patterns, called 
+\emph{application patterns} has been studied by Oosterhof\cite{OosterhofThesis}. 
+Application patterns essentially treat n+k patterns as equations, while matching 
+against them attempts to solve or validate the equation.
+
+Our library language supports generalized n+k patterns in a different form 
+(\textsection\ref{sec:slv}). We do not restrict ourselves with equational view 
+of the n+k patterns, but allow the user to specify suitable semantics.
+In our library, we can define fast computation of Fibonacci numbers like this:
+
+\begin{lstlisting}[keepspaces]
+int fib(int n)
+{
+    variable<int> m;
+    Match(n) {
+      When(1)         return 1;     
+      When(2)         return 1;
+      When(2*m)     return sqr(fib(m+1)) - sqr(fib(m-1));
+      When(2*m+1) return sqr(fib(m+1)) + sqr(fib(m));
+    } EndMatch
+}
+\end{lstlisting}
+
+\noindent
+A \emph{guard} 
+is a predicate attached to a pattern that may make use of the variables bound in 
+it. The result of its evaluation will determine whether the case clause and the 
+body associated with it will be \emph{accepted} or \emph{rejected}.
+
+In OCaml, we can define rules for rewriting terms in 
+our $exp$ language with the help of guards:
+
+\begin{lstlisting}[language=Caml,keepspaces,columns=flexible]
+let collect e = match e with
+      Plus(Times(e1,e2), Times(e3,e4)) when e1 = e3 -> Times(e1, Plus(e2,e4))
+    | Plus(Times(e1,e2), Times(e3,e4)) when e2 = e4 -> Times(Plus(e1,e3), e4)
+    | e -> e ;;
+\end{lstlisting}
+
+\noindent
+Attempting to write the first case clause as \codeocaml{Plus(Times(e,e2), 
+Times(e,e4))} would have been relying on \emph{equivalence patterns}. 
+Neither OCaml nor Haskell support such patterns, but
+Miranda\cite{Miranda85} and Tom\cite{Moreau:2003} do.
+
+The example above illustrates yet another common pattern-matching facility -- 
+\emph{nesting of patterns}. Constructor patterns composed 
+solely of (distinct) variables are called \emph{simple pattern}s
+and others are called \emph{nested pattern}s.
+Nested checks are hard to handle using the visitor design pattern, as they are often 
+too context-dependent to extract them into a dedicated visitor. 
+In such cases, users typically prefer \emph{type tests} and \emph{type 
+casts}. Our library handles such cases using nested patterns:
+\begin{lstlisting}
+const Expr* collect(const Expr* e)
+{
+  const Expr *e1, *e2, *e3, *e4;
+  Match(e) {
+    When(match<Plus>(match<Times>(e1,e2),match<Times>(e3 |= e1==e3,e4))) 
+        return new Times(e1, new Plus(e2,e4));
+    When(match<Plus>(match<Times>(e1,e2),match<Times>(e3,e4 |= e2==e4))) 
+        return new Times(new Plus(e1,e3), e4);
+    When() 
+        return e;
+  } EndMatch
+}
+\end{lstlisting}
+
+\noindent
+Decomposing algebraic data types through pattern matching has an important 
+drawback that was originally spotted by Wadler\cite{Wadler87}: they expose 
+concrete representation of an abstract data type, which conflicts with the 
+principle of \emph{data abstraction}. To overcome the problem he proposed the 
+notion of \emph{views} that represent conversions between different 
+representations that are implicitly applied during pattern matching. As an 
+example, imagine polar and cartesian representations of complex numbers. A user 
+might choose polar representation as a concrete representation for the abstract 
+data type \codeocaml{complex}, treating cartesian representation as view or vice 
+versa:\footnote{We use the syntax from Wadler's original paper for this example}
+
+\begin{lstlisting}[language=Haskell,columns=flexible]
+complex ::= Pole real real
+view complex ::= Cart real real
+  in  (Pole r t) = Cart (r * cos t) (r * sin t)
+  out (Cart x y) = Pole (sqrt(x^2 + y^2)) (atan2 x y)
+\end{lstlisting}
+
+\noindent
+The operations then might be implemented in whatever representation is the most 
+suitable, while the compiler will implicitly convert representation if needed:
+
+\begin{lstlisting}[language=Haskell,columns=flexible]
+  add  (Cart x1 y1) (Cart x2 y2) = Cart (x1 + x2) (y1 + y2)
+  mult (Pole r1 t1) (Pole r2 t2) = Pole (r1 * r2) (t1 + t2)
+\end{lstlisting}
+
+\noindent
+The idea of views were later adopted in various forms in several languages: 
+Haskell\cite{views96}, Standard ML\cite{views98}, Scala (in the form of 
+\emph{extractors}\cite{EmirThesis}) and F$\sharp$ (under the name of 
+\emph{active patterns}\cite{Syme07}). We demonstrate our support of views in 
+\textsection\ref{sec:view}.

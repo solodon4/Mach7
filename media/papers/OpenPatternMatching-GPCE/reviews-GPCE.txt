@@ -1,0 +1,235 @@
+Dear Yuriy,
+
+We are pleased to inform you that your paper Open Pattern Matching for C++ has been accepted for GPCE 2013. Congratulations!
+
+We received a large number of high-quality submissions this year and accepted 20 out of 57 submitted papers, for an acceptance rate of approximately 35%.
+
+Below, you will find attached the PC members' review reports. Please take their suggestions and comments into account when preparing the camera-ready version of your paper. The firm deadline for the camera-ready version of your paper is September 18, 2013. We will contact you later regarding the detailed instructions on how and where to upload the final version.
+
+GPCE will take place October 27-28 as part of SPLASH 2013 in Indianapolis. The acceptance implies that one of the paper's authors must attend the conference to present the work in Indianapolis. We allocate 20 min presentation time + 5 min discussion for full papers and 12+3 min for short papers. The early registration deadline for SPLASH including GPCE is September 27th. You will find GPCE under "Symposium" on the registration form. Some SPLASH workshops still accept submissions. Failure to attend the conference, and to present the paper, will result in the removal of your paper from the proceedings.
+
+Once again, congratulations on your accepted paper! We look forward to seeing you at GPCE!
+
+
+Sincerely,
+Christian K?stner
+Program Committee Chair, GPCE 2013
+
+
+----------------------- REVIEW 1 ---------------------
+PAPER: 48
+TITLE: Open Pattern Matching for C++
+AUTHORS: Yuriy Solodkyy, Gabriel Dos Reis and Bjarne Stroustrup
+
+OVERALL EVALUATION: 3 (strong accept)
+
+----------- REVIEW -----------
+The authors present their functional-based pattern matching for C++, they describe its implementation in the library mach7 that is available for downloading and comprehensively evaluate it.
+
+PROs:
++ detailed description of technical solutions; strong evaluation 
++ multiple examples strong engineering effort in implementation and 
++ evaluation the implementation of the library and the data are 
++ available
+
+CONs:
+- the section on intro is rather skimpy; there is no motivation and no sensible description of the contributions.
+- no research questions are explicitly posed in the evaluation
+- little novelty in the contribution
+- the authors should remove reviews from ECOOP'12 from the mach7 zip file that is available from the authors' website.
+
+
+----------------------- REVIEW 2 ---------------------
+PAPER: 48
+TITLE: Open Pattern Matching for C++
+AUTHORS: Yuriy Solodkyy, Gabriel Dos Reis and Bjarne Stroustrup
+
+OVERALL EVALUATION: 1 (weak accept)
+
+----------- REVIEW -----------
+The paper describes an implementation of pattern matching, as in functional languages, as an embedded sublanguage in C++. Although the presentation could be better, this is well-done work. There is excellent emphasis on performance and overall evaluation but following the discussion is very hard, even for the relatively C++ knowledgeable reader.
+
+In all, the problem with the paper is the density of the presentation, especially when concerning the implementation. Specific problems:
+
+-We don't know yet what half the points in section 1.1's summary mean.
+
+-Section 2 is very brief for what it aims to do, and not structured enough. There should be clear paragraph headings with the different pattern types. The user story for this library should be explicitly separated from the implementation story. We should never have to discover only in section 3.2 that the user has to declare the bindings explicitly. We should know up front what the user has to define, what they get in return, how this compares to basic attribute-based pattern matching in a functional language, what are the advanced features. There is currently way too much emphasis on advanced pattern matching, with less discussion of how well the common cases of pattern matching (i.e., data types with a fixed number of distinct cases) are covered. We should see separately how each one of the design aspects affects the implementation.
+
+-The implementation discussion is extremely hard to follow. There is little direct linkage with examples of usage. We are assumed to not only know past work (i.e., different mechanisms in past pattern matching literature, past work by the authors on an efficient type switch) but also C++11, and to make connections with everything mentioned in previous sections. There should again be better organization with clear headings motivating each problem and showing its solution, in as general terms as possible.
+
+To fix the above, it is ok to sacrifice some space from the evaluation section. 
+
+These are not the only presentation problems. The low-level also suffers. The language needs a good read by a careful copy-editor. Whoever wrote the text will benefit from studying each example fixed carefully because they all reveal systematic grammar errors in the use of English. There are articles missing in many points: "e.g. [the] presence of pointers", "with [the] constructor pattern]", "how [the] variable pattern satisfies", "return [the] expression's associated type", "satisfying [the] LazyExpression constraint", "models [the] LazyExpression concept", "key point to [the] efficiency of expression templates", "object representing [a] polynomial", "subtypes of [the] subjects' dynamic types", "performed on [a] Sony VAIO laptop", "In case of [the] 'lambdas' experiment", "letting [the] user type in a pattern", to name a few.
+
+Also extra articles in a couple of places: "when the virtual multiple inheritance was used", "will require the memory proportional to O(n^N)".
+
+Also "Match7", "as following", "belong to both families and so are [should be "do"] some of the combinators" and other typos and grammar errors. Generally, this was the worst paper I reviewed in terms of English grammar usage.
+
+
+Other technical points:
+-Is there any possibility for a facility that checks that all cases are covered? E.g., with the programmer's help for definining what are "all the cases" of a datatype? 
+
+-Section 4.6 seems particularly interesting. It says that patterns are not true first-class citizens. The example offered is that one cannot compose patterns based on dynamic input. I don't think this is a valid example. Other first-class language features cannot be created dynamically either. I think a better example would be that there cannot be a run-time data structure of patterns (e.g. a linked list of polymorphic patterns). This is, for instance, the standard example given for why polymorphic functions are not first-class citizens in C++.
+
+
+----------------------- REVIEW 3 ---------------------
+PAPER: 48
+TITLE: Open Pattern Matching for C++
+AUTHORS: Yuriy Solodkyy, Gabriel Dos Reis and Bjarne Stroustrup
+
+OVERALL EVALUATION: 3 (strong accept)
+
+----------- REVIEW -----------
+Summary
+-------
+
+The paper presents a C++ library named Mach7 that provides pattern matching.  Patterns are composed at compile time, using expression templates, in contrast to the more traditional patterns-as-objects approach. The paper presents experiments that demonstrate how their approach is relatively efficient compared to hand-rolled dispatching and much more efficient than patterns-as-objects.
+
+Evaluation
+----------
+
++ Mach7 provides a full set of pattern matching features for C++
+  programmers.
+
++ The design of the library is quite user friendly. There's always
+  limits to just how friendly the interface can be when using
+  expression templates, but this library does surprisingly well.
+
++ evaluates performance against patterns-as-objects, N-dispatch,
+  open type switch, and open multi-methods.
+
+- The explanations could be improved in several places. I'm guessing
+  that the paper could also be made easier to read for readers
+  who are not C++ experts.
+
+Detailed Comments
+-----------------
+
+p. 1
+
+"This paper presents a functional-style pattern matching extension to C++."
+The term "extension" implies an addition to the language, but you're presenting a library. If it was an extension, you'd be talking about how you implemented the idea in a C++ compiler.
+
+"the controversial n+k patterns"
+Citation?
+
+
+p. 2
+
+"contructor patterns, which take form"
+->
+"contructor patterns, which take the form"
+
+"We add few non-standard combinators to Mach7 that reflect..."
+->
+"We add a few non-standard combinators to Mach7 that reflect..."
+
+
+p. 3
+
+"template ?typename P? constexpr bool Pattern() { ... }"
+I had trouble parsing the body of this, especially the part that starts with "requires". This needs much more explanation than what is provided in the following paragraph.
+
+p. 9
+
+"The idea of first class patterns dates back to at least Tullsen's proposal to add them to Haskell [43], calculus of such patterns has been studied in details by Jay [19, 20]."
+Grammar problem.
+
+"Backtracking approach usually..."
+->
+"The backtracking approach usually..."
+
+"while decision tree approach produces"
+->
+"while the decision tree approach produces"
+
+"The approach follows patterns as objects strategy."
+->
+"The approach follows the patterns as objects strategy."
+
+"In functional community, Rhiger explored"
+->
+"In the functional community, Rhiger explored"
+
+
+----------------------- REVIEW 4 ---------------------
+PAPER: 48
+TITLE: Open Pattern Matching for C++
+AUTHORS: Yuriy Solodkyy, Gabriel Dos Reis and Bjarne Stroustrup
+
+OVERALL EVALUATION: 1 (weak accept)
+
+----------- REVIEW -----------
+## Summary
+
+This paper presents _Mach7_, a library providing pattern matching support for C++.  The library supports extensible patterns, multiple patterns for the same class type, a fast approach to matching on subclasses, and a new approach to matching on algebraic data such as numbers with "n+k patterns".  The paper builds on the author's previous work on open type switching, which is at the heart of the optimized pattern matching on objects.
+
+## Evaluation
+
+This paper nicely combines language (feature) design with the impressive effort to make it work with available C++ features and significant effort on performance.  I recommend acceptance.  
+
+However, there are several significant flaws that make the paper harder to understand than it should be.
+
+First, and most significantly, the paper assumes far too much knowledge about cutting-edge developments in C++.  Starting on page 3, complex template metaprogramming features are used with almost no introduction.  I would assume that the reader of this paper (like this
+reviewer) understands how C++ templates work to parameterize other, more conventional definitions, but not anything beyond that.  For example, what template constraints are, what `enable_if` does, or what `requires` clauses do, are all not explained.  A brief explainer for the needed features of C++11 templates would be very valuable.
+
+Also, it's not at all clear to what degree the correctness of some of this code is checked statically, and at what point.  C++ is known not to check the correctness of templated definitions until instantiation
+-- does `enable_if` alter that?
+
+On this same issue, at the end of section 3.2, the paper states that
+C++'s introspection capabilities are too limited for generating some
+definitions.  It's not clear which definitions are meant here, or what the consequences of this limitation are.
+
+Second, section 3.5 is much harder to follow than the preceding part of section 3. It is written very differently, almost as if it has a different author.  It immediately jumps into hashing, which is not discussed or motivated.  Why are hashes important, or used at all. The entire section seems to be both a re-hash of [40] as well as excessive detail for this paper.
+
+Third, the discussion of alternatives to open type switching is very confusing.  The precise role of open type switching, and why it is to be compared with multiple dispatch, is already unclear. Further, the paper suggests that some alternatives would require greater programmer effort, but what that effort would be is also unclear. 
+
+The discussion of "views" is also confusing.  It seems that this provides a totally general pattern abstraction mechanism -- simply define a bindings template with a new layout tag, arbitrary functions the return the desired values to match against, and anything can be matched.  The only limitation is that expressions can't be embedded in patterns, as far as I can tell.  In particular, the most significant part is the `view` function, which does all the work, rather than the `bindings` template.
+
+## Details
+
+* The last paragraph of section 1.1 makes very grand claims -- this
+  hardly seems like the current champion in extensibility (compare
+  Racket) or brevity (Haskell).  The other claims in that sentence
+  require evidence as well. 
+
+* The "predicate pattern" concept has a long history in Lisp pattern
+  matchers, going back at least to Wright and Duba's system for Scheme
+  in the early 1990s.
+
+* Why is + chosen as the equivalence combinator? 
+
+* The "subject" is usually known as the "scrutinee" in the literature.
+
+* Isn't the `accepted_type_for<S>::type` always the subject type?
+
+* When text set in small caps is followed by something else, the space
+  is missing, which makes some code snippets hard to decipher.
+
+* No examples are given of the algebraic decomposition in use. 
+
+* The Haskell example could be rewritten as 
+
+  peep2(x1:x2:xs) =
+   case (x1,x2) of
+    ((InstMove a b),(InstMove c d)) | (a==d) && (b==c) -> peep2 $ x1:xs
+
+  which seems to have almost identical virtues to the C++ solution.  A
+  language with non-linear patterns, such as Maude or Racket, would
+  require even less effort.
+
+* I would be interested to see a comparison of the technique used with
+  expression templates to Scala's "lightweight staging", to which it
+  seems very similar.
+
+* Why is measuring performance of multiple versions of the same C++
+  compiler useful?
+
+* It seems ridiculous to suggest that the concept of "first-class
+  citizen" should be updated because C++ has parametric polymorphism,
+  a feature in programming languages since the 1970s.  Further, it
+  seems like patterns in Mach7 just _are_ first-class citizens, and
+  they can certainly be generated based on user input -- the `either`
+  example could select between `val(src)` and `val(dest)` based on
+  user input.
+

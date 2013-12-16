@@ -1,0 +1,75 @@
+;;; magnitude was Magnitude
+
+(
+ (magnitude 
+  ()
+  ()
+  (<= >= > between:and: hash min: max: = < ))
+ (lookupkey 
+  (magnitude )
+  ()
+  (hash key: printon: = key < ))
+ (association 
+  (lookupkey )
+  ()
+  (= value: key:value: storeon: printon: referstoliteral: supersedesastextemphasis: value ))
+ (weakkeyassociation 
+  (association )
+  ()
+  (key: key update:with:from: ))
+ (date 
+  (magnitude )
+  ()
+  (asdays daysinmonth subtractdate: subtractdays: dayofmonth monthname weekdayindex asseconds printformat: storeon: firstdayofmonth daysinyear daysleftinyear weekday adddays: day previous: year leap printon:format: monthindex firstdayofmonthindex: day:year: printon: hash < = ))
+ (time 
+  (magnitude )
+  ()
+  (printon: minutes addtime: subtracttime: storeon: hash hours: hours < asseconds = hours:minutes:seconds: seconds ))
+ (character 
+  (magnitude )
+  ()
+  (diacriticalpart isseparator isvowel < digitvalue aslowercase identityhash isliteral > ascharacter basepart ismanifest islowercase assymbol printon: asinteger isalphabetic hash isdiacritical composediacritical: = isimmediate asuppercase isdigit isalphanumeric isletter isuppercase storeon: shallowcopy iscomposed ))
+ (arithmeticvalue 
+  (magnitude )
+  ()
+  (lessfromdouble: quotientfromfloat: value differencefromfloat: = reducegeneralityifpossible assmallinteger abs iszero sign productfromfraction: tominimumgenerality sumfromfloat: quotientfromfraction: respondstoarithmetic sumfromdouble: lessfromfraction: sumfrominteger: strictlypositive negated squared lessfromfloat: reducegeneralitytoatleast: * / raisedtointeger: + differencefromfraction: quotientfrominteger: sumfromfraction: productfrominteger: negative positive generality < productfromdouble: reciprocal coerce: retry:coercing: - quotientfromdouble: lessfrominteger: differencefromdouble: differencefrominteger: productfromfloat: ))
+ (point 
+  (arithmeticvalue )
+  ()
+  (>= aspoint > rectanglerelativeto:preferred: truncateto: compute:whenrelativeto:preferred: asfractionallayout / * // + \\ storeon: generality coerce: y - min: max: extent: grid: nearestintegerpointonlinefrom:to: y: x: corner: transpose x setx:sety: theta unitvector pointnearestline:to: truncatedgrid: dist: scaledby: truncated dotproduct: rounded rem: quo: r normal nearestpointonlinefrom:to: asoffsetlayout printon: iszero aslayout abs hash < translatedby: <= ))
+ (number 
+  (arithmeticvalue )
+  ()
+  (// aspoint floor ceiling to:by: ** odd @ even log asdouble quofrominteger: negraisedtononinteger: asrational storeon: sin rounded to:by:do: sqrtrounded cos raisedto: degreestoradians rem: quo: asinteger floorlog: to: to:do: aslimitedprecisionreal asfloat truncated arcsin sqrt arctan radianstodegrees truncateto: exp log: arccos tan ln \\ roundto: ))
+ (fraction 
+  (number )
+  ()
+  (productfromdouble: reduced denominator numerator quotientfromfloat: differencefromfloat: generality reciprocal coerce: printon: quotientfrominteger: - quotientfromfraction: lessfromdouble: asfloat sumfromfloat: hash lessfrominteger: productfromfloat: lessfromfraction: productfromfraction: asrational negated sumfromdouble: differencefromfraction: differencefrominteger: truncated lessfromfloat: asdouble reducegeneralityifpossible sumfrominteger: quotientfromdouble: iszero sumfromfraction: < * setnumerator:denominator: differencefromdouble: / productfrominteger: + ))
+ (integer 
+  (number )
+  ()
+  (growto: productfromfraction: lessfromfraction: growby: < quo: differencefromdouble: rounded sumfromdouble: printon:base: asinteger quotientfromfloat: digitat:put: quofrominteger: highbit digitlength sumfromfraction: ismanifest truncated anybitto: * quotientfromdouble: / // + floor ceiling anymask: odd ascharacter generality coerce: lessfrominteger: even - digitlogic:op:length: digitlshift:bytes:lookfirst: lastdigit allmask: nomask: storestringradix: printstringradix: bitand: bitor: bitshift: digitrshift:bytes:lookfirst: lastdigitget: differencefromfloat: bitinvert digitcompare: digitadd: digitsubtract: digitmultiply:neg: digitdiv:neg: factorial lessfromfloat: bitat: asrational size printon: differencefromfraction: hash quotientfromfraction: maskclear: sumfromfloat: productfromdouble: bitxor: isinteger reducegeneralityifpossible digitat: asdouble iszero sumfrominteger: at: at:put: productfromfloat: maskset: isliteral compressed differencefrominteger: asfloat denominator numerator productfrominteger: lcm: quotientfrominteger: timesrepeat: gcd: lessfromdouble: ))
+ (largepositiveinteger 
+  (integer )
+  ()
+  (- negated quo: bitand: bitor: bitxor: bitshift: digitat:put: highbit ~= digitlength compressed digitat: < abs <= >= // = > + * \\ negative / positive ))
+ (smallinteger 
+  (integer )
+  ()
+  (digitat:put: highbit * \\ odd / generality even - ~= asfloat subtractorfail: hash = fromstring:radix: bitand: bitor: printon:base: bitshift: digitat: quo: isimmediate shallowcopy printdigitson:base: asdouble sqrtrounded iszero bitxor: assmallinteger < <= digitlength identityhash >= > // + compressed ))
+ (largenegativeinteger 
+  (integer )
+  ()
+  (positive abs compressed printon:base: digitat: negated digitat:put: highbit digitlength negative ))
+ (limitedprecisionreal 
+  (number )
+  ()
+  (reducegeneralityifpossible integerpart fractionpart mantissa: radianstodegrees exponent printon:digits: absprinton:digits: degreestoradians aslimitedprecisionreal printon: defaultnumberofdigits asrational representbinaryon: hash ))
+ (float 
+  (limitedprecisionreal )
+  ()
+  (productfromfraction: asfloat floorlog10 asdouble at: at:put: rounded isliteral lessfromfraction: sumfromfloat: quotientfrominteger: raisedto: sin sumfrominteger: cos productfrominteger: sumfromfraction: < sumfromdouble: <= >= > differencefromfloat: lessfromdouble: truncated iszero lessfrominteger: lessfromfloat: differencefromdouble: productfromdouble: quotientfromfloat: differencefromfraction: arcsin sqrt arctan exp arccos tan ln * productfromfloat: / size + ~= reversebyteorder generality coerce: - = quotientfromfraction: differencefrominteger: ismanifest fractionpart exponent quotientfromdouble: timestwopower: ))
+ (double 
+  (limitedprecisionreal )
+  ()
+  (productfromfraction: asfloat floorlog10 asdouble at: at:put: rounded isliteral lessfromfraction: sumfromfloat: quotientfrominteger: raisedto: sin sumfrominteger: cos productfrominteger: sumfromfraction: < sumfromdouble: <= >= > differencefromfloat: lessfromdouble: truncated iszero lessfrominteger: lessfromfloat: differencefromdouble: productfromdouble: quotientfromfloat: differencefromfraction: arcsin sqrt arctan exp arccos tan ln * defaultnumberofdigits / size productfromfloat: + ~= reversebyteorder generality coerce: - = quotientfromfraction: differencefrominteger: fractionpart exponent quotientfromdouble: timestwopower: )))

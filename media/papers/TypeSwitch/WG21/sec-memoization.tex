@@ -1,0 +1,1008 @@
+\section{Type Switching}
+\label{sec:copc}
+
+%While \Cpp{} does not have direct support for algebraic data types, they can be 
+%encoded with classes in a number of ways. One common such encoding is to 
+%introduce an abstract base class representing an algebraic data type with 
+%several derived classes representing variants. The variants can be 
+%discriminated with either run-time type information (\emph{polymorphic 
+%encoding}) or a unique tag inside a dedicated member of the common base class 
+%(\emph{tagged encoding}).
+
+\emph{Mach7} explicitly supports at least two encodings of algebraic
+datatypes: runtime type information discriminant, and numerical tag
+data member shared by all classes in a given hierarchy.  The library
+handles them differently to let 
+the user choose between openness and efficiency. The type switch for tagged 
+encoding (\textsection\ref{sec:cotc}) is simpler and more efficient for many typical use cases, however, 
+making it open eradicates its performance advantages (\textsection\ref{sec:cmp}). 
+%The difference in 
+%performance is the price we pay for keeping the solution open. We describe pros 
+%and cons of each approach in \textsection\ref{sec:cmp}.
+
+%The core of the proposal relies on two key aspects of \Cpp{} implementations:
+%\begin{enumerate}
+%\item a constant-time access to the virtual table pointer embedded in an object of
+%  dynamic class type;
+%\item injectivity of the relation between an object's inheritance path
+%  and the virtual table pointer extracted from that object.
+%\end{enumerate}
+
+\input{sec-tagged}
+
+\subsection{An Open but Inefficient Solution}
+\label{sec:poets}
+
+Instead of starting with an efficient solution and trying to make it open, we 
+start with an open solution and try to make it efficient. The following 
+cascading-if statement implements the first-fit semantics for our type switch in 
+a truly open fashion:
+
+\begin{lstlisting}
+if (T1* match=dynamic_cast<T1*>(subject)) {s1;} else
+if (T2* match=dynamic_cast<T2*>(subject)) {s2;} else
+...
+if (Tn* match=dynamic_cast<Tn*>(subject)) {sn;}
+\end{lstlisting}
+
+\noindent
+Its main drawback is performance: a typical implementation of 
+\code{dynamic_cast} takes time proportional to the distance between base and 
+derived classes in the inheritance tree. What is worse is that due to the
+sequential order of tests, the time to uncover the type in the $i^{th}$ case 
+clause will be proportional to $i$, while failure to match will take the longest. 
+%This linear increase can be seen in the Figure~\ref{fig:DCastVis1}, where 
+%the above cascading-if was applied to a flat hierarchy encoding an algebraic 
+%data type with 100 variants. The same type-switching functionality implemented 
+%with the visitor design pattern took only 28 cycles regardless of the 
+%case.\footnote{Each case $i$ was timed multiple times, thus turning the experiment 
+%into a repetitive benchmark described in \textsection\ref{sec:eval}. In a more
+%realistic setting, represented by random and sequential benchmarks, the cost of 
+%double dispatch was varying between 52 and 55 cycles.}
+%This is more than 3 times faster than the 93 cycles it took to uncover even the 
+%first case with \code{dynamic_cast}, while it took 22760 cycles to uncover the 
+%last.
+In a test involving a flat hierarchy of 100 variants, it took 93 cycles to 
+discover the first type and 22760 to discover the last (with their linear combination 
+for the types in between). %A visitor design pattern could 
+%uncover any type in about 55 cycles, regardless of its position among the case 
+%clauses, while a switch based on sequential tags could achieve the same in less 
+%than 20 cycles. The idea is thus to combine the openness of the above structure 
+%with the efficiency of a jump table on small sequential values.
+
+Relying on \code{dynamic_cast} also makes an implicit semantic choice where we 
+are no longer looking for the first/best-fitting type that is in subtyping 
+relation, but for the first/best-fitting type to which a cast is possible from 
+the source subobject (\textsection\ref{sec:specifics}).
+
+%\begin{figure}[htbp]
+%  \centering
+%    \includegraphics[width=0.47\textwidth]{DCast-vs-Visitors1.png}
+%  \caption{Type switching based on na\"ive techniques}
+%  \label{fig:DCastVis1}
+%\end{figure}
+
+%Seeing several solutions whose time increases with the position of the case 
+%clause in the type switch, one may wonder how many such clauses a typical 
+%program might have. A program dealing with abstract syntax trees in 
+%Pivot~\cite{Pivot09} that we implemented using our pattern-matching library had 
+%8 match statements with 5, 7, 8, 10, 15, 17, 30 and 63 case clauses, 
+%respectively. With Pivot having the smallest number of node kinds among the 
+%compiler frameworks we had a chance to work with, we expect a similar or larger 
+%number of case clauses in other compiler applications.
+
+%When the class hierarchy is not flat, the above cascading-if can be replaced 
+%with a decision tree that tests base classes first and thus eliminates many of 
+%the derived classes from consideration -- an approach used by Emir to deal with 
+%type patterns in Scala~\cite[\textsection 4.2]{EmirThesis}. The intent is to 
+%replace a sequence of independent dynamic casts between classes that are far 
+%from each other in the hierarchy with nested dynamic casts between classes that 
+%are close to each other. Another advantage is the possibility to fail early. 
+%As can be seen from Figure~\ref{fig:DCastVis1} under ``Decision-Tree + 
+%dynamic\_cast'', when applicable, the optimization can be very useful. The class
+%hierarchy for this timing experiment formed a perfect binary tree with 
+%classes number 2*N and 2*N+1 derived from a class with number N. The hierarchy 
+%also explains the repetitive pattern of timings.
+%
+%Several authors had noted the relationship between exception handling and type 
+%switching before~\cite{Glew99,ML2000}. Not surprisingly, the exception handling 
+%mechanism of \Cpp{} can be abused to implement the first-fit semantics of a type 
+%switch statement. The idea is to harness the fact that catch-handlers in \Cpp{} 
+%essentially use first-fit semantics to decide which one is going to handle a 
+%given exception. Unfortunately the approach is even slower than the use of 
+%\code{dynamic_cast} and we only list it here for comparison.
+
+\subsection{A Memoization Device}
+\label{sec:memdev}
+
+Let us look at a slightly more general problem than type switching. Consider a 
+generalization of the switch statement that takes predicates on a subject as its 
+clauses and executes the first statement $s_i$ whose predicate is enabled: 
+
+\begin{lstlisting}[keepspaces]
+switch (x) { case P1(x): s1; ... case Pn(x): sn; }
+\end{lstlisting}
+
+\noindent
+Assuming that predicates are \emph{functional} (i.e. do not involve any side 
+effects), the next time we execute the switch with the same value $x$, the same 
+predicate will be enabled first. We thus would like to avoid evaluating 
+preceding predicates and jump to the statement it guards. In a way, we 
+would like the switch to memoize the case enabled for a given $x$. 
+
+The idea is to generate a simple cascading-if statement interleaved with jump 
+targets and instructions that associate the original value with enabled target. 
+The code before the statement looks up whether the association for a given value 
+has already been established, and, if so, jumps directly to the target; otherwise, 
+the sequential execution of the cascading-if is started. To ensure 
+that the actual code associated with the predicates remains unaware of this 
+optimization, the code preceding it after the target must re-establish any 
+invariant guaranteed by sequential execution (\textsection\ref{sec:vtblmem}).
+
+Described code can be easily produced in a compiler setting, but generating it in 
+a library is a challenge. Inspired by Duff's Device~\cite{Duff}, 
+we devised a construct that we call \emph{Memoization Device} doing just 
+that in standard \Cpp{}:
+
+\begin{lstlisting}
+typedef decltype(x) T; // T is the type of subject x
+static std::unordered_map<T,size_t> jump_targets;
+
+switch (size_t& jump_to = jump_targets[x]) {
+default: // entered when we have not seen x yet
+    if (P1(x)) { jump_to = 1; case 1: s1; } else 
+    if (P2(x)) { jump_to = 2; case 2: s2; } else
+      ...
+    if (Pn(x)) { jump_to = @$n$@; case @$n$@: sn; } else
+                jump_to = @$n+1$@;
+case @$n+1$@: // none of the predicates is true on x
+}
+\end{lstlisting}
+
+\noindent
+The static \code{jump_targets} hash table will be allocated upon first entry 
+to the function. The map is initially empty and according to its logic, 
+request for a key $x$ not yet in the map will allocate a 
+new entry with its associated data default initialized (to 0 for \code{size_t}). Since 
+there is no case label 0 in the switch, the default case will be taken, which, in 
+turn, will initiate sequential execution of the interleaved cascading-if 
+statement. Assignments to \code{jump_to} effectively establish association 
+between value $x$ and corresponding predicate, since \code{jump_to} is a 
+reference to \code{jump_targets[x]}. The last assignment records absence of 
+enabled predicates for $x$.
+
+To change the first-fit semantics of the above construct into \emph{sequential 
+all-fit}, we remove the \code{else}-statements and rely on fall-through behavior of the 
+switch. We make the assignments conditional to make sure, only the first is recorded:
+
+\begin{lstlisting}
+if (Pi(x)) { if (jump_to == 0) jump_to = @$i$@; case @$i$@: si; }
+\end{lstlisting}
+
+\noindent
+Note that the protocol that has to be maintained by this structure does not 
+depend on the actual values of case labels. We only require them to be 
+different and include a predefined default value. The default clause can be 
+replaced with a case clause for the predefined value, but keeping the default  
+clause generates faster code. A more important consideration is to 
+keep the values close to each other. Not following this rule might result in a 
+compiler choosing a decision tree over a jump table implementation of the 
+switch, which in our experience significantly degrades the performance.
+
+The first-fit semantics is not an inherent property of the memoization device. 
+Assuming that the conditions are either mutually exclusive or imply one another, we 
+can build a decision-tree-based memoization device that will effectively have 
+\emph{most-specific} semantics -- an analog of best-fit semantics in predicate 
+dispatching~\cite{ErnstKC98}.
+
+Imagine that the predicates with the numbers $2i$ and $2i+1$ are mutually exclusive and 
+each imply the value of the predicate with number $i$, i.e.
+$\forall i\forall x\in\bigcap_j\mathsf{Domain}(P_j).P_{2i+1}(x)\rightarrow P_i(x)\wedge P_{2i}(x)\rightarrow P_i(x)\wedge\neg(P_{2i+1}(x)\wedge P_{2i}(x))$ holds. 
+Examples of such predicates are class membership tests where the truth of 
+testing membership in a derived class implies the truth of testing membership in 
+its base class.
+
+The following decision-tree-based memoization device will execute the statement 
+$s_i$ associated with the \emph{most-specific} predicate $P_i$ (i.e. the 
+predicate that implies all other predicates true on $x$) that evaluates to true 
+or will skip the entire statement if none of the predicates is true on $x$.
+
+\begin{lstlisting}
+switch (size_t& jump_to = jump_targets[x]) {
+default:
+    if (P1(x)) {
+        if (P2(x)) {
+            if (P4(x)) { jump_to = 4; case 4: s4; } else
+            if (P5(x)) { jump_to = 5; case 5: s5; } 
+            jump_to = 2; case 2: s2;
+        } else
+        if (P3(x)) {
+            if (P6(x)) { jump_to = 6; case 6: s6; } else
+            if (P7(x)) { jump_to = 7; case 7: s7; } 
+            jump_to = 3; case 3: s3;
+        }
+        jump_to = 1; case 1: s1;
+    } else { jump_to = 0; case 0: ; }
+}
+\end{lstlisting}
+
+\noindent
+Our library solution prefers the simpler cascading-if approach only because the 
+necessary code structure can be laid out with macros. A compiler solution 
+will use the decision-tree approach whenever possible to lower the cost of the 
+first match from linear in case's number to logarithmic. % as seen in Figure\ref{fig:DCastVis1}.
+
+%When the predicates do not satisfy the implication or mutual exclusion properties 
+%mentioned above, a compiler of a language based on predicate dispatching would 
+%typically issue an ambiguity error. Some languages might choose to resolve it 
+%according to lexical or some other ordering. In any case, the presence of 
+%ambiguities or their resolution has nothing to do with memoization device 
+%itself. The latter only helps optimize the execution once a particular choice of 
+%semantics has been made and code implementing it has been laid out.
+
+The main advantage of the memoization device is that it can be built around 
+almost any code, providing that we can re-establish the invariants guaranteed 
+by sequential execution. Its main disadvantage is the size of the hash table 
+that grows proportionally to the number of different values seen. Fortunately, 
+the values can often be grouped into equivalence classes that do not change the 
+outcome of the predicates. The map can then associate the equivalence class of a 
+value with a target instead of associating the value with it. 
+
+In application to type switching, the idea is to use the memoization device to 
+learn the outcomes of type inclusion tests (with \code{dynamic_cast} used as a 
+predicate). The objects can be grouped into equivalence classes based on their 
+dynamic type: the outcome of each type inclusion test will be the same on 
+all the objects of the same dynamic type. We can use the  
+address of a class' \code{type_info} object obtained in constant time with the
+\code{typeid()} operator as a unique identifier of each dynamic type. 
+%Presence of multiple \code{type_info} objects for the same class, as is often 
+%the case when dynamic linking is involved, is not a problem, as it would 
+%effectively split a single equivalence class into multiple ones. 
+
+This could have been a solution if we were only interested in class membership. 
+More often than not, however, we will be interested in obtaining a reference to 
+the target type of the subject, and we saw in \textsection\ref{sec:specifics} 
+that the cast between the source and target subobjects depends on 
+the position of the source subobject in the dynamic type's subobject graph. 
+We thus would like to have different equivalence classes for different 
+subobjects. 
+%, but there seems to be no easy way of identifying them given just an object descriptor.
+
+\subsection{Virtual Table Pointers}
+\label{sec:vtp}
+
+%In this section we show that under certain conditions the compiler cannot share 
+%the same virtual tables between different classes or their subobjects. This 
+%allows us to use virtual table pointers to \emph{uniquely} identify the 
+%subobjects within the most-derived class.
+
+Figure~\ref{fig:objlayout} shows a typical object layout generated by a \Cpp{} 
+compiler for class \code{D} from Figure~\ref{fig:inheritance}(1) under repeated 
+(1) and virtual (2) inheritance of \code{A}. The layouts represent an encoding 
+of the corresponding subobject graphs from Figures \ref{fig:inheritance}(2a) and 
+\ref{fig:inheritance}(2b) respectively.
+
+\begin{figure}[htbp]
+  \centering
+    \includegraphics[width=0.47\textwidth]{obj-layout.pdf}
+  \caption{Object Layout under Multiple Inheritance}
+  \label{fig:objlayout}
+\end{figure}
+
+Due to the extensibility of classes, the layout decisions for classes must be 
+made independently of their derived classes -- a property of the \Cpp{} object 
+model that we will refer to as \emph{layout independence}. In turn, the layout of derived   
+classes must conform to the layout of their base classes relatively to the offset 
+of the base class within the derived one. For example, the layout of \code{A} in 
+\code{C} is exactly the same as the layout of \code{A} in \code{B} and is simply
+the layout of \code{A}. Base classes inherited virtually do not contribute to 
+the fixed layout because they are looked up indirectly at run-time; however, 
+they are not exempt from layout independence, since their lookup rules are 
+agnostic of the concrete dynamic type.
+%Because of this indirection, the use of virtual inheritance incures slight 
+%overhead at run-time. 
+
+Under non-virtual inheritance, members of the base class are typically laid out 
+before the members of derived class, resulting in the base class being at the 
+same offset as the derived class itself. In our example, the offset of \code{A} 
+in \code{B} under regular (non-virtual) inheritance of \code{A} is 0.
+Under multiple inheritance, different base classes might be at different offsets 
+in the derived class, which is why pointers of a given static type may be 
+pointing only to certain subobjects in it. These positions are marked in the 
+picture with vertical arrows decorated with the set of pointer types whose 
+values may point into that position. Run-time conversions between such pointers 
+represent casts between subobjects of the same dynamic type and may require 
+adjustments to this-pointer (shown with dashed arrows) for type safety.
+
+A class that declares or inherits a virtual function is called a 
+\emph{polymorphic class}. The \Cpp{} standard~\cite{C++11} does not prescribe any 
+specific implementation technique for virtual function dispatch.
+However, in practice, all \Cpp{} compilers use a strategy based on so-called
+virtual function tables (or vtables for short) for efficient dispatch. 
+The vtable is part of the reification of a polymorphic class type.  
+\Cpp{} compilers embed a pointer to a vtable (vtbl-pointer for short) in every object of
+polymorphic class type (and thus every subobject of that type inside other 
+classes due to layout independence). CFront, the first \Cpp{} compiler, puts the 
+vtbl-pointer 
+at the end of an object. The so-called ``common vendor \Cpp{} ABI''~\cite{C++ABI} requires the 
+vtbl-pointer to be at offset 0 of an object. %~\footnote{The following compilers 
+%are known to comply with the \Cpp{} ABI: GCC (3.x and up); Clang and llvm-g++; 
+%Linux versions of Intel and HP compilers, and compilers from ARM. See 
+%http://morpher.com/documentation/articles/abi/ for details.}. 
+We do not have 
+access to the unpublished Microsoft ABI, but we have experimental evidence that 
+their \Cpp{} compiler also puts the vtbl-pointer at the start of an object.
+
+While the exact offset of the vtbl-pointer within the (sub)object is not important 
+for this discussion, because of layout independence every (sub)object of a 
+polymorphic type \code{S} will have a vtbl-pointer at a predefined offset. 
+Such offset may be different for different static types \code{S}, in which case 
+the compiler will know at which offset in type \code{S} the vtbl-pointer is 
+located, but it will be the same within any subobject of a static type 
+\code{S}. For a library implementation we assume the presence of a function 
+\code{template <typename S> intptr_t vtbl(const S* s);} 
+that returns the address of the virtual table corresponding to the subobject 
+pointed to by \code{s}. Such a function can be trivially implemented for the 
+common vendor \Cpp{} ABI, where the vtbl-pointer is always at offset 0:
+
+\begin{lstlisting}
+template <typename S> std::intptr_t vtbl(const S* s) {
+    static_assert(std::is_polymorphic<S>::value, "error");
+    return *reinterpret_cast<const std::intptr_t*>(s);
+}
+\end{lstlisting}
+
+\noindent
+Each of the \code{vtbl} fields shown in Figure~\ref{fig:objlayout} holds a 
+vtbl-pointer referencing a group of virtual methods known in the object's static 
+type. Figure~\ref{fig:vtbl}(1) shows a typical layout of virtual function tables 
+together with objects it points to for classes \code{B} and \code{D}.
+
+\noindent
+\begin{figure}[htbp]
+  \centering
+    \includegraphics[width=0.49\textwidth]{v-table.pdf}
+  \caption{VTable layout with and without RTTI}
+  \label{fig:vtbl}
+\end{figure}
+
+Entries in the vtable to the right of the address pointed to by a vtbl-pointer 
+represent pointers to functions, while entries to the left of it represent 
+various additional fields like a pointer to a class' type information, offset to 
+top, offsets to virtual base classes, etc. In many implementations, this-pointer 
+adjustments required to dispatch properly the call were stored in the vtable 
+along with function pointers. Today most implementations prefer to use 
+\emph{thunks} or \emph{trampolines} -- additional entry points to a function, 
+that adjust this-pointer before transferring the control to the function, -- 
+which was shown to be more efficient~\cite{Driesen96}. Thunks in general may 
+only be needed when virtual function is overridden. In such cases, the 
+overridden function may be called via a pointer to a base class or a pointer to 
+a derived class, which may not be at the same offset in the actual object.
+
+The intuition behind our proposal is to use the values of vtbl-pointers stored 
+inside the object to uniquely identify the subobject in it. There are several 
+problems with the approach, however. First, the same vtbl-pointer is 
+usually shared by multiple subobjects when one of them contains the other. For 
+example, the first vtbl-pointer in Figure~\ref{fig:objlayout}(1) will be shared 
+by objects of static type \code{Z*}, \code{A*}, \code{B*} and \code{D*}. This is 
+not a problem for our purpose, because the subobjects of these types will be at 
+the same offset in the object. Secondly, and more importantly, 
+however, there are legitimate optimizations that let the compiler share the same 
+vtable among multiple subobjects of often-unrelated types.
+
+Generation of the \emph{Run-Time Type Information} (or RTTI for short) can 
+typically be disabled with a compiler switch and the Figure~\ref{fig:vtbl}(2) 
+shows the same vtable layouts once RTTI has been disabled. Since neither 
+\code{baz} nor \code{foo} were overridden, the prefix of the vtable for the 
+\code{C} subobject in \code{D} is exactly the same as the vtable for its 
+\code{B} subobject, the \code{A} subobject of \code{C}, or the entire vtable of 
+\code{A} and \code{B} classes. Such a layout, for example, is produced by 
+Microsoft Visual \Cpp{} 11 when the command-line option \code{/GR-} is specified. 
+The Visual \Cpp{} compiler has been known to unify code identical on binary level, 
+which in some cases may result in sharing of the same vtable between unrelated 
+classes (e.g. when virtual functions are empty).
+
+%\Cpp{} supports multiple-inheritance of two kinds: repeated and virtual (shared). 
+%\emph{Repeated inheritance} creates multiple independent subobjects of the same 
+%type within the dynamic type. \emph{Virtual inheritance} creates only one 
+%shared subobject, regardless of the inheritance paths. Consequently,
+%it is not sufficient to talk only about the 
+%static and dynamic types of an object -- one has to talk about a 
+%\emph{subobject} of a certain static type accessible through a given inheritance 
+%path within a dynamic type. 
+
+We now would like to show more formally that in the presence of RTTI, a common vendor \Cpp{} ABI 
+compliant implementation would always have all the vtbl-pointers different. To do 
+so, we need a closer look at the notion of subobject, which has been formalized 
+before~\cite{RF95,WNST06,RDL11}. We follow here the presentation of Ramamanandro 
+et al~\cite{RDL11}.
+
+\subsection{Subobjects}
+\label{sec:subobj}
+
+We assume a program $\mathfrak{P}$ is represented by its class table, which can be 
+queried for inheritance relations between classes. All subsequent definitions 
+are implicitly parameterized over a given program $\mathfrak{P}$. 
+A class $B$ is a \emph{direct repeated base class} of  
+$D$ if $B$ is mentioned in the list of base classes of $D$ without the 
+\code{virtual} keyword ($D \prec_R B$). Similarly, a class $B$ is a \emph{direct 
+shared base class} of $D$ if $B$ is mentioned in the list of base classes of $D$ 
+with the \code{virtual} keyword ($D \prec_S B$). A reflexive transitive closure 
+of these relationships $\preceq^*=(\prec_R \cup \prec_S)^*$ defines the 
+\emph{subtyping} relation on types of program $\mathfrak{P}$.
+A base class \emph{subobject} of a given \emph{complete object} is represented by a pair 
+$\sigma = (h,l)$ with $h \in \{\mathsf{Repeated},\mathsf{Shared}\}$ representing the 
+kind of inheritance (single inheritance is $\mathsf{Repeated}$ with one base class) and $l$ 
+representing the path in a non-virtual inheritance graph.
+A judgment of the form $\mathfrak{P}\vdash C\leftY\sigma\rightY A$ states that 
+in a program $\mathfrak{P}$, $\sigma$ designates a subobject of static type $A$ 
+within an object of type $C$. Omitting the context $\mathfrak{P}$: 
+
+\begin{mathpar}
+\inferrule
+{C \prec_S B \\ B\leftY(h,l)\rightY A}
+{C\leftY(\mathsf{Shared},l)\rightY A}
+
+\inferrule
+{}
+{C\leftY(\mathsf{Repeated},C::\epsilon)\rightY C}
+
+\inferrule
+{C \prec_R B \\ B\leftY(\mathsf{Repeated},l)\rightY A}
+{C\leftY(\mathsf{Repeated},C::l)\rightY A}
+\end{mathpar}
+
+\noindent
+$\epsilon$ indicates an empty path, but we will generally omit it in writing 
+when understood from the context. In the case of repeated inheritance in 
+Figure~\ref{fig:inheritance}(1), an object of the dynamic class \code{D} 
+will have the following $\mathsf{Repeated}$ subobjects:
+\code{D::C::Y}, 
+\code{D::B::A::Z}, 
+\code{D::C::A::Z}, 
+\code{D::B::A}, 
+\code{D::C::A}, 
+\code{D::B}, 
+\code{D::C}, 
+\code{D}.
+Similarly, in case of virtual inheritance in the same example, an object of the 
+dynamic class \code{D} will have the following $\mathsf{Repeated}$ subobjects:
+\code{D::C::Y}, 
+\code{D::B}, 
+\code{D::C}, 
+\code{D}
+as well as the following $\mathsf{Shared}$ subobjects: 
+\code{D::A::Z}, 
+\code{D::Z}, 
+\code{D::A}. See Figure~\ref{fig:inheritance} for illustration.
+
+It is easy to show by structural induction on the above definition, that 
+$C\leftY\sigma\rightY A \implies \sigma=(h,C::l_1) \wedge \sigma=(h,l_2::A::\epsilon)$, 
+which simply means that any path to a subobject of static type $A$ within the 
+object of dynamic type $C$ starts with $C$ and ends with $A$. This 
+observation shows that $\sigma_\bot = (\mathsf{Shared},\epsilon)$ does not 
+represent a valid subobject. If $\Sigma_\mathfrak{P}$ is the domain of all subobjects in 
+the program $\mathfrak{P}$ extended with $\sigma_\bot$, then a \emph{cast} operation can be 
+understood as a function $\delta : \Sigma_\mathfrak{P} \rightarrow \Sigma_\mathfrak{P}$. We use 
+$\sigma_\bot$ to indicate an impossibility of a cast. The fact that $\delta$ is 
+defined on subobjects as opposed to actual run-time values reflects the 
+non-coercive nature of the operation, i.e. the underlying value remains the 
+same. Any implementation of such a function must thus satisfy the following 
+condition:
+\begin{eqnarray*}
+C \leftY\sigma_1\rightY A \wedge \delta(\sigma_1) = \sigma_2 \implies C \leftY\sigma_2\rightY B
+\end{eqnarray*}
+\noindent
+i.e. the dynamic type of the value does not change during casting, only the way 
+we reference it does. Following the definitions from 
+\textsection\ref{sec:specifics}, $A$ is the \emph{source type} and $\sigma_1$ is 
+the \emph{source subobject} of the cast, while $B$ is the \emph{target type} and 
+$\sigma_2$ is the \emph{target subobject} of it. The type $C$ is the 
+dynamic type of the value being casted. The \Cpp{} semantics states more 
+requirements to the implementation of $\delta$: e.g. 
+$\delta(\sigma_\bot) = \sigma_\bot$ etc. but their precise modeling is out of 
+scope of this discussion. We would only like to point out here that since 
+the result of the cast does not depend on the actual value and only on the 
+source subobject and the target type, we can memoize the outcome of a cast on 
+one instance in order to apply its results to another.
+
+%Figure~\ref{fig:objlayout}(1)
+%$Z\leftY(\mathsf{Repeated},      [Z])\rightY Z$,
+%$A\leftY(\mathsf{Repeated},    [A,Z])\rightY Z$,
+%$B\leftY(\mathsf{Repeated},  [B,A,Z])\rightY Z$,
+%$D\leftY(\mathsf{Repeated},[D,B,A,Z])\rightY Z$,
+%$C\leftY(\mathsf{Repeated},  [C,A,Z])\rightY Z$,
+%$D\leftY(\mathsf{Repeated},[D,C,A,Z])\rightY Z$,
+%$Y\leftY(\mathsf{Repeated},      [Y])\rightY Y$,  
+%$C\leftY(\mathsf{Repeated},    [C,Y])\rightY Y$,
+%$D\leftY(\mathsf{Repeated},  [D,C,Y])\rightY Y$,
+%$A\leftY(\mathsf{Repeated},      [A])\rightY A$, 
+%$B\leftY(\mathsf{Repeated},    [B,A])\rightY A$,
+%$D\leftY(\mathsf{Repeated},  [D,B,A])\rightY A$,
+%$C\leftY(\mathsf{Repeated},    [C,A])\rightY A$,
+%$D\leftY(\mathsf{Repeated},  [D,C,A])\rightY A$,
+%$B\leftY(\mathsf{Repeated},      [B])\rightY B$,
+%$D\leftY(\mathsf{Repeated},    [D,B])\rightY B$,
+%$C\leftY(\mathsf{Repeated},      [C])\rightY C$,
+%$D\leftY(\mathsf{Repeated},    [D,C])\rightY C$,
+%$D\leftY(\mathsf{Repeated},      [D])\rightY D$,
+%
+%Figure~\ref{fig:objlayout}(2)
+%$Z\leftY(\mathsf{Repeated},      [Z])\rightY Z$,
+%$A\leftY(\mathsf{Repeated},    [A,Z])\rightY Z$,
+%$B\leftY(\mathsf{Shared},    [B,A,Z])\rightY Z$,
+%$C\leftY(\mathsf{Shared},    [C,A,Z])\rightY Z$,
+%$D\leftY(\mathsf{Shared},    [D,A,Z])\rightY Z$,
+%$D\leftY(\mathsf{Shared},      [D,Z])\rightY Z$,
+%$Y\leftY(\mathsf{Repeated},      [Y])\rightY Y$,  
+%$C\leftY(\mathsf{Repeated},    [C,Y])\rightY Y$,
+%$D\leftY(\mathsf{Repeated},  [D,C,Y])\rightY Y$,
+%$A\leftY(\mathsf{Repeated},      [A])\rightY A$, 
+%$B\leftY(\mathsf{Shared},      [B,A])\rightY A$,
+%$C\leftY(\mathsf{Shared},      [C,A])\rightY A$,
+%$D\leftY(\mathsf{Shared},      [D,A])\rightY A$,
+%$B\leftY(\mathsf{Repeated},      [B])\rightY B$,
+%$D\leftY(\mathsf{Repeated},    [D,B])\rightY B$,
+%$C\leftY(\mathsf{Repeated},      [C])\rightY C$,
+%$D\leftY(\mathsf{Repeated},    [D,C])\rightY C$,
+%$D\leftY(\mathsf{Repeated},      [D])\rightY D$,
+
+\subsection{Uniqueness of vtbl-pointers under common ABI}
+\label{sec:uniq}
+
+%A class that declares or inherits a virtual function is called a 
+%\emph{polymorphic class}~\cite[\textsection 10.3]{C++11}.  We say that
+%a class is \emph{dynamic} \cite{C++ABI} if it requires a virtual table pointer 
+%(because it or its bases have one or more virtual member functions or
+%virtual base classes). 
+%A \emph{virtual table pointer} (vtbl-pointer)
+%is a data-member of an object pointing to the object's dynamic type vtable.
+%In addition to dispatching virtual function calls, it is used to access
+%virtual base class subobjects, and to 
+%access \emph{RunTime Type Identification} (RTTI) data.
+%An object of a class
+%type with multiple inheritance may contain several vtbl-pointers
+%(included in its subobjects). We assume that for every expression of
+%static type \code{T} (a dynamic class type), a \Cpp{} compiler provides
+%access to the vtbl-pointer of the (sub)object designated by that 
+%expression (or at least documents the position of that
+%pointer within an object). For the common vendor \Cpp{} ABI, we can state:
+%\begin{lemma}
+%  In an object layout that adheres to the ``common vendor \Cpp{} ABI'', 
+%  an object of a polymorphic class always has a virtual table pointer
+%  at offset 0.
+%\label{lem:vtbl}
+%\end{lemma}
+
+%\noindent
+%With no further assumption, we cannot use a vtable to uniquely identify
+%its dynamic type or those of its subobjects. The reason is that a popular 
+%compression technique is to share compiler-generated data, and not exclusively
+%between subobjects in the class hierarchy.
+%Use of such optimization will violate the 
+%uniqueness of vtbl-pointers; however, we show below that in the presense of 
+%runtime type identification information (RTTI), we have a form of injectivity
+%that is sufficient for our needs.
+Given a reference \code{a} to polymorphic type \code{A} that points to a subobject 
+$\sigma$ of the dynamic type \code{C} (i.e. $C\leftY\sigma\rightY A$ is 
+true), we will use the traditional field access notation \code{a.vtbl} to refer to 
+the virtual table of that subobject. The exact structure of the virtual table as 
+mandated by the common vendor \Cpp{} ABI is immaterial for this discussion, but we 
+mention a few fields that are important for the reasoning~\cite[\textsection 2.5.2]{C++ABI}:
+
+\begin{itemize}
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+\item \code{rtti(a.vtbl)}: the \emph{typeinfo pointer} points to the typeinfo 
+      object used for RTTI. It is always present and is shown as the first field 
+      to the left of any vtbl-pointer in Figure~\ref{fig:vtbl}(1).
+\item \code{off2top(a.vtbl)}: the \emph{offset to top} holds the displacement to 
+      the top of the object from the location within the object of the 
+      vtbl-pointer that addresses this virtual table. It is always present and 
+      is shown as the second field to the left of any vtbl-pointer in 
+      Figure~\ref{fig:vtbl}(1). The numeric value shown indicates the actual 
+      offset based on the object layout from Figure~\ref{fig:objlayout}(1).
+\item \code{vbase(a.vtbl)}: \emph{Virtual Base (vbase) offsets} are used to access 
+      the virtual bases of an object. Such an entry is required for each virtual 
+      base class. None is shown in our example in Figure~\ref{fig:vtbl}(1) 
+      since it discusses repeated inheritance, but they will occupy further 
+      entries to the left of the vtbl-pointer, when present.
+\end{itemize}
+
+\noindent
+We also use the notation $\mathit{offset}(\sigma)$ to refer to the offset of a 
+given subobject $\sigma$ within $C$, known by the compiler.
+
+\begin{theorem}
+In an object layout that adheres to the common vendor \Cpp{} ABI with RTTI enabled, 
+equality of vtbl-pointers of two objects of the same static type implies that 
+they both belong to subobjects with the same inheritance path in the same dynamic class.
+
+\noindent
+$\forall a_1, a_2 : A\ |\ a_1\in C_1\leftY\sigma_1\rightY A \wedge a_2\in C_2\leftY\sigma_2\rightY A $ \\ 
+$a_1.\textit{vtbl} = a_2.\textit{vtbl} \Rightarrow C_1 = C_2 \wedge \sigma_1 = \sigma_2$
+\label{thm:vtbl}
+\end{theorem}
+\begin{proof}
+Let us assume first $a_1.\textit{vtbl} = a_2.\textit{vtbl}$ but $C_1 \neq C_2$. In this case we 
+have \code{rtti}$(a_1.\textit{vtbl}) = $\code{rtti}$(a_2.\textit{vtbl})$. By definition 
+\code{rtti}$(a_1.\textit{vtbl}) = C_1$ while \code{rtti}$(a_2.\textit{vtbl}) = C_2$, which 
+contradicts that $C_1 \neq C_2$. Thus $C_1 = C_2 = C$.
+
+Let us assume now that $a_1.\textit{vtbl} = a_2.\textit{vtbl}$ but $\sigma_1 \neq \sigma_2$. 
+Let $\sigma_1=(h_1,l_1),\sigma_2=(h_2,l_2)$ 
+
+If $h_1 \neq h_2$ then one of them refers to a virtual base while the other to a 
+repeated one. Assuming $h_1$ refers to a virtual base, \code{vbase}$(a_1.\textit{vtbl})$ 
+has to be defined inside the vtable according to the ABI, while 
+\code{vbase}$(a_2.\textit{vtbl})$ -- should not. This would contradict again that both 
+$vtbl$ refer to the same virtual table.
+
+We thus have $h_1 = h_2 = h$. If $h = \mathsf{Shared}$ then there is only one path to 
+such $A$ in $C$, which would contradict $\sigma_1 \neq \sigma_2$. 
+If $h = \mathsf{Repeated}$ then we must have that $l_1 \neq l_2$. In this case let $k$ be 
+the first position in which they differ: 
+$\forall j<k.l_1^j=l_2^j \wedge l_1^k\neq l_2^k$. Since our class $A$ is a base 
+class for classes $l_1^k$ and $l_2^k$, both of which are in turn base classes of 
+$C$, the object identity requirement of \Cpp{} requires that the relevant subobjects 
+of type $A$ have different offsets within class $C$: 
+$\mathit{offset}(\sigma_1)\neq \mathit{offset}(\sigma_2)$ However 
+$\mathit{offset}(\sigma_1)=$\code{off2top}$(a_1.\textit{vtbl})=$\code{off2top}$(a_2.\textit{vtbl})=\mathit{offset}(\sigma_2)$ 
+since $a_1.\textit{vtbl} = a_2.\textit{vtbl}$, which contradicts that the offsets are different.
+\end{proof}
+
+\noindent
+Conjecture in the other direction is not true in general as there may be 
+duplicate vtables for the same type present at run-time. This happens in 
+many \Cpp{} implementations in the presence of \emph{Dynamically Linked Libraries} 
+(or DLLs for short) as the same class compiled into executable and DLL it loads 
+may have identical vtables inside the executable's and DLL's binaries.
+
+Note also that we require both static types to be the same. Dropping this 
+requirement and saying that equality of vtbl-pointers also implies equality of 
+static types is not true in general because a derived class can share a 
+vtbl-pointer with its primary base class. The theorem can be reformulated, 
+however, stating that one subobject will necessarily have to contain the other, but that would require bringing in the formalism for subobject 
+containment~\cite{WNST06}. The current formulation is sufficient for our 
+purposes.
+
+%\begin{corollary}
+%In an object layout that adheres to the common vendor \Cpp{} ABI with enabled RTTI, 
+%the offset between two same subobjects of two different objects of the same 
+%dynamic type is the same.
+%$\forall c_1, c_2 : C\ |\ c_1,c_2 \in C\leftY\sigma_1\rightY C $ \\ 
+%$a_1.\textit{vtbl} = a_2.\textit{vtbl} \Rightarrow C_1 = C_2 \wedge \sigma_1 = \sigma_2$
+%
+%
+%Results of \code{dynamic_cast} can be reapplied to a different instance from 
+%within the same subobject. 
+%
+%$\forall A,B \forall a_1, a_2 : A\ |\ a_1.\textit{vtbl} = a_2.\textit{vtbl} \Rightarrow$ \\
+%\code{dynamic_cast<B>}$(a_1).\textit{vtbl}_j = $\code{dynamic_cast<B>}$(a_2).\textit{vtbl}_j \vee$ \\
+%\code{dynamic_cast<B>}$(a_1)$ throws $\wedge$ \code{dynamic_cast<B>}$(a_2)$ throws.
+%\label{crl:vtbl}
+%\end{corollary}
+
+%\noindent
+During construction and deconstruction of 
+an object, the value of a given vtbl-pointer may change. In particular, 
+that value will reflect the fact that the dynamic type of the object is the type of its 
+fully constructed part only. This does not affect our reasoning, as during 
+such transition we also treat the object to have the type of its fully 
+constructed base only. Such interpretation is in line with the \Cpp{} semantics for 
+virtual function calls and the use of RTTI during construction and destruction of an 
+object. Once the complete object is fully constructed, the value of the 
+vtbl-pointer will remain the same for the lifetime of the object.
+
+\subsection{Vtable Pointer Memoization}
+\label{sec:vtblmem}
+
+%The memoization device can almost immediately be used for multi-way type testing by 
+%using \code{dynamic_cast<Ti>} as a predicate $P_i$. This cannot be considered a 
+%type switching solution, however, as one would expect to also have a reference 
+%to the uncovered type. Using a \code{static_cast<Ti>} upon successful type test 
+%would have been a solution if we did not have multiple inheritance. It certainly 
+%can be used as such in languages with only single inheritance. For the fully 
+%functional \Cpp{} solution, we combine the memoization device with the properties 
+%of virtual table pointers into a \emph{Vtable Pointer Memoization} technique.
+
+The \Cpp{} standard implies that information about types is available at run time 
+for three distinct purposes~\cite[\textsection 2.9.1]{C++ABI}:
+
+\begin{itemize}
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+\item to support the \code{typeid} operator,
+\item to match an exception handler with a thrown object, and
+\item to implement the \code{dynamic_cast} operator.
+\end{itemize}
+
+\noindent
+and if any of these facilities are used in a program that was compiled with 
+RTTI disabled, the compiler shall emit a warning. Some 
+compilers (e.g. Visual \Cpp{}) additionally let a library check presence of RTTI 
+through a predefined macro, thus letting it report an error if its dependence on 
+RTTI cannot be satisfied. Since our solution depends on \code{dynamic_cast}% to perform casts at run-time
+, according to the third requirement we implicitly rely on the presence of RTTI and thus 
+fall into the setting that guarantees the preconditions of Theorem~\ref{thm:vtbl}.
+Besides, all the objects that will be coming through a particular type switch will 
+have the same static type, and thus the theorem guarantees that different vtbl-pointers 
+will correspond to different subobjects. The idea is thus to group them 
+according to the value of their vtbl-pointer and associate both jump target 
+and the required offset through the memoization device:
+
+\begin{lstlisting}
+typedef pair<ptrdiff_t,size_t> target_info; //(offset,target)
+static unordered_map<intptr_t, target_info> jump_targets;
+      auto*  sptr = &x; // name to access subject
+const void*  tptr; 
+target_info& info = jump_targets[vtbl(sptr)];
+switch (info.second) {{ default: 
+\end{lstlisting}
+
+\noindent
+The code for the $i^{th}$ case now evaluates the required offset on the first 
+entry and associates it and the target with the vtbl-pointer of the subject.
+The call to \code{adjust_ptr<Ti>} re-establishes the invariant that 
+\code{match} is a reference to type \code{Ti} of the subject \code{x}.
+%The condition of the inner if-statement is only needed to implement the 
+%sequential all-fit semantics and can be removed when fall-through behavior is 
+%not required.
+
+\begin{lstlisting}
+  if (tptr = dynamic_cast<const Ti *>(sptr)) {
+    if (info.second == 0) { // supports fall-through
+      info.first  = intptr_t(tptr)-intptr_t(sptr); // offset
+      info.second = @$i$@; // jump target
+    }
+  case @$i$@: // @$i$@ is a constant - clause's position in switch
+    auto match = adjust_ptr<Ti>(sptr,info.first);
+    si;
+  }
+\end{lstlisting}
+
+\noindent
+%The use of dynamic cast makes a huge difference in comparison to the use of 
+%static cast we dismissed above. First of all the \Cpp{} type system is much more 
+%restrictive about the static cast and many cases where it is not allowed can 
+%still be handled by dynamic cast. Examples of these include downcasting from an 
+%ambiguous base class or crosscasting between unrelated base classes.
+%
+%An important benefit we get from this optimization is that the number of values 
+%stored in the hash table is on the order $O(|A|)$, where $A$ represents the 
+%static type of an object, while $|A|$ represents the number of classes directly 
+%or indirectly derived from $A$. The linear coefficient of the big-o notation 
+%reflects possibly multiple vtbl-pointers in derived classes due to multiple 
+%inheritance.
+
+\noindent
+Class \code{std::unordered_map} provides amortized constant time access on 
+average and linear in the number of elements in the worst case. We show in the 
+next section that most of the time we will be bypassing traditional access to 
+its elements. We need this extra optimization because, as-is, the type switch is 
+still about 50\% slower than the visitor design pattern. 
+%\footnote{We are using 
+%speedups throughout the paper when comparing performance, so ``X is 42\% faster 
+%than Y'' or equally ``Y is 42\% slower than X'' means that Y's execution time is 
+%1.42 times X's execution time.}
+
+%Note that we can apply the reasoning of \textsection\ref{sec:memdev} and change 
+%the first-fit semantics of the resulting match statement into a best-fit 
+%semantics simply by changing the underlying cascading-if structure with decision 
+%tree. A compiler implementation of a type switch based on Vtable Pointer 
+%Memoization will certainly take advantage of this optimization to cut down the 
+%cost of the first run on a given vtbl-pointer, when the actual memoization happens.
+
+Looking back at the example from \textsection\ref{sec:intro} and allowing for a few 
+unimportant omissions, the first code snippet corresponds to what the macro 
+\code{Match(x)} is expanded to when given a subject expression \code{x}. In order to 
+see what \code{Case(Ti)} is expanded to, the second snippet has to be split on 
+the line containing \code{si;} (excluding \code{si;} itself, which comes from 
+source) and the second part (i.e. \} here) moved in front of the first one. The 
+macro thus closes the scope of the previous case clause before starting the new 
+one. \code{Case}'s expansion only relies on names introduced by \code{Match(x)}, 
+its argument \code{Ti}, and a constant $i$, which can be generated from the
+\code{__LINE__} macro, or, better yet, the \code{__COUNTER__} macro when 
+supported by the compiler. The \code{EndMatch} macro simply closes the scopes 
+(i.e. \}\} here). We refer the reader to the library source code for 
+further details.
+
+%\subsubsection{Structure of Virtual Table Pointers}
+%\label{sec:sovtp}
+
+\subsection{Minimization of Conflicts}
+\label{sec:moc}
+
+Virtual table pointers are not constant values and are not even guaranteed to be 
+the same between different runs of the application, because techniques like 
+\emph{address space layout randomization} or \emph{rebasing} of the module are 
+likely to change them. The relative distance between them will remain the same 
+as long as they come from the same module.
+
+Knowing that vtbl-pointers point into an array of function pointers, we should 
+expect them to be aligned accordingly and thus have a few lowest bits as zero. 
+Moreover, since many derived classes do not introduce new virtual functions, 
+the size of their virtual tables remains the same. When allocated sequentially 
+in memory, we can expect a certain number of lowest bits in the vtbl-pointers 
+pointing to them to be the same.
+These assumptions, supported by actual observations, made virtual table 
+pointers of classes related by inheritance ideally suitable for hashing: the 
+values obtained by throwing away the common bits on the right were compactly 
+distributed in small disjoint ranges (\textsection\ref{sec:hierarchies}). We use 
+them to address a cache built on top of the hash table in order to eliminate a 
+hash table lookup in most of the cases.
+
+Let $\Xi$ be the domain of integral representations of pointers. Given a cache 
+with $2^k$ entries, we use a family of hash functions $H_{kl} : \Xi \rightarrow [0..2^k-1]$ 
+defined as $H_{kl}(v)=v/2^l \mod 2^k$ to index the cache, where $l \in [0..32]$ 
+(assuming 32 bit addresses) is a parameter modeling the number of common bits on 
+the right. Division and modulo are implemented with bit operations since the
+denominator in each case is a power of 2, which in turn explains the choice of 
+the cache size.
+
+Given a hash function $H_{kl}$, pointers $v'$ and $v''$ are said to be in 
+\emph{conflict} when $H_{kl}(v')=H_{kl}(v'')$. For a given set of pointers 
+$V \in 2^{\Xi}$, we can always find such $k$ and $l$ that $H_{kl}$ will render no  
+conflicts between its elements, but the required cache size $2^k$ can be too 
+large to justify the use of memory. The value $K$ such that $2^{K-1} < |V| \leq 2^K$ 
+is the smallest value of $k$ under which absence of conflicts is still possible. 
+We thus allow $k$ to vary only in the range $[K,K+1]$ to ensure that the cache size 
+is never more than 4 times bigger than the minimum required cache size.
+
+Given a set $V = \{v_1, ... , v_n\}$, we would like to find a pair of parameters 
+$(k,l)$ such that $H_{kl}$ will render the least number of conflicts on the 
+elements of $V$. Since for a fixed set $V$, parameters $k$ and $l$ vary in a 
+finite range, we can always find the optimal $(k,l)$ by trying all the
+combinations. Let $H_{kl}^V : V \rightarrow [0..2^k-1]$ be the hash function 
+corresponding to such optimal $(k,l)$ for the set $V$. 
+
+In our setting, the set $V$ represents the set of vtbl-pointers coming through a 
+particular type switch. While the exact values of these pointers are not known 
+until run-time, their offsets from the module's base address are. This is generally 
+sufficient to estimate optimal $k$ and $l$ in a compiler setting. In the library 
+setting, we recompute them after a given number of actual collisions in cache.
+
+When $H_{kl}^V$ is injective (renders 0 conflicts on $V$), the frequency of any 
+given vtbl-pointer $v_i$ coming through the type switch does not affect the 
+overall performance of the switch. However when $H_{kl}^V$ is not injective, we 
+would prefer the conflict to happen on less frequent vtbl-pointers.
+Given a probability $p(v_i)$ of each vtbl-pointer $v_i \in V$ we can compute the 
+probability of conflict rendered by a given $H_{kl}$:
+
+\begin{eqnarray*}
+p_{kl}(V)=\sum\limits_{j=0}^{2^k-1}\of{\sum\limits_{v_{i} \in V^j_{kl}}p(v_i)}\of{1-\frac{\sum\limits_{v_i \in V^j_{kl}}p(v_i)^2}{\of{\sum\limits_{v_{i} \in V^j_{kl}}p(v_i)}^2}}
+\end{eqnarray*}
+
+\noindent 
+where $V^j_{kl}=\{v \in V | H_{kl}(v)=j\}$. In this case, the optimal hash 
+function $H_{kl}^V$ can similarly be defined as $H_{kl}$ that minimizes the 
+above probability of conflict on $V$.
+
+The probabilities $p(v_i)$ can be estimated in a compiler setting through profiling, 
+while in a library setting we let the user enable tracing of frequencies of 
+each vtbl-pointer. This introduces an overhead of an increment into the critical 
+path of execution, and according to our tests degrades the performance by 1-2\%. 
+This should not be a problem as long as the overall performance gains from a
+smaller probability of conflicts happening at run time. Unfortunately, in our 
+tests the significant drop in the number of actual collisions was not reflected 
+in a noticeable decrease in execution time, which is why we do not enable 
+frequency tracing by default. As we will see in \textsection\ref{sec:hierarchies}, 
+this was because the hash function $H_{kl}^V$ renders no conflicts on 
+vtbl-pointers in most cases and the few collisions we were getting before 
+inferring the optimal $k$ and $l$ even in non-frequency-based caching where 
+incomparably smaller than the number of successful cache hits.
+
+Assuming uniform distribution of $v_i$ in $V$ and substituting the probability 
+$p(v_i)=\frac{1}{n}$, where $n=|V|$, into the above formula we get:
+
+\begin{eqnarray*}
+p_{kl}(V)=\sum\limits_{j=0}^{2^k-1}[|V^j_{kl}| \neq 0]\frac{|V^j_{kl}|-1}{n}
+\end{eqnarray*}
+
+\noindent
+We use the Iverson bracket $[\pi]$ here to refer to the outcome of a predicate $\pi$ as numbers $0$ or $1$.
+The value $|V^j_{kl}|$ represents the number of vtbl-pointers $v_i \in V$ that are mapped to the same location $j$ in cache with $H_{kl}^V$. Only 
+one such vtbl-pointer will actually be present in that cache location at any given 
+time, which is why the value $|V^j_{kl}|-1$ represents the number of ``extra'' 
+pointers mapped into the entry $j$ on which a collision will happen. The overall 
+probability of conflict thus only depends on the total number of these ``extra'' 
+or conflicting vtbl-pointers. The $H_{kl}^V$ obtained by minimization of 
+probability of conflict under uniform distribution of $v_i$ in $V$ is thus the 
+same as the original $H_{kl}^V$ that was minimizing the number of conflicts. An 
+important observation here is that since the exact location of these ``extra'' 
+vtbl-pointers is not important and only the total number $m$ is, the probability 
+of conflict under uniform distribution of $v_i$ in $V$ is always going to be of 
+the discrete form $\frac{m}{n}$, where $0 \le m < n$.
+
+%Depending on the number of actual collisions that happen in the cache, our 
+%vtable pointer memoization technique can come close to, and even outperform, the 
+%visitor design pattern. The numbers are, of course, averaged over many runs as 
+%the first run on every vtbl-pointer will take an amount of time as shown in 
+%Figure\ref{fig:DCastVis1}. We did however test our technique on real code and 
+%can confirm that it does perform well in the real-world use cases.
+
+%The information about jump targets and necessary offsets is just an example of 
+%information we might want to be able to associate with, and access via, virtual 
+%table pointers. Our implementation of \code{memoized_cast}~\cite[\textsection 9]{TR}, for example, 
+%effectively reuses this general data structure with a different type of element 
+%values. We thus created a generic reusable class \code{vtblmap<T>} that maps 
+%vtbl-pointers to elements of type T. We will refer to the combined cache and 
+%hash-table data structure, extended with the logic for minimizing conflicts 
+%presented below, as a \emph{vtblmap} data structure.
+
+%\subsubsection{Minimization of Conflicts}
+%\label{sec:moc}
+
+%The small number of cycles that the visitor design pattern needs to uncover a 
+%type does not let us put too sophisticated cache indexing mechanisms into the 
+%critical path of execution. This is why we limit our indexing function to shifts 
+%and masking operations as well as choose the size of the cache to be a power of 2.
+%
+%As usual, by \emph{conflict} we mean a situation in which two or more keys 
+%(vtbl-pointers here) are mapped to the same location in cache using a given 
+%indexing function. The presence of conflicts means that accessing values of \code{vtblmap<T>} 
+%associated with some vtbl-pointers may result in slower lookup of the element 
+%inside the underlying hash table relative to a direct fetch from the cache.
+%This `slower' lookup, as we mentioned, is constant on average and linear in the 
+%size of the hash map in the worst case.
+%
+%Given $n$ vtbl-pointers we can always find a cache size that will render no 
+%conflicts between them. The necessary size of such a cache, however, can be too 
+%big to justify the use of memory. This is why, in our current implementation, we 
+%always consider only 2 different cache sizes: $2^k$ and $2^{k+1}$ where 
+%$2^{k-1} < n \leq 2^k$. This guarantees that the cache size is never more than 4 
+%times bigger than the minimum required cache size.
+%
+%During our experiments, we noticed that often the change in the smallest 
+%different bit happens only in a few vtbl-pointers, which was effectively 
+%cutting the available cache space in half. To overcome this problem, we let the 
+%number of bits by which we shift the vtbl-pointer vary further and compute it in 
+%a way that minimizes the number of conflicts.
+%
+%To avoid doing any computations in the critical path, \code{vtblmap} only 
+%recomputes the optimal shift and the size of the cache when an actual collision 
+%happens. In order to avoid constant recomputations when conflicts are unavoidable, 
+%we only reconfigure the optimal parameters if 
+%the number of vtbl-pointers in the \code{vtblmap} has increased since the last 
+%recomputation. Since the number of vtbl-pointers is of the order $O(|A|)$, where 
+%$A$ is the static type of all vtbl-pointers coming through a \code{vtblmap}, the 
+%restriction assures that reconfigurations will not happen infinitely often.
+%
+%To minimize the number of recomputations even further, our library communicates 
+%to the \code{vtblmap}, through its constructor, the number of case clauses in 
+%the underlying match statement. We use this number as an estimate of the expected 
+%size of the \code{vtblmap} and pre-allocate the cache according to this estimated 
+%number. The cache is still allowed to grow based on the actual number of 
+%vtbl-pointers that comes through a \code{vtblmap}, but it never shrinks from the
+%initial value. This improvement significantly minimizes the number of collisions 
+%at early stages, as well as the number of possibilities we have to consider 
+%during reconfiguration.
+%
+%The above logic always chooses the configuration that renders 
+%no conflicts, when such a configuration is possible during recomputation of 
+%optimal parameters. When this is not possible, it is natural to prefer collisions 
+%to happen on less-frequent vtbl-pointers.
+
+%We studied the frequency of vtbl-pointers that come through various match statements
+%of a \Cpp{} pretty-printer that we implemented on top of the Pivot 
+%framework~\cite{Pivot09} using our pattern-matching library. We ran the 
+%pretty-printer on a set of \Cpp{} standard library headers and then ranked all the  
+%classes from the most-frequent to the least-frequent ones, on average. The 
+%resulting probability distribution resembled the power-law distribution, which means 
+%that for that specific application, the probability of some vtbl-pointers was much 
+%higher than the probability of many other vtbl-pointers taken altogether. In 
+%our case, the two most frequent classes were representing the use of a variable in 
+%a program, and their combined frequency was larger than the combined frequency 
+%of all the other classes. Naturally, we would like to avoid conflicts on such 
+%classes in the cache, when possible.
+%
+%To do this, our library provides a configuration flag that enables tracing the
+%frequencies of each vtbl-pointer in a match statement and uses this information to 
+%minimize the number of conflicts. Due to page limitations, we refer the reader 
+%to the technical report accompanying this paper for more details on our 
+%experiments with the use of vtbl-pointer frequencies~\cite[\textsection 5.3.2]{TR}. Here we will only 
+%mention that, by default, we do not enable frequency tracing, because the 
+%significant drop in the number of actual collisions was not reflected in a 
+%noticeable decrease in execution time. This was because the total 
+%number of actual collisions, even in non-frequency based caching, was much smaller 
+%than the number of successful cache hits.

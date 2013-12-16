@@ -23,20 +23,23 @@ showstringspaces=false,
   basicstyle=\sffamily,
 %  commentstyle=\rmfamily\itshape,
   moredelim=**[is][\color{white}]{~}{~},
-  morekeywords={concept,decltype,noexcept,nullptr,requires},
+  morekeywords={axiom,concept,decltype,noexcept,nullptr,requires},
   literate={[<]}{{\textless}}1      {[>]}{{\textgreater}}1 %
+           {*}{{$*$}}1 % Without this, star (*) is rendered in Type 3 font
            {<}{{$\langle$}}1        {>}{{$\rangle$}}1 %
-           {<=}{{$\leq$}}1          {>=}{{$\geq$}}1          
+           {<=}{{$\leq$}}1          {>=}{{$\geq$}}1 %
            {==}{{$==$}}2            {!=}{{$\neq$}}1 %
            {=>}{{$\Rightarrow\;$}}1 {->}{{$\rightarrow{}$}}1 %
            {<:}{{$\subtype{}\ $}}1  {<-}{{$\leftarrow$}}1 %
            {s1;}{{$s_1$;}}3 {s2;}{{$s_2$;}}3 {s3;}{{$s_3$;}}3 {s4;}{{$s_4$;}}3 {s5;}{{$s_5$;}}3 {s6;}{{$s_6$;}}3 {s7;}{{$s_7$;}}3 {sn;}{{$s_n$;}}3 {si;}{{$s_i$;}}3%
            {P1}{{$P_1$}}2 {P2}{{$P_2$}}2 {P3}{{$P_3$}}2 {P4}{{$P_4$}}2 {P5}{{$P_5$}}2 {P6}{{$P_6$}}2 {P7}{{$P_7$}}2 {Pn}{{$P_n$}}2 {Pi}{{$P_i$}}2%
            {D1}{{$D_1$}}2 {D2}{{$D_2$}}2 {D3}{{$D_3$}}2 {D4}{{$D_4$}}2 {D5}{{$D_5$}}2 {D6}{{$D_6$}}2 {D7}{{$D_7$}}2 {Dn}{{$D_n$}}2 {Di}{{$D_i$}}2%
+           {T1}{{$T_1$}}2 {T2}{{$T_2$}}2 {T3}{{$T_3$}}2 {T4}{{$T_4$}}2 {T5}{{$T_5$}}2 {T6}{{$T_6$}}2 {T7}{{$T_7$}}2 {Tn}{{$T_n$}}2 {Ti}{{$T_i$}}2 {Tm}{{$T_m$}}2%
            {e1}{{$e_1$}}2 {e2}{{$e_2$}}2 {e3}{{$e_3$}}2 {e4}{{$e_4$}}2%
            {E1}{{$E_1$}}2 {E2}{{$E_2$}}2 {E3}{{$E_3$}}2 {E4}{{$E_4$}}2 {Ei}{{$E_i$}}2%
            {m_e1}{{$m\_e_1$}}4 {m_e2}{{$m\_e_2$}}4 {m_e3}{{$m\_e_3$}}4 {m_e4}{{$m\_e_4$}}4%
            {Divide}{{Divide}}6 {Either}{Either}6 %
+           {Times}{{Times}}5 %
            {Match}{{\emph{Match}}}5 %
            {Case}{{\emph{Case}}}4 %
            {Qua}{{\emph{Qua}}}3 %
@@ -57,12 +60,18 @@ showstringspaces=false,
 }
 \lstset{style=C++}
 
-\lstdefinestyle{Caml}{language=Caml,%
-  morekeywords={when}
-}
-
 \lstdefinestyle{Haskell}{language=Haskell,%
   morekeywords={out,view,real}
+  literate={=>}{{$\Rightarrow\;$}}1 {->}{{$\rightarrow{}$}}1 {<-}{{$\leftarrow$}}1 {\\}{{$\lambda$}}1,
+  moredelim=**[is][\color{red}]{`}{`},
+  moredelim=**[is][\color{white}]{~}{~}
+}
+
+\lstdefinestyle{Caml}{language=Caml,%
+  morekeywords={when}
+  literate={->}{{$\rightarrow{}$}}1,
+  moredelim=**[is][\color{red}]{`}{`},
+  moredelim=**[is][\color{white}]{~}{~}
 }
 
 \DeclareRobustCommand{\Cpp}{C\texttt{++}}
@@ -80,14 +89,17 @@ showstringspaces=false,
 
 %% grammar commands
 \newcommand{\Rule}[1]{{\rmfamily\itshape{#1}}}
-\newcommand{\Alt}{\ensuremath{|}}
-\newcommand{\is}{$::=$}
+\newcommand{\Alt}{\ensuremath{\mid}}
+\newcommand{\SynCat}[1]{\ensuremath{\mathit{#1}}}
+\newcommand{\is}{\ensuremath{::=}}
 \newcommand{\subtype}{\ensuremath{\texttt{\raisebox{-0.1ex}{<}\raisebox{0.05ex}{:}}}}
+\newcommand{\subtypeD}{\ensuremath{<:_d}}
 \newcommand{\lazyevals}{\Downarrow}
 \newcommand{\evals}{\Rightarrow}
 \newcommand{\evalspp}{\Rightarrow^+}
 \newcommand{\DynCast}[2]{\ensuremath{\mathsf{dyn\_cast}\langle{#1}\rangle({#2})}}
 \newcommand{\nullptr}{\ensuremath{\bot}}
+\newcommand{\of}[1]{\left(#1\right)}
 \newcommand{\True}{\ensuremath{\mathsf{true}}}
 \newcommand{\False}{\ensuremath{\mathsf{false}}}
 

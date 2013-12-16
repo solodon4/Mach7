@@ -1,0 +1,391 @@
+\section{Pattern Matching in \Cpp{}} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:cpppat}
+
+
+%While our library is not limited to a predefined set of patterns, it provides an 
+%implementation of common patterns seen in the functional languages. We introduce
+%them here as an example of the syntax available to the user, while we leave the 
+%details of their implementation to \textsection\ref{sec:impl}.
+
+The object analyzed through pattern matching is called \term{subject}, while its 
+static type -- \subterm{type}{subject type}.
+Consider for example the following definition of factorial in \emph{Mach7}:
+
+\begin{lstlisting}[keepspaces]
+int factorial(int n) {
+  unsigned short m;
+  Match(n) {
+    Case(0)  return 1;
+    Case(m) return m*factorial(m-1);
+    Case(_)  throw std::invalid_argument("factorial");
+  } EndMatch
+}
+\end{lstlisting}
+
+\noindent
+The subject \code{n} is passed as an argument to \code{Match}-statement and is 
+then analyzed through \code{Case}-clauses listing various patterns. In the 
+\subterm{case analysis}{first-fit} strategy typically adopted by functional languages, the 
+matching proceeds in sequential order while the patterns guarding their 
+respective clauses are \subterm{pattern}{rejected}. Eventually, the statement guarded by the 
+first \subterm{pattern}{accepted} pattern is executed or the control reaches the end of 
+the \code{Match}-statement.
+
+The value 0 in the first case clause is an example of a \subterm{pattern}{value pattern}. It 
+will match only when the subject \code{n} is 0. The variable \code{m} in the 
+second case clause is an example of a \subterm{pattern}{variable pattern}. It will bind to 
+any value that can be represented by its type. The name \code{_} in the last 
+case clause refers to the common instance of the \subterm{pattern}{wildcard pattern}. Value, 
+variable and wildcard patterns are typically referred to as \subterm{pattern}{primitive 
+patterns}. We extend the list of primitive patterns with a \subterm{pattern}{predicate 
+pattern} whereby we allow the use of any unary predicate or nullary 
+member-predicate as a pattern: e.g. \code{Case(even) ...} (assuming 
+\code{bool even(int);}) or \code{Case([](int m) \{ return m^m-1; \}) ...} for $\lambda$-expressions.
+
+
+%% In functional languages based on type inference, variable 
+%% pattern is also an irrefutable pattern since its type can be inferred from the 
+%% pattern-matching context, however, in \Cpp{}, it becomes a refutable pattern 
+%% since all the variables have to be pre-declared and the type of the variable may 
+%% be different from the type expected by the pattern. In the above example, 
+%% variable \code{m} will reject any value of type \code{int} that is not a value
+%% of type \code{unsigned short}, hence last case clause is not \subterm{case clause}{redundant}.
+
+%% Pattern matching is closely related to \emph{equational reasoning} and the above 
+%% factorial can alternatively be defined as following in Haskell 98~\cite{Haskell98Book}:
+%% %
+%% \begin{lstlisting}[language=Haskell]
+%% factorial 0 = 1
+%% factorial (n+1) = (n+1) * factorial n
+%% \end{lstlisting}
+%% %
+%% \noindent
+%% The \codehaskell{(n+1)} pattern in the left-hand side of the equation defining 
+%% the factorial is an example of \subterm{pattern}{n+k pattern} and an equation in itself: 
+%% $n+1=v$. According to its informal semantics ``Matching an $n+k$ pattern (where 
+%% $n$ is a variable and $k$ is a positive integer literal) against a value $v$ 
+%% succeeds if $v \ge k$, resulting in the binding of $n$ to $v-k$, and fails 
+%% otherwise''~\cite{haskell98}. n+k patterns were introduced into Haskell to let 
+%% users express inductive functions on natural numbers. Besides succinct notation, 
+%% this could facilitate automatic proof of termination of such functions by the 
+%% compiler. Numerous debates over semantics and usefulness of the n+k patterns 
+%% resulted in their removal from the Haskell 2010~\cite{haskell2010}. 
+%% Generalization of n+k patterns, called \subterm{pattern}{application patterns} has been 
+%% studied by Oosterhof~\cite{OosterhofThesis}. Application patterns treat n+k 
+%% patterns as equations, which matching tries to solve or validate.
+%% 
+%% We are neutral in the debate of utility of n+k patterns, but would like to point 
+%% out that in \Cpp{}, where variables have to be explicitly declared and given a 
+%% type, one can use a variable's type to avoid at least some semantic issues. For 
+%% example, matching $n+1$ against 0 can be rejected when type of $n$ is 
+%% \code{unsigned int}, but accepted (binding $n$ to $-1$) when its type is 
+%% \code{int}. For the sake of experiment and as a demonstration that n+k patterns 
+%% can be brought on first class principles, \emph{Mach7} provides an 
+%% implementation that treats them as application patterns, as demonstrated by the 
+%% following function for fast computation of Fibonacci numbers:
+%% 
+%% \begin{lstlisting}[keepspaces]
+%% int fib(int n) {
+%%   var<int> mm;
+%%   Match(n) {
+%%     Case(1)         return 1;     
+%%     Case(2)         return 1;
+%%     Case(2*mm)     return sqr(fib(mm+1)) - sqr(fib(mm-1));
+%%     Case(2*mm+1) return sqr(fib(mm+1)) + sqr(fib(mm));
+%%   } EndMatch
+%% }
+%% \end{lstlisting}
+%% 
+%% \noindent
+%% Note that the variable $m$ is now declared with library's type \code{var<int>} 
+%% instead of a simple \code{int}. This is necessary because in the context of 
+%% pattern matching induced by the \code{Case}-clause we would like to capture the 
+%% structure of the expression \code{2*mm+1} instead of just computing its value. 
+%% Type \code{var<T>} facilitates exactly that in the pattern-matching context. In 
+%% non-pattern-matching contexts, like the return statement above, it provides an 
+%% implicit conversion to type \code{T} and thus behaves as a value of type \code{T}. 
+%In the rest of this paper, we use cursive font on all the variables of 
+%library's type in order to help the reader visually distinguish them from the 
+%variables of built-in or any non-\emph{Mach7} types.
+
+%% Since the underlying type of variable $m$ is still \code{int}, the third case 
+%% clause will only match even numbers $n$, binding the value of $m$ to 
+%% $\frac{n}{2}$, while the fourth clause will only match odd numbers $n$, binding 
+%% the value of $m$ to $\frac{n-1}{2}$.  Note that in these clauses the subject to  
+%% a variable pattern $m$ is not the original subject $n$ anymore, but 
+%% $\frac{n}{2}$ and $\frac{n-1}{2}$ respectively. Matching against even more 
+%% complex expressions is discussed in \textsection\ref{sec:slv}, where we do not 
+%% restrict ourselves with the equational interpretation, and instead offer an alternative 
+%% point of view on n+k patterns that let the user choose a suitable semantics.  
+
+A \emph{guard} is a predicate attached to a pattern that may make use of the 
+variables bound in it. The result of its evaluation will determine whether the 
+case clause and the body associated with it will be \emph{accepted} or 
+\emph{rejected}. Combining patterns with guards gives rise to \subterm{pattern}{guard 
+patterns}, which in \emph{Mach7} are expressions of form $P$\code{|=}$E$, where $P$ is a 
+pattern and $E$ is an expression guarding it.
+%%  As with n+k patterns, the variables 
+%% involved in the condition must be of the library's type \code{var<T>} to allow 
+%% for lazy evaluation of condition at match time. For example, a case clause of 
+%% the form \code{Case(mm |= mm\%2==1)} in  the example above will match any odd value 
+%% $n$, binding $m$ to $n$. Similarly, a case clause of the form \code{Case(3*mm |= mm\%2==0)} 
+%% will only match values $n$ that are divisible by 6, while binding $m$ to $\frac{n}{3}$.
+
+%% Often times, guard patterns take the form that checks equality or inequality of 
+%% two variables bound via pattern matching: e.g. \code{Case(xx, yy |= yy==xx)} is 
+%% a two-arument case clause taking a variable and guard patterns to check that 
+%% both subjects are the same. 
+%% When there are many of them, the code quickly becomes obscure and hard to 
+%% understand. Naturally, we would prefer to write something like \code{Case(xx,xx)} 
+%% with the semantics of \subterm{pattern}{equivalence patterns}, which match only when all the 
+%% independent uses of variable $x$ get bound to the same value. 
+%% Neither OCaml nor Haskell support equivalence patterns, while Miranda and Tom's 
+%% extension~\cite{Moreau:2003} of C, Java and Eiffel does. Grace and Thorn 
+%% approximate the simplicity of equivalence patterns by explicitly marking the 
+%% non-binding uses of a variable. We follow the same approach in \emph{Mach7} -- a unary 
+%% $+$ placed in front of a variable (or an n+k pattern) turns it into an 
+%% expression evaluated at match time that behaves as a value pattern. As an 
+%% example, consider the following \emph{Mach7} implementation of the slower 
+%% Euclidian algorithm with subtractions:
+%% 
+%% \begin{lstlisting}[keepspaces,columns=flexible]
+%% unsigned int gcd(unsigned int a, unsigned int b) {
+%%   var<unsigned int> xx, yy;
+%%   Match(a,b) {
+%%     Case(xx,+xx)     return xx;
+%%     Case(xx,+xx+yy) return gcd(xx,yy);
+%%     Case(xx,+xx-yy)  return gcd(xx-yy,yy);
+%%   } EndMatch
+%% }
+%% \end{lstlisting}
+
+\noindent
+%% The subjects in \emph{Mach7} are matched left to right, so the value of $x$ is 
+%% bound before its value gets used in the equivalence pattern $+x$ in the first 
+%% clause. Patterns $+x+y$ and $+x-y$ in the second and third clauses are then 
+%% simply n+k patterns with respect to variable $y$ and a constant value bound in 
+%% $x$. %We use parentheses in the second clause only for clarity as many novices 
+%complained it was hard to decipher the pattern. The meaning is the same as in 
+%the other two case clauses since unary $+$ has higher priority than the binary 
+%one.
+
+%% Unary $+$ in a pattern expression $+x$ is an example of \term{pattern combinator} 
+%% -- an operation that allows composing patterns to produce a new pattern. 
+%% Besides \subterm{pattern combinator}{equivalence combinator}, other typical pattern combinators 
+%% supported by many languages are \emph{conjunction}, \emph{disjunction} and 
+%% \emph{negation} combinators. \subterm{pattern combinator}{Conjunction combinator} in \emph{Mach7} is 
+%% predictably represented by \code{P1 && P2} and succeeds only when both patterns 
+%% \code{P1} and \code{P2} accept the subject. The set of variables bound by the 
+%% resulting pattern is the union of variables bound by each of the patterns. 
+%% Similarly, \subterm{pattern combinator}{disjunction combinator} is represented by \code{P1 || P2} and 
+%% succeeds when at least one pattern accepts the subject. Languages supporting 
+%% disjunction combinator traditionally either require the set of variables bound 
+%% by each pattern to be the same or only make the intersection of bound variables 
+%% available after the match. In a library solution, we cannot enforce any of these 
+%% requirements so it becomes user's responsibility to ensure she only uses 
+%% variables from the intersection of bound variables. \subterm{pattern combinator}{Negation combinator} 
+%% \code{!P1} binds nothing and succeeds only when pattern \code{P1} is rejected for 
+%% a given subject. Negation combinator can be combined with equivalence combinator 
+%% to check two subjects for inequivalence: \code{xx} vs. \code{!+xx}. Note that 
+%% simply writing \code{!xx} would not have the desired semantics of ``anything but 
+%% $x$'', because it will only match values outside the domain of type of 
+%% \code{xx}, and if the subject is of the same type as \code{xx}, the pattern 
+%% \code{!xx} will never be accepted.
+%% 
+%% We add two non-standard combinators that reflect the specifics of \Cpp{} -- 
+%% presence of pointers and references in the language. \subterm{pattern combinator}{Address combinator} 
+%% \code{&P1} can be used to match against the subjects of type \code{T*} when the 
+%% pattern \code{P1} expects subjects of type \code{T&}. It fails when the subject 
+%% is \code{nullptr} and otherwise forwards the match to pattern \code{P1} applied 
+%% to dereferenced subject. The utility of this combinator becomes obvious once we 
+%% realize that most of the time we need to match against values pointed to by a 
+%% pointer instead of matching against the pointer itself. The alternative would 
+%% have been to require patterns match against both pointer and reference types, 
+%% however for some cases, it produces non-intuitive ambiguity errors and we decided 
+%% to require the user be more explicit instead. Dual to address combinator 
+%% is \subterm{pattern combinator}{dereferencing combinator} written as \code{*P1} that can only match 
+%% against l-values and forwards the matching to pattern \code{P1} applied to the 
+%% address of the l-value. It is less frequently used than the address combinator is, 
+%% nevertheless, it is indispensable when we need to obtain an address of pattern's 
+%% subject, as that subject may not be easily accessible otherwise.
+
+%Patterns that permit use of the same variable multiple times in them are called 
+%\emph{equivalence patterns}, while the requirement of absence of such patterns  
+%in a language is called \emph{linearity}. 
+
+Pattern matching is also closely related to \term{algebraic data types} -- a 
+possibly recursive \term{sum type} of \term{product types}. In ML and Haskell, an 
+\term{Algebraic Data Type} is a data type each of whose values are picked from a 
+disjoint sum of data types, called \term{variants}. Each variant is a product 
+type, marked with a unique symbolic constant called a \term{constructor}. 
+Constructors provide a convenient way of creating a value of its variant type as 
+well as discriminating among variants through pattern matching. In particular,
+given an algebraic data type $D = C_1(T_{11},...,T_{1m_1}) | \cdots | C_k(T_{k1},...,T_{km_k})$
+an expression of the form $C_i(x_1,...,x_{m_i})$ in a non-pattern-matching 
+context is called a \subterm{constructor}{value constructor} and refers to a value of type $D$ 
+created via constructor $C_i$ and arguments $x_1,...,x_{m_i}$. The same 
+expression in the pattern-matching context is called \subterm{pattern}{constructor pattern} 
+and is used to check whether the subject is of type $D$ and was created with 
+constructor $C_i$. If so, it binds the actual values it was constructed with to  
+variables $x_1,...,x_{m_i}$ (or matches against nested patterns if $x_j$ are 
+other kinds of patterns).
+
+\Cpp{} does not provide a direct support for algebraic data types, however they 
+can be encoded in the language in a number of ways. Common 
+object-oriented encodings employ an abstract class to represent the 
+algebraic data type and derived classes to represent variants. Consider for 
+example the following representation of terms in $\lambda$-calculus in \Cpp{}:
+
+\begin{lstlisting}[columns=flexible]
+struct Term       { virtual @$\sim$@Term() {} };
+struct Var : Term { std::string name; };
+struct Abs : Term { Var&  var;  Term& body; };
+struct App : Term { Term& func; Term& arg; };
+\end{lstlisting}
+
+\noindent
+\Cpp{} allows a class to have several constructors and does not allow 
+overloading the meaning of construction for the use in pattern matching. This is
+why in \emph{Mach7} we have to be slightly more explicit about constructor patterns, 
+which take form \code{C<Ti>(}$P_1,...,P_{m_i}$\code{)}, where $T_i$ is the name of 
+the user-defined type we are decomposing and $P_1,...,P_{m_i}$ are patterns that 
+will be matched against members of $T_i$ (\textsection\ref{sec:bnd}). ``C'' was
+chosen to abbreviate ``Constructor pattern'' or ``Case class'' as its use 
+resembles the use of case classes in Scala~\cite{Scala2nd}.
+For example, we can write a complete 
+recursive implementation of an equality of two lambda terms:
+
+\begin{lstlisting}[columns=flexible]
+bool operator==(const Term& left, const Term& right) {
+  var<const std::string&> Ss; var<const Term&> xx,yy;
+  Match(left          , right          ) {
+    Case(C<Var>(Ss)   , C<Var>(+Ss)    ) return true;
+    Case(C<Abs>(xx,yy), C<Abs>(+xx,+yy)) return true;
+    Case(C<App>(xx,yy), C<App>(+xx,+yy)) return true;
+    Otherwise()                          return false;
+  } EndMatch
+}
+\end{lstlisting}
+
+\noindent
+This \code{==} is an example of a \term{binary method} -- an operation that 
+requires both arguments to have the same type~\cite{BCCLP95}. In each of the 
+case clauses, we check that both subjects are of the same dynamic type using 
+constructor pattern. We then decompose both subjects into 
+components and compare them for equality with a combination of a variable pattern 
+and an equivalence combinator $+$ applied to the same variable pattern. The use 
+of equivalence combinator turns binding use of a variable pattern into a 
+non-binding use of that variable's current value as a value pattern.
+
+In general, \term{pattern combinator} is an operation on patterns to produce a 
+new pattern. Other typical pattern combinators supported by many languages are
+\emph{conjunction}, \emph{disjunction} and \emph{negation} combinators with 
+intuitive Boolean interpretation. We add few non-standard combinators to 
+\emph{Mach7} that reflect the specifics of \Cpp{}, e.g. presence of pointers and 
+references in the language.
+
+%The first case 
+%clause can be interpreted as following: if both subjects are instances of class 
+%\code{Var}, bind the name of the first one to variable $s$ and then check, that 
+%the name of the other variable is the same through equivalence combinator: 
+%\code{+Ss}. To understand the second and third clauses, note that the 
+%corresponding members of classes \code{Abs} and \code{App} are pointers to 
+%terms, while to ensure equality we are interested in checking deep equality of 
+%the terms themselves. Thus instead of binding pointers to variables, checking 
+%they are not \code{nullptr} and forwarding the call to the values they point to 
+%etc., we declare our pattern-matching variables of type \code{var<const Term&>} 
+%and apply an address combinator to them to be able to match against pointer 
+%type. Passing variables without address combinator will not type check because 
+%the value bound in each position is of pointer type, while the variable pattern 
+%expects the reference type. Note also that unlike the variable patterns of type 
+%\code{var<T>} that contain the bound value of type \code{T}, variable patterns 
+%of type \code{var<T&>} do not contain the value and only bind the reference to a 
+%memory location holding an actual value during matching. This is important for 
+%polymorphic classes like \code{Term} to avoid slicing. The right argument is 
+%matched in a similar manner: the constructor pattern ensures the dynamic type is 
+%\code{Abs} or \code{App} respectively, after which the address combinator 
+%ensures the actual pointers matched are not \code{nullptr}, forwarding match to 
+%equivalence pattern applied to a variable of underlying type \code{const Term&}, 
+%which in turn recursively calls this equality operator on sub-terms.
+
+%There are two critical differences between algebraic data types and classes in 
+%object-oriented languages: definition of an algebraic data type is \emph{closed}, 
+%while its variants are \emph{disjoint}. Closedness means that once we have listed 
+%all the variants, a given algebraic data type may have, we cannot extend it with 
+%new variants without modifying its definition. Disjointedness means that a value 
+%of an algebraic data type belongs to exactly one of its variants. Neither is the 
+%case in object-oriented languages. Classes are \emph{extensible}, since new 
+%variants can be added through subclassing, as well as \emph{hierarchical}, since 
+%variants are not necessarily disjoint and can form subtyping relation between 
+%themselves.
+%
+%Closedness of algebraic data types is particularly useful for reasoning about 
+%programs by case analysis and allows the compiler to perform \emph{exhaustiveness 
+%checking} -- a test of whether a given match statement covers all possible 
+%cases. Unfortunately, similar reasoning about programs involving extensible data 
+%types is necessarily more involved as we are dealing with potentially open set of variants. 
+%Exhaustiveness checking in such scenario reduces to checking presence of a case 
+%that handles the static type of the subject. Absence of such a case, however, 
+%does not necessarily imply inexhaustiveness, only potential inexhaustiveness, 
+%as the answer will depend on the actual set of variants available at run-time. 
+%
+%A related notion of \emph{redundancy checking} arises from the tradition of 
+%using \emph{first-fit} semantics in pattern matching. It warns the user of any 
+%case clause inside a match statement that will never be entered because of a 
+%preceding one being more general. Hierarchical nature of classes has to be 
+%further taken into account for redundancy checking as (constructor) patterns 
+%accepting a base class should also accept any of its derived classes.
+
+The equality operator on $\lambda$-terms demonstrates nesting of patterns.
+The variable pattern was nested within 
+an equivalence pattern, which in turn was nested inside a constructor pattern. 
+Nesting allows one to combine many different patterns in many different ways, 
+which makes them particularly expressive. Here is a well-known functional 
+solution to balancing red-black trees with pattern matching due to Chris 
+Okasaki~\cite[\textsection 3.3]{okasaki1999purely} implemented in \emph{Mach7}:
+
+\begin{lstlisting}
+class T { enum color {black,red} col; T* left; K key; T* right; };
+@\halfline@
+T* balance(T::color clr, T* left, const K& key, T* right) {
+  const T::color B = T::black, R = T::red;
+  var<T*> aa, bb, Cc, Dd; var<K&> xx, yy, zz; T::color col;
+@\halfline@
+  Match(clr, left, key, right) {
+    Case(B, C<T>(R, C<T>(R, aa, xx, bb), yy, Cc), zz, Dd) ...
+    Case(B, C<T>(R, aa, xx, C<T>(R, bb, yy, Cc)), zz, Dd) ...
+    Case(B, aa, xx, C<T>(R, C<T>(R, bb, yy, Cc), zz, Dd)) ...
+    Case(B, aa, xx, C<T>(R, bb, yy, C<T>(R, Cc, zz, Dd))) ...
+    Case(col, aa, xx, bb) return new T{col, aa, xx, bb};
+  } EndMatch
+}
+\end{lstlisting}
+
+\noindent
+The \code{...} in the first four case clauses above stands for \\ %the statement 
+\code{return new T\{R, new T\{B,aa,xx,bb\}, yy, new T\{B,Cc,zz,Dd\}\};}. %Class 
+%\code{T} implements a tree-node type. For the details of how exactly the 
+%balancing by pattern matching works, we refer the reader to Okasaki's original 
+%manuscript~\cite[\textsection 3.3]{okasaki1999purely}.
+
+To demonstrate the openness of the library, we implemented numerous 
+specialized patterns that often appear in practice and are even built into some 
+languages. For example, the following combination of regular-expression and one-of 
+patterns can be used to match against a string and see whether the string 
+represents a toll-free phone number. 
+
+\begin{lstlisting}
+rex("([0-9]+)-([0-9]+)-([0-9]+)", any({800,888,877}), n, m)
+\end{lstlisting}
+
+\noindent
+The regular-expression pattern takes a \Cpp{}11 regular expression and an 
+arbitrary number of sub-patterns. It then uses matching groups to match against 
+the sub-patterns. A one-of pattern simply takes an initializer-list with a set of 
+values and checks that the subject matches one of them. The variables 
+\code{n} and \code{m} are integers, and the values of the last two parts of the pattern will be assigned to them. The parsing is generic 
+and will work with any data type that can be read from an input stream -- a 
+common idiom in \Cpp{}. Should we also need the exact area code, we can mix in a 
+variable pattern with conjunction combinator: \code{a && any(...)}.
+
+%In functional programming most of the data structures are recursive

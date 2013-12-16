@@ -1,0 +1,276 @@
+Dear Yuriy, Gabriel and Bjarne,
+
+Thank you for your submission to OOPSLA 2013. The Program Committee met on May 16-17, 2013 in Irvine, California. I regret to inform you that your paper,
+
+"Open Pattern Matching for C++"
+
+has not been selected for inclusion in the conference program. We had a very strong set of submissions this year, and 51 out of 189 papers were selected to go to the 2nd phase.
+
+Below you can find the reviews for your submission, which I hope you will find useful for revising your paper.
+
+Please note that other SPLASH 2013 events are still open for submissions. See http://splashcon.org
+
+We hope to see you in October 26-31, 2013 in Indianapolis!
+
+Best regards,
+
+Crista Lopes
+OOPSLA 2013 PC Chair
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--
+=*=
+
+First reviewer's review:
+
+          >>> Summary of the submission <<<
+
+This paper presents a C++ library for pattern matching, called Mach7.
+The library is quite comprehensive in terms of capturing various pattern matching features from the literature. Notably the library is open: new kinds of patterns can be added by the programmer.
+Also the library contains some C++ specific patterns for dealing with pointers and references. The library has been designed to generate efficient code using templates and macros to foster static specialization by the compiler and avoid runtime overhead.
+It uses template constraints to capture some of the semantic constraints on patterns.
+The authors perform a solid performance analysis comparing two alternative implementations for C++ patterns as well as a specialized benchmark comparing different approaches for multiple dispatch (which can be expressed with pattern matching too).
+
+          >>> Contributions <<<
+
+In terms of engineering:
+
+The authors have done a solid job on the library, which seems likely to have a considerable impact on the C++ user base.
+
+Its main weaknesses, due to the library-based approach, are:
+- Error messages are not discussed in the paper. This means they are likely cryptic.
+- Not all semantic constraints are enforced. E.g., using the same variable pattern repeatedly, or  using patterns to pass data rather than for pattern matching.
+- Naively trying out all the cases and patterns (except for type-based dispatching), while better  approaches are known.
+
+But all in all, it's quite state of the art in terms of features. In terms of performance, while not quite state of the art, it is decent enough to be used.
+
+
+In terms of novelty:
+
+The main contribution of the paper is to show what is possible in C++ as a library. This is perhaps not all that surprising given the expressivity of the macro and template sublanguages.
+In terms of features implemented and implementation techniques, the contributions are limited.
+The authors essentially implement a range of pattern language features already published in the literature.
+In terms of implementation the authors in the first place use the macro and template system to generate code that can be statically optimized. The rest of the attention goes toward optimizing the type-based dispatch, which is only one of the many pattern language features supported.
+
+          >>> Technical Review <<<
+
+In terms of writing:
+Articles (the, a) are missing all throughout the text.For this reason the text in its current form is definitely unfit for publication. The problem is easily fixed by having a native reader proofread your text.
+
+
+About the content:
+Below are some detailed comments about the text per section.
+One notable absence from the paper is that the authors hardly address the first-class nature of patterns.
+
+
+Detailed Comments
+-----------------
+
+* Abstract
+
+ scrutinies -> scrutinees (for subject of case analysis)
+
+ redundant period at end of abstract
+
+ don't use footnotes in an abstract
+
+ footnote 2: addenda is plural
+
+* 1. Introduction
+
+ I do not buy your argument that it is harder to get users for C++.
+ C++ has many more users than typical languages with pattern matching.
+ Hence, even if the mainstream users won't use the prototype, that still  leaves potentially more users than for those languages.
+
+ With respect to compile time errors, those errors are not shown in the paper.
+ Are they actually useful to figure out what the problem is or are they highly  cryptic?
+
+* 2. Pattern Matching in C++
+
+ until the patterns guarding ?c+ -> while ?c+ ?
+
+ gives raise -> gives rise
+
+ Case(x;y |= x==y)
+  The meaning of the ; syntax has not been provided at this point.
+
+ "it will only match values outside the domain"
+  It has not been explained yet that restricted types can be used as
+(refutable) patterns.
+  Since this is specific to languages with subtyping and you make a big deal about this in
+  your benchmarks, it is a good idea to talk about this more extensively in section 2.
+
+* 3. Implementation
+
+ support of as-patterns
+  You have not explained this support.
+
+ as following -> as follows
+
+ memberi()
+  For this example the i should be 1, right?
+
+ Members ?c+ can be any of the following:
+  In essence, members can be any valid expression, right? They are not limited to the enumeration
+  you provide?
+
+ You raise a number of questions with respect to Algebraic Decomposition  without actually answering them.
+  - What if a pattern admits multiple decompositions?
+   => So how do you support various semantics for this case?
+  - What if the pattern includes an equality sign?
+   => How do you represent such patterns?
+  Moreover, you mention "Inference of such types in functional languages would be hard or impossible ?c+"
+  However, functional languages do support overloading and static resolution thereof. In particular,
+  Haskell's type classes come to mind. Please explain your point by contrasting with these.
+
+* 4. Evaluation
+
+ "in several cases, shown in the table in bold font"
+  If the overhead is eliminated, then why is the percentage still > 0 ?
+  What is the difference with the hand-crafted code that makes the latter
+  still faster?
+
+ "Haskell also requires to use wildcard pattern"
+   This can be avoided iff record constructors are used, which is recommended when
+   there are many fields -- and is concise in particular in combination with "record puns".
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--
+=*
+
+Second reviewer's review:
+
+          >>> Summary of the submission <<<
+
+Reviewer 1:
+
+The paper describes and evaluates a template based encoding of nested pattern matching in C++11, extending ideas on a previous unary, flat typeswitch construct published by the same authors in OOPSLA 2012.
+Patterns are user-definable and, separately, first-class values which allows common occurrences to be factored out. Client, if not library code, is legible, performance is good and notably better than approaches based on visitor patterns, as evinced by a thorough evaluation. Though reasonably attractive, due to scope extrusion of what should morally be locally bound variables, users of the match construct are exposed to potential reads of undefined variables, both within and following a match statement.
+
+Reviewer 2:
+
+The praper presentd the Mach7 library. A Semantically Enhanced Library Language (SELL) providing pattern matching for C++11, as known mainly from functional languages and modern multi-paradigm languages like F# and Scala.
+
+The library provides both standard pattern matching facilities and is open. Where open means that because the pattern matching is a library and thus patterns are first class the user can provide his own pattern and pattern combinators.
+
+The paper also present some performance numbers for various implementation strategies.
+
+          >>> Contributions <<<
+
+Reviewer 1:
+
+A practical template based encoding of nested pattern matching for C++ with unusually expressive patterns and built-in extensibility.
+
+A detailed evaluation of the relative performance of the library compared against hand-coded and traditional technique.
+
+Reviewer 2:
+
+The main novelty, in my opinion, is notion of open patterns, that allows the user to extend the syntax of pattern. Without losing too much performance.
+
+Also, the paper presents a good empirical comparison of the presented strategy of using C++ meta-programming features to implement patterns with the tradition implementation strategy of using standard OOP techniques representing patterns as objects.
+
+          >>> Technical Review <<<
+
+Reviewer 1:
+
+At 20 pages, this paper is far too long, with references beginning only at the bottom of page 17. The submission guidelines were 14 pages including references.
+
+Nevertheless here are few comments for the authors for a future revision.
+
+The introductory examples are interesting but also highlight a real problem with this approach, which the authors' earlier work on typeswitch [52] does not suffer from. In functional pattern matching, which the authors are trying to emulate and extend, the variables bound by a branch are local to that branch and cannot be mistakenly referenced from branches that do not define them. However, users of the described C++ template library are required to declare all pattern bound variables in the scope of the entire match statement. As far as I can tell, there is nothing that statically prevents a branch from reading (or indeed writing) a value that is not defined for the branch, exposing the user of the library to a bunch of potential errors. Does C++11 have definite assignment rules that would reject such ill-defined reads?
+
+Given that variable patterns have statel, what happens when the user accidentally repeats the same variable in a match?
+
+From the examples and explanation, it appears that the match statement is only ever applied to named variables - is this a limitation of the design? If so, how awkward is this in practice?
+
+Reading on in Section 3.3 it becomes clear that to enable constructor pattern matching requires more ceremony than the intro suggests since you need to declare bindings for every constructor of interest. That seems like quite a burden on the user. Is there no way to avoid this, at least for classes that are authored with pattern matching in mind.
+
+I found the implementation section very hard to follow, particularly section 3.4 on Algebraic Decomposition. The n+k and similar patterns eventually have to communicate their values (i.e. solutions), not just the existence of a solution, to the pattern matcher. How is this achieved - the solve function just returns a bool and, unless I'm missing something, doesn't write any parameters.
+
+Your implementation is sketched using C++ template constraint syntax which is pretty hard to understand for the uninitiated. Would it be feasible to present the real C++11 implementation or is that even more obscure?
+
+Section 3.6.1 is rather opaque. Perhaps you could show the code generated for such a type switch to motivate and illustrate the use of hashing and point to your earlier paper for details.
+
+Can you emulate the extractor patterns of Scala (Active patterns of C#). I think so.
+
+In your evaluation, you don't report on compile times.
+
+typos:
+
+Abstract: first-order -> first-class.
+
+page 6: is build -> is built
+
+Throughout the text, there are missing determiners which make it difficult to read.
+eg.page 7 c1. "For covenience reasons, [the] application operator".
+
+page 9. interesting cases of interest.
+
+page 16. Continuations passing -> continuation passing.
+
+
+Reviewer 2:
+
+
+The presented library is an impressive implementation accomplishment, and the syntax for patterns is probably as natural as possible without compiler support.
+
+However, it irks me that the patterns as the authors present the library are devoid of semantics. There are no guidelines for what can/should/must happen if the patterns have side-effects? As a user I get no guarantees about how many times a pattern will be tested (a user in this context is both a "plain" user of the library or an "expert" user making his own extensions.)
+
+An other thing that I would have liked to see and analysis of is impact of using pattern on the compile time, and the size of the generated program (the program after patterns have compiled away by the meta-programming).
+
+For instance, Sestoft[1] gives the following example SML program that can result in massive code duplication if you are not careful when compiling patterns:
+
+datatype t = A | B
+fun f x =
+  case x of
+    (A,A,_,_,_,_,_,_,_,_) => 0
+   | (_,_,A,A,_,_,_,_,_,_) => 1
+   | (_,_,_,_,A,A,_,_,_,_) => 2
+   | (_,_,_,_,_,_,A,A,_,_) => 3
+   | (_,_,_,_,_,_,_,_,A,A) => 4
+   | (A,B,A,B,A,B,A,B,A,B) => ~1
+
+(For the problems to be really bad, the right-hand side of the patterns should be something larger than just numbers.)
+
+The issue of code duplication (in the generated program) and resulting massive compile times does not seem to be touched upon by the authors.
+
+Speaking of [1], if the authors would commit to a slightly stronger protocol for patterns and require certain invariants to satisfied when you are extending the library. Then I don't see why you shouldn't be able to use an approach like the one presented by Sestoft. The authors briefly touch upon this in the article (Section 3.6, specifically "More efficient algorithms for compiling pattern matching have been developed..."), but I don't understand the arguments for why a decision-tree algorithm cannot be used.
+
+[1] Peter Sestoft. ML pattern match compilation and partial evaluation. In Danvy, Glueck, and Thiemann (editors): Partial Evaluation. Dagstuhl Castle, Germany, February 1996. Lecture Notes in Computer Science, vol. 1110, pages 446-464. Springer-Verlag 1996.
+
+In the same vein, it is not clear to me what law/invariants should be satisfied when using the different combinators. Can I, for instance, use unary plus on a non-variable pattern? I guess that I'm not allowed. However, if I could then I could factor the + outside the constructors in the lambda equality function in Section 2. Likewise, as it is now what exactly does unary plus means? Is it pointer equality or deep equality? For symbolic lambda terms, I would usually consider alpha-equivalent terms to be equal, but that is not what the example operator== implements. Like what if the patterns P1 and P2 have conflicting binding in the pattern P1 && P2.
+
+          >>> Revisions <<<
+
+Reviewer 2:
+
+The problems pointed out in the technical review should be addressed. Mainly it should be made clear how side-effects are dealt with (especially since the library seem to generate redundant/repeated pattern tests). And the effects on the generated code and compile-time stemming from using patterns should be addressed.
+
+Minor nits:
+
+* There is no reference to what ISO C++11 means.
+
+* The language in the paragraph: "Neither OCaml nor Haskell support  equivalence patterns, while Miranda and Tom's extension [36] of C,  Java and Eiffel does. Grace and Thorn approximate the simplicity of  equivalence patterns by explicitly marking the non-binding uses of a  variable." is too terse and is lacking references.
+
+* The sentence "This is important for polymorphic classes like Term to  avoid slicing." does not make sense to me.
+
+* The reference to SML [34] should be updated to the revised  definition from 1997.
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--
+=*
+
+Third reviewer's review:
+
+          >>> Summary of the submission <<<
+
+This paper presents a C++ library that makes functional-style pattern matching available in users' programs. This library is called Mach7.
+Since this library extensively uses C++ templates with concepts, the pattern matching code is transformed into efficient code during compile time and hence the performance overhead is reduced against a naively implemented equivalent library, with which the whole pattern matching process is performed at runtime.
+
+          >>> Contributions <<<
+
+The proposed implementation looks very carefully designed and shows good performance. This is an interesting report to the C++ community.
+On the other hand, the paper's contributions to wider community, I mean, the OOPSLA audience, was not clear. I agree that this library is a very interesting showcase to show the expressive power of
+C++ template programming but it is very well known today.
+In this sense, I thought that the contribution of this paper is limited.
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--
+=*
+

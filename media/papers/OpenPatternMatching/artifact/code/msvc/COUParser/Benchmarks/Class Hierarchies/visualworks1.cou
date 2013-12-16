@@ -1,0 +1,3119 @@
+; Classes defined in Parcplace's VisualWorks 1.0. Metaclasses were renamed
+; for instance, the metaclass of "set" is called "set:class", so that
+; all classes are identified by a single string
+; Language: Smalltalk (VisualWorks 1.0)
+; Courtesy of Karel Driesen, karel@cs.ucsb.edu
+;
+; classes: 774 
+; selectors: 5086
+; messageselectors understood by a class: 178230 
+;                              max/class: 401 
+;                              avg/class: 230.271317829457
+; methods defined by a class: 8540 
+;                  max/class: 113 
+;                  avg/class: 11.0335917312662
+;
+; multiple inheritance (none):
+;   nrparents    nrclasses   %oftotal
+;           0            1          0.1291989664083
+;           1          773         99.8708010335917
+;   average nr of parents/class: 0.998708010335917
+;
+
+(
+ (object 
+  ()
+  ()
+  (notfounderror performupdate: issymbol ismanifest issequenceable doesnotunderstand: mustbeboolean changed:with: allowners supersedesastextemphasis: referstoliteral: postcopy reversebyteorder mydependents firstowner browse improperstoreerror nextobject update: perform:with: performmethod:with:with: instvarat: instvarat:put: ~~ species subclassresponsibility basicat: perform:with:with: respondsto: become: size printon: == ~= inspect changerequest changerequestfrom: shouldnotimplement broadcast:with: halt hash perform: setdependents dependents breakdependents copy removedependent: release = handlefailedbecome: ismemberof: isinteger asoop notnil identityhash errorsignal nilfields basicat:put: storeon: class nextinstance printstring subscriptboundserror: yourself shallowcopy storestring basicsize primitivefailed perform:with:with:with: broadcast: at: at:put: halt: error: finalize notify: becomenoretry: updaterequest isliteral respondstoarithmetic basicinspect update:with: changed updaterequest: adddependent: iskindof: perform:witharguments: changed: isnil asdependentswithout: -> changeclasstothatof: nonintegerindexerror: performmethod:with:with:with: representbinaryon: performmethod:with: ownerafter: isstring mydependents: allownersweakly: changerequest: performmethod:arguments: isbehavior binaryrepresentationversion isimmediate update:with:from: asdependentswith: asdependentsascollection primbecome: performmethod: performupdate:with: executor ))
+ (characterencoder 
+  (object )
+  ()
+  (name: decode: encodingtype name encode: ))
+ (bytecharacterencoder 
+  (characterencoder )
+  ()
+  (decode: encode: initializefromarray: ))
+ (largecharacterencoder 
+  (characterencoder )
+  ()
+  (initialize decode: encode: encodefrom:to:startintegervalue: ))
+ (blockclosure 
+  (object )
+  ()
+  (newcontext outercontext pushcopiedvalues: postcopy printon: whilefalse: whiletrue: value:value:value: home hash value: repeat value valueuninterruptably = valuewitharguments: method newprocess valueonunwinddo: referstoliteral: newprocesswitharguments: fork numargs value:value: whiletrue setmethod:outercontext:copiedvalues: whilefalse valuenoworonunwinddo: forkat: valueunpreemptively printnameon:inclass: copiedvalues ))
+ (classbuilder 
+  (object )
+  ()
+  (metaclassclass befixed classname needsnewclass mutateclass:tosuper: validateinstancevariables instvarstring: pools: bevariable doesnotunderstand: copymethodsfrom:to:referencing: lognew: validatesuperclassassignment domutationinplace gennewmetaclass:under: organization pools computeformat classname: copy:withmclass:oldmclass: classof: genformat:under:format: validateinstancevariablesfornewclass classvariables: validatesubclassformats formatwithvariableset: allinstvarnames: gennewclass:under: mutatecurrentclass classvariables validateformatbytes:format:size: initialize validateformatvariable:format:size: currentclass currentclass: poolstring: beimmediate setstructureof: typeof: superclass classvarstring: formatwithfixedset: validateclassinstancevariables instancevariables mutatetonewclass environment map:from: createnewsubclass give:identityof: formatwithimmediateset: changepools format: superclass: createcopy:under:using: changecategory modifyexistingclass instsize: changeclassvariables instancevariables: scan: mutateinstances:from: class failuresignal bebytes validatesubclassformats:format: sanitycheck: allsortedinstvarnames: validateformatimmediate:format:size: runvalidationchecksfornewclass runvalidationchecks register:inplaceof: validateformatfixed:format:size: revisesystem category: category organization: environment: needsmutation formatwithbytesset: changemicrostate logchanged: ))
+ (layout 
+  (object )
+  ()
+  (compute:whenrelativeto:preferred: initialize rectanglerelativeto:preferred: aslayout ))
+ (layoutorigin 
+  (layout )
+  ()
+  (toprelativeto: topfraction: leftoffset: topoffset topfraction rectanglerelativeto:preferred: topoffset: leftfraction initialize topfraction:offset: compute:whenrelativeto:preferred: leftrelativeto: leftfraction:offset: leftfraction: leftoffset ))
+ (layoutframe 
+  (layoutorigin )
+  ()
+  (rightrelativeto: bottomfraction: bottomoffset: rectanglerelativeto:preferred: bottomfraction:offset: rightfraction: setleft:top:right:bottom: rightfraction bottomfraction bottomrelativeto: rightoffset initialize bottomoffset compute:whenrelativeto:preferred: rightfraction:offset: rightoffset: ))
+ (methodnodeholder 
+  (object )
+  ()
+  (sourceinfo: generatenoquick node sourcemap decompilestring tempnames generate node: method: variablemap selector ))
+ (inversecolormapinitializer 
+  (object )
+  ()
+  (shuffledindicesandcolorsdo: determineambiguities redlooprestarted redloop on: computeinversecolormap grayinitializationstep greenlooprestarted noteambiguities colorinitializationstep determineambiguousentryvalue blueloop greenloop computeambiguities ))
+ (sharedqueue 
+  (object )
+  ()
+  (next size release init: nextput: isempty peek ))
+ (variabledefinition 
+  (object )
+  ()
+  (emitload:from: islocalscope:index: emitstore:from: leavescope:between:and: emitstore:value:from: emitstorepop:value:from: emitstorepop:from: notestore isinvariant isstatic ))
+ (pseudovariable 
+  (variabledefinition )
+  ()
+  (emitstore:from: emitstorepop:from: emitload:from: scope:name: ))
+ (localvariable 
+  (variabledefinition )
+  ()
+  (index node scope:index:from: islocalscope:index: ))
+ (argumentvariable 
+  (localvariable )
+  ()
+  (isinvariant leavescope:between:and: emitstore:from: emitload:from: emitstorepop:from: ))
+ (temporaryvariable 
+  (localvariable )
+  ()
+  (scope:index:from: leavescope:between:and: emitstore:from: emitstorepop:from: notestore emitload:from: ))
+ (remotevariable 
+  (variabledefinition )
+  ()
+  (emitload:from: emitstorepop:value:from: emitstore:value:from: contextnode:index: emitstore:from: emitstorepop:from: storenode:from: ))
+ (staticvariable 
+  (variabledefinition )
+  ()
+  (checkstore:from: checkassignments emitstore:value:from: binding emitstorepop:value:from: emitload:from: binding: isstatic ))
+ (undeclaredvariable 
+  (staticvariable )
+  ()
+  (emitstorepop:value:from: emitload:from: ))
+ (receivervariable 
+  (variabledefinition )
+  ()
+  (islocalscope:index: scope: isinvariant emitstore:from: emitstorepop:from: emitload:from: ))
+ (instancevariable 
+  (variabledefinition )
+  ()
+  (scope:index: emitstorepop:from: emitstore:from: emitload:from: ))
+ (border 
+  (object )
+  ()
+  (initialize topcolor setborderwidth: settop: displayon:fordisplaybox: setleft: bottom insetdisplayboxfor: settopcolor: setleftcolor: leftcolor rightcolor right hasborder setright: displayboxfor: allsidesequal: bottomcolor setborderwidth:bordercolor: setborderwidthleft:right:top:bottom: setbottom: left top setrightcolor: setbottomcolor: setbordercolor: ))
+ (programnodebuilder 
+  (object )
+  ()
+  (newblockbody: forreturnself condition:selector:body:body: defaulttype newassignmentvariable:value:leftarrow: newmethodselector:primitive:errorcode:block: newreturnvalue: newsequencestatements: newblockarguments:body: newcondition:dowhile: newmessagereceiver:selector:arguments: newvariablename: forself newcondition:and: forsuper newassignmentvariable:value: newparametervariable:type: newparametervariable: newcondition:while:do: newmessagereceiver:selector:argument: newvariable newselfmessageselector:argument: fornil declarevariablename: newcondition:iftrue:iffalse: newmessagereceiver:selector: newcondition:iffalse:iftrue: newliteralvalue: newcondition:or: newcondition:iftrue: forfalse condition:selector:body: newsequencetemporaries:statements: newmethodselector:primitive:block: newstatements: newselectorname: fortrue newcondition:iffalse: newmethodselector:arguments:temporaries:statements: newselfmessageselector: newselfmessageselector:arguments: newcascadereceiver:messages: ))
+ (keyboardevent 
+  (object )
+  ()
+  (key:meta: keycharacter metastate hasctrl haslock hasshift keyvalue hasmeta hasalt ))
+ (delay 
+  (object )
+  ()
+  (delayinprogress: disable setresumption wait postsnapshot activate inprogress resumptiontime delaysemaphore resume resumption: reactivate delay: startup ))
+ (memorypolicy 
+  (object )
+  ()
+  (toomanyallocationprobes favorgrowthoverreclamation growthretrydecrement: markingobjectquota idleloopgcjustified iscontiguousspacelowafter idleloopallocationthreshold newsoftlowspacelimit incrementalallocationthreshold: growthregimeupperbound makespacefor: incsweepingrate incrementalgc sweepingobjectquota measuregrowthformemoryupperbound growthregimeupperbound: unmarkingobjectquota incsweepingrate: maxpercentofthreadedotes: maxobjectstosweep availablespacesafetymargin maxprobesperattempt inithardlowspacelimit incgcaccelerationfactor: measuredynamicfootprintformemoryupperbound maxprobesperattempt: lowspaceaction incmarkingrate compactdata growmemorybyatleast: idleloopaction incmarkingrate: memoryupperbound: lowspacepercent lowspacepercent: measuredynamicfootprintforgrowthregime measuregrowthforgrowthregime contiguousspacesafetymargin maxhardlowspacelimit isavailablespacelowafter threadeddataincrement incrementalreclamation contiguousspacesafetymargin: growthretrydecrement threadeddataincrement: incnillingrate toomuchfreelistdata memoryneedsgrowing incnillingrate: isspacelow dataneedscompacting growthregimemeasurementblock setdefaults incrementalallocationthreshold maxpercentofthreadeddata growthregimemeasurementblock: maxbytestonil maxpercentofthreadeddata: idleloopallocationthreshold: isavailablespacelow maxpercentofthreadedotes lowspacereclamation incgcaccelerationfactor isspacelowafter permitmemorygrowth: iscontiguousspacelow memoryupperbound incunmarkingrate otneedscompacting maxobjectstounmark updateaftergc incunmarkingrate: availablespacesafetymargin: initsoftlowspacelimit preferredgrowthincrement nillingbytesquota preferredgrowthincrement: newhardlowspacelimit memorymeasurementblock updatememorystatus maxobjectstomark memorymeasurementblock: otneedscompactingafter maxhardlowspacelimit: primethreadeddatalist ))
+ (change 
+  (object )
+  ()
+  (text selector fileouton: guaranteedclassobject category checkwith: file classname text: file:position: filein name classobject fileouton:previous:next: defaultname: parameters values filename ))
+ (otherchange 
+  (change )
+  ()
+  (text text: checkwith: name parameters ))
+ (classrelatedchange 
+  (change )
+  ()
+  (classname classname: classobject parameters ))
+ (methodchange 
+  (classrelatedchange )
+  ()
+  (selector: methodname type name methodinsystem category: category parameters selector ))
+ (methoddefinitionchange 
+  (methodchange )
+  ()
+  (text type checkwith: getsource fileouton: filein sourcefileandposition: isinsystem filename fileoutheaderon: fileouton:previous:next: ))
+ (methodotherchange 
+  (methodchange )
+  ()
+  (type: checkwith: type ))
+ (classchange 
+  (classrelatedchange )
+  ()
+  ())
+ (classotherchange 
+  (classchange )
+  ()
+  (checkwith: type name type: ))
+ (classcommentchange 
+  (classotherchange )
+  ()
+  (text checkwith: ))
+ (classdefinitionchange 
+  (classchange )
+  ()
+  (text checkwith: superclassname:classtype:otherparameters: name ))
+ (classorganizer 
+  (object )
+  ()
+  (addcategory: setdefaultlist classify:under: classcomment: movechangedcommenttofile:numbered: removecategory: removeemptycategories elements classcomment printon: scanfrom: changefromstring: listatcategorynamed: setdefaultlist: classifyall:under: categoryofelement: includeselement: numberofcategoryofelement: listatcategorynumber: categories: addcategory:before: categories renamecategory:to: putcommentonfile:numbered:movesource: hasnocomment removeelement: ))
+ (systemorganizer 
+  (classorganizer )
+  ()
+  (superclassorder: changefromstring: printoutcategory:on: fileoutcategorysource:on: ))
+ (borderdecorationpolicy 
+  (object )
+  ()
+  (verticalscrollbaronright menubarheight: markerthickness inset border: border scrollbarthickness: scrollbarthickness initialize minmarkerextent: minmarkerextent scrollbuttonthickness markerthickness: verticalscrollbaronright: preferredboundsfor: inset: menubarheight layout: scrollbuttonthickness: ))
+ (smalltalkborderdecorationpolicy 
+  (borderdecorationpolicy )
+  ()
+  (preferredboundsfor: topoffsetfor: horizontalscrollbarfor: add:to:in: menubarfor: rightoffsetfor: buttonfor:do:label:cursor: layout: leftoffsetfor: verticalscrollbarfor: bottomoffsetfor: withbounds: verticalscrollregionfor: menubarregionfor: withborder: horizontalscrollregionfor: dataregionfor: ))
+ (fontdescription 
+  (object )
+  ()
+  (specifiesoutline = underline boldness: strikeout: specifiescolor pixelsize: findmatchon:allowance: matchesflags:and: pixelsize underline: name manufacturer: actualpixelsize installon: setwidth: specifiesencoding specifiesserif color serif: fixedwidth italic outline specifiesfamily manufacturer serif boldness specifiessetwidth encoding: specifiesmanufacturer setwidth specifiesshadow initialize specifiesfixedwidth name: fixedwidth: italic: specifiesitalic shadow specifiesstrikeout color: family encoding shadow: outline: strikeout specifiesunderline specifiesname specifiespixelsize family: hash specifiesboldness ))
+ (objectmemory 
+  (object )
+  ()
+  (largeusedbytes largefreebytestenuringthreshold numscavenges oldrtentries olddatabytes percentoffreespaceallocated largebytes bytesperlte threadeddatabytes numincgcs numgcs oopstobytes: allocprobes numoopsnumbytes numdatacompactions incunmarkedobjects availablefreebytes incsweptobjects permotes incsweepallocatedobjects allocsplits permbytes oopsleft incnilledobjects increclaimedbytes allocmatches survusedbytestenuringthreshold allocfailures incsweepallocatedbytes survusedbytes segmentsizeat: otsizeat: edenusedbytesscavengethreshold incmarkedobjects survbytes increclaimedobjects availablecontiguousspace incnilledbytes datasizeat: numglobalgcs incmarkedweakobjects edenusedbytes incgcstate edenbytes rtusedentries incmarkedbytes printspacereport incrementalgcstate rtentries incmarkedweakbytes bytesperrte oldrtusedentries contiguousfreebytes bytesperoop permdatabytes otentriestobytes: oldotes oldbytes oldsegments bytesperote threadedotentries threadeddataentries freepermbytes reservedcontiguousfreebytes contiguousspaceat: availablefreebyteslimit stackbytes largeusedobjects compcodecachebytes ))
+ (compilererrorhandler 
+  (object )
+  ()
+  (error:with:in:from: failblock: selector: abort retrywith: retryblock: error:with:at: class: ))
+ (silentcompilererrorhandler 
+  (compilererrorhandler )
+  ()
+  (editor: error:at: source: error:with:in:from: error:with:at: ))
+ (interactivecompilererrorhandler 
+  (compilererrorhandler )
+  ()
+  (redeclaredblockarg:in:from: undeclared:at:from: neverread:from: startup:for:with:from: ignoreerror:with:at: declarecorrect:from: error:with:in:from: error:with:at: newselector:at: readbeforewritten:from: declarefailed:from: undeclared:in:from: declareglobal:from: erroroption:messageblock:at: startup:for:with:fromstatement: neverused:from: declareundeclared:from: declareclassvar:from: replaceeditselectionwith: undeclaredstore:in:from: startup:for:with:at: declaretemp:from: redeclared:from: selectrange: removeeditselection warning:from: editor: noeffect: ))
+ (noninteractivecompilererrorhandler 
+  (compilererrorhandler )
+  ()
+  (interactiveerror:at: noninteractiveerror: source: error:with:in:from: error:with:at: ))
+ (loggingcompilererrorhandler 
+  (compilererrorhandler )
+  ()
+  (error:with:at: logfile: error:with:in:from: ))
+ (charactercomposer 
+  (object )
+  ()
+  (compose2:with: composecharacter: add:do: initialize compose1: reset ))
+ (rasterop 
+  (object )
+  ()
+  (deststride: sourcestride: paintloopx:y: clipx destwidth clipwidth copybits sourcewidth destwidth: destrect halftonestride: width: destination: halftoneimage: deststride sourcey height: sourcestride destorigin: cliprect sourceorigin: destrect: sourcerect: combinationrule: destx: desty: clipx: cliprect: clipwidth: paintbits sourcewidth: clipheight: clipy mask: clipy: sourcex: sourcey: sourceimage: drawfrom:to: halftone drawloopx:y: desty halftonewidth: sourcex copybitstwostagerule1:rule2:destx:desty:sourcex:sourcey:halftonex:halftoney:width:height: halftonewidth destx destination sourceorigin halftone: combinationrule source setdestination:stride:width:source:stride:width:halftone:stride:width:combinationrule:destorigin:sourceorigin:halftonephase:extent:cliprect: halftonephase: source: clipheight halftonestride destorigin halftonephase sourcerect destinationimage: width height ))
+ (inputstate 
+  (object )
+  ()
+  (ctrldown shiftdown metadown endevent initstate mousebuttons run mousepoint metastate eventdispatcher: pollforactivity screen cursorpoint: processunboundevent: setstatefromvector: altdown process: eventdispatcher ismodifierkey: setpointer: pollingtimeout copyevent: pseudoevent hosteventfrom: ))
+ (visualcomponent 
+  (object )
+  ()
+  (initialize changedbounds: bounds invalidaterectangle: selectionbackgroundcolor invalidate foregroundcolor scrolloffsetholder: moveto:on:restoring: intersects: objectwantingcontrol flushcaches lookpreferences changedpreferredbounds: follow:while:on: flushcoordinatecaches preferredbounds displayon:at: bounds: selectionforegroundcolor displayon: rectanglerelativeto: moveto:on:restoring:scratch: containspoint: container: backgroundcolor ))
+ (image 
+  (visualcomponent )
+  ()
+  (rotate2:mask:temp: depth rowat:into:startingat: converttopalette:renderedby: improperstoreerror: asimage bitsareallzero setextent:depth:palette:bits: convertforgraphicsdevice:renderedby:painttransfer: copy:from:in:rule: rowat:putall: shrinkby:to: copybitsatx:y:from:atx:y:width:height:rule: rowat:putall:startingat: retainedmediumclass converttopalette:bitsperpixel:renderedby:painttransfer: atpoint: atx:y:put: packedrowsize magnifyby:to: asretainedmedium tile:from:in:rule: tilebitsstride:width:atx:y:from:stride:width:atx:y:width:height:rule: convertforgraphicsdevice:renderedby: atx:y: reflectedinx bitsinstvar islike: packedrowat: bitwidth extent:depth:palette: extent reflectinxto: displayon:at: reflectediny offset displayon: converttopalette: packedrowat:putall: width stride rowat: height convertforgraphicsdevice: copyempty: postcopy reflectinyto: pixelarrayspecies printon: bits fillconvexshapeto: copybitsstride:width:atx:y:from:stride:width:atx:y:width:height:rule: paintbasis bitsperpixel installon: valueatpoint: aspattern setextent:depth:palette: filledshapearound: preferredbounds copyempty rotatedbyquadrants: palette: palette fillconvexshapeto:outlinedby: converttopalette:renderedby:painttransfer: islike:withextent: packedrowat:putall:startingat: scaledextent: spread:from:by:spacing:direction: valueatpoint:put: atpoint:put: fillshapearound:to:outlinedby: rowat:into: shrunkenby: tilebitsatx:y:from:atx:y:width:height:rule: fillshapearound:to: packedrowat:into:startingat: magnifiedby: filledconvexshape packedrowat:into: rotatebyquadrants:to: inherentbitsperpixel ))
+ (depth2image 
+  (image )
+  ()
+  (rowat:into:startingat: atx:y: rowat:putall:startingat: pixelarrayspecies atx:y:put: inherentbitsperpixel ))
+ (depth32image 
+  (image )
+  ()
+  (atx:y: rowat:putall:startingat: rowat:into:startingat: inherentbitsperpixel atx:y:put: ))
+ (depth24image 
+  (image )
+  ()
+  (atx:y: rowat:putall:startingat: rowat:into:startingat: inherentbitsperpixel atx:y:put: ))
+ (depth1image 
+  (image )
+  ()
+  (rowat:into:startingat: atx:y: rowat:putall:startingat: pixelarrayspecies atx:y:put: inherentbitsperpixel ))
+ (depth16image 
+  (image )
+  ()
+  (atx:y: rowat:putall:startingat: rowat:into:startingat: inherentbitsperpixel atx:y:put: ))
+ (depth4image 
+  (image )
+  ()
+  (rowat:into:startingat: atx:y: rowat:putall:startingat: pixelarrayspecies atx:y:put: inherentbitsperpixel ))
+ (depth8image 
+  (image )
+  ()
+  (rowat:into:startingat: atx:y: rowat:putall:startingat: pixelarrayspecies atx:y:put: inherentbitsperpixel ))
+ (icon 
+  (visualcomponent )
+  ()
+  (flushcaches image: buildmask extent mask preferredbounds displayon: ))
+ (visualpart 
+  (visualcomponent )
+  ()
+  (changedpreferredbounds: lookpreferences changedcontainer flash graphicscontext bounds: clearinside invalidaterectangle:repairnow: edgedecorationpolicy displayon: globalpointtolocal: dispatcheskeyboard changedbounds:forcomponent: startup bounds flushcoordinatecaches changedpreferredbounds:forcomponent: invalidate isopen release compositionboundsfor: objectwantingcontrol subviewwantingcontrol setcontroller: invalidaterectangle:repairnow:forcomponent: widgetpolicy getcontroller repairdamage clippingbox topcomponent localpointtoglobal: container container: graphicscontextfor: changedbounds: invalidaterectangle: ))
+ (compositepart 
+  (visualpart )
+  ()
+  (add:in: addcomponent: move:to: computepreferredbounds computedisplayboxfor:indisplaybox: removecomponent: borderedwrapperclass bounds: displayon: layoutcomponentsforbounds: intersects: changedbounds:forcomponent: flushcoordinatecaches changedpreferredbounds:forcomponent: boundedwrapperclass defaultwrapperclass addwrapper: hitdetect: compositionboundsfor: release containspoint: objectwantingcontrol add:in:borderwidth: flushcaches add:at: preferredbounds add:borderedin: newbounds:oldbounds:forwrapper: componentwantingcontrol add: translatingwrapperclass components initialize move:by: remove: wrapperclass ))
+ (borderdecorator 
+  (compositepart )
+  ()
+  (noverticalscrollbar preferredbounds flushcaches usemenubar edgedecorationpolicy component hasverticalscrollbar initialize scrollercomponent nomenubar checkcomponents useverticalscrollbar usehorizontalscrollbar setcomponent: nohorizontalscrollbar resetcomponents hashorizontalscrollbar computedisplayboxfor:indisplaybox: uselocaledgedecorationpolicy edgedecorationpolicy: hasmenubar bounds: ))
+ (dependentcomposite 
+  (compositepart )
+  ()
+  (release model: model setmodel: ))
+ (compositeview 
+  (dependentcomposite )
+  ()
+  (defaultcontrollerclass defaultcontroller setcontroller: getcontroller controller: controller setmodel: ))
+ (dialogview 
+  (compositeview )
+  ()
+  (objectwantingcontrol indentwidth open opentype: indent: leftindent addverticalspace: width: addtextlabel:atx: addwrapper:atx: rightindent: rightindent computeextent closechannel layout:atx: preferredbounds defaultcontrollerclass addwrapper:fromx:tox:maximumheight: addvisual:atx: layout:fromx:tox: yposition addtextlabel: addrow:fromx:tox:collect: addcolumn:fromx:tox:collect: widento: resolvefraction: dispatcheskeyboard initialize addtextfieldon:initially:fromx:tox: addtextfieldon:initially:height:fromx:tox: addwrapper:fromx:tox: addvisual:fromx:tox: addtextfieldon:initially: yposition: addall:inrows:fromx:tox:collect: closechannel: update:with:from: leftindent: ))
+ (dependentpart 
+  (visualpart )
+  ()
+  (release model: update: model setmodel: ))
+ (view 
+  (dependentpart )
+  ()
+  (controller: getcontroller setcontroller: controller defaultcontrollerclass defaultcontroller preferredbounds setmodel: ))
+ (notifierview 
+  (view )
+  ()
+  (defaultcontrollerclass contents contents: displayon: ))
+ (launcherview 
+  (view )
+  ()
+  (displayon: displayline:at:on: displaykeyson: defaultcontrollerclass invalidaterectangle: boundingboxforindex: initialize linegrid selectionindex: indexatpoint: preferredbounds updaterequest ))
+ (booleanwidgetview 
+  (view )
+  ()
+  (update:with:from: isintransition: defaultcontrollerclass isintransition inactiveforegroundcolor isselected transitionholder: initialize release ))
+ (actionbutton 
+  (booleanwidgetview )
+  ()
+  (onvisual:offvisual: initialize preferredbounds setmodel: bevisual: displayon: ))
+ (labeledbooleanview 
+  (booleanwidgetview )
+  ()
+  (bevisual:iftrue: label beradiobutton beswitch betrigger betoggle getfont settextcoloron: usefilling becheckbox preferredbounds initialize bevisual: getimage drawborder displayon: label: ))
+ (scrollbar 
+  (view )
+  ()
+  (initialize markercolor markerdelta computemarkerregion scrollbarcolor movemarker alignmarker: defaultcontrollerclass translatemarker:by: movemarker: computemarkerposition maptodataspace: minmarkerextent lookpreferences translatemarkerby: marker markerthickness alignment behorizontal markeroffset bounds: marker: update:with:from: displayon: bevertical ))
+ (fixedthumbscrollbar 
+  (scrollbar )
+  ()
+  (maptodataspace: alignmarker: computemarkerregion computemarkerposition displayon: ))
+ (fractionalwidgetview 
+  (view )
+  ()
+  (defaultcontrollerclass behorizontal axis: bevertical initialize betwodimensional displayon: markerblock: map: ))
+ (autoscrollingview 
+  (view )
+  ()
+  (changepositionby: scrollby: scrollto: positionto: scrolloffsetholder: initialize validatescrollposition: ))
+ (listview 
+  (autoscrollingview )
+  ()
+  (settotop displayorigin scrolloffsetholder: setnewlist displayselectionindex:on: hideselectionboxon: isempty listlines: lineindexoftop: hideselectionbox bounds selectionindex: computecompositionorigin selectionboxoffset: selectionbox: list: displayobject minimumselection defaultcontrollerclass selection deselect getlist list displayselectionindex:on:within:infcolor:bcolor:vis:clip: displayselectionbox findselection: makeselectionvisible moveselectionbox: initialize displayselectionson:within: model: setnewselection preferredbounds bounds: hiliterectangle:on:fcolor:bcolor: selectionbox update: topdelimiter maximumselection reset displayon: selectionboxoffset topdelimiter: linegrid notopdelimiter nobottomdelimiter topatlineindex: positionlist bottomdelimiter bottomdelimiter: getselectionindex visualextra flushcaches ))
+ (selectioninlistview 
+  (listview )
+  ()
+  (update: on:printitems:oneitem:aspect:change:list:menu:initialselection:useindex: defaultcontrollerclass changemodelselection: useindex list: menumessage getselectionindex getlist initialselection initialize displayablelinesfrom: oneitem useindex: ))
+ (selectionsetinlistview 
+  (selectioninlistview )
+  ()
+  (selectionvisualstring: visualextra getselectionindexes usestrikeout: displayselectionindex:on:within:infcolor:bcolor:vis:clip: selectionvisual: addselectionindex: initialize hiliterectangle:on:fcolor:bcolor: hideselectionindex:on: changemodelselections: removeselectionindex: setnewselections redisplayrectangle:on: list: displayon: selectionindexset defaultcontrollerclass update: displayselectionindex:on: displayselectionboxeson:within:infcolor:bcolor: displayselectionson:within: ))
+ (changelistview 
+  (listview )
+  ()
+  (selectioninterval defaultcontrollerclass displayselectionindex:on:within:infcolor:bcolor:vis:clip: displayremovedon: displayon: ))
+ (composedtextview 
+  (autoscrollingview )
+  ()
+  (model: initialdisplaycontents displayselection: selectionindex: editstring: updatedisplaycontents computemoverectanglefor:old:new: getcontents paragraphinset controller: setstartselectiontostopselection wrappingbox displayinsertionpointfor:on: selectionstartindex: scrolloffsetholder: placeselectionpointat: selectionshowing lineindexoftop: wordwrap: startblock:stopblock: bounds: characterblockforindex: positiontoselection selectionstartindex:stopindex: selectionshowing: displaycontents characterblockatpoint: showselectionboxon:within: resetcontroller initialize displaycontents: stopblock insertionpointboundingboxfor: redisplayrectangle:on: displayon: update: displayfromcharacter:to:startx:on: showselectionfrom:to:on:within: selectfrom:to: displayorigin startblock displaytextin:on: selectandscroll startblock: redisplayafterreplacementat:affectedlines:linedelta: turnselectionoff:within: selectat: select initializeselection initializestartselection:stopselection: displayselectionfrom:to:on: hideselectionfrom:to:on:within: preferredbounds flushcaches displayfromselectionblock:toselectionblock:on:fcolor:bcolor:within: textstyle stopblock: deselect displayobject resetselections defaultcontrollerclass textstyle: hideinsertionpointfor:on: visiblerectanglefrom:to: edittext: selectionstopindex: updaterequest displayselection turnselectionon:within: findselectiondelta newtext: settotop hideselectionfrom:to:on: linegrid topatlineindex: ))
+ (textcollectorview 
+  (composedtextview )
+  ()
+  (changetext: text update: appendentry getcontents ))
+ (textview 
+  (composedtextview )
+  ()
+  (on:aspect:change:menu: update: defaultcontrollerclass initializeselection menumessage getcontents initialselection: acceptmessage ))
+ (debuggertextview 
+  (textview )
+  ()
+  (defaultcontrollerclass update: ))
+ (wrapper 
+  (visualpart )
+  ()
+  (preferredbounds composeandinvalidate flushcaches component release hasborder containspoint: component: flushcoordinatecaches update:with:from: bounds setcomponentboundsto: displayon: rectanglerelativeto: objectwantingcontrol intersects: setcomponent: newbounds:containingbounds: scrolloffsetholder: bounds: printon: ))
+ (translatingwrapper 
+  (wrapper )
+  ()
+  (preferredbounds graphicscontextfor: containspoint: compositionboundsfor: globalpointtolocal: absorigin invalidaterectangle:repairnow:forcomponent: newbounds:containingbounds: setorigin: initialize bounds changedbounds:forcomponent: rectanglerelativeto: setcomponentboundsto: localpointtoglobal: changedpreferredbounds:forcomponent: intersects: displayon: translation ))
+ (layoutwrapper 
+  (translatingwrapper )
+  ()
+  (newbounds:containingbounds: rectanglerelativeto: layout bounds: layout: ))
+ (boundedwrapper 
+  (layoutwrapper )
+  ()
+  (invalidaterectangle:repairnow:forcomponent: setcomponentboundsto: extent: containspoint: intersects: setorigin:extent: bounds bounds: changedbounds:forcomponent: initiallayout initialize changedpreferredbounds:forcomponent: graphicscontextfor: compositionboundsfor: displayon: ))
+ (borderedwrapper 
+  (boundedwrapper )
+  ()
+  (compositionboundsfor: displaybackgroundon:within: insetdisplaybox innerbox graphicscontextfor: border: inset: hasborder inset borderwidthleft:right:top:bottom: computeinsetdisplaybox lookpreferences invalidaterectangle:repairnow:forcomponent: border bordercolor: borderwidth insidecolor borderwidth: insidecolor: insetabsorigin preferredbounds localpointtoglobal: bounds: displayon: insetextent globalpointtolocal: ))
+ (scrollwrapper 
+  (translatingwrapper )
+  ()
+  (clippingbounds initialize setcomponent: scrollgrid scrollverticallyby:on:grid: scrollverticallyby: scrollvertically: mydependents scrollableextent scrolloffset scrollhorizontallyby: compositionbounds mydependents: visibleextent setorigin: scrollhorizontallyby:on:grid: displayupdatescanoccur redisplayrectangle:on: validatescrollposition: scrollhorizontally: postcopy bounds: dataextent update:with:from: updatecontrols changedpreferredbounds:forcomponent: ))
+ (passivitywrapper 
+  (wrapper )
+  ()
+  (isvisible visible: controlactive: graphicscontextfor: visuallyactive invalidaterectangle:repairnow:forcomponent: controlactive objectwantingcontrol inactiveforegroundcolor initialize release update:with:from: visuallyactive: visible iscontrolactive displayon: active: isvisuallyactive lookpreferences ))
+ (graphicsattributeswrapper 
+  (wrapper )
+  ()
+  (graphicscontextfor: attributes displayon: attributes: ))
+ (geometricwrapper 
+  (wrapper )
+  ()
+  (component: objectwantingcontrol bounds: setcomponent: containspoint: flushcaches release preferredbounds intersects: rectanglerelativeto: flushcoordinatecaches displayon: ))
+ (strokingwrapper 
+  (geometricwrapper )
+  ()
+  (bounds linewidth: preferredbounds intersects: linewidth displayon: ))
+ (fillingwrapper 
+  (geometricwrapper )
+  ()
+  (displayon: intersects: ))
+ (widgetspecification 
+  (wrapper )
+  ()
+  (flushcaches model: model resetcomponent installcomponent component ))
+ (button 
+  (widgetspecification )
+  ()
+  (label: label initialize settype: type installcomponent isdefault bedefault ))
+ (cachedimage 
+  (visualcomponent )
+  ()
+  (paintbasis preferredbounds aspattern extent setimage: image asretainedmedium displayon: ))
+ (opaqueimage 
+  (visualcomponent )
+  ()
+  (figure:shape: extent shape preferredbounds displayon: figure ))
+ (textlines 
+  (visualcomponent )
+  ()
+  (displayon: settextstyle: textstyle: linerangefor: bounds visiblerectanglefrom:to: bottom right numberoflines lineindexoftop: textstyle displaylinesin:fortranslation:on: topleft left top extent displayon:at: linegrid getdisplayscanner rightmarginfordisplay topatlineindex: leftmarginfordisplayforline: lineat: width height textat: fontpolicy preferredbounds ))
+ (composedtext 
+  (textlines )
+  ()
+  (characterblockatpoint: startinglineafterreplacingat: composeall ascomposedtext wordwrap:compositionwidth: leftmarginforcompositionforline: compositionwidth:text:style:fitwidth: rightmarginforcomposition centered justified wordwrap rightflush gridwithlead: baseline restindent clearindents rightmarginfordisplay firstindent: leftmarginfordisplayforline: lineat: textat: getcompositionscanner restindent: rightindent: rightindent firstindent asstring text: linetable newlinetable compositionwidth: setalignment: textstyle: asparagraph getcharacterblockscanner string initialize numberoflines iscomposed lineindexofcharacterindex: fontpolicy wordwrap: setcompositionwidth: displayfromcharacter:to:startx:fortranslation:on: hardcopy settext: recomposeafterreplacingfrom:to:withsize: textstyle text fontpolicy: astext setheight: replacefrom:to:with: composefrom:with: characterblockforindex: togglealignment displayon:at: updatecompositionheight nextlineitem:line:with: width height leftflush ))
+ (textlist 
+  (textlines )
+  ()
+  (lines: list:style: width height computewidth lineat: textat: numberoflines flushcaches textstyle textstyle: preferredbounds lines ))
+ (bosstransporter 
+  (object )
+  ()
+  (storage:on: ))
+ (bosswriter 
+  (bosstransporter )
+  ()
+  (write:class:on:flags: representcompiledmethod: traceselectorfor: assign: trace:body:class: nextput: encode: record:body:class:flags:index: writeindexonly: traceskip: traceassociation: trace: enumerateclass:from:to: storage:on:registry: represent: nextput:do: nextputclasses:withsource: representcontext: traceunknown: ))
+ (bossreader 
+  (bosstransporter )
+  ()
+  (importassociation: importtwobytesymbol: importsendself: commitsources skipnext:first: importsend: nextclasseswithsource: defersend: next importcompiledcode: evaluatesends sizeof: resolvearray:from:short: importglobal: flagsof: importfloat: skipnext readobject readobjects:topindex: storage:on: singleobjectfrom: change:toinstanceof: importbytesymbol: importclass: ))
+ (bossdebugreader 
+  (bossreader )
+  ()
+  (singleobjectfrom: readobjects:topindex: nextoop:at:short:on: ))
+ (iobuffer 
+  (object )
+  ()
+  (binary: nextandsetoffset: commit steptonextbuffer flushbufferupto: buffer readbufferstartingat: connectto:mode: readposition:setoffset: bufferclass: lastwriteableposition initialize lastdataposition firstdataposition bufferchanged currentbufferposition ))
+ (positionaliobuffer 
+  (iobuffer )
+  ()
+  (readposition:setoffset: flushifneeded flushbufferupto: setposition: steptonextbuffer initialize currentbufferposition datasize bufferchanged readbufferstartingat: ))
+ (remotestring 
+  (object )
+  ()
+  (string:onfilenumber:tofile: position string:onfilenumber: filenumber:position: string sourcefilenumber sourcekey ))
+ (fontpolicy 
+  (object )
+  ()
+  (encodingweight: flushfonts defaultfont manufacturerweight pixelsizeweight measuredistancesfrom:to: nameweight: tolerance tolerance: familyweight initializefor: equalityfrom:to:test:value:weight: boldnessweight: initializedefault italicweight: comparesizeof:to: encodingmatchfrom:to:weight: findfont: nameweight allowsscalablefonts setwidthweight: fixedwidthweight: familyweight: matchfont:allowance: setwidthweight serifweight preferredfontsize searchforfont:allowance: availablefonts distancefrom:to:test:value:weight: encodingweight boldnessweight pixelsizeweight: serifweight: searchforfont: manufacturerweight: stringmatchfrom:to:test:value:weight: italicweight fixedwidthweight ))
+ (compiledcode 
+  (object )
+  ()
+  (literalat: islong returnsstaticvariable setbytes:oops: numtemps ismarkedforunwind literals postcopy byteat:put: numargs framesize withframe ismarked messages needshybridframe initialpc allsymbolliterals literalat:put: endpc numliterals bytesinstvar methodwithsource isshort bytesincludes: printsymbolicon: forceframe methodsizeavoiding: sendsselector: numtempsonly sendsspecialliteralselector: fieldstouched includesliteral: sendsspecialselector: numlocals ismarkedforpropagate writesfield: readsfield: bytessize literalsdo: mclass isnormal ismarkedforhandle printnameon:inclass: usescontextinstvars printon: byteat: withallblockmethodsdo: homemethod methodsize hash bytes addliteral:to: = getsource getsourceforuserifnone: hassource isquick isblockmethod forcelong referstoliteral: allliterals symbolic ))
+ (compiledblock 
+  (compiledcode )
+  ()
+  (numcopiedvalues homemethod fileposition outermethod mclass outermethod: fileindex = getsource printnameon:inclass: methodwithsource isblockmethod numlocals ))
+ (compiledmethod 
+  (compiledcode )
+  ()
+  (valuewithreceiver:arguments: mclass cachesourceinfo: mclass: sourcepointer primitivenumber ashandlermethod sourcepointer: who getsource fileindex aspropagatemethod isblockmethod homemethod asunwindmethod representbinaryon: sourceinfoifcached printnameon:inclass: methodwithsource withallblockmethods fileposition ))
+ (markedmethod 
+  (compiledmethod )
+  ()
+  (marktype ismarkedforunwind ismarkedforhandle marktype: printsymbolicon: ismarked ismarkedforpropagate = markforhandleorpropagate markforunwind ))
+ (uninterpretedbytes 
+  (object )
+  ()
+  (stringat: floatat: signedbyteat:put: shortat:put: unsignedlongat: doubleat: size shortat: longat:put: sizeinbytes shortat:put:bigendian: hash swapshortat: longat: doubleat:put: swapfloatat: reversebyteorder = stringat:put: unsignedshortat: longat:bigendian: signedbyteat: replacebytesfrom:to:with:startingat: unsignedlongat:bigendian: unsignedlongat:put:bigendian: swaplongat: swapdoubleat: shortat:bigendian: at: at:put: unsignedlongat:put: unsignedshortat:put:bigendian: unsignedshortat:put: byteat: longat:put:bigendian: byteat:put: floatat:put: unsignedshortat:bigendian: ))
+ (graphicshandle 
+  (uninterpretedbytes )
+  ()
+  (key reversebyteorder printon: representbinaryon: ))
+ (bosscompiledcodeholder 
+  (object )
+  ()
+  (existingcode class:selector:category:codeclass:codecontents:source: usesource: storesource commit: dontinstall codeclass computecodewithtransformation: code ))
+ (lookpreferences 
+  (object )
+  ()
+  (foregroundcolor: selectionforegroundcolor setforegroundcolor: backgroundcolor foregroundcolor setbackgroundcolor: selectionbackgroundcolor setbordercolor: setselectionforegroundcolor: selectionforegroundcolor: backgroundcolor: setselectionbackgroundcolor: selectionbackgroundcolor: bordercolor bordercolor: ))
+ (externalconnection 
+  (object )
+  ()
+  (closeinput lineendconvention output output: input writestream datasize invalidate readstream release input: close defaultiobufferinmode: name readappendstream closeoutput canpersist iobufferinmode: isactive ))
+ (fileconnection 
+  (externalconnection )
+  ()
+  (rememberedposition setname:mode:creationrule: isactive name defaultiobufferinmode: rememberposition: revive open canpersist datasize defaultiobuffer ))
+ (menutracker 
+  (object )
+  ()
+  (markeroff managemarker display markertop: markeron: initializeframes translateframeandmarkerfrom:centerx:centery: startupat:centerx:centery: grid displayat:withheading:centerx:centery:during: checkforsubmenu startup displaybackground displaycontents foregroundcolor startpoint bordercolor startupat:centerx:centery:withheading: displayextrainformationfor:fcolor:bcolor: movemarkerto: hiliterectangle:on:fcolor:bcolor: turnmarkeron displayborder scrollby: displayextrainformation selectionforegroundcolor recyclewindow: anybuttonpressed shadowthickness repairdamage backgroundcolor displayheading: makeinsidedisplay selection: selection scrollifneeded markerindex tracksubmenu turnmarkeroff startupwithheading: startupat: startupat:keepopenifin: poll lookpreferences setmenu: makewindowin: selectionbackgroundcolor ))
+ (geometric 
+  (object )
+  ()
+  (bounds outlineintersects: regionintersects: asfiller displaystrokedon: asrectangle translatedby: asstroker scaledby: canbefilled asvisualcomponent computebounds displayfilledon: ))
+ (ellipticalarc 
+  (geometric )
+  ()
+  (displayfilledon: aspolyline sweepangle computebounds setboundingbox:startangle:sweepangle: asellipticalarc regionintersects: startangle displaystrokedon: scaledby: computepoints center outlineintersects: translatedby: canbefilled ))
+ (rectangle 
+  (geometric )
+  ()
+  (origin corner canbefilled origin: corner: aspolyline center compute:whenrelativeto:preferred: right: topcenter computebounds moveby: bottomcenter merge: leftcenter insetoriginby:cornerby: bottomright postcopy bottom width: top: asoffsetlayout topleft: area rightcenter bottomright: contains: intersects: height: right topright bottom: moveto: displayfilledon: displaystrokedon: expandedby: aslayout amounttotranslatewithin: regionintersects: asfractionallayout left: outlineintersects: rectanglerelativeto:preferred: left top scaledby: containspoint: aspointarray rectanglerelativeto: translatedby: printon: align:with: rounded extent hash width height = bottomleft topleft truncated areasoutside: intersect: storeon: insetby: origin:corner: origin:extent: extent: ))
+ (characterblock 
+  (rectangle )
+  ()
+  (printon: newstringindex:character:boundingrectangle: stringindex: newstringindex:character:topleft:extent: < character copy <= stringindex > >= = ))
+ (polyline 
+  (geometric )
+  ()
+  (canbefilled displayfilledon: verticesdo: computebounds vertices regionintersects: edgesdo: displaystrokedon: scaledby: hash outlineintersects: setvertices: translatedby: = ))
+ (circle 
+  (geometric )
+  ()
+  (canbefilled displayfilledon: aspolyline sweepangle computebounds area asellipticalarc regionintersects: startangle displaystrokedon: scaledby: center diameter setcenter:radius: outlineintersects: translatedby: radius ))
+ (linesegment 
+  (geometric )
+  ()
+  (end length computebounds setstart:end: aspoint displaystrokedon: scaledby: asline hash aspointarray start outlineintersects: translatedby: = ))
+ (spline 
+  (geometric )
+  ()
+  (aspolyline computebounds setcontrolpoints: iscyclic controlpoints displaystrokedon: scaledby: computepoints computecurve hash derivs:first:second:third: outlineintersects: translatedby: = ))
+ (bezier 
+  (geometric )
+  ()
+  (end setstart:end:controlpoint1:controlpoint2: aspolyline computebounds flattenx0:y0:x1:y1:x2:y2:x3:y3:tostream: displaystrokedon: scaledby: computepoints controlpoint2 asline hash controlpoint1 start outlineintersects: translatedby: = ))
+ (textattributes 
+  (object )
+  ()
+  (initialize nexttabxfrom:leftmargin:rightmargin: defaultfont initializetabs usetabs: characterattributes at:put: nexttabxfrom:leftmargin: descent setcharacterattributes: alignment: gridforfont:withlead: alignment linegrid: baseline: tabwidth restindent baseline linegrid clearindents firstindent: restindent: rightindent: rightindent firstindent fontat: ))
+ (variablesizetextattributes 
+  (textattributes )
+  ()
+  (install gridforfont:withlead: initialize fontattributeforleading leading: leading updatebasedon: scalingfactor: scalingfactor fontattributeforleading: ))
+ (magnitude 
+  (object )
+  ()
+  (<= >= > between:and: hash min: max: = < ))
+ (lookupkey 
+  (magnitude )
+  ()
+  (hash key: printon: = key < ))
+ (association 
+  (lookupkey )
+  ()
+  (= value: key:value: storeon: printon: referstoliteral: supersedesastextemphasis: value ))
+ (weakkeyassociation 
+  (association )
+  ()
+  (key: key update:with:from: ))
+ (date 
+  (magnitude )
+  ()
+  (asdays daysinmonth subtractdate: subtractdays: dayofmonth monthname weekdayindex asseconds printformat: storeon: firstdayofmonth daysinyear daysleftinyear weekday adddays: day previous: year leap printon:format: monthindex firstdayofmonthindex: day:year: printon: hash < = ))
+ (time 
+  (magnitude )
+  ()
+  (printon: minutes addtime: subtracttime: storeon: hash hours: hours < asseconds = hours:minutes:seconds: seconds ))
+ (character 
+  (magnitude )
+  ()
+  (diacriticalpart isseparator isvowel < digitvalue aslowercase identityhash isliteral > ascharacter basepart ismanifest islowercase assymbol printon: asinteger isalphabetic hash isdiacritical composediacritical: = isimmediate asuppercase isdigit isalphanumeric isletter isuppercase storeon: shallowcopy iscomposed ))
+ (arithmeticvalue 
+  (magnitude )
+  ()
+  (lessfromdouble: quotientfromfloat: value differencefromfloat: = reducegeneralityifpossible assmallinteger abs iszero sign productfromfraction: tominimumgenerality sumfromfloat: quotientfromfraction: respondstoarithmetic sumfromdouble: lessfromfraction: sumfrominteger: strictlypositive negated squared lessfromfloat: reducegeneralitytoatleast: * / raisedtointeger: + differencefromfraction: quotientfrominteger: sumfromfraction: productfrominteger: negative positive generality < productfromdouble: reciprocal coerce: retry:coercing: - quotientfromdouble: lessfrominteger: differencefromdouble: differencefrominteger: productfromfloat: ))
+ (point 
+  (arithmeticvalue )
+  ()
+  (>= aspoint > rectanglerelativeto:preferred: truncateto: compute:whenrelativeto:preferred: asfractionallayout / * // + \\ storeon: generality coerce: y - min: max: extent: grid: nearestintegerpointonlinefrom:to: y: x: corner: transpose x setx:sety: theta unitvector pointnearestline:to: truncatedgrid: dist: scaledby: truncated dotproduct: rounded rem: quo: r normal nearestpointonlinefrom:to: asoffsetlayout printon: iszero aslayout abs hash < translatedby: <= ))
+ (number 
+  (arithmeticvalue )
+  ()
+  (// aspoint floor ceiling to:by: ** odd @ even log asdouble quofrominteger: negraisedtononinteger: asrational storeon: sin rounded to:by:do: sqrtrounded cos raisedto: degreestoradians rem: quo: asinteger floorlog: to: to:do: aslimitedprecisionreal asfloat truncated arcsin sqrt arctan radianstodegrees truncateto: exp log: arccos tan ln \\ roundto: ))
+ (fraction 
+  (number )
+  ()
+  (productfromdouble: reduced denominator numerator quotientfromfloat: differencefromfloat: generality reciprocal coerce: printon: quotientfrominteger: - quotientfromfraction: lessfromdouble: asfloat sumfromfloat: hash lessfrominteger: productfromfloat: lessfromfraction: productfromfraction: asrational negated sumfromdouble: differencefromfraction: differencefrominteger: truncated lessfromfloat: asdouble reducegeneralityifpossible sumfrominteger: quotientfromdouble: iszero sumfromfraction: < * setnumerator:denominator: differencefromdouble: / productfrominteger: + ))
+ (integer 
+  (number )
+  ()
+  (growto: productfromfraction: lessfromfraction: growby: < quo: differencefromdouble: rounded sumfromdouble: printon:base: asinteger quotientfromfloat: digitat:put: quofrominteger: highbit digitlength sumfromfraction: ismanifest truncated anybitto: * quotientfromdouble: / // + floor ceiling anymask: odd ascharacter generality coerce: lessfrominteger: even - digitlogic:op:length: digitlshift:bytes:lookfirst: lastdigit allmask: nomask: storestringradix: printstringradix: bitand: bitor: bitshift: digitrshift:bytes:lookfirst: lastdigitget: differencefromfloat: bitinvert digitcompare: digitadd: digitsubtract: digitmultiply:neg: digitdiv:neg: factorial lessfromfloat: bitat: asrational size printon: differencefromfraction: hash quotientfromfraction: maskclear: sumfromfloat: productfromdouble: bitxor: isinteger reducegeneralityifpossible digitat: asdouble iszero sumfrominteger: at: at:put: productfromfloat: maskset: isliteral compressed differencefrominteger: asfloat denominator numerator productfrominteger: lcm: quotientfrominteger: timesrepeat: gcd: lessfromdouble: ))
+ (largepositiveinteger 
+  (integer )
+  ()
+  (- negated quo: bitand: bitor: bitxor: bitshift: digitat:put: highbit ~= digitlength compressed digitat: < abs <= >= // = > + * \\ negative / positive ))
+ (smallinteger 
+  (integer )
+  ()
+  (digitat:put: highbit * \\ odd / generality even - ~= asfloat subtractorfail: hash = fromstring:radix: bitand: bitor: printon:base: bitshift: digitat: quo: isimmediate shallowcopy printdigitson:base: asdouble sqrtrounded iszero bitxor: assmallinteger < <= digitlength identityhash >= > // + compressed ))
+ (largenegativeinteger 
+  (integer )
+  ()
+  (positive abs compressed printon:base: digitat: negated digitat:put: highbit digitlength negative ))
+ (limitedprecisionreal 
+  (number )
+  ()
+  (reducegeneralityifpossible integerpart fractionpart mantissa: radianstodegrees exponent printon:digits: absprinton:digits: degreestoradians aslimitedprecisionreal printon: defaultnumberofdigits asrational representbinaryon: hash ))
+ (float 
+  (limitedprecisionreal )
+  ()
+  (productfromfraction: asfloat floorlog10 asdouble at: at:put: rounded isliteral lessfromfraction: sumfromfloat: quotientfrominteger: raisedto: sin sumfrominteger: cos productfrominteger: sumfromfraction: < sumfromdouble: <= >= > differencefromfloat: lessfromdouble: truncated iszero lessfrominteger: lessfromfloat: differencefromdouble: productfromdouble: quotientfromfloat: differencefromfraction: arcsin sqrt arctan exp arccos tan ln * productfromfloat: / size + ~= reversebyteorder generality coerce: - = quotientfromfraction: differencefrominteger: ismanifest fractionpart exponent quotientfromdouble: timestwopower: ))
+ (double 
+  (limitedprecisionreal )
+  ()
+  (productfromfraction: asfloat floorlog10 asdouble at: at:put: rounded isliteral lessfromfraction: sumfromfloat: quotientfrominteger: raisedto: sin sumfrominteger: cos productfrominteger: sumfromfraction: < sumfromdouble: <= >= > differencefromfloat: lessfromdouble: truncated iszero lessfrominteger: lessfromfloat: differencefromdouble: productfromdouble: quotientfromfloat: differencefromfraction: arcsin sqrt arctan exp arccos tan ln * defaultnumberofdigits / size productfromfloat: + ~= reversebyteorder generality coerce: - = quotientfromfraction: differencefrominteger: fractionpart exponent quotientfromdouble: timestwopower: ))
+ (message 
+  (object )
+  ()
+  (selector setselector:arguments: printon: storeon: arguments ))
+ (messagesend 
+  (message )
+  ()
+  (value printon: receiver receiver: setreceiver:selector:arguments: ))
+ (lineinformationtable 
+  (object )
+  ()
+  (laststop: setlines:lastline: postcopy lineat:putinformationfromscanner: initializesize: adjuststarts:from:upto:with:size: linestartat: numberoflines: initialize lineat:put: numberoflines trimlinesto: linestopat: lineat: lineindexofcharacterindex: ))
+ (optimizedlineinformationtable 
+  (lineinformationtable )
+  ()
+  (lineat:putstart:andstop: lineat: linestopat: numberoflines: lineat:putinformationfromscanner: setlines:lastline: laststop: linestartat: adjuststarts:from:upto:with:size: lineat:put: trimlinesto: ))
+ (paintpolicy 
+  (object )
+  ()
+  (initialize renderpaint:usingpalette: paintrenderer imagerenderer imagerenderer: representimage:formedium: paintrenderer: ))
+ (luminancebasedcolorpolicy 
+  (paintpolicy )
+  ()
+  (representimage:formedium: paintrenderer: representimage:usingpalette: renderpaint:usingpalette: ))
+ (timezone 
+  (object )
+  ()
+  (weekdaytostartdst: weekdaytostartdst convertgmt:do: setdifference:dst:at:from:to:startday: ))
+ (dispatchtable 
+  (object )
+  ()
+  (initialize defaultfornoncharacters: bindvalue:to:followedby: bindvalue:to:modifiers: bindvalue:to: compose2:with: reset compose1: lookup:meta: copy add:do: defaultforcharacters: forkcopy ))
+ (namescope 
+  (object )
+  ()
+  (outerscope: leavescope:between:and:remove: associationsdo: variableat:from: undeclared:from: leavescope: ))
+ (localscope 
+  (namescope )
+  ()
+  (tempnames newblockscope variableat:from: permitsduplicatenames variableforbinding: initvariables permitduplicatenames: setlevel: initialize leavescope:between:and:remove: generatenames: addremote:in: localtempnames addcopied: arguments:startingat:from: receivername:withsuper: associationsdo: instancevariables:startingat: pseudovariable: printon: temporaries:startingat:from: ))
+ (nullscope 
+  (namescope )
+  ()
+  (variableat:from: tempnames associationsdo: undeclared:from: ))
+ (staticscope 
+  (namescope )
+  ()
+  (variableat:from: setblock: associationsdo: ))
+ (programnodeenumerator 
+  (object )
+  ()
+  (dotype: collectnodes: domethod:selector:primitive:block: dovariable:name: doblock:arguments:body: donodes: doreturn:value: dosequence:temporaries:statements: donode: initialize docascade:receiver:messages: domessage:receiver:selector:arguments: doliteral:value: doassignment:variable:value: doparameter:variable:type: ))
+ (readbeforewrittentester 
+  (programnodeenumerator )
+  ()
+  (domethod:selector:primitive:block: dovariable:name: doblock:arguments:body: doreturn:value: dosequence:temporaries:statements: reference: forget: initialize variablestosearchfor: docascade:receiver:messages: domessage:receiver:selector:arguments: doliteral:value: doassignment:variable:value: doparameter:variable:type: variablesmeetingcriteria ))
+ (implementationfont 
+  (object )
+  ()
+  (displaystring:from:to:at:on: installon: widthtable name widthof: spacewidth ascent isaccessible encode: height descent ))
+ (devicefont 
+  (implementationfont )
+  ()
+  (name withunderline decode: withcolor: displaystring:from:to:at:on:map: handle initializefrom: displaycharacters:from:to:at:on: widthtable isaccessible installon: widthof: ascent screen name: key displaystring:from:to:at:on: descent unloadfont scanner primunloadfont setencoder: illegalcharacterwidth encodingtype encode: withstrikeout release ))
+ (macfont 
+  (devicefont )
+  ()
+  (withunderline ))
+ (mswindowsfont 
+  (devicefont )
+  ()
+  (withunderline withstrikeout ))
+ (xfont 
+  (devicefont )
+  ()
+  ())
+ (syntheticfont 
+  (implementationfont )
+  ()
+  (widthof: displaystring:from:to:at:on:map: name displaystring:from:to:at:on: ascent withcolor: descent widthofstring:from:to: underline: isaccessible displaychars:from:to:at:on: release withunderline encodingtype on: illegalcharacterwidth withstrikeout encode: widthtable strikeout: basefont: installon: color: ))
+ (inversecolormap 
+  (object )
+  ()
+  (indexofpaintnearestluminance: indexof:ifabsent: graymapoffset palette indexofpaintnearest: inversemapclass setaliasesbybucketindex: searchforindexofpaint:among:ifabsent: mapdata setambiguousentryvalue: searchforindexofpaintnearest:among: quantizationshifts bucketindexforluminance: palette:resolutionred:green:blue:gray: bucketindexfor: resolution ))
+ (paint 
+  (object )
+  ()
+  (paintbasis installon: supersedesastextemphasis: ))
+ (pattern 
+  (paint )
+  ()
+  (aspattern installon: paintbasis setpatternbase: ))
+ (simplepaint 
+  (paint )
+  ()
+  (distancefrom: ))
+ (coveragevalue 
+  (simplepaint )
+  ()
+  (printon: installon: paintbasis scaledcoverage coverage hash storeon: setcoverage: distancefrom: = ))
+ (colorvalue 
+  (simplepaint )
+  ()
+  (magenta paintbasis scaledblue storeon: luminancescalingvalue hue installon: distancesquaredfrom: scaledluminance scaledgreen blue setred:setgreen:setblue: brightness green red printon: saturation cyan scaledred hash distancesquaredfrom:iflessthan: luminance scalingvalue distancefrom: isgray yellow = blendwith: ))
+ (bossregisteredobject 
+  (object )
+  ()
+  (traceon: update value name:valueblock:class: ))
+ (codelabel 
+  (object )
+  ()
+  (printon: storeon: definition: references fixacross:in:long: reference:opcode: definition ))
+ (inputsensor 
+  (object )
+  ()
+  (nextevent waitbutton nobuttonpressed keyboardpressed keyboarddevice altdown nonbluebuttonpressed nextput: isactive state metainput shiftdown pollforactivity ctrldown keyboard forkemergencyevaluatorat: primctrldown keyboardpeek mousepoint window hasevents globalorigin anybuttonpressed buttons globalcursorpoint cursorpoint primmousebuttons keyboardevent primkbdpeek primkbdnext waitclickbutton flushkeyboard mousepointnext bluebuttonpressed metadown currentcursor: currentcursor waitnobutton redbuttonpressed cursorpoint: yellowbuttonpressed ))
+ (windowsensor 
+  (inputsensor )
+  ()
+  (eventbuttonpress: keyat:character:down: globalorigin eventdamage: eventkeypress: state eventresize: eventunknown: pollforactivity metainput eventquit: eventcollapse: hasdamage eventexpand: keyboarddevice globalcursorpoint eventbuttonrelease: evententer: pseudoevent privateadddamage: on: translatingsensor eventkeyrelease: getandresetdamage eventexit: eventmousemoved: addmetainput: adddamage: ))
+ (translatingsensor 
+  (inputsensor )
+  ()
+  (globalorigin setwindow:windowsensor: keyboarddevice globalorigin: metainput globalcursorpoint pollforactivity hasdamage getandresetdamage state ))
+ (deferredblock 
+  (object )
+  ()
+  (complete containers: outer:literalindex:copying:full:storecounts:start:end: ))
+ (link 
+  (object )
+  ()
+  (nextlink: nextlink ))
+ (process 
+  (link )
+  ()
+  (popto: printon: terminatenosignal uninterruptablydo: suspendunconditionally initialize suspendedcontext: priority: setcontext:andlist: interruptwith: suspendinglist offlist suspend terminate suspendedcontext priority install: resume ))
+ (classcategoryreader 
+  (object )
+  ()
+  (setclass:category: scanfrom: ))
+ (textmeasurer 
+  (object )
+  ()
+  (measuresring:fromcharacterindex:to: lastindex: font: scancharactersfrom:to:in:rightx:stopconditions: lastindex mapfrom:stopconditions: map:stopconditions: primscancharactersfrom:to:in:rightx:stopconditions: destx widthtable: destx: stopconditions measuresring: widthtable ))
+ (characterscanner 
+  (textmeasurer )
+  ()
+  (textstyle: map: rightmargin: linefirst in: lineinterval internalspaces justifiedtabdeltafor: linefirst:linelast:internalspaces:paddingwidth: paddingwidth: internalspaces: characternotinfont linefirst: justifiedpadfor: paddingwidth linelast text: stopconditionfor: linefirst:linelast: endofrun crossedx leftmargin: stopconditions: initializefontpolicy:text:textattributes: stopconditions lastindex linelast: ))
+ (displayscanner 
+  (characterscanner )
+  ()
+  (space displayline:intext:left:right:top:on: setstopconditions characternotinfont cr font: paddedspace displaystring:from:to:at:on: displayline:intext:left:right:startx:top:startindex:stopindex:on: scan tab endofrun crossedx ))
+ (characterblockscanner 
+  (characterscanner )
+  ()
+  (tab endofrun crossedx space paddedspace buildcharacterblockin: characterblockforindex:in: characterblockatpoint:in: setstopconditions characternotinfont cr ))
+ (compositionscanner 
+  (characterscanner )
+  ()
+  (composeline:fromcharacterindex:leftmargin:rightmargin: tab endofrun crossedx space nowrapcomposeline:fromcharacterindex:rightmargin: setstopconditions cr rightx resetfont ))
+ (characterattributes 
+  (object )
+  ()
+  (at:put: setdefaultquery: fontat: initialize apply:to:with: defaultfont ))
+ (changeset 
+  (object )
+  ()
+  (removeclass: classnamed: atselector:class:put: atselector:class: removeselectorchanges:class: oldnamefor: reorganizeclass: renameclass:as: addclass: changedmessagelist atclass:add: atclass:includes: isnew: reorganizesystem putstatson: printon: adddoit: inspect fileouton: addpatch: fileoutchangesfor:on: fileoutclasschanges:on: initialize assortedcollection addselector:class: changeselector:class: changeclass: removeselector:class: isempty commentclass: changedclasses removeclasschanges: ))
+ (boolean 
+  (object )
+  ()
+  (| iftrue: iffalse: iftrue:iffalse: iffalse:iftrue: and: or: not eqv: storeon: xor: shallowcopy & ismanifest ))
+ (true 
+  (boolean )
+  ()
+  (printon: iftrue: iffalse: iftrue:iffalse: iffalse:iftrue: and: or: & isliteral not | ))
+ (false 
+  (boolean )
+  ()
+  (printon: iftrue: iffalse: iftrue:iffalse: iffalse:iftrue: and: or: & isliteral not | ))
+ (instructionclient 
+  (object )
+  ()
+  (pushcontext sendnocheck:numargs: storeinstany: storepoplocal:outer: pushcopiedvalues: pushinstany: pushreceiverouter: pushlocal:outer: storestatic: pushlocal: pop pushstatic: returntop pushconstant: methodreturntop: undefined:with:with: sendnonimmediate:numargs: undefined: pushreceiver undefined:with: storelocal: send:numargs: jump: dupfirst jump:if: primitivereturn duplast dupnext pushinst: methodprimitive: makecopyingblock:count: noop loophead makefullblock: storeinst: sendsuper:numargs: callprimitive: ))
+ (instructionstream 
+  (instructionclient )
+  ()
+  (interpretnextinstructionfor: peekforinstvarread willsend atend isload: next willload interpretxmisc:with:for: changetovpc peekforinstvarwrite reset pc willassign isjump: interpretshortmisc:for: method willjumpbackward willdoprimitive scanfor: peekforselector nextpc: interpretshortload:for: method: interpretxcontrol:with:for: interpretxx:with:with:for: peekforspecialselector: interpretshortcontrol:for: willreturn ))
+ (decompiler 
+  (instructionstream )
+  ()
+  (duplast decompile:in:method:using: makecopyingblock:count: dostore: statementsto: pushlocal:outer: pushstatic: sendnocheck:numargs: decompilemethod:builder:instvars:localvars:copiedvars:tempcount: decompileblock:in:using: decompile:in: pushreceiverouter: sequenceto:temporaries: dupnext pop jumpto:if:sign: sendnonimmediate:numargs: storeinst: primitivereturn pushconstant: noop dupfirst pushreceiver storelocal: pushvarnamed: pushinstany: jump: storeinstany: jump:if: codeblock:copied: callprimitive: buildcond:sign:thenbody:elsebody: pushcontext decompile:in:method: pushcopiedvalues: makefullblock: storepoplocal:outer: pushvariable: pushlocal: loophead decompileblock:in: methodprimitive: newtemps: storestatic: pushinst: methodreturntop: returntop send:numargs: sendsuper:numargs: ))
+ (context 
+  (instructionstream )
+  ()
+  (sourcecode localsize pushinst: dupnext result0: callprimitive: pushlocal: primflushvmmethodcacheentries: push: nfromvpc: return: findnextunwindupto: resizedwith: restartwith: primperform:selector:numargs: makefullblock: primitivereturn isblockcontext skipprimitive sendsuper:numargs: findtemp:do:elsedo: findtemp:do: tryprimitive:receiver:numargs: storestatic: sendnocheck:numargs: checkhandlerblock:value: setsender:receiver:method:arguments:size: returntop dupfirst top makecopyingblock:count: localscope doprimitive:receiver:numargs: changetovpc pushstatic: storelocal: tempnames pushinstany: localat:put: size printon: dup sender: blockcontextfrom:args: stepuntilhavenpc receiver send:receiver:class:super:numargs: tempat: tempat:put: sourcemap sendnonimmediate:numargs: localat: selector tryoldprim:receiver:arg:numargs: terminateto: stepuntilvisibleeffect cannotreturn: vfromnpc: primblockvalue:arguments: pushconstant: storeinstany: pushcontext primflushvmmethodcache: terminate pushreceiver cannotresume resume methodprimitive: jump: jump:if: sender primblockvalue:numargs: duplast primwait: stepuntilproceedable toppop storeinst: unwindupto: removecontextsto: noop step homereceiver stepuntilpc: send:numargs: sendersto: callprimitive:numargs: primperform:selector:arguments: home sendfast:receiver:numargs: sourceinfo: representbinaryon: pop nfromvpcnofail: hassender: uparrowreturn mclass completecallee: result1: restart send runmethod:numargs:contextclass: counttemps:do:elsedo: findmethod:class:iffound: changetonpc primsuspend: trynewprim:receiver:arg:numargs: resumewith: loophead findnextmarkedupto: ))
+ (blockcontext 
+  (context )
+  ()
+  (outercontext findtemp:do:elsedo: isblockcontext pushlocal:outer: printon: pushreceiverouter: methodreturntop: methodreturn: outer: sourcecode privatetempat: nonlocalreturn:through: pushcopiedvalues: homereceiver privatetempat:put: home storepoplocal:outer: selector ))
+ (methodcontext 
+  (context )
+  ()
+  (selector homereceiver home outer: privatetempat:put: findtemp:do:elsedo: privatetempat: sourcecode ))
+ (coderegenerator 
+  (instructionstream )
+  ()
+  (dupnext pushstatic: pushspuriouspc: execute storelocal: poppc storepopstatic: storepoplocal:outer: storeinstany: startcalcpc pushpc pushlocal:outer: methodprimitive: resetstack merge: parent: pop returntop scopinglevel oldinstvarnames code undefined: method mergepoploads childon:copy: cancopy methodreturntop: makecopyingblock:count: checkmerge pushreceiverouter: loophead labels run cancopy: copiedvalues makefullblock: noop duplast pushall scoperelative: push: primitivereturn callprimitive: scopeforclass: nameforlocal: emitbody: send:numargs: sendsuper:numargs: interpretshortload:for: initscope: pushcontext on:method: sendnonimmediate:numargs: pushconstant: sendnocheck:numargs: on:method:namesofinstancevariables: pushreceiver jump: jump:if: dupfirst storepopinst: pushinst: pushcopiedvalues: interpretxmisc:with:for: pushinstany: pushlocal: reset genarguments makecleanblock: ))
+ (instructionprinter 
+  (instructionclient )
+  ()
+  (pushreceiver sendsuper:numargs: jump: jump:if: storeinstany: sendnocheck:numargs: printinstructionson: storelocal: sendnonimmediate:numargs: undefined: pushstatic: makecopyingblock:count: undefined:with: primitivereturn pushlocal: noop printnextinstructionon: dupnext pushlocal:outer: outer: pushcopiedvalues: storeinst: methodreturntop: pushcontext methodprimitive: method: duplast loophead returntop storestatic: send:numargs: undefined:with:with: dupfirst pop pushinst: callprimitive: pushconstant: pushinstany: storepoplocal:outer: makefullblock: pushreceiverouter: ))
+ (controller 
+  (object )
+  ()
+  (controltonextlevel iscontrolactive checkforevents controlactivity controlloop controlinitialize view controlterminate setsensor: sensor controls iscontrolwanted initialize view: release model: model setsensorfromview flushcoordinatecaches poll startup viewhascursor ))
+ (standardsystemcontroller 
+  (controller )
+  ()
+  (newlabel move closeandunschedule front collapse initialize resize restartaftererror opentransientviewstopwindowin: display iscontrolwanted back close startup iscontrolactive controlactivity locked: shutdownbecauseoferror view: ))
+ (dialogcontroller 
+  (standardsystemcontroller )
+  ()
+  (shutdownbecauseoferror restartaftererror iscontrolactive close controlactivity isfinished controlinitialize controlterminate ))
+ (dialogcompositecontroller 
+  (controller )
+  ()
+  (accept setactive: processkeyboard sendkeyboardto: viewwantingcontrol initialize nextfield ))
+ (launchercontroller 
+  (controller )
+  ()
+  (tracklaunch trackforactionatindex: iscontrolactive controlactivity trackformenu:atindex: ))
+ (scrollbarcontroller 
+  (controller )
+  ()
+  (scrollpageup cursors: absolutecursor alignpoint: iscontrolwanted downpagecursor uppagecursor scrollpagedown scrollview: controlactivity controlloop scrollabsolute ))
+ (widgetcontroller 
+  (controller )
+  ()
+  (iscontrolactive controlloop isactive cursor: enableyellowbutton buttonpressed betoggle iscontrolwanted initialize enableyellowbutton: controlblock: flushcoordinatecaches beswitch activeaccessor: betriggeronup activeaccessor controlloopbody beslider testforcontrol bebutton ))
+ (controllerwithmenu 
+  (controller )
+  ()
+  (processmenuat: menuholder: performer controlactivity menuholder yellowbuttonactivity redbuttonactivity menumessagereceiver initialize menu initializemenu dispatchmenuselection: processmenuat:centered: performer: ))
+ (notifiercontroller 
+  (controllerwithmenu )
+  ()
+  (initializemenu getmenu correct copystack proceed debug redbuttonactivity ))
+ (listcontroller 
+  (controllerwithmenu )
+  ()
+  (changeselectionfrom:to: cursorpointwithscrolling iscontrolactive redbuttonactivity iscontrolwanted ))
+ (changelistcontroller 
+  (listcontroller )
+  ()
+  (removeall restoreall forget dothis checkwithsystem: fileout recover getchanges doall copyview removeitem restoreitem filein initializemenu browse check checkwithsystem changelabel dofrom: getwritefilewithprompt:do: ))
+ (selectioninlistcontroller 
+  (listcontroller )
+  ()
+  (changeselectionfrom:to: model: processmenuat:centered: initializemenu ))
+ (selectionsetinlistcontroller 
+  (selectioninlistcontroller )
+  ()
+  (dyforpoint: processselectionfor:next:movement: findselectionfor:using: changeselections trackselection redbuttonactivity ))
+ (paragrapheditor 
+  (controllerwithmenu )
+  ()
+  (appendtoselection: selectionstartindex displaycolonequalkey: begintypeinindex: pageupkey: trackmouseselection selectionstartindex:stopindex: notepossiblebeginingoftypein begintypeinindex iscontrolwanted currentselection: selectionstopindex miniformatkey: replacefrom:to:with: doitreceiver cursorrightkey: find: texthaschanged: initializemenuforcode evaluator selectcurrenttypeinkey: homekey: setselectionstartmakecurrentandresettypein pastekey: selectionstopindex: initialize hardcopy selection undoselection: deselect find:startingat: displayiffalsekey: leavebracketskey: paragraph resetstate displayiftruekey: undokey: inspectit texthaschanged ignoreinputkey: initializemenufortext displaydatekey: text changeemphasiskey: backwordkey: makeselectionstartingat:extendselection: backspacekey: initializemenu dispatchon:to: displaycrkey: togglewordwrap acceptkey: changetextstyle updaterequest endkey: cursorupkey: pagedownkey: previousselections setselectionstartandresettypein emphasisadditionskeyedto: cursorleftkey: evaluateselection selectfrom:to: dispatchtable align cursordownkey: copykey: localmenuitem: normalkeyboardevent:do: undoselection normalcharacterkey: findandselect: selectionstartindex: selectandscrollfrom:to: againonce replaceselectionwith:saveselectionforundo: selectandscroll dispatchmenuselection: processredbutton processmousebuttons selectionasstream readkeyboard processyellowbutton processbluebutton processkeyboard enclosekey: setemphasishere selectat: dyforpoint: select flushkeyboardmap resettypein updateselectionwith:usingpivot:on: replaceselectionwith: doit printit again currentselection undo copyselection cut performpasteaction: selectword: iscontrolactive controlactivity paste removefirstchars: accept cancel insertandselect:at: cutkey: istokenish: emphasisdeletionskeyedto: ))
+ (textitemeditor 
+  (paragrapheditor )
+  ()
+  (allowcrintext deactivate iscontrolactive accept compositecontroller: activate processcrkey: processredbutton processyellowbutton initialize processtabkey: tabblock: allowtabintext iscontrolwanted crblock: ))
+ (textcontroller 
+  (paragrapheditor )
+  ()
+  (model: accept alwaysacceptkey: processmenuat:centered: alwaysaccept doaccept initializemenu ))
+ (debuggercontroller 
+  (textcontroller )
+  ()
+  (evaluateselection doitcontext doitvalue: ))
+ (nocontroller 
+  (controller )
+  ()
+  (startup iscontrolwanted iscontrolactive ))
+ (displaysurface 
+  (object )
+  ()
+  (completecontentsofarea: defaultpaint extent bitsperpixel contentsofareaoriginx:y:width:height: defaultfontpolicy setbackground: graphicscontext width height flush background handlevalue: changeextent: palette bounds finalize screen isopen asimage close key background: defaultpaintpolicy preferredbounds depth contentsofarea: defaultbackgroundpaint paintbasis initialize privateclose releasehandle canbepaintedwith: clear defaultfont ))
+ (window 
+  (displaysurface )
+  ()
+  (executor iscollapsed seticonic: moveto:resize: palette icon: createsurfaceoftype: seticonmask: becomeinactive primmap bitsperpixel unmap primcollapse primclose defaultpaintpolicy defaultbackgroundpaint displaybox sensorclass close reopen hibernate displaybox: label:iconlabel: sensor actasexecutor privateclose updatedimensions resizefromuserwithminimum:maximum: paintbasis setbackgroundpixel: depth initialize isactive becomeactive iconlabelfromlabel: changecreationorigin: label: primexpand defaultpaint collapse moveto: raise changeorigin: expand contentsofareaoriginx:y:width:height: globalorigin getdimensions lower map ))
+ (scheduledwindow 
+  (window )
+  ()
+  (privateopenin:type: controller: openpopupin: subviewwantingcontrol lookpreferences: graphicscontextfor: newlabel: foregroundcolor topview opendisplayat: invalidaterectangle:repairnow:forcomponent: dispatcheskeyboard schedulein: reopen label: label backgroundcolor edgedecorationpolicy refresh medium opentransientin:type: defaultbackgroundpaint initialize minimumsize: background: minimumsize changedbounds:forcomponent: maximumsize: update:with: open maximumsize changedpreferredbounds:forcomponent: controller compositionboundsfor: openwithextent: component: close openin: displaybox: widgetpolicy: edgedecorationpolicy: extentevent: flushcaches icon: localpointtoglobal: lookpreferences displaydamageevent: topcomponent component opendialogin: checkforevents release defaultrectangle: defaultpaint globalpointtolocal: display insidecolor displaymedium insidecolor: processevent: background displayon: model: model widgetpolicy containspoint: ))
+ (unmappablesurface 
+  (displaysurface )
+  ()
+  (aspattern displayon:at: contentsofareaoriginx:y:width:height: displayon: ))
+ (pixmap 
+  (unmappablesurface )
+  ()
+  (toclipboard defaultpaint depth privateclose asretainedmedium paintbasis displayon:at: defaultbackgroundpaint defaultpaintpolicy bitsperpixel palette ))
+ (mask 
+  (unmappablesurface )
+  ()
+  (defaultpaint depth privateclose asretainedmedium paintbasis displayon:at: defaultbackgroundpaint bitsperpixel defaultpaintpolicy palette ))
+ (ditherupto4 
+  (object )
+  ()
+  (value: paint1:threshold1:paint2: paint1:threshold1:paint2:threshold2:paint3: paint1:threshold1:paint2:threshold2:paint3:threshold3:paint4: ))
+ (imagerenderer 
+  (object )
+  ()
+  (representimage:as:painttransfer: checkpaintbasisof:and:painttransfer: representimageluminances:as: representimageluminances:usingpalette: representimageluminances:formedium: representimage:formedium: ))
+ (paintrenderer 
+  (imagerenderer )
+  ()
+  (uniformrangelevels renderpaint:usingpalette: renderluminance:usingpalette: ))
+ (ordereddither 
+  (paintrenderer )
+  ()
+  (wrapindex:against: uniformrangelevels rowsfororder: representimage:as:painttransfer: finishtessellation tessellate atpoint:put: atrow: offsetforstage: extent renderpaint:usingpalette: width height initializearray usesmallpalettealgorithmfor: centerpoint smallpaletterepresentimage:as:painttransfer: order: genericpaletterepresentimage:as:painttransfer: atpoint: postcopy printon: ))
+ (nearestpaint 
+  (paintrenderer )
+  ()
+  (representimage:as:painttransfer: renderluminance:usingpalette: genericpaletterepresentimage:as:painttransfer: usesmallpalettealgorithmfor: smallpaletterepresentimage:as:painttransfer: renderpaint:usingpalette: representimage:formedium: ))
+ (errordiffusion 
+  (imagerenderer )
+  ()
+  (colordiffusionloopsrc:dest:currentrow:nextrow:srcpixels:destpixels:transfer: representimageluminances:as: representimage:as:painttransfer: coveragediffusionloopsrc:dest:currentrow:nextrow:srcpixels:destpixels:transfer: ))
+ (exception 
+  (object )
+  ()
+  (originator proceedwith: unwind initialcontext restart signal: errorstring: propagatefrom: proceedblock: willproceed returnwith: unwindto: return handlercontext restartdo: findhandlerfrom: forreturn repropagatefrom: parameter parameter: errorstring raise searchfrom: proceed checkinitialcontextif:with: proceeddoing: propagateprivatefrom: signal originator: localerrorstring raiserequest reject nohandleraction: ))
+ (binaryobjectstorage 
+  (object )
+  ()
+  (writeheader nextindex scantoend registerglobal: indexof: position checkheader nextputclasses: atindex:put: nextput: contents atend readerclass: reader writerclass: nextputall: next firstindex skipnext close readerblockfor:put: readerblockfor: sourcemode assignindexfor: settoend objectatindex: nextindex: position: writer sourcemode: initialize forgetinterval: forgetinterval:excluding: reset nextclasses isbigendian on: streamformatnumber usesreaderblocks ))
+ (graphicscontext 
+  (object )
+  ()
+  (initializeformedium displaystring:from:to:at: flush findfont: paint clientdata: setdevicepattern: roundeddisplaypolyline:at: roundeddisplaylinefrom:to: copyarea:fromimage:sourceoffset:destinationoffset: widthofstring: displaypolygon: displaydotofdiameter:at: setdevicefont: setpainttocoverage: setdevicecoveragepixel: primdisplayrectangularborderorigin:extent: roundeddisplaycharacterofindex:at: translation: copyarea:from:sourceoffset:destinationoffset: font fontpolicy: installdigraphicsstateon: copymaskedarea:from:sourceoffsetx:y:destinationoffsetx:y: collectarcradius:from:to:do: capstyle displaylinefrom:to: displayarcboundedby:startangle:sweepangle:at: paintbasis medium paint: displaycharacterofindex:at: displaygeneralarcbboxorigin:extent:startangle:sweepangle: displayuninterpretedimagebits:at: displaywedgeboundedby:startangle:sweepangle:at: clientdataat:ifabsent: displaygeneralpolyline: joinstyle: roundedprimdisplaywedgebboxorigin:extent:startangle:sweepangle: clientdataat: primdisplaywedgebboxorigin:extent:startangle:sweepangle: primdisplayarcbboxorigin:extent:startangle:sweepangle: clipright displaymappedstring:from:to:at:withmap: displaystring:at: roundedprimdisplayrectangularborderorigin:extent: roundedprimdisplayrectangleorigin:extent: displayimage:at: displaymask:at: font: displayrectangle: roundeddisplayuninterpretedmonoimagebits:foreground:background:at: displaypolyline: roundeddisplayuninterpretedimagebits:at: displaywidelinesetup:from:to: copyimage:to: translation linewidth: clippingbounds paintpolicy: setdevicecolorpixel: setmedium: collectarcradius:from:x:y:to:x:y:do: linewidth copyrectangulararea:from:sourceoffsetx:y:destinationoffsetx:y: displayrectangularborder: adjustprojectingcapfrom:to: displaypolygon:at: widthofstring:from:to: setpainttocolor: tilephase displaywedgeboundedby:startangle:sweepangle: capstyle: display:at: primcopymaskedarea:from:sourceoffset:destinationoffset: displaywidelinejoinfrom:to: displayarcboundedby:startangle:sweepangle: copycompletearea:from:sourceoffsetx:y:destinationoffsetx:y: copyarea:from:sourceoffsetx:y:destinationoffsetx:y: clippingrectangleornil roundeddisplaypolygon:at: clear clientdata roundeddisplaymask:at: roundedprimdisplayarcbboxorigin:extent:startangle:sweepangle: roundedprimcopyrectangularareaextent:from:sourceoffset:destinationoffset: fontpolicy roundedprimcopymaskedarea:from:sourceoffset:destinationoffset: joinstyle clippingrectangle: displayrectangularborder:at: copycompletearea:from:sourceoffset:destinationoffset: displayuninterpretedmonoimagebits:foreground:background:at: roundeddisplaymappedstring:from:to:at:withmap: primcopyrectangularareaextent:from:sourceoffset:destinationoffset: paintpolicy primdisplayrectangleorigin:extent: intersectclip: translateby: tilephase: displayrectangle:at: displaypolyline:at: mergeintoclientdata: ))
+ (defineopcodepool 
+  (object )
+  ()
+  ())
+ (smalltalkcompiler 
+  (object )
+  ()
+  (targetclass: evaluate:in:receiver:notifying:iffail: scopeforclass compile:in:notifying:iffail: newmethodholder newcodestream from:class:context:notifying: translate:nopattern:iffail: evaluate:in:to:notifying:iffail: format:in:notifying: parse:in:notifying: translate:nopattern:iffail:needsourcemap:handler: translate:nopattern:iffail:needsourcemap:handlerclass: ))
+ (compiler 
+  (smalltalkcompiler )
+  ()
+  (newcodestream newmethodholder ))
+ (filename 
+  (object )
+  ()
+  (copyto: makewritable isreadable dates directorycontents newreadappendstream delete isdirectoryerrinto: postcopy newreadwritestream printtextfile directory exists makedirectoryerrinto: constructstring: makeunwritable lastseparatorindex asstring existserrinto: head isrelative listdirectoryerrinto: moveto: filesize errorreporter renameto:errinto: contentsofentirefile getdateserrinto: iswritable named: readwritestream writestream renameto: openhandlefordirection:creation: iswritableerrinto: defaultclass canbewritten filein fileoutchanges species fileoutchangesfor: appendstream filesmatching: printon: concreteclass reporterrorproceeding readstream readappendstream deleteerrinto: primopenfilenamed:direction:creation:errorinto: snapshot: filesmatchingaccesslist:into: hash edit isabsolute separator = construct: reporterror isdirectory asfilename filesizeerrinto: makedirectory setwritable:errinto: tail ))
+ (unixfilename 
+  (filename )
+  ()
+  (isreadable filesmatchingaccesslist:into: primgetprotectionerrinto: getprotection named: setprotection: primsetprotection:errinto: ))
+ (macfilename 
+  (filename )
+  ()
+  (primsetcreator:type:errinto: printfileerrinto: head constructstring: named: isabsolute tail printtextfile setfilecreator:andtype: filesmatchingaccesslist:into: printtextfileerrinto: ))
+ (dosfilename 
+  (filename )
+  ()
+  (isvolumeabsolute head constructstring: named: isabsolute tail isvolumerelative printtextfile volume printtextfileerrinto: filesmatchingaccesslist:into: ))
+ (oserrorholder 
+  (object )
+  ()
+  (reporterrorproceeding printon: successful errorreporter failed reportfor: errorstring printerrordescriptionon: reporterror errorcode ))
+ (oshandle 
+  (oserrorholder )
+  ()
+  (releasehandle handlevalue: initialize key handle: representbinaryon: ))
+ (cursor 
+  (oshandle )
+  ()
+  (name: primfreecursor changed: isactive setimage:mask:hotspot:name: name printon: show privateinstall primbecursor close becursor displayon:at: screen showwhile: displayon: ))
+ (ioaccessor 
+  (oshandle )
+  ()
+  (defaultclass lineendconvention readinto: buffersize printon: readwaitwithtimeoutms: filesize writewait seekto: writeall: isactive writepauseinterval truncateto: connectionclass iowaitwithtimeoutms: close primseekto: primclose primgetsize writefrom: readappendstream commit primreadinto:startingat:for: iowait setsem:forwrite: finalize readpauseinterval writewaitwithtimeoutms: primbuffersize readwait writefrom:startingat:for:untilfalse: primwritefrom:startingat:for: readstream readinto:untilfalse: asexternalconnection readinto:startingat:for:untilfalse: writefrom:startingat:forsure: readinto:startingat:for: writefrom:startingat:for: writestream ))
+ (dosioaccessor 
+  (ioaccessor )
+  ()
+  (lineendconvention ))
+ (dosdiskfileaccessor 
+  (dosioaccessor )
+  ()
+  (readwritestream setsem:forwrite: commit connectionclass ))
+ (macioaccessor 
+  (ioaccessor )
+  ()
+  (lineendconvention ))
+ (macdiskfileaccessor 
+  (macioaccessor )
+  ()
+  (readwritestream setsem:forwrite: commit lock:for: connectionclass ))
+ (unixioaccessor 
+  (ioaccessor )
+  ()
+  (primreadinto:startingat:for: lineendconvention bytesforread setsem:forwrite: primnofailreadinto:startingat:for: close primnofailwritefrom:startingat:for: primwritefrom:startingat:for: writefrom:startingat:for:untilfalse: readinto:startingat:for:untilfalse: ))
+ (unixdiskfileaccessor 
+  (unixioaccessor )
+  ()
+  (readwritestream commit lock:for: connectionclass ))
+ (controlmanager 
+  (object )
+  ()
+  (activecontrollerprocess activecontroller close removeinvalidcontrollers initialize launchbaseprocess noteevent restore activecontrollerloop setactivecontroller: deactivate searchforactivecontroller checkforevents updatecontrollerorder open scheduledcontrollers interruptname: unschedule: release inactivecontrollerprocess schedulepassive: activecontrollernoterminate:andprocess: isscheduled: promote: ))
+ (spfillline 
+  (object )
+  ()
+  (origin corner nextline slope movetoy: printon: y2 tag direction <= xatzeroy origin:corner:tag: x1 nextline: x2 cross:before: slopeprecedes: y1 xaty ))
+ (collection 
+  (object )
+  ()
+  (copyempty: size printon: nomatcherror do: notkeyederror notfounderror storeon: collect: maxprint growsize add: emptycollectionerror addall: occurrencesof: detect:ifnone: emptycheck remove:ifabsent: includes: reject: removeall: capacity assortedcollection remove: inject:into: asorderedcollection assortedcollection: asbag asset select: detect: isempty asarray ))
+ (sequenceablecollection 
+  (collection )
+  ()
+  (replaceelementsfrom:to:withsequenceablecollection:startingat: findfirst: previndexof:from:to: replaceelementsfrom:to:withlinkedlist:startingat: replaceelementsfrom:to:witharray:startingat: readstream startingat:replaceelementsin:from:to: replacefrom:to:with: copyfrom:to: replaceelementsfrom:to:withcharacterarray:startingat: replaceelementsfrom:to:withtwobytestring:startingat: copyreplaceall:with: swap:with: atall:put: grow replaceelementsfrom:to:withbyteencodedstring:startingat: replaceelementsfrom:to:withintegerarray:startingat: indexofsubcollection:startingat: indexofsubcollection:startingat:ifabsent: erroroutofbounds do: with:do: replaceelementsfrom:to:withbytearray:startingat: replaceall:with:from:to: findlast: issequenceable indexof: lastindexof: reverse replacefrom:to:with:startingat: keysandvaluesdo: collect: atallput: indexof:ifabsent: last growtoatleast: occurrencesof: writestream replaceelementsfrom:to:withwordarray:startingat: remove:ifabsent: size copywithout: first replaceall:with: identityindexof: copyreplacefrom:to:with: reversedo: hash select: lastindexof:ifabsent: identityindexof:ifabsent: asarray = copywith: nextindexof:from:to: ))
+ (arrayedcollection 
+  (sequenceablecollection )
+  ()
+  (size storeelementsfrom:to:on: defaultelement storeon: add: ))
+ (integerarray 
+  (arrayedcollection )
+  ()
+  (printon: asbytestring defaultelement inspect asstring countbits astwobytestring maxprintelements startingat:replaceelementsin:from:to: ))
+ (bytearray 
+  (integerarray )
+  ()
+  (tilebits32by32stride:width:atx:y:from:stride:width:atx:y:width:height:rule: copybitswidth:atx:y:from:width:atx:y:width:height:rule: replacebytesfrom:to:with:startingat: basicat:put: storeon: tilebitsruleadjustedstride:width:atx:y:from:stride:width:atx:y:width:height:rule: slowencodefrom:into:startingat: sizeinbytes copybitsintegralstride:width:atx:y:from:stride:width:atx:y:width:height:rule: tilebitsclippedstride:width:atx:y:from:stride:width:atx:y:width:height:rule: fastencodeinto: at: at:put: replaceelementsfrom:to:withbytearray:startingat: tilebitsstride:width:atx:y:from:stride:width:atx:y:width:height:rule: copybitsstride:width:atx:y:from:stride:width:atx:y:width:height:rule: basicat: isliteral aspackedstring printon: asbytearray byteat: tilebitsintegralstride:width:atx:y:from:stride:width:atx:y:width:height:rule: asbytestring byteat:put: startingat:replaceelementsin:from:to: copybitsclippedstride:width:atx:y:from:stride:width:atx:y:width:height:rule: tilebitswidth:atx:y:from:width:atx:y:width:height:rule: copybitsruleadjustedstride:width:atx:y:from:stride:width:atx:y:width:height:rule: ))
+ (bossbytes 
+  (bytearray )
+  ()
+  (unsignedshortat:put: longat:put: unsignedlongat:put: objectat:from:baseindex: swapbyteswidth: shortat: replacebytesfrom:with: swapcolumn:with: longat: unsignedlongat: shortobjectat:from:baseindex: unsignedshortat: ))
+ (wordarray 
+  (integerarray )
+  ()
+  (aswordarray replaceelementsfrom:to:withwordarray:startingat: reversebyteorder size startingat:replaceelementsin:from:to: at: at:put: byteorder ))
+ (characterarray 
+  (arrayedcollection )
+  ()
+  (dropvowels: <= >= runlengthfor: > matchespattern:ignorecase:do: displayon:at: sameas: withcrs aslowercase contractto: string startingat:replaceelementsin:from:to: changefrom:to:with: asstring hash asuppercase spellagainst: dropfinalvowels ascomposedtext assymbol asnumber astext copyupto: match: chopto: findstring:startingat: asfilename samecharacters: findstring:startingat:ifabsent: match:ignorecase: emphasisat: < ))
+ (text 
+  (characterarray )
+  ()
+  (asparagraph replacefrom:to:with: copyfrom:to: storeon: emphasizeallwith: emphasisat: runlengthfor: aslowercase findstring:startingat: at: at:put: setstring:setruns: allbold size printon: asuppercase copyreplacefrom:to:with: runs string emphasizefrom:to:with: addemphasis:removeemphasis:allowduplicates: postcopy makeselectorboldin: displayon:at: haschangeofemphasis = astext ))
+ (string 
+  (characterarray )
+  ()
+  (asbytestring <= >= runlengthfor: > sameas: astwobytestring concretestring stringencoding printon: isbyteindexed string copyfrom:to: changefrom:to:with: inspect hash = stringhash isstring indexofsubcollection:startingat: astext asbytearray referstoliteral: storeon: compare: aswordarray haschangeofemphasis isliteral asparagraph concreteindexfor: truecompare: < ))
+ (symbol 
+  (string )
+  ()
+  (isliteral hash assymbol copy selectorpart iscompound = errornomodification classpart numargs replacefrom:to:with:startingat: asstring storeon: iskeyword precedence stringhash isinfix shallowcopy issymbol keywords at:put: ))
+ (bytesymbol 
+  (symbol )
+  ()
+  (stringencoding representbinaryon: string: startingat:replaceelementsin:from:to: at: byteat: species isbyteindexed ))
+ (twobytesymbol 
+  (symbol )
+  ()
+  (string: at: byteorder representbinaryon: reversebyteorder species startingat:replaceelementsin:from:to: stringencoding size ))
+ (twobytestring 
+  (string )
+  ()
+  (reversebyteorder stringencoding size byteat:put: startingat:replaceelementsin:from:to: byteat: sizeinbytes at: at:put: astwobytestring asintegerarray replaceelementsfrom:to:withtwobytestring:startingat: byteorder = ))
+ (byteencodedstring 
+  (string )
+  ()
+  (nextindexof:from:to: nonprimitiveat:put: stringencoding byteat:put: size startingat:replaceelementsin:from:to: byteat: previndexof:from:to: sizeinbytes at: at:put: asintegerarray occurrencesof: isbyteindexed replaceelementsfrom:to:withbyteencodedstring:startingat: = ))
+ (macstring 
+  (byteencodedstring )
+  ()
+  (stringencoding at: at:put: ))
+ (bytestring 
+  (byteencodedstring )
+  ()
+  (asbytestring asintegerarray at:put: at: size stringencoding ))
+ (iso8859l1string 
+  (byteencodedstring )
+  ()
+  (stringencoding at: at:put: ))
+ (gapstring 
+  (string )
+  ()
+  (newstring:size: newfromstring: changefrom:to:with: size replacefrom:to:with: copyfrom:to: isbyteindexed at: at:put: concreteindexfor: nextindexof:from:to: stringencoding replacefrom:to:with:startingat: runlengthfor: newsize: concretestring postcopy compress ))
+ (array 
+  (arrayedcollection )
+  ()
+  (asarray referstoliteral: storeon: printon: isliteral startingat:replaceelementsin:from:to: ))
+ (dependentscollection 
+  (array )
+  ()
+  (updaterequest asdependentswith: asdependentsascollection performupdate:with: updaterequest: update:with:from: asdependentswithout: performupdate: ))
+ (bossreadermap 
+  (array )
+  ()
+  (storage: at: at:put: size primitiveat: baseindex: ))
+ (scannertable 
+  (array )
+  ()
+  (atalllettersput: atalldigitsput: basicat:put: subscriptboundserror: atallput: atdefaultput: at:put: atallseparatorsput: ))
+ (weakarray 
+  (arrayedcollection )
+  ()
+  (indexof:replacewith:startingat:stoppingat: mydependents foralldeadindicesdo:replacingcorpseswith: postcopy storeon: foralldeadindicesdo: nilallcorpsesanddo: species mydependents: ))
+ (runarray 
+  (arrayedcollection )
+  ()
+  (privateadd:remove:to:duplicate: haschange add:remove:duplicate: copyfrom:to: setruns:setvalues: copyfromrun:offset:torun:offset:intoruns:values:startingat: at:setrunandoffset: addfirst: copyreplacefrom:to:with: runs runlengthat: at:setrunoffsetandvalue: addlast: storeon: isincluded:in: values at: size postcopy ))
+ (orderedcollection 
+  (sequenceablecollection )
+  ()
+  (keysandvaluesdo: remove:ifabsent: removelast: removelast reversedo: removeallsuchthat: first add:before: select: isempty add:beforeindex: at: at:put: copywithout: setindices notenoughelementserror setindicesfrom: makeroomatfirst find: removeindex: capacity before: add: after: makeroomatlast representbinaryon: addallfirst: removefirst: removeatindex: addalllast: add:after: copyfrom:to: firstobjecterror nosuchelementerror notfounderror copyempty grow do: addfirst: copyreplacefrom:to:with: lastobjecterror addlast: insert:before: size addlastnocheck: removefirst inspect collect: copywith: last reverse addall: ))
+ (fontdescriptionbundle 
+  (orderedcollection )
+  ()
+  (addfirst: addfont:withquality: fontat: addfont: findmatchon:allowance: installon: addlast: qualityat: ))
+ (sortedcollection 
+  (orderedcollection )
+  ()
+  (indexforinserting: swap:with: reverse add: resort sort:to: sortblock initialize addfirst: = collect: addlast: add:before: addall: addallwithoutsorting: addallfirst: add:after: addalllast: add:beforeindex: representbinaryon: sortblock: at:put: copyempty: ))
+ (spsortedlines 
+  (sortedcollection )
+  ()
+  (tag: addall: closeedge addpolygon: lineto: grow rulemask moveallfirstbelow:to: initialize ))
+ (spactivelines 
+  (sortedcollection )
+  ()
+  (firstintersectionbetween:and: intersectsfromy:toy: intersects:with: removeended swapfrom:to: stopy grow ))
+ (handlercollection 
+  (orderedcollection )
+  ()
+  (on:handle: handlefrom:do: handledo: ))
+ (interval 
+  (sequenceablecollection )
+  ()
+  (initializescanner: reversedo: species storeon: collect: increment add: size printon: at: at:put: remove: do: hash last = setfrom:to:by: first ))
+ (textlineinterval 
+  (interval )
+  ()
+  (start:stop:internalspaces:paddingwidth: initializestart: initializescanner: internalspaces:paddingwidth: internalspaces justifiedtabdeltafor: stop: paddingwidth: internalspaces: justifiedpadfor: paddingwidth slide: = ))
+ (linkedlist 
+  (sequenceablecollection )
+  ()
+  (addlast: isempty removefirst add: removelast size startingat:replaceelementsin:from:to: last at: at:put: remove:ifabsent: addfirst: first do: ))
+ (semaphore 
+  (linkedlist )
+  ()
+  (critical: signal terminateprocess wait initsignals ))
+ (bag 
+  (collection )
+  ()
+  (do: asset add: add:withoccurrences: occurrencesof: remove:ifabsent: includes: initialize: size ))
+ (palette 
+  (collection )
+  ()
+  (indexof: paintbasis includeskey: printon: add: indexof:ifabsent: depth keysandvaluesdo: dithermappingblockfor:ditherscale: indexofpaintnearest: maxindex pixelsandthresholdsfordithering: retainedmediumclass remove:ifabsent: includes: pixelnotfounderror: printconstantnameon: representbinaryon: species at:ifabsent: at: size copyempty: ))
+ (colorpalette 
+  (palette )
+  ()
+  (ismonochrome hascolor paintbasis pixelsandthresholdsfordithering: indexofpaintnearest: hasgrayorcolor indexofpaintnearestluminance: bracketingpixelsfor: retainedmediumclass ))
+ (mappedpalette 
+  (colorpalette )
+  ()
+  (capacity at:ifabsent: indexofpaintnearestluminance: do: storeon: includeskey: setcolors: optimizegraymapresolution hascolor indexofpaintnearest: mapresolution: size emptyinversemap maxindex elementdata colors hash hasgrayorcolor keysandvaluesdo: = mapresolution createinversemap representbinaryon: indexof:ifabsent: ismonochrome ))
+ (monomappedpalette 
+  (mappedpalette )
+  ()
+  (hascolor do: hasgrayorcolor at:ifabsent: dithermappingblockfor:ditherscale: indexofpaintnearest: keysandvaluesdo: indexofpaintnearestluminance: createinversemap ismonochrome setcolors: indexof:ifabsent: ))
+ (fixedpalette 
+  (colorpalette )
+  ()
+  (includeskey: storeon: hascolor maxindex size printon: keysandvaluesdo: hasgrayorcolor pixelsandthresholdsfordithering: indexofpaintnearest: ismonochrome do: hash equalsredmask:redshift:greenmask:greenshift:bluemask:blueshift: indexofpaintnearestluminance: = indexof:ifabsent: at:ifabsent: redshift:redmask:greenshift:greenmask:blueshift:bluemask: ))
+ (coveragepalette 
+  (palette )
+  ()
+  (do: indexof:ifabsent: setmaxpixelvalue: retainedmediumclass indexofpaintnearest: storeon: size maxindex at:ifabsent: hash includeskey: pixelsandthresholdsfordithering: keysandvaluesdo: paintbasis = ))
+ (set 
+  (collection )
+  ()
+  (changecapacityto: capacity - do: trim at: at:put: initialindexfor:boundedby: collect: size occurrencesof: remove:ifabsent: includes: fixcollisionsfrom: atnewindex:put: nocheckadd: rehash find:ifabsent: fullcheck findelementornil: settally add: representbinaryon: swap:with: grow ))
+ (dictionary 
+  (set )
+  ()
+  (printon: keysandvaluesdo: inspect do: changecapacityto: keynotfounderror: collect: storeon: valuenotfounderror: occurrencesof: remove:ifabsent: includes: add: at: at:put: remove: findkeyornil: declare:from: includesassociation: removeassociation:ifabsent: removeassociation: representbinaryon: findkey:ifabsent: keysdo: associationat:ifabsent: keyatvalue:ifabsent: keys at:ifabsent: removekey:ifabsent: associationsdo: values findkey:ifabsentraise: associationat: removekey: includeskey: keyatvalue: associations select: ))
+ (systemdictionary 
+  (dictionary )
+  ()
+  (rebindallmethods recompilecallson: timestamp: renameclass:as: collectpointersto: organization: evaluateandremember: recompilemethodsforwhich: at:put: copyright versionname flushclassnamecache printon: removeclassnamed: allclassesdo: valueatnewkey:put:atindex:declarefrom: pointersto:do: version copy copyempty: classnames newclassnames settally update:with:from: organization allbehaviorsdo: quickpointersto:do: ))
+ (identitydictionary 
+  (dictionary )
+  ()
+  (swap:with: add: nocheckadd: keysandvaluesdo: settally nocheckadd:with: removedangerouslykey:ifabsent: findkeyornil: removeandcleanupatindex: removeassociation:ifabsent: associationat:ifabsent: keyatvalue:ifabsent: keys at:ifabsent: removekey:ifabsent: do: associationsdo: representbinaryon: at:put: postcopy ))
+ (weakdictionary 
+  (identitydictionary )
+  ()
+  (nocheckadd:with: swap:with: fixcollisionsfrom: includeskey: finalizeelements settally keysandvaluesdo: at:put: do: update:with:from: postcopy keyatvalue:ifabsent: unlockedat:put: at:ifabsent: removekey:ifabsent: removeandcleanupatindex: associationsdo: changecapacityto: ))
+ (handleregistry 
+  (weakdictionary )
+  ()
+  (unregister: registervalueof: register: printon: at: registerallvaluesof: evaluatewithfullprotection: release ))
+ (methoddictionary 
+  (identitydictionary )
+  ()
+  (initialindexfor:boundedby: removekey:ifabsent: methodarray whichselectorsreferto: ))
+ (identityset 
+  (set )
+  ()
+  (findelementornil: ))
+ (signalcollection 
+  (identityset )
+  ()
+  (accepts: handle:from:do: handle:do: ))
+ (programnode 
+  (object )
+  ()
+  (withinitializationoftemps isinvariantin: issuper sourceposition comment: shouldbekeptincode decompilestring numbervalue absolutesourceposition printon: printcommenton:indent: printsinglecomment:on:indent: printon:indent: iscomplex hash haseffect booleanvalue comment isself = printon:indent:precedence: isempty isblockwithnumargs: sourceposition: ))
+ (statementnode 
+  (programnode )
+  ()
+  (emitvalue: emitsend:selector:arguments: emitbranch:to:if: emiteffect: emitlocalreturn:from: emitcascade:messages: emitreturn:from: emitvalue:forassignment: ))
+ (valuenode 
+  (statementnode )
+  ()
+  (failifoptimizationsaredefeatedby:in: cangeneratecorrectcode ))
+ (simplemessagenode 
+  (valuenode )
+  ()
+  (emitexceptreceiver: arguments receiver:selector:arguments: precedence emitvalue: absolutesourceposition printon:indent: nodedo: receiver printon:indent:precedence: selector printmessageon:indent: ))
+ (messagenode 
+  (simplemessagenode )
+  ()
+  (transformor transformiffalse emiteffect: transformwhiletrue makeiftrue:iffalse: receiver:selector:arguments: transformtimesrepeat transformiffalseiftrue transformwhilefalse transformand transformiftrueiffalse transformwhiletruedo transformwhilefalsedo isexpanded transformtodo transformtobydo emitbranch:to:if: transformiftrue emitlocalreturn:from: emitreturn:from: transformrepeat makewhile:negated:do: emitvalue: emitsend:selector:arguments: ))
+ (cascadenode 
+  (valuenode )
+  ()
+  (emitvalue: receiver:messages: printon:indent: receiver printon:indent:precedence: absolutesourceposition messages nodedo: ))
+ (leafnode 
+  (valuenode )
+  ()
+  (haseffect emiteffect: ))
+ (literalnode 
+  (leafnode )
+  ()
+  (booleanvalue emitsend:selector:arguments: value: emitbranch:to:if: emitstorepop:value:from: value printon:indent: emitvalue: shouldbekeptincode nodedo: isinvariantin: emitstore:value:from: numbervalue ))
+ (variablenode 
+  (leafnode )
+  ()
+  (emitsend:selector:arguments: name isself emitstorepop:value:from: issuper emitvalue: printon:indent: nodedo: isinvariantin: name: emitstore:value:from: sourceposition ))
+ (blocknode 
+  (leafnode )
+  ()
+  (repeatloopto: emitvalue:forassignment: nodedo: arguments printargumentson:indent: initscope: printon:indent: iscomplex emitvalue: isblockwithnumargs: emitbody: emitsend:selector:arguments: body: arithmeticloopfrom:by:to: printmethodbodyon:indent: body arguments:body: ))
+ (conditionalnode 
+  (valuenode )
+  ()
+  (emitbranch:to:if: emitlocalreturn:from: emitreturn:from: emiteffect: condition:trueblock:falseblock:from: emitvalue: ))
+ (arithmeticloopnode 
+  (valuenode )
+  ()
+  (emitvalue: failifoptimizationsaredefeatedby:in: expansion:do: emiteffect: turnoffoptimizationin: cangeneratecorrectcode variable:initialvalue:increment:limit:body: ))
+ (sequencenode 
+  (valuenode )
+  ()
+  (numbervalue temporaries:statements: haseffect withinitializationoftemps statements printon:indent: emitexceptlast: booleanvalue emitbranch:to:if: iscomplex shouldbekeptincode nodedo: statements: emiteffect: emitlocalreturn:from: temporaries emitreturn:from: emitvalue: isempty size ))
+ (assignmentnode 
+  (valuenode )
+  ()
+  (assigntoargok: value emitvalue: absolutesourceposition printon:indent: variable nodedo: emiteffect: assigntoargok variable:value:leftarrow: variable:value: printon:indent:precedence: leftarrowisdefault ))
+ (loopnode 
+  (valuenode )
+  ()
+  (condition:negated:body: failifoptimizationsaredefeatedby:in: emiteffect: turnoffoptimizationin: cangeneratecorrectcode emitvalue: ))
+ (returnnode 
+  (statementnode )
+  ()
+  (value: emitvalue: printon:indent: emiteffect: nodedo: emitlocalreturn:from: value emitreturn:from: ))
+ (methodnode 
+  (programnode )
+  ()
+  (nodedo: printon: block initmethod: emitvalue:incontext: primitive selector:primitive:errorcode:block: emiteffect: printon:indent: selector ))
+ (parameternode 
+  (programnode )
+  ()
+  (name sourceposition type variable:type: nodedo: printon:indent: variable ))
+ (graphicsattributes 
+  (object )
+  ()
+  (installon: linewidth joinstyle linewidth: font phase joinstyle: paint capstyle: font: paint: phase: capstyle ))
+ (signal 
+  (object )
+  ()
+  (parent:mayproceed: raiserequesterrorstring: raiserequestfrom: accepts: errorstringextra:with: notifierstring: handle:from:do: raise raiserequestwith: hasname raiseerrorstring: newsignalmayproceed: inheritsfrom: newexceptionfrom: raisewith: newsignal printon: raiserequestwith:errorstring: errorstring parent: raisefrom: mayproceed newexception errorstringextra: handle:do: raisewith:errorstring: raiserequest representbinaryon: nameclass:message: ))
+ (undefinedobject 
+  (object )
+  ()
+  (updaterequest asdependentswithout: isliteral performupdate:with: asdependentsascollection adddependent: isnil release variablebytesubclass:instancevariablenames:classvariablenames:pooldictionaries:category: variablesubclass:instancevariablenames:classvariablenames:pooldictionaries:category: update:with: ismanifest performupdate: update:with:from: notnil asdependentswith: update: storeon: subclass:instancevariablenames:classvariablenames:pooldictionaries:category: shallowcopy updaterequest: printon: ))
+ (widgetpolicy 
+  (object )
+  ()
+  (triggerfor: togglefor: value unknownbutton: switchfor: ))
+ (smalltalkwidgetpolicy 
+  (widgetpolicy )
+  ()
+  (triggerfor: togglefor: unknownbutton: switchfor: ))
+ (recursionlock 
+  (object )
+  ()
+  (initialize critical: ))
+ (scanner 
+  (object )
+  ()
+  (xdefault notify: scantokens: scanpositionsfor:instring: scanlitword scan: scanlitvec scanfieldnames: scantoken step offend: xbinary xdelimiter on: xlitquote xdollar xsinglequote xdoublequote xdigit xletter scanlittoken initscanner ))
+ (parser 
+  (scanner )
+  ()
+  (offend: assignment:startingat: init:notifying:savecomments:failblock: arrayliteral pattern makenewsymbol:startingat:withpositions: initpattern:notifying:savecomments:return: simpletype parse:class:nopattern:context:notifying:builder:savecomments:iffail: constant bytearrayliteral match: primitive: blockexpression istokenish: addcomment notify:at: method:context: parse:class:nopattern:context:notifying:iffail: abort arrayliteralelement expected: parsetype:builder: matchtoken: parseargsandtemps:notifying: argument endoflasttoken initscanner supermessage notify: statementsargs:temps: parseselector: temporaries expression isletter: typeexpression parsemethodcomment:setpattern: primaryexpression messagepart:repeat: cascade: ))
+ (ccompatibleparser 
+  (parser )
+  ()
+  (initscanner ))
+ (changescanner 
+  (scanner )
+  ()
+  (initchangescanner nextselector scanchangedmessages:do: scanspecialdo: nextclass scanclassdefinition:classname:do: scanmethodsclass:category:do: scanexpression:do: scanfile:do: nextchunkstream scanclassexpression:do: ))
+ (screen 
+  (object )
+  ()
+  (stackedwindows dragshape:linewidth:offsetx:y:gridphasex:y:gridspacingx:y:boundedbyoriginx:y:width:height:whilebutton:isdown: colorpalette coveragepalette key fontnamed:fromclass:encoding: allocatemaskwithextent: makerectanglevisible: completecontentsofarea: putexternalselection: coveragebitsperpixel defaultcolorpolicy executor installdepths zoom:to:speed: colorbitsperpixel flush displayroundedpolyline:roundedlinewidth:atroundedx:y:forroundedmilliseconds: resizerectangleoriginx:y:width:height:minimumwidth:height:linewidth:resizex:y:boundedbyoriginx:y:width:height:whilebutton:isdown: colordepthandbitsperpixel getplatforminputsize dragshape:offset:gridphase:gridspacing:boundedby:whilebutton:isdown: zoom:to:duration: getexternalselection getexternalselection: displaymask:roundedlinewidth:atroundedx:y:forroundedmilliseconds: putexternalselection:with: contentsofareaoriginx:y:width:height: initialize coveragedepthandbitsperpixel ringbell unregisterfontnamed: contentsofarea: resolution contentsfromuser dragmask:linewidth:offsetx:y:gridphasex:y:gridspacingx:y:boundedbyoriginx:y:width:height:whilebutton:isdown: getpixmapfromclipboard installpaintpolicies displayshape:linewidth:atx:y:formilliseconds: bounds receiveandprocessallevents listfontnames resizerectangle:minimumextent:resizeincrement:boundedby:whilebutton:isdown: allocatepixmapwithextent: allocatefontnamed: zoom:to: dragroundedpolyline:linewidth:offsetx:y:gridphasex:y:gridspacingx:y:boundedbyoriginx:y:width:height:whilebutton:isdown: getscreendimensions dragshape:linewidth:offset:gridphase:gridspacing:boundedby:whilebutton:isdown: sync preferredrectangletoconstrain: colordepth defaultcoveragepolicy resizerectangle:minimumextent:linewidth:resizeincrement:boundedby:whilebutton:isdown: priminputsemaphore: coveragedepth primreadevent: allocatewindowat:extent:min:max:windowtype:owner: preferredfontclass primcursorlocput: displayshape:at:formilliseconds: primcursorlocputagain: roundedpointcollection: actasexecutor querystackingorder primendevent: resolution: defaultfontpolicy handlevalue: allocatecursorwithimage:mask:hotspotx:hotspoty:background:foreground: installboundingbox devicecolormap installfontpolicy installwithold: displayshape:linewidth:at:formilliseconds: platformname installpalettes releasehandle displayshape:roundedlinewidth:atroundedx:y:forroundedmilliseconds: allocatewindowat:extent:min:max:windowtype: ))
+ (model 
+  (object )
+  ()
+  (postcopy mydependents: mydependents ))
+ (inspector 
+  (model )
+  ()
+  (field field: fieldlist fieldmenu object evaluatetext:from:iffail: fieldindex fieldvalue text doitcontext update doitreceiver accepttext:from: textmenu inspect: inspectfield viewlabel usesindex printitems ))
+ (sequenceablecollectioninspector 
+  (inspector )
+  ()
+  (accepttext:from: fieldlist fieldindex fieldvalue ))
+ (orderedcollectioninspector 
+  (sequenceablecollectioninspector )
+  ()
+  (addfield removefield fieldmenu ))
+ (changesetinspector 
+  (inspector )
+  ()
+  (fileout empty fieldmenu ))
+ (contextinspector 
+  (inspector )
+  ()
+  (fieldlist fieldmenu evaluatetext:from:iffail: usesindex doitreceiver fieldindex fieldvalue doitcontext doitvalue: fieldindex: accepttext:from: inspect: ))
+ (dictionaryinspector 
+  (inspector )
+  ()
+  (browsereferences addfield fieldlist fieldmenu removefield accepttext:from: fieldvalue printitems ))
+ (valuemodel 
+  (model )
+  ()
+  (setvalue: at: at:put: size initialize value: value ))
+ (valueholder 
+  (valuemodel )
+  ()
+  (releaseparts value setvalue: release ))
+ (project 
+  (valueholder )
+  ()
+  (setprojectholder: initialize initialproject enter changes nochanges exit removedependent: release holder putstatson: windows ))
+ (changelist 
+  (valueholder )
+  ()
+  (scanfilename: identifysubset:name:on:extension: reportchangeson: selection removecurrent schedulemessagebrowser restorecurrent deselect adddoit: list fileouton: changesat:add: switchfilter:perform: hasfilter: nextnoncomment: addchanges: reportchangeson:extension: findlast:in: updateselection: finishreporton: addfilter: updatelist tabtext:on: listname:changes:removed: showingfield: switchfield:perform: togglelistindex: listindex listname listsize dothis: hasremoved: reportconflictson: changesat: equalwithoutcomments:and: checksystem filtercopy removeall restoreall forget initialize checkwithsystem: dothis scanfile: recoverfile: addchangeset: scanfilename identifysubset:name:on: value: writecontender:on:oldtext: ))
+ (textcollector 
+  (valueholder )
+  ()
+  (beginentry appendentry characterlimit nextentry crtab initialize flush emphasis emphasis: position space crtab: show: clear print: cr nextput: tab store: endentry nextputall: next:put: ))
+ (pluggableadaptor 
+  (valuemodel )
+  ()
+  (performaction: initialize model: update:with:from: adddependent: getselector:putselector: value collectionindex: selectvalue: removedependent: setvalue: getblock:putblock:updateblock: ))
+ (explainer 
+  (model )
+  ()
+  (explaintemp: explainnumber: explainmysel: explainclass: explainanysel: explainctxt: explainscan: explainchar: explainpartsel: explainglobal: explain:for: class:selector:instance:context:methodtext: explaindelimiter: explaininst: ))
+ (syntaxerror 
+  (model )
+  ()
+  (removedependent: accepttext:from: textmenu proceed setclass:code:processhandle: text ))
+ (scrollvalueholder 
+  (model )
+  ()
+  (grid: extraspace value: initialize value displayupdatescanoccur grid extraspace: valuewithoutdisplaying: ))
+ (filebrowser 
+  (model )
+  ()
+  (modtime copyfile morerecentlymodified filename: saveas:from: pattern acceptpattern:from: patternmenu initializeforsinglefilenamed: filename infotext filenamelist list: pattern: filelistmenu spawnfile:from: getinfo addsubdir choosevolume:from: removedir addfile fileitin:from: setfilename: fileinfile makedir directorypattern initialize getfile text filesmatching: copyname renamefile deletefile autoreadaspect spawnfilelist filetext setvolume:from: islegalfilename: accepttext:from: textmenu getnewfilename: ))
+ (popupmenu 
+  (model )
+  ()
+  (values selection: startup hassubmenus hassubmenuat: labelarray:lines:values: selection setinitialselection startupat: textattributes labelat: startupat:keepopenifin: values: valueat: valueat:put: lines defaulttracker visuallabels startupwithheading: accept valueatselection startupat:centerx:centery: labels startupat:centered: isempty numberofitems submenuimage ))
+ (browser 
+  (model )
+  ()
+  (textmode: classname selectormenu selector fileoutcategory printoutcategory spawncategory addcategory renamecategory removecategory updatecategories editcategories classname: findclass fileoutclass printoutclass spawnclass spawnhierarchy showhierarchy editclass editcomment editprotocols browsefieldreferences browseclassvariables browseclassreferences renameclass pickaclass: removeclass explain:fromcontroller: doitreceiver fileoutmessage selectedclass printoutmessage spawnmethod movemethod changeclasscategory selector: fileoutprotocol printoutprotocol spawnprotocol addprotocol renameprotocol removeprotocol browsesenders browseimplementors browsemessages explainspecial: accepttext:from: textmenu format:from: spawnedits:from: hardcopystream: onclass: protocol: categorymenu classlist classmode newclasslist: classmenu acceptclass:from: categorylist protocollist meta text newcategorylist: prompt:initially: newprotocollist: forclass:showvariablemenu:collect: protocol selectorlist acceptmethod:from: protocolmenu nonmetaclass logprotocolchange: meta: newselectorlist: promptclass category category: removemethod on: filterfilename: findmethodandselectalphabetic ))
+ (hierarchybrowser 
+  (browser )
+  ()
+  (classname: updatecategories classnamefor: updatecurrentclass addclass:recursivelyto: setlabel onclass: removeclass categorymenu classlist ))
+ (methodlistbrowser 
+  (browser )
+  ()
+  (on: methodname: methodmenu methodname methodlist removemethod accepttext:from: fileoutall spawnedits:from: ))
+ (debugger 
+  (browser )
+  ()
+  (browsemessages send mayproceed openinspectors contextmenu copystack context contextlist accepttext:from: removedependent: release privatesend revertblock resetcontext: privatestep updateinspectors pcforcharacter: checkcontextselection spawnedits:from: text stoppc: breakpcfrom: pcrange emergencyrestart: doitvalue: skiptocaret doitcontext doitreceiver step prepareforerrorcondition privateskiptocaret homecontext contextreceiver proceed selectedclass receiverinspector contextinspector morestack resumeprocess contextfromholder: interruptedcontext correct: process:context:interrupted:proceedable: context: restart ))
+ (processorscheduler 
+  (object )
+  ()
+  (processesat: userschedulingpriority highiopriority suspendfirstat: signal:atmilliseconds: highestpriority: userbackgroundpriority suspendfirstat:ifnone: anyprocessesabove: systembackgroundpriority terminateactive timingpriority activeprocess yield systemrockbottompriority activepriority remove:ifabsent: userinterruptpriority sethighestpriority:soleprocess: lowiopriority highestpriority ))
+ (processhandle 
+  (object )
+  ()
+  (terminate process:controller:interrupted:resumecontext: proceed topcontext topcontext: interrupted: proceedvalue interrupted resumeprocess proceedvalue: release prepareforerrorcondition ))
+ (sourcefilemanager 
+  (object )
+  ()
+  (printcategorychunk:for: newsourcefile: file:name:writable: finishinitializations storemethodsource:class:category:safely: store: copychangesto: fileat: recover: condensechanges target: target:while: store:safely: initializethisclass: fileoutmessages:for:logging: timestamp close printmethodchunk:for: renamesystemfiles: allfiles target willupdatesourcepointers newsourcefile:without: cr fileindexfor: invalidsourcefileaction:with: condensechangesontosources numberoffiles: copyallchangedmessages initialize logchange: setfilesto: postcopy putinitializefor: emphasis emphasis: deferinitializations defaultimagename discardsources fileoutmessages:for: newpage closecurrent stringat:ifabsent: nameat: filesdo: targetfile filepositionfor: commitsources ))
+ (sourcecodestream 
+  (sourcefilemanager )
+  ()
+  (initializethisclass: deferinitializations on: finishinitializations willupdatesourcepointers ))
+ (stream 
+  (object )
+  ()
+  (store: flush uptoend nextavailable: space nextchunkput: next: do: nextputall: skipthrough: crtab nextput: contents atend nextmatchfor: next:put: next through: upto: nextavailable:into:startingat: timestamp close fileoutchanges fileoutchangesfor: next:into:startingat: tab: tab cr next:putall:startingat: crtab: emphasis emphasis: contentsspecies print: ))
+ (peekablestream 
+  (stream )
+  ()
+  (filein nextchunk peekfor: skip: skipupto: skipseparators peek ))
+ (positionablestream 
+  (peekablestream )
+  ()
+  (next:into:startingat: uptoall: skiptoall: contentsspecies isempty reset on: settoend positionoutofboundserror: next:putall:startingat: position: contents atend position skip: throughall: ))
+ (internalstream 
+  (positionablestream )
+  ()
+  (size on: reset pastend position: pastendput: on:from:to: contents with: ))
+ (writestream 
+  (internalstream )
+  ()
+  (next writeposition flush on: nextput: contents ))
+ (readwritestream 
+  (writestream )
+  ()
+  (readposition contents next ))
+ (bytecodereadwritestream 
+  (readwritestream )
+  ()
+  (lastcode fixbranchat:with: labelposition removeindex: nextput:with: contentsfrom: on: at: at:put: nextput:with:with: adjustbranchat:by: lastput: ))
+ (textstream 
+  (writestream )
+  ()
+  (emphasis contents emphasis: on: ))
+ (readstream 
+  (internalstream )
+  ()
+  (next flush nextput: readposition ))
+ (externalstream 
+  (positionablestream )
+  ()
+  (nextnumber: wordposition padtonextword padtonextwordput: padto:put: wordposition: nextsignedinteger reopenerror nextlong nextstring nextnumber:put: skipwords: nextstringput: padto: nextwordput: nextword nextlongput: ))
+ (bufferedexternalstream 
+  (externalstream )
+  ()
+  (next:into:startingat: release readposition settoend closed position: commit endtest crlfskip: lineendcr lineendcrlf name crlfnext:into:startingat: atendofdata textofclass: setposition: setlineendcharacter close reopen position binary crlfnext:putall:startingat: setupbufferandlimits lineendconvention: nextbuffer on: writeposition basicatend setbinary: setconnection: closeconnection isbinary contents atend ioconnection pastend getiobuffer reset lineendlf text next:putall:startingat: lineendtransparent size printon: setdependency lineendconvention istext openifclosed removedependency ))
+ (externalwritestream 
+  (bufferedexternalstream )
+  ()
+  (nextbuffer size nextput: reopen atend next closeconnection getiobuffer flush writeposition settoend position position: ))
+ (externalreadstream 
+  (bufferedexternalstream )
+  ()
+  (flush skip: next ))
+ (externalreadappendstream 
+  (externalreadstream )
+  ()
+  (text flush padto:put: textofclass: size nextchunkput: commit nextput: position: print: nextputall: store: binary close writeposition next:putall:startingat: on: lineendconvention: ))
+ (externalreadwritestream 
+  (externalreadstream )
+  ()
+  (position: skip: size flush nextput: fixend ))
+ (random 
+  (stream )
+  ()
+  (setseed next seed: generator: nextput: contents atend flush step ))
+ (bytecodestream 
+  (object )
+  ()
+  (addtemporaries: pop: topnode requestor: redeclaredtemp: putindex:short:max:long: specialselectors reachable bindremote:in: assignliteralindex codestorepop:value:from:in: define:test:long:shorten: mustbesimple branch:with: notesourcenode: notesourcenodeend: newliteralindex: generatenames: addtemporaries:asarguments: codestore:value:from:in: isfornonimmediate selectorindex:allowspecial: returnsnonself variableat:from: notescrunch:at: leavescope codeload:from: putindex:count:short:long: initialize labelhere newlabel literalindex: putlongbranchfrom: error:with:from: class:outerscope: arguments: redeclaredarg: class:scope:nesting: addmethodvars variableisinvariant: savesourcemap bindingsdo: notesourcerange: targetclass error:with:at: removetemporaries: putlongbranch:to: inblock push newblockscope notestore: topnode: ))
+ (codestream 
+  (bytecodestream )
+  ()
+  (numtemps makemethod: putmethodreturn pushstatic: dupnext bindcopied: usedvars storepopstatic: putloadinst:scope: homestream usedtemps putstorepoplocal:scope: canmergewithpop specialselectors usedargs putbranchto:if: pop makelocalblockmethod deferredblocks: method putbranch: addtemporaries:asarguments: cancopy outerstream:finalnumtemps: newblockscope codeblock: putloadreceiver: loophead restartcompilation putloadlocal:argument:scope: inblock outerstream sourceinfo putindex:scope:short:max:long:outer:long:nocopy: putstoreinst:scope: initialize putbranchback: setclassproperties variableforbinding: putlocalreturn savesourcemap: duplast putprimitive: send:numargs: sendsuper:numargs: pushcontext sendnonimmediate:numargs: storestatic: addcopiedbinding: pushconstant: putloadpseudo:scope: sendnocheck:numargs: putstoreinstany: foroptimizednode:do: setcontextflag adduse:argument:scope: isfornonsubclassable savesourcemap define: dupfirst findstore:scope: makemethodofclass:local: usesouter isfornonimmediate putloadinstany: putstorepopinst:scope: notestore:scope:local: checkstores: putstorelocal:scope: ))
+ (recodestream 
+  (codestream )
+  ()
+  (mergepoploads initialize codeblockfrom: class:outerscope: noop newblockscope addmethodvars assignstatic:startingat: canmergepoploads canmergewithpop undeclared:from: position targetclass ))
+ (bosscontents 
+  (object )
+  ()
+  (object: representbinaryon: ))
+ (behavior 
+  (object )
+  ()
+  (allinstancesweakly: basicnew name superclass shouldberegistered flushvmmethodcache removefromsuper validatemethod:forselector: isbehavior new: whichselectorsaccess: recompile:from: sourcecodeformethod:at: allsubclasses sourcecodeat: sourcecodetemplate printhierarchy selectoratmethod:ifabsent: new postcopy compiledmethodat:ifabsent: subclasses instsize subclassdefinerclass selectoratmethod:setclass:ifabsent: poolhas:iftrue: recompile: allselectors evaluatorclass allclassvarnames basicnew: allsharedpools printon: superclass: newnoretry: someinstance canunderstand: assignsuperclass: methoddictionary: decompile: hasmethods fixedfieldsmask allsuperclasses isfixed addselector:withmethod: allinstances ispointers decompilerclass scopehas:iftrue: subclassinstvarnames instancecount compile:notifying: allinstancesdo: whichselectorsreferto: allinstvarnames rebindselector:oldvariablenames: localobsolete allsubinstancesdo: inheritsfrom: isbits format selectors selectoratmethod:setclass: ismeta defaultselectorformethod: obsolete allsubclassesdo: compilerclass removesubclass: addsubclass: whichclassincludesselector: sourcemethodat: rebindmethod:oldvariablenames: flushvmmethodcacheentriesfor: fastallinstvarnamesdo: compiledmethodat: removeselectorsimply: rebindallmethods printmethod:on: accumulateinstvarnames: copymethoddictionary printsubclasseson:level: rebindallmethods: classbuilder classpool allvarnamesselect: setinstanceformat: withallsuperclasses instvarnames isvariable includesselector: pointersmask rebindselector: compile:notifying:iffail: clearinstancevariables addtosuper classvarnames indexablemask sharedpools fullscopehas:iftrue: removeselector: getsubclasses getselectorhierarchy parserclass handlefailednew: withallsubclasses formatmask ))
+ (classdescription 
+  (behavior )
+  ()
+  (instvarnames binaryreaderblockforversion:format: definitionmessage removeselector: fileoutsourceon: environment category: localobsolete instancevariables: formatcomment: commenttemplate storeon: methodsfor: copycategory:from: copyall:from:classified: copyall:from: addinstvarname: removeinstvarname: copyallcategoriesfrom: copycategory:from:classified: comment copy:from: comment: definition compile:classified: organization compile:classified:notifying: reorganize printoutcategory:on: copy:from:classified: errorcategoryname classvariablesstring instancevariablesstring removecategory: fileoutmethodson: logorganizationchange sharedpoolsstring addselector:withmethod:category: whichcategoryincludesselector: commenttemplatestring compile:notifying:iffail: printon: category printouton: ))
+ (metaclass 
+  (classdescription )
+  ()
+  (scopehas:iftrue: name nontrivial new addinstvarname: removeinstvarname: fileoutsourceon: decompilerclass definitionmessage representcontentsbinaryon: subclasses allsubclassesdo: addclassvarname: classpool soleinstance adopt: compilerclass postcopy evaluatorclass instancevariablenames: ismeta representbinaryon: fullscopehas:iftrue: isobsolete ))
+ (class 
+  (classdescription )
+  ()
+  (fileoutsourceon: setname: isobsolete rebindallmethods: addtosuper classdecompilerclass obsolete renamereferencesfrom: classvarnames removefromsystem subclass:instancevariablenames:classvariablenames:pooldictionaries:category: sharedpools rename: variablebytesubclass:instancevariablenames:classvariablenames:pooldictionaries:category: renametoreplace: variablesubclass:instancevariablenames:classvariablenames:pooldictionaries:category: removesharedpool: declare: renameandfixsourceto: removeclassvarname: addsharedpool: classcompilerclass classsideinstancevariablenames: localobsolete initialize representbinaryon: addinstvarname: poolhas:iftrue: removeinstvarname: rebindallmethods printouton: classevaluatorclass allclassvarnames allsharedpools representcontentsbinaryon: name addclassvarname: classpool shouldberegistered removefromsuper hasmethods ))
+ (object:class 
+  (class )
+  ()
+  (informationsignal messagenotunderstoodsignal controlinterruptedsignal userinterruptsignal notifysignal errorsignal notfoundsignal indexnotfoundsignal haltsignal initializedependentsfields readfrom: subscriptoutofboundssignal initsignals initialize nonintegerindexsignal subclassresponsibilitysignal readfromstring: ))
+ (textmeasurer:class 
+  (object:class )
+  ()
+  (initialize forfont: ))
+ (characterscanner:class 
+  (textmeasurer:class )
+  ()
+  (fontpolicy:text:textattributes: ))
+ (characterblockscanner:class 
+  (characterscanner:class )
+  ()
+  ())
+ (displayscanner:class 
+  (characterscanner:class )
+  ()
+  ())
+ (compositionscanner:class 
+  (characterscanner:class )
+  ()
+  ())
+ (rasterop:class 
+  (object:class )
+  ()
+  (and reverse over destinationimage:sourceimage:halftoneimage:combinationrule:destorigin:sourceorigin:halftonephase:extent:cliprect: erase paint destination:stride:width:source:stride:width:halftone:stride:width:combinationrule:destorigin:sourceorigin:halftonephase:extent:cliprect: toreverse: under writeones reverseunder writezeros ))
+ (iobuffer:class 
+  (object:class )
+  ()
+  (on: new on:mode: ))
+ (positionaliobuffer:class 
+  (iobuffer:class )
+  ()
+  ())
+ (fontdescription:class 
+  (object:class )
+  ()
+  (new initialize default ))
+ (compilererrorhandler:class 
+  (object:class )
+  ()
+  ())
+ (loggingcompilererrorhandler:class 
+  (compilererrorhandler:class )
+  ()
+  ())
+ (silentcompilererrorhandler:class 
+  (compilererrorhandler:class )
+  ()
+  ())
+ (interactivecompilererrorhandler:class 
+  (compilererrorhandler:class )
+  ()
+  ())
+ (noninteractivecompilererrorhandler:class 
+  (compilererrorhandler:class )
+  ()
+  ())
+ (bosstransporter:class 
+  (object:class )
+  ()
+  (initialize ))
+ (bosswriter:class 
+  (bosstransporter:class )
+  ()
+  ())
+ (bossreader:class 
+  (bosstransporter:class )
+  ()
+  ())
+ (bossdebugreader:class 
+  (bossreader:class )
+  ()
+  ())
+ (dispatchtable:class 
+  (object:class )
+  ()
+  (initialize new ))
+ (uninterpretedbytes:class 
+  (object:class )
+  ()
+  (with:from:to: isbigendian checkbyteorder deregister: register: from: reversebyteorder initialize byteswappingfailedsignal ))
+ (graphicshandle:class 
+  (uninterpretedbytes:class )
+  ()
+  ())
+ (variabledefinition:class 
+  (object:class )
+  ()
+  ())
+ (remotevariable:class 
+  (variabledefinition:class )
+  ()
+  ())
+ (localvariable:class 
+  (variabledefinition:class )
+  ()
+  ())
+ (temporaryvariable:class 
+  (localvariable:class )
+  ()
+  ())
+ (argumentvariable:class 
+  (localvariable:class )
+  ()
+  ())
+ (instancevariable:class 
+  (variabledefinition:class )
+  ()
+  ())
+ (staticvariable:class 
+  (variabledefinition:class )
+  ()
+  ())
+ (undeclaredvariable:class 
+  (staticvariable:class )
+  ()
+  ())
+ (receivervariable:class 
+  (variabledefinition:class )
+  ()
+  ())
+ (pseudovariable:class 
+  (variabledefinition:class )
+  ()
+  ())
+ (visualcomponent:class 
+  (object:class )
+  ()
+  (new ))
+ (cachedimage:class 
+  (visualcomponent:class )
+  ()
+  (on: ))
+ (opaqueimage:class 
+  (visualcomponent:class )
+  ()
+  (figure:shape: ))
+ (image:class 
+  (visualcomponent:class )
+  ()
+  (extent:depth:palette: extent:depth:palette:bits:pad: parcplacelogo extent:depth:bitsperpixel:palette: openonimagefromuser extent:depth:bitsperpixel:palette:usingbits: extent:depth:palette:usingbits: implementorfordepth: openonlogo fromuser extent:depth:palette:bits: ))
+ (depth2image:class 
+  (image:class )
+  ()
+  ())
+ (depth32image:class 
+  (image:class )
+  ()
+  ())
+ (depth4image:class 
+  (image:class )
+  ()
+  ())
+ (depth16image:class 
+  (image:class )
+  ()
+  ())
+ (depth1image:class 
+  (image:class )
+  ()
+  ())
+ (depth8image:class 
+  (image:class )
+  ()
+  ())
+ (depth24image:class 
+  (image:class )
+  ()
+  ())
+ (textlines:class 
+  (visualcomponent:class )
+  ()
+  ())
+ (textlist:class 
+  (textlines:class )
+  ()
+  (initialize onlist: ))
+ (composedtext:class 
+  (textlines:class )
+  ()
+  (withtext:style: defaultcompositionwidth new initialize withtext:style:compositionwidth: withtext: ))
+ (visualpart:class 
+  (visualcomponent:class )
+  ()
+  ())
+ (dependentpart:class 
+  (visualpart:class )
+  ()
+  (model: ))
+ (view:class 
+  (dependentpart:class )
+  ()
+  ())
+ (booleanwidgetview:class 
+  (view:class )
+  ()
+  (binaryrepresentationversion binaryreaderblockforversion:format: ))
+ (labeledbooleanview:class 
+  (booleanwidgetview:class )
+  ()
+  (initializelabelstyle initialize defaultheight ))
+ (actionbutton:class 
+  (booleanwidgetview:class )
+  ()
+  ())
+ (launcherview:class 
+  (view:class )
+  ()
+  (initializelaunchermenu openlauncher changesmenu gatewayimage initializegatewayimage openonmenu:withlabel:andheader: browsemenu defaultmenu initialize openonmenu:withlabel: specialmenu utilitiesmenu inactivedefault initializearrowimage openonmenu: ))
+ (fractionalwidgetview:class 
+  (view:class )
+  ()
+  ())
+ (scrollbar:class 
+  (view:class )
+  ()
+  ())
+ (fixedthumbscrollbar:class 
+  (scrollbar:class )
+  ()
+  ())
+ (notifierview:class 
+  (view:class )
+  ()
+  (shortstackfor: opencontext:label:contents:proceedable: openexception: opendebugger:contents:label:displayat: opencontext:label:proceedable: ))
+ (autoscrollingview:class 
+  (view:class )
+  ()
+  ())
+ (listview:class 
+  (autoscrollingview:class )
+  ()
+  ())
+ (changelistview:class 
+  (listview:class )
+  ()
+  (recover open openon: fieldtemplates switchviewfor:using:on: switchtemplates ))
+ (selectioninlistview:class 
+  (listview:class )
+  ()
+  (on:printitems:oneitem:aspect:change:list:menu:initialselection: on:printitems:oneitem:aspect:change:list:menu:initialselection:useindex: on:aspect:change:list:menu:initialselection: ))
+ (selectionsetinlistview:class 
+  (selectioninlistview:class )
+  ()
+  (initialize on:aspect:change:list:menu:initialselection:useindex: ))
+ (composedtextview:class 
+  (autoscrollingview:class )
+  ()
+  (open:label:icon:extent: openinstallationworkspace createon:label:icon: open:label: open: opensystemworkspace initialize open open:label:icon: ))
+ (textcollectorview:class 
+  (composedtextview:class )
+  ()
+  (open open:label: createon:label: open:label:icon: createon:label:icon: ))
+ (textview:class 
+  (composedtextview:class )
+  ()
+  (on:aspect:change:menu: on:aspect:change:menu:initialselection: ))
+ (debuggertextview:class 
+  (textview:class )
+  ()
+  ())
+ (compositepart:class 
+  (visualpart:class )
+  ()
+  ())
+ (dependentcomposite:class 
+  (compositepart:class )
+  ()
+  (model: ))
+ (compositeview:class 
+  (dependentcomposite:class )
+  ()
+  ())
+ (dialogview:class 
+  (compositeview:class )
+  ()
+  (request:initialanswer: requestnewfilename:default: requestfilename:default:version: request:initialanswer:oncancel: request: confirm:initialanswer: choose:labels:values:default: warn: examplequery requestfilename:default:version:iffail: requestfilename: examplerequest request:and: confirm: requestfilename:default: ))
+ (borderdecorator:class 
+  (compositepart:class )
+  ()
+  (on: onscroller: ))
+ (wrapper:class 
+  (visualpart:class )
+  ()
+  (on: ))
+ (widgetspecification:class 
+  (wrapper:class )
+  ()
+  ())
+ (button:class 
+  (widgetspecification:class )
+  ()
+  (toggle switch trigger ))
+ (geometricwrapper:class 
+  (wrapper:class )
+  ()
+  ())
+ (fillingwrapper:class 
+  (geometricwrapper:class )
+  ()
+  ())
+ (strokingwrapper:class 
+  (geometricwrapper:class )
+  ()
+  ())
+ (passivitywrapper:class 
+  (wrapper:class )
+  ()
+  (onreadonly: ))
+ (graphicsattributeswrapper:class 
+  (wrapper:class )
+  ()
+  ())
+ (translatingwrapper:class 
+  (wrapper:class )
+  ()
+  (on:at: ))
+ (scrollwrapper:class 
+  (translatingwrapper:class )
+  ()
+  ())
+ (layoutwrapper:class 
+  (translatingwrapper:class )
+  ()
+  (on:in: ))
+ (boundedwrapper:class 
+  (layoutwrapper:class )
+  ()
+  (on:at: binaryreaderblockforversion:format: binaryrepresentationversion ))
+ (borderedwrapper:class 
+  (boundedwrapper:class )
+  ()
+  (on:in:insidecolor: on:in:border: on:in:border:insidecolor: ))
+ (icon:class 
+  (visualcomponent:class )
+  ()
+  (initialize createfileicon createtranscripticon createinspectoricon constantnamed:ifabsent: createnotifiericon createdebuggericon createprotocolbrowsericon defaultoffset image: constantnamed:put: constantnamed: createchangelisticon createbasicicon:size:offset: createhierarchybrowsericon createmethodbrowsericon createprojecticon createclassbrowsericon createsysworkspaceicon constantdictionary createworkspaceicon createdefaulticon installmask:foriconnamed: defaultsize createsystembrowsericon createlaunchericon createcatbrowsericon ))
+ (inversecolormap:class 
+  (object:class )
+  ()
+  (palette:resolution: defaultinitializerclass palette:resolutionred:green:blue:gray: ))
+ (programnodeenumerator:class 
+  (object:class )
+  ()
+  (new ))
+ (readbeforewrittentester:class 
+  (programnodeenumerator:class )
+  ()
+  (searchforreadbeforewrittenin: ))
+ (keyboardevent:class 
+  (object:class )
+  ()
+  (initialize noncharactersignal code:meta: ))
+ (behavior:class 
+  (object:class )
+  ()
+  ())
+ (classdescription:class 
+  (behavior:class )
+  ()
+  ())
+ (metaclass:class 
+  (classdescription:class )
+  ()
+  (initialize obsoletesignal ))
+ (class:class 
+  (classdescription:class )
+  ()
+  (template: ))
+ (smalltalkcompiler:class 
+  (object:class )
+  ()
+  (generate1:scope:class:selector:log:iferror:codestreamclass: evaluate:logged: evaluate: evaluate:for:logged: evaluate:for:notifying:logged: evaluate:notifying:logged: preferredparserclass parse:class: compileclass:selector: compileclass:selector:source: ))
+ (compiler:class 
+  (smalltalkcompiler:class )
+  ()
+  (compileclass:selector:source: simulate: simulateagain: ))
+ (imagerenderer:class 
+  (object:class )
+  ()
+  ())
+ (paintrenderer:class 
+  (imagerenderer:class )
+  ()
+  ())
+ (nearestpaint:class 
+  (paintrenderer:class )
+  ()
+  ())
+ (ordereddither:class 
+  (paintrenderer:class )
+  ()
+  (new initialize defaultorder defaultorder: order: ))
+ (errordiffusion:class 
+  (imagerenderer:class )
+  ()
+  ())
+ (classbuilder:class 
+  (object:class )
+  ()
+  (buildfailuresignal initialize errorsignal new nilsuperclasssignal ))
+ (bosscompiledcodeholder:class 
+  (object:class )
+  ()
+  ())
+ (link:class 
+  (object:class )
+  ()
+  (nextlink: ))
+ (process:class 
+  (link:class )
+  ()
+  (new initialize forcontext:priority: terminatesignal ))
+ (filename:class 
+  (object:class )
+  ()
+  (splitpath: defaultclass hookupto: filterseps: concreteclass suggest: readbaselocationfromstream: canonicalize: install volumes defaultdirectory iscasesensitive basedirectoryforlist: defaultdirectoryerrinto: currentdirectory fileoutchanges uglyreplacement isuglycharacter: defaultclass: isbadcharacter: defaultdirectoryname currentdirectorystring mapuglies: changeextension components: sourceextension breakup: localnamestringfrom: imageextension filesmatching: finddefaultdirectory named: hookupfor:withid: separator shrink:to:dropdelim: maxlength errorreporter splitextension: ))
+ (unixfilename:class 
+  (filename:class )
+  ()
+  (currentdirectorystring imageextension suggest: basedirectoryforlist: maxlength readbaselocationfromstream: sourceextension changeextension isuglycharacter: isbadcharacter: volumes canonicalize: separator primsetcreationmask:errinto: setcreationmask: maximumcomponentlength ))
+ (dosfilename:class 
+  (filename:class )
+  ()
+  (canonicalize: readbaselocationfromstream: isbadcharacter: volumes iscasesensitive defaultclass getvolumes maxlength suggest: currentdirectorystring sourceextension isuglycharacter: basedirectoryforlist: maximumcomponentlength splitvolume: imageextension changeextension separator ))
+ (macfilename:class 
+  (filename:class )
+  ()
+  (readbaselocationfromstream: maximumcomponentlength volumes components: separator maxlength isuglycharacter: stringisabsolute: sourceextension getvolumes iscasesensitive currentdirectorystring changeextension isbadcharacter: localnamestringfrom: canonicalize: basedirectoryforlist: imageextension suggest: defaultclass ))
+ (bossregisteredobject:class 
+  (object:class )
+  ()
+  ())
+ (magnitude:class 
+  (object:class )
+  ()
+  ())
+ (character:class 
+  (magnitude:class )
+  ()
+  (initclassificationtablewith:when: backspace esc valuefrominteger: new newpage initialize initclassificationtable initspecialletters initcompositeletters maxvalue initcomposed:from: space del digitvalue: basicnew leftarrow cr tab value: lf ))
+ (lookupkey:class 
+  (magnitude:class )
+  ()
+  (key: ))
+ (association:class 
+  (lookupkey:class )
+  ()
+  (key:value: ))
+ (weakkeyassociation:class 
+  (association:class )
+  ()
+  ())
+ (time:class 
+  (magnitude:class )
+  ()
+  (fromseconds: atimestring: totalseconds millisecondstorun: secondclockinto: now currentseconds readfrom: millisecondclockvalue secondclock atime: currenttime dateandtimenow timewords ))
+ (arithmeticvalue:class 
+  (magnitude:class )
+  ()
+  (unorderedsignal imaginaryresultsignal raise:receiver:selector:arg:errorstring: new underflowsignal initialize coercion thisclassisfieldlike aboutdoubledispatching unity raise:receiver:selector:errorstring: errorsignal divisionbyzerosignal raise:receiver:selector:args:errorstring: overflowsignal coercionerrorsignal domainerrorsignal new: generality zero rangeerrorsignal ))
+ (point:class 
+  (arithmeticvalue:class )
+  ()
+  (x:y: r:theta: unity zero ))
+ (number:class 
+  (arithmeticvalue:class )
+  ()
+  (coerce:to: readfrom: unity zero ))
+ (integer:class 
+  (number:class )
+  ()
+  (new:neg: readfrom:radix: readfrom: unity zero ))
+ (smallinteger:class 
+  (integer:class )
+  ()
+  (maxval minval maxbytes basicnew maxbits guidetodivision initialize unity zero ))
+ (largenegativeinteger:class 
+  (integer:class )
+  ()
+  (initialize ))
+ (largepositiveinteger:class 
+  (integer:class )
+  ()
+  (initialize ))
+ (fraction:class 
+  (number:class )
+  ()
+  (unity numerator:denominator: zero ))
+ (limitedprecisionreal:class 
+  (number:class )
+  ()
+  ())
+ (double:class 
+  (limitedprecisionreal:class )
+  ()
+  (exponentcharacter unity radiansperdegree coerce:to: pi initialize fromnumber: zero ))
+ (float:class 
+  (limitedprecisionreal:class )
+  ()
+  (coerce:to: radiansperdegree exponentcharacter zero initialize unity pi ))
+ (date:class 
+  (magnitude:class )
+  ()
+  (daysinyear: newday:month:year: nameofday: today nameofmonth: leapyear: newday:year: daysinmonth:foryear: indexofmonth: readfrom: initialize fromdays: dateandtimenow dayofweek: ))
+ (model:class 
+  (object:class )
+  ()
+  ())
+ (syntaxerror:class 
+  (model:class )
+  ()
+  (errorinclass:withcode:errorstring: flushmenus ))
+ (explainer:class 
+  (model:class )
+  ()
+  (initialize ))
+ (inspector:class 
+  (model:class )
+  ()
+  (buildscheduledview: flushmenus openon: open: textviewclass inspect: view:in:of: ))
+ (sequenceablecollectioninspector:class 
+  (inspector:class )
+  ()
+  ())
+ (orderedcollectioninspector:class 
+  (sequenceablecollectioninspector:class )
+  ()
+  (flushmenus ))
+ (dictionaryinspector:class 
+  (inspector:class )
+  ()
+  (binaryreaderblockforversion:format: binaryrepresentationversion flushmenus ))
+ (changesetinspector:class 
+  (inspector:class )
+  ()
+  ())
+ (contextinspector:class 
+  (inspector:class )
+  ()
+  (textviewclass ))
+ (popupmenu:class 
+  (model:class )
+  ()
+  (labels: labelarray:values: labelarray:lines: labelarray:lines:values: labels:values: labels:lines:values: initializemenustyle new initialize binaryreaderblockforversion:format: labellist: binaryrepresentationversion labellist:values: labelarray: labels:lines: ))
+ (filebrowser:class 
+  (model:class )
+  ()
+  (openprompted new initialize maxautoreadlength: openonfilenamed: openonfilenames:label: maxautoreadlength defaultpattern defaultpattern: flushmenus openonfilenamed:withtextstate: open openonpattern: ))
+ (scrollvalueholder:class 
+  (model:class )
+  ()
+  (new ))
+ (browser:class 
+  (model:class )
+  ()
+  (addselectorviewto:in:on:readonly: allcallson:and: open flushmenus newonclass: allselect: browsechangedmessages browseallclassmethodsinprotocol: browseallclassexamples buttonoffset allcallson:within: browseallimplementorsof: opencategorybrowseron:withtextstate: showmenuthenbrowse: addprotocolviewto:in:on:readonly: browseallselect: allimplementedmessages browseallcallson:and: allimplementorsof: allclassmethodsinprotocol: showmenuthenbrowsecalls: removechangesonfileout: browseallcallson:within: allaccessesto:within: settextview:fromtextstate: addclassviewto:in:on:readonly: addtextviewto:in:on:initialselection:initialstate: addclassandinstancebuttonviewto:in:on: openon:withtextstate: addmethodviewto:in:on:readonly: promptthenbrowseimplementors initialize lineheightblock openprotocolbrowseron:withtextstate: promptthenbrowsecalls browseallclassutilities addcategoryviewto:in:on:readonly: openmethodbrowseron:withtextstate: newpickclass allcallson: browseallcallson: allclassesimplementing: openon: opencategorybrowseron: openmethodbrowseron: openclassbrowseron:withtextstate: openprotocolbrowseron: openclassbrowseron: browseallaccessesto:within: ))
+ (debugger:class 
+  (browser:class )
+  ()
+  (initialize flushmenus context:proceedable: openfullviewon:label: ))
+ (hierarchybrowser:class 
+  (browser:class )
+  ()
+  (addclassviewto:in:on:readonly: openhierarchybrowserfrom: ))
+ (methodlistbrowser:class 
+  (browser:class )
+  ()
+  (openlistbrowseron:label: openlistbrowseron:label:initialselection: ))
+ (valuemodel:class 
+  (model:class )
+  ()
+  (binaryreaderblockforversion:format: binaryrepresentationversion new ))
+ (valueholder:class 
+  (valuemodel:class )
+  ()
+  (with: newboolean binaryreaderblockforversion:format: newstring newfraction ))
+ (textcollector:class 
+  (valueholder:class )
+  ()
+  (newtranscript: binaryreaderblockforversion:format: ))
+ (changelist:class 
+  (valueholder:class )
+  ()
+  (binaryreaderblockforversion:format: ))
+ (project:class 
+  (valueholder:class )
+  ()
+  (openviewon: current new initialize binaryreaderblockforversion:format: putstatson: ))
+ (pluggableadaptor:class 
+  (valuemodel:class )
+  ()
+  (on: ))
+ (fontpolicy:class 
+  (object:class )
+  ()
+  (nomatchingfontsignal on: initialize ))
+ (methodnodeholder:class 
+  (object:class )
+  ()
+  ())
+ (characterattributes:class 
+  (object:class )
+  ()
+  (setdefaultto: initializedefault newwithdefaultattributes stylenamed: stylenamed:ifabsent: initializefixed new stylenamed:put: initializesmall styles initialize default initializelarge defaultquery: ))
+ (exception:class 
+  (object:class )
+  ()
+  (validatemethod:forselector: emergency:from: initialize exampledictionaryat examplestreamnextpastend exampledictionaryremovekey examplerestartdo exampleunwindsemaphore examplesignalhierarchy clienta examplehandlercollection examplesignalcollection exampleuserinterruptsignal examplehandlefrom clientb: emergencyhandler: exampledividebyzeroabort examplestreampositionoutofbounds examplecollectionremove examplecollectionat clientc: ))
+ (programnode:class 
+  (object:class )
+  ()
+  ())
+ (statementnode:class 
+  (programnode:class )
+  ()
+  ())
+ (returnnode:class 
+  (statementnode:class )
+  ()
+  ())
+ (valuenode:class 
+  (statementnode:class )
+  ()
+  ())
+ (arithmeticloopnode:class 
+  (valuenode:class )
+  ()
+  ())
+ (assignmentnode:class 
+  (valuenode:class )
+  ()
+  ())
+ (leafnode:class 
+  (valuenode:class )
+  ()
+  ())
+ (literalnode:class 
+  (leafnode:class )
+  ()
+  ())
+ (variablenode:class 
+  (leafnode:class )
+  ()
+  ())
+ (blocknode:class 
+  (leafnode:class )
+  ()
+  (body: ))
+ (sequencenode:class 
+  (valuenode:class )
+  ()
+  ())
+ (loopnode:class 
+  (valuenode:class )
+  ()
+  ())
+ (conditionalnode:class 
+  (valuenode:class )
+  ()
+  ())
+ (cascadenode:class 
+  (valuenode:class )
+  ()
+  ())
+ (simplemessagenode:class 
+  (valuenode:class )
+  ()
+  ())
+ (messagenode:class 
+  (simplemessagenode:class )
+  ()
+  (initialize ))
+ (methodnode:class 
+  (programnode:class )
+  ()
+  ())
+ (parameternode:class 
+  (programnode:class )
+  ()
+  ())
+ (graphicsattributes:class 
+  (object:class )
+  ()
+  ())
+ (sourcefilemanager:class 
+  (object:class )
+  ()
+  (default new initialize setpathexamples ))
+ (sourcecodestream:class 
+  (sourcefilemanager:class )
+  ()
+  (on: ))
+ (lookpreferences:class 
+  (object:class )
+  ()
+  (edgedecorator initialize indexparameterfordefaults defaultforwindows initializedefaultforwindows widgetpolicy: usepulldown defaultforscrollbars monodefault edgedecorationpolicy: edgedecorationpolicy graydefault menubarheight initializedefaultforinactive widgetpolicy defaultformenus defaultborder markerthickness initializebordersandinsets initializeconstants initializedefaultformenus defaultforinactive colordefault initializedefaultforscrollbars defaultinset ))
+ (displaysurface:class 
+  (object:class )
+  ()
+  (install registerallvaluesof: registervalueof: defaultscreen registry binaryreaderblockforversion:format: binaryrepresentationversion new findregistrant: unregister: ))
+ (unmappablesurface:class 
+  (displaysurface:class )
+  ()
+  (extent: extent:on: ))
+ (pixmap:class 
+  (unmappablesurface:class )
+  ()
+  (fromclipboardon: fromclipboard extent:on: ))
+ (mask:class 
+  (unmappablesurface:class )
+  ()
+  (fromshape: extent:on: ))
+ (window:class 
+  (displaysurface:class )
+  ()
+  (maxiconlabellength: platformname binaryreaderblockforversion:format: currentwindow initialize opennewin: opennewin:withtype: opennewin:withtype:backgroundcolor: nocurrentwindow encodewindowtypespecification: ))
+ (scheduledwindow:class 
+  (window:class )
+  ()
+  (model:label:minimumsize: promptforopen: initialize windowtopleftheadroom binaryreaderblockforversion:format: ))
+ (lineinformationtable:class 
+  (object:class )
+  ()
+  (new: new ))
+ (optimizedlineinformationtable:class 
+  (lineinformationtable:class )
+  ()
+  ())
+ (oserrorholder:class 
+  (object:class )
+  ()
+  (unpreparedoperationsignal illegaloperationsignal unavailablereferentsignal allocretrysignal inaccessiblesignal badargumentssignal unsupportedoperationsignal reporton: errorsignals initsignals nodatasignal noresourcessignal initnamedsignals peerfaultsignal restartableerror: errordescriptionfor: informationsignal primerrorname: inappropriateoperationsignal wrongsubtypeforoperationsignal notreadysignal nopermissionssignal reportproceedingon: rangeerrorsignal underspecifiedsignal nomemorysignal inappropriatereferentsignal initialize operationstartedsignal errorsignal errorsymbolfor: transienterrorsignal needretrysignal badaccessorsignal invalidargumentssignal existingreferentsignal volumefullsignal errorreporter transferfaultsignal nonexistentsignal ))
+ (oshandle:class 
+  (oserrorholder:class )
+  ()
+  (handlenoregister: registervalueof: handlevalue: defaultclass registerallvaluesof: unregister: checkhookup clearregistry register: initialize install priminformvm: findregistrant: informvm hookupfor: hookupto: registry forcehookup defaultclass: ))
+ (ioaccessor:class 
+  (oshandle:class )
+  ()
+  (convertstringforplatform: openfilereadonly: closeall initialize openfilewriteonly: openfilereadappend: makeregistry defaultclass hookupfor:withid: readwrite maycreate readonly registry truncateorcreate defaultclass: writeonly appendonly install convertstringfromplatform: truncatenocreate readappend mustcreate openfilenamed:direction:creation: defaultforfiles nocreate openfileappendonly: ))
+ (macioaccessor:class 
+  (ioaccessor:class )
+  ()
+  (runaccessory: defaultforfiles getaccessories defaultclass ))
+ (macdiskfileaccessor:class 
+  (macioaccessor:class )
+  ()
+  ())
+ (dosioaccessor:class 
+  (ioaccessor:class )
+  ()
+  (defaultforfiles defaultclass ))
+ (dosdiskfileaccessor:class 
+  (dosioaccessor:class )
+  ()
+  ())
+ (unixioaccessor:class 
+  (ioaccessor:class )
+  ()
+  (defaultforfiles defaultclass install ))
+ (unixdiskfileaccessor:class 
+  (unixioaccessor:class )
+  ()
+  ())
+ (cursor:class 
+  (oshandle:class )
+  ()
+  (initthumbsdown initwait quickgarbage initcrosshair defaultclass: initcaret marker thumbsdown initbottomleft initgarbage initorigin converttobytearray: topright initquickgarbage initnormal initblank initcorner execute imagearray:maskarray:hotspot:name: compactmemory initwrite initxeq image:mask:hotspot:name: caret currentcursor: square currentcursor initread initialize blank write thumbsup down initmarker initscroll bull initcompactmemory normal wait hand initup inithand up initsquare imagearray:maskarray:foreground:background:hotspot:name: registry bottomleft crosshair initthumbsup inittopright makeregistry initbull garbage read origin installdefaultcursors corner defaultclass scroll initdown fromarray:hotspot:name: ))
+ (menutracker:class 
+  (object:class )
+  ()
+  (for: ))
+ (message:class 
+  (object:class )
+  ()
+  (selector:arguments: selector: selector:argument: ))
+ (messagesend:class 
+  (message:class )
+  ()
+  (binaryrepresentationversion receiver:selector:arguments: binaryreaderblockforversion:format: receiver:selector:argument: receiver:selector: ))
+ (sharedqueue:class 
+  (object:class )
+  ()
+  (new: new ))
+ (signal:class 
+  (object:class )
+  ()
+  (nohomeforreturnsignal proceederrorsignal nohandlersignal new wrongproceedabilitysignal genericsignal initialize validatemethod:forselector: timeoutsignal ))
+ (paint:class 
+  (object:class )
+  ()
+  ())
+ (simplepaint:class 
+  (paint:class )
+  ()
+  (maxdistance retainedmediumwithextent: ))
+ (coveragevalue:class 
+  (simplepaint:class )
+  ()
+  (scalingvalue retainedmediumwithextent: transparent constantnames initialize maxdistance opaque coverage: ))
+ (colorvalue:class 
+  (simplepaint:class )
+  ()
+  (green red:green:blue: cyan:magenta:yellow: darkred pink scaledred:scaledgreen:scaledblue: errorsignal darkgreen hue:saturation:brightness: chartreuse yellow initializecolors orchid retainedmediumwithextent: lightgray darkcyan brown lightcyan navy verylightgray gray royalblue darkgray white verydarkgray black maxdistancesquared lightyellow purple darkmagenta olive initialize luminancescalingvalue blue red palegreen springgreen constantnamefor: scalingvalue cyan orange salmon constantnames magenta brightness: maxdistance ))
+ (pattern:class 
+  (paint:class )
+  ()
+  (from: ))
+ (change:class 
+  (object:class )
+  ()
+  (file:position: ))
+ (classrelatedchange:class 
+  (change:class )
+  ()
+  ())
+ (methodchange:class 
+  (classrelatedchange:class )
+  ()
+  ())
+ (methodotherchange:class 
+  (methodchange:class )
+  ()
+  ())
+ (methoddefinitionchange:class 
+  (methodchange:class )
+  ()
+  ())
+ (classchange:class 
+  (classrelatedchange:class )
+  ()
+  ())
+ (classotherchange:class 
+  (classchange:class )
+  ()
+  ())
+ (classcommentchange:class 
+  (classotherchange:class )
+  ()
+  (new ))
+ (classdefinitionchange:class 
+  (classchange:class )
+  ()
+  ())
+ (otherchange:class 
+  (change:class )
+  ()
+  ())
+ (stream:class 
+  (object:class )
+  ()
+  (incompletenextcountsignal endofstreamsignal errorsignal new initialize positionoutofboundssignal ))
+ (peekablestream:class 
+  (stream:class )
+  ()
+  ())
+ (positionablestream:class 
+  (peekablestream:class )
+  ()
+  (on:from:to: on: ))
+ (externalstream:class 
+  (positionablestream:class )
+  ()
+  (cantreopensignal install releaseopenstreams new initialize commitopenstreams initsignals ))
+ (bufferedexternalstream:class 
+  (externalstream:class )
+  ()
+  (on: ))
+ (externalwritestream:class 
+  (bufferedexternalstream:class )
+  ()
+  ())
+ (externalreadstream:class 
+  (bufferedexternalstream:class )
+  ()
+  ())
+ (externalreadappendstream:class 
+  (externalreadstream:class )
+  ()
+  ())
+ (externalreadwritestream:class 
+  (externalreadstream:class )
+  ()
+  ())
+ (internalstream:class 
+  (positionablestream:class )
+  ()
+  (with: on:from:to: with:from:to: ))
+ (writestream:class 
+  (internalstream:class )
+  ()
+  ())
+ (readwritestream:class 
+  (writestream:class )
+  ()
+  ())
+ (bytecodereadwritestream:class 
+  (readwritestream:class )
+  ()
+  ())
+ (textstream:class 
+  (writestream:class )
+  ()
+  ())
+ (readstream:class 
+  (internalstream:class )
+  ()
+  ())
+ (random:class 
+  (stream:class )
+  ()
+  (new initialize fromgenerator:seededwith: ))
+ (classorganizer:class 
+  (object:class )
+  ()
+  (new initialize defaultprotocol ))
+ (systemorganizer:class 
+  (classorganizer:class )
+  ()
+  ())
+ (controlmanager:class 
+  (object:class )
+  ()
+  (closedwindowsignal new initialize newscheduler: interruptlockedsignal ))
+ (ditherupto4:class 
+  (object:class )
+  ()
+  ())
+ (memorypolicy:class 
+  (object:class )
+  ()
+  ())
+ (codelabel:class 
+  (object:class )
+  ()
+  ())
+ (bosscontents:class 
+  (object:class )
+  ()
+  ())
+ (border:class 
+  (object:class )
+  ()
+  (width:color: width: ))
+ (borderdecorationpolicy:class 
+  (object:class )
+  ()
+  (new ))
+ (smalltalkborderdecorationpolicy:class 
+  (borderdecorationpolicy:class )
+  ()
+  (initializeverticalcursors initializeimages initializemenucursor initialize initializehorizontalcursors initializecursors ))
+ (undefinedobject:class 
+  (object:class )
+  ()
+  (new ))
+ (textattributes:class 
+  (object:class )
+  ()
+  (defaultfontquery: defaultlinegrid setdefaultto: initializedefault stylenamed: stylenamed:ifabsent: initializefixed new stylenamed:put: initializesmall styles initialize default characterattributes: initializelarge resetviews ))
+ (variablesizetextattributes:class 
+  (textattributes:class )
+  ()
+  (initializedefault updatebasedon: initialize ))
+ (classcategoryreader:class 
+  (object:class )
+  ()
+  (class:category: ))
+ (spfillline:class 
+  (object:class )
+  ()
+  (origin:corner:tag: origin:corner: ))
+ (objectmemory:class 
+  (object:class )
+  ()
+  (dynamicallyallocatedfootprint resetlowspacesignal signal:atoopsleft:bytesleft: globalgarbagecollect reclamationfacilities primcompactmemory reservespacefordatanoretry: snapshotas:thenquit: postsnapshotabouttoquit: idleloop verbosequickgc spacedescriptions verbosecompactinggc defaultthresholds snapshot installidleloopprocess getimageprefix saveas:thenquit: install makespacefor: current getmemoryusageandzerofragmentationstatisticsif: primabortincrementalmark primglobalcompactinggc garbagecollect quickgc installscavengenotification snapshotas:thenquit:withloadpolicy: resetspacelimits thresholds: presnapshot createnewscavengenotification quitdialog restartscavengenotification scavengeoccurred installlowspaceprocess initialize returnfromsnapshot hardlowspacelimit: reservespacefordata: allobjectsweakly: permsaveas:thenquit: globalcompactinggc permsavedialogthenquit: hardlowspacelimit sizesatstartup savedialogthenquit: removefromscavengenotificationlist: growmemoryby: interruptprocessforlowspace softlowspacelimit: snapshotfailedsignal thresholds permundoas:thenquit: initspacelimits allobjectsdo: compactinggc actualsizes permundodialogthenquit: verbosegrowmemoryby: handlefailedreservespacefordata: abortorfinishincrementalgc sizesatstartup: quit softlowspacelimit verbosecompactmemory versionid doorfinishincrementalgc allobjects currentmemorypolicy defaultsizesatstartup addtoscavengenotificationlist: primgrowmemoryby: growthduringcurrentsession verboseglobalcompactinggc primincrementalgcisinterruptable:objects:bytes: lowspaceloop someobject finishincrementalgc installmemorypolicy: compactmemory resetspacelimitsifhigher quitprimitive update:with:from: installsystem postgcaction primcompactinggc maximumidentityhashvalue ))
+ (boolean:class 
+  (object:class )
+  ()
+  (new ))
+ (true:class 
+  (boolean:class )
+  ()
+  ())
+ (false:class 
+  (boolean:class )
+  ()
+  ())
+ (collection:class 
+  (object:class )
+  ()
+  (with: with:with:with: with:with: with:with:with:with: withall: ))
+ (set:class 
+  (collection:class )
+  ()
+  (new: withall: impropercreationsizesignal goodsizefrom: initialize new makesizetable ))
+ (dictionary:class 
+  (set:class )
+  ()
+  (withkeysandvalues: initialize valuenotfoundsignal keynotfoundsignal ))
+ (identitydictionary:class 
+  (dictionary:class )
+  ()
+  ())
+ (weakdictionary:class 
+  (identitydictionary:class )
+  ()
+  (binaryrepresentationversion binaryreaderblockforversion:format: ))
+ (handleregistry:class 
+  (weakdictionary:class )
+  ()
+  (binaryreaderblockforversion:format: ))
+ (methoddictionary:class 
+  (identitydictionary:class )
+  ()
+  (new: ))
+ (systemdictionary:class 
+  (dictionary:class )
+  ()
+  (initialize ))
+ (identityset:class 
+  (set:class )
+  ()
+  ())
+ (signalcollection:class 
+  (identityset:class )
+  ()
+  (validatemethod:forselector: ))
+ (palette:class 
+  (collection:class )
+  ()
+  (pixelnotfoundsignal initializesignals initialize paintnotfoundsignal constantnamefor: constantnames ))
+ (colorpalette:class 
+  (palette:class )
+  ()
+  ())
+ (fixedpalette:class 
+  (colorpalette:class )
+  ()
+  (redshift:redmask:greenshift:greenmask:blueshift:bluemask: ))
+ (mappedpalette:class 
+  (colorpalette:class )
+  ()
+  (with: with:with:with: withcolors: with:with: with:with:with:with: monochromedefault constantnames new initialize whiteblack defaultmapresolution new: defaultmapresolution: binaryreaderblockforversion:format: basicwithcolors: blackwhite binaryrepresentationversion initializemono ))
+ (monomappedpalette:class 
+  (mappedpalette:class )
+  ()
+  (initialize ))
+ (coveragepalette:class 
+  (palette:class )
+  ()
+  (constantnames initialize maxpixelvalue: monomaskpalette ))
+ (bag:class 
+  (collection:class )
+  ()
+  (new: new ))
+ (sequenceablecollection:class 
+  (collection:class )
+  ()
+  ())
+ (arrayedcollection:class 
+  (sequenceablecollection:class )
+  ()
+  (withall: new with: with:with:with: with:with: with:with:with:with: new:withall: ))
+ (array:class 
+  (arrayedcollection:class )
+  ()
+  ())
+ (bossreadermap:class 
+  (array:class )
+  ()
+  (new:baseindex: ))
+ (scannertable:class 
+  (array:class )
+  ()
+  ())
+ (dependentscollection:class 
+  (array:class )
+  ()
+  ())
+ (characterarray:class 
+  (arrayedcollection:class )
+  ()
+  ())
+ (string:class 
+  (characterarray:class )
+  ()
+  (fromstring: defaultplatformclass readfrom: frombytes: defaultplatformclass: encodingmap fromintegerarray: new: decodingmap encodingtype defaultimplementor ))
+ (byteencodedstring:class 
+  (string:class )
+  ()
+  (unsupportedcharactersignal install bepreferredclasswithencoding: frombytes: initialize encode: platformstringpreference new: decode: ))
+ (macstring:class 
+  (byteencodedstring:class )
+  ()
+  (decodingmap encodingmap initialize encodingtype ))
+ (iso8859l1string:class 
+  (byteencodedstring:class )
+  ()
+  (decodingmap encodingmap initialize encodingtype ))
+ (bytestring:class 
+  (byteencodedstring:class )
+  ()
+  (decodingmap encodingmap initialize encodingtype ))
+ (twobytestring:class 
+  (string:class )
+  ()
+  (encode: frombytes: decode: encodingtype new: ))
+ (gapstring:class 
+  (string:class )
+  ()
+  (fromstring: new: ))
+ (symbol:class 
+  (string:class )
+  ()
+  (correctmessage: initialize defaultimplementor hasinterned:iftrue: interncharacter: intern: correctmessage:minimumscore: readfrom: table tablesize findinterned: table: rehash ))
+ (bytesymbol:class 
+  (symbol:class )
+  ()
+  (new: ))
+ (twobytesymbol:class 
+  (symbol:class )
+  ()
+  (new: ))
+ (text:class 
+  (characterarray:class )
+  ()
+  (string:runs: new: fromstring: inittextconstants2: inittextconstants: initialize string:emphasis: ))
+ (runarray:class 
+  (arrayedcollection:class )
+  ()
+  (new new: runs:values: new:withall: ))
+ (weakarray:class 
+  (arrayedcollection:class )
+  ()
+  (install installfinalizationsemaphore: queueoverflowsignal initialize innerfinalizationloop outerfinalizationloop installfinalizationmechanism fetchfromfinalizationqueue ))
+ (integerarray:class 
+  (arrayedcollection:class )
+  ()
+  (fromstring: ))
+ (bytearray:class 
+  (integerarray:class )
+  ()
+  (frompackedstring: fastdecodefrom:into: slowdecodefrom:from:startingat:into: ))
+ (bossbytes:class 
+  (bytearray:class )
+  ()
+  ())
+ (wordarray:class 
+  (integerarray:class )
+  ()
+  (new: ))
+ (linkedlist:class 
+  (sequenceablecollection:class )
+  ()
+  ())
+ (semaphore:class 
+  (linkedlist:class )
+  ()
+  (new formutualexclusion ))
+ (orderedcollection:class 
+  (sequenceablecollection:class )
+  ()
+  (new: new ))
+ (fontdescriptionbundle:class 
+  (orderedcollection:class )
+  ()
+  ())
+ (sortedcollection:class 
+  (orderedcollection:class )
+  ()
+  (fromsortedarray:sortblock: initialize withall:sortblock: sortblock: new: ))
+ (spactivelines:class 
+  (sortedcollection:class )
+  ()
+  ())
+ (spsortedlines:class 
+  (sortedcollection:class )
+  ()
+  ())
+ (handlercollection:class 
+  (orderedcollection:class )
+  ()
+  ())
+ (interval:class 
+  (sequenceablecollection:class )
+  ()
+  (from:to: from:to:by: new ))
+ (textlineinterval:class 
+  (interval:class )
+  ()
+  (start:stop:internalspaces:paddingwidth: start: ))
+ (geometric:class 
+  (object:class )
+  ()
+  (circles visiblex1:y1:x2:y2:inleft:top:right:bottom: new twosquares initialize vertices:intersectsrectangle: boundingrectangleforpoints: ))
+ (polyline:class 
+  (geometric:class )
+  ()
+  (exampleintersects fromrectangle: vertices: ))
+ (ellipticalarc:class 
+  (geometric:class )
+  ()
+  (boundingbox: center:radius: boundingbox:startangle:sweepangle: ))
+ (rectangle:class 
+  (geometric:class )
+  ()
+  (fromuser fromuser:phase: originfromuser:grid:whilebutton:isdown: vertex:vertex: left:right:top:bottom: new origin:corner: fromuser: origin:extent: originfromuser:grid: originfromuser: ))
+ (characterblock:class 
+  (rectangle:class )
+  ()
+  (stringindex:character:boundingrectangle: stringindex:character:topleft:extent: ))
+ (bezier:class 
+  (geometric:class )
+  ()
+  (fromuser initialize start:end:controlpoint1:controlpoint2: demoflatness ))
+ (circle:class 
+  (geometric:class )
+  ()
+  (center:radius: ))
+ (spline:class 
+  (geometric:class )
+  ()
+  (controlpoints: initialize splinesample demoflatness ))
+ (linesegment:class 
+  (geometric:class )
+  ()
+  (from:to: exampleintersects with:with: ))
+ (programnodebuilder:class 
+  (object:class )
+  ()
+  ())
+ (externalconnection:class 
+  (object:class )
+  ()
+  (ioaccessor: inputaccessor:outputaccessor: ))
+ (fileconnection:class 
+  (externalconnection:class )
+  ()
+  (openfilenamed:mode: openfilenamed:mode:creationrule: ))
+ (scanner:class 
+  (object:class )
+  ()
+  (new initialize isliteralsymbol: ))
+ (changescanner:class 
+  (scanner:class )
+  ()
+  (initialize new ))
+ (parser:class 
+  (scanner:class )
+  ()
+  ())
+ (ccompatibleparser:class 
+  (parser:class )
+  ()
+  ())
+ (characterencoder:class 
+  (object:class )
+  ()
+  ())
+ (largecharacterencoder:class 
+  (characterencoder:class )
+  ()
+  ())
+ (bytecharacterencoder:class 
+  (characterencoder:class )
+  ()
+  (fromarray: ))
+ (processorscheduler:class 
+  (object:class )
+  ()
+  (new:with: new initialize background: ))
+ (blockclosure:class 
+  (object:class )
+  ()
+  (newfullmethod:outercontext: newmethod:outercontext:copiedvalues: newcleanmethod: validatemethod:forselector: newcopyingmethod:size:valuesfrom: ))
+ (controller:class 
+  (object:class )
+  ()
+  (badcontrollersignal initialize new ))
+ (dialogcompositecontroller:class 
+  (controller:class )
+  ()
+  ())
+ (widgetcontroller:class 
+  (controller:class )
+  ()
+  (example ))
+ (standardsystemcontroller:class 
+  (controller:class )
+  ()
+  (initialize ))
+ (dialogcontroller:class 
+  (standardsystemcontroller:class )
+  ()
+  ())
+ (scrollbarcontroller:class 
+  (controller:class )
+  ()
+  ())
+ (controllerwithmenu:class 
+  (controller:class )
+  ()
+  (binaryrepresentationversion binaryreaderblockforversion:format: ))
+ (notifiercontroller:class 
+  (controllerwithmenu:class )
+  ()
+  (redisyellow: redisyellow initialize ))
+ (listcontroller:class 
+  (controllerwithmenu:class )
+  ()
+  ())
+ (changelistcontroller:class 
+  (listcontroller:class )
+  ()
+  (initialize ))
+ (selectioninlistcontroller:class 
+  (listcontroller:class )
+  ()
+  ())
+ (selectionsetinlistcontroller:class 
+  (selectioninlistcontroller:class )
+  ()
+  ())
+ (paragrapheditor:class 
+  (controllerwithmenu:class )
+  ()
+  (undoselection initializedispatchtable initialize supportcodeediting previousselections currentselection binaryreaderblockforversion:format: compilationerrorsignal copyselection: dispatchtable currentselection: undoselection: addpreviousselection: ))
+ (textitemeditor:class 
+  (paragrapheditor:class )
+  ()
+  (initialize dispatchtable ))
+ (textcontroller:class 
+  (paragrapheditor:class )
+  ()
+  ())
+ (debuggercontroller:class 
+  (textcontroller:class )
+  ()
+  ())
+ (nocontroller:class 
+  (controller:class )
+  ()
+  ())
+ (launchercontroller:class 
+  (controller:class )
+  ()
+  ())
+ (inversecolormapinitializer:class 
+  (object:class )
+  ()
+  (on: ))
+ (implementationfont:class 
+  (object:class )
+  ()
+  (install ))
+ (syntheticfont:class 
+  (implementationfont:class )
+  ()
+  (on: ))
+ (devicefont:class 
+  (implementationfont:class )
+  ()
+  (kanjiencoder initialize createfont:toresemble:on: symbolencoder preferredfontsizereferringto: parse: encodernamed: macdefaultencoder initializeencodings iso8859encoder hproman8encoder finddefaultfontnamein: encodernamed:ifabsent: ))
+ (macfont:class 
+  (devicefont:class )
+  ()
+  (defaultencodingname preferredfontsizereferringto: finddefaultfontnamein: createfont:toresemble:on: initialize parse: ))
+ (mswindowsfont:class 
+  (devicefont:class )
+  ()
+  (defaultencodingname preferredfontsizereferringto: finddefaultfontnamein: createfont:toresemble:on: initialize parse: ))
+ (xfont:class 
+  (devicefont:class )
+  ()
+  (generatefontnamefor:using: defaultencodingname preferredfontsizereferringto: finddefaultfontnamein: createfont:toresemble:on: initialize parse: ))
+ (binaryobjectstorage:class 
+  (object:class )
+  ()
+  (importselectors initialize flaghasshortoops structureformat indeximportglobal onnew: headererrorsignal formaterrorsignal specialwriters indeximportassociation indeximportbytesymbol flagrecentclassmask flaghasforwardreferences indeximporttwobytesymbol initializesignals onold: indeximportclass flagisbits indeximportsend errorsignal indeximportcompiledcode fileformat indeximportfloat indeximportsendself predefinedobjects onoldnoscan: ))
+ (screen:class 
+  (object:class )
+  ()
+  (install postsnapshot registervalueof: open: presnapshot registry initialize default primopen: allscreens unregister: ))
+ (compiledcode:class 
+  (object:class )
+  ()
+  (signextend: methodsforclass:selector: newinstbytes:oops: npcmaperrorsignal specialselectorindexfor: newbytes:literals:numargs:numtemps:maxdepth:needsframe:inblock:hybrid:forcontext: newinstshortbytes:flags:literals: initialize binaryrepresentationversion ))
+ (compiledblock:class 
+  (compiledcode:class )
+  ()
+  (bytes:literals:numargs:numtemps:maxdepth:needsframe:hybrid:forcontext: binaryreaderblockforversion:format: ))
+ (compiledmethod:class 
+  (compiledcode:class )
+  ()
+  (bytes:literals:numargs:numtemps:maxdepth:needsframe:hybrid:forcontext: withprimitive:numargs:iffail: binaryreaderblockforversion:format: ))
+ (markedmethod:class 
+  (compiledmethod:class )
+  ()
+  (asunwindfrom: aspropagatefrom: frommethod: ashandlerfrom: ))
+ (timezone:class 
+  (object:class )
+  ()
+  (setdefaulttimezone: null default initialize timedifference:dst:at:from:to:startday: ))
+ (widgetpolicy:class 
+  (object:class )
+  ()
+  ())
+ (smalltalkwidgetpolicy:class 
+  (widgetpolicy:class )
+  ()
+  ())
+ (namescope:class 
+  (object:class )
+  ()
+  (forclass:outerscope: forclass: initialize global ))
+ (staticscope:class 
+  (namescope:class )
+  ()
+  (variables: classvariables: ))
+ (nullscope:class 
+  (namescope:class )
+  ()
+  (new ))
+ (localscope:class 
+  (namescope:class )
+  ()
+  (binaryreaderblockforversion:format: binaryrepresentationversion new ))
+ (defineopcodepool:class 
+  (object:class )
+  ()
+  (definetwobytecodes definethreebytecodes identifyandinstallnewspecialselectors2 extendedspecialselectors installationactivityblockfor: initializespecialselectors initializeopcodes installnewspecialselectors: install initialize defineshortother defineshortloads shortspecialselectors purgesystemifpossible messagesfor:do: frequentspecialselectors installnewspecialselectors2: initializespecialselectors: ))
+ (inputstate:class 
+  (object:class )
+  ()
+  (pollingtimeout hostevents pollingtimeout: altmask ctrlmask interruptkeyvalue default keynamefor: initialize whatisanevent shiftmask install metamask lockmask postsnapshot presnapshot interruptkeyvalue: initkeys ))
+ (charactercomposer:class 
+  (object:class )
+  ()
+  (initcomposite requestcomposekey new setcomposekey initialize initdiacriticals ))
+ (graphicscontext:class 
+  (object:class )
+  ()
+  (examplewidelines initialize capround joinround joinmiter examplearcs on: joinbevel incompleteareacopysignal capbutt examplerectangularborder miterlimit: capprojecting ))
+ (layout:class 
+  (object:class )
+  ()
+  (new ))
+ (layoutorigin:class 
+  (layout:class )
+  ()
+  ())
+ (layoutframe:class 
+  (layoutorigin:class )
+  ()
+  (leftfraction:offset:topfraction:offset:rightfraction:offset:bottomfraction:offset: binaryreaderblockforversion:format: leftfraction:offset:rightfraction:offset:topfraction:offset:bottomfraction:offset: originfractions:cornerfractions: binaryrepresentationversion leftoffset:topoffset:rightoffset:bottomoffset: leftfraction:topfraction:rightfraction:bottomfraction: leftoffset:rightoffset:topoffset:bottomoffset: leftfraction:rightfraction:topfraction:bottomfraction: ))
+ (changeset:class 
+  (object:class )
+  ()
+  (superclassorder: sortfrom:order:item: nochanges resetpatches patches newchanges: current new initialize browsechangedmessages ))
+ (inputsensor:class 
+  (object:class )
+  ()
+  (cursorpoint ))
+ (translatingsensor:class 
+  (inputsensor:class )
+  ()
+  ())
+ (windowsensor:class 
+  (inputsensor:class )
+  ()
+  (cursorpoint initialize resetdelay ))
+ (recursionlock:class 
+  (object:class )
+  ()
+  (new ))
+ (bytecodestream:class 
+  (object:class )
+  ()
+  (new ))
+ (codestream:class 
+  (bytecodestream:class )
+  ()
+  (initialize restartsignal ))
+ (recodestream:class 
+  (codestream:class )
+  ()
+  ())
+ (deferredblock:class 
+  (object:class )
+  ()
+  ())
+ (instructionclient:class 
+  (object:class )
+  ()
+  ())
+ (instructionstream:class 
+  (instructionclient:class )
+  ()
+  (on: ))
+ (decompiler:class 
+  (instructionstream:class )
+  ()
+  (initialize ))
+ (coderegenerator:class 
+  (instructionstream:class )
+  ()
+  (initialize generatedebuggablecode: ))
+ (context:class 
+  (instructionstream:class )
+  ()
+  (emergencysignal basecontextsignal initialize sender:receiver:method:arguments: cannotreturnsignal primitivefailedsignal codesimulationerrorsignal cannotresumesignal ))
+ (blockcontext:class 
+  (context:class )
+  ()
+  ())
+ (methodcontext:class 
+  (context:class )
+  ()
+  ())
+ (instructionprinter:class 
+  (instructionclient:class )
+  ()
+  (on: ))
+ (paintpolicy:class 
+  (object:class )
+  ()
+  (new ))
+ (luminancebasedcolorpolicy:class 
+  (paintpolicy:class )
+  ()
+  ())
+ (delay:class 
+  (object:class )
+  ()
+  (untilmilliseconds: forseconds: postsnapshot presnapshot install millisecondclockvalue initializetimingprocess initialize formilliseconds: ))
+ (remotestring:class 
+  (object:class )
+  ()
+  (newstring:onfilenumber: newstring:onfilenumber:tofile: newfilenumber:position: empty ))
+ (processhandle:class 
+  (object:class )
+  ()
+  (on:at:interrupted: )))

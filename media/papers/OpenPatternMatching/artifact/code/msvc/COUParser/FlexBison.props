@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup
+    Condition="'$(FlexGeneratorBeforeTargets)' == '' and '$(FlexGeneratorAfterTargets)' == '' and '$(ConfigurationType)' != 'Makefile'">
+    <FlexGeneratorBeforeTargets>Midl</FlexGeneratorBeforeTargets>
+    <FlexGeneratorAfterTargets>CustomBuild</FlexGeneratorAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup>
+    <FlexGeneratorDependsOn
+      Condition="'$(ConfigurationType)' != 'Makefile'">_SelectedFiles;$(FlexGeneratorDependsOn)</FlexGeneratorDependsOn>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <FlexGenerator>
+      <BackingUpInfo>False</BackingUpInfo>
+      <DebuggerOn>False</DebuggerOn>
+      <GenFast>False</GenFast>
+      <CaseInsensitive>False</CaseInsensitive>
+      <CompatibilityOn>False</CompatibilityOn>
+      <PerformanceReport>False</PerformanceReport>
+      <SuppressDefault>False</SuppressDefault>
+      <SuppressWarnings>False</SuppressWarnings>
+      <BatchScanner>False</BatchScanner>
+      <FastScanner>False</FastScanner>
+      <InteractiveScanner>False</InteractiveScanner>
+      <NoGenLineDirectives>False</NoGenLineDirectives>
+      <TraceMode>False</TraceMode>
+      <OutputFile>%(Filename).yy.cpp</OutputFile>
+      <TableCompression>0</TableCompression>
+      <CommandLineTemplate>flex.exe [AllOptions] [AdditionalOptions] [Inputs]</CommandLineTemplate>
+      <Outputs>%(Filename).yy.cpp</Outputs>
+      <ExecutionDescription>Generating lexical analyser...</ExecutionDescription>
+    </FlexGenerator>
+  </ItemDefinitionGroup>
+  <PropertyGroup
+    Condition="'$(BisonParserBeforeTargets)' == '' and '$(BisonParserAfterTargets)' == '' and '$(ConfigurationType)' != 'Makefile'">
+    <BisonParserBeforeTargets>Midl</BisonParserBeforeTargets>
+    <BisonParserAfterTargets>CustomBuild</BisonParserAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup>
+    <BisonParserDependsOn
+      Condition="'$(ConfigurationType)' != 'Makefile'">_SelectedFiles;$(BisonParserDependsOn)</BisonParserDependsOn>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <BisonParser>
+      <Defines>true</Defines>
+      <NoGenLineDirectives>False</NoGenLineDirectives>
+      <DebuggerOn>False</DebuggerOn>
+      <Verbose>False</Verbose>
+      <FilePrefix>%(Filename)</FilePrefix>
+      <OutputFile>%(Filename).tab.cpp</OutputFile>
+      <CommandLineTemplate>bison.exe [AllOptions] [AdditionalOptions] [Inputs]</CommandLineTemplate>
+      <Outputs>%(Filename).tab.cpp</Outputs>
+      <ExecutionDescription>Generating parser based on grammar...</ExecutionDescription>
+    </BisonParser>
+  </ItemDefinitionGroup>
+</Project>

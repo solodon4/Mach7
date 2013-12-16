@@ -1,0 +1,3210 @@
+; digitalk Smaltalk Version 2 all classes and metaclasses
+; 534 classes
+; 529 instance variables
+; 6858 methods
+
+(
+(WinLogBrush
+    (ExternalBuffer)
+    ()
+    (hatch hatch: style: color: color style)
+)
+
+(SubPane
+    (Window)
+    (handlers framingBlock curFont topCorner menu popup)
+    (popupMenu amountToPageUp font addTabStopStyle triggerLosingFocus addGroupStyle setMenu: button1Down: charsInColumn update:with: helpManager amountToScrollLeft isAGroupLeader backColor dragDropCursor foreColor startGroup initialRectangleFor: updateVerticalSlider isOkToChange handlers update: releaseEventTable contextForItem: aboutToSaveImage button2Up: button1Up: defaultDragDropCursor charsInRow updateVerticalSliderTo: framingBlock: totalLength framingRatio: zoom wmErasebkgnd:with: resize:deferInfo: scrollVertical: initialText buildWindow: initialize popup basicStyle updateHorizontalSlider okToChange: buildDialogItem: resize: losingFocus subPaneWithFocus: curFont: drag idCancel previousTabStop helpRequest defaultDragDropObjects isSubPane handlersAttribute: abortChange buildControl: update colorChange font: drop: name: handlersAttribute wmVScroll:with: wmHScroll:with: getGraphicsTool framingBlock wmDropfiles:with: topCorner mouseMove: updateHorizontalSliderTo: setDragDropObjects: dragDropObjects initSize: eventTableForEdit controlKeyInput: isHandleForPopupMenu: defaultStyle validate setDragDropCursor: virtualKeyInput:withKeys: isATabStop validateGroupLeader selection: selection initGraphics menu doPopupMenuAt: setPopupMenu: graphicsToolClass idOK button1Move: canArrowInto dragDropped: amountToScrollUp resizeWindow: close destroyPopup gettingFocus dragDropSender okToChange tabWithKeys: dragDropReceiver deactivate performMenuItem: triggerGettingFocus updateSliders nextTabStop contextForPopup: eventTable amountToPageLeft noTabStop open)
+)
+
+(Enumerator
+    (Object)
+    ()
+    (className: goThroughAllClasses)
+)
+
+(Debugger
+    (ViewManager)
+    (debuggedProcess debuggingProcess object instIndex walkback method walkbackIndex browseWalkback breakpoints breakpointArray maxLevel logger realFrame methodInfoCache)
+    (enableInspectItem instancePane restart expandTopFrame browseWalkback: messages methodPane restartable updateMethodText instance: jump resume accept: compilationErrorHandler maxInfoCacheSize tempValue inspectSelection: walkback: debuggingProcess: acceptMethod:using: withInfoFor:do:ifAbsent: createCacheInfoFor: debuggedProcess debuggedProcess: browseBreakpoints: hop hop: inspectSelection resetInfoCache setDebuggedProcess: walkbackList: initialize method: skip compilerClass closeLogger label: analyzeMethod: removeBreak doItResult:error: label senders skip: cacheInfo:for: compileMethod:for:notifying: implementors jump: updateBreaks take: initWindowSize isDebugger tempList: expandFrame: inspectMenu: menu: selectedExecutable selectInstance: debuggingProcess doItInstance walkbackFor:label: walkback windowPolicyClass infoCacheAt:ifAbsent: walkbackMenu debug debug: dropProcess makeLabel: moreLevels walkbackSelected: terminate breakpoint closed close takeControl: convert:to:offset: hasDebuggerWindow singleStep resumable getMethodInfoCache suspendDebuggedProcess addBreak goMenu)
+)
+
+(WinLogicalBrush
+    (WinLogicalObject)
+    (style color hatch)
+    (style:color:hatch: getHandle attributeArray fromStruct:)
+)
+
+(ProcessTermination
+    (Notification)
+    ()
+    ()
+)
+
+(ComboBox
+    (DropDownList)
+    (entryField)
+    (cutSelection text entryField triggerChanged isComboBox triggerChangedForSelect simpleList textAttribute: defaultStyle dropDown listValue setValue: clear validate textAttribute previousValue entryField: previousValue: modified clearTextSelection modified: isDropDownList entryFieldClass autoHScroll close asyncControlEvent: recreateWindow copySelection text: pasteSelection value value: losingFocus setEntryField)
+)
+
+(ControlError
+    (Error)
+    ()
+    ()
+)
+
+(StringModel
+    (Object)
+    (lines extent lastChild frame topCorner charScanner)
+    (extendTo: fileInFrom: fileOutOn: scanForWordAt: scanner: stringIn: charAt: topCorner: deleteCharIn: appendChar: appendText: detectCr: displayAll extent textPane: searchBack:for: delete: displaySelection: string rightPartAfter: maxLineBetween:and: searchFrom:for: leftPartBefore: lineAt: linesIn: convertToString: totalLength replaceAtColumns:by:startAt: replaceWithLf: sizeOfSelection: replaceGapBefore:withChar: getPointAt: replaceLinesIn:with: replace:withChar: replace:withText: replaceWithTab: adjustPoint: display: string: broadcastChangesIn:upTo:withExcess: searchBack:for:caseSensitive: searchFrom:for:caseSensitive: tabStringAt: frame: getSelectionFrom:to:)
+)
+
+(True
+    (Boolean)
+    ()
+    (asParameter eqv: not | ifTrue:ifFalse: basicHash ifFalse:ifTrue: ifTrue: xor: or: and: hash ifFalse: &)
+)
+
+(ExternalLong
+    (ExternalBuffer)
+    ()
+    (asInteger - + highHalf highHalf: printOn: lowHalf lowHalf: asBoolean)
+)
+
+(WinWindowClass
+    (ExternalBuffer)
+    ()
+    (hIcon: style: hInstance: windProc windProc: wndExtra: hBrush: className:)
+)
+
+(Class
+    (Behavior)
+    (classPool sharedPools)
+    (fileOutOn: name edit rename:in: pointer:word:variable: isClass removeFromSystem variableByteSubclass:instanceVariableNames:classVariableNames:poolDictionaries: removeFromSystem: rename: classVarNames: changeSuperclassTo: classVarNames removeSharedPool: subclass:instanceVariableNames:classVariableNames:poolDictionaries: variableByteSubclass:classVariableNames:poolDictionaries: recomputeMethodDictionaries removeClassVarName: variableSubclass:instanceVariableNames:classVariableNames:poolDictionaries: recreateMappedBy:oldValues: setSharedPools: addSharedPool: setClassVarNames: initialize classPool sharedPools: sharedPools validateClass:instanceVariableNames: initializeClass addClassVarName:)
+)
+
+(CursorManager
+    (Object)
+    (spare handle)
+    (handle displayAt:with: inspect hide display displayAt: release offset handle: change sense setWinCursor offset: reset changeFor:)
+)
+
+(FileError
+    (Error)
+    ()
+    ()
+)
+
+(MethodBrowser
+    (ViewManager)
+    (methods selectedMethod positions highlightLiteral methodPane)
+    (listMenu: initWindowSize literal: enableMethodsMenu openOn: messages localImplementors initialize method: senders dragDropObjects accept: fileOutMethod text: disableMethodsMenu localSenders windowPolicyClass removeFromList listString: implementors methodList:)
+)
+
+(ExternalHandle
+    (Object)
+    ()
+    (= asHandleParameter isExternalHandle replaceBytesFrom:to:with:startingAt: asParameter uLongAtOffset: asInteger printOn: fillFromAddress: hash uLongAtOffset:put: replaceFrom:to:with:startingAt: isValid)
+)
+
+(ExternalBuffer
+    (Object)
+    (contents)
+    (handleAtOffset:put: shortAtOffset: longAtOffset:put: uLongAtOffset: uShortAtOffset: asParameter longAtOffset: booleanAtOffset: fillFromAddress: shortAtOffset:put: uLongAtOffset:put: uShortAtOffset:put: contents contents: copyToAddress: size byteAtOffset:put: bytesAtOffset:count: bytesAtOffset:put: handleAtOffset: byteAtOffset:)
+)
+
+(Time
+    (Magnitude)
+    (seconds)
+    (subtractTime: = addTime: seconds printOn: <= hours < minutes >= > hash asSeconds seconds:)
+)
+
+(LargeInteger
+    (Integer)
+    ()
+    (= addWithCarry:startingAt: borrowStartingAt: + bitAnd: isLargeInteger at: bitOr: primitiveDiv:type: ~= byteSize > >= / // hash & bitShift: bitXor: deepCopy addBytes: | replaceFrom:to:with:startingAt: - bitAt: reduce * quo: appendDigit: subBytes: absoluteLessThan:)
+)
+
+(Menu
+    (Object)
+    (owner menuItem title window items accel popup selector)
+    (printOn: copyAttributesFrom: isDisabled: accelKey:accelBits:for: getIndex:ifAbsent: menuItem popUpAt:in: appendSeparator title: title insertItem:selector:accelKey:accelBits:after: enableItem: changeItem:label: contextForItem: deleteItem: buildItem:menu:menuBar: window selector: popUpIn: window: updateItem: findWindow: disableAll initialize buildWindow: popUp buildItemAccel:menu:parent: appendItem:selector: buildSystemItem:menu:menuBar: buildSystemPopupMenu: insertSubMenu:after: isChecked: getIndex: destroy owner: owner uncheckItem: fixUnderScoreChar: insertSeparatorAfter: enableAll labels:lines:selectors: isThere: numberOfItems toggleCheckOfItem: checkItem: selectorOf: disableItem: appendItem:selector:accelKey:accelBits: accelArray:accelBits: allOwners: getMenuItem: performMenuItem: deleteAll selector contextForPopup: copyItemAttributes:from: appendSubMenu: isMenu)
+)
+
+(WinWindowPlacement
+    (ExternalBuffer)
+    ()
+    (rcNormalPosition flags length ptMinPosition ptMaxPosition showCmd)
+)
+
+(RecordingPen
+    (Pen)
+    (currentId segments segmentIsOpen drawingMode archive)
+    (retainPicture: openSegment deleteAllSegments bitBlt:x:y:width:height:srcDC:xSrc:ySrc:rop: saveSegments deleteCurrentSegment selectObject: drawChain closeSegment currentSegment release drawPicture: drawRetainPicture: stretchBlt:x:y:dWidth:dHeight:srcDC:xSrc:ySrc:sWidth:sHeight:rop: location segmentIsOpen segmentIsOpen: segments segments: drawingMode initialize restoreSegments: deleteSegment: allHandles currentId: drawSegment: currentId setDrawingMode:)
+)
+
+(WildPattern
+    (Pattern)
+    (patternCollection)
+    (reset match:index: build: match:)
+)
+
+(DropDownList
+    (ListBox)
+    ()
+    (selectIndex: getSelection deleteMessage isDropDownList oemConvert deleteAllFromControl basicStyle sort dropDownList asyncControlEvent: showDropdown: winClass defaultStyle triggerChangedForSelect noIntegralHeight wmCtlcolorlistbox:with: disableNoScroll insertItemInControl: wmCtlcoloredit:with:)
+)
+
+(VirtualMachineConfiguration
+    (ExternalBuffer)
+    ()
+    (codeSpaceCommittedBytes: codeSpaceMaxBytes arenaBytes: newSpaceBytes: oldSpaceBytes oldSpaceBytes: codeSpaceMaxBytes: codeSpaceReservedBytes codeSpaceCommittedBytes newSpaceBytes codeSpaceReservedBytes: flipSpaceBytes: arenaBytes reserved toFile: toImage flipSpaceBytes reserved:)
+)
+
+(FontDialog
+    (CommonSystemDialog)
+    (chosen chosenForeColor chooseFontStruct lpLogFont)
+    (copyStruct chosen open textColor defaultFont: textColor: cleanUp owner: flags flags: initialize checkFlags)
+)
+
+(AboutDialog
+    (WindowDialog)
+    (bitmap buttonBitmap credits creditsBitmap)
+    (close: initWindowSize rightButtonDoubleClick: display: ok: topPaneClass open)
+)
+
+(IndexedCollection
+    (Collection)
+    ()
+    (do: = replaceFrom:to:withObject: indexOfCollection: copyWithout: with:do: errorInBounds: findLast:ifAbsent: atAll:put: isIndexedCollection reversed reverse copyFrom:to: unquote includes: hash grow last indexOf: copyWith: growSize accessEmptyCollection checkIndex: reverseDo: indexOf:ifAbsent: replaceFrom:to:with: first replaceFrom:to:with:startingAt: atAllPut: findFirst:ifAbsent: findLast: size replaceFrom:to:with:startingWith: copyReplaceFrom:to:with: findFirst: shallowCopy)
+)
+
+(SymbolSet
+    (Set)
+    ()
+    (privateAdd: add: grow findElementIndex: species symbolAt:)
+)
+
+(HelpManager
+    (Object)
+    (applicationWindow helpFile aboutDlgClass helpMode mapDictionary defaultTopic)
+    (for:file:aboutDlgClass: searchHelpOn turnOffHelpMode closeHelpWindow buildMenuBar buildMdiMenuBar displayHelp: helpMode helpMenu displayExtendedHelpPanel map: map setHelpCursor turnOnHelpMode displayHelpIndex winHelp:data: displayHelpForHelp extendedHelpPanelId initMenu extendedHelpPanelId: about)
+)
+
+(Magnitude
+    (Object)
+    ()
+    (= max: min: > >= between:and: hash < <=)
+)
+
+(ExceptionHandler
+    (Object)
+    (exception previous block retryBlock continuation resultContinuation)
+    (evaluateResponseBlock:for: response resultContinuation: exception resume: return: passFrom: exception: findHandler: continuation retryBlock response: retry retry: previous: activateDuring: evaluateProtectedBlock: continuation: handle: previous resultContinuation retryBlock:)
+)
+
+(ExternalHeapHandle
+    (ExternalMemoryHandle)
+    ()
+    (= allocate:ofSize: freeAddress: allocBytes: hash initialize: free)
+)
+
+(WinLogicalPen
+    (WinLogicalObject)
+    (style width color)
+    (style style:color:width: getHandle attributeArray fromStruct: width)
+)
+
+(MetaClass
+    (Behavior)
+    (instanceClass)
+    (instanceVariableNames: name newNameSymbol: fileOutOn: instanceClass instanceClass: classPool sharedPools map:to: classVarNames changeSuperclassTo: isMetaClass name:environment:subclassOf:instanceVariableNames:variable:words:pointers:classVariableNames:poolDictionaries:comment:changed: recomputeMethodDictionaries)
+)
+
+(ClipboardManager
+    (Object)
+    ()
+    (setPicture: getString getMetaFile containsText getBitmap getBitmapWidth:height: containsBitmap getPicture close containsMetaFile containsFormat: setMetaFile: setString: empty formatNamed: setBitmap: clear registerFormat: getStringOrNil open)
+)
+
+(HomeContext
+    (Context)
+    (method receiver code frameOffset)
+    (frameOffset frameOffset: return: receiver return:numberOfArgs: asActionSequence method method:)
+)
+
+(StaticText
+    (StaticPane)
+    ()
+    (leftJustifiedNoWordWrap contents centered defaultStyle rightJustified noPrefix leftJustified setValue: value value:)
+)
+
+(Association
+    (Magnitude)
+    (value key)
+    (= printOn: < <= key: key isInBase isAssociation > >= value value: storeOn: hash)
+)
+
+(FindReplaceDialog
+    (WindowDialog)
+    (toFind replaceWith forward confirm command caseSensitive)
+    (initWindowSize forward open:replace: open:replace:forward:caseSensitive: replaceAllButton: createPanes command findButton: caseSensitive confirm toFind replaceWith cancel:)
+)
+
+(ExternalMemoryHandle
+    (ExternalHandle)
+    ()
+    ()
+)
+
+(Symbol
+    (String)
+    ()
+    (= at:put: initContents: deepCopy asParameter asMixedString asNormalizedString printOn: asNormalizedString: replace:with: replaceBytesFrom:to:with:startingAt: replaceFrom:to:withObject: basicHash species replaceFrom:to:with:startingAt: asString asSymbol asExternalString storeOn: hash asCompactString isSymbol shallowCopy)
+)
+
+(ThreeStateButton
+    (CheckBox)
+    ()
+    (indeterminate defaultStyle changedEventFor: threeState autoThreeState setValue getValue)
+)
+
+(VirtualMachineExe
+    (DynamicLinkLibrary)
+    ()
+    (addObjectLibrary:ors:stb:resolved: removeDLL: openObjectLibrary: objectAtAddress: closeObjectLibrary: addDLL: queryProcAddress:name: objectLibraryInfo:id: objectLibraryInfoSize:id: closeSignOn removeObjectLibrary: getObjectAddress: dllHandle: dllNumber:)
+)
+
+(NonInteractiveErrorHandler
+    (CompilerErrorHandler)
+    (contextDescription)
+    (contextDescription getDescription setDescription: hasDescription reportWarning: contextDescription:)
+)
+
+(Date
+    (Magnitude)
+    (day)
+    (printLongOn: = elapsedSecondsSince: printOn: elapsedDaysSince: firstDayInMonth firstDayOfMonth previousWeekday: daysLeftInYear printOn:inFormat:twoDigitYear: >= > dayIndex daysInYear oldformPrint daysInMonth asSeconds year subtractDays: hash addDays: dayOfYear monthName monthIndex subtractDate: formPrint printOn:withPicture: < dayName <= printShortOn: daysLeftInMonth printOn:inFormat:twoDigitYear:dateSeparator: day: day printInFormat:twoDigitYear: dayOfMonth elapsedMonthsSince:)
+)
+
+(DynamicDataExchange
+    (Object)
+    (client server application topic isClient window option dataHandle pendingAck)
+    (pendingAck ackExecuteTo:ack:busy:appReturnCode:hCommand: ackNotAcceptTo:item: dataTo:ackReq:release:requested:format:data:item: pendingAck: server postTo:msg:lParam: application application: ackInitiateTo:application:topic: ackAcceptTo:item: setOption: dataRequestedTo:data:format:item: setData: requestTo:item:format: client: postTo:msg:lParamLo:lParamHi: adviseTo:ackReq:deferUpd:format:item: pokeTo:release:format:data:item: sendTo:msg:lParamLo:lParamHi: terminateTo: initiate:topic: dataAdvisedTo:data:format:item:ackReq: executeTo:command: topic: topic requestItem:format: client window: server: isClient: dataUpdatedTo:format:item: ackTo:ack:busy:appReturnCode:item: deleteData unAdviseTo:item:format: clearData)
+)
+
+(TwoArgumentBlock
+    (Context)
+    ()
+    (numberOfArguments evaluateWithArguments: value:value: evaluate)
+)
+
+(OperatingSystemInformation
+    (Object)
+    (hInstanceExe hInstanceDLL dialogProc kernelHandle mathChip winClassName)
+    (hInstancePrev versionMinor versionMajor version name hInstance winClassName hInstanceDLL hInstanceExe initialize dialogProc isWindows getIt isWindowsNT kernelHandle getSystemColor: mathChip getSystemValue:)
+)
+
+(WinDialogInfo
+    (ExternalBuffer)
+    ()
+    ()
+)
+
+(Button
+    (ControlPane)
+    ()
+    (name canApplyStyle applyStyle pushButton isDefaultPushButton gettingFocus controlKeyInput: asyncControlEvent: winClass defaultStyle label label: setLabel: defaultPushButton virtualKeyInput:withKeys: validate buttonFont: click losingFocus)
+)
+
+(TranscriptWindow
+    (TextWindow)
+    ()
+    (close: initWindowSize saveString: setLabel forgetImage saveExit saveAs textPaneClass close)
+)
+
+(ProtectedFrameMarker
+    (Object)
+    ()
+    ()
+)
+
+(MixedFileStream
+    (FileStream)
+    (leadBytes)
+    (next nextPutAll: leadBytes leadBytes: upTo: setLimits reverseContents nextOneByteCharacter asByteFileStream asMixedFileStream: setLineDelimiterFromFirstPage copyFrom:to: nextWord nextByte)
+)
+
+(File
+    (Object)
+    (name fileId directory)
+    (directory pathName name setName:setDirectory: writeBuffer:ofSize:atPosition: fileId getDate printOn: open:mode: close setDate: size open:fileSize:attribute:flags:mode: fileId: flush readBuffer:atPosition: open)
+)
+
+(SystemWindow
+    (Window)
+    ()
+    (wmStcallback:with: winIniChange: wmWininichange:with:)
+)
+
+(CompilationResult
+    (Object)
+    (evaluationResult)
+    (primitiveSpecification nonLocalNames wasSuccessful association temporaryNames argumentNames errorMessage wasEvaluated messages localNames error method nameScope asString evaluate value selector canGenerateCompilationResult isCompilationResult sourceCode)
+)
+
+(Exception
+    (Object)
+    (currentHandler messageText)
+    (handle activeHandler return activeHandler: pass outer retryUsing: return: description exit: messageText messageText: defaultDescriptionString isResumable resume resume: retry super defaultAction isActive signal)
+)
+
+(NoMenusWindowPolicy
+    (WindowPolicy)
+    ()
+    (addMenus)
+)
+
+(StoredPicture
+    (GraphicsMedium)
+    (hMetaFile apmHeader)
+    (handle load: play: release create: handle: drawUsing: isStoredPicture save: close)
+)
+
+(DoubleByteSymbol
+    (DoubleByteString)
+    ()
+    (shallowCopy initContents: = at:put: deepCopy isDoubleByteSymbol replace:with: replaceBytesFrom:to:with:startingAt: printOn: equals: replaceFrom:to:withObject: containsDBCharacter basicHash replaceFrom:to:with:startingAt: species asString asSymbol replaceBytes:with: id: storeOn: hash asCompactString id isSymbol)
+)
+
+(CompilationError
+    (Object)
+    (errorInterval proceedable retryable replacementSource errorMessage sourceCode)
+    (setRetryable: sourceCode sourcePosition retryable setProceedable: setReplacementSource: errorMessage sourceCode: getReplacementSource canRetry retry getProceedable proceedable recompileWith: getRetryable sourceRange errorMessage: hasReplacement replacementSource canProceed errorInterval: proceed abort)
+)
+
+(WinLogicalObject
+    (Object)
+    (handle stockObject)
+    (handle privateHandle asParameter isStockObject createObject handle: initHandle stockObject:)
+)
+
+(DragDropList
+    (Object)
+    (items operation location defaultOperation)
+    (location moveOperation defaultOperation operation defaultOperation: operation: altKey:controlKey: copyOperation location: items items: initialize)
+)
+
+(ClassBrowser
+    (ViewManager)
+    (browsedClass selectedDictionary selectedMethod)
+    (dictionary: enableMethodsMenu openOn: droppedOnTextPane: removeSelector selectorMenu: selectors: senders dragDropObjects accept: fileOutMethod text: disableMethodsMenu droppedOnSelectorList: windowPolicyClass dictionaries: implementors selector:)
+)
+
+(ExternalHeapAddress
+    (ExternalAddress)
+    (memorySize memoryHandle)
+    (memoryHandle memorySize: memorySize memoryHandle: free)
+)
+
+(WinPoint
+    (ExternalBuffer)
+    ()
+    (x x: asPoint y y:)
+)
+
+(GraphicsTool
+    (Object)
+    (deviceContext logicalTool location width height foreColor backColor graphicsMedium)
+    (bitBlt:x:y:width:height:srcDC:xSrc:ySrc:rop: boundingBox width defaultPen width: setBackgroundMode: saveDC emptyRegion backColor: backColor height execute:clipRect: fill:color: foreColor foreColor: deletePen blank: setClipRegion: handle: extent setForegroundMode: fill:rule: stretchBlt:x:y:dWidth:dHeight:srcDC:xSrc:ySrc:sWidth:sHeight:rop: setWindowExt: height: addRegion:to: setWindowOrg: destroyRegion: initialize logicalTool: locationVar locationVar: logicalTool patternFill:rule: allHandles fill: fill:rule:color: deleteDC erase floodFill:color:fillType: copyBitmapFlippedVertically: copyBitmapFlippedHorizontally: deleteObject: copyBitmap:from:at: place: copyBitmap:from:to: line: setHandle: graphicsMedium destroy saveSegments copyBitmap:from:to:rule: copyBitmap:from:at:rule: createRegion: copy:from:at: setBackMode: copy:from:to: selectObject: releaseAllObjects graphicsMedium: setMapMode: setViewportExt: reverse: setClipRect: release ifNilHandle: setViewportOrg: privateHandle setRop2: restoreDC location handle copy:from:at:rule: copy:from:to:rule: canvasBox selectStockObject: resetAttributes isGraphicsTool)
+)
+
+(ObjectLibraryReference
+    (ExternalBuffer)
+    (dllName entryName orTableIndex)
+    (targetMO entryOffset entryOffset: orTableIndex: printOn: targetMO: dllName dllName: orTableIndex onStream: entryName entryName: sizeInBytes dllOffset dllOffset:)
+)
+
+(ByteArray
+    (FixedSizeCollection)
+    ()
+    (asCstring replaceBytesFrom:to:with:startingAt: asParameter replace:with: dumpStringBase: asWinLong inspect asExternalLong dumpOn:base: isByteArray replaceFrom:to:with:startingAt: dumpString asWinHandle asString replaceFrom:to:withAddress:startingAt: asWinAddress replaceBytes:with: asExternalAddress isNullHandle asExternalHandle asWindowHandle)
+)
+
+(SortedCollection
+    (OrderedCollection)
+    (sortBlock)
+    (shallowCopy at:put: deepCopy addFirst: addAll: add:after: select: sortBlock sortBlock: add: addAllFirst: sort:to: addLast: addAllLast: add:before: copyFrom:to: reSort grow)
+)
+
+(DictionaryInspector
+    (Inspector)
+    ()
+    (add enableInspectItem accept: inspectMenu: inspectSelection remove instance: instVarList: setInstList)
+)
+
+(Warning
+    (Notification)
+    ()
+    (defaultAction)
+)
+
+(ExternalSegmentedAddress
+    (ExternalAddress)
+    (flatAddress)
+    (asSegmentedAddress asFlatAddress flatAddress:)
+)
+
+(ColorDialog
+    (CommonSystemDialog)
+    (chosen chooseColorStruct customColors lpCustColors)
+    (copyStruct customColors: chosen color: open cleanUp owner: flags chosenCustom initialize checkFlags)
+)
+
+(LargeNegativeInteger
+    (LargeInteger)
+    ()
+    (negated negative positive reduce signedAt: printOn: sign strictlyPositive abs < <= \\ asUnsigned)
+)
+
+(LargePositiveInteger
+    (LargeInteger)
+    ()
+    (negated negative positive reduce signedAt: printOn: sign strictlyPositive abs < <= \\ asUnsigned)
+)
+
+(ReadWriteStream
+    (WriteStream)
+    ()
+    (getInteger nextUShort nextPutAll: setToEnd contents next nextULong setLimits getBytesFor: getBytesFor:from:to: truncate nextByte nextPut:)
+)
+
+(CallBack
+    (Object)
+    (slotNumber lpfnInstanceProc stMessage typeArray returnType ccType)
+    (generatePushDWord:in:startingAt: allocateSlot: asParameter release generatePushWord:in:startingAt: generateJump:in:startingAt: performWithArgs: generateCallbackPrologueIn: registerMessage:parameterTypes:returnType:callingConvention: argsSize)
+)
+
+(ListPane
+    (ListBox)
+    ()
+    ()
+)
+
+(FileHandle
+    (ExternalHandle)
+    ()
+    (writeFrom:toPage:for:pageSize: newFile: writeFrom:toPosition:for: deviceWrite: readInto:atPage:pageSize: readInto:atPosition: endByte close)
+)
+
+(WinStructArray
+    (ExternalBuffer)
+    (collection)
+    (collection: asParameter collection)
+)
+
+(UserDLL
+    (DynamicLinkLibrary)
+    ()
+    (defWindowProc:msg:wparam:lparam: destroyIcon: getCurrentTime callNextHookEx:action:wparam:lparam: getWindowPlacement:placement: getDlgItem:item: messageBeep: createDialog:id:parent:dialogFunction: getCapture setClipboardData:hMem: createMenu sendDlgItemMessage:item:msg:wparam:lparam: scrollWindow:xAmount:yAmount:lpRect:clipRect: getWindowLong:index: drawMenuBar: getClassInfo:className:wndClass: winHelp:helpFile:command:dwData: createWindowStruct:nameStruct:style:x:y:width:height:parent:menu:instance:param: createWindowStructEx:class:nameStruct:style:x:y:width:height:parent:menu:instance:param: createWindow:name:style:x:y:width:height:parent:menu:instance:param: releaseDC:with: loadString:id:buffer:maxChars: releaseCapture getDesktopWindow enableMenuItem:item:flags: getMenuItemId:position: getParent: loadMenuIndirect: closeClipboard dlgDirSelect:selectedPathBuffer:listboxId: emptyClipboard reuseDDElParam:msgIn:msgOut:low:high: registerClass: beginPaint:paintStructure: getWindowTextLength: isChild:child: vkKeyScan: setProp:name:data: getMenuString:position:string:max:flags: isDlgButtonChecked:buttonID: createAcceleratorTable:size: drawFocusRect:rectangle: isCharAlpha: getClassName:buffer:bufSize: getClientRect:rectangle: getDialogBaseUnits enableWindow:enable: getWindowRect:rectangle: getWindowWord:index: winHelp:helpFile:command:dataStruct: modifyMenu:position:flags:newId:newContents: charAsUpper: peekMessage:hwnd:min:max:remove: insertMenu:position:flags:id:contents: realizePalette: getSysColor: dispatchMessage: openClipboard: isCharUpper: createCaret:bitmap:width:height: getMenuState:position:flags: endPaint:paintStructure: beginDeferWindowPos: checkDlgButton:item:checkIt: waitMessage insertMenu:position:flags:id:contentsStruct: isCharLower: charAsLower: deferWindowPos:window:insertAfter:x:y:cx:cy:flags: createCursor:xHotSpot:yHotSpot:width:height:andBits:xorBits: setWindowText:text: getDC: destroyCursor: setCursor: setScrollRange:bar:min:max:redraw: copyAcceleratorTable:to:count: getTabbedTextExtent:string:count:nTabs:tabs: appendMenu:flags:id:contentsInt: setWindowsHook:proc: createPopupMenu loadBitmap:name: destroyCaret registerClipboardFormat: destroyMenu: dlgDirList:pathName:listboxId:staticPathId:fileType: killTimer:idEvent: postMessage:msg:wparam:lparamStruct: sendMessage:msg:wparam:lparamStruct: getDlgItemText:item:text:maxCount: modifyMenu:position:flags:newId:newContentsStruct: loadIcon:name: getMenuCheckMarkDimensions updateWindow: registerWindowMessage: readComm:lpBuf:size: windowFromPoint: setWindowsHookEx:proc:module:thread: getWindowLongString:index: loadAccelerators:name: isWindowEnabled: getMessage:hwnd:min:max: loadCursor:name: removeProp:name: loadIcon:nameInteger: invertRect:in: bringWindowToTop: openComm:inQueue:outQueue: loadIcon:nameString: isWindowVisible: postQuitMessage: createIcon:width:height:planes:bitsPixel:andBits:xorBits: setCaretPos:y: setTimer:idEvent:elapsedTime:timerFunc: packDDElParam:low:high: getKeyState: getSubMenu:pos: appendMenu:flags:id:contents: findWindow:windowName: getSystemMenu:revert: sendDlgItemMessage:item:msg:wparam:lparamStruct: messageBox:withText:titled:style: getWindow:relationship: setWindowWord:index:word: dlgDirSelectEx:selectedPathBuffer:cbString:listboxId: isDialogMessage:lpmsg: messageBoxEx:withText:titled:style:language: appendMenu:flags:id:contentsStruct: translateMessage: insertMenu:position:flags:id:contentsInt: modifyMenu:position:flags:newId:newContentsInt: setWindowPos:insertAfter:x:y:cx:cy:flags: isCharAlphaNumeric: getActiveWindow setWindowLong:index:long: selectPalette:with:forceBackground: hideCaret: createDialogIndirectParam:dialogTemplate:parent:dialogFunction:initParam: translateAccelerator:accelTable:msg: getScrollPos:bar: destroyWindow: screenToClient:point: setClassWord:index:newWord: getSystemMetrics: setActiveWindow: sendDlgItemMessageInt:item:msg:wparam:lparam: charLower: showCaret: deleteMenu:position:flag: isWindow: checkMenuItem:item:flags: getClassLong:index: loadBitmap:nameInteger: loadBitmap:nameString: dialogBoxIndirect:dialogTemplate:parent:dialogFunction: writeComm:lpBuf:size: getClassWord:index: closeComm: getClipboardData: getProp:name: clientToScreen:point: isIconic: isZoomed: getFocus purgeComm:action: adjustWindowRect:dwStyle:bMenu: invalidateRect:rectangle:erase: createWindowULong:nameULong:style:x:y:width:height:parent:menu:instance:paramULong: getCursorPos: isClipboardFormatAvailable: fillRect:rectangle:brush: charLowerBuff:length: charUpper: clipCursor: createDialogIndirect:dialogTemplate:parent:dialogFunction: getMenuItemCount: getWindowText:text:maxLength: setCapture: postMessage:msg:wparam:lparam: setCursorPos:y: setFocus: sendMessage:msg:wparam:lparam: trackPopupMenu:flags:x:y:reservedInt:window:reservedStruct: endDialog:withResult: winHelp:helpFile:command:dataUL: createDialogParam:id:parent:dialogFunction:initParam: drawIcon:x:y:hIcon: createDialogParam:templateName:parent:dialogFunction:initParam: sendMessageInt:msg:wparam:lparam: setMenu:menu: showCursor: mapVirtualKey:mapType: sendMessageInt:msg:wparamStruct:lparamStruct: createWindowULongEx:class:nameULong:style:x:y:width:height:parent:menu:instance:paramULong: dialogBox:templateName:parent:dialogFunction: getMenu: sendDlgItemMessageInt:item:msg:wparam:lparamStruct: getScrollRange:bar:lpMinPos:lpMaxPos: showWindow:command: endDeferWindowPos: unhookWindowsHook:proc: setDlgItemText:item:text: sendMessageInt:msg:wparam:lparamStruct: windowFromPointX:pointY: createDialog:templateName:parent:dialogFunction: loadCursor:nameString: loadCursor:nameInteger: freeDDElParam:lParam: setClassLong:index:value: setScrollPos:bar:position:redraw: unpackDDElParam:lParam:low:high: charUpperBuff:length:)
+)
+
+(RadioButton
+    (Toggle)
+    ()
+    (asyncControlEvent: defaultStyle autoRadioButton changedEventFor: radioButton setFocus turnOff turnOn isATabStop)
+)
+
+(DIB
+    (Object)
+    (bitmapInfo bits)
+    (displayWith:from:to: boundingBox createDIBPalette displayAt:with: displayWith:from: width colorTable height numberOfColors bitCount inspect colorTable: extent asBitmap fromStream: isDIB displayWith:from:to:rule: colors:)
+)
+
+(ClassInstaller
+    (Object)
+    (name environment superclass instanceVariableNames classVariableNames poolNames isVariable isPointers classObject errorString shouldCompileClass shouldCompileMetaclass mutators classMutators classInstanceVariableNames classInstanceVariablesOnly)
+    (className validateSubclassClassVariableNameConflicts validatePoolExistence editClassInstanceVariables validateSubclassClassInstanceVariableNameConflicts classVariableNames: setClassInstanceVariablesOnly invalidBecause: mutators validateClassVariableCase validateSuperclassClassInstanceVariableNames validateSuperclassClassVariableNames validateClassInstanceVariableCase compileIfNecessary allSubclasses superclass: canChangeClass: errorString errorString: immutableClassNames classMutationNecessary compilerClass metaclass validateInstanceVariables isPointers isVariable: enableMutationIfNecessary validateSubclassInstanceVariableNameConflicts compilerFor: mutationNecessary classInstanceVariablesOnly validatePoolCase isPointers: recordCompilationRequirements classInstanceVariableNames shouldCompileMetaclass validateClassVariables createDefaultClassInstanceVariableNames validateClassName validateIndexableType classVariableNames poolNames poolNames: validate shouldCompileClass classInstanceVariableNames: mutators: validateInstanceVariableCase symbolPoolNames classObject environment environment: instanceVariableNames instanceVariableNames: installClassInstanceVariables reportError classMutators: classMutators allClassInstVarNames allInstVarNames superclass editSubclass setClassObject: setupDefinition validatePoolNames validateSuperclassInstanceVariableNames isVariable installNoValidate recompile: install validateMutation setupForClassInstanceVariables validateClassInstanceVariables className:)
+)
+
+(StringDictionaryReader
+    (Object)
+    (dictionary fileName fileStream)
+    (nextToken asInteger: readTable skipComments load:from: warning: nextFind: fileError: nextNonBlank nextString fileName: fill:from:)
+)
+
+(WinBitmapInfo
+    (WinBitmapInfoHeader)
+    ()
+    (colorTable: colorTable)
+)
+
+(LinkMessage
+    (Message)
+    (resultAction)
+    (= numberOfArguments arguments: evaluateWithArguments: forwardResultSending:to: collectArguments: receiver:selector:arguments: argumentAt:putInput: argumentAt:send:to: argumentAt:send:to:withArguments: forwardResultUsing: allocateArguments evaluate resultAction perform resultAction: validateArguments:for: hash selector:)
+)
+
+(ObjectMutator
+    (Object)
+    (class wasIndexable wasBinary oldVariableNames oldMethodArray oldClass)
+    (oldVariableNames wasIndexable enableMutation oldMethodDictionaryArray createSuccessorFor: transform: methodArraySelector mutationMethodArray transferStateFrom:to: forceMutation: isMutationNecessaryFor: oldMethodDictionaryArray: setOldVars: updateMethodDictionaryArrayFor: setIndexable: setOldMethodDictionaryArray: setBinary: wasBinary transferIndexableStateFrom:to: oldClass methodDictionaryArrayAccessMethod setOldClass: targetClass: methodArrayMethod targetClass transferNamedStateFrom:to: triggerMethod triggerMethods)
+)
+
+(False
+    (Boolean)
+    ()
+    (ifFalse:ifTrue: ifTrue: xor: asParameter or: eqv: not and: | ifTrue:ifFalse: ifFalse: &)
+)
+
+(SmalltalkEmulator
+    (DDEServer)
+    ()
+    (ddePokeItem:object: doIt: fileItIn: inspectIt: compilerError:at:in:for:)
+)
+
+(DictionaryScope
+    (CompilerNameScope)
+    (dict)
+    (localBind:to: dictionary: removeLocalBindingFor: setDict: localBindingFor: getDict dictionary)
+)
+
+(Set
+    (Collection)
+    (elementCount contents)
+    (do: at:put: rehash occurrencesOf: initialize: adjustSize add: at: contents rehashFrom: elementsEqual: remove:ifAbsent: size findElementIndex: includes: grow)
+)
+
+(ExternalAddress
+    (ExternalLong)
+    ()
+    (at:put: replaceBytesFrom:to:with:startingAt: asSegmentedAddress = replace:with: printOn: atAddr:put: unlockAndFree isValid replaceFrom:to:with:startingAt: asInteger at: atAddr: asFlatAddress replaceBytes:with: copyFrom:to: hash isExternalAddress)
+)
+
+(ZeroDivide
+    (ArithmeticError)
+    (dividend)
+    (dividend dividend: isResumable)
+)
+
+(SelfInitializingObject
+    ()
+    (block)
+    (selfInitializingBlock doesNotUnderstand: isSelfInitializingObject block:)
+)
+
+(DoubleByteString
+    (String)
+    ()
+    (do: at:put: byteIndexOfCharAt: charIndexOfByteAt: replaceBytesFrom:to:with:startingAt: asByteArray asMixedStringWithNull: asParameter replaceFrom:to:withObject: sizeOfMixedString containsDBCharacter at: isDoubleByteString replaceBytes:with: asCompactString asMixedString asMixedString: deepCopy asNormalizedString replace:with: asNormalizedString: inspect <= replaceFrom:to:with:startingAt: asSymbol size asExternalString fromMixedString:leadBytes: asAsciiZ)
+)
+
+(Dictionary
+    (Set)
+    ()
+    (do: at:put: shallowCopy associationAt:ifAbsent: includesKey: removeAll at:ifAbsentPut: keys lookUpKey: associationsDo: at: remove:ifAbsent: keysDo: removeKey: storeOn: includes: removeAssociation: grow keyAtValue: occurrencesOf: at:ifAbsent: associationAt: select: deepCopy inspect findKeyIndex: add: rehashFrom: keysAndValuesDo: values removeKey:ifAbsent: associationsSelect: errorAbsentKey keyAtValue:ifAbsent:)
+)
+
+(WinBitmapStruct
+    (ExternalBuffer)
+    ()
+    (bitsPixel bitsPixel: height: planes bmType: width planes: width: height byteWidth: byteWidth)
+)
+
+(KeyboardInterrupt
+    (Notification)
+    ()
+    (defaultAction defaultDescriptionString)
+)
+
+(DialogBox
+    (Window)
+    (wParam lParam sem hLibrary)
+    (add:toComboBox: queryItemText: queryTextAtIndex:inComboBox: setValue:forItem:inComboBox: controlEvent:id: wmChar:with: sendMessage:item:wparam:lparam: select:inListBox: processInput querySelectionInComboBox: itemIds wmCommand:with: helpManager add:toListBox: add:toListBox:at: setTextLimit:to: sendMessage:item:wparam:lparamStruct: querySelectionInListBox: fromDLLFile:templateName: add:toComboBox:at: isDialogWindow queryValue:inComboBox: queryButton: queryText:inListBox: contextForItem: createNamedControlPanes queryText:inListBox:startingAt: queryTextAtIndex:inListBox: setValue:forItem:inListBox: paneAt: wmButton1down:with: statusPane select:inComboBox: cancel hideItem: createControlPanes close setItemText:string: childAtId: queryText:inComboBox: fromModule:id: wmHelp:with: deleteAllItemsInListBox: queryValue:inListBox: setSelectEdit:startingAt:endingAt: contextForPopup: queryText:inComboBox:startingAt: deleteAllItemsInComboBox: wmInitdialog:with: setButton:value:)
+)
+
+(ActionSequence
+    (Array)
+    ()
+    (asActionSequence asMinimalRepresentation evaluate evaluateWithArguments: evaluateWithSelector:withArguments:)
+)
+
+(PrintDialog
+    (CommonSystemDialog)
+    (hDCPrinter printDlgStruct hDevMode hDevNames)
+    (devModeFromAddress: hDCPrinter noPages collate noSelection toPage noDefaults owner: noWarning cleanUp fromPage copyStruct open initialize noPrintToFile checkFlags printToFile hidePrintToFile allPages openOwner:style: copies flags devNamesFromAddress: pages selection)
+)
+
+(Message
+    (EvaluableAction)
+    (selector arguments receiver)
+    (performDeferred = arguments: arguments evaluateWithArguments: printOn: asActionSequence isMessage collectArguments: receiver:selector:arguments: argumentAt:put: argumentAt: receiver receiver: perform selector evaluate hash selector:)
+)
+
+(EmptySlot
+    (Object)
+    ()
+    ()
+)
+
+(ThunkDLL16
+    (DynamicLinkLibrary16)
+    ()
+    (addr16To32: addr32To16:)
+)
+
+(CompiledMethod
+    (Array)
+    (byteCodeArray executableCode class selector sourceObject info)
+    (tempCount = byteCodeArray byteCodeArray: info tempCount: referencesSpecial: sourceIndex printOn: isCompiledMethod messages otherSource apiTypes sourceDLL blockCount: sourceIndex:sourcePosition: hasReturnFromBlock sourceObject: generateCompilationResult: type: includesSetFor: includesUseFor: asDebuggableMethod type argumentCount argumentCount: classField: hash selector: hasBlock includesReferenceFor: info: sourcePosition primitive primitive: references: sourceString primitiveNumber sourceString: apiName baseDllSource initialize blockCount classField dllSource recompile selector source sourceObject isDebuggable shallowCopy)
+)
+
+(Directory
+    (Object)
+    (drive pathName volumeLabel searchHandle searchAttribute)
+    (= freeDiskSpace makeCurrent fillDTA:fromFindData: fileSystem remove pathName: printOn: fileReadOnly: volumeLabel isDirectory findFirst:attribute:buffer: hasNetworkName newFile: contents: drive drive: fullDirName validFile: hasSubdirectory file:attribute:mode: file:action:fileSize:attribute:flags:mode: subdirectories pathName drivePrefix validDrive valid formatted: formatted findFirstNoError:attribute:buffer: contents file: create drivePathName endSearch findNext: filesNamed:)
+)
+
+(Pen
+    (TextTool)
+    (direction downState logicalBrush lineType compatibleDirection)
+    (downState polyline: getArcPoints:minor:angles: go: setFillColor: boxFilled: setBrushStyle:color:hatch: rectangle: lineWidth boxOfSize: backColor: circle: down winPointList: foreColor: direction direction: curveFrom:to:towards: black setSolidBrush: partialArc:minor:angles: up ellipse:minor: circleFilled: goto: mandala:diameter: box: pie:minor:angles: dragon: mandala:diameter:initDir: polygon:sides: ellipse: setHatchBrush:color: arc:start:end: box:filled:outlined:roundCorner: setLineWidth: turn: setPenStyle:color:width: compatibleDirection compatibleDirection: roundRect:corner: initialize rectangleFilled: polygonFilled: white chord:start:end: defaultNib: pieFilled:minor:angles: north ellipseFilled:minor: polygon: chordFilled:minor:angles: pie:start:end: home setLineType: chord:minor:angles:)
+)
+
+(DDEAuxServer
+    (DDEAuxWindow)
+    (hotLinkedItems warmLinkedItems)
+    (ddeRequest:format:item: addHotLinkedItem:client:format:ackReq: removeHotLinkedItem:client:format: wmDdeExecute:with: wmDdePoke:with: removeWarmLinkedItem:client:format: wmDdeAck:with: wmDdeTerminate:with: ddeTerminate: wmDdeAdvise:with: removeClientFromList: wmDdeRequest:with: ddeAck:msg:ack:busy:appReturnCode:item: wmDdeUnadvise:with: addWarmLinkedItem:client:format:ackReq: ddeInitiate:application:topic: ddeAdviseHotLink:ackReq:format:item:hOption: ddeAdviseWarmLink:ackReq:format:item:hOption: ddeExecute:command:hCommand: wmDdeInitiate:with: ddeTerminateLink:format:item: updateClientsWithItem: ddePoke:format:data:item:release:handle: open)
+)
+
+(EvaluableAction
+    (Object)
+    ()
+    (asActionSequence)
+)
+
+(DrawnButton
+    (Button)
+    (bitmap drawBlock)
+    (drawAnisotropic isotropic: anisotropic: fixedSize drawItem: isDefaultPushButton drawnButton initialize drawFocus: stretchToFit drawIsotropic gettingFocus contents defaultStyle label label: contents: disabled highlight: setLabel: losingFocus)
+)
+
+(DeletedClass
+    (Object)
+    ()
+    ()
+)
+
+(WindowHandle
+    (ExternalHandle)
+    ()
+    (showWindowAtTop getDC disableRedraw enableRedraw enable setWindowPos:rectangle:fs: setWindowPos:rectangle:fs:deferInfo: isValid isChildOf: subclass showMaximizedWindow propertyAt:put: hideWindow propertyAt: disable showIconicWindow noRedraw: showWindow)
+)
+
+(DeviceContext
+    (ExternalHandle)
+    ()
+    ()
+)
+
+(WinDrawItemStruct
+    (ExternalBuffer)
+    ()
+    (itemActionFocus itemActionDrawEntireItem itemActionSelect ctlType itemState rcItemRight rcItemTop boundingBox rcItem itemIsDisabled hDC hwndItem rcItemLeft itemId itemIsSelected ctlId rcItemBottom itemHasFocus itemAction itemData)
+)
+
+(Atom
+    (ExternalHandle)
+    ()
+    (delete asString)
+)
+
+(SessionModel
+    (Object)
+    ()
+    (aboutToSaveImage startupSession backup:sourceIndex:message: saveSession openSourceFiles buildExe:fromExe: imageName initializeImageName saveSessionAs: closeSignOn isRunTime backupImage setImageName: primitiveSaveSessionAs:description: exitSession getCommandLine getImageName changeRuntimeIcon fileInGoFile saveSessionAs:description:)
+)
+
+(TextTool
+    (GraphicsTool)
+    (font fontsLoaded)
+    (font selfCopyToX:Y: indexOf:at: blankRestFrom: centerText: displayAll:from:to:at: asArrayOfLines:in:wordWrap: lineDisplay:at: displayText:at:in:options:adx: displaySelectedText:at: displayText:in:wordWrap: foreColor: displayLines:from:to:in: displayText:at: align:at:showFrom: cr nextPutAll: stringWidthOf:at: setTextAlign: indexOfWholeChar:at: setTextColor: displayText: displayAll:in: write: displayText:from:to:at: stringWidthOf: lineDisplay:from:at: getCharHeight resetAttributes centerText:at: displayLines:in: bell getTextAlign nextPut: font:)
+)
+
+(WinMessage
+    (ExternalBuffer)
+    ()
+    (lparam msg wparam hwnd scanCode)
+)
+
+(ScrollBar
+    (ControlPane)
+    (min max lineIncrement pageIncrement)
+    (position: maximum minimum setScroll:min:max: horizontal maximum: minimum: position value: setWinScrollRange winScrollEvent:position: initialize triggerChanged winClass defaultStyle decrementPositionBy: vertical value lineIncrement lineIncrement: incrementPositionBy: setValue: pageIncrement pageIncrement: buildControl: setWinScrollPosition)
+)
+
+(Printer
+    (GraphicsMedium)
+    (abort jobid)
+    (setPrinterFont: drawUsing: escape: print:font:title:printDialog:marginsRect: aborted print:font:title:collate:copies:wordWrap:marginsRect: formFeed initialize endPrintJob initializeDevice: startPage endPage newFrame printPage:in:lines:linesPerPage: deleteGraphicsTool abortPrinting startPrintJob startPrintJob: escape:inputData: marginsRectangleFor: setAbortProc)
+)
+
+(TextPane
+    (SubPane)
+    (textHolder selection changedArea reserved modified priorSelection priorText newSelection evaluate)
+    (cutSelection showSelection matchBracketFrom:to: moveTopCornerBy: replaceWithText: addParens areaOnFormOf: initMenu selectBefore: button1Up: cr searchFor: readWrite noChanges scrollTopCornerTo: totalLength addSquareBrackets arrowHomeWithKeys: search doIt: isTextPane matchBracketChars textFont: searchBack matchLeftBracketChar:at: selectLineAtCurrentSelection losingFocus selectWordAtCurrentSelection inspectIt compilerError:at:in:for: searchOld addDoubleQuotes addSingleQuotes update setEvaluate: displayChangesForCharInput arrowDownWithKeys: findReplace doItcompilerError:at:in:for: endOfLine: scrollTopCorner: topCorner: defaultCursor print replaceAtColumns matchBracketChar:at: updateRectangle saveCompilerError:at:in:for: validate arrowEndWithKeys: selectedStringSize makeVisible: modified selectAfter: totalWidth arrowLeftWithKeys: printIt button1Move: cancel getCopyBuffer undo close selectToShifted: addLeftBracket:rightBracket: bracketCharAt: contents selectWordAt: tabWithKeys: fillCopyBuffer replaceString: value value: selectFrom:to: nextPut: open popupMenu backspace fileOutOn: selectAtEnd wmGetdlgcode:with: addCurlyBrackets wmSetfocus:with: backspace: fileItIn triggerChanged searchInit appendChar: appendText: matchRightBracketChar:at: selectedItem restore replaceAtPattern characterInput: contents: display:reverseFrom:to: displayChanges update: previousValue previousValue: setValue: selectTo: lineAt: wmKillfocus:with: modified: selectLines:height: initialize forceEndOntoDisplay basicStyle doIt isReadOnly forceSelectionOntoDisplay display resize: showSelectionFrom:to: searchBackOld fileInFrom: button1DownShift: characterCoordinate: selectAll readOnly selectDoubleAtCursor: again refreshAll controlKeyInput: selectToCursor: stringCoordinate: arrowRightWithKeys: arrowKeyInput:withKeys: button1DoubleClick: virtualKeyInput:withKeys: scrollHorizontal: queryReplaceAtPattern selection wmTimer:with: nextPutAll: selectAtCursor: reinitialize textHolder backspaceSelection selectedString clearSelection searchForDefaultTextPane accept isGapSelection replaceWithChar: arrowUpWithKeys: evaluate:ifError: copySelection pasteSelection printSelection getText hideSelection button1Down: makeSelectionVisible)
+)
+
+(GraphicsMedium
+    (Object)
+    (deviceContext graphicsTool)
+    (deviceContext deviceContext: graphicsTool: pen extent boundingBox width drawUsing: height)
+)
+
+(SelfDefinedStructureInspector
+    (Inspector)
+    (fieldSelected)
+    (selectField: accept: fieldList: openOn: inspectSelection inspectField: selectInstance: instance: instVarList:)
+)
+
+(WalkbackWindow
+    (TextWindow)
+    (debugger)
+    (initWindowSize resume: openOn:label: terminate: debug: textPaneClass close:)
+)
+
+(ExternalGlobalAddress
+    (ExternalAddress)
+    (memorySize memoryHandle)
+    (memoryHandle memorySize: memoryHandleObject memorySize unlock memoryHandleObject: free)
+)
+
+(DialogTopPane
+    (TopPane)
+    (sem)
+    (openModal: addSystemModalStyle alignRelativeToScreen wmPaint:with: statusPane boxOfSize: wmSize:with: helpManager processInput buildWindow: basicStyle buildWindow close defaultStyle isDialogWindow buildDialogItems isDialogTopPane mainWindow validate openModeless contextForItem: contextForPopup: wmInitdialog:with: open)
+)
+
+(CompatibleWindowPolicy
+    (StandardWindowPolicy)
+    ()
+    (addSystemMenus addStandardLeftMenus addSmalltalkMenu addMenus)
+)
+
+(WinBitmapFileHeader
+    (ExternalBuffer)
+    ()
+    (bfSize: bfType reserved1: reserved2: bfType: offBits:)
+)
+
+(WinFileTime
+    (ExternalBuffer)
+    ()
+    (dwLowDateTime dwHighDateTime: dwLowDateTime: dwHighDateTime)
+)
+
+(Collection
+    (Object)
+    ()
+    (do: notEmpty addAll: printOn: isCollection removeAll: removeAll asOrderedCollection remove: printLimit collect: remove:ifAbsent: detect: asBag errorNotIndexable storeOn: detect:ifNone: asSortedCollection includes: occurrencesOf: deepCopy reject: select: do:andBetweenDo: inject:into: asSet isEmpty add: asArray errorAbsentObject asSortedCollection: shallowCopy)
+)
+
+(ConstantAccessor
+    (EvaluableAction)
+    (object)
+    (printOn: object: evaluate evaluateWithArguments:)
+)
+
+(DDEAuxWindow
+    (Window)
+    (dde receiverObj answer sem)
+    (close makeActive waitForData dde: unPackDdeData:msg: validate receiverObj receiverObj: initialize open)
+)
+
+(Interval
+    (FixedSizeCollection)
+    (beginning end increment)
+    (shallowCopy at: at:put: initBegin:end:incr: - + size increment species)
+)
+
+(DDEAuxClient
+    (DDEAuxWindow)
+    (hotLinkedItems warmLinkedItems requestedItems)
+    (open removeWarmLinkedItem: waitForData ddeAckInitiate:application:topic: wmDdeAck:with: addWarmLinkedItem:selector: timedOut: wmDdeData:with: ddeDataUpdated:item: setTimeOut ddeAckExecute:ack:busy:appReturnCode:command: ddeAck:msg:ack:busy:appReturnCode:item: removeHotLinkedItem:class: ddeDataAdvised:format:data:item: addHotLinkedItem:class:selector: addRequestedItem:class:selector: ddeTerminate: wmDdeTerminate:with: ddeDataRequested:format:data:item: wmTimer:with:)
+)
+
+(MessageBox
+    (DialogBox)
+    (title message result resultSymbol)
+    (result iconHand applicationModal okCancel yesNoCancel iconAsterisk iconInformation taskModal message: systemModal initialize iconQuestion abortRetryIgnore iconStop resultSymbol title: yesNo defaultButton: iconExclamation ok getResult: retryCancel open)
+)
+
+(Character
+    (Magnitude)
+    (asciiInteger)
+    (= digitValue asUpperCase asLowerCase isSingleByte printOn: asCharacter + asLowercase to:do: isUpperCase isDigit isSeparator isLowerCase isCharacter asInteger isLetter asString asciiValue >= > to: isSymbolCharacter asUppercase storeOn: hash isLowercase isUppercase isLeadByte: deepCopy isVowel isWhitespace < <= to:by: isLeadByte isDoubleByte - trailByte to:by:do: leadByte isAlphaNumeric shallowCopy)
+)
+
+(WinTextMetrics
+    (ExternalBuffer)
+    ()
+    (tmAscent tmDescent tmFirstChar tmExternalLeading tmHeight tmInternalLeading tmWeight tmOverhang tmStruckOut tmDefaultChar tmLastChar tmAveCharWidth tmItalic tmMaxCharWidth tmUnderlined tmPitchAndFamily tmCharSet tmBreakChar tmDigitizedAspectX tmDigitizedAspectY)
+)
+
+(Behavior
+    (Object)
+    (superClass dictionaryArray structure name comment subclasses instances)
+    (methodIndex: allInstances isBytes compileAllWith: printOn: compile:notifying: subclassOfNil:instanceVariableNames:classVariableNames:poolDictionaries: basicNew: instanceVariableString assignClassHash subclasses: symbol addSubclass: changeSuperclassTo: subclass:instanceVariableNames:classVariableNames:poolDictionaries: hash allSubclasses superclass: sourceCodeAt: deepCopy allMethodsAssigningInstVar: removeSelector: infoCopy isPointers selectors methodDictionary isBits recomputeMethodArray compiledMethodAt: canUnderstand: checkSubclassNameConflicts: instVarNames methods shallowCopy implementorsOf: newNameSymbol: isLogSourcePossible: compileAll methodDictionaries allMethodsReferencingInstVar: isFixed allMethodsUsingInstVar: structure: structure instVarNames: allMethodsUsingClassVar: isZeroTerminated checkSuperclassNameConflicts: includesSelector: basicNew computeInstSize classVariableString instSize allSuperclasses inheritsFrom: errorNotIndexable methodDictionaries: allClassVarNamesGrouped pools recomputeMethodDictionaries allClasses variableSubclass:instanceVariableNames:classVariableNames:poolDictionaries: compileAllSubclasses removeSubclass: sendersOf: kindOfSubclass allInstVarNamesGrouped addSelector:withMethod: allInstVarNames superclass logDefinition isVariable new: compile: subclasses allInstancesPrim recompile: sharedVariableString new isBehavior setCompilationOptions: setInstVarNames: withAllSubclasses allClassVarNames allInstAndClassVarNamesGrouped setupMutators)
+)
+
+(WriteStream
+    (Stream)
+    (writeLimit)
+    (position: putInteger: nextPutAll: setToEnd putBytesFrom: cr space setLimits collection nextULongPut: putBytesFrom:from:to: alignTo: nextUShortPut: nextBytePut: contents nextTwoBytesPut: nextFourBytesPut: tab tab: writeLimit nextPut: grow)
+)
+
+(Object
+    ()
+    ()
+    (= == yourself instVarAt: isBoolean printOn: isCompiledMethod isCollection displayAt:with: isComboBox isFileStream asString isDialogWindow isGroupBox class isString isStatusPane storeOn: hash isSelfInitializingObject isBitmap when:do: isExternalAddress isMetaClass copy deepCopy allDependents allReferences methodFor:in: isTextPane implementedBySubclass errorBadEvent: printString eventTableCreate storeString species obsoleteMethod broadcast: isSymbol basicSize canTriggerEvent: isSubPane osErrorMessage: basicAt: removeDependent: isStream vmInterrupt: isClass isStoredPicture error: isMDIChild isLargeInteger triggerEvent:withArguments:ifNotHandled: isCharacter isDoubleByteString isInBase errorBadSelector: mustBeBoolean ~= release ~~ isFloat isInteger changed: doesNotUnderstand: dependents changed isMDIFrame osError: isNil isContext isDoubleByteSymbol isIndexedCollection isPoint evaluate evaluateWithArguments: eventTableForEdit isSmallInteger invalidMessage inspect removeActionsWithReceiver:forEvent: hasActionForEvent: basicHash removeAction:forEvent: perform:withArguments: instVarAt:put: removeActionsForEvent: basicHash: osError isDialogTopPane isFont methodFor: isCompilationResult isGraphPane sender isTopPane isMenu isIcon objectDeepCopy objectShallowCopy isMessage when:send:to:with: primitiveFailed isRectangle update:with: isByteArray isDirectory isNumber isMemberOf: changed:with: addDependent: isMethodDictionary update: isDIB releaseEventTable isWinAddress triggerEvent:ifNotHandled: when:evaluate: methodDictionaryArray methodDictionaryArray: basicAt:put: osWarning osWarning: isApplicationWindow updateEvent:selector:arguments: when:send:to: halt isDropDownList perform:with:with:with: osNotification: isMDIClient removeActionsSatisfying:forEvent: size basicInspect isDynamicLinkLibrary update:with:with: actionForEvent: become: shallowCopy changed:with:with: isKindOf: at:put: isArray perform:with: allReferencesPrim eventsHandled frameCanBeRescaled respondsTo: cantReturn perform:with:with: removeAllActionsWithReceiver: broadcast:with: notNil triggerEvent:with: at: actionListForEvent: when:send:to:with:with: hash: isAssociation dll canGenerateCompilationResult perform: triggerEvent: isTextSelection isMDIMenu setActionList:forEvent: isFraction isInDLL isExternalHandle printRecursionOn: triggerEvent:with:with: dllName triggerEvent:withArguments: isObjectLibraryExternal when:send:to:withArguments: eventTable osNotification isBehavior isGraphicsTool dependsOn: isWindow methodNotAvailable)
+)
+
+(FileStream
+    (ReadWriteStream)
+    (file pageStart writtenOn lastByte lineDelimiter)
+    (next backupOver: position setLimits printOn: file putBytesFrom:from:to: isFileStream getBytesFor:from:to: asByteFileStream asMixedFileStream setLineDelimiterFromFirstPage asMixedFileStream: copyFrom:to: writePage nextLine cr pathName position: nextPutAll: readLimit primitiveNextPut: updateLastByte partialContents:headerSize: sizeOf: nextChunk copyFrom:to:into: partialContents partialContents: close atEnd flush lineDelimiter: lineDelimiter nextPut:)
+)
+
+(ShellDLL
+    (DynamicLinkLibrary)
+    ()
+    (dragAcceptFiles:accept: dragFinish: dragQueryFile:index:buffer:cbBuffer: dragQueryPoint:point:)
+)
+
+(EntryField
+    (ControlPane)
+    (textLimit)
+    (wmChar:with: readOnly cutSelection lowerCase getSelection setSelectionFrom:to: oemConvert triggerChanged upperCase readOnly: getValue controlKeyInput: defaultStyle previousValue virtualKeyInput:withKeys: contents: deleteSelection clear validate setValue: password previousValue: wantReturn modified noHideSelection setTextLimit: textLimit modified: textLimit: clearSelection wmCharResultFor: initialText initialize autoHScroll autoVScroll isReadOnly asyncControlEvent: contents winClass copySelection pasteSelection value losingFocus value: getWindowTextLength insertSelectedText:at: selectFrom:to: buildControl: selectAll)
+)
+
+(VetoAction
+    (Notification)
+    ()
+    ()
+)
+
+(ClassReader
+    (Object)
+    (class)
+    (fileOutDefinitionOn: fileOutOn: setClass: fileOutClassOn: fileOutMethod: instanceHeaderOn: fileOutMethod:on: fileOut: fileOut fileOutAll: fileInFrom: classField)
+)
+
+(ObjectLibraryExternal
+    (Object)
+    (type value)
+    (resolveMethodDictionary resolvePoolVariable value resolveCreateIt resolve: resolveGlobal resolveSymbol printOn: type:value: getClass:ifAbsent: asString isObjectLibraryExternal resolveExpression resolveMetaMethodDictionary resolveMethodDictionaryArray value: resolveClassVariable originalName resolveCommonByteArray resolveMetaClass resolveAssoc type type: resolve resolveMetaMethodDictionaryArray)
+)
+
+(DynamicLinkLibrary16
+    (DynamicLinkLibrary)
+    ()
+    (queryProcAddr: asInteger getResourceString:id: uLongAtOffset: uLongAtOffset:put: close)
+)
+
+(WinPaintStructure
+    (ExternalBuffer)
+    ()
+    (dcHandle eraseFlag eraseFlag: dcHandle: rectangle rectangle:)
+)
+
+(Window
+    (Object)
+    (handle owner children parent rectangle graphicsTool style properties)
+    (asParameter applyStyle sendInputEvent:with: helpManager framingRectangleFor: extent rectangleAttribute: initMenu measureControl: listFont: releaseDC: statusPane canTab textFont: popup ownerDrawStruct cancelMode losingFocus event: create:title:style:rectangle:parent: disabled helpModeCommand: previousTabStop: addVerticalScrollbarStyle previousInGroup: performWhenValids superWindow graphicsToolForeColor: graphicsToolBackColor: defaultDrawItem: owner whenValid:withArguments: mouseMove: currentCursor defaultCursor defaultFont removeStyle: sizeChanged: updateRectangle orderedChildren defaultBackColor mdiSelected captureMouseInput getNextChildSlot helpContext disableRedraw button2Move: button1Move: defaultForeColor resizeWindow: close wmActivate:with: wmInitdialog:with: clearMouseCapture propertyAt:ifAbsent: wmSetfocus:with: wmDdeAck:with: accel:afBits: zoomed boundingBox wmDdeExecute:with: wmSyskeydown:with: wmSyscolorchange:with: wmSize:with: height wmGetdlgcode:with: backColor: wmInitmenu:with: addPopupStyle foreColor: messageBoxColor: wmWininichange:with: handle: wmDdeTerminate:with: noRedraw: wmRbuttondblclk:with: wmLbuttondblclk:with: when:send: wmKillfocus:with: parent: sendDeferredEvent:with: wmErasebkgnd:with: wmCtlcolor:with: wmMenuselect:with: wmLbuttondown:with: wmRbuttondown:with: wmNchittest:with: wmQueryendsession:with: style basicStyle initialize wmClose:with: wmSyscommand:with: defaultHighlight: winClass wmQuerydragicon:with: controlColor: hideWindow wmHelp:with: display mainWindow menuWindow wmMeasureitem:with: buttonFont: wmMouseactivate:with: wmDdeAdvise:with: model: button1DownShift: wmDdeInitiate:with: name font: wmChar:with: tabScope colorChange systemMenuHandle wmCreate:with: wmDrawitem:with: getNextChildId wmHScroll:with: wmVScroll:with: childrenSize sendMouseMoveInputEvent:with: wmDdeRequest:with: hasFocus controlKeyInput: makeActive wmDdePoke:with: destroy handlesEvent: defaultStyle button1DoubleClick: virtualKeyInput:withKeys: hasStyle: button2DoubleClick: doGraphics: setFocus wmDropfiles:with: wmLbuttonup:with: wmMousemove:with: wmTimer:with: handle wmRbuttonup:with: wmCommand:with: setStyle: cursorWindowPosition wmSetcursor:with: unorderedChildren wmDdeData:with: adjustFraming: allChildren queryClientRectangle wmPaint:with: sendInputEvent: helpModeSyscommand: zoomed: wmNcpaint:with: wmDdeUnadvise:with: defaultDrawFocus: defaultMeasureControl: nextTabStop: wmKeydown:with: resizeWindow itemSize controlColor:hDC: wmCtlcolorbtn:with: wmCtlcoloredit:with: wmCtlcolorlistbox:with: wmCtlcolorscrollbar:with: button2Down: button1Down: wmCtlcolorstatic:with: isWindow wmCtlcolormsgbox:with: font showWindowAtTop noDefaultStyle wmCtlcolordlg:with: drawIndex enableRedraw helpManager: whenValid: isHandleOk parent handlers aboutToSaveImage button2Up: button1Up: nextInGroup: drawItem: unknownWinEvent:with: isValid frameWindow childAtId: hasDescendant: recreateWindow ownerDrawStruct: sendInputEvent:withArgs: disable setWindowText: activate rectangle stopReceivingMessages owner: minimizeWindow rectangleAttribute windowTextLength startTimer:period: framingBlock invalidateRect:erase: control:event: properties isActive itemSize: highlight: orderedChildren: mdiSelected: children helpContext: canApplyStyle getDC childrenInBuildOrder gettingFocus subclassWndProc deactivate sendDeferredEvent: isVisible width addSubpane: invalidateRect: backColor foreColor children: graphicsTool: isOffScreen characterInput: id: id addTabInfoFor: style: addClipsiblingsStyle enable when:perform: drawFocus: deviceContext addBorderStyle haveFocus windowText frameStyle whenValid:with: frameRectangle model showWindow drawBox addClipchildrenStyle allVisible frameRelativeRectangle resizeChildren ownerDrawPen addStyle: receiveMessages propertyAt: properties: drawControl: fontChange stopTimer: pen bringToTop propertyAt:put: updateWindow graphicsTool setName: addHorizontalScrollbarStyle)
+)
+
+(Fraction
+    (Number)
+    (numerator denominator)
+    (truncated = reciprocal + printOn: denominator < <= - * negated asFloat >= numerator > squared // hash / numerator:denominator: isFraction)
+)
+
+(DDEServer
+    (DynamicDataExchange)
+    (exportedItems)
+    (addClient: initExportedItems addExportedItem:object: exportedItemAt: initClient terminate isValidClient: removeClientFromList: updateExportedItem:object: removeExportedItem:)
+)
+
+(SmallInteger
+    (Integer)
+    ()
+    (= bitAnd: + printOn: highBit \\ at: bitOr: byteSize > >= ~= rem: // & bitXor: bitShift: signedAt: isSmallInteger < | <= printString - * bitAt: reduce quo: absoluteLessThan:)
+)
+
+(VirtualMachineDLL
+    (DynamicLinkLibrary)
+    ()
+    (exit)
+)
+
+(String
+    (FixedSizeCollection)
+    ()
+    (= replaceFrom:to:withObject: replaceBytesFrom:to:with:startingAt: asTime asParameter edit checkCharacter: printOn: equals: displayAt:font: containsDBCharacter asByteArray asExternalLong asNumber asString asExternalAddress >= fileExtension > isString storeOn: hash unquote asArrayOfSubstringsSeparatedBy: basicAt:put: replace:with: indexOfString:startingAt: fileNamePath trimBlanks asDate containsLeadByte: trimNullTerminator asSymbol size fileNameLessPath asAsciiZ equalsIgnoreCase: rejectComments at:put: asStream sizeOfNormalizedString: asLowerCase asUpperCase withCrs basicAt: fileName outputToPrinter unicodeStringAsAscii asInteger at: asFloat replaceFrom:to:withAddress:startingAt: displayAt: asExternalHandle zapCrs asArrayOfSubstrings asCompactString asMixedString asUnicodeString upTo: asNormalizedString asNullTerminatedUnicodeString asNormalizedString: < <= replaceFrom:to:with:startingAt: indexOfString: asExternalString replaceCharacter:from:to:withString:)
+)
+
+(WorkspaceErrorHandler
+    (TextPaneErrorHandler)
+    ()
+    (undeclaredAssignment:)
+)
+
+(MethodExecutor
+    (Object)
+    (method receiver)
+    (receiver: evaluate methodClass receiver method:)
+)
+
+(ComboEntryField
+    (EntryField)
+    ()
+    (losingFocus button2Up: virtualKeyInput:withKeys: controlKeyInput:)
+)
+
+(WinLogPen
+    (ExternalBuffer)
+    ()
+    (width color style)
+)
+
+(CheckBox
+    (Toggle)
+    ()
+    (autoCheckBox asyncControlEvent: defaultStyle uncheck check changedEventFor: checkBox)
+)
+
+(Win32FindData
+    (ExternalBuffer)
+    ()
+    (ftLastAccessTime cAlternateFileName dwFileAttributes ftCreationTime cFileName cFileName: ftCreationTime: nFileSizeLow ftLastAccessTime: nFileSizeHigh dwFileAttributes: nFileSizeHigh: nFileSizeLow: cAlternateFileName: ftLastWriteTime ftLastWriteTime:)
+)
+
+(CompiledInitializer
+    (CompiledMethod)
+    ()
+    (printOn: recompile)
+)
+
+(NationalLanguageSupport
+    (Object)
+    (allUpperCase allLowerCase collateTable country codePage dateFormat dateSeparator timeFormat timeSeparator currencyFormat currency thousandsSeparator decimalPlace decimalSeparator dataSeparator time1159 time2359 leadBytes isDoubleByteCp countryName language measurementSystem timeLeadZero shortDateFormat longDateFormat currencyDigits negativeCurrencyFormat decimalLeadZero isDigit isLetter)
+    (isTimeFormat12Hour isAlphaNumeric: shortDateFormat dataSeparator dateSeparator decimalLeadZero negativeCurrencyFormat asLowerCase: isDoubleByteCp asUpperCase: longDateFormat dateFormat isDigit: character:isGreaterThan: isLowerCase: initCountryInfo measurementSystem queryNationalProfileString: timeSeparator character:isGreaterThanOrEqualTo: isUpperCase: collateTable: decimalPlace time1159 time2359 currency timeFormat initCollateTable isLetter: character:isLessThanOrEqualTo: decimalSeparator compareString:withString: loadCollateTable: string:isGreaterThan: leadBytes string:isLessThan: string:isLessThanOrEqualTo: character:isLessThan: timeLeadZero country initialize initCharacterPredicates currencyDigits thousandsSeparator compareStringi:withString: setDBCSInfo collateTable queryNationalProfileInt: string:isGreaterThanOrEqualTo: language countryName currencyFormat)
+)
+
+(DynamicLinkLibrary
+    (ExternalHandle)
+    ()
+    (errorString convertArray: convertResult: call:arguments:types:returns:dllName: isDynamicLinkLibrary queryProcAddr: call:arguments:types:returns: getResourceString:id: invalidArgument free close)
+)
+
+(Context
+    (Object)
+    (homeContext startPC)
+    (isContext numberOfArguments homeContext on:do: asActionSequence valueMarked setUnwind: receiver ensure: validateNumberOfArguments: whileTrue whileFalse invalidArgumentCount: ifCurtailed: argumentCount)
+)
+
+(IdentityDictionary
+    (Dictionary)
+    ()
+    (do: at:put: grow rehash hashForKey: associationAt:ifAbsent: at:ifAbsent: includesKey: findKeyIndex: adjustSize at:ifAbsentPut: keys add: associationsDo: at: rehashFrom: keysAndValuesDo: values removeKey:ifAbsent: keyAtValue:ifAbsent:)
+)
+
+(KernelDLL
+    (DynamicLinkLibrary)
+    ()
+    (moveFile:to: beginUpdateResource: createFile:access:shareMode:securityAttributes:create:attributes:templateFile: lread:string:size: enumResourceNames:type:enumProc:param: queryPerformanceFrequency: getSystemTime: findResource:nameString:type: getLocalTime: heapDestroy: heapFree:flags:address: heapSize:flags:address: setFilePointer:offset:offsetHigh:move: globalReAlloc:bytes:flag: setSystemTime: allocSelector: setLocalTime: createDirectory:securityAttributes: deleteFile: findResource:name:type: getDiskFreeSpace:sectorsPerCluster:bytesPerSector:freeClusters:totalClusters: getFreeSpace: freeLibrary: getProfileString:keyName:default:returnedString:size: getFileTime:creation:lastAccess:lastWrite: loadLibrary: getWindowsDirectory:length: getTempFileName:prefix:unique:fileName: getLastError lopen:style: getCurrentDirectory:buffer: removeDirectory: globalHandle: readFile:buffer:bytesToRead:bytesRead:overlapped: findNextFile:findData: freeProcInstance: setFileTime:creation:lastAccess:lastWrite: lockFile:offsetLow:offsetHigh:lengthLow:lengthHigh: getFileSize:fileSizeHigh: heapAlloc:flags:size: isDBCSLeadByte: lStrCmp:withString: getCurrentThreadId createProcess:commandLine:processSecurity:threadSecurity:inheritHandles:createFlags:environment:currentDir:startInfo:processInfo: globalCompact: findFirstFile:findData: globalLock: globalDeleteAtom: updateResource:type:name:language:data:cbData: findResource:nameInteger:type: freeSelector: globalSize: heapCreate:initialSize:maximumSize: globalAddAtom: copyFile:to:ifExists: globalGetAtomName:buffer:size: allocDStoCSAlias: findClose: globalMemoryStatus: setHandleCount: globalFree: getVolumeInformation:name:nameSize:serialNumber:maximumComponentLength:fileSystemFlags:fileSystemName:fileSystemNameSize: globalAlloc:bytes: lclose: localCompact: makeProcInstance:withInstance: getProcAddress:procName: dosDate:time:toFileTime: queryPerformanceCounter: lStrCmpi:withString: winExec:cmdShow: setErrorMode: enumResourceTypes:enumProc:param: freeResource: openFile:reopenBuffer:style: getProfileInt:keyName:default: loadResource:hrsrc: lwrite:string:size: setCurrentDirectory: llseek:offset:origin: lockResource: closeHandle: globalUnlock: writeFile:buffer:bytesToWrite:bytesWritten:overlapped: exitProcess: fileTime:toDosDate:dosTime: getDriveType: getTickCount endUpdateResource:discard: fileTime:toLocalFileTime: setFileAttributes:attributes: setLastError: unlockFile:offsetLow:offsetHigh:lengthLow:lengthHigh: getModuleHandle: getFileAttributes: sizeofResource:hrsrc: beep:for: fileTimeToSystemTime:systemTime: localFree: getVersion outputDebugString: getModuleFileName:name:size: searchPath:file:extension:bufSize:buffer:filePart: lcreat:style: prestoChangoSelector:destinationSelector: getCommandLine getSystemDirectory:length:)
+)
+
+(ProcessScheduler
+    (Object)
+    (readyProcesses bytesCollected bytesFlipped oldSpacePages newSpacePages newSpaceLimit gcOperation traceMode bytesTenured tenurePolicy oldSpaceThreshold inTrouble inPanic)
+    (standardPriority realTimePriority status schedule yield fork: fork:at: suspendActive terminateActive idleTaskPriority configure traceMode: backgroundPriority oldSpaceThresholdIncrement copyStack lowPriority printStatusOn: compact schedule: flip resume: topPriority readyToRun unschedule: initialize idleLoop oldSpaceThresholdIncrement: highUserPriority highPriority rebalance clearProcesses lowUserPriority userPriority currentProcessIsRecursive)
+)
+
+(SaveImageDialog
+    (WindowDialog)
+    (answer cbBackupImage)
+    (initWindowSize getBackupImage openNumButton: openYesNo openYesNoCancel no: answer yes: cancel:)
+)
+
+(SilentErrorHandler
+    (CompilerErrorHandler)
+    ()
+    (reportWarning:)
+)
+
+(WinRectangle
+    (ExternalBuffer)
+    ()
+    (asRectangle xRight: yTop: yTop yBottom yBottom: xLeft xRight xLeft:)
+)
+
+(StaticPane
+    (ControlPane)
+    ()
+    (winClass canTab basicStyle)
+)
+
+(KernelDLL16
+    (DynamicLinkLibrary16)
+    ()
+    (loadLibrary: freeLibrary: getProcAddress:procName: getModuleHandle:)
+)
+
+(InputEvent
+    (Object)
+    (type value x y typeArray button)
+    (errorIn:label: returnFromRecursion:value: nullEventWin)
+)
+
+(ReadStream
+    (Stream)
+    ()
+    (next contents setLimits)
+)
+
+(WinLogPalette
+    (ExternalBuffer)
+    ()
+    (hash =)
+)
+
+(FixedSizeCollection
+    (IndexedCollection)
+    ()
+    (add: collect: deepCopy remove:ifAbsent: select: size reversed copyReplaceFrom:to:with: storeOn: shallowCopy)
+)
+
+(TopPane
+    (ApplicationWindow)
+    (handlers framingBlock)
+    (tabScope initWindowSize minimizeWindow activate addSubpane: wmInitmenu:with: okToClose okToClose: framingBlock triggerOpenedEvent eventTableForEdit windowPolicy: handlers measureControl: validate releaseEventTable defaultPushButton highlight: defaultPushButton: saveAs deferredResizeRectangleFor: abortClose framingBlock: framingRatio: button2Up: wmTimer:with: resize:deferInfo: buildMenuBar drawItem: wmQueryendsession:with: canTab initialize eventTableCreate close drawFocus: deactivate eventTable isOkToClose isTopPane helpRequest handlersAttribute handlersAttribute:)
+)
+
+(Toggle
+    (Button)
+    ()
+    (selection losingFocus update isDefaultPushButton initialize getValue gettingFocus asyncControlEvent: defaultStyle value changedEventFor: setValue: update: validate setValue value: aboutToSaveImage buildControl: selection:)
+)
+
+(ControlPane
+    (SubPane)
+    (value label)
+    (font: open valueAttribute wmVScroll:with: wmHScroll:with: getValue isHandleOk virtualKeyInput:withKeys: contents: validate syncControlEvent: labelAttribute: aboutToSaveImage wmErasebkgnd:with: pen wmSetcursor:with: receiveAllWindowMessages wmPaint:with: style: canApplyStyle valueAttribute: initialText buildWindow: setFocusOnControl basicStyle asyncControlEvent: contents controlEvent: controlColor: buildDialogItem: label graphicsTool labelAttribute buildControl: colorChange)
+)
+
+(NotificationManager
+    (Object)
+    (windows)
+    (setPeekCount: reinitDelayed closeAllWindows isKeyToggled: isAltKeyDown exitSampleApplication yield remove: notifyRecursive cleanUpWindows startUpSampleApplication quit runPendingEvents activeMainWindow isControlKeyDown doWithNoMessageProcessing: consumeInputUntil: aboutToSaveImage recursiveWinMessage translateAccelerator: reinitialize cleanUpAllMessages runPeek selectorFor: readWinQueue getWindowsMsg: run remove:for: findWindow: removeEventsFor: getFocusWindow initialize isKeyDown: peek: startUpApplication add: notify: isShiftKeyDown resume: empty relocateWindows: windows findRealWindow: runEventLoop initializeWindowHandles reopenWindows: cycle)
+)
+
+(MethodDictionary
+    (IdentityDictionary)
+    (class)
+    (shallowCopy add: at:put: flushFromCache: fastCopy isMethodDictionary removeKey:ifAbsent: classField: postFastCopy: flushAllFromCache classField)
+)
+
+(Stream
+    (Object)
+    (collection position readLimit)
+    (do: nextPiece backupOver: setCollection: position nextInteger isStream show: skipTo: peek skipSeparators copyFrom:to: countBlanks indexOf: nextWord nextLine position: nextMatchFor: readLimit setToEnd nextChunkPut: upTo: fileIn nextChunk isEmpty next: close reverseContents fileInNoCancel contents atEnd next:put: size skip: lineDelimiter peekFor: reset lineDelimiter:)
+)
+
+(DiskBrowser
+    (ViewManager)
+    (device volumeLabel directoryList hiddenDirectories sortedFileList pathNameArray selectedDirectory directoryIndex selectedFile wholeFileRequest contentsPane sortPane sortCriteria dirTree devices)
+    (directory: hideDirectory initWindowSize open subdirectoriesOf:level: update files: copyFile promptForPathName: sortMenu: file fileReadOnly: getDevices removeFile showDirectory sortByName printFile switchToDirectoryPane fileListMenu: restore hideShow: accept: showPartialFile createDirectory directoryListMenu: switchToFilePane windowPolicyClass saveAs sortBySize formFeed: directorySort: directorySortSelected: updateSortPane sortBy: directories: adjustRight:for: buildDirectoryList removeDirectory device: renameFile selectDirectory: dropped: hideShow createFile label file: fixedFont devices: directoryContents: restoreDirList changeFileMode loadEntireFile sortByDate fileContents: collapsedLabel)
+)
+
+(Number
+    (Magnitude)
+    ()
+    (rightMost: ceiling asParameter sign printOn: + \\ even isNumber radiansToDegrees degreesToRadians integerSin truncateTo: abs log: storeOn: roundTo: higherOf: isRightEqualOf: isAboveEqual: printFraction: isLeftOf: left: deepCopy raisedTo: printFraction:decimalSeparator: denominator - negated quo: strictlyPositive squared zeroDivisor shallowCopy @ isAbove: floor leftMost: reciprocal exp truncated odd printRounded: to:do: right: raisedToInteger: cos to: negative asInteger up: rem: numerator tan sqrt // / isLeftEqualOf: arcCos ln lowerOf: down: isRightOf: isBelowEqual: rounded to:by: isBelow: timesTwoPower: asShortParameter * positive integerCos sin to:by:do: arcTan arcSin)
+)
+
+(SelectorBrowser
+    (MethodBrowser)
+    (selectors selectedSelector method)
+    (selectors: initWindowSize selectorsMenu: disableSelectorsMenu accept: openOn: selImplementors enableSelectorsMenu selSenders selector:)
+)
+
+(SmalltalkWindowPolicy
+    (StandardWindowPolicy)
+    ()
+    (addStandardLeftMenus addStandardRightMenus addSmalltalkMenu)
+)
+
+(WinBitmapInfoHeader
+    (ExternalBuffer)
+    ()
+    (clrImportant height: planes sizeImage planes: width width: sizeImage: xPelsPerMeter yPelsPerMeter: height xPelsPerMeter: bitCount clrUsed: compression: size: bitCount: clrImportant:)
+)
+
+(Integer
+    (Number)
+    ()
+    (truncated radix: reciprocal ceiling floor printOn: asCharacter printOn:base: lcm: lowWord lowDigit asFloat radix:showRadix: asInteger negative asExternalAddress rem: isInteger bitInvert / hash and: printPaddedWith:to:base: abs bitShift: factorial printPaddedTo: printOn:base:showRadix: copyInto: highWord rounded basicHash absoluteLessThan: negated gcd: printStringRadix: intSqrt positive strictlyPositive highDigit timesRepeat: asBoolean asUnsigned)
+)
+
+(SaveImageAsDialog
+    (WindowDialog)
+    (icon iconFileName imageFileName canceled)
+    (cancel: compilerError:at:in:for: initWindowSize canceled open startUpMethod: saveImage displayIcon: saveMethod setIcon: ok: validateImageName close:)
+)
+
+(CommonDialogDLL
+    (DynamicLinkLibrary)
+    ()
+    (printDlg: getOpenFilename: commDlgExtendedError findText: chooseColor: chooseFont: replaceText: getSaveFilename:)
+)
+
+(TextPaneControl
+    (TextEdit)
+    (evaluate modified)
+    (popupMenu fileOutOn: selectAtEnd addCurlyBrackets matchPatternBack:from: matchBracketFrom:to: fileItIn findSearchString appendChar: restore addParens replaceAtPattern contents: append: update: initMenu selectBefore: insert: aboutToSaveImage cr doubleClickBrackets lineAt: searchFor: wmLbuttondblclk:with: addSquareBrackets wmLbuttondown:with: doIt: isTextPane linesInSelection matchBracketChars textFont: initialize forceEndOntoDisplay search doIt doubleClickSmalltalk forceSelectionOntoDisplay toggleWrap display showSelectionFrom:to: searchBackOld inspectIt fileInFrom: searchOld printLines: addDoubleQuotes addSingleQuotes selectedText setModified again update setEvaluate: compilerError:at:in:for: findReplace charAt: doItcompilerError:at:in:for: insertAfterSelection: print virtualKeyInput:withKeys: validate saveCompilerError:at:in:for: queryReplaceAtPattern clearModified linesInPane nextPutAll: selectAfter: selectCharFrom:to: printIt selectedString cancel searchForDefaultTextPane accept addLeftBracket:rightBracket: replace: wmKeydown:with: linesInStream: printSelection replaceString: tabWithKeys: selectFrom:to: nextPut:)
+)
+
+(WinLogicalPalette
+    (WinLogicalObject)
+    (logPalette)
+    (getHandle attributeArray fromStruct:)
+)
+
+(WorkspaceTextPane
+    (TextPane)
+    (variableDictionary pools compiler compilationScope)
+    (buildCompiler buildCompilationScope compiler defaultPools errorHandlerClass variableDictionary compilerClass compilationScope dictionaryClass poolScope evaluate:ifError: declareVariable: pools)
+)
+
+(ProgressIndicatorDialog
+    (WindowDialog)
+    (canceled messageText percentText percentGraphic percentComplete noCancel prevPercentComplete)
+    (open initWindowSize noCancel canceled open:message: percentText: message: percent: initialize percentGraphic: cancel:)
+)
+
+(Font
+    (Object)
+    (logFont faceName isImage hFont changed textMetrics pointSize)
+    (logFont logFont: fontHandle charWidth:graphicsMedium: width spaceWidth faceName fontHandle: height charSize printOn: stringWidth: pointSize charSize: pointSize:graphicsMedium: setChanged: descender overHang stringWidth:graphicsMedium: indexOf:at:withDC: underscore bold strikeOut makeFont basePoint: underscore: basePoint fixedWidth: stringWidth:withDC: negative: makeFont: indexOfWholeChar:at:withDC: initFontHandle charSet: charSet initialize extractFontInfo: sameLogFont: isImage strikeOut: fromFontType:fromLogFont:fromTextMetrics:graphicsMedium: originalHandle bold: isFont fixedWidth hollow: italic: createFont:graphicsMedium: italic faceName: charWidth:)
+)
+
+(Float
+    (Number)
+    ()
+    (truncated = exponent reciprocal printOn:decimalSeparator: exp replaceBytesFrom:to:with:startingAt: + printOn: significand cos asFloat radiansToDegrees negative degreesToRadians >= > tan isFloat sqrt // / hash ln abs printFraction: printFraction:decimalSeparator: < <= replaceFrom:to:with:startingAt: timesTwoPower: - * negated positive sin strictlyPositive arcTan)
+)
+
+(MenuItem
+    (Object)
+    (id contents selector style position submenu)
+    (position: isSubmenu position style: printOn: style contents submenu: selector submenu id: contents: hasSubmenu id selector:)
+)
+
+(StandardWindowPolicy
+    (WindowPolicy)
+    ()
+    (addStandardLeftMenus addStandardRightMenus addFileMenu addApplicationMenus addEditMenu)
+)
+
+(Semaphore
+    (Object)
+    (signalCount waitingProcesses)
+    (signal wait hasSignals initialize waitPrim)
+)
+
+(Inspector
+    (ViewManager)
+    (object instList instIndex instPane)
+    (setInstList enableInspectItem getInstVarIndex inspectMenu: inspectSelection openOn: selectInstance: instVarList: instance: addHelpManager doItResult:error: accept: getInstVarAt: windowPolicyClass inspectSelection: checkTextModifiedFor:)
+)
+
+(ListBox
+    (ControlPane)
+    (list userDrawn height tempSelection bmaps)
+    (characterTyped selectedIndex getSelection itemHeight ownerDrawFixed triggerChanged listAttribute listAttribute: getValue height restore selectedItem noRedraw isOkToChange contents: deleteItem: setValue: measureControl: ownerDrawVariable itemHeight: notify lineAt: height: listFont: printSelector getTopIndex drawItem: deselect printSelector: setTabStops: drawFocus: initialize useTabStops setTopIndex: winClass noIntegralHeight drawBitmap:for: valueIndex: itemSize updateHorizontalExtent buildControl: list defaultDragDropObjects wmChar:with: selectIndex: defaultDrawItem: setColumnWidth: doubleClickQueued insertArray: setValueIndex: standard sort wmMousemove:with: defaultStyle itemSize: virtualKeyInput:withKeys: commitSelection highlight: insertItem: validate multiColumn disableNoScroll insertItemInControl: indexOf: selection selection: list: restoreWithRefresh: selectItem: setList: valueIndex clearSelection deleteMessage setHorizontalExtent: draw:for: deleteAllFromControl integralHeight defaultMeasureControl: asyncControlEvent: contents deleteAll isIndexSelected: value value: restoreSelected: restoreSelected)
+)
+
+(Bitmap
+    (GraphicsMedium)
+    (bitmapHandle bitmapInfo archive palette)
+    (asParameter restoreBitmap createBitmap createBitmapIndirect: displayAt:with: boundingBox width saveBitmap createBitmap: height createPlanes:bitCount:bits: ownDCScreenWidth:height: extent changeSize: getIconHeaderDIBits isBitmap aboutToSaveImage flip screenExtent: drawUsing: getDDBits deselect displayIn:with: deselectFromAuxDC: isValid setDIBits:using: createPlanes:bitCount: width:height: bitmapIndirect: getDIBits bitmapInfo: ownDCExtent: ownDCScreenExtent: isColor bitmapInfo width:height:planes:bitCount: createDIBPalette initPenWidth:height:planes:bitCount: numberOfColors outputToPrinter planes setDIBits: bitCount width:height:bits: initHandle createBitmap:height:planes:bitCount:bits: outputToPrinter: select displayAt: flipHorizontally release getCb: archive initPenWidth:height:planes:bitCount:forDC: validate sizeInBytes archive: outputToFile: handle screenWidth:height: pen inspect flipVertically clone selectToAuxDC isMono ownDCWidth:height:)
+)
+
+(TextPaneErrorHandler
+    (CompilerErrorHandler)
+    (pane)
+    (pane pane: declareGlobal: promptIfGlobal: undeclaredAccess: undeclaredAssignment: reportWarning:)
+)
+
+(GroupPane
+    (SubPane)
+    ()
+    (tabScope updateSliders nextTabStop controlColor: defaultStyle nextTabStop: addSubpane: canArrowInto previousTabStop previousTabStop:)
+)
+
+(NewSubclassDialog
+    (DialogBox)
+    (superclassName subclassName fixed pointer)
+    (open: superclassName fixed subclassName byte ok cancel isPointer itemIds isFixed)
+)
+
+(ExternalGlobalHandle
+    (ExternalMemoryHandle)
+    ()
+    ()
+)
+
+(ByteArrayInspector
+    (Inspector)
+    (radix)
+    (addHelpManager radix: inspectMenu: instance: openOn:)
+)
+
+(WinDropFile
+    (ExternalBuffer)
+    ()
+    (ptMousePosY: wSize: ptMousePos fInNonClientArea pathNames pathNames: fInNonClientArea: wSize ptMousePos: ptMousePosX ptMousePosX: ptMousePosY)
+)
+
+(WindowDialog
+    (ViewManager)
+    ()
+    (initWindowSize openModal: query: query:with: openModeless openWindow processInput topPaneClass close)
+)
+
+(Pattern
+    (Object)
+    (input fail state matchBlock first)
+    (matchBackward:index:each: matchBlock: match:index: build: failAt:with: input matchBackward:index: match: reset match:index:each:)
+)
+
+(Boolean
+    (Object)
+    ()
+    (printOn: storeOn: deepCopy isBoolean shallowCopy)
+)
+
+(OneArgumentBlock
+    (Context)
+    ()
+    (numberOfArguments evaluate value: evaluateWithArguments:)
+)
+
+(GraphPane
+    (SubPane)
+    (firstTime stretch mouse originalExtent)
+    (amountToPageUp stretch: mouseLocation wmSize:with: showBitmap amountToScrollLeft updateVerticalSlider bitmapIfAbsent: aboutToSaveImage button2Up: button1Up: charsInRow wmErasebkgnd:with: scrollTopCornerTo: wmLbuttondown:with: updateHorizontalSlider verticalScrollMaxRange verticalScrollMinRange initialize basicStyle winClass display bitmap: displayWindow erase button1DownShift: bitmap update wmHScroll:with: horizontalScrollPos wmVScroll:with: getGraphicsTool scrollingRectangle scrollTopCorner: mouseMove: setScrollRanges button1DoubleClick: button2DoubleClick: button1UpShift: updateRectangle validate scrollHorizontal: virtualKeyInput:withKeys: horizontalScrollMaxRange horizontalScrollMinRange wmPaint:with: graphicsToolClass button2Move: button1Move: amountToScrollUp close verticalScrollPos deactivate isGraphPane button2Down: charsInColumn button1Down: amountToPageLeft setScale)
+)
+
+(FileDialog
+    (CommonSystemDialog)
+    (fileName openFileNameStruct filters lpstrFilter lpstrFile lpstrInitialDir lpstrTitle lpstrDefExt)
+    (directory directory: open overwritePrompt owner: file addFilter:description: fileSpec: title: save defExtension: flags flags: openTitle:fileSpec:showFileInButton: copyStruct fileIn cleanUp defFilter defFilter: filters openFile saveFile: initialize shareAware openFile: saveTitle:fileName: hideReadonly addSmalltalkFileFilters checkFlags)
+)
+
+(CompilerNameScope
+    (Object)
+    (enclosingEnvironment shadowFlag scopeDescription)
+    (describeScopeBinding: removeLocalBindingFor: getEnclosingEnvironment localBindingFor: printOn: enclosingScope setEnclosingEnvironment: hasInvalidBindingFor: undeclare: canDeclare: descriptionFor: hasBindingFor: allowsRedefinitionOf: getScopeDescription unquote disallowShadowing allowShadowing bind:to: allowsBindingOf: getShadowFlag defaultBindingFor: description: description setScopeDescription: hasLocalBindingFor: declare:ifError: bindingFor:ifNone: composeWith: hasShadowed: initialize unbound canShadow setShadowFlag: localBind:to: describeInvalidBindingFor: declare:boundTo:ifError: enclosingScope: declare:boundTo:)
+)
+
+(ZeroArgumentBlock
+    (Context)
+    ()
+    (evaluateWithoutInterrupts numberOfArguments fork forkAt: evaluate value evaluateWithArguments: whileTrue: whileFalse:)
+)
+
+(MultipleSelectListBox
+    (ListBox)
+    ()
+    (defaultDragDropObjects unSelectIndex: selectIndex: clearSelections getSelection triggerChanged multipleSelect valueIndices: deselectItem: defaultStyle deselectIndexPrivate: setValue: validate selection defaultDragDropCursor selections selection: selectIndexPrivate: clearSelection extendedSelect valueIndices deselectIndex: asyncControlEvent: isIndexSelected: value selectedItems deselectAll setValueIndices: value:)
+)
+
+(GraphicInspector
+    (Inspector)
+    ()
+    (graphicInstance: selectInstance: instance: isGraphicObject: openOn:)
+)
+
+(CompilerInterface
+    (Object)
+    (nameScope errorHandler compiler options)
+    (poolVariableScopeFor: addOption: options getOptions defaultCompilerClass errorHandler: nameScope classVariableScopeFor: defaultErrorHandler nameScope: removeOption: scopeForPool:named: bindingClassForAssociations getErrorHandler resetOptions includesOption: errorHandler compile:withMessagePattern: compileForEvaluation: evaluate: bindingClassForPoolNamed: getNameScope setErrorHandler: errorClass scopeForReservedSymbolsExcluding: scopeForClass: parseSelector: setNameScope: evaluate:withReceiver: scopeForGlobals scopeForInstanceVariableNames: compile: compiler analyze:withMethodPattern: optionValue: defaultGlobalDictionary initialOptions scopeForDictionary: getCompiler scopeForReservedSymbols addOption:with:)
+)
+
+(WinLogFont
+    (ExternalBuffer)
+    ()
+    (lfHeight lfQuality lfQuality: lfWeight lfPitchAndFamily: szFaceName: lfItalic szFaceName lfCharSet lfCharSet: lfHeight: lfItalic: lfPitchAndFamily lfStrikeOut lfStrikeOut: lfUnderline lfUnderline: lfWeight: lfWidth lfWidth: padWithZeros)
+)
+
+(Prompter
+    (WindowDialog)
+    (exitBlock reply evaluating withBlank)
+    (cancel: initWindowSize prompt:default: cancelAnswer compileExpression title:prompt:default: withBlank: opened: evaluating: ok: okToClose compilerError:at:in:for:)
+)
+
+(TraditionalCompilerErrorHandler
+    (SilentErrorHandler)
+    ()
+    (undeclaredAccess: undeclaredAssignment: retryWithVar: checkDefineGlobal:)
+)
+
+(ClassHierarchyBrowser
+    (ViewManager)
+    (originalClasses browsedClasses selectedClass instanceSelectedLast selectedMethod methodSelectedLast hiddenClasses selectedInstVar assigned used)
+    (fixHideShowItem: acceptClass:from: enableMethodsMenu messages references hierarchySelected: checkInstVarMenu used hierarchyCharInput: accept: hierarchySearchFor:from:in: instanceVars: addSubClass update: instanceButton: selector: findClass removeSelector selectors: senders label fileOutWithSubclasses droppedOnSelectorList: enableClassesMenu bothInstVars fileOut implementors checkMenuForClassVariable initWindowSize instanceVar: newMethod menu: update openOn: classButton: localImplementors browse selectorMenu: instVarsMenu: compile:notifying:in: hideShow: assigned dragDropObjects windowPolicyClass disableMethodsMenu localSenders checkMenuForInstanceVariable hierarchySearchFor:in: instance droppedOnTextPane: addClasses:at: hideShow removeSubClass hierarchySearch:class:index:in: template text: disableClassesMenu fileOutMethod hierarchy hierarchy:)
+)
+
+(UndefinedObject
+    (Object)
+    ()
+    (notNil isNil variableSubclass:instanceVariableNames:classVariableNames:poolDictionaries: Doit deepCopy asParameter subclass:instanceVariableNames:classVariableNames:poolDictionaries: printOn: variableByteSubclass:instanceVariableNames:classVariableNames:poolDictionaries: storeOn: variableByteSubclass:classVariableNames:poolDictionaries: shallowCopy)
+)
+
+(Icon
+    (Object)
+    (andMask xorMask name hIcon readOnly dllFileName hLibrary)
+    (name name: readOnly andMask andMask: asParameter displayAt:with: initHandle releaseReadOnly releaseBitmaps findVGAImage: outputToExe:id: readOnly: readBitmapsFromFileStream: fromFileStreamOS2: privateHandle extent release displayAt: handle: fromFileStream: xorMask: xorMask outputToFile: handle createIcon createMasks displayWith: inspect initialize isValid handleReadOnly outputToFileStream: fromModule:id: hasHandle isIcon)
+)
+
+(ObjectLibraryBind
+    (Object)
+    (known handle name eventTable)
+    (handle resolve name name: version previousMethodOf: remove check printOn: shapes open initMethod initialize close removeClasses: addGlobals bindTo: contents eventTable eventTableForEdit abortUnbind handle: checkClassesForUnbind: unBind methods classes)
+)
+
+(Error
+    (Exception)
+    ()
+    ()
+)
+
+(OrderedCollectionInspector
+    (Inspector)
+    ()
+    (setInstList accept: inspectSelection instance:)
+)
+
+(GroupBox
+    (ControlPane)
+    ()
+    (winClass label: defaultStyle isGroupBox label setLabel: validate canTab basicStyle)
+)
+
+(CommonSystemDialog
+    (DialogBox)
+    ()
+    ()
+)
+
+(Point
+    (Object)
+    (x y)
+    (= leftAndDown: asParameter + printOn: \\ transpose mapFromWindow: >= > rightAndUp: abs extent: rightMostAndLowest: hash mapClientToScreen: mapToScreen: truncateTo: isBefore: moveBy: extentFromLeftTop: left: leftMostAndLowest: - negated mapFromWindow:to: extentFromLeftBottom: between:and: rightMostAndHighest: mapToWindow: corner: isRightAndAbove: dotProduct: truncated isLeftAndAbove: isLeftAndBelow: leftMostAndHighest: dpToLp: rightBottom: rightAndDown: right: up: x x: // / isRightAndBelow: down: rightTop: mapScreenToClient: isPoint rounded < y <= y: leftAndUp: min: max: *)
+)
+
+(Bag
+    (Collection)
+    (elements)
+    (do: at:put: at: occurrencesOf: add: remove:ifAbsent: size elements includes: initialize add:withOccurrences:)
+)
+
+(Process
+    (OrderedCollection)
+    (topFrame frameBias priority sendFrame runable isUserIF debugger name interruptFrame exceptionEnvironment terminationBlock protectionBlock)
+    (terminateWithoutProtection printOn: debugger tempAt:number:put: restartable restartable: runTimeError:resume: icAt: isRecursive homeFrameOf: methodAt:put: resume findFrameIndexOf: frameAt:offset:put: debugger: frameToProcessIndex: firstProtectionBlockWithin:removeMark: primitiveResumeWithInterrupt: numberOfArgsAt: returnOffsetAt: frameBias frameBias: initialize terminateWhileActive argAt:number:put: restartAt: bpToFrameIndex: terminationBlock: argAt:number: isBeingDebugged stackOverflow exceptionEnvironment: frameIndexAt: name name: dropTo: isUserIF runable runable: nextFrameAtNew: interruptFrame: methodAt: nextFrameAtOld: dropFrame protectionBlock protectionBlock: dropFrames: processIndexToStackPointer: makeUserIF resumeWithInterrupt: stackPointerToProcessIndex: priority: exceptionEnvironment evaluate: sendFrame sendFrame: topFrame returnOffsetAt:put: topFrame: evaluateOneProtectionBlock flushExceptionEnvironment contextFor: evaluateProtectionBlock resume: walkbackListTo:maxLevels: terminate inspect receiverAt: safelyEvaluate: priority frameAt:offset: getLaunchFrame walkbackOn:maxLevels:stopSelector: terminationBlock dropFrameWithoutProtection nextFrameAt: tempAt:number: interruptICAt: walkbackOn:maxLevels:)
+)
+
+(MessageNotUnderstood
+    (ControlError)
+    (message)
+    (message message: defaultAction isResumable)
+)
+
+(WinMeasureItemStruct
+    (ExternalBuffer)
+    ()
+    (ctlType ctlId itemWidth itemWidth: itemHeight itemData itemHeight: itemId)
+)
+
+(DoubleByteStringInspector
+    (Inspector)
+    ()
+    (setInstList)
+)
+
+(WinOfstruct
+    (ExternalBuffer)
+    ()
+    (nErrCode)
+)
+
+(WindowPolicy
+    (Object)
+    (window)
+    (addSystemMenus addStandardRightMenus addMenus addApplicationMenus window: addStandardLeftMenus addMenusTo:)
+)
+
+(TextWindow
+    (ViewManager)
+    (file partial)
+    (initWindowSize nextPutAll: readEntireFile dropped: saveString: openOn: openOnFile: space readFile: saveFile: updateMenu: close: show: stringContents: readPartialFile contents openOnPathName: pane next:put: contents: tab windowPolicyClass saveAs textPaneClass nextPut: cr)
+)
+
+(PrintAbortDialog
+    (WindowDialog)
+    (printer)
+    (cancel: initWindowSize open:printer:)
+)
+
+(MenuWindow
+    (Window)
+    (accel allMenus menus)
+    (insertMenu:after: newSubMenuFor: destroy isDisabled: aboutToStartMenu accelTable buildPopupWindow popUpAt:in: menus addMenu:owner: deleteItem: contextForItem: insertItem:label: performItemId:in: initGraphics selectorOf: addMenu: removeMenu: systemMenu findWindow: initialize buildWindow: close menuWithItemId: menuTitled: performMenuItem: addSystemMenuItems: contextForPopup: itemIdFromPosition:)
+)
+
+(ArithmeticError
+    (Error)
+    ()
+    ()
+)
+
+(LoggedWarning
+    (Warning)
+    ()
+    (defaultAction)
+)
+
+(MultiplePoolScope
+    (CompilerNameScope)
+    (scopes)
+    (localBind:to: add: removeLocalBindingFor: getScopes localBindingFor: descriptionFor: hasInvalidBindingFor: describeInvalidBindingFor: whoBinds: allPoolsBinding: scopes)
+)
+
+(StaticBox
+    (StaticPane)
+    ()
+    (grayRectangle defaultStyle blackRectangle whiteRect whiteFrame blackFrame grayFrame)
+)
+
+(WinSystemTime
+    (ExternalBuffer)
+    ()
+    (wMinute: wDayOfWeek wSecond wSecond: wYear: wYear wMonth: wDayOfWeek: wMonth wHour wHour: wMilliseconds wDay wMilliseconds: wDay: wMinute)
+)
+
+(Rectangle
+    (Object)
+    (leftTop rightBottom)
+    (= rightTop asParameter merge: width printOn: isRectangle width: contains: height insetBy: scaleTo: extent origin:extent: extent: mapToScreen: mapClientToScreen: rightCenter leftBottom:rightTop: moveBy: bottom moveTo: offsetFromUpperLeftOfSystemPoint: height: origin left: topCenter origin: top mapFromWindow:to: top: scaleBy: translateBy: relativeTo: bottomLeft: topRight: mapToWindow: corner: leftTop: leftTop expandBy: topRight truncated leftCenter rightBottom rightBottom: right right: bottom: intersects: areasOutside: bottomRight bottomRight: nonIntersections: containsPoint: left leftTop:rightBottom: leftBottom mapScreenToClient: bottomCenter topLeft leftBottom:extent: topLeft: rounded center intersect: leftTop:extent: origin:corner: area corner bottomLeft)
+)
+
+(CompilerErrorHandler
+    (Object)
+    ()
+    (undeclaredAssignment: reportFatal: fatalError: undeclaredAccess: reportWarning: warning:)
+)
+
+(Array
+    (FixedSizeCollection)
+    ()
+    (printOn: isArray storeOn:)
+)
+
+(Notification
+    (Exception)
+    ()
+    (defaultAction isResumable)
+)
+
+(SelfDefinedStructure
+    (ExternalBuffer)
+    (definition)
+    (at: at:put: privateAt: privateAt:put: definition: inspect printOn: sizeInBytes definition doesNotUnderstand:)
+)
+
+(ApplicationWindow
+    (Window)
+    (label collapsed menuWindow dependents activeTextPane)
+    (textModified noSmalltalkMenuBar validateBuild openWorkspace drawIndex showMaximizedWindow wmSize:with: openClassBrowser hasSmalltalkMenuBar printSetup activeTextPane restore changed:with: triggerOpenedEvent activeTextPane: add:interestIn: showIconicWindow contextForItem: id aboutToSaveImage subPaneWithFocus defWindowProc:with:with: wmErasebkgnd:with: zoom buildMenuBar saveImageNoConfirm isApplicationWindow style: wmSyscommand:with: addDialogBorderStyle initialize buildWindow basicStyle addSizingBorderStyle menuTitled: setForegroundColor outOfMemory label addMaximizeButtonStyle display wmQuerydragicon:with: resize: addSizeBoxStyle subPaneWithFocus: winClass addMinimizeButtonStyle label: openDiskBrowser changed:with:with: helpRequest initWindowSize mainWindow menuWindow openWindow icon: activate openIn: saveImageFile labelWithoutPrefix: boxOfSize: setFonts wmCreate:with: addTitleBarStyle framingBlock updateZoomMenu setBackgroundColor systemMenuHandle buildIcon statusPane print initSize: defaultStyle addSystemMenuStyle addMaximizeStyle initSize fileMenu changed: dependents resize:repaint: validate addMinimizeStyle saveImageAs minimized maximized initGraphics closeInnerWindows icon resizeRectangleFor: saveImage closeView openFile menuWindow: searchForDefaultTextPane ownerDrawPen accept isTextModified close sizeChanged: validateShow addModalBorderStyle clearTextModified performMenuItem: install contextForPopup: defaultFrameStyle open)
+)
+
+(SystemDictionary
+    (Dictionary)
+    ()
+    (product at:put: filterSourceCr: implementorsOf: logEvaluate: getSourceClasses privateRemoveKey:ifAbsent: openChangeLogIn: deleteCompressionDictionary unusedMemoryPrim: compressSourcesOf:into: imageName notifyAtExit: rootClasses getMethodPositionOn:for: exit logError: save putHeaderOf:into: alignSourceAt:for:startingAt: implementorsOf:in: unusedMemoryPrim removeKey: backupChanges backupSources defineGlobal: compressChanges version compressSources sendersOf:in: unusedMemory sendersOf: copyright: copyright logSource:forSelector:inClass: add: launch isRunTime putMethod:withIndex:to: logSource:forClass: removeExitObject: removeStartUpObject: getCommandLine compressChangesOf:into: notifyAtStartUp: createCompressionDictionary)
+)
+
+(GlobalPoolScope
+    (DictionaryScope)
+    (bindingClass containsSymbols)
+    (hasSymbolKeys localBindingFor: setBindingClass: bindingClass getBindingClass dictionary:bindingClass: useSymbolKeys bindingClass:)
+)
+
+(OrderedCollection
+    (IndexedCollection)
+    (startPosition endPosition contents)
+    (do: at:put: putSpaceAtStart add:after: removeFirst removeIndex: startPosition:endPosition: after: at: addAllFirst: addLast: add:before: add:afterIndex: remove:ifAbsent: errorAbsentElement before:ifNone: copyFrom:to: unquote includes: putSpaceAfter: add:beforeIndex: grow growTo: initPositions: addFirst: after:ifNone: at:ifAbsent: inspect replaceFrom:to:with: removeAbsoluteIndex: add: addAllLast: size removeLast putSpaceAtEnd before:)
+)
+
+(DDEClient
+    (DynamicDataExchange)
+    ()
+    (executeCommand: requestItem:class:selector: warmLinkItem:class:selector: pokeItem:object: terminateWarmLinkItem:class: requestItem:class: hotLinkItem:class:selector: terminate terminateHotLinkItem:class:)
+)
+
+(ViewManager
+    (Object)
+    (views)
+    (textModified noSmalltalkMenuBar asParameter openWorkspace sendInputEvent:with: addSubpane: fileItIn openClassBrowser backColor: printSetup foreColor: changed:with: initMenu paneAt: parent: zoom style: statusPane addView: setBackgroundColor setForegroundColor initialize when:perform: doIt menuTitled: modifiedPanes: toggleWrap label: textModifiedIn: menuWindow openDiskBrowser openWindow model: inspectIt changed:with:with: panesAt: icon: openIn: labelWithoutPrefix: owner owner: setFonts print saveImageAs windowPolicyClass changed: topPaneClass handle toolWindowPolicyClass toolTextPaneClass openFile printIt saveImage sendInputEvent: accept close menuTitled:inView: clearTextModified mainView install)
+)
+
+(Screen
+    (GraphicsMedium)
+    ()
+    (rectangleFromUser resetPenFromTracking setPenForTracking outputToPrinter pointFromUser:offset: outputToPrinter: white)
+)
+
+(TextSelection
+    (Object)
+    (begin end pane extendOrigin selectFlag)
+    (extendOrigin: selectToBit: isGap merge: createCaret:at: pane: height hide showGap hideSelection:to: extent showSelection:to:with: selectBefore: hideGapFlag isTextSelection selectTo: displaySelection showSelection:to: origin displayGap selectAfter: displayPatch: origin: expandBothEnds initialize destroyCaret intersect: top display origin:corner: hideSelection moveCaret: bitCoordinate: corner: corner hideGap showCaret:)
+)
+
+(GDIDLL
+    (DynamicLinkLibrary)
+    ()
+    (patBlt:x:y:width:height:rop: moveToEx:x:y:oldPosition: bitBlt:x:y:width:height:srcDC:xSrc:ySrc:rop: setPixel:x:y:color: playMetaFile:with: createHatchBrush:color: excludeClipRect:x1:y1:x2:y2: endDoc: scaleWindowExtent:xNum:xDenom:yNum:yDenom: getMetaFileBitsEx:bufsize:pbuf: createDC:deviceName:output:initData: createIC:deviceName:output:initData: getCharWidth:firstChar:lastChar:pWidths: setBrushOrgEx:x:y:oldOrigin: deleteObject: closeMetaFile: createCompatibleBitmap:width:height: ellipse:x1:y1:x2:y2: getObjectType: combineRgn:srcRgn1:srcRgn2:mode: realizePalette: rectVisible:rectangle: getTextFace:size:lpFaceName: createPen:width:color: copyMetaFile:fileName: offsetViewportOrgEx:x:y:oldPosition: polygon:lpPoints:nCount: createBrushIndirect: rectangle:x1:y1:x2:y2: scaleViewportExtent:xNum:xDenom:yNum:yDenom: setPixelV:x:y:color: setMapMode:mode: arc:x1:y1:x2:y2:x3:y3:x4:y4: roundRect:x1:y1:x2:y2:x3:y3: createBitmapIndirect: getMetaFile: getTextExtent:string:size: setDIBitsToDevice:destX:destY:width:height:srcX:srcY:startScan:scans:bits:bitsInfo:wUsage: chord:x1:y1:x2:y2:x3:y3:x4:y4: getDIBits:hBitmap:startScan:scans:bitsStruct:bitsInfo:wUsage: getTextMetrics:lpMetrics: pie:x1:y1:x2:y2:x3:y3:x4:y4: scaleViewportExtentEx:xNum:xDenom:yNum:yDenom:oldExtent: startPage: createMetaFile: deleteMetaFile: createDIBitmap:infoHeader:dwUsage:initBitsStruct:initInfo:wUsage: enumFonts:lpFacename:lpFontFunc:lpData: getPixel:x:y: selectObject:with: extFloodFill:x:y:color:fillType: unrealizeObject: stretchBlt:x:y:dWidth:dHeight:srcDC:xSrc:ySrc:sWidth:sHeight:rop: setDIBits:hBitmap:startScan:scans:bitsStruct:bitsInfo:wUsage: setBkColor:with: setBkMode:mode: setBrushOrg:x:y: setRop2:drawMode: getCharWidth:firstChar:lastChar:buffer: dpToLp:point:count: saveDC: getCurrentPositionEx:point: restoreDC:savedDC: getMetaFileBits: setTextColor:with: createSolidBrush: getStockObject: selectPalette:with:forceBackground: setMetaFileBitsEx:buffer: setTextAlign:flags: setMetaFileBits: createRectRgnX1:y1:x2:y2: escape:function:count:inDataULong:outDataULong: offsetViewportOrg:x:y: stretchDIBits:xDest:yDest:cxDest:cyDest:xSrc:ySrc:cxSrc:cySrc:bits:bmi:colorUse:rop: createBitmap:height:planes:bitCount:bits: createCompatibleDC: getBitmapBits:count:bitsStruct: getMapMode: lineTo:x:y: moveTo:x:y: scaleWindowExtEx:xNum:xDenom:yNum:yDenom:oldExtent: createDIBitmap:infoHeader:dwUsage:initBits:initInfo:wUsage: extTextOut:x:y:options:rect:text:length:dx: abortDoc: createFontIndirect: deleteDC: getBitmapBits:count:bits: fillRect:rectangle:brush: getCurrentPosition: getNearestPaletteIndex:color: escape:function:count:inData:outData: selectClipRgn:hRgn: getObject:count:lpObject: setViewportExt:x:y: setViewportOrg:x:y: textOut:x:y:text:length: setBitmapBits:count:bits: createPatternBrush: getTextAlign: setAbortProc:proc: enumFonts:facename:lpFontFunc:lpData: setWindowExt:x:y: setWindowOrg:x:y: polyline:lpPoints:count: getClipBox:rectangle: getDIBits:hBitmap:startScan:scans:bits:bitsInfo:wUsage: getPaletteEntries:startIndex:numEntries:lpPaletteEntries: endPage: setViewportExtEx:x:y:oldExtent: selectClipRgn:rgn: setViewportOrgEx:x:y:oldOrigin: createPalette: getDeviceCaps:index: setDIBits:hBitmap:startScan:scans:bits:bitsInfo:wUsage: startDoc:docInfo: setWindowOrgEx:x:y:oldOrigin: setWindowExtEx:x:y:oldExtent: getTextExtentPoint:string:count:size:)
+)
+
+(TextEdit
+    (EntryField)
+    (wrap readonly maxSize selStart selEnd tabStop formatRect)
+    (disableWordWrap tabStop readOnly selEnd tabStop: update centered deleteWindowText setWindowFormatRect pointFromIndex: pointToIndex: topCorner enableWordWrap topCorner: selectedItem defaultStyle rightJustified contents: validate disableWordWrapFlags maxTextWidth: readWrite setWindowTextLimit selection selStart aboutToSaveImage selStart: setWindowTabStop enableWordWrapFlags selectIndexFrom:to: selEnd: wmCharResultFor: initialize isReadOnly undo isWordWrapEnabled mayUndo resetUndo getWindowSelection deleteAll getWindowText leftJustified maxTextHeight: buildControl: setWindowSelection)
+)
+
+(CollectionAccessor
+    (EvaluableAction)
+    (elementName)
+    (printOn: evaluate evaluateWithArguments: elementName elementName:)
+)
+
+(StaticGraphic
+    (StaticPane)
+    ()
+    (contents defaultStyle value contents: setValue: value: validate setIconHandle: initialText close)
+)
+
+(METACLASS_WinLogBrush
+    (METACLASS_ExternalBuffer)
+    ()
+    (sizeInBytes)
+)
+
+(METACLASS_Debugger
+    (METACLASS_ViewManager)
+    (defaultDebuggerClass)
+    (addInspectorPanesTo: addTextPaneTo: addSubpanesFor: margin default default: addGoButtonsTo: ratio addWalkbackPaneTo: iconId openFor:labeled: setInitialStateOf: singleLineHeight openOn:labeled:)
+)
+
+(METACLASS_SubPane
+    (METACLASS_Window)
+    ()
+    (noScrollbarsFrameStyle constructEventsTriggered dragDropSensitivity dragDropSensitivity: noBorderFrameStyle noScrollBarsFrameStyle supportedEvents)
+)
+
+(METACLASS_Enumerator
+    (METACLASS_Object)
+    ()
+    ()
+)
+
+(METACLASS_WinLogicalBrush
+    (METACLASS_WinLogicalObject)
+    ()
+    (threshold winStruct style:color:hatch: anchorDictionary fromAttributes: initialize)
+)
+
+(METACLASS_ProcessTermination
+    (METACLASS_Notification)
+    ()
+    ()
+)
+
+(METACLASS_ComboBox
+    (METACLASS_DropDownList)
+    ()
+    (dropDownList constructEventsTriggered simple dropDown fromHandle:style: supportedEvents)
+)
+
+(METACLASS_ControlError
+    (METACLASS_Error)
+    ()
+    ()
+)
+
+(METACLASS_StringModel
+    (METACLASS_Object)
+    ()
+    (for:)
+)
+
+(METACLASS_True
+    (METACLASS_Boolean)
+    ()
+    ()
+)
+
+(METACLASS_ExternalLong
+    (METACLASS_ExternalBuffer)
+    ()
+    (hiWordFrom: sizeInBytes loWordFrom: lowHalf:highHalf: fromString: integerFrom:)
+)
+
+(METACLASS_WinWindowClass
+    (METACLASS_ExternalBuffer)
+    ()
+    (sizeInBytes)
+)
+
+(METACLASS_Class
+    (METACLASS_Behavior)
+    ()
+    (sortBlock)
+)
+
+(METACLASS_CursorManager
+    (METACLASS_Object)
+    ()
+    (dragDropCopyMultiple execute dragDropMoveMultiple origin normal sizeRightTop text sizeLeftTop windowUnderCursor sizeHorizontal dragDropNone initializeSmalltalkCursors dragDropCopy crossHair dragDropMove getWinCursor: cursorPosition fromModule:id: sizeVertical arrow startUp initializeSystemCursors setWinCursor:)
+)
+
+(METACLASS_FileError
+    (METACLASS_Error)
+    ()
+    ()
+)
+
+(METACLASS_MethodBrowser
+    (METACLASS_ViewManager)
+    ()
+    ()
+)
+
+(METACLASS_ExternalHandle
+    (METACLASS_Object)
+    ()
+    (deleteAtom: new stringToAtom: atomToString: fromBytes: fromInteger:)
+)
+
+(METACLASS_ExternalBuffer
+    (METACLASS_Object)
+    ()
+    (atAddress: new: new fromAddress: sizeInBytes usingBytes: fromBytes: fromInteger:)
+)
+
+(METACLASS_Time
+    (METACLASS_Magnitude)
+    ()
+    (totalSeconds currentTimeInto: dateAndTimeNow hours:minutes:seconds: microsecondsToRun: millisecondsToRun: fromSeconds: startTimer:period:forWindow: stopTimer:forWindow: millisecondClockValue initialize fromString: mouseClockValue now microsecondsToRunPrivate:)
+)
+
+(METACLASS_Menu
+    (METACLASS_Object)
+    ()
+    (labels:selectors: new labelArray:lines:selectors: checkMarkSize labels:lines:selectors: message: colorMenu:selector: initialize eventsTriggered canTriggerEvent:)
+)
+
+(METACLASS_WinWindowPlacement
+    (METACLASS_ExternalBuffer)
+    ()
+    (sizeInBytes)
+)
+
+(METACLASS_LargeInteger
+    (METACLASS_Integer)
+    ()
+    (new:)
+)
+
+(METACLASS_RecordingPen
+    (METACLASS_Pen)
+    ()
+    ()
+)
+
+(METACLASS_WildPattern
+    (METACLASS_Pattern)
+    ()
+    (new:)
+)
+
+(METACLASS_DropDownList
+    (METACLASS_ListBox)
+    ()
+    (supportedEvents constructEventsTriggered)
+)
+
+(METACLASS_VirtualMachineConfiguration
+    (METACLASS_ExternalBuffer)
+    ()
+    (imageFileOffset fromImage sizeInBytes initializeImage fromFile:)
+)
+
+(METACLASS_FontDialog
+    (METACLASS_CommonSystemDialog)
+    ()
+    (initialize)
+)
+
+(METACLASS_AboutDialog
+    (METACLASS_WindowDialog)
+    ()
+    (loadCreditsBitmap loadLogoBitmap loadButtonBitmap)
+)
+
+(METACLASS_IndexedCollection
+    (METACLASS_Collection)
+    ()
+    ()
+)
+
+(METACLASS_SymbolSet
+    (METACLASS_Set)
+    ()
+    ()
+)
+
+(METACLASS_HelpManager
+    (METACLASS_Object)
+    ()
+    (for:title:file:dialogs: registerHookProc helpHook:wparam:lparam: buildSystemContextStrings getHelpWindowHandle: isHelpRequest: systemContextStrings exit for:title:file:dialogs:aboutDlgClass: for:title:file: registerHelpMessage smalltalkHelpFileName startUp callDefHookProc:wparam:lparam:)
+)
+
+(METACLASS_Magnitude
+    (METACLASS_Object)
+    ()
+    ()
+)
+
+(METACLASS_ExceptionHandler
+    (METACLASS_Object)
+    (retryToken)
+    (handle:with:during: initialize retryToken)
+)
+
+(METACLASS_ExternalHeapHandle
+    (METACLASS_ExternalMemoryHandle)
+    ()
+    (newHeap startUp defaultHeap exit newHeap: defaultHeapSize)
+)
+
+(METACLASS_WinLogicalPen
+    (METACLASS_WinLogicalObject)
+    ()
+    (threshold fromAttributes: style:color:width: initialize anchorDictionary winStruct)
+)
+
+(METACLASS_MetaClass
+    (METACLASS_Behavior)
+    ()
+    (subclassOf:)
+)
+
+(METACLASS_ClipboardManager
+    (METACLASS_Object)
+    ()
+    (startUp initialize)
+)
+
+(METACLASS_HomeContext
+    (METACLASS_Context)
+    ()
+    ()
+)
+
+(METACLASS_StaticText
+    (METACLASS_StaticPane)
+    ()
+    (leftJustified centered rightJustified)
+)
+
+(METACLASS_Association
+    (METACLASS_Magnitude)
+    ()
+    (key:value: key:)
+)
+
+(METACLASS_FindReplaceDialog
+    (METACLASS_WindowDialog)
+    ()
+    (open:replace:)
+)
+
+(METACLASS_ExternalMemoryHandle
+    (METACLASS_ExternalHandle)
+    ()
+    ()
+)
+
+(METACLASS_Symbol
+    (METACLASS_String)
+    ()
+    (mustBeSymbol: new: purgeUnusedSymbols intern:)
+)
+
+(METACLASS_ThreeStateButton
+    (METACLASS_CheckBox)
+    ()
+    (nonAuto auto constructEventsTriggered)
+)
+
+(METACLASS_VirtualMachineExe
+    (METACLASS_DynamicLinkLibrary)
+    ()
+    (fileName)
+)
+
+(METACLASS_NonInteractiveErrorHandler
+    (METACLASS_CompilerErrorHandler)
+    ()
+    ()
+)
+
+(METACLASS_Date
+    (METACLASS_Magnitude)
+    ()
+    (nameOfMonth: baseDay checkDay:year: errorInMonth newDay:month:year: calendarForMonth:year: shortNameOfDay: daysInMonth:forYear: today fromDays: fromString: monthNames replaceMonthNames: monthNameFromString:ifAbsent: indexOfMonth: currentDateInto: dateAndTimeNow shortNameOfMonth: dayOfWeek: initialize dayNames leapYearsTo: leapYear: newDay:year: replaceDayNames: monthNameFromString: checkDay:month:year: indexOfMonth:ifAbsent: nameOfDay: daysInYear: errorInDay)
+)
+
+(METACLASS_DynamicDataExchange
+    (METACLASS_Object)
+    ()
+    (getDDEObject: getSmalltalkObject:class: getDDEFormat:)
+)
+
+(METACLASS_TwoArgumentBlock
+    (METACLASS_Context)
+    ()
+    ()
+)
+
+(METACLASS_OperatingSystemInformation
+    (METACLASS_Object)
+    ()
+    (new startUp)
+)
+
+(METACLASS_WinDialogInfo
+    (METACLASS_ExternalBuffer)
+    ()
+    (dialogTemplateStyle:itemCount:x:y:cx:cy:menuName:className:text:fontName:pointSize: dialogTemplateFor: buildItemsFor: itemTemplateStyle:x:y:cx:cy:id:className:text:)
+)
+
+(METACLASS_Button
+    (METACLASS_ControlPane)
+    ()
+    (constructEventsTriggered defaultFont fromHandle:style: supportedEvents)
+)
+
+(METACLASS_TranscriptWindow
+    (METACLASS_TextWindow)
+    ()
+    (helpMap helpMap: initializeHelpMap iconId initializeTranscript)
+)
+
+(METACLASS_ProtectedFrameMarker
+    (METACLASS_Object)
+    ()
+    ()
+)
+
+(METACLASS_MixedFileStream
+    (METACLASS_FileStream)
+    ()
+    ()
+)
+
+(METACLASS_File
+    (METACLASS_Object)
+    ()
+    (execute: open:in: pathName: remove: changeModeOf:to: pathName:attribute:mode: exists: pathName:in: exists:in: fullPathName: newFile: rename:to: open:in:attribute:mode: pathNameReadOnly: remove:ifAbsent: pageSize: lengthOfNetworkNameIn: fileName:extension: splitPath:in: pathName:in:attribute:mode: findFileName:on: open:in:action:fileSize:attribute:flags:mode: pageSize pathNameReadOnly:in: indexOfFilenameIn: indexOfDirectoryIn:startingAt: pathName:in:action:fileSize:attribute:flags:mode: findFileName: copy:to: drive:path:file: newFile:in:)
+)
+
+(METACLASS_SystemWindow
+    (METACLASS_Window)
+    ()
+    (startUp exit)
+)
+
+(METACLASS_CompilationResult
+    (METACLASS_Object)
+    ()
+    ()
+)
+
+(METACLASS_Exception
+    (METACLASS_Object)
+    ()
+    (handles: signal: signal)
+)
+
+(METACLASS_NoMenusWindowPolicy
+    (METACLASS_WindowPolicy)
+    ()
+    ()
+)
+
+(METACLASS_StoredPicture
+    (METACLASS_GraphicsMedium)
+    ()
+    (readMetaFileHeader: readPlaceableHeader:)
+)
+
+(METACLASS_CompilationError
+    (METACLASS_Object)
+    ()
+    (error:sourceRange:in:)
+)
+
+(METACLASS_DoubleByteSymbol
+    (METACLASS_DoubleByteString)
+    ()
+    (mustBeSymbol: new: intern:)
+)
+
+(METACLASS_WinLogicalObject
+    (METACLASS_Object)
+    ()
+    (deleteObjects: initObjects objectWithAttributes: destroyAll destroyAllHandles stockObject:)
+)
+
+(METACLASS_DragDropList
+    (METACLASS_Object)
+    ()
+    (new)
+)
+
+(METACLASS_WinPoint
+    (METACLASS_ExternalBuffer)
+    ()
+    (sizeInBytes fromInteger: fromPoint:)
+)
+
+(METACLASS_ExternalHeapAddress
+    (METACLASS_ExternalAddress)
+    ()
+    (allocate:in: allocateMemory:)
+)
+
+(METACLASS_ClassBrowser
+    (METACLASS_ViewManager)
+    ()
+    ()
+)
+
+(METACLASS_GraphicsTool
+    (METACLASS_Object)
+    ()
+    (stockObjects getStockObject: defaultObjects initColors rgbToPalette: paletteIndex: red:green:blue: paletteToRgb: forDC:medium: for:medium: initialize setSysColors)
+)
+
+(METACLASS_ObjectLibraryReference
+    (METACLASS_ExternalBuffer)
+    ()
+    (dllName:entryName: from: sizeInBytes)
+)
+
+(METACLASS_SortedCollection
+    (METACLASS_OrderedCollection)
+    ()
+    (new: sortBlock:)
+)
+
+(METACLASS_ByteArray
+    (METACLASS_FixedSizeCollection)
+    ()
+    ()
+)
+
+(METACLASS_DictionaryInspector
+    (METACLASS_Inspector)
+    ()
+    ()
+)
+
+(METACLASS_Warning
+    (METACLASS_Notification)
+    ()
+    ()
+)
+
+(METACLASS_ExternalSegmentedAddress
+    (METACLASS_ExternalAddress)
+    ()
+    (fromFlatAddress:)
+)
+
+(METACLASS_ColorDialog
+    (METACLASS_CommonSystemDialog)
+    ()
+    (initialize)
+)
+
+(METACLASS_LargeNegativeInteger
+    (METACLASS_LargeInteger)
+    ()
+    (negativeClass)
+)
+
+(METACLASS_LargePositiveInteger
+    (METACLASS_LargeInteger)
+    ()
+    (negativeClass)
+)
+
+(METACLASS_ReadWriteStream
+    (METACLASS_WriteStream)
+    ()
+    ()
+)
+
+(METACLASS_CallBack
+    (METACLASS_Object)
+    ()
+    (performSlot:withArgs: slotSize exit findEmptySlot startUp initialize registerMessage:parameterTypes:returnType:callingConvention:)
+)
+
+(METACLASS_ListPane
+    (METACLASS_ListBox)
+    ()
+    ()
+)
+
+(METACLASS_FileHandle
+    (METACLASS_ExternalHandle)
+    ()
+    (cleanHandles open:in:action:fileSize:attribute:flags:mode: openDevice: open:in:attribute:mode: open:in: isThere: setLimit: startUp)
+)
+
+(METACLASS_WinStructArray
+    (METACLASS_ExternalBuffer)
+    ()
+    (fromCollection:)
+)
+
+(METACLASS_UserDLL
+    (METACLASS_DynamicLinkLibrary)
+    ()
+    (fileName)
+)
+
+(METACLASS_RadioButton
+    (METACLASS_Toggle)
+    ()
+    (nonAuto auto constructEventsTriggered)
+)
+
+(METACLASS_DIB
+    (METACLASS_Object)
+    ()
+    (fromFile:in: fromModule:id: fromFile:)
+)
+
+(METACLASS_ClassInstaller
+    (METACLASS_Object)
+    ()
+    (defaultGlobalDictionary name:environment:subclassOf:instanceVariableNames:variable:pointers:classVariableNames:poolDictionaries: class:classInstanceVariableNames:)
+)
+
+(METACLASS_StringDictionaryReader
+    (METACLASS_Object)
+    ()
+    (fill:fromModule:idDictionary: fill:fromStringTable: createIdDictionary:)
+)
+
+(METACLASS_WinBitmapInfo
+    (METACLASS_WinBitmapInfoHeader)
+    ()
+    (width:height:planes:bitCount:size:)
+)
+
+(METACLASS_LinkMessage
+    (METACLASS_Message)
+    ()
+    (receiver:selector:)
+)
+
+(METACLASS_ObjectMutator
+    (METACLASS_Object)
+    ()
+    (from: prototypeForMutationDoesNotUnderstand: prototypeForMutationMethodDictionaryArray:)
+)
+
+(METACLASS_SmalltalkEmulator
+    (METACLASS_DDEServer)
+    ()
+    (newServer)
+)
+
+(METACLASS_False
+    (METACLASS_Boolean)
+    ()
+    ()
+)
+
+(METACLASS_DictionaryScope
+    (METACLASS_CompilerNameScope)
+    ()
+    (for: defaultDictionaryClass)
+)
+
+(METACLASS_Set
+    (METACLASS_Collection)
+    ()
+    (new new:)
+)
+
+(METACLASS_SelfInitializingObject
+    (Class)
+    ()
+    (aboutToSaveImage with:)
+)
+
+(METACLASS_ExternalAddress
+    (METACLASS_ExternalLong)
+    ()
+    (defaultMemoryClassThreshold memoryHandleFrom:withAllocFlag: copyToNonSmalltalkMemory: copyToNonSmalltalkMemoryZ: allocateMemory: fromSegmentedAddress: copyToNonSmalltalkMemory:withAllocFlag: memoryHandleFrom: defaultMemoryClass: checkGlobalAddress copyFrom:to:count:)
+)
+
+(METACLASS_ZeroDivide
+    (METACLASS_ArithmeticError)
+    ()
+    (dividend:)
+)
+
+(METACLASS_WinBitmapStruct
+    (METACLASS_ExternalBuffer)
+    ()
+    (sizeInBytes)
+)
+
+(METACLASS_DoubleByteString
+    (METACLASS_String)
+    ()
+    (fromAddress:length: fromMixedString: fromMixedString:leadBytes: new: fromString: fromAddress:)
+)
+
+(METACLASS_Dictionary
+    (METACLASS_Set)
+    ()
+    ()
+)
+
+(METACLASS_ThunkDLL16
+    (METACLASS_DynamicLinkLibrary16)
+    ()
+    (fileName)
+)
+
+(METACLASS_KeyboardInterrupt
+    (METACLASS_Notification)
+    ()
+    ()
+)
+
+(METACLASS_EmptySlot
+    (METACLASS_Object)
+    ()
+    ()
+)
+
+(METACLASS_ActionSequence
+    (METACLASS_Array)
+    ()
+    (fromCollection:)
+)
+
+(METACLASS_PrintDialog
+    (METACLASS_CommonSystemDialog)
+    ()
+    (printerDefault currentPrinterMode printerSetup initialize startUp currentPrinterNames)
+)
+
+(METACLASS_Message
+    (METACLASS_EvaluableAction)
+    ()
+    (receiver:selector: numberOfArgumentsFor: receiver:selector:arguments:)
+)
+
+(METACLASS_DialogBox
+    (METACLASS_Window)
+    ()
+    (startUp parseDotHFile: getDialogProcInstance)
+)
+
+(METACLASS_Directory
+    (METACLASS_Object)
+    ()
+    (extractSizeFrom: extractDateFrom: extractDateTimeFrom: currentDirectory: pathName: extractDateTimeValueFrom: extractFileNameFrom: create: current currentDisk extractDirNameFrom: remove: extractTimeFrom: exists: extractFlagsFrom: drives scanZero:)
+)
+
+(METACLASS_CompiledMethod
+    (METACLASS_Array)
+    ()
+    (new new: decompress: encodeSmallInteger: encodeUnsignedSmallInteger: decodeUnsignedSmallInteger: compress: fromPrintString: specialSelectors)
+)
+
+(METACLASS_Pen
+    (METACLASS_TextTool)
+    ()
+    (initialize)
+)
+
+(METACLASS_DDEAuxServer
+    (METACLASS_DDEAuxWindow)
+    ()
+    ()
+)
+
+(METACLASS_EvaluableAction
+    (METACLASS_Object)
+    ()
+    ()
+)
+
+(METACLASS_DrawnButton
+    (METACLASS_Button)
+    ()
+    (constructEventsTriggered supportedEvents)
+)
+
+(METACLASS_WindowHandle
+    (METACLASS_ExternalHandle)
+    ()
+    (queryActive queryCapture queryFocus)
+)
+
+(METACLASS_DeletedClass
+    (METACLASS_Object)
+    ()
+    ()
+)
+
+(METACLASS_DeviceContext
+    (METACLASS_ExternalHandle)
+    ()
+    ()
+)
+
+(METACLASS_Atom
+    (METACLASS_ExternalHandle)
+    ()
+    (fromString:)
+)
+
+(METACLASS_WinDrawItemStruct
+    (METACLASS_ExternalBuffer)
+    ()
+    (sizeInBytes)
+)
+
+(METACLASS_SessionModel
+    (METACLASS_Object)
+    ()
+    (current initialize eventsTriggered canTriggerEvent:)
+)
+
+(METACLASS_TextTool
+    (METACLASS_GraphicsTool)
+    ()
+    ()
+)
+
+(METACLASS_WinMessage
+    (METACLASS_ExternalBuffer)
+    ()
+    (sizeInBytes)
+)
+
+(METACLASS_DDEAuxClient
+    (METACLASS_DDEAuxWindow)
+    ()
+    ()
+)
+
+(METACLASS_ScrollBar
+    (METACLASS_ControlPane)
+    ()
+    (horizontal constructEventsTriggered vertical supportedEvents)
+)
+
+(METACLASS_GraphicsMedium
+    (METACLASS_Object)
+    ()
+    ()
+)
+
+(METACLASS_Printer
+    (METACLASS_GraphicsMedium)
+    ()
+    (printWith: new defaultMargins exit print:font:title: exists fromDC: startUp getPrinterInformation: abortProc:error: initialize)
+)
+
+(METACLASS_TextPane
+    (METACLASS_SubPane)
+    ()
+    (defaultFont editMenu bracketsMenu supportedEvents constructEventsTriggered smalltalkMenu initialize)
+)
+
+(METACLASS_SelfDefinedStructureInspector
+    (METACLASS_Inspector)
+    ()
+    ()
+)
+
+(METACLASS_WalkbackWindow
+    (METACLASS_TextWindow)
+    ()
+    (openOn:label:)
+)
+
+(METACLASS_ExternalGlobalAddress
+    (METACLASS_ExternalAddress)
+    ()
+    (memoryHandleFrom:withAllocFlag: allocateMemory: memoryHandleFrom: copyToNonSmalltalkMemory:withAllocFlag:)
+)
+
+(METACLASS_DialogTopPane
+    (METACLASS_TopPane)
+    ()
+    (constructEventsTriggered supportedEvents)
+)
+
+(METACLASS_CompatibleWindowPolicy
+    (METACLASS_StandardWindowPolicy)
+    ()
+    (fileMenu editMenu smalltalkMenu)
+)
+
+(METACLASS_WinBitmapFileHeader
+    (METACLASS_ExternalBuffer)
+    ()
+    (sizeInBytes)
+)
+
+(METACLASS_WinFileTime
+    (METACLASS_ExternalBuffer)
+    ()
+    (sizeInBytes)
+)
+
+(METACLASS_Collection
+    (METACLASS_Object)
+    ()
+    (with:with:with:with: with:with: with:with:with: with:)
+)
+
+(METACLASS_ConstantAccessor
+    (METACLASS_EvaluableAction)
+    ()
+    (for:)
+)
+
+(METACLASS_DDEAuxWindow
+    (METACLASS_Window)
+    ()
+    ()
+)
+
+(METACLASS_Interval
+    (METACLASS_FixedSizeCollection)
+    ()
+    (from:to: from:to:by:)
+)
+
+(METACLASS_VetoAction
+    (METACLASS_Notification)
+    ()
+    ()
+)
+
+(METACLASS_MessageBox
+    (METACLASS_DialogBox)
+    ()
+    (titled:withText:style: threeStateNotify:withText: message: notify:withText: confirm: initialize warning:)
+)
+
+(METACLASS_Character
+    (METACLASS_Magnitude)
+    ()
+    (new digitValue: leadByte:trailByte: value:)
+)
+
+(METACLASS_WinTextMetrics
+    (METACLASS_ExternalBuffer)
+    ()
+    (sizeInBytes)
+)
+
+(METACLASS_WriteStream
+    (METACLASS_Stream)
+    ()
+    ()
+)
+
+(METACLASS_Behavior
+    (METACLASS_Object)
+    ()
+    (initialize)
+)
+
+(METACLASS_FileStream
+    (METACLASS_ReadWriteStream)
+    ()
+    (partialReadHeaderSize partialReadHeaderSize: partialReadThreshold: partialReadThreshold on: defaultLineDelimiter initialize initializePartialReadSettings)
+)
+
+(METACLASS_Object
+    (Class)
+    ()
+    (changedEventName initDependents initializeEvents initialize canTriggerEvent:)
+)
+
+(METACLASS_ShellDLL
+    (METACLASS_DynamicLinkLibrary)
+    ()
+    (fileName)
+)
+
+(METACLASS_EntryField
+    (METACLASS_ControlPane)
+    ()
+    (constructEventsTriggered fromHandle:style: supportedEvents)
+)
+
+(METACLASS_ClassReader
+    (METACLASS_Object)
+    ()
+    (forClass:)
+)
+
+(METACLASS_DynamicLinkLibrary16
+    (METACLASS_DynamicLinkLibrary)
+    ()
+    (new open: getHandle: apiPrimitiveMap fromInteger:)
+)
+
+(METACLASS_ObjectLibraryExternal
+    (METACLASS_Object)
+    ()
+    (methodDictionaryArray: globalAssoc: metaClass: metaMethodDictionaryArray: initialize global: getClass:ifAbsent: expression: createIt: poolVar:in: fromString: commonByteArray: blockForPrereqClasses:in: methodDictionary: blockForDevClasses:in: classVar:in: symbol: metaMethodDictionary: assoc: class:)
+)
+
+(METACLASS_WinPaintStructure
+    (METACLASS_ExternalBuffer)
+    ()
+    (sizeInBytes)
+)
+
+(METACLASS_Window
+    (METACLASS_Object)
+    (eventsTriggered)
+    (defaultForeColor: newWindow: supportsEvent: newWindow initializeControlKeys windowUnderPoint: defaultBackColor: constructEventsTriggered defaultForeColor eventsTriggered eventsTriggered: turtleWindow: buildConstantsDictionary: new winClass defaultFont supportedEvents handle: defaultBackColor initializeEventsTriggered fromInteger: canTriggerEvent:)
+)
+
+(METACLASS_Fraction
+    (METACLASS_Number)
+    ()
+    (numerator:denominator:)
+)
+
+(METACLASS_DDEServer
+    (METACLASS_DynamicDataExchange)
+    ()
+    (newServer:application:topic:)
+)
+
+(METACLASS_SmallInteger
+    (METACLASS_Integer)
+    ()
+    (new:)
+)
+
+(METACLASS_VirtualMachineDLL
+    (METACLASS_DynamicLinkLibrary)
+    ()
+    (exit fileName)
+)
+
+(METACLASS_String
+    (METACLASS_FixedSizeCollection)
+    ()
+    (fromModule:id: fromAddress:length: readFrom: fromArrayOfSubstrings:separatedBy: fromAddress:)
+)
+
+(METACLASS_WorkspaceErrorHandler
+    (METACLASS_TextPaneErrorHandler)
+    ()
+    ()
+)
+
+(METACLASS_MethodExecutor
+    (METACLASS_Object)
+    ()
+    (execute:for:)
+)
+
+(METACLASS_ComboEntryField
+    (METACLASS_EntryField)
+    ()
+    (constructEventsTriggered)
+)
+
+(METACLASS_WinLogPen
+    (METACLASS_ExternalBuffer)
+    ()
+    (sizeInBytes)
+)
+
+(METACLASS_CheckBox
+    (METACLASS_Toggle)
+    ()
+    (nonAuto auto constructEventsTriggered)
+)
+
+(METACLASS_Win32FindData
+    (METACLASS_ExternalBuffer)
+    ()
+    (sizeInBytes)
+)
+
+(METACLASS_CompiledInitializer
+    (METACLASS_CompiledMethod)
+    ()
+    ()
+)
+
+(METACLASS_NationalLanguageSupport
+    (METACLASS_Object)
+    ()
+    (new startUp dateFormatMDY dateFormatDMY dateFormatYMD)
+)
+
+(METACLASS_DynamicLinkLibrary
+    (METACLASS_ExternalHandle)
+    ()
+    (open isModulePE: open: apiPrimitives resultTypeNumber:ifAbsent: apiPrimitiveMap developmentResourceDLLName clearCachedAddresses apiPrimitiveFor: primitiveCall:proc:arguments:types:returns: initialize setCompilationOptions: argumentTypeNumber:ifAbsent: typeIndex: getHandle startUp getHandle: typeIndex:ifAbsent: runtimeResourceDLLName)
+)
+
+(METACLASS_Context
+    (METACLASS_Object)
+    ()
+    ()
+)
+
+(METACLASS_KernelDLL
+    (METACLASS_DynamicLinkLibrary)
+    ()
+    (fileName)
+)
+
+(METACLASS_IdentityDictionary
+    (METACLASS_Dictionary)
+    ()
+    (new new: newSize: initialSize)
+)
+
+(METACLASS_ProcessScheduler
+    (METACLASS_Object)
+    ()
+    ()
+)
+
+(METACLASS_SaveImageDialog
+    (METACLASS_WindowDialog)
+    ()
+    ()
+)
+
+(METACLASS_SilentErrorHandler
+    (METACLASS_CompilerErrorHandler)
+    ()
+    ()
+)
+
+(METACLASS_WinRectangle
+    (METACLASS_ExternalBuffer)
+    ()
+    (fromRectangle: sizeInBytes)
+)
+
+(METACLASS_KernelDLL16
+    (METACLASS_DynamicLinkLibrary16)
+    ()
+    (fileName aboutToSaveImage)
+)
+
+(METACLASS_StaticPane
+    (METACLASS_ControlPane)
+    ()
+    (fromHandle:style:)
+)
+
+(METACLASS_InputEvent
+    (METACLASS_Object)
+    ()
+    ()
+)
+
+(METACLASS_ReadStream
+    (METACLASS_Stream)
+    ()
+    ()
+)
+
+(METACLASS_WinLogPalette
+    (METACLASS_ExternalBuffer)
+    ()
+    (fromRgbColor:entries: sizeInBytes fromRgbColor:)
+)
+
+(METACLASS_FixedSizeCollection
+    (METACLASS_IndexedCollection)
+    ()
+    (with:with:with:with: with:with: with:with:with: with:)
+)
+
+(METACLASS_TopPane
+    (METACLASS_ApplicationWindow)
+    ()
+    (constructEventsTriggered supportedEvents)
+)
+
+(METACLASS_NotificationManager
+    (METACLASS_Object)
+    ()
+    (transcriptClass)
+)
+
+(METACLASS_Toggle
+    (METACLASS_Button)
+    ()
+    (constructEventsTriggered)
+)
+
+(METACLASS_ControlPane
+    (METACLASS_SubPane)
+    ()
+    (fromHandle: winClassMap initializeWinClassMap fromHandle:style:)
+)
+
+(METACLASS_MethodDictionary
+    (METACLASS_IdentityDictionary)
+    ()
+    (initialize)
+)
+
+(METACLASS_SelectorBrowser
+    (METACLASS_MethodBrowser)
+    ()
+    ()
+)
+
+(METACLASS_DiskBrowser
+    (METACLASS_ViewManager)
+    ()
+    ()
+)
+
+(METACLASS_Stream
+    (METACLASS_Object)
+    ()
+    (crString on:)
+)
+
+(METACLASS_Number
+    (METACLASS_Magnitude)
+    ()
+    (new new: additiveIdentity multiplicativeIdentity)
+)
+
+(METACLASS_SmalltalkWindowPolicy
+    (METACLASS_StandardWindowPolicy)
+    ()
+    (smalltalkMenu: fileMenu editMenu optionsMenu:)
+)
+
+(METACLASS_WinBitmapInfoHeader
+    (METACLASS_ExternalBuffer)
+    ()
+    (sizeInBytes width:height:planes:bitCount:)
+)
+
+(METACLASS_Integer
+    (METACLASS_Number)
+    ()
+    (readFrom: readFrom:radix:)
+)
+
+(METACLASS_SaveImageAsDialog
+    (METACLASS_WindowDialog)
+    ()
+    ()
+)
+
+(METACLASS_TextPaneControl
+    (METACLASS_TextEdit)
+    ()
+    (defaultFont editMenu bracketsMenu smalltalkMenu constructEventsTriggered supportedEvents initialize)
+)
+
+(METACLASS_CommonDialogDLL
+    (METACLASS_DynamicLinkLibrary)
+    ()
+    (fileName)
+)
+
+(METACLASS_ProgressIndicatorDialog
+    (METACLASS_WindowDialog)
+    ()
+    (new)
+)
+
+(METACLASS_WinLogicalPalette
+    (METACLASS_WinLogicalObject)
+    ()
+    (threshold fromWinLogPalette: anchorDictionary fromStruct: winStruct initialize stockObject:)
+)
+
+(METACLASS_WorkspaceTextPane
+    (METACLASS_TextPane)
+    ()
+    (addDefaultPoolName: defaultPoolNames initialize)
+)
+
+(METACLASS_Font
+    (METACLASS_Object)
+    ()
+    (setSysFont: fromLogFont: fromStockFont: allFaces: face:size:fixedWidth:bold:hollow:italic:negative:strikeOut:underscore: enumFaces:lpTextMetrics:nFontType:lpData: enumFonts:lpTextMetrics:nFontType:lpData: allFaces fixedSystemFont cleanUpHandles releaseAllHandles face:size:fixedWidth:bold:hollow:italic:negative:strikeOut:underscore:charSet: pointFromDeviceUnit:graphicsMedium: chooseAFont: new allFonts fontMenu: startUp deviceUnitFromPoint:graphicsMedium: allFonts: fromFont: face:size:fixedWidth:)
+)
+
+(METACLASS_Float
+    (METACLASS_Number)
+    ()
+    (pi new fromString:decimalSeparator: additiveIdentity floatError fromString: status multiplicativeIdentity fromInteger: noMathChip)
+)
+
+(METACLASS_Bitmap
+    (METACLASS_GraphicsMedium)
+    ()
+    (fromHandle:clipWidth:clipHeight: createBitmap:height:planes:bitCount:bits: createCompatibleDC: bitBlt:x:y:width:height:srcDC:xSrc:ySrc:rop: readBitmapInfo: width:height:planes:bitCount: fromHandle: width:height:bits: fromScreen: releaseAllHandles exit readBitmapHeader: deleteMemoryDC extent: fromOS2BitmapFile: aboutToSaveImage fromFile: screenWidth:height: screenExtent: fromDLLFile:name: fromUser fromFile:in: createDIBitmap:bitmapInfo:init:bits:usage: defaultBitmap auxiliaryDC deleteAuxiliaryDC fromModule:id: width:height: memoryContext startUp purgeUnusedBitmaps)
+)
+
+(METACLASS_MenuItem
+    (METACLASS_Object)
+    ()
+    ()
+)
+
+(METACLASS_StandardWindowPolicy
+    (METACLASS_WindowPolicy)
+    ()
+    (fileMenu editMenu bracketsMenu)
+)
+
+(METACLASS_Semaphore
+    (METACLASS_Object)
+    ()
+    (new)
+)
+
+(METACLASS_ListBox
+    (METACLASS_ControlPane)
+    ()
+    (ownerDraw constructEventsTriggered defaultFont listEnd fromHandle:style: supportedEvents)
+)
+
+(METACLASS_Inspector
+    (METACLASS_ViewManager)
+    ()
+    ()
+)
+
+(METACLASS_TextPaneErrorHandler
+    (METACLASS_CompilerErrorHandler)
+    ()
+    ()
+)
+
+(METACLASS_GroupPane
+    (METACLASS_SubPane)
+    ()
+    ()
+)
+
+(METACLASS_NewSubclassDialog
+    (METACLASS_DialogBox)
+    ()
+    (open: initialize)
+)
+
+(METACLASS_Pattern
+    (METACLASS_Object)
+    ()
+    (new: wildcardChar initialize)
+)
+
+(METACLASS_ByteArrayInspector
+    (METACLASS_Inspector)
+    ()
+    ()
+)
+
+(METACLASS_ExternalGlobalHandle
+    (METACLASS_ExternalMemoryHandle)
+    ()
+    ()
+)
+
+(METACLASS_WinDropFile
+    (METACLASS_ExternalBuffer)
+    ()
+    (mousePos:inNonClientArea:pathNames: fixedSize fromAddress:)
+)
+
+(METACLASS_WindowDialog
+    (METACLASS_ViewManager)
+    ()
+    (dialogUnit unitMultiplier charHeight entryHeight inDialogUnits: charWidth)
+)
+
+(METACLASS_OneArgumentBlock
+    (METACLASS_Context)
+    ()
+    ()
+)
+
+(METACLASS_Boolean
+    (METACLASS_Object)
+    ()
+    (new new:)
+)
+
+(METACLASS_GraphPane
+    (METACLASS_SubPane)
+    ()
+    (constructEventsTriggered openWindow:extent: openWindow: supportedEvents)
+)
+
+(METACLASS_FileDialog
+    (METACLASS_CommonSystemDialog)
+    ()
+    (initialize startUp)
+)
+
+(METACLASS_ZeroArgumentBlock
+    (METACLASS_Context)
+    ()
+    ()
+)
+
+(METACLASS_GraphicInspector
+    (METACLASS_Inspector)
+    ()
+    ()
+)
+
+(METACLASS_MultipleSelectListBox
+    (METACLASS_ListBox)
+    ()
+    (constructEventsTriggered)
+)
+
+(METACLASS_CompilerInterface
+    (METACLASS_Object)
+    (defaultOptions)
+    (evaluate:in:to:notifying:ifFail: compilerError:at:in:for: positionsOf:in: positionsOf:in:notifying:ifFail: createOldResult:in: initialize forClass:errorHandler: compile:in: defaultPoolNames globalDictionary: defaultOptions forClass: compile:in:notifying:ifFail: environment:errorHandler: convert:to:offset: evaluate: debugCompile:inline:outline: handleOldErrorResult:in:for:return: resizeCodeCache: clearCodeCache)
+)
+
+(METACLASS_WinLogFont
+    (METACLASS_ExternalBuffer)
+    ()
+    (fromStructure:startingAt: sizeInBytes)
+)
+
+(METACLASS_Prompter
+    (METACLASS_WindowDialog)
+    ()
+    (prompt:default: prompt:defaultExpression: promptWithBlanks:default: title:prompt:default:)
+)
+
+(METACLASS_TraditionalCompilerErrorHandler
+    (METACLASS_SilentErrorHandler)
+    ()
+    ()
+)
+
+(METACLASS_CompilerNameScope
+    (METACLASS_Object)
+    (unbound)
+    (unbound new initialize)
+)
+
+(METACLASS_ClassHierarchyBrowser
+    (METACLASS_ViewManager)
+    ()
+    ()
+)
+
+(METACLASS_UndefinedObject
+    (METACLASS_Object)
+    ()
+    (new new:)
+)
+
+(METACLASS_Icon
+    (METACLASS_Object)
+    ()
+    (iconSize defaultDLLFileName purgeUnusedIcons runtimeIcon runtimeIcon: fromBitmap:andMask: fromExe:id: fromBitmap: getAllInstances new getAllReadOnlyHandles releaseAllHandles exit fromModule:id: fromFileStream: startUp aboutToSaveImage fromFile:)
+)
+
+(METACLASS_ObjectLibraryBind
+    (METACLASS_Object)
+    ()
+    (attemptBindTo: nameOf: named: dllNameWithExtension: isBound: initialize eventsTriggered bindTo: exit handleOf: unBind: versionOf: contentsOf: startup)
+)
+
+(METACLASS_Error
+    (METACLASS_Exception)
+    ()
+    ()
+)
+
+(METACLASS_OrderedCollectionInspector
+    (METACLASS_Inspector)
+    ()
+    ()
+)
+
+(METACLASS_GroupBox
+    (METACLASS_ControlPane)
+    ()
+    ()
+)
+
+(METACLASS_CommonSystemDialog
+    (METACLASS_DialogBox)
+    ()
+    ()
+)
+
+(METACLASS_WinMeasureItemStruct
+    (METACLASS_ExternalBuffer)
+    ()
+    (sizeInBytes)
+)
+
+(METACLASS_Point
+    (METACLASS_Object)
+    ()
+    (fromInteger:)
+)
+
+(METACLASS_Bag
+    (METACLASS_Collection)
+    ()
+    (new)
+)
+
+(METACLASS_MessageNotUnderstood
+    (METACLASS_ControlError)
+    ()
+    (message:)
+)
+
+(METACLASS_Process
+    (METACLASS_OrderedCollection)
+    ()
+    (stepInterrupt frameBiasUnit unwindAt: ioErrorInterrupt keyboardInterrupt overrunInterrupt dropSenderChain enableInterrupts: terminateActive unknownInterrupt copyStack traceOff protectionViolationInterrupt initializeFrameMarker: initializeFrameMarker gcFlipInterrupt queueWalkback:makeUserIF:resumable: evaluateProtectionBlock controlBreakInterrupt unwindRecursion: current initialize errorNoWalkback breakpointInterrupt interrupt: new unwind exitCallBackInterrupt gcCompactInterrupt debuggerAvailable)
+)
+
+(METACLASS_DoubleByteStringInspector
+    (METACLASS_Inspector)
+    ()
+    ()
+)
+
+(METACLASS_WinOfstruct
+    (METACLASS_ExternalBuffer)
+    ()
+    (sizeInBytes)
+)
+
+(METACLASS_WindowPolicy
+    (METACLASS_Object)
+    ()
+    (on:)
+)
+
+(METACLASS_TextWindow
+    (METACLASS_ViewManager)
+    ()
+    (windowLabeled:frame:foreColor:backColor: windowLabeled:frame:)
+)
+
+(METACLASS_PrintAbortDialog
+    (METACLASS_WindowDialog)
+    ()
+    ()
+)
+
+(METACLASS_MenuWindow
+    (METACLASS_Window)
+    ()
+    (constructEventsTriggered)
+)
+
+(METACLASS_ArithmeticError
+    (METACLASS_Error)
+    ()
+    ()
+)
+
+(METACLASS_MultiplePoolScope
+    (METACLASS_CompilerNameScope)
+    ()
+    ()
+)
+
+(METACLASS_LoggedWarning
+    (METACLASS_Warning)
+    ()
+    ()
+)
+
+(METACLASS_StaticBox
+    (METACLASS_StaticPane)
+    ()
+    (halfTone halfToneFrame foreground foregroundFrame background backgroundFrame)
+)
+
+(METACLASS_WinSystemTime
+    (METACLASS_ExternalBuffer)
+    ()
+    (sizeInBytes)
+)
+
+(METACLASS_Rectangle
+    (METACLASS_Object)
+    ()
+    (leftTop:rightBottom: leftBottom:rightTop: rightBottomUnit rightTopUnit leftTop:extent: origin:extent: leftTopUnit origin:corner: leftBottom:extent: leftBottomUnit)
+)
+
+(METACLASS_CompilerErrorHandler
+    (METACLASS_Object)
+    ()
+    ()
+)
+
+(METACLASS_Array
+    (METACLASS_FixedSizeCollection)
+    ()
+    ()
+)
+
+(METACLASS_Notification
+    (METACLASS_Exception)
+    ()
+    ()
+)
+
+(METACLASS_SelfDefinedStructure
+    (METACLASS_ExternalBuffer)
+    ()
+    (named: compileAtPutSelector:in: nameOf: uncompileDefinition: compileAtSelector:in: define:withFields: definitions store:on: sizeInBytesOf: isCompiled: initialize named:atAddress: compileDefinition:)
+)
+
+(METACLASS_ApplicationWindow
+    (METACLASS_Window)
+    ()
+    (fileMenu)
+)
+
+(METACLASS_SystemDictionary
+    (METACLASS_Dictionary)
+    ()
+    ()
+)
+
+(METACLASS_GlobalPoolScope
+    (METACLASS_DictionaryScope)
+    ()
+    (for:bindingClass: for:bindingClass:description:)
+)
+
+(METACLASS_OrderedCollection
+    (METACLASS_IndexedCollection)
+    ()
+    (new new:)
+)
+
+(METACLASS_Screen
+    (METACLASS_GraphicsMedium)
+    ()
+    (startUp exit aboutToSaveImage)
+)
+
+(METACLASS_DDEClient
+    (METACLASS_DynamicDataExchange)
+    ()
+    (singlePoke:topic:item:data: singleExecute:topic:commandString: singleRequest:topic:item: newClient:application:topic:)
+)
+
+(METACLASS_ViewManager
+    (METACLASS_Object)
+    ()
+    (new toolTextPaneClass toolTextPaneClass: toolWindowPolicyClass toolWindowPolicyClass: eventsTriggered canTriggerEvent:)
+)
+
+(METACLASS_TextSelection
+    (METACLASS_Object)
+    ()
+    (new origin:corner:)
+)
+
+(METACLASS_GDIDLL
+    (METACLASS_DynamicLinkLibrary)
+    ()
+    (fileName)
+)
+
+(METACLASS_TextEdit
+    (METACLASS_EntryField)
+    ()
+    (constructEventsTriggered supportedEvents)
+)
+
+(METACLASS_CollectionAccessor
+    (METACLASS_EvaluableAction)
+    ()
+    (for:)
+)
+
+(METACLASS_StaticGraphic
+    (METACLASS_StaticPane)
+    ()
+    (bitmap icon bitmap: icon:)
+)
+)

@@ -1,0 +1,445 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ProjectSchemaDefinitions xmlns="clr-namespace:Microsoft.Build.Framework.XamlTypes;assembly=Microsoft.Build.Framework" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib" xmlns:transformCallback="Microsoft.Cpp.Dev10.ConvertPropertyCallback">
+  <Rule
+    Name="FlexGenerator"
+    PageTemplate="tool"
+    DisplayName="Flex Generator"
+    Order="200">
+    <Rule.DataSource>
+      <DataSource
+        Persistence="ProjectFile"
+        ItemType="FlexGenerator" />
+    </Rule.DataSource>
+    <Rule.Categories>
+      <Category
+        Name="General">
+        <Category.DisplayName>
+          <sys:String>General</sys:String>
+        </Category.DisplayName>
+      </Category>
+      <Category
+        Name="Command Line"
+        Subtype="CommandLine">
+        <Category.DisplayName>
+          <sys:String>Command Line</sys:String>
+        </Category.DisplayName>
+      </Category>
+    </Rule.Categories>
+    <StringListProperty
+      Name="Inputs"
+      Category="Command Line"
+      IsRequired="true"
+      Switch=" ">
+      <StringListProperty.DataSource>
+        <DataSource
+          Persistence="ProjectFile"
+          ItemType="FlexGenerator"
+          SourceType="Item" />
+      </StringListProperty.DataSource>
+    </StringListProperty>
+    <BoolProperty
+      Name="BackingUpInfo"
+      Subcategory="Debug information"
+      HelpContext="0"
+      DisplayName="Generate backing-up information"
+      Description="Generates the file 'lex.backup' that contains a list of scanner states which require backing up and the input characters on which they do so."
+      Switch="-b" />
+    <BoolProperty
+      Name="DebuggerOn"
+      Subcategory="Debug information"
+      HelpContext="0"
+      DisplayName="Run in debug mode"
+      Description="Turn on debug mode in generated scanner"
+      Switch="-d" />
+    <BoolProperty
+      Name="GenFast"
+      Category="Performance"
+      HelpContext="0"
+      DisplayName="Generate fast large scanner"
+      Description="Generate fast, large scanner"
+      Switch="-f" />
+    <BoolProperty
+      Name="CaseInsensitive"
+      HelpContext="0"
+      DisplayName="Case insensitive scanner"
+      Description="The case of letters given in the flex input patterns will be ignored, and tokens in the input will be matched regardless of case"
+      Switch="-i" />
+    <BoolProperty
+      Name="CompatibilityOn"
+      HelpContext="0"
+      DisplayName="Maximum compatibility with lex"
+      Description="Turns on maximum compatibility with the original AT&amp;T lex implementation. Note that this does not mean full compatibility."
+      Switch="-l" />
+    <BoolProperty
+      Name="PerformanceReport"
+      Category="Performance"
+      HelpContext="0"
+      DisplayName="Generate performance report"
+      Description="Generates a performance report to stderr. The report consists of comments regarding features of the flex input file which will cause a serious loss of performance in the resulting scanner."
+      Switch="-p" />
+    <BoolProperty
+      Name="SuppressDefault"
+      HelpContext="0"
+      DisplayName="Suppress the default rule"
+      Description="Causes the default rule (that unmatched scanner input is echoed to stdout) to be suppressed. If the scanner encounters input that does not match any of its rules, it aborts with an error."
+      Switch="-s" />
+    <BoolProperty
+      Name="SuppressWarnings"
+      HelpContext="0"
+      DisplayName="Suppress warning messages"
+      Description="Suppress warning messages."
+      Switch="-w" />
+    <BoolProperty
+      Name="BatchScanner"
+      Category="Performance"
+      HelpContext="0"
+      DisplayName="Generate Batch Scanner"
+      Description="Instructs flex to generate a batch scanner. In general, you use '-B' when you are certain that your scanner will never be used interactively, and you want to squeeze a little more performance out of it."
+      Switch="-B" />
+    <BoolProperty
+      Name="FastScanner"
+      Category="Performance"
+      HelpContext="0"
+      DisplayName="Use fast scanner table representation"
+      Description="Specifies that the fast scanner table representation should be used (and stdio bypassed). This representation is about as fast as the full table representation '(-f)', and for some sets of patterns will be considerably smaller (and for others, larger)."
+      Switch="-F" />
+    <BoolProperty
+      Name="InteractiveScanner"
+      Category="Performance"
+      HelpContext="0"
+      DisplayName="Generate an interactive scanner"
+      Description="Instructs flex to generate an interactive scanner. An interactive scanner is one that only looks ahead to decide what token has been matched if it absolutely must."
+      Switch="-I" />
+    <BoolProperty
+      Name="NoGenLineDirectives"
+      Subcategory="Debug information"
+      HelpContext="0"
+      DisplayName="Don't generate #line directives"
+      Description="Instructs flex not to generate '#line' directives. Without this option, flex peppers the generated scanner with #line directives so error messages in the actions will be correctly located with respect to either the original flex input file."
+      Switch="-L" />
+    <BoolProperty
+      Name="TraceMode"
+      Subcategory="Debug information"
+      HelpContext="0"
+      DisplayName="Trace mode"
+      Description="Makes flex run in trace mode. It will generate a lot of messages to stderr concerning the form of the input and the resultant non-deterministic and deterministic finite automata."
+      Switch="-T" />
+    <StringProperty
+      Name="OutputFile"
+      HelpContext="0"
+      DisplayName="Output File"
+      Description="The output file containing the implementation of the analyser"
+      Switch="-o[value]" />
+    <StringProperty
+      Name="ScannerPrefix"
+      HelpContext="0"
+      DisplayName="Scanner Prefix"
+      Description="Specify scanner prefix other than yy"
+      Switch="-P[value]" />
+    <StringProperty
+      Name="SkeletonFile"
+      HelpContext="0"
+      DisplayName="Use custom skeleton"
+      Description="Overrides the default skeleton file from which flex constructs its scanners"
+      Switch="-S[value]" />
+    <EnumProperty
+      Name="TableCompression"
+      Category="Performance"
+      HelpContext="0"
+      DisplayName="Table Compression"
+      Description="Controls the degree of table compression and, more generally, trade-offs between small scanners and fast scanners.">
+      <EnumValue
+        Name="0"
+        DisplayName="Equivalence classes and meta-equivalence classes (slowest &amp; smallest)"
+        Switch="-Cem" />
+      <EnumValue
+        Name="1"
+        DisplayName="Meta-equivalence classes"
+        Switch="-Cm" />
+      <EnumValue
+        Name="2"
+        DisplayName="Equivalence classes"
+        Switch="-Ce" />
+      <EnumValue
+        Name="3"
+        DisplayName="Compress scanner tables"
+        Switch="-C" />
+      <EnumValue
+        Name="4"
+        DisplayName="Full scanner tables and equivalence classes"
+        Switch="-Cfe" />
+      <EnumValue
+        Name="5"
+        DisplayName="Alternate fast scanner representation and equivalence classes"
+        Switch="-CFe" />
+      <EnumValue
+        Name="6"
+        DisplayName="Full scanner tables"
+        Switch="-Cf" />
+      <EnumValue
+        Name="7"
+        DisplayName="Alternate fast scanner representation"
+        Switch="-CF" />
+      <EnumValue
+        Name="8"
+        DisplayName="Align data in full scanner tables (fastest &amp; largest)"
+        Switch="-Cfa" />
+      <EnumValue
+        Name="9"
+        DisplayName="Align data in the alternate fast scanner representation (fastest &amp; largest)"
+        Switch="-CFa" />
+    </EnumProperty>
+    <StringProperty
+      Name="CommandLineTemplate"
+      DisplayName="Command Line"
+      Visible="False"
+      IncludeInCommandLine="False" />
+    <DynamicEnumProperty
+      Name="FlexGeneratorBeforeTargets"
+      Category="General"
+      EnumProvider="Targets"
+      IncludeInCommandLine="False">
+      <DynamicEnumProperty.DisplayName>
+        <sys:String>Execute Before</sys:String>
+      </DynamicEnumProperty.DisplayName>
+      <DynamicEnumProperty.Description>
+        <sys:String>Specifies the targets for the build customization to run before.</sys:String>
+      </DynamicEnumProperty.Description>
+      <DynamicEnumProperty.ProviderSettings>
+        <NameValuePair
+          Name="Exclude"
+          Value="^FlexGeneratorBeforeTargets|^Compute" />
+      </DynamicEnumProperty.ProviderSettings>
+      <DynamicEnumProperty.DataSource>
+        <DataSource
+          Persistence="ProjectFile"
+          HasConfigurationCondition="true" />
+      </DynamicEnumProperty.DataSource>
+    </DynamicEnumProperty>
+    <DynamicEnumProperty
+      Name="FlexGeneratorAfterTargets"
+      Category="General"
+      EnumProvider="Targets"
+      IncludeInCommandLine="False">
+      <DynamicEnumProperty.DisplayName>
+        <sys:String>Execute After</sys:String>
+      </DynamicEnumProperty.DisplayName>
+      <DynamicEnumProperty.Description>
+        <sys:String>Specifies the targets for the build customization to run after.</sys:String>
+      </DynamicEnumProperty.Description>
+      <DynamicEnumProperty.ProviderSettings>
+        <NameValuePair
+          Name="Exclude"
+          Value="^FlexGeneratorAfterTargets|^Compute" />
+      </DynamicEnumProperty.ProviderSettings>
+      <DynamicEnumProperty.DataSource>
+        <DataSource
+          Persistence="ProjectFile"
+          ItemType=""
+          HasConfigurationCondition="true" />
+      </DynamicEnumProperty.DataSource>
+    </DynamicEnumProperty>
+    <StringListProperty
+      Name="Outputs"
+      DisplayName="Outputs"
+      Visible="False"
+      IncludeInCommandLine="False" />
+    <StringProperty
+      Name="ExecutionDescription"
+      DisplayName="Execution Description"
+      Visible="False"
+      IncludeInCommandLine="False" />
+    <StringListProperty
+      Name="AdditionalDependencies"
+      DisplayName="Additional Dependencies"
+      IncludeInCommandLine="False"
+      Visible="false" />
+    <StringProperty
+      Subtype="AdditionalOptions"
+      Name="AdditionalOptions"
+      Category="Command Line">
+      <StringProperty.DisplayName>
+        <sys:String>Additional Options</sys:String>
+      </StringProperty.DisplayName>
+      <StringProperty.Description>
+        <sys:String>Additional Options</sys:String>
+      </StringProperty.Description>
+    </StringProperty>
+  </Rule>
+  <ItemType
+    Name="FlexGenerator"
+    DisplayName="Flex Generator" />
+  <FileExtension
+    Name="*.l"
+    ContentType="FlexGenerator" />
+  <ContentType
+    Name="FlexGenerator"
+    DisplayName="Flex Generator"
+    ItemType="FlexGenerator" />
+  <Rule
+    Name="BisonParser"
+    PageTemplate="tool"
+    DisplayName="Bison Parser"
+    Order="200">
+    <Rule.DataSource>
+      <DataSource
+        Persistence="ProjectFile"
+        ItemType="BisonParser" />
+    </Rule.DataSource>
+    <Rule.Categories>
+      <Category
+        Name="General">
+        <Category.DisplayName>
+          <sys:String>General</sys:String>
+        </Category.DisplayName>
+      </Category>
+      <Category
+        Name="Command Line"
+        Subtype="CommandLine">
+        <Category.DisplayName>
+          <sys:String>Command Line</sys:String>
+        </Category.DisplayName>
+      </Category>
+    </Rule.Categories>
+    <StringListProperty
+      Name="Inputs"
+      Category="Command Line"
+      IsRequired="true"
+      Switch=" ">
+      <StringListProperty.DataSource>
+        <DataSource
+          Persistence="ProjectFile"
+          ItemType="BisonParser"
+          SourceType="Item" />
+      </StringListProperty.DataSource>
+    </StringListProperty>
+    <BoolProperty
+      Name="Defines"
+      HelpContext="0"
+      DisplayName="Use defines"
+      Description="Write an extra output file containing macro definitions for the token type names defined in the grammar and the semantic value type YYSTYPE, as well as a few extern variable declarations"
+      Switch="-d" />
+    <BoolProperty
+      Name="NoGenLineDirectives"
+      HelpContext="0"
+      DisplayName="Don't generate '#line' directives"
+      Description="Don't put any #line preprocessor commands in the parser file. Ordinarily Bison puts them in the parser file so that the C compiler and debuggers will associate errors with your source file, the grammar file."
+      Switch="-l" />
+    <BoolProperty
+      Name="DebuggerOn"
+      HelpContext="0"
+      DisplayName="Compile debugging facilities"
+      Description="Output a definition of the macro YYDEBUG into the parser file, so that the debugging facilities are compiled"
+      Switch="-t" />
+    <BoolProperty
+      Name="Verbose"
+      HelpContext="0"
+      DisplayName="Output parser states"
+      Description="Write an extra output file containing verbose descriptions of the parser states and what is done for each type of look-ahead token in that state"
+      Switch="-v" />
+    <StringProperty
+      Name="FilePrefix"
+      HelpContext="0"
+      DisplayName="File Prefix"
+      Description="Specify a prefix to use for all Bison output file names"
+      Switch="-b [value]" />
+    <StringProperty
+      Name="OutputFile"
+      HelpContext="0"
+      DisplayName="Output file name"
+      Description="Specify the name outfile for the parser file"
+      Switch="-o [value]" />
+    <StringProperty
+      Name="RenameExternalSymbols"
+      HelpContext="0"
+      DisplayName="Rename External Symbols"
+      Description="Rename the external symbols used in the parser so that they start with prefix instead of `yy'."
+      Switch="-p [value]" />
+    <StringProperty
+      Name="CommandLineTemplate"
+      DisplayName="Command Line"
+      Visible="False"
+      IncludeInCommandLine="False" />
+    <DynamicEnumProperty
+      Name="BisonParserBeforeTargets"
+      Category="General"
+      EnumProvider="Targets"
+      IncludeInCommandLine="False">
+      <DynamicEnumProperty.DisplayName>
+        <sys:String>Execute Before</sys:String>
+      </DynamicEnumProperty.DisplayName>
+      <DynamicEnumProperty.Description>
+        <sys:String>Specifies the targets for the build customization to run before.</sys:String>
+      </DynamicEnumProperty.Description>
+      <DynamicEnumProperty.ProviderSettings>
+        <NameValuePair
+          Name="Exclude"
+          Value="^BisonParserBeforeTargets|^Compute" />
+      </DynamicEnumProperty.ProviderSettings>
+      <DynamicEnumProperty.DataSource>
+        <DataSource
+          Persistence="ProjectFile"
+          HasConfigurationCondition="true" />
+      </DynamicEnumProperty.DataSource>
+    </DynamicEnumProperty>
+    <DynamicEnumProperty
+      Name="BisonParserAfterTargets"
+      Category="General"
+      EnumProvider="Targets"
+      IncludeInCommandLine="False">
+      <DynamicEnumProperty.DisplayName>
+        <sys:String>Execute After</sys:String>
+      </DynamicEnumProperty.DisplayName>
+      <DynamicEnumProperty.Description>
+        <sys:String>Specifies the targets for the build customization to run after.</sys:String>
+      </DynamicEnumProperty.Description>
+      <DynamicEnumProperty.ProviderSettings>
+        <NameValuePair
+          Name="Exclude"
+          Value="^BisonParserAfterTargets|^Compute" />
+      </DynamicEnumProperty.ProviderSettings>
+      <DynamicEnumProperty.DataSource>
+        <DataSource
+          Persistence="ProjectFile"
+          ItemType=""
+          HasConfigurationCondition="true" />
+      </DynamicEnumProperty.DataSource>
+    </DynamicEnumProperty>
+    <StringListProperty
+      Name="Outputs"
+      DisplayName="Outputs"
+      Visible="False"
+      IncludeInCommandLine="False" />
+    <StringProperty
+      Name="ExecutionDescription"
+      DisplayName="Execution Description"
+      Visible="False"
+      IncludeInCommandLine="False" />
+    <StringListProperty
+      Name="AdditionalDependencies"
+      DisplayName="Additional Dependencies"
+      IncludeInCommandLine="False"
+      Visible="false" />
+    <StringProperty
+      Subtype="AdditionalOptions"
+      Name="AdditionalOptions"
+      Category="Command Line">
+      <StringProperty.DisplayName>
+        <sys:String>Additional Options</sys:String>
+      </StringProperty.DisplayName>
+      <StringProperty.Description>
+        <sys:String>Additional Options</sys:String>
+      </StringProperty.Description>
+    </StringProperty>
+  </Rule>
+  <ItemType
+    Name="BisonParser"
+    DisplayName="Bison Parser" />
+  <FileExtension
+    Name="*.y"
+    ContentType="BisonParser" />
+  <ContentType
+    Name="BisonParser"
+    DisplayName="Bison Parser"
+    ItemType="BisonParser" />
+</ProjectSchemaDefinitions>

@@ -1,0 +1,4 @@
+Type Switch
+
+ * ditch the colors in Figure 3 (relative performance). Just use bold and italics.
+ * FIX: page 9: Figure 4 x-axis labels are cropped

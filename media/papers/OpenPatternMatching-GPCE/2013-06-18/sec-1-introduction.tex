@@ -1,0 +1,126 @@
+\section{Introduction} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:intro}
+
+%Conventional object-oriented programming practice suggests \emph{Visitor Design 
+%Pattern}~\cite{DesignPatterns} for principled traversal of structured data such 
+%as those manipulated by compilers, GUI frameworks, etc. However, our experience 
+%with various \Cpp{} front-ends and program analysis frameworks~\cite{Pivot09,Phoenix,Clang} 
+%have been rather unsatisfactory. We found visitors unsuitable to express our 
+%application logic, surprisingly hard to teach students, and slow. We found 
+%dynamic casts in many places, often nested. This suggested that users preferred 
+%shorter, cleaner, and more direct codes to visitors, even at the high cost in 
+%performance. Most of the dynamic cast usage mimicked the moral equivalent of 
+%pattern matching as found in modern functional programming languages.
+
+Pattern matching is an abstraction mechanism popularized by the functional
+programming community, for example ML~\cite{ML78},
+OCaml~\cite{OPM01}, and Haskell~\cite{haskell90},
+and recently adopted by several multi-paradigm and object-oriented programming 
+languages such as Scala~\cite{Scala2nd}, F\#~\cite{Syme07}, 
+%Newspeak~\cite{geller2010pattern}, Fortress~\cite{RPS10}, 
+%Thorn~\cite{Thorn2012}, Grace~\cite{Grace2012},
+ and dialects of 
+\Cpp{}\cite{Prop96,App}.
+The expressive power of pattern matching has been cited as the number one reason for choosing a functional language for a 
+task~\cite{FramaC09}, \cite{Minsky08}, \cite{Nanavati08}.
+%Expressivity of pattern matching has been considered so crucial in certain application domains, 
+%that it became the number one reason for choosing a functional language for the 
+%job in those domains. In their experience report on implementing Frama-C static 
+%analyzer, Cuoq et al~\cite{FramaC09} list expressiveness as the number one reason for using 
+%OCaml instead of \Cpp{}. Similar sentiments are expressed in 
+%two other experience reports detailing implementation of a high-performance 
+%trading platform in OCaml~\cite{Minsky08} and implementation of a hardware-design 
+%toolset in Haskell~\cite{Nanavati08}.
+
+This paper presents a functional-style pattern matching extension to \Cpp{}.
+%% Introduction of pattern matching into a new language is nontrivial;
+%% introducing it into an existing language in widespread use is an even greater 
+%% challenge. The obvious utility of the feature is easily compromised by the need 
+%% to fit into the language's syntax, semantics, and toolchains. A prototype 
+%% implementation requires more effort than for an experimental language.
+%% It is also
+%% harder to get into use because mainstream users are unwilling to try 
+%% non-portable, non-standard, and unoptimized features, so we need to provide an optimized implementation. 
+To allow experimentation and to be able to use production-quality tool chains (in particular, compilers and optimizers), we  implemented our matching facilities as a C++ library.
+%To balance utility and effort we took the Semantically Enhanced Library Language 
+%(SELL) approach~\cite{SELL,BSGDR05}, extending a general-purpose 
+%programming language with a library.
+%%  With pattern matching, we 
+%% (somewhat surprisingly) managed to avoid external tool support by relying on 
+%% some pretty nasty macro hacking and template meta-programming to provide a 
+%% conventional and convenient interface to an efficient library implementation.
+
+%Before we go 
+%any further, though, we need to explicitly clarify one aspect. Throughout the 
+%paper, when not stated otherwise, by pattern matching we mean run-time pattern 
+%matching -- a facility that can be used to analyze and decompose run-time values.
+%This is important, because \Cpp{} has a pure functional sublanguage in it with 
+%striking similarity to ML and Haskell that has a very extensive compile-time 
+%pattern-matching facility in it~\cite{Milewski11}. The sublanguage in question 
+%is the template facilities of \Cpp{}, which allows one to encode computations at
+%compile time, and has been shown to be Turing complete\cite{veldhuizen:templates_turing_complete}. 
+%The key observation in the analogy to pattern matching is that partial and 
+%explicit template specialization of \Cpp{} class templates are similar to 
+%defining equations for Haskell functions. It is also used in \Cpp{} for similar 
+%purposes: case analysis over families of types, structural decomposition of 
+%types, overload resolution etc. It turns out we can use this compile-time 
+%pattern matching facility to build a very expressive, efficient and extensible 
+%run-time pattern matching solution.
+
+%By efficient, we mean about as fast as functional languages for closed cases and
+%much better than code generated for visitor patterns by commercial optimizers 
+%for open cases\cite{TypeSwitch}.
+
+\subsection{Summary}
+
+We present functional-style pattern matching for \Cpp{} built as an ISO 
+\Cpp{}11 library. Our solution:
+
+\begin{compactitem}
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+  \item Is open to introduction of new patterns into the library, while not 
+        making any assumptions about existing ones.
+  \item Is type safe: inappropriate applications of patterns to subjects are compile-time errors.
+  \item Makes patterns first-class citizens in the language (\textsection\ref{sec:pat}).
+  \item Is non-intrusive and can be retroactively applied to existing types (\textsection\ref{sec:bnd}).
+\item Provides a unified syntax for various encodings of extensible 
+       hierarchical datatypes in \Cpp{}.
+  \item Provides an alternative interpretation of the controversial n+k 
+        patterns (in line with that of constructor patterns), leaving the choice 
+        of exact semantics to the user (\textsection\ref{sec:slv}).
+  \item Supports a limited form of views (\textsection\ref{sec:view}).
+  \item Generalizes open type switch to multiple scrutinees and enables patterns 
+        in case clauses (\textsection\ref{sec:matchstmt}).
+%  \item Is simpler than conventional object-oriented or union-based alternatives.
+%  \item Improves performance compared to alternatives in real applications~\cite{TypeSwitch}.
+  \item Demonstrates that compile-time composition of patterns through 
+        concepts is superior to run-time composition of patterns through 
+        polymorphic interfaces in terms of performance, expressiveness and 
+        static type checking (\textsection\ref{sec:patcmp}).
+\end{compactitem}
+
+%The library in this respect is nothing else than a set of \Cpp{} concepts 
+%guiding the composition of patterns combined with a set of macros providing a 
+%suitable surface syntax. 
+
+%We observe that the approach we use for open type switching generalizes easily 
+%to the case of multiple scrutinees (subjects), while the closed approach does 
+%not.
+
+\noindent
+Our library sets a standard for performance, extensibility, brevity, 
+clarity and usefulness of any language solution for pattern matching.
+It provides full functionality, so we can experiment with the use of 
+pattern matching in \Cpp{} and compare it to existing alternatives.
+Our solution requires only current support of \Cpp{}11 without any 
+additional tool support.
+
+%The rest of the paper is structured as follows. Section~\ref{sec:cpppat} 
+%introduces common terminology and demonstrates the syntax enabled by the 
+%\emph{Mach7} library~\cite{TS12}. Section~\ref{sec:impl} provides some 
+%implementation details that make our extension possible. Section~\ref{sec:eval} 
+%compares our solution to some alternatives. Section~\ref{sec:rw} discusses 
+%related work, while Section~\ref{sec:cc} concludes by discussing some future 
+%directions and possible improvements. Appendix~\ref{sec:prelim} provides some 
+%details about \Cpp{} concepts and the syntax used in the paper.

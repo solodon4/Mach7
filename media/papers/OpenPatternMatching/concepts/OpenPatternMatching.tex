@@ -1,0 +1,234 @@
+\documentclass[10pt]{sigplanconf}
+
+\usepackage{amssymb}
+%\usepackage{amsthm}
+%\usepackage{breakurl}             % Not needed if you use pdflatex only.
+\usepackage{color}
+\usepackage{epsfig}
+%\usepackage{esvect}
+\usepackage{listings}
+\usepackage{mathpartir}
+\usepackage{MnSymbol}
+\usepackage{multirow}
+\usepackage{rotating}
+\usepackage{paralist}
+
+\setlength{\parskip}{0cm}
+%\setlength{\parindent}{1em}
+
+\lstdefinestyle{C++}{language=C++,%
+showstringspaces=false,
+  columns=fullflexible,
+  escapechar=@,
+  basicstyle=\sffamily,
+%  commentstyle=\rmfamily\itshape,
+  moredelim=**[is][\color{white}]{~}{~},
+  morekeywords={axiom,concept,decltype,noexcept,nullptr,requires},
+  literate={[<]}{{\textless}}1      {[>]}{{\textgreater}}1 %
+           {*}{{$*$}}1 % Without this, star (*) is rendered in Type 3 font
+           %{_}{{\textunderscore}}1 %
+           {<}{{$\langle$}}1        {>}{{$\rangle$}}1 %
+           {<=}{{$\leq$}}1          {>=}{{$\geq$}}1 %
+           {==}{{$==$}}2            {!=}{{$\neq$}}1 %
+           {=>}{{$\Rightarrow\;$}}1 {->}{{$\rightarrow{}$}}1 %
+           {<:}{{$\subtype{}\ $}}1  {<-}{{$\leftarrow$}}1 %
+           {s1;}{{$s_1$;}}3 {s2;}{{$s_2$;}}3 {s3;}{{$s_3$;}}3 {s4;}{{$s_4$;}}3 {s5;}{{$s_5$;}}3 {s6;}{{$s_6$;}}3 {s7;}{{$s_7$;}}3 {sn;}{{$s_n$;}}3 {si;}{{$s_i$;}}3%
+           {P1}{{$P_1$}}2 {P2}{{$P_2$}}2 {P3}{{$P_3$}}2 {P4}{{$P_4$}}2 {P5}{{$P_5$}}2 {P6}{{$P_6$}}2 {P7}{{$P_7$}}2 {Pn}{{$P_n$}}2 {Pi}{{$P_i$}}2%
+           {D1}{{$D_1$}}2 {D2}{{$D_2$}}2 {D3}{{$D_3$}}2 {D4}{{$D_4$}}2 {D5}{{$D_5$}}2 {D6}{{$D_6$}}2 {D7}{{$D_7$}}2 {Dn}{{$D_n$}}2 {Di}{{$D_i$}}2%
+           {T1}{{$T_1$}}2 {T2}{{$T_2$}}2 {T3}{{$T_3$}}2 {T4}{{$T_4$}}2 {T5}{{$T_5$}}2 {T6}{{$T_6$}}2 {T7}{{$T_7$}}2 {Tn}{{$T_n$}}2 {Ti}{{$T_i$}}2 {Tm}{{$T_m$}}2%
+           {e1}{{$e_1$}}2 {e2}{{$e_2$}}2 {e3}{{$e_3$}}2 {e4}{{$e_4$}}2%
+           {E1}{{$E_1$}}2 {E2}{{$E_2$}}2 {E3}{{$E_3$}}2 {E4}{{$E_4$}}2 {Ei}{{$E_i$}}2%
+           {_1}{{$_1$}}1  {_2}{{$_2$}}1  {_3}{{$_3$}}1  {_4}{{$_4$}}1  {_i}{{$_i$}}1  {_n}{{$_n$}}1  {_N}{{$_N$}}1%
+           {m_e1}{{$m\_e_1$}}4 {m_e2}{{$m\_e_2$}}4 {m_e3}{{$m\_e_3$}}4 {m_e4}{{$m\_e_4$}}4%
+           {aa}{{$a$}}1 {bb}{{$b$}}1 {Cc}{{$c$}}1 {Dd}{{$d$}}1 {ff}{{$f$}}1 {mm}{{$m$}}1%
+           {Ss}{{$s$}}1 {Tt}{{$t$}}1 {vv}{{$v$}}1 {xx}{{$x$}}1 {yy}{{$y$}}1 {zz}{{$z$}}1%
+           {Divide}{{Divide}}6 {Either}{Either}6 %
+           {Times}{{Times}}5 %
+           {Match}{{\emph{Match}}}5 %
+           {Case}{{\emph{Case}}}4 %
+           {Qua}{{\emph{Qua}}}3 %
+           {When}{{\emph{When}}}4 %
+           {Otherwise}{{\emph{Otherwise}}}9 %
+           {EndMatch}{{\emph{EndMatch}}}8 %
+           {CM}{{\emph{CM}}}2 {KS}{{\emph{KS}}}2 {KV}{{\emph{KV}}}2 %
+           {EuclideanDomain}{\concept{EuclideanDomain}}{15}  %
+           {LazyExpression}{\concept{LazyExpression}}{14}    %
+           {Polymorphic}{\concept{Polymorphic}}{11}          %
+           {CopyConstructible}{\concept{CopyConstructible}}{17}%
+           {MoveConstructible}{\concept{MoveConstructible}}{17}%
+           {EqualityComparable}{\concept{EqualityComparable}}{18}%
+           {Copyable}{\concept{Copyable}}8                   %
+           {Convertible}{\concept{Convertible}}{11}          %
+           {Integral}{\concept{Integral}}8                   %
+           {SameType}{\concept{SameType}}8                   %
+           {Pattern}{\concept{Pattern}}7                     %
+           {Regular}{\concept{Regular}}7                     %
+           {Object}{\concept{Object}}6                       %
+           {Field}{\concept{Field}}5                         %
+}
+\lstset{style=C++}
+
+\lstdefinestyle{Haskell}{language=Haskell,%
+  morekeywords={out,view,real}
+  literate={=>}{{$\Rightarrow\;$}}1 {->}{{$\rightarrow{}$}}1 {<-}{{$\leftarrow$}}1 {\\}{{$\lambda$}}1,
+  moredelim=**[is][\color{red}]{`}{`},
+  moredelim=**[is][\color{white}]{~}{~}
+}
+
+\lstdefinestyle{Caml}{language=Caml,%
+  morekeywords={when}
+  literate={->}{{$\rightarrow{}$}}1,
+  moredelim=**[is][\color{red}]{`}{`},
+  moredelim=**[is][\color{white}]{~}{~}
+}
+
+\DeclareRobustCommand{\Cpp}{C\texttt{++}}
+\DeclareRobustCommand{\code}[1]{{\lstinline[keepspaces,breaklines=false,escapechar=@]{#1}}}
+\DeclareRobustCommand{\codebr}[1]{{\lstinline[breaklines=true]{#1}}}
+\DeclareRobustCommand{\codehaskell}[1]{{\lstinline[breaklines=false,language=Haskell]{#1}}}
+\DeclareRobustCommand{\codeocaml}[1]{{\lstinline[breaklines=false,language=Caml]{#1}}}
+\DeclareRobustCommand{\concept}[1]{{\small\textsc{#1}}}
+\newcommand{\exclude}[1]{}
+\newcommand{\halfline}{\vspace{-1.5ex}}
+
+%\newtheorem{lemma}{Lemma}
+%\newtheorem{theorem}{Theorem}
+%\newtheorem{corollary}{Corollary}
+
+%% grammar commands
+\newcommand{\Rule}[1]{{\rmfamily\itshape{#1}}}
+\newcommand{\Alt}{\ensuremath{\mid}}
+\newcommand{\SynCat}[1]{\ensuremath{\mathit{#1}}}
+\newcommand{\is}{\ensuremath{::=}}
+\newcommand{\subtype}{\ensuremath{\texttt{\raisebox{-0.1ex}{<}\raisebox{0.05ex}{:}}}}
+\newcommand{\subtypeD}{\ensuremath{<:_d}}
+\newcommand{\lazyevals}{\Downarrow}
+\newcommand{\evals}{\Rightarrow}
+\newcommand{\evalspp}{\Rightarrow^+}
+\newcommand{\DynCast}[2]{\ensuremath{\mathsf{dyn\_cast}\langle{#1}\rangle({#2})}}
+\newcommand{\nullptr}{\ensuremath{\bot}}
+\newcommand{\of}[1]{\left(#1\right)}
+\newcommand{\tpl}[1]{\langle#1\rangle}
+\newcommand{\True}{\ensuremath{\mathsf{true}}}
+\newcommand{\False}{\ensuremath{\mathsf{false}}}
+
+\newcommand{\CWildcard}{\ensuremath{\mathit{\bf wildcard}}}
+\newcommand{\CValue}   {\ensuremath{\mathit{\bf value}}}
+\newcommand{\CVariable}{\ensuremath{\mathit{\bf variable}}}
+\newcommand{\CExpr}    {\ensuremath{\mathit{\bf expr}}}
+\newcommand{\CGuard}   {\ensuremath{\mathit{\bf guard}}}
+\newcommand{\CCnstr}   {\ensuremath{\mathit{\bf ctor}}}
+
+\newcommand{\Wildcard}   {\ensuremath{\CWildcard}}
+\newcommand{\Value}[1]   {\ensuremath{\CValue\langle{#1}\rangle}}
+\newcommand{\Variable}[1]{\ensuremath{\CVariable\langle{#1}\rangle}}
+\newcommand{\ExprU}[2]   {\ensuremath{\CExpr\langle{#1},{#2}\rangle}}
+\newcommand{\ExprB}[3]   {\ensuremath{\CExpr\langle{#1},{#2},{#3}\rangle}}
+\newcommand{\ExprK}[3]   {\ensuremath{\CExpr\langle{#1},{#2},\cdots,{#3}\rangle}}
+\newcommand{\Guard}[2]   {\ensuremath{\CGuard\langle{#1},{#2}\rangle}}
+\newcommand{\Cnstr}[3]   {\ensuremath{\CCnstr\langle{#1},{#2},\cdots,{#3}\rangle}}
+
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+
+\newcommand{\f}[1]{{{\bf \underline{#1\%}}}}
+\newcommand{\s}[1]{{ {#1\%}}}
+\newcommand{\n}[1]{{ {\bf ~ ~ ~ ~ }}}
+\newcommand{\none}{{ {\color{gray}0.00\%}}}
+\newcommand{\Opn}{{\scriptsize {\bf Open}}}
+\newcommand{\Cls}{{\scriptsize {\bf Tag}}}
+\newcommand{\Unn}{{\scriptsize {\bf Union}}}
+
+%\input{data2}
+
+\newsavebox{\sembox}
+\newlength{\semwidth}
+\newlength{\boxwidth}
+
+\newcommand{\Sem}[1]{%
+\sbox{\sembox}{\ensuremath{#1}}%
+\settowidth{\semwidth}{\usebox{\sembox}}%
+\sbox{\sembox}{\ensuremath{\left[\usebox{\sembox}\right]}}%
+\settowidth{\boxwidth}{\usebox{\sembox}}%
+\addtolength{\boxwidth}{-\semwidth}%
+\left[\hspace{-0.3\boxwidth}%
+\usebox{\sembox}%
+\hspace{-0.3\boxwidth}\right]%
+}
+
+\newcommand{\authormodification}[2]{{\color{#1}#2}}
+\newcommand{\ys}[1]{\authormodification{blue}{#1}}
+\newcommand{\bs}[1]{\authormodification{red}{#1}}
+\newcommand{\gdr}[1]{\authormodification{magenta}{#1}}
+
+\begin{document}
+
+\conferenceinfo{OOPSLA'13}{October 26--31, 2013, Indianapolis, Indiana, USA.} 
+\copyrightyear{2013} 
+\copyrightdata{[to be supplied]} 
+
+\titlebanner{Draft for OOPSLA 2013}        % These are ignored unless
+\preprintfooter{Y.Solodkyy, G.Dos Reis, B.Stroustrup: Open Pattern Matching for \Cpp{}}   % 'preprint' option specified.
+
+\title{Open Pattern Matching for \Cpp{}}
+%\subtitle{your \code{visit}, Jim, is not \code{accept}able anymore}
+%\subtitle{\code{accepting} aint no \code{visit}ors}
+
+\authorinfo{Yuriy Solodkyy\and Gabriel Dos Reis\and Bjarne Stroustrup}
+           {Texas A\&M University\\ Texas, USA}
+           {\{yuriys,gdr,bs\}@cse.tamu.edu}
+
+\maketitle
+
+\begin{abstract}
+Pattern matching is an abstraction mechanism that can greatly simplify source code. We 
+present functional-style pattern matching for \Cpp{} implemented as a library, 
+called \emph{Mach7}. The solution is open in that all the patterns are 
+user-definable and first order in that patterns can be stored in variables and 
+passed in and out of functions. As an example, we implement common patterns used 
+in functional languages.
+
+Our approach to pattern matching is based on compile-time composition of pattern 
+objects through concepts. This is superior (in terms of performance and 
+expressiveness) to approaches based on run-time composition of pattern objects. 
+In particular, our solution allows mapping functional code based on pattern 
+matching directly into \Cpp{} and produces code that is only a few percent 
+slower than hand-optimized \Cpp{} code.
+
+The library builds on top of an efficient type switch construct, further 
+extending it to multiple scrutinies and general patterns. We 
+compare the performance of this extension to the performance of double dispatch 
+as well as to the performance of open multi-methods prototype for \Cpp{}.
+
+%Our patterns are first-class citizens, and the set of patterns supported by 
+%the library is open. The traditional patterns seen in functional languages are 
+%expressed as user-defined entities, including the typical constructor patterns, 
+%controversial n+k patterns and expressive views. Implementing pattern matching 
+%as a library allows us to experiment with the expressiveness of syntax, 
+%under-the-hood tweaks, and styles of use while preserving the performance and 
+%portability provided by industrial compilers and support tools.
+\end{abstract}
+
+\category{D.1.5}{Programming techniques}{Object-oriented Programming}
+\category{D.3.3}{Programming Languages}{Language Constructs and Features} 
+
+\terms
+Languages, Design
+
+\keywords
+Pattern Matching, \Cpp{}
+
+\input{sec-1-introduction}
+\input{sec-2-cpp-patterns}
+%\input{sec-2-pm-by-example}
+%\input{sec-3-pm-sell}
+\input{sec-4-implementation}
+\input{sec-5-evaluation}
+\input{sec-5-related-work}
+\input{sec-6-conclusions}
+
+\bibliographystyle{abbrvnat}
+\bibliography{mlpatmat}
+
+\appendix
+\input{sec-3-preliminaries}
+\end{document}

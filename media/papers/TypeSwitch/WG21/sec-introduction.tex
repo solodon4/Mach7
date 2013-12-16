@@ -1,0 +1,206 @@
+\section{Introduction} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:intro}
+
+%Motivate the problem
+%Give a summary of the paper: what you did and how
+%Explicitly state your contribution
+
+Classic algebraic data types as seen in functional languages are closed and their 
+variants are disjoint, which allows for efficient implementation of case analysis 
+on such types. Data types in object-oriented languages are extensible
+and hierarchical (implying that variants are not necessarily 
+disjoint). 
+To be general, case analysis on such types must be \emph{open}: allow for 
+independent extensions, modular type-checking, and dynamic linking. To be 
+accepted for production code, its implementation must also equal or outperform 
+all known workarounds. Existing approaches to case analysis on hierarchical 
+extensible data types are either efficient or open, but not both.
+Truly open approaches rely on expensive class-membership tests combined with 
+decision trees. Efficient approaches rely on sealing either the class 
+hierarchy or the set of functions, which loses extensibility (\textsection\ref{sec:prev}). %~\cite{Cohen91,DesignPatterns1993,Vitek97,PQEncoding}.  
+Consider for example a simple expression language: 
+\begin{displaymath}
+\SynCat{exp} \is{} \SynCat{val} 
+  \Alt{} \SynCat{exp} + \SynCat{exp}
+  \Alt{} \SynCat{exp} - \SynCat{exp}
+  \Alt{} \SynCat{exp} * \SynCat{exp}
+  \Alt{} \SynCat{exp} / \SynCat{exp}
+\end{displaymath}
+
+\noindent 
+In an object-oriented language without direct support for algebraic data types, 
+the type representing an expression tree in the language will typically be 
+encoded as an abstract base class, %listing the (sealed set of) allowed virtual functions, 
+with derived classes implementing specific variants:
+%
+\begin{lstlisting}[keepspaces,columns=flexible]
+struct Expr { virtual int eval() = 0; };
+struct Value : Expr { @$\cdots$@ int eval(); int value; };
+struct Plus  : Expr { @$\cdots$@ Expr& e1; Expr& e2; };
+\end{lstlisting}
+
+\noindent
+A simple evaluator for this language can be implemented with the aid of a
+virtual function \code{eval()} declared in the base class \code{Expr}. 
+The approach is \emph{intrusive}, however, as the base class has to be
+modified every time we add a new functionality. 
+With \emph{Mach7}, we offer an external introspection of objects with case analysis:
+%A less-intrusive solution can be achieved 
+%with \emph{visitor design pattern}~\cite{DesignPatterns1993}, which tries to 
+%leverage the case analysis common to all such functions. That solution, however, 
+%is not open as it restricts extensibility of classes.
+
+%Our solution overcomes the limitations of visitor design pattern by allowing 
+%external introspection of objects with case analysis:
+
+\begin{lstlisting}[columns=flexible]
+int eval(const Expr& e)
+{
+  Match(e)
+   Case(const  Value& x) return x.value;
+   Case(const   Plus& x) return eval(x.e1)+eval(x.e2);
+   Case(const  Minus& x) return eval(x.e1)-eval(x.e2);
+   Case(const  Times& x) return eval(x.e1)*eval(x.e2);
+   Case(const Divide& x) return eval(x.e1)/eval(x.e2);
+  EndMatch
+}
+\end{lstlisting}
+
+\noindent
+This is all a user of \emph{Mach7} has to write.
+The syntax is provided without any external tool support or 
+additional definitions from the user. The library is implemented in
+standard ISO \Cpp{}11~\cite{C++11} with template meta-programming, 
+and a few macros (\textsection\ref{sec:vtblmem}). It runs 
+about as fast as OCaml and Haskell equivalents (\textsection\ref{sec:ocaml}),
+and occasionally
+%, depending on the usage scenario, compiler and underlying hardware, 
+comes close or 
+outperforms the handcrafted \Cpp{} code based on the \emph{visitor design pattern} 
+(\textsection\ref{sec:viscmp}).
+
+The ideas and the 
+\emph{Mach7} library were motivated by our unsatisfactory experiences working 
+with various \Cpp{} front-ends and program analysis frameworks~\cite{Pivot09,gdr-2012:liz,Phoenix,Clang}. 
+The problem was not in the frameworks per se, but in the fact that we had to use
+the \emph{visitor design pattern}~\cite{DesignPatterns1993} to inspect, traverse, and 
+elaborate abstract syntax trees of target languages. We found visitors 
+unsuitable to express application logic directly, surprisingly hard to teach 
+students, and often slower than handcrafted workaround techniques. Instead, 
+users were relying on dynamic casts in many places, often nested, thus preferring 
+shorter, cleaner, and more direct code to visitors. The consequential 
+performance penalty was usually not discovered until later, when it was hard to 
+remedy.
+
+\subsection{Summary}
+
+This paper makes the following contributions:
+%
+  \begin{itemize}
+  \setlength{\itemsep}{0pt}
+  \setlength{\parskip}{0pt}
+  \item A technique for implementing open and efficient type 
+        switching on extensible hierarchical data types as seen in 
+        object-oriented languages.
+  \item The technique delivers equivalent performance to that 
+        of closed algebraic data types, and outperforms the visitor design pattern for open class hierarchies.
+  \item A library implementation provides the notational convenience of
+        functional-language constructs for selecting among types.
+  \item A new approach to type switching that combines subtype tests and type 
+        conversion, outperforming approaches that 
+        combine subtype tests (even constant-time ones) with decision trees, even over
+        small class hierarchies. 
+  \item Complete integration with the existing \Cpp{} abstraction mechanisms and 
+        object model.
+  \item A constant-time function that partitions 
+        a set of objects with the same static type into equivalence classes 
+        based on the inheritance path of the static type within the dynamic type.
+%  \item We demonstrate that combining (even constant-time) subtype tests with 
+%        decision trees to the implementation of type switching is inferior in 
+%        performance to workaround techniques like visitor design pattern and our 
+%        approach for even small class hierarchies.
+%  \item We advocate for taking the (space and time) complexity of type casts 
+%        into account when studying techniques for subtype testing, type 
+%        switching and run-time dispatch as these two operations are highly 
+%        coupled in the presence of multiple inheritance.
+  \end{itemize}
+
+\noindent
+In particular, our technique for efficient type switching:
+%
+  \begin{itemize}
+  \setlength{\itemsep}{0pt}
+  \setlength{\parskip}{0pt}
+  \item Is open by construction (\textsection\ref{sec:poets}), non-intrusive, 
+        and avoids the control inversion, as typical for visitors. 
+  \item Works in the presence of multiple inheritance, both repeated and 
+        virtual, as well as in generic code (\textsection\ref{sec:vtblmem}).
+  \item Comes close to and often significantly outperforms the workaround techniques used in 
+        practice, e.g. the visitor design pattern, without sacrificing extensibility
+        (\textsection\ref{sec:viscmp}). 
+  \item Does not require any changes to the \Cpp{} object model or computations at 
+        link or load time. 
+  \item Can be used in object-oriented languages with 
+        object models similar to that of \Cpp{}.
+  \item Is implemented as a library written in ISO Standard \Cpp{}11.
+%  \item It applies to polymorphic (\textsection\ref{sec:vtp}-\ref{sec:vtblmem}) and 
+%        tagged (\textsection\ref{sec:cotc}) class hierarchies through a unified  
+%        syntax~\cite[\textsection 8]{TR}.
+%  \item Our memoization device (\textsection\ref{sec:memdev}) generalizes to 
+%        other languages and can be used to implement type switching 
+%        (\textsection\ref{sec:vtblmem}), type testing 
+%        (\textsection\ref{sec:poets},\cite[\textsection 9]{TR}), predicate dispatch 
+%        (\textsection\ref{sec:memdev}), and multiple dispatch efficiently.
+%  \item We list conditions under which virtual table pointers, commonly used in 
+%        \Cpp{} implementations, uniquely identify the exact subobject within the 
+%        dynamic type (\textsection\ref{sec:vtp}).
+%  \item We also build an efficient cache indexing function for virtual table 
+%        pointers that minimizes the number of conflicts 
+%        (\textsection\ref{sec:sovtp},\ref{sec:moc}).
+  \end{itemize}
+
+\noindent
+This is the first technique for handling type switching efficiently 
+in the presence of the general multiple inheritance present in \Cpp{}.
+Being a library, \emph{Mach7} can be used with any 
+ISO \Cpp{}11 compiler (e.g., Microsoft, GNU, or Clang) without requiring 
+any additional tools or preprocessors. It
+sets a new threshold for acceptable performance, brevity, clarity, and
+usefulness of a forthcoming compiler implementation of the open type switch in \Cpp{}.
+
+%To the best of our knowledge this is the first technique capable of handling 
+%type switching in the presence of multiple inheritance in its full generality 
+%present in \Cpp{}. Prior work was mainly concentrating on constant-time type 
+%inclusion tests under assumptions that were oversimplifying the reality of \Cpp{}.
+% and omitted discussion of type casts typically following such 
+%tests. We argue that in the presence of multiple inheritance the implementation 
+%of casts may be significantly slower than that of subtype tests and thus the 
+%complexity of the combined operation should be addressed by all the type 
+%inclusion testing techniques. Besides, approaches based on constant-time subtype 
+%tests require changes to object model and rely on load-time computations to 
+%ensure openness. In contrast, our approach requires neither changes to the \Cpp{} 
+%object model nor any computations at link or load time. We demonstrate that 
+%applying even the fastest subtype tests to the implementation of type switching 
+%is inferior in performance to visitor design pattern and our approach for even 
+%small class hierarchies.
+%
+%A practical benefit of our library solution is that it can be used right away with any 
+%compiler with a decent support of \Cpp{}11 without requiring the installation of 
+%any additional tools or preprocessors. The solution is a proof of concept that 
+%sets a minimum threshold for the performance, brevity, clarity and usefulness of 
+%a language solution for open type-switching in \Cpp{}.
+
+%Due to page restrictions, we will only deal here with the part of the library 
+%concerned with efficient type testing, type identification, and type switching. 
+%These primitive operations are essential in providing support for type patterns 
+%and constructor patterns, and their efficiency relative to the visitor design 
+%pattern might become a major argument for their adoption. We refer the reader to 
+%technical report~\cite{TR} for more details on our pattern-matching 
+%library.
+
+%Section~\ref{sec:probl} will motivate the problem as well as discuss some 
+%existing solutions and their limitations. Section~\ref{sec:copc} will outline 
+%the three techniques that comprise our solution, while the 
+%section~\ref{sec:eval} will evaluate their performance. Related work is 
+%discussed in Section~\ref{sec:rw}, followed by concluding remarks in 
+%Section~\ref{sec:cc}.
