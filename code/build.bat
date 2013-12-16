@@ -32,7 +32,7 @@
 :: 
 
 @echo off
-
+setlocal
 if "%1" == "/?" findstr "^::" "%~f0" & goto END
 
 rem Set-up variables :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -169,6 +169,8 @@ if exist %filename%-pgo.exe (
 :HANDLE_TEMPORARIES
 echo.
 if "%KEEP_TMP%"=="" del %filename%.obj %filename%.pdb %filename%-pgo.obj %filename%-pgo.pdb %filename%-pgo.pgd %filename%-pgo*.pgc > nul 2>&1
+rem Reset ERRORLEVEL in case previous command failed
+verify > nul
 goto END
 
 :TEST ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -230,6 +232,7 @@ goto END
 
 for %%G in (x86 x64) do (
     rem Set up VC variables for x86 build
+    setlocal
     call "%VCINSTALLDIR%vcvarsall.bat" %%G
     for %%F in (0 1) do (
         for %%S in (p f P F) do (
@@ -238,6 +241,7 @@ for %%G in (x86 x64) do (
             )
         )
     )
+    endlocal
 )
 goto END
 

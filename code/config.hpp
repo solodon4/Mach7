@@ -95,7 +95,9 @@
 //------------------------------------------------------------------------------
 
 #if !defined(XTL_DUMP_PERFORMANCE)
-    /// Flag enabling showing results of performance tracing
+    /// Flag enabling showing results of performance tracing.
+    /// The flag is disabled by default because it incures performance overhead
+    /// during normal program execution.
     #define XTL_DUMP_PERFORMANCE 0
 #endif
 #define XTL_DUMP_PERFORMANCE_ONLY(...)   UCL_PP_IF(UCL_PP_NOT(XTL_DUMP_PERFORMANCE), UCL_PP_EMPTY(), UCL_PP_EXPAND(__VA_ARGS__))
@@ -105,6 +107,8 @@
 #if !defined(XTL_TRACE_LIKELINESS)
     /// A macro that enables tracing of XTL_LIKELY and XTL_UNLIKELY macros to 
     /// ensure the actual calls match what we've put in code. Not for user code.
+    /// By default we enable tracing only when we enabling performance tracing as
+    /// it too has an overhead per each condition with XTL_[UN]LIKELY.
     #define XTL_TRACE_LIKELINESS XTL_DUMP_PERFORMANCE
 #endif
 
@@ -149,6 +153,7 @@
     /// as an estimate of the number of types that will pass through that statement.
     /// This helps avoid unnecessery vtblmap-cache reconfigurations and estimates 
     /// sizes of cache and the hash table.
+    /// Enabled by default to decrease the number of cache reconfigurations.
     #define XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM 1
 #endif
 
@@ -166,7 +171,7 @@
     /// By default we enable preloading as it makes the code smaller and somewhat faster,
     /// but one should understand that preloading default initializes the object, so 
     /// passing additional arguments or deferred constatnt values is not possible.
-    #define XTL_PRELOAD_LOCAL_STATIC_VARIABLES 0
+    #define XTL_PRELOAD_LOCAL_STATIC_VARIABLES 1
 #endif
 
 #if XTL_PRELOAD_LOCAL_STATIC_VARIABLES
@@ -312,7 +317,7 @@
     /// A value 20 means the library can allocate an array of up to 2^20 bytes
     /// on the stack to build a histogram of a given hash function. The actually
     /// requested value will typically be smaller through the use of VLA in GCC 
-    /// and alloca in MSVC. The full array will be allocate for those compilers
+    /// and alloca in MSVC. The full array will be allocated for those compilers
     /// not providing any similar means.
     #define XTL_MAX_STACK_LOG_SIZE 18
 #endif

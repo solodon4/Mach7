@@ -22,32 +22,23 @@ using namespace mch;
 //------------------------------------------------------------------------------
 
 XTL_TIMED_FUNC_BEGIN
-int fac1(int n)
+unsigned int fac1(unsigned int n)
 {
-    //if (n >= 0)
-    {
-        if (n == 0)
-            return 1;
-        else
-            return n*fac1(n-1);
-    }
-    //else
-    //    return 0;
+    return n ? n*fac1(n-1) : 1;
 }
 XTL_TIMED_FUNC_END
 
 //------------------------------------------------------------------------------
 
 XTL_TIMED_FUNC_BEGIN
-int fac2(int n)
+unsigned int fac2(unsigned int n)
 {
-    int m;
+    var<unsigned int> m;
 
     Match (n)
     {
       Case(0) return 1;
-      Case(m) return m*fac2(m-1);
-      Case(_) return 0;
+      Case(m+1) return (m+1)*fac2(m);
     }
     EndMatch
 }
@@ -58,12 +49,12 @@ XTL_TIMED_FUNC_END
 
 int main()
 {
-    std::vector<int> arguments(N);
+    std::vector<unsigned int> arguments(N);
 
     for (size_t i = 0; i < N; ++i)
         arguments[i] = rand() % 20;
 
-    verdict v = get_timings1<int,int,fac1,fac2>(arguments);
+    verdict v = get_timings1<unsigned int,unsigned int,fac1,fac2>(arguments);
     std::cout << "Verdict: \t" << v << std::endl;
 }
 

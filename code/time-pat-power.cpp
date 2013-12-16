@@ -31,8 +31,9 @@ inline T sqr(const T& x) { return x*x; }
 //------------------------------------------------------------------------------
 
 extern double power1(const double, const int);
+extern double power_opt(const double, const int);
 
-inline double power1(const arg_type a) { return power1(a.first,a.second); }
+inline double power1(const arg_type a) { return power_opt(a.first,a.second); }
 
 //------------------------------------------------------------------------------
 
@@ -48,6 +49,7 @@ XTL_TIMED_FUNC_END
 
 //------------------------------------------------------------------------------
 
+XTL_TIMED_FUNC_BEGIN
 double power_opt(double x, int n)
 {
 	if (n == 0) return 1.0;
@@ -57,6 +59,7 @@ double power_opt(double x, int n)
             ?   sqr(power_opt(x,n/2)) 
             : x*sqr(power_opt(x,n/2));
 }
+XTL_TIMED_FUNC_END
 
 //------------------------------------------------------------------------------
 
