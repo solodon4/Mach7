@@ -1,13 +1,45 @@
+//
+//  Mach7: Pattern Matching Library for C++
+//
+//  Copyright 2011-2013, Texas A&M University.
+//  Copyright 2014 Yuriy Solodkyy.
+//  All rights reserved.
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//
+//      * Redistributions of source code must retain the above copyright
+//        notice, this list of conditions and the following disclaimer.
+//
+//      * Redistributions in binary form must reproduce the above copyright
+//        notice, this list of conditions and the following disclaimer in the
+//        documentation and/or other materials provided with the distribution.
+//
+//      * Neither the names of Mach7 project nor the names of its contributors
+//        may be used to endorse or promote products derived from this software
+//        without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+//  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+//  IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY
+//  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 ///
 /// \file
 ///
-/// This file is a part of pattern matching testing suite.
+/// This file is a part of Mach7 library test suite.
 ///
 /// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
-/// This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
-/// Copyright (C) 2011-2013 Texas A&M University.
-/// All rights reserved.
+/// \see https://parasol.tamu.edu/mach7/
+/// \see https://github.com/solodon4/Mach7
+/// \see https://github.com/solodon4/SELL
 ///
 
 #include "type_switchN-patterns.hpp"
@@ -22,19 +54,14 @@ struct Plus   : Expr { const Expr* exp1; const Expr* exp2; Plus  (const Expr* e1
 struct Minus  : Expr { const Expr* exp1; const Expr* exp2; Minus (const Expr* e1, const Expr* e2) : exp1(e1), exp2(e2) {} };
 struct Times  : Expr { const Expr* exp1; const Expr* exp2; Times (const Expr* e1, const Expr* e2) : exp1(e1), exp2(e2) {} };
 struct Divide : Expr { const Expr* exp1; const Expr* exp2; Divide(const Expr* e1, const Expr* e2) : exp1(e1), exp2(e2) {} };
-
+/*
 bool operator==(const Expr&, const Expr&) { return false; }
-bool operator==(const Value&  a, const Value&  b) 
-     { return a.value == b.value; }
-bool operator==(const Plus&   a, const Plus&   b) 
-     { return a.e1==b.e1 && a.e2==b.e2); }
-bool operator==(const Minus&  a, const Minus&  b) 
-     { return a.e1==b.e1 && a.e2==b.e2); }
-bool operator==(const Times&  a, const Times&  b) 
-     { return a.e1==b.e1 && a.e2==b.e2); }
-bool operator==(const Divide& a, const Divide& b) 
-     { return a.e1==b.e1 && a.e2==b.e2); }
-
+bool operator==(const Value&  a, const Value&  b) { return a.value == b.value; }
+bool operator==(const Plus&   a, const Plus&   b) { return a.exp1==b.exp1 && a.exp2==b.exp2; }
+bool operator==(const Minus&  a, const Minus&  b) { return a.exp1==b.exp1 && a.exp2==b.exp2; }
+bool operator==(const Times&  a, const Times&  b) { return a.exp1==b.exp1 && a.exp2==b.exp2; }
+bool operator==(const Divide& a, const Divide& b) { return a.exp1==b.exp1 && a.exp2==b.exp2; }
+*/
 struct MyExpr
 {
     enum Tag {Value,Plus,Minus,Times,Divide} tag;
@@ -205,15 +232,15 @@ using namespace mch;
 //------------------------------------------------------------------------------
 void str(const char* s)
 {
-    var<int> n,m,y,d,m;
+    var<int> n,m,y,d;
     auto month = m |= m > 0 && m < 13; // Save pattern to variable
     auto day   = d |= d > 0 && d < 31; // Day pattern
     Match(s)
     {
-    Case(rex("([0-9]+)-([0-9]+)-([0-9]+)", 979))   // Local phone
-    Case(rex("([0-9]+)-([0-9]+)-([0-9]+)", any({800,888,877,866,855}), n, m) // Toll-free phone
-    Case(rex("([0-9]{4})-([0-9]{2})-([0-9]{2})", y, month, d |= d > 0 && d < 31))
-    Otherwise() // Something else
+        Case(rex("([0-9]+)-([0-9]+)-([0-9]+)", 979)) break;  // Local phone
+        Case(rex("([0-9]+)-([0-9]+)-([0-9]+)", any({800,888,877,866,855}), n, m)) break; // Toll-free phone
+        Case(rex("([0-9]{4})-([0-9]{2})-([0-9]{2})", y, month, d |= d > 0 && d < 31)) break;
+        Otherwise() break; // Something else
     }
     EndMatch
 }
