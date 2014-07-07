@@ -118,7 +118,7 @@ unbox(const object& obj)
     if (typeid(obj) == typeid(object_of<T>))
         return &static_cast<const object_of<T>&>(obj).m_value;
     else
-        return false;
+        return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -247,7 +247,7 @@ struct var_of : expression_pattern
     }
     virtual bool current_value_is(const object& obj) const
     {
-        const T* p = unbox<T>(obj);
+        const T* p = ::unbox<T>(obj);
         return p && *p == m_var; 
     }
     operator const T&() const { return m_var; }

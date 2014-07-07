@@ -44,8 +44,6 @@
 
 #pragma once
 
-#include <ostream>
-
 ///
 /// We use here code by Jason Shirk and Alexey Gurtovoy for detecting presence
 /// of a given member. See the following discussion for details:

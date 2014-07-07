@@ -70,6 +70,16 @@ enum tag_type { min_tag = size_t(0), max_tag = ~size_t(0) };
 /// places we will have to do a run-time conversion.
 enum lbl_type { min_lbl = size_t(0), max_lbl = ~size_t(0) };
 
+} // of namespace mch
+
+namespace std
+{
+    template <> struct hash<mch::lbl_type> { size_t operator()(const mch::lbl_type& l) const noexcept { return l; } };
+} // of namespace std
+
+namespace mch ///< Mach7 library namespace
+{
+
 /// Amount of extra values in the range of labels (lbl_type) we need for our purposes
 const size_t reserved_extra_kinds = 1;
 
@@ -638,7 +648,3 @@ public:
 
 } // of namespace mch
 
-namespace std 
-{
-    template <> struct hash<mch::lbl_type> { size_t operator()(const mch::lbl_type& l) const noexcept { return l; } };
-} // of namespace std
