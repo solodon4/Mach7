@@ -53,7 +53,7 @@
 
 //------------------------------------------------------------------------------
 
-#if defined(_MSC_VER) && _MSC_VER < 1700 || defined(__GNUC__) && XTL_GCC_VERSION < 40500
+#if defined(_MSC_VER) && _MSC_VER < 1700 || defined(__GNUC__) && XTL_GCC_VERSION < 40500 && !defined(__clang__)
 /// Visual C++ 2010 and earlier versions of GCC do not include declval
 namespace std { template <typename T> typename std::add_rvalue_reference<T>::type declval(); }
 #endif

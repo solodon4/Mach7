@@ -57,10 +57,10 @@
 
 GCC_COLORS=always
 OS       = $(shell uname -s)
-CXX      = g++-4.8
+#CXX      = g++-4.8
 LIBS     = -lstdc++
 INCLUDES = 
-CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -time -s -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11 \
+CXXFLAGS = $(INCLUDES) -dD -Wall -Wextra -pedantic -time -s -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11 \
 #-Wvla-extension \
 #-fno-omit-frame-pointer \
 #-fno-rtti

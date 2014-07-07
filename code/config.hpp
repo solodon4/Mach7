@@ -683,9 +683,9 @@
 // ignored in older compilers in order to support more compilers for the type
 // switching functionality, which does not require C++11.
 
-// MS Visual C++ workarounds
-
 #if defined(_MSC_VER)
+
+    // MS Visual C++ workarounds
 
     #if _MSC_VER < 1700 
         /// Visual C++ 2012 supports alignof(T)
@@ -737,11 +737,37 @@
     /// A macro that is supposed to be put after  the function definition whose body must be inlined
     #define XTL_FORCE_INLINE_END
 
-#endif
+#elif defined(__clang__)
 
-// GNU C++ workarounds
+    // Clang workarounds
 
-#if defined(__GNUC__)
+    #if !defined(_DEBUG)
+        #define XTL_SUPPORTS_VLA
+    #endif
+
+    #if !XTL_TRACE_LIKELINESS
+        /// Macros to use compiler's branch hinting. 
+        /// \note These macros are only to be used in Case macro expansion, not in 
+        ///       user's code since they explicitly expect a pointer argument
+        /// \note We use ... (__VA_ARGS__ parameters) to allow expressions 
+        ///       containing comma as argument. Essentially this is a one arg macro
+        #define   XTL_LIKELY(...) (__builtin_expect((long int)(__VA_ARGS__), 1))
+        #define XTL_UNLIKELY(...) (__builtin_expect((long int)(__VA_ARGS__), 0))
+    #endif
+    /// A macro that is supposed to be put before the function definition whose inlining should be disabled
+    #define XTL_DO_NOT_INLINE_BEGIN __attribute__ ((noinline))
+    /// A macro that is supposed to be put after  the function definition whose inlining should be disabled
+    #define XTL_DO_NOT_INLINE_END
+
+
+    /// A macro that is supposed to be put before the function definition whose body must be inlined
+    #define XTL_FORCE_INLINE_BEGIN __attribute__ ((always_inline)) static inline 
+    /// A macro that is supposed to be put after  the function definition whose body must be inlined
+    #define XTL_FORCE_INLINE_END
+
+#elif defined(__GNUC__)
+
+    // GNU C++ workarounds
 
     #if XTL_GCC_VERSION < 40600
         #if !defined(noexcept)
@@ -808,13 +834,13 @@
 /// note ] [ Note: As is the case with the typename prefix, the template prefix is allowed in cases where it is
 /// not strictly necessary; i.e., when the nested-name-specifier or the expression on the left of the -> or . is not
 /// dependent on a template-parameter, or the use does not appear in the scope of a template. -end note ]
-#if defined(__GNUC__) && (XTL_GCC_VERSION > 40500)
+#if defined(__GNUC__) && (XTL_GCC_VERSION > 40500) || defined(__clang__)
     #define XTL_CPP0X_TYPENAME typename
 #else
     #define XTL_CPP0X_TYPENAME 
 #endif
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__clang__)
     #define XTL_CPP0X_TEMPLATE 
 #else
     #define XTL_CPP0X_TEMPLATE template 

@@ -65,7 +65,7 @@
     typedef uintptr_t  uint32_t; // FIX: workaround for now
 #endif
 
-#if defined(__GNUC__) && XTL_GCC_VERSION < 40600
+#if defined(__GNUC__) && XTL_GCC_VERSION < 40600 && !defined(__clang__)
 namespace std
 {
     /// GCC of some version prior to 4.6.1 (not sure which exactly) does not 
