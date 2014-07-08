@@ -23,6 +23,7 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = /Users/solodon/Projects/SELL/Mach7/code;
 			dependencies = (
 			);
 			name = Mach7;

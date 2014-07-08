@@ -129,7 +129,7 @@ struct value
 
 // GCC before 4.6 doesn't support nullptr and nullptr_t, while many will live 
 // without this specialization
-#if !defined(__GNUC__) || (XTL_GCC_VERSION >= 40600)
+#if defined(__clang__) || !defined(__GNUC__) || (XTL_GCC_VERSION >= 40600)
 
 /// Specialization of the value pattern to be able to compare with nullptr
 template <>

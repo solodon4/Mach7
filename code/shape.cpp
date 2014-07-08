@@ -42,31 +42,14 @@
 /// \see https://github.com/solodon4/SELL
 ///
 
-#include <iostream>
-
 #include "match.hpp"                // Support for Match statement
+#include "shape_bindings.hpp"
 #include "patterns/combinators.hpp" // Support for pattern combinators
 #include "patterns/constructor.hpp" // Support for constructor patterns
 #include "patterns/guard.hpp"       // Support for guard patterns
 #include "patterns/n+k.hpp"         // Support for n+k patterns
-#include "shape_bindings.hpp"
 
 //#define POD_ONLY
-
-std::ostream& operator<<(std::ostream& os, const loc& l)
-{
-    return os << '(' << l.first << ',' << l.second << ')';
-}
-
-std::ostream& operator<<(std::ostream& os,       loc& l)
-{
-    return os << '(' << l.first << ',' << l.second << ')';
-}
-
-std::ostream& operator<<(std::ostream& os, const cloc& l)
-{
-    return os << '(' << l.first << ',' << l.second << ')';
-}
 
 double heron(const loc&, const loc&, const loc&) { return 1.0/2; }
 

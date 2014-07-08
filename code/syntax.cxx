@@ -46,7 +46,6 @@
 #include "patterns/combinators.hpp" // Support for pattern combinators
 #include "patterns/constructor.hpp" // Support for constructor patterns
 #include "patterns/guard.hpp"       // Support for guard patterns
-#include "patterns/n+k.hpp"         // Support for n+k patterns
 
 #include <cstdlib>
 #include <iostream>
@@ -366,6 +365,11 @@ size_t do_match_2_que(const Shape& s, size_t)
 
 //------------------------------------------------------------------------------
 
+// Clang wouldn't see operator<< otherwise if we include this earlier
+#include "patterns/n+k.hpp"         // Support for n+k patterns
+
+//------------------------------------------------------------------------------
+                          
 /// Tests When-subclauses inside Qua-clauses without Otherwise-clause
 size_t do_match_3(const Shape& s, size_t)
 {

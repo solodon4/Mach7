@@ -215,7 +215,7 @@ struct filtered_result<F,E1,E2,false>
 
 //------------------------------------------------------------------------------
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__clang__)
 
 /// \note We need otherwise redundant non-const overloads to make sure that our 
 ///       overloads creating expression templates based on the second argument are 

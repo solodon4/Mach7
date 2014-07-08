@@ -42,10 +42,26 @@
 /// \see https://github.com/solodon4/SELL
 ///
 
+#include <iostream>
 #include <utility>
 
 typedef std::pair<double,double> loc;
 struct cloc { double first; double second; };
+
+inline std::ostream& operator<<(std::ostream& os, const loc& l)
+{
+    return os << '(' << l.first << ',' << l.second << ')';
+}
+
+inline std::ostream& operator<<(std::ostream& os,       loc& l)
+{
+    return os << '(' << l.first << ',' << l.second << ')';
+}
+
+inline std::ostream& operator<<(std::ostream& os, const cloc& l)
+{
+    return os << '(' << l.first << ',' << l.second << ')';
+}
 
 struct Shape;
 struct Circle;

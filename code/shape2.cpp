@@ -53,16 +53,6 @@
 
 mch::wildcard _; // Meta variable
 
-std::ostream& operator<<(std::ostream& os, const loc& l)
-{
-    return os << '(' << l.first << ',' << l.second << ')';
-}
-
-std::ostream& operator<<(std::ostream& os, const cloc& l)
-{
-    return os << '(' << l.first << ',' << l.second << ')';
-}
-
 double heron(const loc& l1, const loc& l2, const loc& l3) 
 {
     double a2 = (l1.first-l2.first)*(l1.first-l2.first) + (l1.second-l2.second)*(l1.second-l2.second);
