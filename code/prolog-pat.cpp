@@ -531,7 +531,9 @@ bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
             continue;
         }
         else
+        {
             return false;
+        }
 
         // Orient rule: If the first expressions of the pair is not a variable 
         // and the second is, just switch the expression (we will need this 
@@ -546,7 +548,9 @@ bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
         // e.g. {<X,f(G)>};{} becomes {}; {X -> f(G)}
         if (Variable* v = dynamic_cast<Variable*>(p.first))
         if (occurs(*v,*p.second))
+        {
             return false;
+        }
         else
         {
             substitutions[v->name] = p.second;

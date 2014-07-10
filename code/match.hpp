@@ -317,15 +317,15 @@ namespace mch ///< Mach7 library namespace
 /// Helper metafunction used to disambiguate the use of a type, value or 
 /// declaration as a target of a clause
 template<typename P>              struct target_disambiguator;           ///< Intentionally no definition
-template<typename R, typename A1> struct target_disambiguator<R(A1)>     { typedef A1   type; template<R (&)(A1)>  struct layout { enum { value = default_layout }; }; };
-template<typename R, typename A1> struct target_disambiguator<R(A1&)>    { typedef A1   type; template<R (&)(A1&)> struct layout { enum { value = default_layout }; }; };
-template<>                        struct target_disambiguator<const int> { typedef void type; template<int N>      struct layout { enum { value = N }; };              };
+template<typename R, typename A1> struct target_disambiguator<R(A1)>  { typedef A1   type; template<R (&)(A1)>  struct layout { enum { value = default_layout }; }; };
+template<typename R, typename A1> struct target_disambiguator<R(A1&)> { typedef A1   type; template<R (&)(A1&)> struct layout { enum { value = default_layout }; }; };
+template<>                        struct target_disambiguator<int>    { typedef void type; template<int N>      struct layout { enum { value = N }; };              };
 } // of namespace mch
 
 #if XTL_CLAUSE_DECL
     /// FIX: Current decl_helper trick does not work with abstract base classes
     #define XTL_DISAMBIGUATE_TARGET(...)                                       \
-            const int decl_helper(__VA_ARGS__);                                \
+            int decl_helper(__VA_ARGS__);                                      \
             typedef mch::target_disambiguator<decltype(decl_helper)> disambiguator; \
             typedef disambiguator::type target_type;                           \
             enum { target_layout = disambiguator::layout<decl_helper>::value };

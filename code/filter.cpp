@@ -65,4 +65,5 @@ int main()
     auto a8 = filter(is_odd); std::cout << typeid(decltype(a8)).name() << std::endl;
 
     bool (&f)(int) = is_odd;
+    return f(42);
 }

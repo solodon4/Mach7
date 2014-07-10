@@ -253,8 +253,9 @@ int main()
     dump_hex(*g1a);
     dump_hex(*g1b);
     dump_hex(*g1c);
+    dump_hex(*an);
 
-    const A* a1 = (const B*)(const C*)e;
+    // const A* a1 = (const B*)(const C*)e;
 
     std::cout << foo(*g)  << std::endl;
     std::cout << foo(*g1) << std::endl;

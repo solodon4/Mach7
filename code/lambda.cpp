@@ -90,7 +90,7 @@ std::ostream& operator<<(std::ostream& os, const Term& t)
 //------------------------------------------------------------------------------
 
 /// Substitutes every occurence of variable #v in #s with #t.
-Term* substitute(const Term& s, const Var& v, const Term& t) { return nullptr; } 
+Term* substitute(const Term& /*s*/, const Var& /*v*/, const Term& /*t*/) { return nullptr; }
 
 //------------------------------------------------------------------------------
 

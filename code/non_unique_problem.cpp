@@ -226,8 +226,9 @@ int main()
     dump_hex(*g1a);
     dump_hex(*g1b);
     dump_hex(*g1c);
+    dump_hex(*an);
 
-    const A* a1 = (const B*)(const C*)e;
+    //const A* a1 = (const B*)(const C*)e;
 
     b = g1;
     a = g1;

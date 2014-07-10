@@ -139,14 +139,14 @@ enum { default_layout = size_t(~0) };
 
 /// Helper metafunction used to disambiguate the use of a type, value or 
 /// declaration as a target of a clause
-template<typename P>              struct target_disambiguator;           ///< Intentionally no definition
-template<typename R, typename A1> struct target_disambiguator<R(A1)>     { typedef A1   type; template<R (&)(A1)>  struct layout { enum { value = default_layout }; }; };
-template<typename R, typename A1> struct target_disambiguator<R(A1&)>    { typedef A1   type; template<R (&)(A1&)> struct layout { enum { value = default_layout }; }; };
-template<>                        struct target_disambiguator<const int> { typedef void type; template<int N>      struct layout { enum { value = N }; };              };
+template<typename P>              struct target_disambiguator;        ///< Intentionally no definition
+template<typename R, typename A1> struct target_disambiguator<R(A1)>  { typedef A1   type; template<R (&)(A1)>  struct layout { enum { value = default_layout }; }; };
+template<typename R, typename A1> struct target_disambiguator<R(A1&)> { typedef A1   type; template<R (&)(A1&)> struct layout { enum { value = default_layout }; }; };
+template<>                        struct target_disambiguator<int>    { typedef void type; template<int N>      struct layout { enum { value = N }; };              };
 
 /// FIX: Current decl_helper trick does not work with abstract base classes
 #define XTL_DISAMBIGUATE_TARGET(i,...)                                         \
-        const int decl_helper##i(XTL_SELECT_ARG(i,__VA_ARGS__));               \
+        int decl_helper##i(XTL_SELECT_ARG(i,__VA_ARGS__));                     \
         typedef target_disambiguator<decltype(decl_helper##i)> disambiguator##i;\
         typedef disambiguator##i::type target_type##i;                         \
         enum { target_layout##i = disambiguator##i::layout<decl_helper##i>::value };
