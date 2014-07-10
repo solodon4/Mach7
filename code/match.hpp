@@ -382,7 +382,7 @@ template<>                        struct target_disambiguator<const int> { typed
         enum { __base_counter = XTL_COUNTER };                                 \
         static_assert(std::is_polymorphic<source_type>::value, "Type of subject should be polymorphic when you use MatchP");\
         XTL_PRELOADABLE_LOCAL_STATIC(mch::vtblmap<mch::type_switch_info>,__vtbl2lines_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
-        register const void* __casted_ptr = 0;                                 \
+        const void* __casted_ptr = 0;                                 \
         mch::type_switch_info& __switch_info = __vtbl2lines_map.get(subject_ptr);   \
         switch (__switch_info.target)                                          \
         {                                                                      \
@@ -719,7 +719,7 @@ template<>                        struct target_disambiguator<const int> { typed
         typedef mch::unified_switch<source_type> switch_traits;                \
         XTL_PRELOADABLE_LOCAL_STATIC(XTL_CPP0X_TYPENAME switch_traits::static_data_type,static_data,match_uid_type); \
         XTL_CPP0X_TYPENAME switch_traits::local_data_type  local_data;         \
-        register bool processed = false;                                       \
+        bool processed = false;                                       \
         size_t jump_target = switch_traits::choose(subject_ptr,static_data,local_data); \
         XTL_CONCAT(ReMatch,__LINE__):                                          \
         switch (jump_target)                                                   \

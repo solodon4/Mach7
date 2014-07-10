@@ -60,8 +60,7 @@ OS       = $(shell uname -s)
 #CXX      = g++-4.8
 LIBS     = -lstdc++
 INCLUDES = 
-CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -Wvla-extension -time -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11 \
-#-Wvla-extension \
+CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -Wno-vla-extension -Wno-gnu-zero-variadic-macro-arguments -fmacro-backtrace-limit=0 -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
 #-fno-omit-frame-pointer \
 #-fno-rtti
 LIBFLAGS = $(LIBS)

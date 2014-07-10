@@ -282,7 +282,7 @@ public:
             /// Performs the necessary conversion of the original subject into the proper
             /// object of target type.
             /// \note The subject is non-const, thus the target is also non-const
-            static inline       target_type* get_matched(      source_type* subject_ptr, local_data_type& local_data) noexcept
+            static inline       target_type* get_matched(      source_type* subject_ptr, local_data_type& /*local_data*/) noexcept
             {
                 return static_cast<      target_type*>(subject_ptr);
             }

@@ -741,6 +741,9 @@
 
     // Clang workarounds
 
+    // to avoid deprecation macro 
+    #define register
+
     #if !defined(_DEBUG)
         #define XTL_SUPPORTS_VLA
     #endif

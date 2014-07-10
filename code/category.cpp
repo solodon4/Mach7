@@ -168,6 +168,8 @@ const Either<S, T>* lift_ex2(const Either<X, Y>& e, S f(X), T g(Y))
         Otherwise() return nullptr;
     }
     EndMatch
+
+    return nullptr; // TODO: Check if EndMatch can generate something to indicate unreachable when Otherwise is present
 }
 
 int  my_f(double d) { return (int)(d+0.5); }

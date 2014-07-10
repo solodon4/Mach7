@@ -239,19 +239,19 @@ template <> struct solver<division>
 //------------------------------------------------------------------------------
 
 template <typename F, typename A1>
-inline bool do_solve(F f, A1& a1, const decltype(f(a1))& r)
+inline bool do_solve(F f, A1& a1, const decltype(f(a1))& /*r*/)
 {
     return false;
 }
 
 template <typename F, typename A1, typename A2>
-inline bool do_solve(F f, A1& a1, const A2& a2, const decltype(f(a1,a2))& r)
+inline bool do_solve(F f, A1& a1, const A2& a2, const decltype(f(a1,a2))& /*r*/)
 {
     return false;
 }
 
 template <typename F, typename A1, typename A2>
-inline bool do_solve(F f, const A1& a1, A2& a2, const decltype(f(a1,a2))& r)
+inline bool do_solve(F f, const A1& a1, A2& a2, const decltype(f(a1,a2))& /*r*/)
 {
     return false;
 }
