@@ -465,6 +465,7 @@ bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
         // e.g. {<f(a,b,c),f(A,B,C)>} becomes {<a,A>, <b,B>, <c,C>}
         if (Structure* s1 = dynamic_cast<Structure*>(p.first))
         if (Structure* s2 = dynamic_cast<Structure*>(p.second))
+        {
         if (s1->terms.size() == s2->terms.size() && s1->name == s2->name)
         {
             for (size_t i = 0, n = s1->terms.size(); i < n; ++i)
@@ -475,6 +476,7 @@ bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
         else
         {
             return false;
+        }
         }
 
         // Orient rule: If the first expressions of the pair is not a variable 
@@ -489,6 +491,7 @@ bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
         // instantiation to the substitution-set: 
         // e.g. {<X,f(G)>};{} becomes {}; {X -> f(G)}
         if (Variable* v = dynamic_cast<Variable*>(p.first))
+        {
         if (occurs(*v,*p.second))
         {
             return false;
@@ -510,7 +513,8 @@ bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
 
             continue;
         }
-
+        }
+        
         return false; // None of the rules applies
     }
 

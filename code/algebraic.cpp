@@ -177,7 +177,7 @@ int main()
 	if (C<std::complex<double>>(i)(c))   std::cout << "i" << std::endl;
     if (C<std::complex<double>>(d)(c))   std::cout << d << std::endl;
 
-    int n = 3;
+    size_t n = 3;
     var<size_t> m;
 
     Match(n)

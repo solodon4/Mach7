@@ -233,11 +233,11 @@ XTL_TAG_ONLY(SKV(Shape,Shape::SK_Shape));
 
 namespace mch ///< Mach7 library namespace
 {
-template <> struct bindings<Shape>    { XTL_TAG_ONLY(KS(Shape::kind)); XTL_TAG_ONLY(KV(Shape,Shape::SK_Shape)); XTL_E_ONLY(RS(Shape::raise)); };
+    template <> struct bindings<Shape>    { XTL_TAG_ONLY(KS(Shape::kind);) XTL_TAG_ONLY(KV(Shape,Shape::SK_Shape);) XTL_E_ONLY(RS(Shape::raise);) };
 
-template <> struct bindings<Circle>   { XTL_TAG_ONLY(KV(Shape,Shape::SK_Circle));   XTL_TAG_ONLY(BCS(Circle,  Shape)); CM(0,Circle::get_center); CM(1,Circle::radius); };
-template <> struct bindings<Square>   { XTL_TAG_ONLY(KV(Shape,Shape::SK_Square));   XTL_TAG_ONLY(BCS(Square,  Shape)); CM(0,Square::upper_left); CM(1,Square::side);   };
-template <> struct bindings<Triangle> { XTL_TAG_ONLY(KV(Shape,Shape::SK_Triangle)); XTL_TAG_ONLY(BCS(Triangle,Shape)); CM(0,Triangle::first);    CM(1,Triangle::second); CM(2,Triangle::third); };
+    template <> struct bindings<Circle>   { XTL_TAG_ONLY(KV(Shape,Shape::SK_Circle);)   XTL_TAG_ONLY(BCS(Circle,  Shape);) CM(0,Circle::get_center); CM(1,Circle::radius); };
+    template <> struct bindings<Square>   { XTL_TAG_ONLY(KV(Shape,Shape::SK_Square);)   XTL_TAG_ONLY(BCS(Square,  Shape);) CM(0,Square::upper_left); CM(1,Square::side);   };
+    template <> struct bindings<Triangle> { XTL_TAG_ONLY(KV(Shape,Shape::SK_Triangle);) XTL_TAG_ONLY(BCS(Triangle,Shape);) CM(0,Triangle::first);    CM(1,Triangle::second); CM(2,Triangle::third); };
 } // of namespace mch
 
 #endif

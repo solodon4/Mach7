@@ -60,7 +60,7 @@ OS       = $(shell uname -s)
 #CXX      = g++-4.8
 LIBS     = -lstdc++
 INCLUDES = 
-CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -Wno-vla-extension -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct -Wno-return-type -Wno-array-bounds -fmacro-backtrace-limit=0 -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
+CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -Wno-vla-extension -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct -Wno-nested-anon-types -Wno-return-type -Wno-array-bounds -fmacro-backtrace-limit=0 -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
 #-fno-omit-frame-pointer \
 #-fno-rtti
 LIBFLAGS = $(LIBS)

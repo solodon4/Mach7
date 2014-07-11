@@ -113,7 +113,7 @@ struct VisitorFor4 : ShapeVisitor
     const shape_kind<N>& first;
     const shape_kind<M>& second;
     const shape_kind<K>& third;
-    int                  result; 
+    size_t               result;
 };
 
 //------------------------------------------------------------------------------
@@ -132,7 +132,7 @@ struct VisitorFor3 : ShapeVisitor
     const shape_kind<N>& first;
     const shape_kind<M>& second;
     const Shape&         fourth;
-    int                  result; 
+    size_t               result;
 };
 
 //------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ struct VisitorFor2 : ShapeVisitor
     const shape_kind<N>& first;
     const Shape&         third;
     const Shape&         fourth;
-    int                  result; 
+    size_t               result;
 };
 
 //------------------------------------------------------------------------------
@@ -169,7 +169,7 @@ struct VisitorFor1 : ShapeVisitor
     const Shape& second;
     const Shape& third;
     const Shape& fourth;
-    int          result;
+    size_t       result;
 };
 
 //------------------------------------------------------------------------------

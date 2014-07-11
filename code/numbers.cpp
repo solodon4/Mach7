@@ -137,71 +137,18 @@ double power1(double x, int n)
 
 //------------------------------------------------------------------------------
 
-//double power2(double x, int n)
-//{
-//    var<int> m;
-//
-//    Match(n)
-//    {
-//      When(0)     return 1.0;
-//      When(1)     return x;
-//      When(2*m)   return   sqr(power2(x,m));
-//      When(2*m+1) return x*sqr(power2(x,m));
-//    }
-//    EndMatch
-//}
-
 double power2(double x, int n)
 {
     var<int> m;
-    do 
+
+    Match(n)
     {
-        struct match_uid_type 
-        {
-        }
-        ;
-        auto&& subject_ref = n;
-        auto const subject_ptr = mch::addr(subject_ref);
-        typedef  mch::underlying<decltype(*subject_ptr)>::type source_type;
-        typedef source_type target_type;
-        enum 
-        {
-            target_layout = mch::default_layout, is_inside_case_clause = 0 
-        }
-        ;
-        if (!(("Trying to match against a nullptr",subject_ptr))) 
-        {
-            std::cerr << "(\"Trying to match against a nullptr\",subject_ptr)" " in file " << "c:\\projects\\patternmatching\\numbers.cpp" << '[' << 111 << ']' << std::endl;
-            std::abort();
-        }
-        ;
-        auto const matched = subject_ptr;
-        (void)matched;
-        ;
-        {
-            {
-                {
-                }
-                if (((mch::C<target_type,target_layout>(0).match_structure(matched))))
-                {
-                    return 1.0;
-                }
-                if (((mch::C<target_type,target_layout>(1).match_structure(matched))))
-                {
-                    return x;
-                }
-                if (((mch::C<target_type,target_layout>(2*m).match_structure(matched))))
-                {
-                    return   sqr(power2(x,m));
-                }
-                if (((mch::C<target_type,target_layout>(2*m+1).match_structure(matched))))
-                {
-                    return x*sqr(power2(x,m));
-                }
-            }
-        }
+      When(0)     return 1.0;
+      When(1)     return x;
+      When(2*m)   return   sqr(power2(x,m));
+      When(2*m+1) return x*sqr(power2(x,m));
     }
-    while ((false));
+    EndMatch
 }
 
 //------------------------------------------------------------------------------

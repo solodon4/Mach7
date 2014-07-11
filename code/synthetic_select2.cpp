@@ -111,7 +111,7 @@ struct VisitorFor : ShapeVisitor
     #undef  FOR_EACH_MAX
 
     const shape_kind<M>& first;
-    int                  result; 
+    size_t               result;
 };
 
 //------------------------------------------------------------------------------
@@ -127,7 +127,7 @@ struct Visitor : ShapeVisitor
     #undef  FOR_EACH_MAX
 
     const Shape& second;
-    int          result;
+    size_t       result;
 };
 
 //------------------------------------------------------------------------------

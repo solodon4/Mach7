@@ -230,6 +230,7 @@ struct Pow;
 
 struct ExtendedExpr1Visitor : virtual ExprVisitor
 {
+    using ExprVisitor::visit;
     virtual void visit(const Expr& e);
     virtual void visit(const ExtendedExpr1&) { throw 6; } 
     virtual void visit(const Mod&)   = 0;
@@ -299,6 +300,7 @@ struct Max;
 
 struct ExtendedExpr2Visitor : virtual ExprVisitor
 {
+    using ExprVisitor::visit;
     virtual void visit(const Expr& e);
     virtual void visit(const ExtendedExpr2&) { throw 7; } 
     virtual void visit(const Min&)   = 0;
