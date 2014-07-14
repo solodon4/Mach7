@@ -555,6 +555,21 @@
 
 //------------------------------------------------------------------------------
 
+#define XTL_SELECT_RST_0(a0, ...) __VA_ARGS__
+#define XTL_SELECT_RST_1(a0,a1, ...) __VA_ARGS__
+#define XTL_SELECT_RST_2(a0,a1,a2, ...) __VA_ARGS__
+#define XTL_SELECT_RST_3(a0,a1,a2,a3, ...) __VA_ARGS__
+#define XTL_SELECT_RST_4(a0,a1,a2,a3,a4, ...) __VA_ARGS__
+#define XTL_SELECT_RST_5(a0,a1,a2,a3,a4,a5, ...) __VA_ARGS__
+#define XTL_SELECT_RST_6(a0,a1,a2,a3,a4,a5,a6, ...) __VA_ARGS__
+#define XTL_SELECT_RST_7(a0,a1,a2,a3,a4,a5,a6,a7, ...) __VA_ARGS__
+#define XTL_SELECT_RST_8(a0,a1,a2,a3,a4,a5,a6,a7,a8, ...) __VA_ARGS__
+#define XTL_SELECT_RST_9(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9, ...) __VA_ARGS__
+
+#define XTL_SELECT_RST(i, ...) XTL_APPLY_VARIADIC_MACRO(XTL_SELECT_RST_ ## i,(__VA_ARGS__))
+
+//------------------------------------------------------------------------------
+
 #define XTL_PREV_0  00
 #define XTL_PREV_1  0
 #define XTL_PREV_2  1
@@ -589,7 +604,7 @@
 
 #define XTL_RSEQ_N() 10,9,8,7,6,5,4,3,2,1,0
 #define    XTL_ARG_N( _1, _2, _3, _4, _5, _6, _7, _8, _9, _10,        N, ...) N
-#define XTL_ARG_N_EX( _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, Dummy, N, s...) N
+#define XTL_ARG_N_EX( _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, Dummy, N, ...) N
 
 #ifdef _MSC_VER
 
