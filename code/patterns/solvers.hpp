@@ -308,7 +308,7 @@ inline bool solve(
           >& /*e*/, 
     const S& /*r*/)
 {
-    typedef typename E1::result_type Scalar;
+    //typedef typename E1::result_type Scalar;
     // x + y*C = m + n*i
     // y = n/C.imag();
     // x = m - C.real()*y
