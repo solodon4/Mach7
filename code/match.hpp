@@ -795,7 +795,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
 ///       seems to be impossible to introduce dummy argument inside the Case 
 ///       directly, so we use the type argument as a dummy argument for XTL_DECL_BOUND_VARS
 #define CaseQ_(C,...)   QuaQ(C)
-#define CaseQ(...)      XTL_APPLY_VARIADIC_MACRO(CaseQ_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseQ(...)      XTL_APPLY_VARIADIC_MACRO(CaseQ_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenQ(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__) processed = true;
 #define OtherwiseQ(...) XTL_CLAUSE_OTHERWISE(CaseQ,__VA_ARGS__)
 #define EndMatchQ       XTL_SUBCLAUSE_LAST }}}                                 \

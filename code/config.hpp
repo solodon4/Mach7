@@ -540,6 +540,10 @@
 
 //------------------------------------------------------------------------------
 
+#define XTL_EMPTY()
+
+//------------------------------------------------------------------------------
+
 #define XTL_SELECT_ARG_0(a0, ...) a0
 #define XTL_SELECT_ARG_1(a0,a1, ...) a1
 #define XTL_SELECT_ARG_2(a0,a1,a2, ...) a2
@@ -551,7 +555,7 @@
 #define XTL_SELECT_ARG_8(a0,a1,a2,a3,a4,a5,a6,a7,a8, ...) a8
 #define XTL_SELECT_ARG_9(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9, ...) a9
 
-#define XTL_SELECT_ARG(i, ...) XTL_APPLY_VARIADIC_MACRO(XTL_SELECT_ARG_ ## i,(__VA_ARGS__))
+#define XTL_SELECT_ARG(i, ...) XTL_APPLY_VARIADIC_MACRO(XTL_SELECT_ARG_ ## i,(__VA_ARGS__,XTL_EMPTY()))
 
 //------------------------------------------------------------------------------
 
