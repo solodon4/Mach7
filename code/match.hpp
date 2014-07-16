@@ -437,7 +437,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
 ///       seems to be impossible to introduce dummy argument inside the Case 
 ///       directly, so we use the type argument as a dummy argument for XTL_DECL_BOUND_VARS
 #define CaseP_(C,...)   QuaP(C)                                                                         
-#define CaseP(...)      XTL_APPLY_VARIADIC_MACRO(CaseP_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseP(...)      XTL_APPLY_VARIADIC_MACRO(CaseP_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenP(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__) __casted_ptr = subject_ptr;
 #define OtherwiseP(...) XTL_CLAUSE_OTHERWISE(CaseP,__VA_ARGS__)
 #define EndMatchP                                                              \
@@ -473,7 +473,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
 ///       seems to be impossible to introduce dummy argument inside the Case 
 ///       directly, so we use the type argument as a dummy argument for XTL_DECL_BOUND_VARS
 #define CaseK_(C,...)   QuaK(C)
-#define CaseK(...)      XTL_APPLY_VARIADIC_MACRO(CaseK_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseK(...)      XTL_APPLY_VARIADIC_MACRO(CaseK_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenK(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseK(...)                                                        \
         } XTL_NON_FALL_THROUGH_ONLY(break;) }                                  \
@@ -503,7 +503,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
 
 #define CaseU_(L,...)   QuaU(L)
-#define CaseU(...)      XTL_APPLY_VARIADIC_MACRO(CaseU_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseU(...)      XTL_APPLY_VARIADIC_MACRO(CaseU_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenU(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseU(...)                                                        \
         } XTL_NON_FALL_THROUGH_ONLY(break;) }                                  \
@@ -534,7 +534,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
 
 #define CaseE_(C,...)   QuaE(C)
-#define CaseE(...)      XTL_APPLY_VARIADIC_MACRO(CaseE_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseE(...)      XTL_APPLY_VARIADIC_MACRO(CaseE_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenE(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseE(...) XTL_CLAUSE_OTHERWISE(CaseE,__VA_ARGS__)
 #define EndMatchE       XTL_NON_USE_BRACES_ONLY(}) } catch (...) {} }
@@ -565,7 +565,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
 
 #define CaseX_(C,...)   QuaX(C)
-#define CaseX(...)      XTL_APPLY_VARIADIC_MACRO(CaseX_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseX(...)      XTL_APPLY_VARIADIC_MACRO(CaseX_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenX(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseX(...) XTL_CLAUSE_OTHERWISE(CaseX,__VA_ARGS__)
 #define EndMatchX       XTL_NON_USE_BRACES_ONLY(}) } catch (...) {} }
@@ -618,7 +618,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
 ///       seems to be impossible to introduce dummy argument inside the Case 
 ///       directly, so we use the type argument as a dummy argument for XTL_DECL_BOUND_VARS
 #define CaseF_(C,...)   QuaF(C)
-#define CaseF(...)      XTL_APPLY_VARIADIC_MACRO(CaseF_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseF(...)      XTL_APPLY_VARIADIC_MACRO(CaseF_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenF(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseF(...) XTL_CLAUSE_OTHERWISE(CaseF,__VA_ARGS__)
 #define EndMatchF       XTL_SUBCLAUSE_LAST }}}
@@ -656,7 +656,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
 ///       seems to be impossible to introduce dummy argument inside the Case 
 ///       directly, so we use the type argument as a dummy argument for XTL_DECL_BOUND_VARS
 #define CaseS_(C,...)   QuaS(C)
-#define CaseS(...)      XTL_APPLY_VARIADIC_MACRO(CaseS_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseS(...)      XTL_APPLY_VARIADIC_MACRO(CaseS_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenS(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseS(...) XTL_CLAUSE_OTHERWISE(CaseS,__VA_ARGS__)
 #define EndMatchS       XTL_SUBCLAUSE_LAST }}}}
@@ -686,7 +686,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
 ///       seems to be impossible to introduce dummy argument inside the Case 
 ///       directly, so we use the type argument as a dummy argument for XTL_DECL_BOUND_VARS
 #define CaseS_(C,...)   QuaS(C)
-#define CaseS(...)      XTL_APPLY_VARIADIC_MACRO(CaseS_,(__VA_ARGS__)) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseS(...)      XTL_APPLY_VARIADIC_MACRO(CaseS_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenS(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseS(...) XTL_CLAUSE_OTHERWISE(CaseS,__VA_ARGS__)
 #define EndMatchS       XTL_SUBCLAUSE_LAST }}} XTL_STATIC_WHILE(false);
