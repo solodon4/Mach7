@@ -293,10 +293,10 @@ template <class T> inline void ignore_unused_warning(T const&) {}
         XTL_UNUSED(matched);
 
 #define XTL_SUBCLAUSE_FIRST           XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(false)) XTL_NON_USE_BRACES_ONLY({)
-#define XTL_SUBCLAUSE_OPEN(...)                                       XTL_STATIC_IF(XTL_PP_IF(XTL_PP_IS_EMPTY(__VA_ARGS__), true,   XTL_LIKELY(mch::C<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
-#define XTL_SUBCLAUSE_CONTINUE(...) } XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(XTL_PP_IF(XTL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(mch::C<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
-//#define XTL_SUBCLAUSE_PATTERN(...)} XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(XTL_PP_IF(XTL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(filter(__VA_ARGS__)(*matched)))) {
-#define XTL_SUBCLAUSE_PATTERN(...)                                    XTL_STATIC_IF(XTL_PP_IF(XTL_PP_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(filter(__VA_ARGS__)(*matched)))) {
+#define XTL_SUBCLAUSE_OPEN(...)                                       XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true,   XTL_LIKELY(mch::C<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
+#define XTL_SUBCLAUSE_CONTINUE(...) } XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(mch::C<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
+//#define XTL_SUBCLAUSE_PATTERN(...)} XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(filter(__VA_ARGS__)(*matched)))) {
+#define XTL_SUBCLAUSE_PATTERN(...)                                    XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(filter(__VA_ARGS__)(*matched)))) {
 #define XTL_SUBCLAUSE_CLOSE         }                            XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(is_inside_case_clause) break;)
 #define XTL_SUBCLAUSE_LAST            XTL_NON_USE_BRACES_ONLY(}) XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(is_inside_case_clause) break;)
 
@@ -305,11 +305,11 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 #if XTL_CLAUSE_DECL
 #define XTL_CLAUSE_OTHERWISE(CaseClause,...)                                   \
         static_assert(is_inside_case_clause, "Otherwise() must follow actual clauses! If you are trying to use it as a default sub-clause, use When() instead"); \
-        CaseClause(const source_type& _dummy_ XTL_PP_IF(XTL_PP_IS_EMPTY(__VA_ARGS__), XTL_PP_EMPTY(), ,) __VA_ARGS__)
+        CaseClause(const source_type& _dummy_ XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), XTL_EMPTY(), ,) __VA_ARGS__)
 #else
 #define XTL_CLAUSE_OTHERWISE(CaseClause,...)                                   \
         static_assert(is_inside_case_clause, "Otherwise() must follow actual clauses! If you are trying to use it as a default sub-clause, use When() instead"); \
-        CaseClause(source_type XTL_PP_IF(XTL_PP_IS_EMPTY(__VA_ARGS__), XTL_PP_EMPTY(), ,) __VA_ARGS__)
+        CaseClause(source_type XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), XTL_EMPTY(), ,) __VA_ARGS__)
 #endif
 
 namespace mch ///< Mach7 library namespace

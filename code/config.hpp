@@ -132,7 +132,7 @@
     /// during normal program execution.
     #define XTL_DUMP_PERFORMANCE 0
 #endif
-#define XTL_DUMP_PERFORMANCE_ONLY(...)   XTL_PP_IF(XTL_PP_NOT(XTL_DUMP_PERFORMANCE), XTL_PP_EMPTY(), XTL_PP_EXPAND(__VA_ARGS__))
+#define XTL_DUMP_PERFORMANCE_ONLY(...)   XTL_IF(XTL_NOT(XTL_DUMP_PERFORMANCE), XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
 
 //------------------------------------------------------------------------------
 
@@ -166,7 +166,7 @@
     ///       performance enough to justify the overhead it introduces.
     #define XTL_USE_VTBL_FREQUENCY 0
 #endif
-#define XTL_USE_VTBL_FREQUENCY_ONLY(...) XTL_PP_IF(XTL_PP_NOT(XTL_USE_VTBL_FREQUENCY), XTL_PP_EMPTY(), XTL_PP_EXPAND(__VA_ARGS__))
+#define XTL_USE_VTBL_FREQUENCY_ONLY(...) XTL_IF(XTL_NOT(XTL_USE_VTBL_FREQUENCY), XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
 
 #if !defined(XTL_REDUNDANCY_CHECKING)
     /// When this macro is defined, our library will generate additional code that 
@@ -177,8 +177,8 @@
     ///          is only possible for single argument, not for multiple arguments
     #define XTL_REDUNDANCY_CHECKING 0
 #endif
-#define XTL_REDUNDANCY_ONLY(...)     XTL_PP_IF(XTL_PP_NOT(XTL_REDUNDANCY_CHECKING), XTL_PP_EMPTY(), XTL_PP_EXPAND(__VA_ARGS__))
-#define XTL_NON_REDUNDANCY_ONLY(...) XTL_PP_IF(           XTL_REDUNDANCY_CHECKING,  XTL_PP_EMPTY(), XTL_PP_EXPAND(__VA_ARGS__))
+#define XTL_REDUNDANCY_ONLY(...)     XTL_IF(XTL_NOT(XTL_REDUNDANCY_CHECKING), XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
+#define XTL_NON_REDUNDANCY_ONLY(...) XTL_IF(           XTL_REDUNDANCY_CHECKING,  XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
 
 #if !defined(XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM)
     /// When this macro is 1, we use the number of clauses in the Match statements
@@ -212,7 +212,7 @@
     #define XTL_PRELOADABLE_LOCAL_STATIC(Type,Name,UID,...) Type& Name = mch::preallocated<Type,UID>::value
 #else
     /// In this case we simply declare a function-local static variable Name of type Type
-    #define XTL_PRELOADABLE_LOCAL_STATIC(Type,Name,UID,...) static Type Name XTL_PP_IF(XTL_PP_IS_EMPTY(__VA_ARGS__), XTL_PP_EMPTY(), (XTL_PP_EXPAND(__VA_ARGS__)))
+    #define XTL_PRELOADABLE_LOCAL_STATIC(Type,Name,UID,...) static Type Name XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), XTL_EMPTY(), (XTL_EXPAND(__VA_ARGS__)))
 #endif
 
 #if !defined(XTL_FALL_THROUGH)
@@ -240,8 +240,8 @@
     ///       about poor performance. (Sep 14, 2013)
     #define XTL_FALL_THROUGH 0
 #endif
-#define XTL_FALL_THROUGH_ONLY(...)     XTL_PP_IF(XTL_PP_NOT(XTL_FALL_THROUGH), XTL_PP_EMPTY(), XTL_PP_EXPAND(__VA_ARGS__))
-#define XTL_NON_FALL_THROUGH_ONLY(...) XTL_PP_IF(           XTL_FALL_THROUGH,  XTL_PP_EMPTY(), XTL_PP_EXPAND(__VA_ARGS__))
+#define XTL_FALL_THROUGH_ONLY(...)     XTL_IF(XTL_NOT(XTL_FALL_THROUGH), XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
+#define XTL_NON_FALL_THROUGH_ONLY(...) XTL_IF(           XTL_FALL_THROUGH,  XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
 
 #if !defined(XTL_USE_BRACES)
     /// For general syntax of Match statements, this definition only affects #MatchE
@@ -255,8 +255,8 @@
     /// please make the choice and specify it to the library with this macro.
     #define XTL_USE_BRACES 1
 #endif
-#define XTL_USE_BRACES_ONLY(...)     XTL_PP_IF(XTL_PP_NOT(XTL_USE_BRACES), XTL_PP_EMPTY(), XTL_PP_EXPAND(__VA_ARGS__))
-#define XTL_NON_USE_BRACES_ONLY(...) XTL_PP_IF(           XTL_USE_BRACES,  XTL_PP_EMPTY(), XTL_PP_EXPAND(__VA_ARGS__))
+#define XTL_USE_BRACES_ONLY(...)     XTL_IF(XTL_NOT(XTL_USE_BRACES), XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
+#define XTL_NON_USE_BRACES_ONLY(...) XTL_IF(           XTL_USE_BRACES,  XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
 
 #if !defined(XTL_CLAUSE_DECL)
     /// Enables/disables the syntax for declarations inside the case clause:
@@ -267,8 +267,8 @@
     ///       anonymous object of type DerivedType into the scope.
     #define XTL_CLAUSE_DECL 0
 #endif
-#define XTL_CLAUSE_DECL_ONLY(...)     XTL_PP_IF(XTL_PP_NOT(XTL_CLAUSE_DECL), XTL_PP_EMPTY(), XTL_PP_EXPAND(__VA_ARGS__))
-#define XTL_NON_CLAUSE_DECL_ONLY(...) XTL_PP_IF(           XTL_CLAUSE_DECL,  XTL_PP_EMPTY(), XTL_PP_EXPAND(__VA_ARGS__))
+#define XTL_CLAUSE_DECL_ONLY(...)     XTL_IF(XTL_NOT(XTL_CLAUSE_DECL), XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
+#define XTL_NON_CLAUSE_DECL_ONLY(...) XTL_IF(           XTL_CLAUSE_DECL,  XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
 
 //------------------------------------------------------------------------------
 
@@ -537,10 +537,6 @@
 
 /// Equivalent to #XTL_REPEAT_WITH with separator being a comma
 #define XTL_ENUM(n,m,...) XTL_ENUM_ ## n(m,__VA_ARGS__)
-
-//------------------------------------------------------------------------------
-
-#define XTL_EMPTY()
 
 //------------------------------------------------------------------------------
 
@@ -965,45 +961,45 @@
 /// here: https://forums.embarcadero.com/message.jspa?messageID=320338
 /// It is used for suppressing , (comma) when argument is added to __VA_ARGS__, which
 /// might be empty.
-#define XTL_PP_AND(a,b) XTL_PP_CAT3(_XTL_PP_AND_, a, b)
-#define XTL_PP_NOT(a) XTL_PP_CAT2(_XTL_PP_NOT_, a)
-#define XTL_PP_IF(a,b,...) XTL_PP_CAT2(_XTL_PP_IF_, a)(b, __VA_ARGS__)
+#define XTL_AND(a,b) XTL_CAT3(_XTL_AND_, a, b)
+#define XTL_NOT(a) XTL_CAT2(_XTL_NOT_, a)
+#define XTL_IF(a,b,...) XTL_CAT2(_XTL_IF_, a)(b, __VA_ARGS__)
  
-#define XTL_PP_EMPTY()
-#define XTL_PP_EXPAND(...) __VA_ARGS__
-#define XTL_PP_1ST(a,...) a
-#define XTL_PP_2ND(a,b,...) b
-#define XTL_PP_REMOVE_1ST(a,...) __VA_ARGS__
-#define XTL_PP_PAIR(a,...) a __VA_ARGS__
-#define XTL_PP_CAT2(a,...) XTL_PP_CAT2_(a, __VA_ARGS__)
-#define XTL_PP_CAT3(a,b,...) XTL_PP_CAT3_(a, b, __VA_ARGS__)
+#define XTL_EMPTY()
+#define XTL_EXPAND(...) __VA_ARGS__
+#define XTL_1ST(a,...) a
+#define XTL_2ND(a,b,...) b
+#define XTL_REMOVE_1ST(a,...) __VA_ARGS__
+#define XTL_PAIR(a,...) a __VA_ARGS__
+#define XTL_CAT2(a,...) XTL_CAT2_(a, __VA_ARGS__)
+#define XTL_CAT3(a,b,...) XTL_CAT3_(a, b, __VA_ARGS__)
  
 /// The two macros below are inspired by Laurent Deniau's posting on comp.lang.c from 2006/09/27
 /// http://groups.google.com/group/comp.lang.c/browse_thread/thread/578912299f8f87ce#msg_937356effc43f569
-#define XTL_PP_IS_EMPTY(...) \
-    XTL_PP_AND(XTL_PP_IS_LIST(__VA_ARGS__ ()),XTL_PP_NOT(XTL_PP_IS_LIST(__VA_ARGS__ _)))
-#define XTL_PP_IS_LIST(...) \
-    XTL_PP_PAIR(XTL_PP_1ST, (XTL_PP_CAT2(XTL_PP_IS_LIST_RET_, XTL_PP_IS_LIST_TST_ __VA_ARGS__)))
+#define XTL_IS_EMPTY(...) \
+    XTL_AND(XTL_IS_LIST(__VA_ARGS__ ()),XTL_NOT(XTL_IS_LIST(__VA_ARGS__ _)))
+#define XTL_IS_LIST(...) \
+    XTL_PAIR(XTL_1ST, (XTL_CAT2(XTL_IS_LIST_RET_, XTL_IS_LIST_TST_ __VA_ARGS__)))
  
  
 /// implementation details
  
-#define XTL_PP_IS_LIST_TST_(...) 1
-#define XTL_PP_IS_LIST_RET_XTL_PP_IS_LIST_TST_ 0,
-#define XTL_PP_IS_LIST_RET_1 1,
+#define XTL_IS_LIST_TST_(...) 1
+#define XTL_IS_LIST_RET_XTL_IS_LIST_TST_ 0,
+#define XTL_IS_LIST_RET_1 1,
  
-#define XTL_PP_CAT2_(a,...) XTL_PP_EXPAND(a ## __VA_ARGS__)
-#define XTL_PP_CAT3_(a,b,...) XTL_PP_EXPAND(a ## b ## __VA_ARGS__)
+#define XTL_CAT2_(a,...) XTL_EXPAND(a ## __VA_ARGS__)
+#define XTL_CAT3_(a,b,...) XTL_EXPAND(a ## b ## __VA_ARGS__)
  
-#define _XTL_PP_AND_00 0
-#define _XTL_PP_AND_01 0
-#define _XTL_PP_AND_10 0
-#define _XTL_PP_AND_11 1
+#define _XTL_AND_00 0
+#define _XTL_AND_01 0
+#define _XTL_AND_10 0
+#define _XTL_AND_11 1
  
-#define _XTL_PP_IF_0(a,...) __VA_ARGS__
-#define _XTL_PP_IF_1(a,...) a
+#define _XTL_IF_0(a,...) __VA_ARGS__
+#define _XTL_IF_1(a,...) a
  
-#define _XTL_PP_NOT_0 1
-#define _XTL_PP_NOT_1 0
+#define _XTL_NOT_0 1
+#define _XTL_NOT_1 0
 
 //------------------------------------------------------------------------------
