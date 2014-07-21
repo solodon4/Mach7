@@ -103,6 +103,32 @@ inline auto dynamic_cast_when_polymorphic(const S* s) -> XTL_RETURN
     dynamic_cast_when_polymorphic_helper<S>::template go<T>(s)
 )
 
+//------------------------------------------------------------------------------
+
+// We use this helper to avoid warning about access to array with index -1, which
+// only happens in inapplicable conditions when is_polymorphic=false where no
+// access needed.
+template <bool is_polymorphic, typename SwitchInfo>
+struct type_switch_info_offset_helper
+{
+    static inline void set_offset(SwitchInfo& si, size_t index, ptrdiff_t offset)
+    {
+        si.offset[index] = offset;
+    }
+
+    static inline ptrdiff_t get_offset(SwitchInfo& si, size_t index)
+    {
+        return si.offset[index];
+    }
+};
+
+template <typename SwitchInfo>
+struct type_switch_info_offset_helper<false, SwitchInfo>
+{
+    static inline void set_offset(SwitchInfo&, size_t, ptrdiff_t) {}       // Do nothing
+    static inline ptrdiff_t get_offset(SwitchInfo&, size_t) { return 0; }; // Result is unused, so return anything
+};
+
 } // of namespace mch
 
 #define XTL_GET_TYPES_NUM_ESTIMATE   (mch::deferred_constant<mch::vtbl_count_t>::get<match_uid_type>::value)
@@ -184,8 +210,10 @@ inline auto dynamic_cast_when_polymorphic(const S* s) -> XTL_RETURN
         static_assert(mch::is_pattern<type_of_pattern##i>::value,"Case-clause expects patterns as its arguments"); \
         typedef XTL_CPP0X_TYPENAME mch::underlying<type_of_pattern##i>::type::/*XTL_CPP0X_TEMPLATE*/ accepted_type_for<source_type##i>::type target_type##i;
 #define XTL_DYN_CAST_FROM(i,...) (__casted_ptr##i = mch::dynamic_cast_when_polymorphic<const target_type##i*>(subject_ptr##i)) != 0
-#define XTL_ASSIGN_OFFSET(i,...) XTL_STATIC_IF(is_polymorphic##i) __switch_info.offset[polymorphic_index##i] = intptr_t(__casted_ptr##i)-intptr_t(subject_ptr##i);
-#define XTL_ADJUST_PTR_FROM(i,...) auto& match##i = *mch::adjust_ptr_if_polymorphic<target_type##i>(subject_ptr##i,__switch_info.offset[polymorphic_index##i]);
+//#define XTL_ASSIGN_OFFSET(i,...) XTL_STATIC_IF(is_polymorphic##i) __switch_info.offset[polymorphic_index##i] = intptr_t(__casted_ptr##i)-intptr_t(subject_ptr##i);
+#define XTL_ASSIGN_OFFSET(i,...) mch::type_switch_info_offset_helper<is_polymorphic##i,decltype(__switch_info)>::set_offset(__switch_info, polymorphic_index##i, intptr_t(__casted_ptr##i)-intptr_t(subject_ptr##i));
+//#define XTL_ADJUST_PTR_FROM(i,...) auto& match##i = *mch::adjust_ptr_if_polymorphic<target_type##i>(subject_ptr##i,__switch_info.offset[polymorphic_index##i]);
+#define XTL_ADJUST_PTR_FROM(i,...) auto& match##i = *mch::adjust_ptr_if_polymorphic<target_type##i>(subject_ptr##i,mch::type_switch_info_offset_helper<is_polymorphic##i,decltype(__switch_info)>::get_offset(__switch_info, polymorphic_index##i));
 #define XTL_MATCH_PATTERN_TO_TARGET(i,...) mch::filter(XTL_SELECT_ARG(i,__VA_ARGS__))(match##i)
 
 /// Helper macro for #Case

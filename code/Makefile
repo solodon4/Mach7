@@ -57,13 +57,13 @@
 
 GCC_COLORS=always
 OS       = $(shell uname -s)
-CXX      = g++-4.8
+#CXX      = g++-4.8
 LIBS     = -lstdc++
 INCLUDES = 
 CXXFLAGS_COMMON=$(INCLUDES) -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
 CXXFLAGS_GCC=-Wno-vla
 CXXFLAGS_CLANG=-Wno-nested-anon-types -Wno-vla-extension -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct -fmacro-backtrace-limit=0
-CXXFLAGS = $(CXXFLAGS_COMMON) $(CXXFLAGS_GCC)
+CXXFLAGS = $(CXXFLAGS_COMMON) $(CXXFLAGS_CLANG)
 LIBFLAGS = $(LIBS)
 OCAMLLIB = /c/Program Files (x86)/OCaml/lib
 #OCAMLLIB = C:\Program Files (x86)\OCaml\
