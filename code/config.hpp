@@ -146,7 +146,7 @@
 
 #if XTL_TRACE_LIKELINESS
     #include "debug.hpp"
-    #define XTL_LIKELY(c) (mch::trace_likeliness<true,__LINE__,decltype(XTL_FUNCTION)>(c,#c,__FILE__))
+    #define XTL_LIKELY(c)   (mch::trace_likeliness< true,__LINE__,decltype(XTL_FUNCTION)>(c,#c,__FILE__))
     #define XTL_UNLIKELY(c) (mch::trace_likeliness<false,__LINE__,decltype(XTL_FUNCTION)>(c,#c,__FILE__))
 #endif
 
@@ -752,6 +752,10 @@
     /// A macro that is supposed to be put after  the function definition whose body must be inlined
     #define XTL_FORCE_INLINE_END
 
+    /// An attribute used in GCC code to silence warning about potentially unused typedef target_type, which we
+    /// generate to fall back on from Case clauses. The typedef is required in some cases, do not remove.
+    #define XTL_UNUSED_TYPEDEF 
+
 #elif defined(__clang__)
 
     // Clang workarounds
@@ -782,6 +786,10 @@
     #define XTL_FORCE_INLINE_BEGIN __attribute__ ((always_inline)) static inline 
     /// A macro that is supposed to be put after  the function definition whose body must be inlined
     #define XTL_FORCE_INLINE_END
+
+    /// An attribute used in GCC code to silence warning about potentially unused typedef target_type, which we
+    /// generate to fall back on from Case clauses. The typedef is required in some cases, do not remove.
+    #define XTL_UNUSED_TYPEDEF __attribute__((unused))
 
 #elif defined(__GNUC__)
 
@@ -824,6 +832,11 @@
     #define XTL_FORCE_INLINE_BEGIN __attribute__ ((always_inline)) static inline 
     /// A macro that is supposed to be put after  the function definition whose body must be inlined
     #define XTL_FORCE_INLINE_END
+
+    /// An attribute used in GCC code to silence warning about potentially unused typedef target_type, which we
+    /// generate to fall back on from Case clauses. The typedef is required in some cases, do not remove.
+    #define XTL_UNUSED_TYPEDEF __attribute__((unused))
+
 #endif
 
 //------------------------------------------------------------------------------

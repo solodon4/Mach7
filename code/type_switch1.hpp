@@ -71,9 +71,9 @@
 #define XTL_MATCH_PREAMBULA(s)                                                 \
         struct match_uid_type {};                                              \
         auto&&     subject_ref = s;                                            \
-        auto const subject_ptr = addr(subject_ref);                            \
-        typedef XTL_CPP0X_TYPENAME underlying<decltype(*subject_ptr)>::type source_type; \
-        typedef source_type target_type;                                       \
+        auto const subject_ptr = mch::addr(subject_ref);                       \
+        typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(*subject_ptr)>::type source_type; \
+        typedef source_type target_type XTL_UNUSED_TYPEDEF;                                       \
         enum { is_inside_case_clause = 0 };                                    \
         XTL_ASSERT(("Trying to match against a nullptr",subject_ptr));         \
         auto& match1 = *subject_ptr;                                           \
@@ -82,8 +82,8 @@
 //------------------------------------------------------------------------------
 
 #if XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM
-    #define XTL_GET_TYPES_NUM_ESTIMATE   (deferred_constant<vtbl_count_t>::get<match_uid_type>::value)
-    #define XTL_SET_TYPES_NUM_ESTIMATE(N) ignore_unused_warning(deferred_constant<vtbl_count_t>::set<match_uid_type,(N)>::value_ptr)
+    #define XTL_GET_TYPES_NUM_ESTIMATE   (mch::deferred_constant<mch::vtbl_count_t>::get<match_uid_type>::value)
+    #define XTL_SET_TYPES_NUM_ESTIMATE(N) mch::ignore_unused_warning(mch::deferred_constant<mch::vtbl_count_t>::set<match_uid_type,(N)>::value_ptr)
 #else
     #define XTL_GET_TYPES_NUM_ESTIMATE   (min_expected_size)
     #define XTL_SET_TYPES_NUM_ESTIMATE(N)
@@ -101,9 +101,9 @@
         XTL_MATCH_PREAMBULA(s)                                                 \
         enum { __base_counter = XTL_COUNTER };                                 \
         static_assert(std::is_polymorphic<source_type>::value, "Type of subject should be polymorphic when you use MatchP");\
-        XTL_PRELOADABLE_LOCAL_STATIC(vtblmap<type_switch_info>,__vtbl2lines_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
+        XTL_PRELOADABLE_LOCAL_STATIC(mch::vtblmap<mch::type_switch_info>,__vtbl2lines_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
         register const void* __casted_ptr = 0;                                 \
-        type_switch_info& __switch_info = __vtbl2lines_map.get(subject_ptr);   \
+        mch::type_switch_info& __switch_info = __vtbl2lines_map.get(subject_ptr); \
         switch (__switch_info.target) {                                        \
         default: {
 

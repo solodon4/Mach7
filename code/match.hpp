@@ -286,7 +286,7 @@ template <class T> inline void ignore_unused_warning(T const&) {}
         auto&&     subject_ref = s;                                            \
         auto const subject_ptr = mch::addr(subject_ref);                       \
         typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(*subject_ptr)>::type source_type; \
-        typedef source_type target_type;                                       \
+        typedef source_type target_type XTL_UNUSED_TYPEDEF;                    \
         enum { target_layout = mch::default_layout, is_inside_case_clause = 0 }; \
         XTL_ASSERT(("Trying to match against a nullptr",subject_ptr));         \
         auto const matched = subject_ptr;                                      \
@@ -382,8 +382,8 @@ template<>                        struct target_disambiguator<int>    { typedef 
         enum { __base_counter = XTL_COUNTER };                                 \
         static_assert(std::is_polymorphic<source_type>::value, "Type of subject should be polymorphic when you use MatchP");\
         XTL_PRELOADABLE_LOCAL_STATIC(mch::vtblmap<mch::type_switch_info>,__vtbl2lines_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
-        const void* __casted_ptr = 0;                                 \
-        mch::type_switch_info& __switch_info = __vtbl2lines_map.get(subject_ptr);   \
+        register const void* __casted_ptr = 0;                                 \
+        mch::type_switch_info& __switch_info = __vtbl2lines_map.get(subject_ptr); \
         switch (__switch_info.target)                                          \
         {                                                                      \
             XTL_REDUNDANCY_ONLY(try)                                           \
@@ -589,7 +589,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
         default:                                                               \
             if (XTL_LIKELY(!__kinds))                                          \
             {                                                                  \
-                XTL_PRELOADABLE_LOCAL_STATIC(std::vector<const mch::lbl_type*>,__kinds_cache,match_uid_type);\
+                XTL_PRELOADABLE_LOCAL_STATIC(std::vector<const mch::lbl_type*>,__kinds_cache,match_uid_type,XTL_EMPTY());\
                 if (XTL_UNLIKELY(size_t(__kind_selector) >= __kinds_cache.size()))\
                     __kinds_cache.resize(__kind_selector+1);                   \
                 __kinds = __kinds_cache[__kind_selector];                      \
@@ -717,7 +717,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
         XTL_MATCH_PREAMBULA(s)                                                 \
         enum { __base_counter = XTL_COUNTER };                                 \
         typedef mch::unified_switch<source_type> switch_traits;                \
-        XTL_PRELOADABLE_LOCAL_STATIC(XTL_CPP0X_TYPENAME switch_traits::static_data_type,static_data,match_uid_type); \
+        XTL_PRELOADABLE_LOCAL_STATIC(XTL_CPP0X_TYPENAME switch_traits::static_data_type,static_data,match_uid_type,XTL_EMPTY()); \
         XTL_CPP0X_TYPENAME switch_traits::local_data_type  local_data;         \
         bool processed = false;                                       \
         size_t jump_target = switch_traits::choose(subject_ptr,static_data,local_data); \

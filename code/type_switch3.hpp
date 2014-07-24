@@ -65,7 +65,7 @@ enum { default_layout = size_t(~0) };
         auto&&     subject_ref##N = s;                                         \
         auto const subject_ptr##N = mch::addr(subject_ref##N);                 \
         typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(*subject_ptr##N)>::type source_type##N; \
-        typedef source_type##N target_type##N;                                 \
+        typedef source_type##N target_type##N XTL_UNUSED_TYPEDEF;              \
         enum { target_layout##N = default_layout };                            \
         XTL_ASSERT(("Trying to match against a nullptr",subject_ptr##N));      \
         auto const match##N = subject_ptr##N;                                  \

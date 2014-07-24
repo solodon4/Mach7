@@ -147,7 +147,7 @@ struct type_switch_info_offset_helper<false, SwitchInfo>
         auto&&     subject_ref##N = s;                                         \
         auto const subject_ptr##N = mch::addr(subject_ref##N);                 \
         typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(*subject_ptr##N)>::type source_type##N; \
-        typedef source_type##N target_type##N;                                 \
+        typedef source_type##N target_type##N XTL_UNUSED_TYPEDEF;              \
         XTL_ASSERT(("Trying to match against a nullptr",subject_ptr##N));      \
         enum { is_polymorphic##N = std::is_polymorphic<source_type##N>::value, \
                polymorphic_index##N = XTL_CONCAT(polymorphic_index,XTL_PREV(N)) + is_polymorphic##N }; \
