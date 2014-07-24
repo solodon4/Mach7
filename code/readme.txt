@@ -42,14 +42,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Building sources
 ================
 
-Using Clang (5.1)
------------------
-
- * make -i
-    - make sure to pass -i to ignore errors for now as I am still in the middle
-      of fixing Clang support. See GCC options for the rest.
-
-Using GCC (4.4 or later)
+Using GCC (4.4 or later) or Clang (5.1 or later)
 ------------------------
  * make
     - builds .exe files from all the .cpp files in current directory.
