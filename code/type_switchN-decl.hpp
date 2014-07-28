@@ -169,7 +169,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
             if (XTL_LIKELY(__switch_info.target == 0))                         \
             {                                                                  \
                 __switch_info.target = target_label;                           \
-                XTL_REPEAT(N, XTL_ASSIGN_OFFSET)                               \
+                XTL_REPEAT(N, XTL_ASSIGN_OFFSET, XTL_EMPTY())                  \
             }                                                                  \
         case target_label:                                                     \
             XTL_REPEAT(N, XTL_ADJUST_PTR_FROM, __VA_ARGS__)

@@ -110,7 +110,7 @@ inline bool solve(const expr<bool_complement,E1>& e, const S& r)
 template <typename E1, typename T, typename S>
 inline bool solve(const expr<addition,E1,value<T>>& e, const S& r)
 {
-    typedef S source_type;               // The type a subject
+    //typedef S source_type;               // The type a subject
     typedef typename E1::result_type target_type; // The type of a target expression
 
     // NOTE: The following conditions are known at compile time and we rely here
@@ -147,7 +147,7 @@ inline bool solve(const expr<addition,value<T>,E1>& e, const S& r)
 template <typename E1, typename E2, typename S>
 inline bool solve(const expr<addition,E1,equivalence<E2>>& e, const S& r)
 {
-    typedef S source_type;               // The type a subject
+    //typedef S source_type;               // The type a subject
     typedef typename E1::result_type target_type; // The type of a target expression
 
     // NOTE: The following conditions are known at compile time and we rely here

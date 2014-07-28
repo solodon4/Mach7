@@ -327,12 +327,12 @@ template<>                        struct target_disambiguator<int>    { typedef 
     #define XTL_DISAMBIGUATE_TARGET(...)                                       \
             int decl_helper(__VA_ARGS__);                                      \
             typedef mch::target_disambiguator<decltype(decl_helper)> disambiguator; \
-            typedef disambiguator::type target_type;                           \
+            typedef disambiguator::type target_type XTL_UNUSED_TYPEDEF;             \
             enum { target_layout = disambiguator::layout<decl_helper>::value };
 #else
     /// FIX: This version doesn't do any disambiguation at the moment, just assumes a type
     #define XTL_DISAMBIGUATE_TARGET(...)                                       \
-            typedef __VA_ARGS__ target_type;                                   \
+            typedef __VA_ARGS__ target_type XTL_UNUSED_TYPEDEF;                \
             enum { target_layout = mch::default_layout };
 #endif
 
@@ -761,7 +761,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
             typedef XTL_CPP0X_TYPENAME switch_traits::                         \
                     XTL_CPP0X_TEMPLATE disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::source_type)>:: \
                     XTL_CPP0X_TEMPLATE parameter<C> target_specific;           \
-            typedef XTL_CPP0X_TYPENAME target_specific::target_type target_type;                          \
+            typedef XTL_CPP0X_TYPENAME target_specific::target_type target_type XTL_UNUSED_TYPEDEF;       \
             enum { target_layout = target_specific::layout, target_label = XTL_COUNTER-__base_counter, is_inside_case_clause = 1 };  \
             if (XTL_UNLIKELY(target_specific::main_condition(subject_ptr, local_data)))                   \
             {                                                                                             \
