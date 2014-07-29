@@ -120,7 +120,7 @@ enum { default_layout = size_t(~0) };
         enum { is_inside_case_clause = 0, number_of_subjects = N };            \
         enum { __base_counter = XTL_COUNTER };                                 \
         XTL_REPEAT(N,XTL_MATCH_SUBJECT_POLYMORPHIC_FROM,__VA_ARGS__)           \
-        const intptr_t __vtbl[N] = {XTL_ENUM(N,XTL_GET_VTLB_OF_SUBJECT)};      \
+        const intptr_t __vtbl[N] = {XTL_ENUM(N,XTL_GET_VTLB_OF_SUBJECT, XTL_EMPTY())}; \
         typedef mch::vtbl_map<N,mch::type_switch_info<N>> vtbl_map_type;       \
         XTL_PRELOADABLE_LOCAL_STATIC(vtbl_map_type,__vtbl2case_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
         mch::type_switch_info<N>& __switch_info = __vtbl2case_map.get(__vtbl); \
