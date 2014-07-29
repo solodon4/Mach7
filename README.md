@@ -1,11 +1,11 @@
-                                    Mach7
-                       A PATTERN MATCHING LIBRARY FOR C++
+                    Mach7: A PATTERN MATCHING LIBRARY FOR C++
+                    =========================================
                                by Yuriy Solodkyy 
                            <yuriy.solodkyy@gmail.com>
 
 
 License Agreement (BSD)
-=======================
+-----------------------
 
 Mach7: Pattern Matching Library for C++
 
@@ -40,10 +40,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 Building sources
-================
+----------------
 
 Using GCC (4.4 or later) or Clang (5.1 or later)
-------------------------
  * make
     - builds .exe files from all the .cpp files in current directory.
  * make timings
@@ -56,7 +55,6 @@ Using GCC (4.4 or later) or Clang (5.1 or later)
     - runs all the .exe files in the current folder
 
 Using Visual C++ (2010 or later)
---------------------------------
  * test-pm-timing.bat
     - builds all combinations of encodings, syntax and benchmarks out of 
       skeleton.cxx for timing purposes (same as "make timings" for Visual C++)
@@ -76,7 +74,7 @@ Using Visual C++ (2010 or later)
       performance table
 
 Known bugs and limitations
-==========================
+--------------------------
 
 The following files crash GCC 4.4.5 on my Fedora 13 box. If they do on yours 
 too, just delete them, they are all test cases anyways.
@@ -91,6 +89,6 @@ too, just delete them, they are all test cases anyways.
  - exp.cpp
 
 Support
-=======
+-------
 
 Please contact Yuriy Solodkyy at yuriy.solodkyy@gmail.com with any questions regarding Mach7.
