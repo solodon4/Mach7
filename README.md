@@ -88,6 +88,13 @@ too, just delete them, they are all test cases anyways.
  - category.cpp
  - exp.cpp
 
+Publications
+------------
+
+ * Y.Solodkyy, G.Dos Reis, B.Stroustrup. "[Open Pattern Matching for C++: Extended Abstract](https://parasol.tamu.edu/~yuriys/papers/OPM13EA.pdf)" In Proceedings of the 2013 companion publication for conference on Systems, programming, & applications: software for humanity (SPLASH '13). ACM, New York, NY, USA, pp. 97-98.
+ * Y.Solodkyy, G.Dos Reis, B.Stroustrup. "[Open Pattern Matching for C++](https://parasol.tamu.edu/~yuriys/papers/OPM13.pdf)" In Proceedings of the 12th international conference on Generative programming: concepts & experiences (GPCE '13). ACM, New York, NY, USA, pp. 33-42.
+ * Y.Solodkyy, G.Dos Reis, B.Stroustrup. "[Open and Efficient Type Switch for C++](https://parasol.tamu.edu/~yuriys/papers/TS12.pdf)" In Proceedings of the ACM international conference on Object Oriented Programming Systems Languages and Applications (OOPSLA '12). ACM, New York, NY, USA, pp. 963-982.
+
 Support
 -------
 
