@@ -1,12 +1,12 @@
-Mach7: A PATTERN MATCHING LIBRARY FOR C++
-=========================================
+Mach7: PATTERN MATCHING FOR C++
+===============================
 
 by Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 
 
 License Agreement (BSD)
 -----------------------
-
+```
 *Mach7: Pattern Matching Library for C++*
 
 Copyright 2011-2013, Texas A&M University.
@@ -37,39 +37,45 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
 
 Mach7 by Example
 ----------------
 ```C++
-    // Fibonacci numbers
-    int fib(int n)
-    {
-        var⟨int⟩ m; 
-        Match(n) {
-        Case(1)     return 1;
-        Case(2)     return 1;
-        Case(2*m)   return sqr(fib(m+1)) − sqr(fib(m−1));
-        Case(2*m+1) return sqr(fib(m+1)) + sqr(fib(m));
-        } EndMatch
-    }
+// Fibonacci numbers
+int fib(int n)
+{
+    var<int> m;
 
-    // Lambda calculator
-    struct Term       { virtual ∼Term() {}     };
-    struct Var : Term { std::string name;      };
-    struct Abs : Term { Var& var; Term& body;  };
-    struct App : Term { Term& func; Term& arg; };
+    Match(n) {
+    Case(1)     return 1;
+    Case(2)     return 1;
+    Case(2*m)   return sqr(fib(m+1)) - sqr(fib(m-1));
+    Case(2*m+1) return sqr(fib(m+1)) + sqr(fib(m));
+    } EndMatch
+}
 
-    Term* eval(Term* t)
-    {
-        var⟨const Var&⟩ v; var⟨const Term&⟩ b,a;
-        Match(*t) {
-        Case(C⟨Var⟩())              return &match0;
-        Case(C⟨Abs⟩())              return &match0;
-        Case(C⟨App⟩(C⟨Abs⟩(v,b),a)) return eval(subs(b,v,a)); 
-        Otherwise() std:: cerr ≪ ”error”; return nullptr ;
-        } EndMatch
-    }
+// Lambda calculator
+struct Term       { virtual ~Term() {}     };
+struct Var : Term { std::string name;      };
+struct Abs : Term { Var& var; Term& body;  };
+struct App : Term { Term& func; Term& arg; };
+
+Term* eval(Term* t)
+{
+    var<const Var&> v; 
+    var<const Term&> b,a;
+
+    Match(*t) {
+    Case(C<Var>())              return &match0;
+    Case(C<Abs>())              return &match0;
+    Case(C<App>(C<Abs>(v,b),a)) return eval(subs(b,v,a));
+    Otherwise() std:: cerr << "error"; return nullptr ;
+    } EndMatch
+}
 ```
+
+... and it is faster than Visitors!
 
 Building sources
 ----------------
