@@ -1,4 +1,4 @@
-Mach7: PATTERN MATCHING FOR C++
+Mach7: Pattern Matching for C++
 ===============================
 
 by Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
@@ -7,7 +7,7 @@ by Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 License Agreement (BSD)
 -----------------------
 ```
-*Mach7: Pattern Matching Library for C++*
+Mach7: Pattern Matching Library for C++
 
 Copyright 2011-2013, Texas A&M University.
 Copyright 2014 Yuriy Solodkyy.
