@@ -137,7 +137,7 @@ Publications
 Talks
 -------------
 
- * "C++ Now 2014"[http://youtu.be/OkDS6hmU-w8] May 14, 2014. Aspen, CO.
+ * [C++ Now 2014](http://youtu.be/OkDS6hmU-w8) May 14, 2014. Aspen, CO.
 
 Support
 -------
