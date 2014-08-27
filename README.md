@@ -114,17 +114,12 @@ Using Visual C++ (2010 or later)
 Known bugs and limitations
 --------------------------
 
-The following files crash GCC 4.4.5 on my Fedora 13 box. If they do on yours 
-too, just delete them, they are all test cases anyways.
- - extractor.cpp
- - shape2.cpp
- - shape4.cpp
- - shape5.cpp
- - shape6.cpp
- - shape.cpp
- - numbers.cpp
- - category.cpp
- - exp.cpp
+The library is not yet suitable for multi-threaded environment. Lock-free version of vtbl-map is in the works.
+
+The following files crash GCC 4.4.5 on my Fedora 13 box:
+    extractor.cpp, shape2.cpp, shape4.cpp, shape5.cpp, shape6.cpp, shape.cpp, numbers.cpp, category.cpp, exp.cpp
+If they do on yours too, just delete them, they are all test cases anyways.
+
 
 Publications
 ------------
@@ -136,8 +131,8 @@ Publications
 
 Talks
 -------------
-
- * [C++ Now 2014](http://youtu.be/OkDS6hmU-w8) May 14, 2014. Aspen, CO.
+ * [Accept No Visitors](http://sched.co/1rIQMEN). [CppCon 2014](http://cppcon.org/). September 12, 2014. Bellevue, WA.
+ * [Mach7: The Design and Evolution of a Pattern Matching Library for C++](http://youtu.be/OkDS6hmU-w8). [C++ Now 2014](http://cppnow.org). May 14, 2014. Aspen, CO.
 
 Support
 -------
