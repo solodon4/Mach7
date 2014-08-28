@@ -180,7 +180,7 @@
     #define XTL_REDUNDANCY_CHECKING 0
 #endif
 #define XTL_REDUNDANCY_ONLY(...)     XTL_IF(XTL_NOT(XTL_REDUNDANCY_CHECKING), XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
-#define XTL_NON_REDUNDANCY_ONLY(...) XTL_IF(           XTL_REDUNDANCY_CHECKING,  XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
+#define XTL_NON_REDUNDANCY_ONLY(...) XTL_IF(        XTL_REDUNDANCY_CHECKING,  XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
 
 #if !defined(XTL_CLAUSES_NUM_ESTIMATES_TYPES_NUM)
     /// When this macro is 1, we use the number of clauses in the Match statements
@@ -243,7 +243,7 @@
     #define XTL_FALL_THROUGH 0
 #endif
 #define XTL_FALL_THROUGH_ONLY(...)     XTL_IF(XTL_NOT(XTL_FALL_THROUGH), XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
-#define XTL_NON_FALL_THROUGH_ONLY(...) XTL_IF(           XTL_FALL_THROUGH,  XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
+#define XTL_NON_FALL_THROUGH_ONLY(...) XTL_IF(        XTL_FALL_THROUGH,  XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
 
 #if !defined(XTL_USE_BRACES)
     /// For general syntax of Match statements, this definition only affects #MatchE
@@ -258,7 +258,7 @@
     #define XTL_USE_BRACES 1
 #endif
 #define XTL_USE_BRACES_ONLY(...)     XTL_IF(XTL_NOT(XTL_USE_BRACES), XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
-#define XTL_NON_USE_BRACES_ONLY(...) XTL_IF(           XTL_USE_BRACES,  XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
+#define XTL_NON_USE_BRACES_ONLY(...) XTL_IF(        XTL_USE_BRACES,  XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
 
 #if !defined(XTL_CLAUSE_DECL)
     /// Enables/disables the syntax for declarations inside the case clause:
@@ -270,7 +270,7 @@
     #define XTL_CLAUSE_DECL 0
 #endif
 #define XTL_CLAUSE_DECL_ONLY(...)     XTL_IF(XTL_NOT(XTL_CLAUSE_DECL), XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
-#define XTL_NON_CLAUSE_DECL_ONLY(...) XTL_IF(           XTL_CLAUSE_DECL,  XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
+#define XTL_NON_CLAUSE_DECL_ONLY(...) XTL_IF(        XTL_CLAUSE_DECL,  XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
 
 //------------------------------------------------------------------------------
 
