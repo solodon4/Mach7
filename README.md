@@ -132,7 +132,7 @@ Publications
 Talks
 -------------
  * "[Accept No Visitors](http://sched.co/1rIQMEN)". [CppCon 2014](http://cppcon.org/). September 12, 2014. Bellevue, WA.
- * ``[Mach7: The Design and Evolution of a Pattern Matching Library for C++](http://youtu.be/OkDS6hmU-w8)''. [C++ Now 2014](http://cppnow.org). May 14, 2014. Aspen, CO.
+ * "[Mach7: The Design and Evolution of a Pattern Matching Library for C++](http://youtu.be/OkDS6hmU-w8)". [C++ Now 2014](http://cppnow.org). May 14, 2014. Aspen, CO.
 
 Support
 -------

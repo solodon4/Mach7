@@ -122,6 +122,17 @@ namespace xtl
     // subtype_dynamic_cast definition
     //==============================================================================
 
+    template <class T>
+    T* subtype_dynamic_cast_impl(target<T*>, T* p)
+    {
+        return p;
+    }
+
+    std::nullptr_t subtype_dynamic_cast_impl(...)
+    {
+        return nullptr;
+    }
+
     template <class D, class B>
     typename std::enable_if<std::is_base_of<B, D>::value, D*>::type
     subtype_dynamic_cast_impl(target<D*>, B* p)
