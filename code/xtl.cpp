@@ -45,7 +45,8 @@
 
 #include <iostream>
 #include "boost/variant.hpp"
-#include "xtl.hpp"
+#include "type_switchN-patterns-xtl.hpp"
+#include "patterns/all.hpp"
 
 namespace xtl
 {
@@ -151,4 +152,21 @@ int main()
 
     int* p2 = xtl::subtype_dynamic_cast<int*>(&v2);
     std::cout << '(' << p2 << ',' << (p2 ? *p2 : 99999) << ')' << std::endl;
+
+    using namespace mch;
+
+    var<double> d;
+    var<float>  f;
+    var<int>    n;
+
+    for (int i = 0; i < 3; ++i)
+    {
+        Match(v2)
+        {
+            Case(C<double>(d)) std::cout << "double " << d << std::endl; break;
+            Case(C<float> (f)) std::cout << "float  " << f << std::endl; break;
+            Case(C<int>   (n)) std::cout << "int    " << n << std::endl; break;
+        }
+        EndMatch
+    }
 }
