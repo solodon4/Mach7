@@ -57,11 +57,11 @@ namespace xtl
                                || is_subtype<S,boost::variant<Ts...>>::value;
     };
 
-    template <class S>
-    struct is_subtype<S,boost::variant<>> : std::false_type {};
+    template <class S, class T>
+    struct is_subtype<S,boost::variant<T>> : is_subtype<S,T> {};
 
     template <class... Ts, class S>
-    boost::variant<Ts...> subtype_cast_impl(target<boost::variant<Ts...>> v, const S& s)
+    boost::variant<Ts...> subtype_cast_impl(target<boost::variant<Ts...>>, const S& s)
     {
         return boost::variant<Ts...>(s); // FIX: Actually this should be boost::variant<Ts...>(xtl::subtype_cast<Ti>(s)) where S <: Ti
     }
@@ -163,9 +163,9 @@ int main()
     {
         Match(v2)
         {
-            Case(C<double>(d)) std::cout << "double " << d << std::endl; break;
-            Case(C<float> (f)) std::cout << "float  " << f << std::endl; break;
-            Case(C<int>   (n)) std::cout << "int    " << n << std::endl; break;
+            Case(mch::C<double>(d)) std::cout << "double " << d << std::endl; break;
+            Case(mch::C<float> (f)) std::cout << "float  " << f << std::endl; break;
+            Case(mch::C<int>   (n)) std::cout << "int    " << n << std::endl; break;
         }
         EndMatch
     }

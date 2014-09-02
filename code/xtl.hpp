@@ -95,7 +95,7 @@ namespace xtl
     /// given arguments will be passed through dummy null-pointers.
     /// Default implementation just tries to cast one type to another.
     template <class T, class S>
-    T subtype_cast_impl(target<T> t, const S& s)
+    T subtype_cast_impl(target<T>, const S& s)
     {
         return (T)s;
     }
