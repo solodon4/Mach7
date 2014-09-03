@@ -39,6 +39,16 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
 
+Abstract
+--------
+
+Pattern matching is an abstraction mechanism that can greatly simplify source code.
+Commonly, pattern matching is built into a language to provide better syntax, faster 
+code, correctness guarantees and improved diagnostics. Mach7 is a library solution 
+to pattern matching in C++ that maintains many of these features. All the patterns 
+in Mach7 are user-definable, can be stored in variables, passed among functions, 
+and allow the use of open class hierarchies.
+
 Mach7 by Example
 ----------------
 ```C++
