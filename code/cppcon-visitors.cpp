@@ -15,16 +15,22 @@ struct BoolExpVisitor
     virtual void visitOrExp (const OrExp &) {}
 };
 
-struct MutableBoolExpVisitor
+struct MutableBoolExpVisitor : BoolExpVisitor
 {
-    virtual void visitVarExp(VarExp&) {}
-    virtual void visitValExp(ValExp&) {}
-    virtual void visitNotExp(NotExp&) {}
-    virtual void visitAndExp(AndExp&) {}
-    virtual void visitOrExp (OrExp &) {}
+    virtual void visitVarExp(VarExp& x) { BoolExpVisitor::visitVarExp(x); }
+    virtual void visitValExp(ValExp& x) { BoolExpVisitor::visitValExp(x); }
+    virtual void visitNotExp(NotExp& x) { BoolExpVisitor::visitNotExp(x); }
+    virtual void visitAndExp(AndExp& x) { BoolExpVisitor::visitAndExp(x); }
+    virtual void visitOrExp (OrExp & x) { BoolExpVisitor::visitOrExp (x); }
 };
 
-struct BoolExp          { virtual void accept(BoolExpVisitor&  ) const = 0;                      virtual void accept(MutableBoolExpVisitor&  ) = 0; };
+struct BoolExp
+{
+    virtual void accept(       BoolExpVisitor&) const = 0; // Read-only introspection
+    virtual void accept(MutableBoolExpVisitor&)       = 0; // Mutable visitation
+};
+
+//struct BoolExp          { virtual void accept(BoolExpVisitor&  ) const = 0;                      virtual void accept(MutableBoolExpVisitor&  ) = 0; };
 struct VarExp : BoolExp { virtual void accept(BoolExpVisitor& v) const { v.visitVarExp(*this); } virtual void accept(MutableBoolExpVisitor& v) { v.visitVarExp(*this); } VarExp(const char* n)            : name(n)        {} std::string name; };
 struct ValExp : BoolExp { virtual void accept(BoolExpVisitor& v) const { v.visitValExp(*this); } virtual void accept(MutableBoolExpVisitor& v) { v.visitValExp(*this); } ValExp(bool b)                   : value(b)       {} bool value; };
 struct NotExp : BoolExp { virtual void accept(BoolExpVisitor& v) const { v.visitNotExp(*this); } virtual void accept(MutableBoolExpVisitor& v) { v.visitNotExp(*this); } NotExp(BoolExp* e)               : e(e)           {} BoolExp* e; };
@@ -79,20 +85,20 @@ std::ostream& operator<<(std::ostream& os, const std::map<K,T,C,A>& m)
 
 typedef std::map<std::string,bool> Context;
 
-bool evaluate(Context& ctx, const BoolExp* exp)
+bool eval(Context& ctx, const BoolExp* exp)
 {
-    struct EvaluateVisitor : BoolExpVisitor
+    struct EvalVisitor : BoolExpVisitor
     {
-        EvaluateVisitor(Context& c) : m_ctx(c), result(false) {}
+        EvalVisitor(Context& c) : m_ctx(c), result(false) {}
 
         bool     result;
         Context& m_ctx;
 
         void visitVarExp(const VarExp& x) { result = m_ctx[x.name]; }
         void visitValExp(const ValExp& x) { result = x.value; }
-        void visitNotExp(const NotExp& x) { result =!evaluate(m_ctx, x.e); }
-        void visitAndExp(const AndExp& x) { result = evaluate(m_ctx, x.e1) && evaluate(m_ctx, x.e2); }
-        void visitOrExp (const OrExp & x) { result = evaluate(m_ctx, x.e1) || evaluate(m_ctx, x.e2); }
+        void visitNotExp(const NotExp& x) { result =!eval(m_ctx, x.e); }
+        void visitAndExp(const AndExp& x) { result = eval(m_ctx, x.e1) && eval(m_ctx, x.e2); }
+        void visitOrExp (const OrExp & x) { result = eval(m_ctx, x.e1) || eval(m_ctx, x.e2); }
     } evaluator(ctx);
 
     exp->accept(evaluator);
@@ -120,28 +126,52 @@ BoolExp* replace(const BoolExp* where, const char* what, const BoolExp* with)
     return replacer.result;
 }
 
-BoolExp* inplace(BoolExp* where, const char* what, const BoolExp* with)
+BoolExp* inplace(BoolExp* where, const char* name, const BoolExp* with)
 {
     struct InplaceVisitor : MutableBoolExpVisitor
     {
-        InplaceVisitor(const char* name, const BoolExp* with) : m_name(name), m_with(with), result(nullptr) {}
+        InplaceVisitor(const char* name, const BoolExp* with) : name(name), with(with), result(nullptr) {}
 
         BoolExp*       result;
-        const char*       m_name;
-        const BoolExp* m_with;
+        const char*    name;
+        const BoolExp* with;
 
-        void visitVarExp(VarExp& x) { result = x.name == m_name ? copy(m_with) : &x; }
+        void visitVarExp(VarExp& x) { result = x.name == name ? copy(with) : &x; }
         void visitValExp(ValExp& x) { result = &x; }
-        void visitNotExp(NotExp& x) { result = &x; x.e  = inplace(x.e,  m_name, m_with); }
-        void visitAndExp(AndExp& x) { result = &x; x.e1 = inplace(x.e1, m_name, m_with);
-                                                   x.e2 = inplace(x.e2, m_name, m_with); }
-        void visitOrExp (OrExp & x) { result = &x; x.e1 = inplace(x.e1, m_name, m_with);
-                                                   x.e2 = inplace(x.e2, m_name, m_with); }
-    } inplacer(what, with);
+        void visitNotExp(NotExp& x) { result = &x; x.e  = inplace(x.e,  name, with); }
+        void visitAndExp(AndExp& x) { result = &x; x.e1 = inplace(x.e1, name, with);
+                                                   x.e2 = inplace(x.e2, name, with); }
+        void visitOrExp (OrExp & x) { result = &x; x.e1 = inplace(x.e1, name, with);
+                                                   x.e2 = inplace(x.e2, name, with); }
+    } inplacer(name, with);
 
     where->accept(inplacer);
     return inplacer.result;
 }
+#if 0
+BoolExp* implace(BoolExp* where, const char* name, const BoolExp* with)
+{
+    struct InplaceVisitor : BoolExpVisitor
+    {
+        InplaceVisitor(const char* n, const BoolExp* w) : name(n), with(w), result(nullptr) {}
+
+        BoolExp*       result;
+        const char*    name;
+        const BoolExp* with;
+
+        void visitVarExp(const VarExp& x) { result = x.name == name ? copy(with) : &x; }
+        void visitValExp(const ValExp& x) { result = &x; }
+        void visitNotExp(const NotExp& x) { result = &x; x.e  = implace(x.e,  name, with); }
+        void visitAndExp(const AndExp& x) { result = &x; x.e1 = implace(x.e1, name, with);
+                                                   x.e2 = implace(x.e2, name, with); }
+        void visitOrExp (const OrExp & x) { result = &x; x.e1 = implace(x.e1, name, with);
+                                                   x.e2 = implace(x.e2, name, with); }
+    } implacer(name, with);
+
+    where->accept(implacer);
+    return implacer.result;
+}
+#endif
 
 bool equal(const BoolExp*, const BoolExp*);
 
@@ -153,9 +183,9 @@ bool eq(const AndExp& a, const AndExp& b) { return equal(a.e1, b.e1) && equal(a.
 bool eq(const  OrExp& a, const  OrExp& b) { return equal(a.e1, b.e1) && equal(a.e2,b.e2); }
 
 template <typename Exp>
-struct EqualityToVisitor : BoolExpVisitor
+struct EqualToVisitor : BoolExpVisitor
 {
-    EqualityToVisitor(const Exp* x1) : m_x1(x1), result(false) {}
+    EqualToVisitor(const Exp* x1) : m_x1(x1), result(false) {}
 
     bool       result;
     const Exp* m_x1;
@@ -167,20 +197,28 @@ struct EqualityToVisitor : BoolExpVisitor
     void visitOrExp (const OrExp & x) { result = eq(*m_x1,x); }
 };
 
+template <typename Visitor, typename T, typename A1>
+auto execute(T&& t, const A1&& a1) -> decltype(Visitor(a1).result)
+{
+    Visitor v(std::forward<A1>(a1));
+    std::forward(t).accept(v);
+    return v.result;
+}
+
 bool equal(const BoolExp* x1, const BoolExp* x2)
 {
     struct EqualityVisitor : BoolExpVisitor
     {
-        EqualityVisitor(const BoolExp* x2) : m_x2(x2), result(false) {}
+        EqualityVisitor(const BoolExp* x2) : x2(x2), result(false) {}
 
         bool           result;
-        const BoolExp* m_x2;
+        const BoolExp* x2;
 
-        void visitVarExp(const VarExp& x) { EqualityToVisitor<VarExp> v(&x); m_x2->accept(v); result = v.result; }
-        void visitValExp(const ValExp& x) { EqualityToVisitor<ValExp> v(&x); m_x2->accept(v); result = v.result; }
-        void visitNotExp(const NotExp& x) { EqualityToVisitor<NotExp> v(&x); m_x2->accept(v); result = v.result; }
-        void visitAndExp(const AndExp& x) { EqualityToVisitor<AndExp> v(&x); m_x2->accept(v); result = v.result; }
-        void visitOrExp (const OrExp & x) { EqualityToVisitor<OrExp>  v(&x); m_x2->accept(v); result = v.result; }
+        void visitVarExp(const VarExp& x1) { EqualToVisitor<VarExp> v(&x1); x2->accept(v); result = v.result; } // result = execute<EqualToVisitor<VarExp>>(x2,x1);
+        void visitValExp(const ValExp& x1) { EqualToVisitor<ValExp> v(&x1); x2->accept(v); result = v.result; }
+        void visitNotExp(const NotExp& x1) { EqualToVisitor<NotExp> v(&x1); x2->accept(v); result = v.result; }
+        void visitAndExp(const AndExp& x1) { EqualToVisitor<AndExp> v(&x1); x2->accept(v); result = v.result; }
+        void visitOrExp (const OrExp & x1) { EqualToVisitor<OrExp>  v(&x1); x2->accept(v); result = v.result; }
     } equator(x2);
 
     x1->accept(equator);
@@ -226,17 +264,17 @@ bool match(const BoolExp* p, const BoolExp* x, Assignments& ctx)
 {
     struct MatchVisitor : BoolExpVisitor
     {
-        MatchVisitor(const BoolExp* x, Assignments& ctx) : m_x(x), m_ctx(ctx), result(false) {}
+        MatchVisitor(const BoolExp* x, Assignments& ctx) : x(x), ctx(ctx), result(false) {}
 
         bool           result;
-        const BoolExp* m_x;
-        Assignments&   m_ctx;
+        const BoolExp* x;
+        Assignments&   ctx;
 
-        void visitVarExp(const VarExp& x) { MatchToVisitor<VarExp> v(&x,m_ctx); m_x->accept(v); result = v.result; }
-        void visitValExp(const ValExp& x) { MatchToVisitor<ValExp> v(&x,m_ctx); m_x->accept(v); result = v.result; }
-        void visitNotExp(const NotExp& x) { MatchToVisitor<NotExp> v(&x,m_ctx); m_x->accept(v); result = v.result; }
-        void visitAndExp(const AndExp& x) { MatchToVisitor<AndExp> v(&x,m_ctx); m_x->accept(v); result = v.result; }
-        void visitOrExp (const OrExp & x) { MatchToVisitor<OrExp>  v(&x,m_ctx); m_x->accept(v); result = v.result; }
+        void visitVarExp(const VarExp& p) { MatchToVisitor<VarExp> v(&p,ctx); x->accept(v); result = v.result; }
+        void visitValExp(const ValExp& p) { MatchToVisitor<ValExp> v(&p,ctx); x->accept(v); result = v.result; }
+        void visitNotExp(const NotExp& p) { MatchToVisitor<NotExp> v(&p,ctx); x->accept(v); result = v.result; }
+        void visitAndExp(const AndExp& p) { MatchToVisitor<AndExp> v(&p,ctx); x->accept(v); result = v.result; }
+        void visitOrExp (const OrExp & p) { MatchToVisitor<OrExp>  v(&p,ctx); x->accept(v); result = v.result; }
     } matcher(x,ctx);
 
     p->accept(matcher);
@@ -271,9 +309,9 @@ int main()
 
     Context ctx;
     ctx["Y"] = true;
-    std::cout << evaluate(ctx, exp1) << std::endl;
-    std::cout << evaluate(ctx, exp2) << std::endl;
-    std::cout << evaluate(ctx, exp3) << std::endl;
+    std::cout << eval(ctx, exp1) << std::endl;
+    std::cout << eval(ctx, exp2) << std::endl;
+    std::cout << eval(ctx, exp3) << std::endl;
 
 	std::cout << ctx << std::endl;
     //for (auto x : ctx) { std::cout << x.first << '=' << x.second << std::endl; }
