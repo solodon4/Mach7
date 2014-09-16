@@ -85,7 +85,12 @@ Term* eval(Term* t)
 }
 ```
 
-... and it is faster than Visitors!
+... and it is [faster than Visitors](https://parasol.tamu.edu/~yuriys/posters/Mach7.pdf)!
+
+For a more detailed set of examples, have a look at the code that was prepared for our CppCon 2014 presentation, and
+implemented using [visitors](https://github.com/solodon4/Mach7/blob/master/code/cppcon-visitors.cpp) as well as
+[pattern matching](https://github.com/solodon4/Mach7/blob/master/code/cppcon-matching.cpp). These are simple enough
+to help you started on your own Mach7 project.
 
 Building sources
 ----------------
@@ -141,7 +146,7 @@ Publications
 
 Talks
 -------------
- * "[Accept No Visitors](http://sched.co/1rIQMEN)". [CppCon 2014](http://cppcon.org/). September 12, 2014. Bellevue, WA.
+ * "[Accept No Visitors](https://github.com/solodon4/Mach7/blob/master/media/presentations/2014-09-12%20CppCon.pptx?raw=true)". [CppCon 2014](http://cppcon.org/). September 12, 2014. Bellevue, WA.
  * "[Mach7: The Design and Evolution of a Pattern Matching Library for C++](http://youtu.be/OkDS6hmU-w8)". [C++ Now 2014](http://cppnow.org). May 14, 2014. Aspen, CO.
 
 Support
