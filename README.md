@@ -87,10 +87,11 @@ Term* eval(Term* t)
 
 ... and it is [faster than Visitors](https://parasol.tamu.edu/~yuriys/posters/Mach7.pdf)!
 
-For a more detailed set of examples, have a look at the code that was prepared for our CppCon 2014 presentation, and
-implemented using [visitors](https://github.com/solodon4/Mach7/blob/master/code/cppcon-visitors.cpp) as well as
+For a more detailed set of examples, have a look at the code that was prepared for 
+[our CppCon 2014 presentation](https://github.com/solodon4/Mach7/blob/master/media/presentations/2014-09-12%20CppCon.pptx?raw=true),
+and implemented using [visitors](https://github.com/solodon4/Mach7/blob/master/code/cppcon-visitors.cpp) as well as
 [pattern matching](https://github.com/solodon4/Mach7/blob/master/code/cppcon-matching.cpp). These are simple enough
-to help you started on your own Mach7 project.
+to help you get started on your own Mach7 project.
 
 Building sources
 ----------------
@@ -128,6 +129,7 @@ Using Visual C++ (2010 or later)
 
 Known bugs and limitations
 --------------------------
+2014-09-16: Apparently I broke Visual C++ build when fixing Clang support. Working on it.
 
 The library is not yet suitable for multi-threaded environment. Lock-free version of vtbl-map is in the works.
 
