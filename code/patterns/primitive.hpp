@@ -169,23 +169,79 @@ template <class T> inline value<typename underlying<T>::type> val(T&& t)
 }
 
 //------------------------------------------------------------------------------
-
+#if defined(XTL_TRANSPARENT_WRAPPER) // alternative with transparent wrapper
 /// Helper class that inherits from classes and holds non classes. Used by var<>
 /// to allow calling member functions and access data members on class types
 /// in the right-hand side of the matching.
 template <typename T, typename Cond = void>
 struct transparent_wrapper
 {
-    T m_value;
+    transparent_wrapper() = default;
+    explicit transparent_wrapper(const T&  t) noexcept : m_value(          t ) {}
+    explicit transparent_wrapper(      T&& t) noexcept : m_value(std::move(t)) {}
+
+    mutable T m_value;
+
+    T& value() const { return m_value; }
+    T& value()       { return m_value; }
 };
 
 template <typename T>
-struct transparent_wrapper<T,typename std::enable_if<std::is_class<T>::value, int>::type> : T
+struct transparent_wrapper<T,typename std::enable_if<std::is_class<T>::value>::type> : T
 {
+    using T::T;
+
+    T& value() const { return *const_cast<T*>(static_cast<const T*>(this)); }
+    T& value()       { return *this; }
+};
+
+/// Variable binding for a value type
+template <class T>
+struct var : transparent_wrapper<T>
+{
+    typedef transparent_wrapper<T> base;
+    using base::base;
+//    var() : m_value() {}
+//    explicit var(const T&  t) noexcept : m_value(          t ) {}
+//    explicit var(      T&& t) noexcept : m_value(std::move(t)) {}
+//    var(const var&  v) noexcept : m_value(          v.m_value ) {} ///< Copy constructor
+//    var(      var&& v) noexcept : m_value(std::move(v.m_value)) {} ///< Move constructor
+
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef T type; };
+
+    typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
+
+    /// We report that matching succeeded and bind the value
+    bool operator()(const T& t) const
+    {
+        base::value() = t;
+        return true;
+    }
+
+    /// This operator is used when the type of the subject is different from
+    /// the type of the variable. By default, we try to execute the assignment,
+    /// but then check that the values are equal. This often helps when trying
+    /// to match a negative value against an unsigned variable.
+    template <typename U>
+    bool operator()(const U& u) const
+    {
+        base::value() = u;
+        return base::value() == u;
+    }
+
+    var& operator=(const T& t) { base::value() = t; return *this; }
+
+    /// Helper conversion operator to let the variable be used in some places
+    /// where T was allowed
+    operator const result_type&() const noexcept { return base::value(); }
 };
 
 //------------------------------------------------------------------------------
-
+#else // original implementation
 /// Variable binding for a value type
 template <class T>
 struct var
@@ -228,10 +284,13 @@ struct var
     /// where T was allowed
     operator const result_type&() const noexcept { return m_value; }
 
+#if !defined(XTL_TRANSPARENT_WRAPPER)
+    T& value() const { return m_value; } // Only used for compatibility with var implementation based on transparent_wrapper
+#endif
     /// Member that will hold matching value in case of successful matching
     mutable T m_value;
 };
-
+#endif
 //------------------------------------------------------------------------------
 
 /// Variable binding for a pointer type
@@ -448,8 +507,8 @@ template <typename T> inline typename std::enable_if<!is_pattern<T>::value,  ref
 /// an Expression concept and evaluating it.
 /// \note See header files of other patterns for more overloads!
 template <typename T> inline const T& eval(const value<T>& e) { return e.m_value; }
-template <typename T> inline const T& eval(const var<T >&  e) { return e.m_value; }
-template <typename T> inline       T& eval(      var<T >&  e) { return e.m_value; }
+template <typename T> inline const T& eval(const var<T >&  e) { return e.value(); }
+template <typename T> inline       T& eval(      var<T >&  e) { return e.value(); }
 template <typename T> inline const T& eval(const var<T&>&  e) { XTL_ASSERT(e.m_value); return *e.m_value; } ///< \note If you get assertion here, it means you are trying to use the value of this reference variable before it was bound (i.e. used in pattern matching context to get its value).
 template <typename T> inline       T& eval(      var<T&>&  e) { XTL_ASSERT(e.m_value); return *e.m_value; } ///< \note If you get assertion here, it means you are trying to use the value of this reference variable before it was bound (i.e. used in pattern matching context to get its value).
 template <typename T> inline const T& eval(const ref0<T>&  e) { return e.m_var; }
