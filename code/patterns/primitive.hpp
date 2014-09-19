@@ -44,6 +44,7 @@
 
 #pragma once
 
+#include <type_traits>
 #include "common.hpp"
 
 namespace mch ///< Mach7 library namespace
@@ -166,6 +167,22 @@ template <class T> inline value<typename underlying<T>::type> val(T&& t)
 {
     return value<typename underlying<T>::type>(std::forward<T>(t)); 
 }
+
+//------------------------------------------------------------------------------
+
+/// Helper class that inherits from classes and holds non classes. Used by var<>
+/// to allow calling member functions and access data members on class types
+/// in the right-hand side of the matching.
+template <typename T, typename Cond = void>
+struct transparent_wrapper
+{
+    T m_value;
+};
+
+template <typename T>
+struct transparent_wrapper<T,typename std::enable_if<std::is_class<T>::value, int>::type> : T
+{
+};
 
 //------------------------------------------------------------------------------
 
