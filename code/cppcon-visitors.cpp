@@ -17,6 +17,12 @@ struct BoolExpVisitor
 
 struct MutableBoolExpVisitor : BoolExpVisitor
 {
+    using BoolExpVisitor::visitVarExp;
+    using BoolExpVisitor::visitValExp;
+    using BoolExpVisitor::visitNotExp;
+    using BoolExpVisitor::visitAndExp;
+    using BoolExpVisitor::visitOrExp;
+
     virtual void visitVarExp(VarExp& x) { BoolExpVisitor::visitVarExp(x); }
     virtual void visitValExp(ValExp& x) { BoolExpVisitor::visitValExp(x); }
     virtual void visitNotExp(NotExp& x) { BoolExpVisitor::visitNotExp(x); }
@@ -89,7 +95,7 @@ bool eval(Context& ctx, const BoolExp* exp)
 {
     struct EvalVisitor : BoolExpVisitor
     {
-        EvalVisitor(Context& c) : m_ctx(c), result(false) {}
+        EvalVisitor(Context& c) : result(false), m_ctx(c) {}
 
         bool     result;
         Context& m_ctx;
@@ -109,7 +115,7 @@ BoolExp* replace(const BoolExp* where, const char* what, const BoolExp* with)
 {
     struct ReplaceVisitor : BoolExpVisitor
     {
-        ReplaceVisitor(const char* name, const BoolExp* with) : m_name(name), m_with(with), result(nullptr) {}
+        ReplaceVisitor(const char* name, const BoolExp* with) : result(nullptr), m_name(name), m_with(with) {}
 
         BoolExp*       result;
         const char*    m_name;
@@ -130,7 +136,7 @@ BoolExp* inplace(BoolExp* where, const char* name, const BoolExp* with)
 {
     struct InplaceVisitor : MutableBoolExpVisitor
     {
-        InplaceVisitor(const char* name, const BoolExp* with) : name(name), with(with), result(nullptr) {}
+        InplaceVisitor(const char* name, const BoolExp* with) : result(nullptr), name(name), with(with) {}
 
         BoolExp*       result;
         const char*    name;
@@ -153,7 +159,7 @@ BoolExp* implace(BoolExp* where, const char* name, const BoolExp* with)
 {
     struct InplaceVisitor : BoolExpVisitor
     {
-        InplaceVisitor(const char* n, const BoolExp* w) : name(n), with(w), result(nullptr) {}
+        InplaceVisitor(const char* n, const BoolExp* w) : result(nullptr), name(n), with(w) {}
 
         BoolExp*       result;
         const char*    name;
@@ -185,7 +191,7 @@ bool eq(const  OrExp& a, const  OrExp& b) { return equal(a.e1, b.e1) && equal(a.
 template <typename Exp>
 struct EqualToVisitor : BoolExpVisitor
 {
-    EqualToVisitor(const Exp* x1) : m_x1(x1), result(false) {}
+    EqualToVisitor(const Exp* x1) : result(false), m_x1(x1) {}
 
     bool       result;
     const Exp* m_x1;
@@ -209,7 +215,7 @@ bool equal(const BoolExp* x1, const BoolExp* x2)
 {
     struct EqualityVisitor : BoolExpVisitor
     {
-        EqualityVisitor(const BoolExp* x2) : x2(x2), result(false) {}
+        EqualityVisitor(const BoolExp* x2) : result(false), x2(x2) {}
 
         bool           result;
         const BoolExp* x2;
@@ -236,9 +242,9 @@ typedef std::map<std::string,const BoolExp*> Assignments;
 
 bool match(const BoolExp*, const BoolExp*, Assignments&);
 
-bool mc(const BoolExp& , const BoolExp&  , Assignments& ctx) { return false; }
+bool mc(const BoolExp& , const BoolExp&  , Assignments&    ) { return false; }
 bool mc(const VarExp& a, const BoolExp& b, Assignments& ctx) { if (ctx[a.name] == nullptr) { ctx[a.name] = copy(&b); return true; } else { return equal(ctx[a.name],&b); } }
-bool mc(const ValExp& a, const ValExp&  b, Assignments& ctx) { return a.value == b.value; }
+bool mc(const ValExp& a, const ValExp&  b, Assignments&    ) { return a.value == b.value; }
 bool mc(const NotExp& a, const NotExp&  b, Assignments& ctx) { return match(a.e,  b.e,  ctx); }
 bool mc(const AndExp& a, const AndExp&  b, Assignments& ctx) { return match(a.e1, b.e1, ctx) && match(a.e2,b.e2, ctx); }
 bool mc(const  OrExp& a, const  OrExp&  b, Assignments& ctx) { return match(a.e1, b.e1, ctx) && match(a.e2,b.e2, ctx); }
@@ -246,7 +252,7 @@ bool mc(const  OrExp& a, const  OrExp&  b, Assignments& ctx) { return match(a.e1
 template <typename Exp>
 struct MatchToVisitor : BoolExpVisitor
 {
-    MatchToVisitor(const Exp* p, Assignments& ctx) : m_p(p), m_ctx(ctx), result(false) {}
+    MatchToVisitor(const Exp* p, Assignments& ctx) : result(false), m_p(p), m_ctx(ctx) {}
 
     bool         result;
     const Exp*   m_p;
@@ -264,7 +270,7 @@ bool match(const BoolExp* p, const BoolExp* x, Assignments& ctx)
 {
     struct MatchVisitor : BoolExpVisitor
     {
-        MatchVisitor(const BoolExp* x, Assignments& ctx) : x(x), ctx(ctx), result(false) {}
+        MatchVisitor(const BoolExp* x, Assignments& ctx) : result(false), x(x), ctx(ctx) {}
 
         bool           result;
         const BoolExp* x;

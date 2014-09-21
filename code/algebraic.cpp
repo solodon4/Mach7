@@ -162,7 +162,7 @@ int main()
     const std::complex<double>  i(0.0,1.0);
           std::complex<double>  c(1,1);
       var<std::complex<double>> d;
-      var<double> a,b,r,f;
+      var<double> a,b;
 
     std::cout << a << "+"    << b << "*i" << std::endl;
 

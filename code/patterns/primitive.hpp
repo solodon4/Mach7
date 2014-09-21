@@ -201,7 +201,7 @@ struct var : transparent_wrapper<T>
 {
     typedef transparent_wrapper<T> base;
     using base::base;
-//    var() : m_value() {}
+    var() : base() {}
 //    explicit var(const T&  t) noexcept : m_value(          t ) {}
 //    explicit var(      T&& t) noexcept : m_value(std::move(t)) {}
 //    var(const var&  v) noexcept : m_value(          v.m_value ) {} ///< Copy constructor
