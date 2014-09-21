@@ -41,7 +41,7 @@ BoolExp* copy(const BoolExp* exp)
     var<std::string> name; var<bool> value; var<const BoolExp*> e1, e2;
 
     Match(exp)
-        Case(C<VarExp>(name))  return new VarExp(name.m_value.c_str()); // FIX: name.c_str() doesn't work here
+        Case(C<VarExp>(name))  return new VarExp(name.value().c_str()); // FIX: remove m_value indirection once var based on transparent_wrapper works
         Case(C<ValExp>(value)) return new ValExp(value);
         Case(C<NotExp>(e1))    return new NotExp(copy(e1));
         Case(C<AndExp>(e1,e2)) return new AndExp(copy(e1), copy(e2));

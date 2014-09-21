@@ -168,6 +168,7 @@ template <class T> inline value<typename underlying<T>::type> val(T&& t)
     return value<typename underlying<T>::type>(std::forward<T>(t)); 
 }
 
+#define XTL_TRANSPARENT_WRAPPER
 //------------------------------------------------------------------------------
 #if defined(XTL_TRANSPARENT_WRAPPER) // alternative with transparent wrapper
 /// Helper class that inherits from classes and holds non classes. Used by var<>
@@ -190,6 +191,9 @@ template <typename T>
 struct transparent_wrapper<T,typename std::enable_if<std::is_class<T>::value>::type> : T
 {
     using T::T;
+    transparent_wrapper() = default;
+    explicit transparent_wrapper(const T&  t) noexcept : T(          t ) {}
+    explicit transparent_wrapper(      T&& t) noexcept : T(std::move(t)) {}
 
     T& value() const { return *const_cast<T*>(static_cast<const T*>(this)); }
     T& value()       { return *this; }
@@ -202,8 +206,8 @@ struct var : transparent_wrapper<T>
     typedef transparent_wrapper<T> base;
     using base::base;
     var() : base() {}
-//    explicit var(const T&  t) noexcept : m_value(          t ) {}
-//    explicit var(      T&& t) noexcept : m_value(std::move(t)) {}
+    explicit var(const T&  t) noexcept : base(          t ) {}
+    explicit var(      T&& t) noexcept : base(std::move(t)) {}
 //    var(const var&  v) noexcept : m_value(          v.m_value ) {} ///< Copy constructor
 //    var(      var&& v) noexcept : m_value(std::move(v.m_value)) {} ///< Move constructor
 
