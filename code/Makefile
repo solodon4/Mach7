@@ -60,7 +60,7 @@ OS       = $(shell uname -s)
 CXX      = g++-4.8
 LIBS     = -lstdc++
 INCLUDES = 
-CXXFLAGS_COMMON=$(INCLUDES) -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
+CXXFLAGS_COMMON=$(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11 -Wno-return-type
 CXXFLAGS_GCC=-Wno-vla -ftrack-macro-expansion=4 -fdiagnostics-show-option
 CXXFLAGS_CLANG=-fmacro-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct
 CXXFLAGS = $(CXXFLAGS_COMMON) $(CXXFLAGS_GCC)

@@ -225,8 +225,8 @@ struct filtered_result<F,E1,E2,false>
 ///       reason cannot find then a proper overload for os << v.m_value when it is 
 ///       declared in the global scope for the type decltype(v.m_value) from the 
 ///       global scope. To workaround this, we keep these overloads in the global scope!
-template <typename T> std::ostream& operator<<(std::ostream& os, const mch::var<T >& v) { return os <<  v.m_value; }
-template <typename T> std::ostream& operator<<(std::ostream& os,       mch::var<T >& v) { return os <<  v.m_value; }
+template <typename T> std::ostream& operator<<(std::ostream& os, const mch::var<T >& v) { return os <<  v.value(); }
+template <typename T> std::ostream& operator<<(std::ostream& os,       mch::var<T >& v) { return os <<  v.value(); }
 template <typename T> std::ostream& operator<<(std::ostream& os, const mch::var<T&>& v) { return os << *v.m_value; }
 template <typename T> std::ostream& operator<<(std::ostream& os,       mch::var<T&>& v) { return os << *v.m_value; }
 
