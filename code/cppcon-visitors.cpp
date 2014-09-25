@@ -1,3 +1,48 @@
+//
+//  Mach7: Pattern Matching Library for C++
+//
+//  Copyright 2011-2013, Texas A&M University.
+//  Copyright 2014 Yuriy Solodkyy.
+//  All rights reserved.
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//
+//      * Redistributions of source code must retain the above copyright
+//        notice, this list of conditions and the following disclaimer.
+//
+//      * Redistributions in binary form must reproduce the above copyright
+//        notice, this list of conditions and the following disclaimer in the
+//        documentation and/or other materials provided with the distribution.
+//
+//      * Neither the names of Mach7 project nor the names of its contributors
+//        may be used to endorse or promote products derived from this software
+//        without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+//  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+//  IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY
+//  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+///
+/// \file
+///
+/// This file contains examples used in our CppCon 2014 talk "Accept No Visitors".
+/// \see http://bit.ly/AcceptNoVisitors
+///
+/// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+///
+/// \see https://parasol.tamu.edu/mach7/
+/// \see https://github.com/solodon4/Mach7
+/// \see https://github.com/solodon4/SELL
+///
+
 #include <string>
 
 struct VarExp;
@@ -36,7 +81,6 @@ struct BoolExp
     virtual void accept(MutableBoolExpVisitor&)       = 0; // Mutable visitation
 };
 
-//struct BoolExp          { virtual void accept(BoolExpVisitor&  ) const = 0;                      virtual void accept(MutableBoolExpVisitor&  ) = 0; };
 struct VarExp : BoolExp { virtual void accept(BoolExpVisitor& v) const { v.visitVarExp(*this); } virtual void accept(MutableBoolExpVisitor& v) { v.visitVarExp(*this); } VarExp(const char* n)            : name(n)        {} std::string name; };
 struct ValExp : BoolExp { virtual void accept(BoolExpVisitor& v) const { v.visitValExp(*this); } virtual void accept(MutableBoolExpVisitor& v) { v.visitValExp(*this); } ValExp(bool b)                   : value(b)       {} bool value; };
 struct NotExp : BoolExp { virtual void accept(BoolExpVisitor& v) const { v.visitNotExp(*this); } virtual void accept(MutableBoolExpVisitor& v) { v.visitNotExp(*this); } NotExp(BoolExp* e)               : e(e)           {} BoolExp* e; };
@@ -49,7 +93,7 @@ void print(const BoolExp* exp)
 {
     struct PrintVisitor : BoolExpVisitor
     {
-        void visitVarExp(const VarExp& x) { std::cout << x.name; }
+        void visitVarExp(const VarExp& x) { std::cout << x.name;  }
         void visitValExp(const ValExp& x) { std::cout << x.value; }
         void visitNotExp(const NotExp& x) { std::cout << '!'; print(x.e); }
         void visitAndExp(const AndExp& x) { std::cout << '('; print(x.e1); std::cout << " & "; print(x.e2); std::cout << ')'; }
@@ -154,37 +198,13 @@ BoolExp* inplace(BoolExp* where, const char* name, const BoolExp* with)
     where->accept(inplacer);
     return inplacer.result;
 }
-#if 0
-BoolExp* implace(BoolExp* where, const char* name, const BoolExp* with)
-{
-    struct InplaceVisitor : BoolExpVisitor
-    {
-        InplaceVisitor(const char* n, const BoolExp* w) : result(nullptr), name(n), with(w) {}
-
-        BoolExp*       result;
-        const char*    name;
-        const BoolExp* with;
-
-        void visitVarExp(const VarExp& x) { result = x.name == name ? copy(with) : &x; }
-        void visitValExp(const ValExp& x) { result = &x; }
-        void visitNotExp(const NotExp& x) { result = &x; x.e  = implace(x.e,  name, with); }
-        void visitAndExp(const AndExp& x) { result = &x; x.e1 = implace(x.e1, name, with);
-                                                   x.e2 = implace(x.e2, name, with); }
-        void visitOrExp (const OrExp & x) { result = &x; x.e1 = implace(x.e1, name, with);
-                                                   x.e2 = implace(x.e2, name, with); }
-    } implacer(name, with);
-
-    where->accept(implacer);
-    return implacer.result;
-}
-#endif
 
 bool equal(const BoolExp*, const BoolExp*);
 
 bool eq(const BoolExp& , const BoolExp& ) { return false; }
 bool eq(const VarExp& a, const VarExp& b) { return a.name  == b.name;  }
 bool eq(const ValExp& a, const ValExp& b) { return a.value == b.value; }
-bool eq(const NotExp& a, const NotExp& b) { return equal(a.e, b.e); }
+bool eq(const NotExp& a, const NotExp& b) { return equal(a.e,  b.e);   }
 bool eq(const AndExp& a, const AndExp& b) { return equal(a.e1, b.e1) && equal(a.e2,b.e2); }
 bool eq(const  OrExp& a, const  OrExp& b) { return equal(a.e1, b.e1) && equal(a.e2,b.e2); }
 
@@ -287,10 +307,6 @@ bool match(const BoolExp* p, const BoolExp* x, Assignments& ctx)
     return matcher.result;
 }
 
-//template <typename SelfType>
-//struct BinaryBoolExpVisitor : BoolExpVisitor
-
-
 int main()
 {
     BoolExp* exp1 = new AndExp(new OrExp(new VarExp("X"), new VarExp("Y")), new NotExp(new VarExp("Z")));
@@ -320,18 +336,16 @@ int main()
     std::cout << eval(ctx, exp3) << std::endl;
 
 	std::cout << ctx << std::endl;
-    //for (auto x : ctx) { std::cout << x.first << '=' << x.second << std::endl; }
 
     Assignments ctx2;
 
     if (match(exp2,exp3,ctx2))
     {
         std::cout << "exp2 matches exp3 with assignments: " << std::endl;
+
 		for (Assignments::const_iterator p = ctx2.begin(); p != ctx2.end(); ++p)
 		{
 			std::cout << p->first << '='; print(p->second); std::cout << std::endl; 
 		}
-		//std::cout << ctx2 << std::endl;
-        //for (auto x : ctx2) { std::cout << x.first << '='; print(x.second); std::cout << std::endl; }
     }
 }
