@@ -457,6 +457,12 @@
 
 #define XTL_FUNCTION __func__
 
+#if defined(_MSC_VER)
+    #define XTL_UNREACHABLE __assume(0)
+#else
+    #define XTL_UNREACHABLE
+#endif
+
 //------------------------------------------------------------------------------
 
 #if defined(_MSC_VER) || defined(__GNUC__)
