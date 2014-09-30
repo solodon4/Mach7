@@ -93,6 +93,8 @@ loc point_within(const Shape* shape)
     Otherwise()             return loc(0,0);
     }
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 //------------------------------------------------------------------------------

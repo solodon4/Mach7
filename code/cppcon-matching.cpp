@@ -93,6 +93,8 @@ BoolExp* copy(const BoolExp* exp)
         Case(C<AndExp>(e1,e2)) return new AndExp(copy(e1), copy(e2));
         Case(C<OrExp >(e1,e2)) return new  OrExp(copy(e1), copy(e2));
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 #include <map>
@@ -121,6 +123,8 @@ bool eval(Context& ctx, const BoolExp* exp)
         Case(C<AndExp>(e1,e2)) return eval(ctx, e1) && eval(ctx, e2);
         Case(C<OrExp >(e1,e2)) return eval(ctx, e1) || eval(ctx, e2);
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 BoolExp* replace(const BoolExp* where, const char* what, const BoolExp* with)
@@ -134,6 +138,8 @@ BoolExp* replace(const BoolExp* where, const char* what, const BoolExp* with)
         Case(C<AndExp>(e1,e2)) return new AndExp(replace(e1, what, with), replace(e2, what, with));
         Case(C<OrExp >(e1,e2)) return new  OrExp(replace(e1, what, with), replace(e2, what, with));
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 BoolExp* inplace(/*const*/ BoolExp* where, const char* what, const BoolExp* with)
@@ -147,6 +153,8 @@ BoolExp* inplace(/*const*/ BoolExp* where, const char* what, const BoolExp* with
         Case(C<AndExp>(e1,e2)) match0.e1 = inplace(e1, what, with); match0.e2 = inplace(e2, what, with); return &match0;
         Case(C<OrExp >(e1,e2)) match0.e1 = inplace(e1, what, with); match0.e2 = inplace(e2, what, with); return &match0;
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 bool equal(const BoolExp* x1, const BoolExp* x2)
@@ -161,6 +169,8 @@ bool equal(const BoolExp* x1, const BoolExp* x2)
         Case(C< OrExp>(e1,e2), C< OrExp>(e3,e4))  return equal(e1,e3) && equal(e2,e4);
         Otherwise()                               return false;
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 typedef std::map<std::string,const BoolExp*> Assignments;
@@ -178,6 +188,8 @@ bool match(const BoolExp* p, const BoolExp* x, Assignments& ctx)
         Case(C< OrExp>(p1,p2), C< OrExp>(e1,e2) ) return match(p1, e1, ctx) && match(p2, e2, ctx);
         Otherwise()                               return false;
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 // NOTE: It took me 1 hour 20 minutes (from 9:20am till 10:42am according to Event Viewer) to rewrite all the visitors

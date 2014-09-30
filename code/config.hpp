@@ -408,7 +408,7 @@
     #define XTL_DEBUG_ONLY(...)
     /// Our own version of assert macro because of the fact that normal assert was 
     /// not always removed in the release builds.
-    #define XTL_ASSERT(...)
+    #define XTL_ASSERT(...) XTL_ASSUME(__VA_ARGS__)
 #endif
 
 /// Our own version of assert macro because of the fact that normal assert was 
@@ -456,12 +456,6 @@
 //------------------------------------------------------------------------------
 
 #define XTL_FUNCTION __func__
-
-#if defined(_MSC_VER)
-    #define XTL_UNREACHABLE __assume(0)
-#else
-    #define XTL_UNREACHABLE
-#endif
 
 //------------------------------------------------------------------------------
 
@@ -634,6 +628,8 @@
     #if !defined(_DEBUG)
         #define XTL_SUPPORTS_ALLOCA
     #endif
+    #define XTL_ASSUME(expr) __assume(expr)
+    #define XTL_UNREACHABLE  __assume(0)
 
     #if !XTL_TRACE_LIKELINESS
         /// Macros to use compiler's branch hinting. 
@@ -668,6 +664,10 @@
 
     #if !defined(_DEBUG)
         #define XTL_SUPPORTS_VLA
+    #endif
+    #if XTL_GCC_VERSION >= 40500
+        #define XTL_ASSUME(expr) if (expr){} else __builtin_unreachable()
+        #define XTL_UNREACHABLE __builtin_unreachable()
     #endif
 
     #if !XTL_TRACE_LIKELINESS
@@ -714,6 +714,10 @@
     #endif
     #if !defined(_DEBUG)
         #define XTL_SUPPORTS_VLA
+    #endif
+    #if XTL_GCC_VERSION >= 40500
+        #define XTL_ASSUME(expr) if (expr){} else __builtin_unreachable()
+        #define XTL_UNREACHABLE __builtin_unreachable()
     #endif
 
     #if !XTL_TRACE_LIKELINESS
