@@ -288,12 +288,12 @@ template <class T> inline void ignore_unused_warning(T const&) {}
         typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(*subject_ptr)>::type source_type; \
         typedef source_type target_type XTL_UNUSED_TYPEDEF;                    \
         enum { target_layout = mch::default_layout, is_inside_case_clause = 0 }; \
-        XTL_ASSERT(("Trying to match against a nullptr",subject_ptr));         \
+        XTL_ASSERT(xtl_failure("Trying to match against a nullptr",subject_ptr));\
         auto const matched = subject_ptr;                                      \
         XTL_UNUSED(matched);
 
 #define XTL_SUBCLAUSE_FIRST           XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(false)) XTL_NON_USE_BRACES_ONLY({)
-#define XTL_SUBCLAUSE_OPEN(...)                                       XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true,   XTL_LIKELY(mch::C<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
+#define XTL_SUBCLAUSE_OPEN(T,...)                                     XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true,   XTL_LIKELY(mch::C<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
 #define XTL_SUBCLAUSE_CONTINUE(...) } XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(mch::C<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
 //#define XTL_SUBCLAUSE_PATTERN(...)} XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(filter(__VA_ARGS__)(*matched)))) {
 #define XTL_SUBCLAUSE_PATTERN(...)                                    XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(filter(__VA_ARGS__)(*matched)))) {
@@ -393,10 +393,11 @@ template<>                        struct target_disambiguator<int>    { typedef 
                     XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
-#define QuaP(C,...)                                                            \
+#define QuaP(...)                                                              \
         XTL_SUBCLAUSE_CLOSE }}                                                 \
-        XTL_REDUNDANCY_CATCH(C)                                                \
+        XTL_REDUNDANCY_CATCH(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()))        \
         {                                                                      \
+            typedef XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()) C;               \
             XTL_CLAUSE_COMMON(C);                                              \
             enum { target_label = XTL_COUNTER-__base_counter };                \
             __casted_ptr = dynamic_cast<const target_type*>(subject_ptr);      \
@@ -436,8 +437,8 @@ template<>                        struct target_disambiguator<int>    { typedef 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
 ///       seems to be impossible to introduce dummy argument inside the Case 
 ///       directly, so we use the type argument as a dummy argument for XTL_DECL_BOUND_VARS
-#define CaseP_(C,...)   QuaP(C,XTL_EMPTY())
-#define CaseP(...)      XTL_APPLY_VARIADIC_MACRO(CaseP_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseP_(...)     QuaP(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()))
+#define CaseP(...)      QuaP(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenP(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__) __casted_ptr = subject_ptr;
 #define OtherwiseP(...) XTL_CLAUSE_OTHERWISE(CaseP,__VA_ARGS__)
 #define EndMatchP                                                              \
@@ -458,10 +459,11 @@ template<>                        struct target_disambiguator<int>    { typedef 
         switch (__kind_selector) { { XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
-#define QuaK(C,...)                                                            \
+#define QuaK(...)                                                              \
         XTL_SUBCLAUSE_CLOSE }                                                  \
-        if (XTL_UNLIKELY((size_t(__kind_selector) == size_t(mch::bindings<C>::kind_value)))) \
+        if (XTL_UNLIKELY((size_t(__kind_selector) == size_t(mch::bindings<XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())>::kind_value)))) \
         {                                                                      \
+            typedef XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()) C;               \
         case mch::bindings<C>::kind_value:                                     \
             XTL_CLAUSE_COMMON(C);                                              \
             auto matched = mch::stat_cast<target_type>(subject_ptr);           \
@@ -472,8 +474,8 @@ template<>                        struct target_disambiguator<int>    { typedef 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
 ///       seems to be impossible to introduce dummy argument inside the Case 
 ///       directly, so we use the type argument as a dummy argument for XTL_DECL_BOUND_VARS
-#define CaseK_(C,...)   QuaK(C,XTL_EMPTY())
-#define CaseK(...)      XTL_APPLY_VARIADIC_MACRO(CaseK_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseK_(...)     QuaK(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()))
+#define CaseK(...)      QuaK(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenK(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseK(...)                                                        \
         } XTL_NON_FALL_THROUGH_ONLY(break;) }                                  \
@@ -491,10 +493,11 @@ template<>                        struct target_disambiguator<int>    { typedef 
         switch (__kind_selector) { { XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
-#define QuaU(L,...)                                                            \
+#define QuaU(...)                                                              \
         XTL_SUBCLAUSE_CLOSE }                                                  \
-        if (XTL_UNLIKELY((size_t(__kind_selector) == size_t(mch::bindings<source_type,L>::kind_value)))) \
+        if (XTL_UNLIKELY((size_t(__kind_selector) == size_t(mch::bindings<source_type,XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())>::kind_value)))) \
         {                                                                      \
+            enum { L = XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()) };            \
         case mch::bindings<source_type,L>::kind_value:                         \
             typedef source_type target_type;                                   \
             enum { target_layout = L, is_inside_case_clause = 1 };             \
@@ -502,8 +505,8 @@ template<>                        struct target_disambiguator<int>    { typedef 
             XTL_UNUSED(matched);                                               \
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
 
-#define CaseU_(L,...)   QuaU(L,XTL_EMPTY())
-#define CaseU(...)      XTL_APPLY_VARIADIC_MACRO(CaseU_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseU_(...)     QuaU(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()))
+#define CaseU(...)      QuaU(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenU(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseU(...)                                                        \
         } XTL_NON_FALL_THROUGH_ONLY(break;) }                                  \
@@ -524,17 +527,18 @@ template<>                        struct target_disambiguator<int>    { typedef 
             XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
-#define QuaE(C,...) }}                                                         \
-        catch (C& __matched)                                                   \
+#define QuaE(...) }}                                                           \
+        catch (XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())& __matched)           \
         {                                                                      \
+            typedef XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()) C;               \
             XTL_CLAUSE_COMMON(C);                                              \
             auto matched = &__matched;                                         \
             XTL_CLAUSE_DECL_ONLY(C(*matched));                                 \
             XTL_UNUSED(matched);                                               \
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
 
-#define CaseE_(C,...)   QuaE(C,XTL_EMPTY())
-#define CaseE(...)      XTL_APPLY_VARIADIC_MACRO(CaseE_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseE_(...)     QuaE(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()))
+#define CaseE(...)      QuaE(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenE(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseE(...) XTL_CLAUSE_OTHERWISE(CaseE,__VA_ARGS__)
 #define EndMatchE       XTL_NON_USE_BRACES_ONLY(}) } catch (...) {} }
@@ -555,8 +559,8 @@ template<>                        struct target_disambiguator<int>    { typedef 
             XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
-#define QuaX(C,...) }}                                                         \
-        catch (C* __matched)                                                   \
+#define QuaX(...) }}                                                           \
+        catch (XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())* __matched)           \
         {                                                                      \
             XTL_CLAUSE_COMMON(C);                                              \
             auto matched = __matched;                                          \
@@ -564,8 +568,8 @@ template<>                        struct target_disambiguator<int>    { typedef 
             XTL_UNUSED(matched);                                               \
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
 
-#define CaseX_(C,...)   QuaX(C,XTL_EMPTY())
-#define CaseX(...)      XTL_APPLY_VARIADIC_MACRO(CaseX_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseX_(...)     QuaX(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()))
+#define CaseX(...)      QuaX(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenX(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseX(...) XTL_CLAUSE_OTHERWISE(CaseX,__VA_ARGS__)
 #define EndMatchX       XTL_NON_USE_BRACES_ONLY(}) } catch (...) {} }
@@ -596,17 +600,18 @@ template<>                        struct target_disambiguator<int>    { typedef 
                 if (!__kinds)                                                  \
                     __kinds = __kinds_cache[__kind_selector] = mch::get_kinds<source_type>(__kind_selector);\
             }                                                                  \
-            XTL_ASSERT(("Base classes for this kind were not specified",__kinds));\
-            XTL_ASSERT(("Invalid list of kinds",*__kinds==__kind_selector));   \
+            XTL_ASSERT(xtl_failure("Base classes for this kind were not specified",__kinds));\
+            XTL_ASSERT(xtl_failure("Invalid list of kinds",*__kinds==__kind_selector));      \
             __kind_selector = __kinds ? *++__kinds : mch::lbl_type(0);         \
             goto XTL_CONCAT(ReMatch,__LINE__);                                 \
         case 0: break; { XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
-#define QuaF(C,...)                                                            \
+#define QuaF(...)                                                              \
         XTL_SUBCLAUSE_CLOSE }                                                  \
-        if (XTL_UNLIKELY(mch::is_base_and_derived_kinds<source_type>(mch::remapped<C>::lbl, __most_derived_kind_selector))) \
+        if (XTL_UNLIKELY(mch::is_base_and_derived_kinds<source_type>(mch::remapped<XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())>::lbl, __most_derived_kind_selector))) \
         {                                                                      \
+            typedef XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()) C;               \
         case mch::remapped<C>::lbl:                                            \
             XTL_CLAUSE_COMMON(C);                                              \
             auto matched = mch::stat_cast<target_type>(subject_ptr);           \
@@ -617,8 +622,8 @@ template<>                        struct target_disambiguator<int>    { typedef 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
 ///       seems to be impossible to introduce dummy argument inside the Case 
 ///       directly, so we use the type argument as a dummy argument for XTL_DECL_BOUND_VARS
-#define CaseF_(C,...)   QuaF(C,XTL_EMPTY())
-#define CaseF(...)      XTL_APPLY_VARIADIC_MACRO(CaseF_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseF_(...)     QuaF(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()))
+#define CaseF(...)      QuaF(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenF(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseF(...) XTL_CLAUSE_OTHERWISE(CaseF,__VA_ARGS__)
 #define EndMatchF       XTL_SUBCLAUSE_LAST }}}
@@ -640,10 +645,11 @@ template<>                        struct target_disambiguator<int>    { typedef 
             {{ XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
-#define QuaS(T,...)                                                            \
+#define QuaS(...)                                                              \
         XTL_SUBCLAUSE_CLOSE }}                                                 \
-        XTL_REDUNDANCY_CATCH(T)                                                \
+        XTL_REDUNDANCY_CATCH(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()))        \
         { /* Clause */                                                         \
+            typedef XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()) T;               \
             XTL_CLAUSE_COMMON(T);                                              \
             XTL_NON_REDUNDANCY_ONLY(case XTL_COUNTER-__base_counter:)          \
             if (auto matched = mch::C<T>()(subject_ptr))                       \
@@ -655,8 +661,8 @@ template<>                        struct target_disambiguator<int>    { typedef 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
 ///       seems to be impossible to introduce dummy argument inside the Case 
 ///       directly, so we use the type argument as a dummy argument for XTL_DECL_BOUND_VARS
-#define CaseS_(C,...)   QuaS(C,XTL_EMPTY())
-#define CaseS(...)      XTL_APPLY_VARIADIC_MACRO(CaseS_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseS_(...)     QuaS(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()))
+#define CaseS(...)      QuaS(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenS(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseS(...) XTL_CLAUSE_OTHERWISE(CaseS,__VA_ARGS__)
 #define EndMatchS       XTL_SUBCLAUSE_LAST }}}}
@@ -673,20 +679,20 @@ template<>                        struct target_disambiguator<int>    { typedef 
         {{ XTL_SUBCLAUSE_FIRST
 
 /// Macro that defines the case statement for the above switch
-#define QuaS(T,...)                                                            \
+#define QuaS(...)                                                              \
         XTL_SUBCLAUSE_CLOSE }}{                                                \
-        XTL_CLAUSE_COMMON(T);                                                  \
-        if (auto matched = mch::C<T>()(subject_ptr))                           \
+        XTL_CLAUSE_COMMON(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()));          \
+        if (auto matched = mch::C<target_type>()(subject_ptr))                 \
         {                                                                      \
-            XTL_CLAUSE_DECL_ONLY(T(*matched));                                 \
+            XTL_CLAUSE_DECL_ONLY(target_type(*matched));                       \
             XTL_UNUSED(matched);                                               \
             XTL_SUBCLAUSE_OPEN(__VA_ARGS__)
 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
 ///       seems to be impossible to introduce dummy argument inside the Case 
 ///       directly, so we use the type argument as a dummy argument for XTL_DECL_BOUND_VARS
-#define CaseS_(C,...)   QuaS(C,XTL_EMPTY())
-#define CaseS(...)      XTL_APPLY_VARIADIC_MACRO(CaseS_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseS_(...)     QuaS(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()))
+#define CaseS(...)      QuaS(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenS(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseS(...) XTL_CLAUSE_OTHERWISE(CaseS,__VA_ARGS__)
 #define EndMatchS       XTL_SUBCLAUSE_LAST }}} XTL_STATIC_WHILE(false);
@@ -735,11 +741,11 @@ template<>                        struct target_disambiguator<int>    { typedef 
 /// the declaration support is expected.
 #if XTL_CLAUSE_DECL
 /// Macro that defines the case statement for the above switch
-#define QuaQ(C,...)                                                            \
+#define QuaQ(...)                                                              \
         XTL_SUBCLAUSE_CLOSE }}                                                 \
-        XTL_REDUNDANCY_CATCH(C)                                                \
+        XTL_REDUNDANCY_CATCH(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()))        \
         {                                                                      \
-            XTL_CLAUSE_COMMON(C);                                              \
+            XTL_CLAUSE_COMMON(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()));      \
             typedef XTL_CPP0X_TYPENAME switch_traits::                         \
                     XTL_CPP0X_TEMPLATE disambiguate<0>::                       \
                     XTL_CPP0X_TEMPLATE parameter<target_type> target_specific; \
@@ -749,18 +755,19 @@ template<>                        struct target_disambiguator<int>    { typedef 
                 switch_traits::on_first_pass(subject_ptr, local_data, target_label);                      \
             XTL_NON_REDUNDANCY_ONLY(case target_specific::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::value:)\
                 auto matched = target_specific::get_matched(subject_ptr,local_data);                      \
-                XTL_CLAUSE_DECL_ONLY(C(*matched));                             \
+                XTL_CLAUSE_DECL_ONLY(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())(*matched));                \
                 XTL_UNUSED(matched);                                           \
-                XTL_SUBCLAUSE_OPEN(__VA_ARGS__) processed = true;
+if (true) {
+//     XTL_SUBCLAUSE_OPEN(__VA_ARGS__) processed = true;
 #else
 /// Macro that defines the case statement for the above switch
-#define QuaQ(C,...)                                                            \
+#define QuaQ(...)                                                              \
         XTL_SUBCLAUSE_CLOSE }}                                                 \
-        XTL_REDUNDANCY_CATCH(C)                                                \
+        XTL_REDUNDANCY_CATCH(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()))        \
         {                                                                      \
             typedef XTL_CPP0X_TYPENAME switch_traits::                         \
-                    XTL_CPP0X_TEMPLATE disambiguate<sizeof(C)<sizeof(XTL_CPP0X_TYPENAME switch_traits::source_type)>:: \
-                    XTL_CPP0X_TEMPLATE parameter<C> target_specific;           \
+                    XTL_CPP0X_TEMPLATE disambiguate<sizeof(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()))<sizeof(XTL_CPP0X_TYPENAME switch_traits::source_type)>:: \
+                    XTL_CPP0X_TEMPLATE parameter<XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())> target_specific; \
             typedef XTL_CPP0X_TYPENAME target_specific::target_type target_type XTL_UNUSED_TYPEDEF;       \
             enum { target_layout = target_specific::layout, target_label = XTL_COUNTER-__base_counter, is_inside_case_clause = 1 };  \
             if (XTL_UNLIKELY(target_specific::main_condition(subject_ptr, local_data)))                   \
@@ -794,8 +801,8 @@ template<>                        struct target_disambiguator<int>    { typedef 
 /// NOTE: We need this extra indirection to properly handle 0 arguments as it
 ///       seems to be impossible to introduce dummy argument inside the Case 
 ///       directly, so we use the type argument as a dummy argument for XTL_DECL_BOUND_VARS
-#define CaseQ_(C,...)   QuaQ(C,XTL_EMPTY())
-#define CaseQ(...)      XTL_APPLY_VARIADIC_MACRO(CaseQ_,(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
+#define CaseQ_(...)     QuaQ(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()))
+#define CaseQ(...)      QuaQ(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenQ(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__) processed = true;
 #define OtherwiseQ(...) XTL_CLAUSE_OTHERWISE(CaseQ,__VA_ARGS__)
 #define EndMatchQ       XTL_SUBCLAUSE_LAST }}}                                 \

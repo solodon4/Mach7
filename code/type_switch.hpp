@@ -75,7 +75,7 @@
         typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(*subject_ptr)>::type source_type; \
         typedef source_type target_type XTL_UNUSED_TYPEDEF;                    \
         enum { is_inside_case_clause = 0 };                                    \
-        XTL_ASSERT(("Trying to match against a nullptr",subject_ptr));         \
+        XTL_ASSERT(xtl_failure("Trying to match against a nullptr",subject_ptr)); \
         auto& match1 = *subject_ptr;                                           \
         XTL_UNUSED(match1);
 

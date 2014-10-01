@@ -518,10 +518,10 @@ public:
             if (!local_data.kinds)
                 local_data.kinds = static_data[jump_target] = get_kinds<source_type>(lbl_type(jump_target));
         }
-        XTL_ASSERT(("Base classes for this kind were not specified",local_data.kinds));
-        //XTL_ASSERT(("Invalid list of kinds",local_data.kinds[local_data.attempt]==jump_target));
+        XTL_ASSERT(xtl_failure("Base classes for this kind were not specified",local_data.kinds));
+        //XTL_ASSERT(xtl_failure("Invalid list of kinds",local_data.kinds[local_data.attempt]==jump_target));
         //jump_target = local_data.kinds ? local_data.kinds[++local_data.attempt] : lbl_type(match_exit_label);
-        XTL_ASSERT(("Invalid list of kinds",*local_data.kinds==jump_target));
+        XTL_ASSERT(xtl_failure("Invalid list of kinds",*local_data.kinds==jump_target));
         jump_target = local_data.kinds ? *++local_data.kinds : lbl_type(match_exit_label);
         return true;
     }
