@@ -103,6 +103,8 @@ int eval(const Expr& e)
         Case(const Divide& z) return eval(z.e1) / eval(z.e2);
     }
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 //------------------------------------------------------------------------------

@@ -115,6 +115,8 @@ int evl(const Expr& e)
         Case(mch::C<Divide>(&e1,&e2)) return evl(e1) / evl(e2);
     }
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 #else
 int evl(const Expr& e)
@@ -131,6 +133,8 @@ int evl(const Expr& e)
         Case(mch::C<Divide>(e1,e2)) return evl(*e1) / evl(*e2);
     }
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 #endif
 

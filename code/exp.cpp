@@ -184,6 +184,8 @@ int myeval(const Expr* e)
     Case(Divide,a,b) return myeval(a) / myeval(b);
     }
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 const Expr* factorize(const Expr* e)

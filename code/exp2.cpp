@@ -81,6 +81,8 @@ int myeval(const MyExpr* e)
     case MyExpr::Times:  return myeval(e->exp1) * myeval(e->exp2);
     case MyExpr::Divide: return myeval(e->exp1) / myeval(e->exp2);
     }
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 struct IExpr           { int m_tag; IExpr(int t) : m_tag(t) {} };
@@ -100,6 +102,8 @@ int myeval(const IExpr* e)
     case ITimes::tag:  { const ITimes*  p = static_cast<const ITimes*> (e); return myeval(p->exp1) * myeval(p->exp2); }
     case IDivide::tag: { const IDivide* p = static_cast<const IDivide*>(e); return myeval(p->exp1) / myeval(p->exp2); }
     }
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 struct EExpr           { virtual void raise() const throw(EExpr) = 0; };
@@ -124,6 +128,8 @@ int myeval(const EExpr* e)
     catch(const EMinus & e) { return myeval(e.exp1) - myeval(e.exp2); }
     catch(const ETimes & e) { return myeval(e.exp1) * myeval(e.exp2); }
     catch(const EDivide& e) { return myeval(e.exp1) / myeval(e.exp2); }
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 //class Expr          { virtual ~Expr() {} };
@@ -258,6 +264,8 @@ int myeval(const Expr* e)
     Case(C<Divide>(a,b)) return myeval(a) / myeval(b);
     }
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 //------------------------------------------------------------------------------
