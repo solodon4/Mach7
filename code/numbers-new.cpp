@@ -94,6 +94,8 @@ int fac(int n)
       Case(_) return 0;
     }
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 //------------------------------------------------------------------------------
@@ -109,6 +111,8 @@ double power(double x, int n)
 	if (n == 1) return x;
 	if (n % 2 == 0) return sqr(power(x,n/2));
 	if (n % 2 == 1) return x*power(x,n-1);
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 //------------------------------------------------------------------------------
@@ -133,6 +137,8 @@ double power1(double x, int n)
     if (C<int>(1)(n))     return x;
 	if (C<int>(m*2)(n))   return sqr(power1(x,m));
 	if (C<int>(m*2+1)(n)) return x*power1(x,2*m);
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 //------------------------------------------------------------------------------
@@ -149,6 +155,8 @@ double power2(double x, int n)
       Case(2*m+1) return x*sqr(power2(x,m));
     }
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 //------------------------------------------------------------------------------
@@ -158,6 +166,8 @@ int fib(int n)
 	if (n == 1 || n == 2) return 1;
 	if (n % 2 == 0) return sqr(fib(n/2+1)) - sqr(fib(n/2-1));
 	if (n % 2 == 1) return sqr(fib(n/2+1)) + sqr(fib(n/2));
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 //------------------------------------------------------------------------------
@@ -183,6 +193,8 @@ int fib1(int n)
     if (C<int>(2)(n))     return 1;
     if (C<int>(m*2)(n))   return sqr(fib1(m+1)) - sqr(fib1(m-1));
     if (C<int>(m*2+1)(n)) return sqr(fib1(m+1)) + sqr(fib1(m));
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 //------------------------------------------------------------------------------
@@ -199,6 +211,8 @@ int fib2(int n)
       Case(2*m+1) return sqr(fib2(m+1)) + sqr(fib2(m));
     }
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 //------------------------------------------------------------------------------

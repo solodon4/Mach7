@@ -277,7 +277,8 @@ int dyn_eval(const Expr* e)
     if (const Minus*  p = dynamic_cast<const Minus* >(e)) return dyn_eval(p->exp1) - dyn_eval(p->exp2);
     if (const Times*  p = dynamic_cast<const Times* >(e)) return dyn_eval(p->exp1) * dyn_eval(p->exp2);
     if (const Divide* p = dynamic_cast<const Divide*>(e)) return dyn_eval(p->exp1) / dyn_eval(p->exp2);
-    return 0; // assert(0) or throw(something)
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 //------------------------------------------------------------------------------

@@ -198,6 +198,8 @@ bool equal_terms(const Term& left, const Term& right)
         return equal_terms(*l.func,*r.func) 
             && equal_terms(*l.arg, *r.arg);
     }
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 //------------------------------------------------------------------------------
@@ -226,6 +228,8 @@ Term* random_term(int n)
         case 2: return new App(random_term(n/3),random_term(n/3));
         }
     }
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 //------------------------------------------------------------------------------
