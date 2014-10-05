@@ -73,59 +73,6 @@
 
 #pragma once
 
-#if !defined(_MSC_VER) && !defined(__GNUC__)
-    #error "We have not experimented with your compiler yet. You are welcome to try to adopt the required definitions, otherwise, send me an email at yuriy.solodkyy@gmail.com mentioning the compiler you'd like supported."
-#elif defined(_MSC_VER) && _MSC_VER < 1600 || defined(__GNUC__) && __GNUC__ < 4
-    #error "While it should be possible to downgrade at least type switching functionality to compilers without C++11 support, we hadn't had a chance to do it yet."
-#endif
-
-#include "macros.hpp"  // Tools for preprocessor meta-programming
-
-#if defined(_DEBUG)
-    #if defined(_MSC_VER)
-        #include "debug.hpp"
-
-        // Enable memory leak tracing in debug builds
-        #define _CRTDBG_MAP_ALLOC
-        #include <stdlib.h>
-        #include <crtdbg.h>
-
-        /// \def XTL_LEAKED_NEW_LOCATIONS
-        /// Tracing locations of leaked new operators should be enabled 
-        /// explicitly since it redefines new with macro and may cause 
-        /// errors in the application using this library, for example, when 
-        /// the user overrides new operator.
-        #if defined(XTL_LEAKED_NEW_LOCATIONS)
-            #ifndef DBG_NEW
-                #define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
-                #define new DBG_NEW
-            #endif
-        #endif
-
-        /// \note The following declaration attempts to call _CrtDumpMemoryLeaks 
-        ///       as late as possible, however the order of initialization of 
-        ///       static variables in different translation units is not defined,
-        ///       in which case you may still have false reports of memory leaks
-        ///       on allocations within initializations of global and static 
-        ///       variables that happened before this one. Debug those separately
-        ///       from Visual C++ IDE by breaking on their allocation number:
-        ///       set {,,msvcr100d.dll}_crtBreakAlloc in Watch window to leaked 
-        ///       allocation number.
-        ///
-        /// \note By default, _CrtDumpMemoryLeaks outputs the memory-leak report 
-        ///       to the Debug pane of the Output window. When debugger is not 
-        ///       attached, call the following somewhere to redirect report to std_err.
-        ///       _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
-        ///       _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
-        ///
-        /// \see  For more information on Finding Memory Leaks Using the CRT Library, 
-        ///       see http://msdn.microsoft.com/en-us/library/x98tx3cf(v=vs.100).aspx
-        static mch::call_on_last_instance<decltype(_CrtDumpMemoryLeaks),_CrtDumpMemoryLeaks> dummy_to_call_leak_dumping_at_exit;
-    #endif
-
-    #include <iostream>            // We refer to std::cerr in debug mode
-#endif
-
 //------------------------------------------------------------------------------
 
 #if !defined(XTL_DUMP_PERFORMANCE)
@@ -363,38 +310,37 @@
 
 //------------------------------------------------------------------------------
 
-#if !defined(XTL_IRRELEVANT_VTBL_BITS)
-/// \note The following section is compiler and platform specific for 
-///       optimization purposes.
-/// \note As subsequent experiments showed, this value may depend on the number
-///       of virtual functions in the class as well. Chosing this value smaller 
-///       or larger than necessary, increases the number of collisions and 
-///       necessarily degrades performance.
-/// FIX: Make this less empirical!
+// This part re-defines various language facilities that can be emulated or
+// ignored in older compilers in order to support more compilers for the type
+// switching functionality, which does not require C++11.
+
 #if defined(_MSC_VER)
-    #if defined(_WIN64)
-        #if defined(_DEBUG)
-            /// vtbl in MSVC in x64 Debug   builds seem to be alligned by 8 bytes
-            #define XTL_IRRELEVANT_VTBL_BITS 3
-        #else
-            /// vtbl in MSVC in x64 Release builds seem to be alligned by 16 bytes
-            #define XTL_IRRELEVANT_VTBL_BITS 4
-        #endif
-    #else
-        #if defined(_DEBUG)
-            /// vtbl in MSVC in x86 Debug   builds seem to be alligned by 4 bytes
-            #define XTL_IRRELEVANT_VTBL_BITS 2
-        #else
-            /// vtbl in MSVC in x86 Release builds seem to be alligned by 8 bytes
-            #define XTL_IRRELEVANT_VTBL_BITS 3
-        #endif
-    #endif
-#else
-    /// vtbl in G++ seem to be alligned by 16 bytes
-    #define XTL_IRRELEVANT_VTBL_BITS 4
-    /// When i defined more virtual functions it became 3 for some reason
-    //#define XTL_IRRELEVANT_VTBL_BITS 3
+#include "comp.msvc.hpp"    // Microsoft Visual C++ workarounds
+#elif defined(__clang__)
+#include "comp.clang.hpp"   // Clang workarounds
+#elif defined(__GNUC__)
+#include "comp.gcc.hpp"     // GNU C++ workarounds
 #endif
+
+#include "comp.other.hpp"   // Default workarounds for anything not handled by specialized configs
+#include "macros.hpp"       // Tools for preprocessor meta-programming
+
+//------------------------------------------------------------------------------
+
+// Somewhat more centralized way of checking for a support by compiler of some
+// language feature.
+#define XTL_SUPPORT(feature) XTL_SUPPORT_##feature
+
+//------------------------------------------------------------------------------
+
+#if !XTL_SUPPORT(noexcept)
+/// Turn noexcept into throw() for compilers not supporting it
+#define noexcept throw()
+#endif
+
+#if !XTL_SUPPORT(nullptr)
+/// Turn nullptr into 0 for compilers not supporting it
+#define nullptr 0
 #endif
 
 //------------------------------------------------------------------------------
@@ -445,36 +391,10 @@
 
 //------------------------------------------------------------------------------
 
-#if defined(_MSC_VER)
-    /// Indicates deleted function \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2346.htm
-    #define XTL_DELETED
-#else
-    /// Indicates deleted function \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2346.htm
+#if XTL_SUPPORT(ddf)
     #define XTL_DELETED = delete
-#endif
-
-//------------------------------------------------------------------------------
-
-#if !defined(__func__) && defined(_MSC_VER)
-    #define __func__ __FUNCTION__
-#endif
-
-//------------------------------------------------------------------------------
-
-#define XTL_FUNCTION __func__
-
-//------------------------------------------------------------------------------
-
-#if defined(_MSC_VER) || defined(__GNUC__)
-    /// When the compiler supports Visual C++ like __COUNTER__ macro that is resolved 
-    /// to consequitive number each time it is used, we use it, otherwise we approximate 
-    /// it with line number. This means that multiple uses of this macro within the same
-    /// line should be memoized in a constant to avoid differences in behavior as well as
-    /// the user cannot rely on consequitiveness of numbers even when the counter is 
-    /// supported because other macros may use the counter as well.
-    #define XTL_COUNTER __COUNTER__
 #else
-    #define XTL_COUNTER __LINE__
+    #define XTL_DELETED
 #endif
 
 //------------------------------------------------------------------------------
@@ -576,295 +496,15 @@
 
 //------------------------------------------------------------------------------
 
-#if defined(_MSC_VER)
-    #define XTL_MSC_ONLY(...)     __VA_ARGS__
-    #define XTL_NON_MSC_ONLY(...)
-#else
-    #define XTL_MSC_ONLY(...)
-    #define XTL_NON_MSC_ONLY(...) __VA_ARGS__
-#endif
-
-//------------------------------------------------------------------------------
-
-#if defined(__GNUC__)
-    #define XTL_GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-    #define XTL_GCC_ONLY(...)     __VA_ARGS__
-    #define XTL_NON_GCC_ONLY(...)
-#else
-    #define XTL_GCC_ONLY(...)
-    #define XTL_NON_GCC_ONLY(...) __VA_ARGS__
-#endif
-
-//------------------------------------------------------------------------------
-
-// This part re-defines various language facilities that can be emulated or 
-// ignored in older compilers in order to support more compilers for the type
-// switching functionality, which does not require C++11.
-
-#if defined(_MSC_VER)
-
-    // MS Visual C++ workarounds
-
-    #if _MSC_VER < 1700 
-        /// Visual C++ 2012 supports alignof(T)
-        #if !defined(alignof)
-            #define alignof(T) __alignof(T)
-        #endif
-    #endif
-    #if _MSC_VER < 1600 
-        #if !defined(static_assert)
-            /// Microsoft had their own macro
-            #define static_assert(cond,text) _STATIC_ASSERT(cond)
-        #endif
-        #if !defined(nullptr)
-            /// Turn nullptr into 0 for compilers not supporting it
-            #define nullptr 0
-        #endif
-        /// Indicate no support of r-value references
-        #define XTL_NO_RVALREF
-    #endif
-    #if _MSC_VER == 1700
-        /// Visual C++ 2012 has check that we do not redefine noexcept, but doesn't implement it yet
-        #define _ALLOW_KEYWORD_MACROS 1
-    #endif
-    #if !defined(noexcept)
-        /// Turn noexcept into throw() for compilers not supporting it
-        #define noexcept throw()
-    #endif
-    #if !defined(_DEBUG)
-        #define XTL_SUPPORTS_ALLOCA
-    #endif
-    #define XTL_ASSUME(expr) __assume(expr)
-    #define XTL_UNREACHABLE  __assume(0)
-
-    #if !XTL_TRACE_LIKELINESS
-        /// Macros to use compiler's branch hinting. 
-        /// \note These macros are only to be used in Case macro expansion, not in 
-        ///       user's code since they explicitly expect a pointer argument
-        /// \note We use ... (__VA_ARGS__ parameters) to allow expressions 
-        ///       containing comma as argument. Essentially this is a one arg macro
-        #define   XTL_LIKELY(...) (__VA_ARGS__)
-        #define XTL_UNLIKELY(...) (__VA_ARGS__)
-    #endif
-
-    /// A macro that is supposed to be put before the function definition whose inlining should be disabled
-    #define XTL_DO_NOT_INLINE_BEGIN __pragma(auto_inline (off))
-    /// A macro that is supposed to be put after  the function definition whose inlining should be disabled
-    #define XTL_DO_NOT_INLINE_END   __pragma(auto_inline (on))
-
-    /// A macro that is supposed to be put before the function definition whose body must be inlined
-    #define XTL_FORCE_INLINE_BEGIN __forceinline
-    /// A macro that is supposed to be put after  the function definition whose body must be inlined
-    #define XTL_FORCE_INLINE_END
-
-    /// An attribute used in GCC code to silence warning about potentially unused typedef target_type, which we
-    /// generate to fall back on from Case clauses. The typedef is required in some cases, do not remove.
-    #define XTL_UNUSED_TYPEDEF 
-
-#elif defined(__clang__)
-
-    // Clang workarounds
-
-    // to avoid deprecation macro 
-    #define register
-
-    #if !defined(_DEBUG)
-        #define XTL_SUPPORTS_VLA
-    #endif
-    #if XTL_GCC_VERSION >= 40500
-        #define XTL_ASSUME(expr) if (expr){} else __builtin_unreachable()
-        #define XTL_UNREACHABLE __builtin_unreachable()
-    #endif
-
-    #if !XTL_TRACE_LIKELINESS
-        /// Macros to use compiler's branch hinting. 
-        /// \note These macros are only to be used in Case macro expansion, not in 
-        ///       user's code since they explicitly expect a pointer argument
-        /// \note We use ... (__VA_ARGS__ parameters) to allow expressions 
-        ///       containing comma as argument. Essentially this is a one arg macro
-        #define   XTL_LIKELY(...) (__builtin_expect((long int)(__VA_ARGS__), 1))
-        #define XTL_UNLIKELY(...) (__builtin_expect((long int)(__VA_ARGS__), 0))
-    #endif
-    /// A macro that is supposed to be put before the function definition whose inlining should be disabled
-    #define XTL_DO_NOT_INLINE_BEGIN __attribute__ ((noinline))
-    /// A macro that is supposed to be put after  the function definition whose inlining should be disabled
-    #define XTL_DO_NOT_INLINE_END
-
-
-    /// A macro that is supposed to be put before the function definition whose body must be inlined
-    #define XTL_FORCE_INLINE_BEGIN __attribute__ ((always_inline)) static inline 
-    /// A macro that is supposed to be put after  the function definition whose body must be inlined
-    #define XTL_FORCE_INLINE_END
-
-    /// An attribute used in GCC code to silence warning about potentially unused typedef target_type, which we
-    /// generate to fall back on from Case clauses. The typedef is required in some cases, do not remove.
-    #define XTL_UNUSED_TYPEDEF __attribute__((unused))
-
-#elif defined(__GNUC__)
-
-    // GNU C++ workarounds
-
-    #if XTL_GCC_VERSION < 40600
-        #if !defined(noexcept)
-            /// Turn noexcept into throw() for compilers not supporting it
-            #define noexcept throw()
-        #endif
-        #if !defined(nullptr)
-            /// Turn nullptr into 0 for compilers not supporting it
-            #define nullptr 0
-        #endif
-    #endif
-    #if XTL_GCC_VERSION < 40300
-        /// Indicate no support of r-value references
-        #define XTL_NO_RVALREF
-    #endif
-    #if !defined(_DEBUG)
-        #define XTL_SUPPORTS_VLA
-    #endif
-    #if XTL_GCC_VERSION >= 40500
-        #define XTL_ASSUME(expr) if (expr){} else __builtin_unreachable()
-        #define XTL_UNREACHABLE __builtin_unreachable()
-    #endif
-
-    #if !XTL_TRACE_LIKELINESS
-        /// Macros to use compiler's branch hinting. 
-        /// \note These macros are only to be used in Case macro expansion, not in 
-        ///       user's code since they explicitly expect a pointer argument
-        /// \note We use ... (__VA_ARGS__ parameters) to allow expressions 
-        ///       containing comma as argument. Essentially this is a one arg macro
-        #define   XTL_LIKELY(...) (__builtin_expect((long int)(__VA_ARGS__), 1))
-        #define XTL_UNLIKELY(...) (__builtin_expect((long int)(__VA_ARGS__), 0))
-    #endif
-    /// A macro that is supposed to be put before the function definition whose inlining should be disabled
-    #define XTL_DO_NOT_INLINE_BEGIN __attribute__ ((noinline))
-    /// A macro that is supposed to be put after  the function definition whose inlining should be disabled
-    #define XTL_DO_NOT_INLINE_END
-
-
-    /// A macro that is supposed to be put before the function definition whose body must be inlined
-    #define XTL_FORCE_INLINE_BEGIN __attribute__ ((always_inline)) static inline 
-    /// A macro that is supposed to be put after  the function definition whose body must be inlined
-    #define XTL_FORCE_INLINE_END
-
-    /// An attribute used in GCC code to silence warning about potentially unused typedef target_type, which we
-    /// generate to fall back on from Case clauses. The typedef is required in some cases, do not remove.
-    #define XTL_UNUSED_TYPEDEF __attribute__((unused))
-
-#endif
-
-//------------------------------------------------------------------------------
-
-#if defined(XTL_SUPPORTS_VLA)
+#if XTL_SUPPORT(vla)
     #define XTL_VLA(v,T,n,N)  T v[n]
     #define XTL_VLAZ(v,T,n,N) T v[n]; std::memset(v,0,n*sizeof(T))
-#elif defined(XTL_SUPPORTS_ALLOCA)
+#elif XTL_SUPPORT(alloca)
     #define XTL_VLA(v,T,n,N)  T* v = static_cast<T*>(alloca(n*sizeof(T)))
     #define XTL_VLAZ(v,T,n,N) T* v = static_cast<T*>(alloca(n*sizeof(T))); std::memset(v,0,n*sizeof(T))
 #else
     #define XTL_VLA(v,T,n,N)  T v[N]
     #define XTL_VLAZ(v,T,n,N) T v[N] = {}
-#endif
-
-//------------------------------------------------------------------------------
-
-/// Apparently in C++0x typename can be used to annotate types even in 
-/// non-template context. If indeed so, this is what we need to avoid duplication
-/// of macros depending on whether they are used in templated and non-templated 
-/// context.
-///
-/// From: C++0x 14.2[5]
-/// A name prefixed by the keyword template shall be a template-id or the name shall refer to a class template.
-/// [ Note: The keyword template may not be applied to non-template members of class templates. -end
-/// note ] [ Note: As is the case with the typename prefix, the template prefix is allowed in cases where it is
-/// not strictly necessary; i.e., when the nested-name-specifier or the expression on the left of the -> or . is not
-/// dependent on a template-parameter, or the use does not appear in the scope of a template. -end note ]
-#if defined(__GNUC__) && (XTL_GCC_VERSION > 40500) || defined(__clang__)
-    #define XTL_CPP0X_TYPENAME typename
-#else
-    #define XTL_CPP0X_TYPENAME 
-#endif
-
-#if defined(__GNUC__) && !defined(__clang__)
-    #define XTL_CPP0X_TEMPLATE 
-#else
-    #define XTL_CPP0X_TEMPLATE template 
-#endif
-
-//------------------------------------------------------------------------------
-
-#if defined(_MSC_VER)
-    /// MSVC10 doesn't seem to support the standard _Pragma operator
-    #define XTL_PRAGMA(x) __pragma(x)
-    #if XTL_MESSAGE_ENABLED
-        /// Helper macro to output a message during compilation in format understood by Visual Studio
-        #define XTL_MESSAGE(str) XTL_PRAGMA(message(__FILE__ "(" XTL_STRING_LITERAL(__LINE__) ") : " str))
-    #else
-        /// Helper macro to output a message during compilation in format understood by Visual Studio
-        #define XTL_MESSAGE(str)
-    #endif
-    /// Macro to save the settings for diagnostics before the library will modify some
-    #define XTL_WARNING_PUSH XTL_PRAGMA(warning(push))
-    /// Macro to restore the settings for diagnostics after the library has modified some
-    #define XTL_WARNING_POP  XTL_PRAGMA(warning(pop))
-    /// Macro that disables all warnings
-  //#define XTL_WARNING_IGNORE_ALL                  XTL_PRAGMA(warning( disable ))
-    /// Macro that disables warning on constant conditional expression, which we have a lot from code generated by macros
-    #define XTL_WARNING_IGNORE_CONSTANT_CONDITIONAL XTL_PRAGMA(warning( disable : 4127 )) // warning C4127: conditional expression is constant
-    /// Macro that disables warning on manipulating pointers with reinterpret_cast
-    #define XTL_WARNING_IGNORE_STRICT_ALIASING      
-
-    #pragma warning( disable : 4351 ) // warning C4351: new behavior: elements of array ... will be default initialized
-
-#elif defined(__GNUC__)
-    /// Helper macro to use the sandard _Pragma operator
-    #define XTL_PRAGMA(x) _Pragma(#x)
-    #if XTL_MESSAGE_ENABLED
-        /// Helper macro to output a message during compilation. GCC prepends file and line info to it anyways
-        #define XTL_MESSAGE(str) XTL_PRAGMA(message str)
-    #else
-        /// Helper macro to output a message during compilation. GCC prepends file and line info to it anyways
-        #define XTL_MESSAGE(str)
-    #endif
-
-    // GCC 4.5.2 at least gives error: #pragma GCC diagnostic not allowed inside functions
-    #if XTL_GCC_VERSION > 40600
-        /// Macro to save the settings for diagnostics before the library will modify some
-        #define XTL_WARNING_PUSH XTL_PRAGMA(GCC diagnostic push)
-        /// Macro to restore the settings for diagnostics after the library has modified some
-        #define XTL_WARNING_POP  XTL_PRAGMA(GCC diagnostic pop)
-        /// Macro that disables all warnings
-      //#define XTL_WARNING_IGNORE_ALL                  XTL_PRAGMA(GCC diagnostic ignored "-Wall")
-        /// Macro that disables warning on constant conditional expression, which we have a lot from code generated by macros
-        #define XTL_WARNING_IGNORE_CONSTANT_CONDITIONAL
-        /// Macro that disables warning on manipulating pointers with reinterpret_cast
-        #define XTL_WARNING_IGNORE_STRICT_ALIASING      XTL_PRAGMA(GCC diagnostic ignored "-Wstrict-aliasing") // warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
-    #else
-        /// Macro to save the settings for diagnostics before the library will modify some
-        #define XTL_WARNING_PUSH 
-        /// Macro to restore the settings for diagnostics after the library has modified some
-        #define XTL_WARNING_POP  
-        /// Macro that disables all warnings
-      //#define XTL_WARNING_IGNORE_ALL                  XTL_PRAGMA(GCC diagnostic ignored "-Wall")
-        /// Macro that disables warning on constant conditional expression, which we have a lot from code generated by macros
-        #define XTL_WARNING_IGNORE_CONSTANT_CONDITIONAL
-        /// Macro that disables warning on manipulating pointers with reinterpret_cast
-        #define XTL_WARNING_IGNORE_STRICT_ALIASING
-    #endif
-#else
-    /// Helper macro to use the sandard _Pragma operator
-    #define XTL_PRAGMA(x)
-    /// Helper macro to output a message during compilation. GCC prepends file and line info to it anyways
-    #define XTL_MESSAGE(str)
-    /// Macro to save the settings for diagnostics before the library will modify some
-    #define XTL_WARNING_PUSH
-    /// Macro to restore the settings for diagnostics after the library has modified some
-    #define XTL_WARNING_POP
-    /// Macro that disables all warnings
-  //#define XTL_WARNING_IGNORE_ALL
-    /// Macro that disables warning on constant conditional expression, which we have a lot from code generated by macros
-    #define XTL_WARNING_IGNORE_CONSTANT_CONDITIONAL 
-    /// Macro that disables warning on manipulating pointers with reinterpret_cast
-    #define XTL_WARNING_IGNORE_STRICT_ALIASING
 #endif
 
 //------------------------------------------------------------------------------
