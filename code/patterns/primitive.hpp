@@ -169,6 +169,7 @@ template <class T> inline value<typename underlying<T>::type> val(T&& t)
 }
 
 #define XTL_TRANSPARENT_WRAPPER
+
 //------------------------------------------------------------------------------
 #if defined(XTL_TRANSPARENT_WRAPPER) // alternative with transparent wrapper
 /// Helper class that inherits from classes and holds non classes. Used by var<>
@@ -177,7 +178,11 @@ template <class T> inline value<typename underlying<T>::type> val(T&& t)
 template <typename T, typename Cond = void>
 struct transparent_wrapper
 {
+#if XTL_SUPPORT(ddf)
     transparent_wrapper() = default;
+#else // Emulate to the extent possible
+    transparent_wrapper() : m_value() {}
+#endif
     explicit transparent_wrapper(const T&  t) noexcept : m_value(          t ) {}
     explicit transparent_wrapper(      T&& t) noexcept : m_value(std::move(t)) {}
 
@@ -190,8 +195,14 @@ struct transparent_wrapper
 template <typename T>
 struct transparent_wrapper<T,typename std::enable_if<std::is_class<T>::value>::type> : T
 {
+#if XTL_SUPPORT(inheriting_constructors)
     using T::T;
+#else // Emulate to the extent possible
+    transparent_wrapper() : T() {} // Assume T has default constructor
+#endif
+#if XTL_SUPPORT(ddf)
     transparent_wrapper() = default;
+#endif
     explicit transparent_wrapper(const T&  t) noexcept : T(          t ) {}
     explicit transparent_wrapper(      T&& t) noexcept : T(std::move(t)) {}
 
@@ -204,7 +215,9 @@ template <class T>
 struct var : transparent_wrapper<T>
 {
     typedef transparent_wrapper<T> base;
+#if XTL_SUPPORT(inheriting_constructors)
     using base::base;
+#endif
     var() : base() {}
     explicit var(const T&  t) noexcept : base(          t ) {}
     explicit var(      T&& t) noexcept : base(std::move(t)) {}

@@ -142,6 +142,9 @@ goto END
 rem Set-up Visual C++ Environment Variables
 call "%VS_COMN_TOOLS%vsvars32.bat"
 
+cl.exe /wd4007 /Zi /nologo /EHsc /W4 /WX- /O2 /Ob2 /Oi /Ot /Oy-     /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS"  /TP guards.i
+goto end
+
 rem Account for a problem with some PGO flags described above.
 if "%PGO%"=="1" set CXXFLAGS=%CXXFLAGS% /GL 
 if "%PGO%"=="1" set LNKFLAGS=%LNKFLAGS% /LTCG
@@ -181,11 +184,22 @@ echo ======================================== [ %filename%.exe ] >> %logfile%
 if exist %filename%.exe (
     <nul (set/p output=- exe exist ) 
 ) else (
-    <nul (set/p output=- compiling ) 
+    <nul (set/p output=- compiling )
     echo [[ %CXX% %CXXFLAGS% %1 /Fo%filename%.obj /Fe%filename%.exe /link %LNKFLAGS% /MACHINE:%M% ]] >> %logfile% 2>&1
             %CXX% %CXXFLAGS% %1 /Fo%filename%.obj /Fe%filename%.exe /link %LNKFLAGS% /MACHINE:%M%    >> %logfile% 2>&1
-    if errorlevel 1 <nul (set/p output=- ) & call :SUB_COLOR_TEXT 0C "error" & goto HANDLE_TEMPORARIES
+    if not ERRORLEVEL 1 goto PGO
+    <nul (set/p output=- ) & call :SUB_COLOR_TEXT 0C "error"
+    rem Error during compilation, prepare preprocessed file for troubleshooting
+    echo ---------------------------------------- [ Preprocessed ] >> %logfile%
+    <nul (set/p output=- repro )
+    echo [[ %CXX% %CXXFLAGS% /EP /P %1 ]] >> %logfile% 2>&1
+            %CXX% %CXXFLAGS% /EP /P %1    >> %logfile% 2>&1
+    <nul (set/p output=- compiling )
+    echo [[ %CXX% %CXXFLAGS% /TP %filename%.i ]] >> %logfile% 2>&1
+            %CXX% %CXXFLAGS% /TP %filename%.i    >> %logfile% 2>&1
+    goto HANDLE_TEMPORARIES
 )
+:PGO
 if "%PGO%"=="" goto HANDLE_TEMPORARIES
 if exist %filename%-pgo.exe (
     <nul (set/p output=- pgo exists) 

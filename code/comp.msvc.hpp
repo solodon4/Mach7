@@ -66,7 +66,7 @@
 
 //------------------------------------------------------------------------------
 
-#if _MSC_VER >= 1800 /// Visual C++ 2013 supports __func__
+#if _MSC_VER >= 1800 /// Visual C++ 2013 supports deleted and defaulted functions
 /// Indicates support of defaulted and deleted functions.
 /// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2346.htm
 #define XTL_SUPPORT_ddf 1
@@ -76,6 +76,20 @@
 
 #if _MSC_VER >= 1900 /// Visual C++ 2014 supports __func__
 #define XTL_SUPPORT_func 1
+#endif
+
+//------------------------------------------------------------------------------
+
+#if _MSC_VER >= 1900 /// Visual C++ 2014 supports inheriting constructors
+/// Indicates support of C++11 inheriting constructors
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2540.htm
+#define XTL_SUPPORT_inheriting_constructors 1
+#endif
+
+//------------------------------------------------------------------------------
+
+#if _MSC_VER >= 1800 /// Visual C++ 2013 supports generalized initializers
+#define XTL_SUPPORT_initializer_list 1
 #endif
 
 //------------------------------------------------------------------------------
@@ -188,9 +202,6 @@
 #if XTL_MESSAGE_ENABLED
     /// Helper macro to output a message during compilation in format understood by Visual Studio
     #define XTL_MESSAGE(str) XTL_PRAGMA(message(__FILE__ "(" XTL_STRING_LITERAL(__LINE__) ") : " str))
-#else
-    /// Helper macro to output a message during compilation in format understood by Visual Studio
-    #define XTL_MESSAGE(str)
 #endif
 /// Macro to save the settings for diagnostics before the library will modify some
 #define XTL_WARNING_PUSH XTL_PRAGMA(warning(push))
@@ -204,6 +215,23 @@
 #define XTL_WARNING_IGNORE_STRICT_ALIASING      
 
 #pragma warning( disable : 4351 ) // warning C4351: new behavior: elements of array ... will be default initialized
+
+//------------------------------------------------------------------------------
+
+/// Apparently in C++0x typename can be used to annotate types even in
+/// non-template context. If indeed so, this is what we need to avoid duplication
+/// of macros depending on whether they are used in templated and non-templated
+/// context.
+///
+/// From: C++0x 14.2[5]
+/// A name prefixed by the keyword template shall be a template-id or the name shall refer to a class template.
+/// [ Note: The keyword template may not be applied to non-template members of class templates. -end
+/// note ] [ Note: As is the case with the typename prefix, the template prefix is allowed in cases where it is
+/// not strictly necessary; i.e., when the nested-name-specifier or the expression on the left of the -> or . is not
+/// dependent on a template-parameter, or the use does not appear in the scope of a template. -end note ]
+#if _MSC_VER < 1700
+#define XTL_CPP0X_TYPENAME
+#endif
 
 //------------------------------------------------------------------------------
 

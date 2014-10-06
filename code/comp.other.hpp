@@ -72,6 +72,20 @@
 
 //------------------------------------------------------------------------------
 
+#if !defined(XTL_SUPPORT_inheriting_constructors)
+/// Indicates support of C++11 inheriting constructors
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2540.htm
+#define XTL_SUPPORT_inheriting_constructors 0
+#endif
+
+//------------------------------------------------------------------------------
+
+#if !defined(XTL_SUPPORT_initializer_list)
+#define XTL_SUPPORT_initializer_list 0
+#endif
+
+//------------------------------------------------------------------------------
+
 #if !defined(XTL_SUPPORT_noexcept)
 #define XTL_SUPPORT_noexcept 0
 #endif

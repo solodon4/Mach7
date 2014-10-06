@@ -57,22 +57,22 @@
 
 //------------------------------------------------------------------------------
 
-#if !defined(XTL_SUPPORT_alignof)
-#define XTL_SUPPORT_alignof __has_feature(cxx_alignas)
+#if __has_feature(cxx_alignas)
+#define XTL_SUPPORT_alignof 1
 #endif
 
 //------------------------------------------------------------------------------
 
-#if !defined(XTL_SUPPORT_alloca)
-#define XTL_SUPPORT_alloca __has_builtin(alloca)
+#if __has_builtin(alloca)
+#define XTL_SUPPORT_alloca 1
 #endif
 
 //------------------------------------------------------------------------------
 
-#if !defined(XTL_SUPPORT_ddf)
+#if __has_feature(cxx_defaulted_functions) && __has_feature(cxx_deleted_functions)
 /// Indicates support of defaulted and deleted functions.
 /// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2346.htm
-#define XTL_SUPPORT_ddf __has_feature(cxx_defaulted_functions) && __has_feature(cxx_deleted_functions)
+#define XTL_SUPPORT_ddf 1
 #endif
 
 //------------------------------------------------------------------------------
@@ -83,26 +83,40 @@
 
 //------------------------------------------------------------------------------
 
-#if !defined(XTL_SUPPORT_noexcept)
-#define XTL_SUPPORT_noexcept __has_feature(cxx_noexcept)
+#if __has_feature(cxx_inheriting_constructors)
+/// Indicates support of C++11 inheriting constructors
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2540.htm
+#define XTL_SUPPORT_inheriting_constructors 1
 #endif
 
 //------------------------------------------------------------------------------
 
-#if !defined(XTL_SUPPORT_nullptr)
-#define XTL_SUPPORT_nullptr __has_feature(cxx_nullptr)
+#if __has_feature(cxx_generalized_initializers)
+#define XTL_SUPPORT_initializer_list 1
 #endif
 
 //------------------------------------------------------------------------------
 
-#if !defined(XTL_SUPPORT_rvalref)
-#define XTL_SUPPORT_rvalref __has_feature(cxx_rvalue_references)
+#if __has_feature(cxx_noexcept)
+#define XTL_SUPPORT_noexcept 1
 #endif
 
 //------------------------------------------------------------------------------
 
-#if !defined(XTL_SUPPORT_static_assert)
-#define XTL_SUPPORT_static_assert __has_feature(cxx_static_assert)
+#if __has_feature(cxx_nullptr)
+#define XTL_SUPPORT_nullptr 1
+#endif
+
+//------------------------------------------------------------------------------
+
+#if __has_feature(cxx_rvalue_references)
+#define XTL_SUPPORT_rvalref 1
+#endif
+
+//------------------------------------------------------------------------------
+
+#if __has_feature(cxx_static_assert)
+#define XTL_SUPPORT_static_assert 1
 #endif
 
 //------------------------------------------------------------------------------
@@ -133,9 +147,11 @@
 
 //------------------------------------------------------------------------------
 
-#if XTL_GCC_VERSION >= 40500
-    #define XTL_ASSUME(expr) if (expr){} else __builtin_unreachable()
-    #define XTL_UNREACHABLE __builtin_unreachable()
+#if __has_builtin(__builtin_assume)
+#define XTL_ASSUME(expr) __builtin_assume(expr)
+#endif
+#if __has_builtin(__builtin_unreachable)
+#define XTL_UNREACHABLE  __builtin_unreachable()
 #endif
 
 #if !XTL_TRACE_LIKELINESS
@@ -144,22 +160,29 @@
     ///       user's code since they explicitly expect a pointer argument
     /// \note We use ... (__VA_ARGS__ parameters) to allow expressions 
     ///       containing comma as argument. Essentially this is a one arg macro
+#if __has_builtin(__builtin_expect)
     #define   XTL_LIKELY(...) (__builtin_expect((long int)(__VA_ARGS__), 1))
     #define XTL_UNLIKELY(...) (__builtin_expect((long int)(__VA_ARGS__), 0))
 #endif
+#endif
 
+#if __has_attribute(noinline)
 /// A macro that is supposed to be put before the function definition whose inlining should be disabled
 #define XTL_DO_NOT_INLINE_BEGIN __attribute__ ((noinline))
 /// A macro that is supposed to be put after  the function definition whose inlining should be disabled
 #define XTL_DO_NOT_INLINE_END
+#endif
+#if __has_attribute(always_inline)
 /// A macro that is supposed to be put before the function definition whose body must be inlined
 #define XTL_FORCE_INLINE_BEGIN __attribute__ ((always_inline)) static inline 
 /// A macro that is supposed to be put after  the function definition whose body must be inlined
 #define XTL_FORCE_INLINE_END
-
+#endif
+#if __has_attribute(unused)
 /// An attribute used in GCC code to silence warning about potentially unused typedef target_type, which we
 /// generate to fall back on from Case clauses. The typedef is required in some cases, do not remove.
 #define XTL_UNUSED_TYPEDEF __attribute__((unused))
+#endif
 
 //------------------------------------------------------------------------------
 
@@ -168,34 +191,21 @@
 #if XTL_MESSAGE_ENABLED
     /// Helper macro to output a message during compilation. GCC prepends file and line info to it anyways
     #define XTL_MESSAGE(str) XTL_PRAGMA(message str)
-#else
-    /// Helper macro to output a message during compilation. GCC prepends file and line info to it anyways
-    #define XTL_MESSAGE(str)
 #endif
 
-// GCC 4.5.2 at least gives error: #pragma GCC diagnostic not allowed inside functions
-#if XTL_GCC_VERSION > 40600
     /// Macro to save the settings for diagnostics before the library will modify some
     #define XTL_WARNING_PUSH XTL_PRAGMA(GCC diagnostic push)
     /// Macro to restore the settings for diagnostics after the library has modified some
     #define XTL_WARNING_POP  XTL_PRAGMA(GCC diagnostic pop)
+#if __has_warning("-Wall")
     /// Macro that disables all warnings
   //#define XTL_WARNING_IGNORE_ALL                  XTL_PRAGMA(GCC diagnostic ignored "-Wall")
+#endif
     /// Macro that disables warning on constant conditional expression, which we have a lot from code generated by macros
     #define XTL_WARNING_IGNORE_CONSTANT_CONDITIONAL
+#if __has_warning("-Wstrict-aliasing")
     /// Macro that disables warning on manipulating pointers with reinterpret_cast
     #define XTL_WARNING_IGNORE_STRICT_ALIASING      XTL_PRAGMA(GCC diagnostic ignored "-Wstrict-aliasing") // warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
-#else
-    /// Macro to save the settings for diagnostics before the library will modify some
-    #define XTL_WARNING_PUSH 
-    /// Macro to restore the settings for diagnostics after the library has modified some
-    #define XTL_WARNING_POP  
-    /// Macro that disables all warnings
-  //#define XTL_WARNING_IGNORE_ALL                  XTL_PRAGMA(GCC diagnostic ignored "-Wall")
-    /// Macro that disables warning on constant conditional expression, which we have a lot from code generated by macros
-    #define XTL_WARNING_IGNORE_CONSTANT_CONDITIONAL
-    /// Macro that disables warning on manipulating pointers with reinterpret_cast
-    #define XTL_WARNING_IGNORE_STRICT_ALIASING
 #endif
 
 //------------------------------------------------------------------------------

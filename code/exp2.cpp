@@ -244,7 +244,9 @@ void str(const char* s)
     Match(s)
     {
         Case(rex("([0-9]+)-([0-9]+)-([0-9]+)", 979)) break;  // Local phone
+#if XTL_SUPPORT(initializer_list)
         Case(rex("([0-9]+)-([0-9]+)-([0-9]+)", any({800,888,877,866,855}), n, m)) break; // Toll-free phone
+#endif
         Case(rex("([0-9]{4})-([0-9]{2})-([0-9]{2})", y, month, day)) break;
         Otherwise() break; // Something else
     }

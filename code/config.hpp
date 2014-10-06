@@ -391,11 +391,7 @@
 
 //------------------------------------------------------------------------------
 
-#if XTL_SUPPORT(ddf)
-    #define XTL_DELETED = delete
-#else
-    #define XTL_DELETED
-#endif
+#define XTL_DELETED XTL_IF(XTL_SUPPORT(ddf),= delete,)
 
 //------------------------------------------------------------------------------
 
@@ -406,14 +402,14 @@
 
 //------------------------------------------------------------------------------
 
-#ifdef _MSC_VER
-    #define XTL_CONCATENATE(A,B) A ## B
-#else
-    /// Somehow operator ## == (or any other) results in error in GCC, so we use 
-    /// a trick to let users build operator name when they need.
-    #define XTL_IDENTITY(A) A
-    #define XTL_CONCATENATE(A,B) XTL_IDENTITY(A)XTL_IDENTITY(B)
-#endif
+//#ifdef _MSC_VER
+//    #define XTL_CONCATENATE(A,B) A ## B
+//#else
+//    /// Somehow operator ## == (or any other) results in error in GCC, so we use 
+//    /// a trick to let users build operator name when they need.
+//    #define XTL_IDENTITY(A) A
+//    #define XTL_CONCATENATE(A,B) XTL_IDENTITY(A)XTL_IDENTITY(B)
+//#endif
 
 //------------------------------------------------------------------------------
 
