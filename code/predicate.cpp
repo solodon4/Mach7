@@ -63,6 +63,8 @@ int fac(int n)
       Case(_) return 0;
     }
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 unsigned int gcd(const unsigned int a, const unsigned int b)
@@ -79,6 +81,8 @@ unsigned int gcd(const unsigned int a, const unsigned int b)
     //Case(x,+x-y) return gcd(x-y,y);
     }
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 int main()
