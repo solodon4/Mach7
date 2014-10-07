@@ -142,9 +142,6 @@ goto END
 rem Set-up Visual C++ Environment Variables
 call "%VS_COMN_TOOLS%vsvars32.bat"
 
-cl.exe /wd4007 /Zi /nologo /EHsc /W4 /WX- /O2 /Ob2 /Oi /Ot /Oy-     /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS"  /TP guards.i
-goto end
-
 rem Account for a problem with some PGO flags described above.
 if "%PGO%"=="1" set CXXFLAGS=%CXXFLAGS% /GL 
 if "%PGO%"=="1" set LNKFLAGS=%LNKFLAGS% /LTCG

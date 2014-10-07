@@ -766,8 +766,8 @@ if (true) {
         XTL_REDUNDANCY_CATCH(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()))        \
         {                                                                      \
             typedef XTL_CPP0X_TYPENAME switch_traits::                         \
-                    XTL_CPP0X_TEMPLATE disambiguate<sizeof(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()))<sizeof(XTL_CPP0X_TYPENAME switch_traits::source_type)>:: \
-                    XTL_CPP0X_TEMPLATE parameter<XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())> target_specific; \
+                    XTL_CPP0X_TEMPLATE disambiguate<sizeof(XTL_APPLY_VARIADIC_MACRO(XTL_SELECT_ARG_0,(__VA_ARGS__,XTL_EMPTY())))<sizeof(XTL_CPP0X_TYPENAME switch_traits::source_type)>:: \
+                    XTL_CPP0X_TEMPLATE parameter<XTL_APPLY_VARIADIC_MACRO(XTL_SELECT_ARG_0,(__VA_ARGS__,XTL_EMPTY()))> target_specific; \
             typedef XTL_CPP0X_TYPENAME target_specific::target_type target_type XTL_UNUSED_TYPEDEF;       \
             enum { target_layout = target_specific::layout, target_label = XTL_COUNTER-__base_counter, is_inside_case_clause = 1 };  \
             if (XTL_UNLIKELY(target_specific::main_condition(subject_ptr, local_data)))                   \
