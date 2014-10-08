@@ -108,6 +108,7 @@ echo Build log from %date% at %time% >> %logfile%
 rem Parse modifiers
 
 if "%1" == "pgo"       shift && set PGO=1&&                          goto PARSE_CMD_LINE
+if "%1" == "repro"     shift && set REPRO=1&&                        goto PARSE_CMD_LINE
 if "%1" == "tmp"       shift && set KEEP_TMP=1&&                     goto PARSE_CMD_LINE
 if "%1" == "2012"      shift && set VS_COMN_TOOLS=%VS110COMNTOOLS%&& goto PARSE_CMD_LINE
 if "%1" == "2010"      shift && set VS_COMN_TOOLS=%VS100COMNTOOLS%&& goto PARSE_CMD_LINE
@@ -186,6 +187,7 @@ if exist %filename%.exe (
             %CXX% %CXXFLAGS% %1 /Fo%filename%.obj /Fe%filename%.exe /link %LNKFLAGS% /MACHINE:%M%    >> %logfile% 2>&1
     if not ERRORLEVEL 1 goto PGO
     <nul (set/p output=- ) & call :SUB_COLOR_TEXT 0C "error"
+    if not "%REPRO%"=="1" goto HANDLE_TEMPORARIES
     rem Error during compilation, prepare preprocessed file for troubleshooting
     echo ---------------------------------------- [ Preprocessed ] >> %logfile%
     <nul (set/p output=- repro )
