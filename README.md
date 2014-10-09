@@ -96,7 +96,7 @@ to help you get started on your own Mach7 project.
 Building sources
 ----------------
 
-Using GCC (4.4 or later) or Clang (5.1 or later)
+Using GCC (4.4 or later) or Clang (3.3 or later)
  * make
     - builds .exe files from all the .cpp files in current directory.
  * make timings
@@ -127,16 +127,10 @@ Using Visual C++ (2010 or later)
     - converts the summary of outputs into a latex definitions used in the 
       performance table
 
-Known bugs and limitations
---------------------------
-2014-09-16: Apparently I broke Visual C++ build when fixing Clang support. Working on it.
-
-The library is not yet suitable for multi-threaded environment. Lock-free version of vtbl-map is in the works.
-
-The following files crash GCC 4.4.5 on my Fedora 13 box:
-    extractor.cpp, shape2.cpp, shape4.cpp, shape5.cpp, shape6.cpp, shape.cpp, numbers.cpp, category.cpp, exp.cpp
-If they do on yours too, just delete them, they are all test cases anyways.
-
+Talks
+-------------
+ * "[Accept No Visitors](http://bit.ly/AcceptNoVisitorsVideo)". [CppCon 2014](http://cppcon.org/). September 12, 2014. Bellevue, WA. [[slides](http://bit.ly/AcceptNoVisitors), [video](http://bit.ly/AcceptNoVisitorsVideo)]
+ * "[Mach7: The Design and Evolution of a Pattern Matching Library for C++](http://bit.ly/Mach7CppNowVideo)". [C++ Now 2014](http://cppnow.org). May 14, 2014. Aspen, CO. [[slides](http://bit.ly/Mach7CppNow), [video](http://bit.ly/Mach7CppNowVideo)]
 
 Publications
 ------------
@@ -146,12 +140,15 @@ Publications
  * Y.Solodkyy. "[Simplifying the Analysis of C++ Programs](https://parasol.tamu.edu/~yuriys/papers/SOLODKYY-DISSERTATION-2013.pdf)" Ph.D. Thesis. Texas A&M University. August 2013. [slides](https://parasol.tamu.edu/~yuriys/presentations/2013-05-22-PhdDefense.pptx)
  * Y.Solodkyy, G.Dos Reis, B.Stroustrup. "[Open and Efficient Type Switch for C++](https://parasol.tamu.edu/~yuriys/papers/TS12.pdf)" In Proceedings of the ACM international conference on Object Oriented Programming Systems Languages and Applications (OOPSLA '12). ACM, New York, NY, USA, pp. 963-982. [pdf](https://parasol.tamu.edu/~yuriys/papers/TS12.pdf), [slides](https://parasol.tamu.edu/~yuriys/presentations/2012-10-25-OOPSLA-TypeSwitch.pptx), [notes](https://parasol.tamu.edu/~yuriys/presentations/2012-10-25-OOPSLA-TypeSwitch-Notes.pdf), [poster](https://parasol.tamu.edu/~yuriys/posters/Mach7.pdf), [extras](https://parasol.tamu.edu/~yuriys/pm/), [project](http://parasol.tamu.edu/mach7/)]
 
-Talks
--------------
- * "[Accept No Visitors](http://bit.ly/AcceptNoVisitorsVideo)". [CppCon 2014](http://cppcon.org/). September 12, 2014. Bellevue, WA. [[slides](http://bit.ly/AcceptNoVisitors), [video](http://bit.ly/AcceptNoVisitorsVideo)]
- * "[Mach7: The Design and Evolution of a Pattern Matching Library for C++](http://bit.ly/Mach7CppNowVideo)". [C++ Now 2014](http://cppnow.org). May 14, 2014. Aspen, CO. [[slides](http://bit.ly/Mach7CppNow), [video](http://bit.ly/Mach7CppNowVideo)]
-
 Support
 -------
 
 Please contact Yuriy Solodkyy at yuriy.solodkyy@gmail.com with any questions regarding Mach7.
+
+Known bugs and limitations
+--------------------------
+The library is not yet suitable for multi-threaded environment. Lock-free version of vtbl-map is in the works.
+
+The following files crash GCC 4.4.5 on my Fedora 13 box:
+    extractor.cpp, shape2.cpp, shape4.cpp, shape5.cpp, shape6.cpp, shape.cpp, numbers.cpp, category.cpp, exp.cpp
+If they do on yours too, just delete them, they are all test cases anyways.
