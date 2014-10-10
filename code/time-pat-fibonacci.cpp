@@ -67,6 +67,8 @@ int fib1(int n)
         return sqr(fib1(n/2+1)) - sqr(fib1(n/2-1));
 	if (n % 2 == 1) 
         return sqr(fib1(n/2+1)) + sqr(fib1(n/2));
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 XTL_TIMED_FUNC_END
 
@@ -98,6 +100,8 @@ int fib2(int n)
       Case(2*m+1) return sqr(fib2(m+1)) + sqr(fib2(m));
     }
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 //int fib2(int n)
 //{

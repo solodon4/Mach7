@@ -69,6 +69,7 @@ double area(const Shape& shape)
         return heron(x,y,z);
 
     XTL_ASSERT(!"Inexhaustive search");
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 loc center(/*const*/ Shape& shape)
@@ -94,6 +95,7 @@ loc center(/*const*/ Shape& shape)
         return loc((x1+x2+x3)/3,(y1+y2+y3)/3);
 
     XTL_ASSERT(!"Inexhaustive search");
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 void foo(Shape* s)

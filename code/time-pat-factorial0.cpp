@@ -82,6 +82,8 @@ int fac2(int n)
       Case(_) return 0;
     }
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 XTL_TIMED_FUNC_END
 

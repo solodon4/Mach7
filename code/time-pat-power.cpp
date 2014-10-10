@@ -76,6 +76,8 @@ double power1(const double x, const int n)
 	if (n == 1) return x;
 	if (n % 2 == 0) return sqr(power1(x,n/2));
 	if (n % 2 == 1) return x*power1(x,n-1);
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 XTL_TIMED_FUNC_END
 
@@ -114,6 +116,8 @@ double power2(const double x, const int n)
       Case(2*m+1) return x*sqr(power2(x,m));
     }
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 XTL_TIMED_FUNC_END
 

@@ -96,6 +96,8 @@ unsigned int gcd2(const unsigned int a, const unsigned int b)
     Case(x,+x-y) return gcd2(x-y,y);
     }
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 //unsigned int gcd2(const unsigned int a, const unsigned int b)
 //{
