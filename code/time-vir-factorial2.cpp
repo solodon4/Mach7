@@ -69,6 +69,8 @@ unsigned int fac(const object_of<unsigned int>& n)
         return 1;
     if (p.matches(n))
         return (v+1) * fac(object_of<unsigned int>(v));
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 XTL_TIMED_FUNC_END
 

@@ -73,6 +73,8 @@ unsigned int fac2(unsigned int n)
       Case(m) return m*fac2(m-1);
     }
     EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 XTL_TIMED_FUNC_END
 

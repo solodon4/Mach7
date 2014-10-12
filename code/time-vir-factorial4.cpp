@@ -80,6 +80,8 @@ int fac(const object& n)
         return (v+1) * fac(object_of<int>(v));
     if (  wc.matches(n))
         return 0;
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 XTL_TIMED_FUNC_END
 
