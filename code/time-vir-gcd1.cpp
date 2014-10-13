@@ -97,6 +97,8 @@ unsigned int gcd2(const object_of<unsigned int>& a, const object_of<unsigned int
 
     if (x.matches(a) &&  p_plus_c<unsigned int>(y,x).matches(b)) return gcd2(object_of<unsigned int>(x),object_of<unsigned int>(y));
     if (x.matches(a) && c_minus_p<unsigned int>(x,y).matches(b)) return gcd2(object_of<unsigned int>(x-y),object_of<unsigned int>(y));
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 XTL_TIMED_FUNC_END
 

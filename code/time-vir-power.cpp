@@ -75,6 +75,8 @@ double power1(const double x, const int n)
 	if (n == 1) return x;
 	if (n % 2 == 0) return sqr(power1(x,n/2));
 	if (n % 2 == 1) return x*power1(x,n-1);
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 XTL_TIMED_FUNC_END
 
@@ -117,6 +119,8 @@ double power2(const double x, const object_of<int>& n)
     p_plus_c<int>  p1(x2,1);
 
     if (p1.matches(n))       return x*sqr(power2(x,object_of<int>(m)));
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 XTL_TIMED_FUNC_END
 

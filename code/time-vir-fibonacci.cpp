@@ -88,6 +88,8 @@ int fib(const object& n)
     
     if (p1.matches(n))
         return sqr(fib(object_of<int>(v+1))) + sqr(fib(object_of<int>(v)));
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 XTL_TIMED_FUNC_END
 
