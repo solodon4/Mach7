@@ -75,6 +75,8 @@ int fac(const object& n)
         //    return 0;
     }
     if (  wc.matches(n)) return 0;
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
 
