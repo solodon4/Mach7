@@ -44,9 +44,13 @@
 
 #pragma once
 
+// Default/other compiler workarounds
+
 //------------------------------------------------------------------------------
 
 #if !defined(XTL_SUPPORT_alignof)
+/// Support of alignof(x)
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2341.pdf
 #define XTL_SUPPORT_alignof 0
 #endif
 
@@ -54,6 +58,14 @@
 
 #if !defined(XTL_SUPPORT_alloca)
 #define XTL_SUPPORT_alloca 0
+#endif
+
+//------------------------------------------------------------------------------
+
+#if !defined(XTL_SUPPORT_auto)
+/// Support of type deduction from initializer expression
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n1984.pdf
+#define XTL_SUPPORT_auto 0
 #endif
 
 //------------------------------------------------------------------------------
@@ -106,6 +118,12 @@
 
 #if !defined(XTL_SUPPORT_static_assert)
 #define XTL_SUPPORT_static_assert 0
+#endif
+
+//------------------------------------------------------------------------------
+
+#if !defined(XTL_SUPPORT_variadics)
+#define XTL_SUPPORT_variadics 0
 #endif
 
 //------------------------------------------------------------------------------

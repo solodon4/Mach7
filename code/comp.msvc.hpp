@@ -53,6 +53,8 @@
 //------------------------------------------------------------------------------
 
 #if _MSC_VER >= 1700 /// Visual C++ 2012 supports alignof(T)
+/// Support of alignof(x)
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2341.pdf
 #define XTL_SUPPORT_alignof 1
 #elif !defined(alignof) /// There was an intrinsic function before
 #define alignof(T) __alignof(T)
@@ -62,6 +64,14 @@
 
 #if _MSC_VER >= 1400 /// Visual C++ 2005 supports alloca
 #define XTL_SUPPORT_alloca 1
+#endif
+
+//------------------------------------------------------------------------------
+
+#if !defined(XTL_SUPPORT_auto)
+/// Support of type deduction from initializer expression
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n1984.pdf
+#define XTL_SUPPORT_auto 0
 #endif
 
 //------------------------------------------------------------------------------
