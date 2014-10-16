@@ -68,10 +68,10 @@
 
 //------------------------------------------------------------------------------
 
-#if !defined(XTL_SUPPORT_auto)
+#if _MSC_VER >= 1600 /// Visual C++ 2010 supports auto
 /// Support of type deduction from initializer expression
 /// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n1984.pdf
-#define XTL_SUPPORT_auto 0
+#define XTL_SUPPORT_auto 1
 #endif
 
 //------------------------------------------------------------------------------
@@ -111,6 +111,8 @@
 //------------------------------------------------------------------------------
 
 #if _MSC_VER >= 1600 /// Visual C++ 2010 supports nullptr
+/// Support of the dedicated name for a null pointer: nullptr
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2431.pdf
 #define XTL_SUPPORT_nullptr 1
 #endif
 
@@ -126,6 +128,13 @@
 #define XTL_SUPPORT_static_assert 1
 #else                /// Microsoft had a similar macro before
 #define static_assert(cond,text) _STATIC_ASSERT(cond)
+#endif
+
+//------------------------------------------------------------------------------
+/// Supports variadic templates
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2242.pdf
+#if _MSC_VER >= 1800 /// Visual C++ 2013 supports variadic templates
+#define XTL_SUPPORT_variadics 1
 #endif
 
 //------------------------------------------------------------------------------

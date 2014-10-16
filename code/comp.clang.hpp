@@ -33,7 +33,7 @@
 ///
 /// \file
 ///
-/// This file provides GNU C++ specific support macros.
+/// This file provides Clang specific support macros.
 ///
 /// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 ///
@@ -58,6 +58,8 @@
 //------------------------------------------------------------------------------
 
 #if __has_feature(cxx_alignas)
+/// Support of alignof(x)
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2341.pdf
 #define XTL_SUPPORT_alignof 1
 #endif
 
@@ -65,6 +67,14 @@
 
 #if __has_builtin(alloca)
 #define XTL_SUPPORT_alloca 1
+#endif
+
+//------------------------------------------------------------------------------
+
+#if __has_feature(cxx_auto_type)
+/// Support of type deduction from initializer expression
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n1984.pdf
+#define XTL_SUPPORT_auto 1
 #endif
 
 //------------------------------------------------------------------------------
@@ -104,6 +114,8 @@
 //------------------------------------------------------------------------------
 
 #if __has_feature(cxx_nullptr)
+/// Support of the dedicated name for a null pointer: nullptr
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2431.pdf
 #define XTL_SUPPORT_nullptr 1
 #endif
 
@@ -117,6 +129,13 @@
 
 #if __has_feature(cxx_static_assert)
 #define XTL_SUPPORT_static_assert 1
+#endif
+
+//------------------------------------------------------------------------------
+/// Supports variadic templates
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2242.pdf
+#if __has_feature(cxx_variadic_templates)
+#define XTL_SUPPORT_variadics 1
 #endif
 
 //------------------------------------------------------------------------------

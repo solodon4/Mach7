@@ -105,6 +105,8 @@
 //------------------------------------------------------------------------------
 
 #if !defined(XTL_SUPPORT_nullptr)
+/// Support of the dedicated name for a null pointer: nullptr
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2431.pdf
 #define XTL_SUPPORT_nullptr 0
 #endif
 
@@ -121,7 +123,8 @@
 #endif
 
 //------------------------------------------------------------------------------
-
+/// Supports variadic templates
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2242.pdf
 #if !defined(XTL_SUPPORT_variadics)
 #define XTL_SUPPORT_variadics 0
 #endif
