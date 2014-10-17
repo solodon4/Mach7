@@ -58,6 +58,12 @@ namespace xtl
     template <class D, class B>
     struct is_subtype <D, B, typename std::enable_if<std::is_base_of<B,D>::value>::type> : std::true_type {};
 
+    template <typename T>
+    struct is_poly_morphic // Ignore weirdness in name for now, workaround of a Visual C++ 2010 compiler bug.
+    {
+        static const bool value = false; // Most of the types do not exhibit polymorphic behavior, those that do will have to specialize
+    };
+
     //==============================================================================
     // target class definition
     //==============================================================================

@@ -535,6 +535,8 @@ public:
         }
     }
 
+    template <typename S1> inline T& xtl_get(const S1* s1) { intptr_t vtbl[1] = {vtbl_of(s1)}; return get(vtbl); } // FIX: temporary XTL experiment
+
   //template <typename S1> inline auto get(const S1* s1) -> typename std::enable_if<!std::is_polymorphic<S1>::value,T&>::type { static T dummy; return dummy; }
     template <typename S1> inline auto get(const S1* s1) -> typename std::enable_if< std::is_polymorphic<S1>::value,T&>::type { intptr_t vtbl[1] = {vtbl_of(s1)}; return get(vtbl); }
 

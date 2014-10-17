@@ -54,10 +54,17 @@
 #include "vtblmap4.hpp"
 #include "metatools.hpp"
 
-//#define dynamic_cast xtl::subtype_dynamic_cast
+//------------------------------------------------------------------------------
+
+#define dynamic_cast xtl::subtype_dynamic_cast
 
 namespace mch ///< Mach7 library namespace
 {
+
+    template <typename T, typename S> inline auto adjust_ptr_if_xtl_polymorphic(const S* p, std::ptrdiff_t offset) -> typename std::enable_if< xtl::is_poly_morphic<S>::value,const T*>::type { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
+    template <typename T, typename S> inline auto adjust_ptr_if_xtl_polymorphic(const S* p, std::ptrdiff_t       ) -> typename std::enable_if<!xtl::is_poly_morphic<S>::value,const T*>::type { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)); }
+    template <typename T, typename S> inline auto adjust_ptr_if_xtl_polymorphic(      S* p, std::ptrdiff_t offset) -> typename std::enable_if< xtl::is_poly_morphic<S>::value,      T*>::type { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)+offset); }
+    template <typename T, typename S> inline auto adjust_ptr_if_xtl_polymorphic(      S* p, std::ptrdiff_t       ) -> typename std::enable_if<!xtl::is_poly_morphic<S>::value,      T*>::type { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)); }
 
 //------------------------------------------------------------------------------
 
@@ -80,29 +87,29 @@ struct dynamic_cast_when_polymorphic_helper
 };
 
 template <typename S>
-struct dynamic_cast_when_polymorphic_helper<S, typename std::enable_if<std::is_polymorphic<S>::value>::type> 
+struct dynamic_cast_when_polymorphic_helper<S, typename std::enable_if<xtl::is_poly_morphic<S>::value>::type> 
 {
     template <typename T>
-    static inline T go(const S* s) { return dynamic_cast<T>(s); }
+    static inline T go(S* s) { return dynamic_cast<T>(s); }
 };
 /*
 /// Behaves as dynamic_cast on pointers when argument is polymorphic.
 template <typename T, typename S>
-inline auto dynamic_cast_when_polymorphic(const S* s) -> std::enable_if< std::is_polymorphic<S>::value,T>
+inline auto dynamic_cast_when_polymorphic(const S* s) -> std::enable_if< xtl::is_poly_morphic<S>::value,T>
 {
     return dynamic_cast<T>(s);
 }
 
 /// Otherwises behaves as identity on pointers when the argument is not polymorphic.
 template <typename T, typename S>
-inline auto dynamic_cast_when_polymorphic(const S* s) -> std::enable_if<!std::is_polymorphic<S>::value,T>
+inline auto dynamic_cast_when_polymorphic(const S* s) -> std::enable_if<!xtl::is_poly_morphic<S>::value,T>
 {
     return s;
 }
 */
 
 template <typename T, typename S>
-inline auto dynamic_cast_when_polymorphic(const S* s) -> XTL_RETURN
+inline auto dynamic_cast_when_polymorphic(S* s) -> XTL_RETURN
 (
     dynamic_cast_when_polymorphic_helper<S>::template go<T>(s)
 )
@@ -153,7 +160,7 @@ struct type_switch_info_offset_helper<false, SwitchInfo>
         typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(*subject_ptr##N)>::type source_type##N; \
         typedef source_type##N target_type##N XTL_UNUSED_TYPEDEF;              \
         XTL_ASSERT(xtl_failure("Trying to match against a nullptr",subject_ptr##N));      \
-        enum { is_polymorphic##N = std::is_polymorphic<source_type##N>::value, \
+        enum { is_polymorphic##N = xtl::is_poly_morphic<source_type##N>::value, \
                polymorphic_index##N = XTL_CONCAT(polymorphic_index,XTL_PREV(N)) + is_polymorphic##N }; \
         auto& match##N = *subject_ptr##N;                                      \
         XTL_UNUSED(match##N);
@@ -164,7 +171,7 @@ struct type_switch_info_offset_helper<false, SwitchInfo>
 /// polymorphic subject s in position N
 #define XTL_MATCH_SUBJECT_POLYMORPHIC(N,s)                                     \
         XTL_MATCH_SUBJECT(N,s)                                                 \
-        /*static_assert(std::is_polymorphic<source_type##N>::value, "Type of subject " #N " should be polymorphic when you use Match");*/\
+        static_assert(xtl::is_poly_morphic<source_type##N>::value, "Type of subject " #N " should be polymorphic when you use Match");\
         register const void* __casted_ptr##N = 0;
 
 /// Extension of #XTL_MATCH_SUBJECT_POLYMORPHIC where a list of subjects is 
@@ -191,7 +198,7 @@ struct type_switch_info_offset_helper<false, SwitchInfo>
         enum { number_of_polymorphic_subjects = XTL_REPEAT_WITH(+,N, XTL_PREFIX, is_polymorphic) }; \
         typedef mch::vtbl_map<number_of_polymorphic_subjects,mch::type_switch_info<number_of_polymorphic_subjects>> vtbl_map_type; \
         XTL_PRELOADABLE_LOCAL_STATIC(vtbl_map_type,__vtbl2case_map,match_uid_type,XTL_DUMP_PERFORMANCE_ONLY(__FILE__,__LINE__,XTL_FUNCTION,)XTL_GET_TYPES_NUM_ESTIMATE);\
-        mch::type_switch_info<number_of_polymorphic_subjects>& __switch_info = __vtbl2case_map.get(XTL_ENUM(N,XTL_PREFIX,subject_ptr)); \
+        mch::type_switch_info<number_of_polymorphic_subjects>& __switch_info = __vtbl2case_map.xtl_get(XTL_ENUM(N,XTL_PREFIX,subject_ptr)); \
         switch (number_of_polymorphic_subjects ? __switch_info.target : 0) {   \
         default: {{{
 
@@ -209,11 +216,11 @@ struct type_switch_info_offset_helper<false, SwitchInfo>
         typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(mch::filter(XTL_SELECT_ARG(i,__VA_ARGS__)))>::type type_of_pattern##i; \
         static_assert(mch::is_pattern<type_of_pattern##i>::value,"Case-clause expects patterns as its arguments"); \
         typedef XTL_CPP0X_TYPENAME mch::underlying<type_of_pattern##i>::type::/*XTL_CPP0X_TEMPLATE*/ accepted_type_for<source_type##i>::type target_type##i;
-#define XTL_DYN_CAST_FROM(i,...) (__casted_ptr##i = mch::dynamic_cast_when_polymorphic<const target_type##i*>(subject_ptr##i)) != 0
+#define XTL_DYN_CAST_FROM(i,...) (__casted_ptr##i = mch::dynamic_cast_when_polymorphic<target_type##i*>(subject_ptr##i)) != 0
 //#define XTL_ASSIGN_OFFSET(i,...) XTL_STATIC_IF(is_polymorphic##i) __switch_info.offset[polymorphic_index##i] = intptr_t(__casted_ptr##i)-intptr_t(subject_ptr##i);
 #define XTL_ASSIGN_OFFSET(i,...) mch::type_switch_info_offset_helper<is_polymorphic##i,decltype(__switch_info)>::set_offset(__switch_info, polymorphic_index##i, intptr_t(__casted_ptr##i)-intptr_t(subject_ptr##i));
 //#define XTL_ADJUST_PTR_FROM(i,...) auto& match##i = *mch::adjust_ptr_if_polymorphic<target_type##i>(subject_ptr##i,__switch_info.offset[polymorphic_index##i]);
-#define XTL_ADJUST_PTR_FROM(i,...) auto& match##i = *mch::adjust_ptr_if_polymorphic<target_type##i>(subject_ptr##i,mch::type_switch_info_offset_helper<is_polymorphic##i,decltype(__switch_info)>::get_offset(__switch_info, polymorphic_index##i));
+#define XTL_ADJUST_PTR_FROM(i,...) auto& match##i = *mch::adjust_ptr_if_xtl_polymorphic<target_type##i>(subject_ptr##i,mch::type_switch_info_offset_helper<is_polymorphic##i,decltype(__switch_info)>::get_offset(__switch_info, polymorphic_index##i));
 #define XTL_MATCH_PATTERN_TO_TARGET(i,...) mch::filter(XTL_SELECT_ARG(i,__VA_ARGS__))(match##i)
 
 /// Helper macro for #Case
