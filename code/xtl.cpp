@@ -221,4 +221,18 @@ int main()
         }
         EndMatch
     }
+
+    my_variant_1 vars2[6] = {42, 3.14f, 9.876, 7, 2.72f, 1.2345};
+
+    for (int i = 0; i < 6; ++i)
+    {
+        Match(vars2[i])
+        {
+            Case(mch::C<double>(d)) std::cout << "double " << d << std::endl; break;
+            Case(mch::C<float> (f)) std::cout << "float  " << f << std::endl; break;
+            Case(mch::C<int>   (n)) std::cout << "int    " << n << std::endl; break;
+        }
+        EndMatch
+    }
+
 }
