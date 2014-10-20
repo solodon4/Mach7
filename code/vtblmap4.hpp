@@ -124,7 +124,7 @@ const bit_offset_t min_log_size      = XTL_MIN_LOG_SIZE; ///< Log of the smalles
 const bit_offset_t max_stack_log_size= XTL_MAX_STACK_LOG_SIZE; ///< Log of the maximum stack size we can reserve to do some histogram computations.
 const bit_offset_t max_log_inc       = XTL_MAX_LOG_INC;  ///< Log of the maximum allowed increased from the minimum requred log size (1 means twice from the min required size)
 //const vtbl_count_t min_expected_size = 1 << min_log_size;
-const bit_offset_t irrelevant_bits   = XTL_IRRELEVANT_VTBL_BITS;
+const bit_offset_t irrelevant_bits   = 0; // XTL_IRRELEVANT_VTBL_BITS; // FIX: temporarily set to 0 for experiments with XTL subtyping where we don't work with vtbl-pointers
 const int initial_collisions_before_update = 16;
 
 #if XTL_USE_LCG_WALK

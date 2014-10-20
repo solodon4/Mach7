@@ -50,6 +50,19 @@
 
 #define VARIANT_P(params) BOOST_PP_ENUM_PARAMS(10, params)
 
+namespace mch
+{
+#if XTL_SUPPORT(variadics)
+    // Default implementation of vtbl_of grabs sizeof(intptr_t) bytes from the beginning
+    // of the object, which on 64-bit machines is larger that size of variant's which member.
+    template <class... Ts>
+    inline std::intptr_t vtbl_of(const boost::variant<Ts...>* p) { return p->which(); }
+#else
+    template <VARIANT_P(class Ts)>
+    inline std::intptr_t vtbl_of(const boost::variant<VARIANT_P(Ts)>* p) { return p->which(); }
+#endif
+}
+
 namespace xtl
 {
 #if XTL_SUPPORT(variadics)
@@ -202,6 +215,8 @@ int main()
     float*  q2 = xtl::subtype_dynamic_cast<float* >(&v2); std::cout << '(' << q2 << ',' << (q2 ? *q2 : 55555) << ')' << std::endl;
     int*    q3 = xtl::subtype_dynamic_cast<int*   >(&v2); std::cout << '(' << q3 << ',' << (q3 ? *q3 : 44444) << ')' << std::endl;
 
+    std::cout << "sizeof(intptr_t)"  << sizeof(std::intptr_t) << std::endl;
+    std::cout << "sizeof(v1.which_)" << sizeof(v1.which())    << std::endl;
     using namespace mch;
 
     var<double> d;
