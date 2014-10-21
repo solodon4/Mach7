@@ -151,6 +151,7 @@ namespace xtl
     S subtype_dynamic_cast(T* t)
     {
         typename target<S>::type result = subtype_dynamic_cast_impl(target<S>(), t);
+        //std::cout << "subtype_dynamic_cast<" << typeid(S).name() << ">(" << typeid(t).name() << ") = " << result << std::endl;
         return result;
     }
 

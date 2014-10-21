@@ -50,7 +50,9 @@
 
 #define VARIANT_P(params) BOOST_PP_ENUM_PARAMS(10, params)
 
-namespace mch
+// NOTE: We declare vtbl_of in boost namespace because we want it to be found 
+//       via two-phase name lookup due to its argument boost::variant
+namespace boost
 {
 #if XTL_SUPPORT(variadics)
     // Default implementation of vtbl_of grabs sizeof(intptr_t) bytes from the beginning
