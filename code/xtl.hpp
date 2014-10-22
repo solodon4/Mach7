@@ -64,6 +64,18 @@ namespace xtl
         static const bool value = false; // Most of the types do not exhibit polymorphic behavior, those that do will have to specialize
     };
 
+    template <typename T>
+    struct is_poly_morphic<const T> // Constness does not affect whether type is polymorphic
+    {
+        static const bool value = is_poly_morphic<T>::value;
+    };
+
+    template <typename T>
+    struct is_poly_morphic<volatile T> // Volatility does not affect whether type is polymorphic
+    {
+        static const bool value = is_poly_morphic<T>::value;
+    };
+
     //==============================================================================
     // target class definition
     //==============================================================================
