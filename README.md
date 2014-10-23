@@ -6,6 +6,7 @@ by Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 
 License Agreement (BSD)
 -----------------------
+
 ```
 Mach7: Pattern Matching Library for C++
 
@@ -51,18 +52,21 @@ and allow the use of open class hierarchies.
 
 Mach7 by Example
 ----------------
+
 ```C++
 // Fibonacci numbers
 int fib(int n)
 {
     var<int> m;
 
-    Match(n) {
-    Case(1)     return 1;
-    Case(2)     return 1;
-    Case(2*m)   return sqr(fib(m+1)) - sqr(fib(m-1));
-    Case(2*m+1) return sqr(fib(m+1)) + sqr(fib(m));
-    } EndMatch
+    Match(n)
+    {
+      Case(1)     return 1;
+      Case(2)     return 1;
+      Case(2*m)   return sqr(fib(m+1)) - sqr(fib(m-1));
+      Case(2*m+1) return sqr(fib(m+1)) + sqr(fib(m));
+    }
+    EndMatch
 }
 
 // Lambda calculator
@@ -76,12 +80,14 @@ Term* eval(Term* t)
     var<const Var&> v; 
     var<const Term&> b,a;
 
-    Match(*t) {
-    Case(C<Var>())              return &match0;
-    Case(C<Abs>())              return &match0;
-    Case(C<App>(C<Abs>(v,b),a)) return eval(subs(b,v,a));
-    Otherwise() std:: cerr << "error"; return nullptr ;
-    } EndMatch
+    Match(*t)
+    {
+      Case(C<Var>())              return &match0;
+      Case(C<Abs>())              return &match0;
+      Case(C<App>(C<Abs>(v,b),a)) return eval(subs(b,v,a));
+      Otherwise() std:: cerr << "error"; return nullptr ;
+    } 
+    EndMatch
 }
 ```
 
@@ -114,50 +120,44 @@ Using Visual C++ (2010 or later)
 
     build.bat /?
 
- Here is the list of commands so far:
+ Syntax:
 
     build [ pgo | tmp | <ver> ] [ filemask*.cpp ... ]
-    build        - Build all examples using the most recent MS Visual C++ compiler installed
-    build syntax - Build all supported library options combination for syntax variations
-    build timing - Build all supported library options combination for timing variations
-    build cmp    - Build all executables for comparison with other languages
-    build doc    - Build Mach7 documentation
-    build clean  - Clean all built examples
-    build test   -   Run all built examples
-    build check  -   Run those examples for which there are correct_output/*.out files and check that output is the same
+    build [ syntax | timing | cmp | doc | clean | test | check ]
+
+ Commands supported so far:
+
+  * build [ pgo | tmp | <ver> ] [ filemask*.cpp ... ] - build given C++ files
+  * build        - Build all examples using the most recent MS Visual C++ compiler installed
+  * build syntax - Build all supported library options combination for syntax variations
+  * build timing - Build all supported library options combination for timing variations
+  * build cmp    - Build all executables for comparison with other languages
+  * build doc    - Build Mach7 documentation
+  * build clean  - Clean all built examples
+  * build test   -   Run all built examples
+  * build check  -   Run those examples for which there are correct_output/*.out files and check that output is the same
+
  Modifiers:
-           pgo   - Perform Profile-Guided Optimization on produced executables
-           tmp   - Keep temporaries
-          <ver>  - Use a specific version of Visual C++ to compiler the source 
-                   code. <ver> can be one of the following:
-                    - 2003 - Visual C++  7.1
-                    - 2005 - Visual C++  8.0
-                    - 2008 - Visual C++  9.0
-                    - 2010 - Visual C++ 10.0
-                    - 2012 - Visual C++ 11.0
 
-The following batch files do some of these commands directly and have since been integrated into build.bat:
+  * pgo   - Perform Profile-Guided Optimization on produced executables
+  * tmp   - Keep temporaries
+  * <ver> - Use a specific version of Visual C++ to compiler the source code. <ver> can be one of the following:
+   - 2010 - Visual C++ 10.0
+   - 2012 - Visual C++ 11.0
+   - 2013 - Visual C++ 12.0
 
- * test-pm-timing.bat
-    - builds all combinations of encodings, syntax and benchmarks out of 
-      skeleton.cxx for timing purposes (same as "make timings" for Visual C++)
- * test-pgo.bat
-    - compiles and performs profile-guided optimizations on all files passed as 
-      arguments
- * test-pm.bat
-    - builds sources varying amount of derived classes and virtual functions in 
-      them
- * test-pm-daily.bat
-    - builds all files in the test suite
- * test-pm-daily-pgo.bat
-    - builds all files in the test suite and performs profile-guided 
-      optimizations on them
- * ttt.bat
-    - converts the summary of outputs into a latex definitions used in the 
-      performance table
+The following batch files do some of these sub-commands directly and have since been integrated into build.bat:
+
+ * test-pm-timing.bat - builds all combinations of encodings, syntax and benchmarks out of skeleton.cxx for timing purposes (same as "make timings" for Visual C++)
+ * test-pgo.bat - compiles and performs profile-guided optimizations on all files passed as arguments
+ * test-pm.bat - builds sources varying amount of derived classes and virtual functions in them
+ * test-pm-daily.bat - builds all files in the test suite
+ * test-pm-daily-pgo.bat - builds all files in the test suite and performs profile-guided optimizations on them
+ * ttt.bat - converts the summary of outputs into a latex definitions used in the performance table
 
 Talks
 -------------
+
  * "[Accept No Visitors](http://bit.ly/AcceptNoVisitorsVideo)". [CppCon 2014](http://cppcon.org/). September 12, 2014. Bellevue, WA. [[slides](http://bit.ly/AcceptNoVisitors), [video](http://bit.ly/AcceptNoVisitorsVideo)]
  * "[Mach7: The Design and Evolution of a Pattern Matching Library for C++](http://bit.ly/Mach7CppNowVideo)". [C++ Now 2014](http://cppnow.org). May 14, 2014. Aspen, CO. [[slides](http://bit.ly/Mach7CppNow), [video](http://bit.ly/Mach7CppNowVideo)]
 
@@ -176,6 +176,7 @@ Please contact Yuriy Solodkyy at yuriy.solodkyy@gmail.com with any questions reg
 
 Known bugs and limitations
 --------------------------
+
 The library is not yet suitable for multi-threaded environment. Lock-free version of vtbl-map is in the works.
 
 The following files crash GCC 4.4.5 on my Fedora 13 box:
