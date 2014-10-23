@@ -109,6 +109,35 @@ Using GCC (4.4 or later) or Clang (3.3 or later)
     - runs all the .exe files in the current folder
 
 Using Visual C++ (2010 or later)
+ Mach7 uses its own build.bat script to build all the examples and unit tests that come with it. The script assumes
+ each .cpp file to be a standalone program. You can find the most up-to-date list of supported parameters by running:
+
+    build.bat /?
+
+ Here is the list of commands so far:
+
+    build [ pgo | tmp | <ver> ] [ filemask*.cpp ... ]
+    build        - Build all examples using the most recent MS Visual C++ compiler installed
+    build syntax - Build all supported library options combination for syntax variations
+    build timing - Build all supported library options combination for timing variations
+    build cmp    - Build all executables for comparison with other languages
+    build doc    - Build Mach7 documentation
+    build clean  - Clean all built examples
+    build test   -   Run all built examples
+    build check  -   Run those examples for which there are correct_output/*.out files and check that output is the same
+ Modifiers:
+           pgo   - Perform Profile-Guided Optimization on produced executables
+           tmp   - Keep temporaries
+          <ver>  - Use a specific version of Visual C++ to compiler the source 
+                   code. <ver> can be one of the following:
+                    - 2003 - Visual C++  7.1
+                    - 2005 - Visual C++  8.0
+                    - 2008 - Visual C++  9.0
+                    - 2010 - Visual C++ 10.0
+                    - 2012 - Visual C++ 11.0
+
+The following batch files do some of these commands directly and have since been integrated into build.bat:
+
  * test-pm-timing.bat
     - builds all combinations of encodings, syntax and benchmarks out of 
       skeleton.cxx for timing purposes (same as "make timings" for Visual C++)
