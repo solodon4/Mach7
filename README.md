@@ -103,6 +103,7 @@ Building sources
 ----------------
 
 Using GCC (4.4 or later) or Clang (3.3 or later)
+
  * make
     - builds .exe files from all the .cpp files in current directory.
  * make timings
@@ -115,19 +116,20 @@ Using GCC (4.4 or later) or Clang (3.3 or later)
     - runs all the .exe files in the current folder
 
 Using Visual C++ (2010 or later)
+
  Mach7 uses its own build.bat script to build all the examples and unit tests that come with it. The script assumes
- each .cpp file to be a standalone program. You can find the most up-to-date list of supported parameters by running:
+ each .cpp file to be a standalone program. You can find the most up-to-date list of supported commands by running:
 
     build.bat /?
 
  Syntax:
 
-    build [ pgo | tmp | <ver> ] [ filemask*.cpp ... ]
+    build [ pgo | tmp | (ver) ] [ filemask*.cpp ... ]
     build [ syntax | timing | cmp | doc | clean | test | check ]
 
  Commands supported so far:
 
-  * build [ pgo | tmp | <ver> ] [ filemask*.cpp ... ] - build given C++ files
+  * build [ pgo | tmp | (ver) ] [ filemask*.cpp ... ] - build given C++ files
   * build        - Build all examples using the most recent MS Visual C++ compiler installed
   * build syntax - Build all supported library options combination for syntax variations
   * build timing - Build all supported library options combination for timing variations
@@ -141,7 +143,7 @@ Using Visual C++ (2010 or later)
 
   * pgo   - Perform Profile-Guided Optimization on produced executables
   * tmp   - Keep temporaries
-  * <ver> - Use a specific version of Visual C++ to compiler the source code. <ver> can be one of the following:
+  * (ver) - Use a specific version of Visual C++ to compiler the source code. (ver) can be one of the following:
    - 2010 - Visual C++ 10.0
    - 2012 - Visual C++ 11.0
    - 2013 - Visual C++ 12.0
