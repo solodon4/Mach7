@@ -100,8 +100,8 @@ namespace xtl
     //==============================================================================
 
     template <class T, class S>
-    typename std::enable_if<is_subtype<S, T>::value, typename target<T>::type>::type
-    subtype_cast(const S& s);
+    typename std::enable_if<is_subtype<typename std::remove_reference<S>::type, T>::value, typename target<T>::type>::type
+    subtype_cast(S&& s);
 
     //==============================================================================
     // subtype_cast_impl definition
@@ -126,14 +126,21 @@ namespace xtl
     /// Extra level of indirection with impl was made to overcome the problem that
     /// when S is not among the arguments generic and more specific specialization
     /// are the same for compiler and it reports ambiguity.
+//    template <class T, class S>
+//    typename std::enable_if<is_subtype<S, T>::value, typename target<T>::type>::type
+//    subtype_cast(const S& s)
+//    {
+//        // We create a dedicated variable with result because some classes may provide
+//        // copy constructors that don't bind to temporaries (e.g. auto_ptr<T>).
+//        typename target<T>::type result(subtype_cast_impl(target<T>(), s));
+//        std::cout << "subtype_cast<" << typeid(T).name() << ">(" << typeid(S).name() << ") = " << std::endl;
+//        return result;
+//    }
     template <class T, class S>
-    typename std::enable_if<is_subtype<S, T>::value, typename target<T>::type>::type
-    subtype_cast(const S& s)
+    typename std::enable_if<is_subtype<typename std::remove_reference<S>::type, T>::value, typename target<T>::type>::type
+    subtype_cast(S&& s)
     {
-        // We create a dedicated variable with result because some classes may provide
-        // copy constructors that don't bind to temporaries (e.g. auto_ptr<T>).
-        typename target<T>::type result(subtype_cast_impl(target<T>(), s));
-        return result;
+        return subtype_cast_impl(target<T>(), std::forward<S>(s));
     }
 
     //==============================================================================
