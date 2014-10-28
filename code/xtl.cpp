@@ -167,6 +167,18 @@ struct X : virtual A { char   x; virtual void foo() { std::cout << "X" << std::e
 struct Y : virtual A { short  y; virtual void foo() { std::cout << "Y" << std::endl; } virtual void foo() const { std::cout << "const Y" << std::endl; } };
 struct Z : X, Y      { char   z; virtual void foo() { std::cout << "Z" << std::endl; } virtual void foo() const { std::cout << "const Z" << std::endl; } };
 
+static_assert( xtl::is_subtype<      B ,       A >::value, "      B  <:       A ");
+static_assert( xtl::is_subtype<      B*,       A*>::value, "      B* <:       A*");
+static_assert( xtl::is_subtype<const B*, const A*>::value, "const B* <: const A*");
+static_assert( xtl::is_subtype<      B*, const A*>::value, "      B* <: const A*");
+static_assert(!xtl::is_subtype<const B*,       A*>::value, "const B* <:       A*");
+
+static_assert(!xtl::is_subtype<      A ,       B >::value, "      A  <:       B ");
+static_assert(!xtl::is_subtype<      A*,       B*>::value, "      A* <:       B*");
+static_assert(!xtl::is_subtype<const A*, const B*>::value, "const A* <: const B*");
+static_assert(!xtl::is_subtype<      A*, const B*>::value, "      A* <: const B*");
+static_assert(!xtl::is_subtype<const A*,       B*>::value, "const A* <:       B*");
+
 int main()
 {
     A a; const A ca;
@@ -176,7 +188,7 @@ int main()
     //b = xtl::subtype_cast<B>(a); // error
 
     A* qa = xtl::subtype_cast<A*>(&b);
-	A* qaa= xtl::subtype_cast<A*>(&cb);
+	const A* qaa= xtl::subtype_cast<const A*>(&cb);
     //B* qb = xtl::subtype_cast<B*>(&a); // error
     B* qb = xtl::subtype_dynamic_cast<B*>(qa);
     qa->foo();
@@ -232,24 +244,24 @@ int main()
         const Y* pY = new Y;
         const Z* pZ = new Z;
 
-        const A* pa = xtl::subtype_cast<A*>(pA); // FIX: This should error without const
-        const A* pb = xtl::subtype_cast<A*>(pB); // FIX: This should error without const
-        const A* pc = xtl::subtype_cast<A*>(pC); // FIX: This should error without const
-        const A* pdb= xtl::subtype_cast<A*>((B*)pD); // FIX: This should error without const
-        A* pdc= xtl::subtype_cast<A*>((C*)pD); // FIX: This should error without const
-        A* px = xtl::subtype_cast<A*>(pX); // FIX: This should error without const
-        A* py = xtl::subtype_cast<A*>(pY); // FIX: This should error without const
-        A* pz = xtl::subtype_cast<A*>(pZ); // FIX: This should error without const
+        const A* pa = xtl::subtype_cast<const A*>(pA);
+        const A* pb = xtl::subtype_cast<const A*>(pB);
+        const A* pc = xtl::subtype_cast<const A*>(pC);
+        const A* pdb= xtl::subtype_cast<const A*>((B*)pD);
+        const A* pdc= xtl::subtype_cast<const A*>((const C*)pD);
+        const A* px = xtl::subtype_cast<const A*>(pX);
+        const A* py = xtl::subtype_cast<const A*>(pY);
+        const A* pz = xtl::subtype_cast<const A*>(pZ);
 
         if (const A* p = xtl::subtype_dynamic_cast<const A*>(pa)) p->foo();
         if (const B* p = xtl::subtype_dynamic_cast<const B*>(pb)) p->foo();
         if (const C* p = xtl::subtype_dynamic_cast<const C*>(pc)) p->foo();
         if (const D* p = xtl::subtype_dynamic_cast<const D*>(pdb))p->foo();
-        if (D* p = xtl::subtype_dynamic_cast<D*>(pdc))p->foo();
-        if (X* p = xtl::subtype_dynamic_cast<X*>(px)) p->foo();
-        if (Y* p = xtl::subtype_dynamic_cast<Y*>(py)) p->foo();
-        if (Z* p = xtl::subtype_dynamic_cast<Z*>(pz)) p->foo();
-        if (B* p = xtl::subtype_dynamic_cast<B*>(pdc))p->foo();
+        if (const D* p = xtl::subtype_dynamic_cast<const D*>(pdc))p->foo();
+        if (const X* p = xtl::subtype_dynamic_cast<const X*>(px)) p->foo();
+        if (const Y* p = xtl::subtype_dynamic_cast<const Y*>(py)) p->foo();
+        if (const Z* p = xtl::subtype_dynamic_cast<const Z*>(pz)) p->foo();
+        if (const B* p = xtl::subtype_dynamic_cast<const B*>(pdc))p->foo();
         if (const C* p = xtl::subtype_dynamic_cast<const C*>(pdb))p->foo();
 
         if (const A* p = xtl::subtype_dynamic_cast<const A*>(pa)) p->foo();

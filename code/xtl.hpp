@@ -51,8 +51,10 @@ namespace xtl
 {
     template <class T, class U, class C = void> struct is_subtype : std::is_same<T,U> {};
 
-    template <class T, class S>
-    struct is_subtype<S*,T*> : is_subtype<S,T> {};
+    template <class T, class S> struct is_subtype<const S*, const T*> : is_subtype<S,T> {};
+    template <class T, class S> struct is_subtype<      S*, const T*> : is_subtype<S,T> {};
+    template <class T, class S> struct is_subtype<const S*,       T*> : std::false_type {};
+    template <class T, class S> struct is_subtype<      S*,       T*> : is_subtype<S,T> {};
 
     // Derived class is a subtype of a base class
     template <class D, class B>
