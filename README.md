@@ -53,6 +53,8 @@ and allow the use of open class hierarchies.
 Mach7 by Example
 ----------------
 
+Fibonacci numbers demonstrates [the use of patterns with built-in types](https://github.com/solodon4/Mach7/blob/master/code/numbers.cpp#L202-L216) in Mach7:
+
 ```C++
 // Fibonacci numbers
 int fib(int n)
@@ -68,11 +70,15 @@ int fib(int n)
     }
     EndMatch
 }
+```
 
+Lambda calculator demonstrates [use of pattern matching to decompose objects and nested patterns](https://github.com/solodon4/Mach7/blob/master/code/lambda.cpp#L97-L114):
+
+```C++
 // Lambda calculator
 struct Term       { virtual ~Term() {}     };
 struct Var : Term { std::string name;      };
-struct Abs : Term { Var& var; Term& body;  };
+struct Abs : Term { Var&  var;  Term& body;};
 struct App : Term { Term& func; Term& arg; };
 
 Term* eval(Term* t)
@@ -82,32 +88,59 @@ Term* eval(Term* t)
 
     Match(*t)
     {
-      Case(C<Var>())              return &match0;
-      Case(C<Abs>())              return &match0;
-      Case(C<App>(C<Abs>(v,b),a)) return eval(subs(b,v,a));
-      Otherwise() std:: cerr << "error"; return nullptr ;
+      Case(C<Var>())               return &match0;
+      Case(C<Abs>())               return &match0;
+      Case(C<App>(C<Abs>(v,b),a))  return eval(subs(b,v,a));
+      Otherwise() cerr << "error"; return nullptr ;
     } 
     EndMatch
 }
+```
 
-const boost::variant<double,float,int,unsigned int*> vars[6] = {42, 3.14f, 9.876, 7, 2.72f, 1.2345};
+It can also be used to demonstrate [relational matching on several arguments](https://github.com/solodon4/Mach7/blob/master/code/lambda.cpp#L123-L140):
 
-for (int i = 0; i < 6; ++i)
+```C++
+bool operator==(const Term& left, const Term& right)
 {
-    Match(vars[i])
+    var<std::string> s;
+    var<const Term&> v,t,f;
+
+    Match(left,right)
     {
-    Case(mch::C<double>(d)) std::cout << "double " << d << std::endl; break;
-    Case(mch::C<float> (f)) std::cout << "float  " << f << std::endl; break;
-    Case(mch::C<int>   (n)) std::cout << "int    " << n << std::endl; break;
+      Case(C<Var>(s),     C<Var>(+s)     ) return true;
+      Case(C<Abs>(&v,&t), C<Abs>(&+v,&+t)) return true;
+      Case(C<App>(&f,&t), C<App>(&+f,&+t)) return true;
+      Otherwise()                          return false;
+    }
+    EndMatch
+
+    return false; // To prevent all control path warning
+}
+```
+
+Next example demonstrates that [the library can deal efficiently and in a type-safe manner with non-polymorphic classes](https://github.com/solodon4/Mach7/blob/master/code/xtl.cpp#L338-L361)
+like boost::variant as well.
+
+```C++
+void print(const boost::variant<double,float,int>& v)
+{
+    var<double> d; var<float> f; var<int> n;
+
+    Match(v)
+    {
+      Case(C<double>(d)) cout << "double " << d << endl; break;
+      Case(C<float> (f)) cout << "float  " << f << endl; break;
+      Case(C<int>   (n)) cout << "int    " << n << endl; break;
     }
     EndMatch
 }
 ```
 
-... and it is [faster than Visitors](https://parasol.tamu.edu/~yuriys/posters/Mach7.pdf)!
+Breve syntax is not the only thing Mach7 has to offer - the generated code is 
+[faster than Visitors](https://parasol.tamu.edu/~yuriys/posters/Mach7.pdf)!
 
 For a more detailed set of examples, have a look at the code that was prepared for 
-[our CppCon 2014 presentation](http://bit.ly/AcceptNoVisitors),
+[CppCon 2014 presentation](http://bit.ly/AcceptNoVisitors),
 and implemented using [visitors](https://github.com/solodon4/Mach7/blob/master/code/cppcon-visitors.cpp) as well as
 [pattern matching](https://github.com/solodon4/Mach7/blob/master/code/cppcon-matching.cpp). These are simple enough
 to help you get started on your own Mach7 project.
