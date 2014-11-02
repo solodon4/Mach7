@@ -89,6 +89,19 @@ Term* eval(Term* t)
     } 
     EndMatch
 }
+
+const boost::variant<double,float,int,unsigned int*> vars[6] = {42, 3.14f, 9.876, 7, 2.72f, 1.2345};
+
+for (int i = 0; i < 6; ++i)
+{
+    Match(vars[i])
+    {
+    Case(mch::C<double>(d)) std::cout << "double " << d << std::endl; break;
+    Case(mch::C<float> (f)) std::cout << "float  " << f << std::endl; break;
+    Case(mch::C<int>   (n)) std::cout << "int    " << n << std::endl; break;
+    }
+    EndMatch
+}
 ```
 
 ... and it is [faster than Visitors](https://parasol.tamu.edu/~yuriys/posters/Mach7.pdf)!
@@ -184,3 +197,5 @@ The library is not yet suitable for multi-threaded environment. Lock-free versio
 The following files crash GCC 4.4.5 on my Fedora 13 box:
     extractor.cpp, shape2.cpp, shape4.cpp, shape5.cpp, shape6.cpp, shape.cpp, numbers.cpp, category.cpp, exp.cpp
 If they do on yours too, just delete them, they are all test cases anyways.
+
+For the most up-to-date list of known issues see [Mach7 Issues](https://github.com/solodon4/Mach7/issues).
