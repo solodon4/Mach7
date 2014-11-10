@@ -179,6 +179,29 @@ static_assert(!xtl::is_subtype<const A*, const B*>::value, "const A* <: const B*
 static_assert(!xtl::is_subtype<      A*, const B*>::value, "      A* <: const B*");
 static_assert(!xtl::is_subtype<const A*,       B*>::value, "const A* <:       B*");
 
+// The following is also an attempt to handle tagged classes via XTL
+struct Shape
+{
+    enum Kind { KRectangle, KEllipse, KTriangle } kind;
+    Shape(Kind k) : kind(k) {}
+};
+
+struct Rectange : Shape { static const Kind class_kind = KRectangle; Rectange() : Shape(KRectangle) {} };
+struct Ellipse  : Shape { static const Kind class_kind = KEllipse;   Ellipse()  : Shape(KEllipse)   {} };
+struct Triangle : Shape { static const Kind class_kind = KTriangle;  Triangle() : Shape(KTriangle)  {} };
+
+namespace xtl
+{
+
+template <class T>
+typename std::enable_if<xtl::is_subtype<T, Shape>::value, T*>::type
+subtype_dynamic_cast_impl(target<T*>, Shape* pv)
+{
+    return T::class_kind == pv->kind ? static_cast<T*>(pv) : nullptr;
+}
+
+} // of namespace xtl
+
 int main()
 {
     A a; const A ca;
