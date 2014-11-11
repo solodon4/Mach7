@@ -48,6 +48,8 @@
 #include "type_switchN-patterns-xtl.hpp"
 #include "patterns/all.hpp"
 
+//----------------------------------------------------------------------------------------------------------------------
+
 #define VARIANT_P(params) BOOST_PP_ENUM_PARAMS(10, params)
 
 // NOTE: We declare vtbl_of in boost namespace because we want it to be found 
@@ -159,6 +161,95 @@ namespace xtl
 
 static_assert(xtl::is_subtype<int,int>::value,"No reflexivity");
 
+void test_variant_subtyping()
+{
+
+    static_assert(xtl::is_subtype<int,boost::variant<double,float,int,unsigned int*>>::value, "Not a subtype");
+
+    typedef boost::variant<double,float,int,unsigned int*> my_variant_1;
+
+    std::cout << "===========" << std::endl;
+    {
+        my_variant_1 v1 = xtl::subtype_cast<my_variant_1>(3.1415);
+        std::cout << '(' << v1.which() << ',' << v1 << ')' << std::endl;
+
+        my_variant_1 v2 = xtl::subtype_cast<my_variant_1>(42);
+        std::cout << '(' << v2.which() << ',' << v2 << ')' << std::endl;
+
+        std::cout << "-----------" << std::endl;
+
+        double* p1 = xtl::subtype_dynamic_cast<double*>(&v1); std::cout << '(' << p1 << ',' << (p1 ? *p1 : 99999) << ')' << std::endl;
+        float*  p2 = xtl::subtype_dynamic_cast<float* >(&v1); std::cout << '(' << p2 << ',' << (p2 ? *p2 : 88888) << ')' << std::endl;
+        int*    p3 = xtl::subtype_dynamic_cast<int*   >(&v1); std::cout << '(' << p3 << ',' << (p3 ? *p3 : 77777) << ')' << std::endl;
+
+        double* q1 = xtl::subtype_dynamic_cast<double*>(&v2); std::cout << '(' << q1 << ',' << (q1 ? *q1 : 66666) << ')' << std::endl;
+        float*  q2 = xtl::subtype_dynamic_cast<float* >(&v2); std::cout << '(' << q2 << ',' << (q2 ? *q2 : 55555) << ')' << std::endl;
+        int*    q3 = xtl::subtype_dynamic_cast<int*   >(&v2); std::cout << '(' << q3 << ',' << (q3 ? *q3 : 44444) << ')' << std::endl;
+
+        std::cout << "sizeof(intptr_t)"  << sizeof(std::intptr_t) << std::endl;
+        std::cout << "sizeof(v1.which_)" << sizeof(v1.which())    << std::endl;
+
+    }
+
+    std::cout << "===========" << std::endl;
+    {
+        const my_variant_1 v1 = xtl::subtype_cast<my_variant_1>(3.1415);
+        std::cout << '(' << v1.which() << ',' << v1 << ')' << std::endl;
+
+        const my_variant_1 v2 = xtl::subtype_cast<my_variant_1>(42);
+        std::cout << '(' << v2.which() << ',' << v2 << ')' << std::endl;
+
+        std::cout << "-----------" << std::endl;
+
+        const double* p1 = xtl::subtype_dynamic_cast<const double*>(&v1); std::cout << '(' << p1 << ',' << (p1 ? *p1 : 99999) << ')' << std::endl;
+        const float*  p2 = xtl::subtype_dynamic_cast<const float* >(&v1); std::cout << '(' << p2 << ',' << (p2 ? *p2 : 88888) << ')' << std::endl;
+        const int*    p3 = xtl::subtype_dynamic_cast<const int*   >(&v1); std::cout << '(' << p3 << ',' << (p3 ? *p3 : 77777) << ')' << std::endl;
+
+        const double* q1 = xtl::subtype_dynamic_cast<const double*>(&v2); std::cout << '(' << q1 << ',' << (q1 ? *q1 : 66666) << ')' << std::endl;
+        const float*  q2 = xtl::subtype_dynamic_cast<const float* >(&v2); std::cout << '(' << q2 << ',' << (q2 ? *q2 : 55555) << ')' << std::endl;
+        const int*    q3 = xtl::subtype_dynamic_cast<const int*   >(&v2); std::cout << '(' << q3 << ',' << (q3 ? *q3 : 44444) << ')' << std::endl;
+    }
+
+    using namespace mch;
+
+    var<double> d;
+    var<float>  f;
+    var<int>    n;
+    var<unsigned int*> p;
+    std::cout << "===========" << std::endl;
+
+    my_variant_1 vars[3] = {42, 3.14f, 9.876};
+
+    for (int k = 0; k < 2; ++k)
+        for (int i = 0; i < 3; ++i)
+        {
+            Match(vars[i])
+            {
+                Case(mch::C<double>(d)) std::cout << "double " << d << std::endl; match0 += 1.0; break;
+                Case(mch::C<float> (f)) std::cout << "float  " << f << std::endl; match0 -= 1.0; break;
+                Case(mch::C<int>   (n)) std::cout << "int    " << n << std::endl; match0++;      break;
+            }
+            EndMatch
+        }
+
+    const my_variant_1 vars2[6] = {42, 3.14f, 9.876, 7, 2.72f, 1.2345};
+
+    for (int i = 0; i < 6; ++i)
+    {
+        Match(vars2[i])
+        {
+            Case(mch::C<double>(d)) std::cout << "double " << d << std::endl; break;
+            Case(mch::C<float> (f)) std::cout << "float  " << f << std::endl; break;
+            Case(mch::C<int>   (n)) std::cout << "int    " << n << std::endl; break;
+            //            Case(mch::C<unsigned int*>(p)) std::cout << "unsigned int* " << p << "->" << *p << std::endl; break; // FIX: fails to compile
+        }
+        EndMatch
+    }
+    
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 struct A             { int    a; virtual void foo() { std::cout << "A" << std::endl; } virtual void foo() const { std::cout << "const A" << std::endl; } A() {} };
 struct B : A         { int    b; virtual void foo() { std::cout << "B" << std::endl; } virtual void foo() const { std::cout << "const B" << std::endl; } B() {} };
 struct C : A         { double c; virtual void foo() { std::cout << "C" << std::endl; } virtual void foo() const { std::cout << "const C" << std::endl; } };
@@ -179,30 +270,7 @@ static_assert(!xtl::is_subtype<const A*, const B*>::value, "const A* <: const B*
 static_assert(!xtl::is_subtype<      A*, const B*>::value, "      A* <: const B*");
 static_assert(!xtl::is_subtype<const A*,       B*>::value, "const A* <:       B*");
 
-// The following is also an attempt to handle tagged classes via XTL
-struct Shape
-{
-    enum Kind { KRectangle, KEllipse, KTriangle } kind;
-    Shape(Kind k) : kind(k) {}
-};
-
-struct Rectange : Shape { static const Kind class_kind = KRectangle; Rectange() : Shape(KRectangle) {} };
-struct Ellipse  : Shape { static const Kind class_kind = KEllipse;   Ellipse()  : Shape(KEllipse)   {} };
-struct Triangle : Shape { static const Kind class_kind = KTriangle;  Triangle() : Shape(KTriangle)  {} };
-
-namespace xtl
-{
-
-template <class T>
-typename std::enable_if<xtl::is_subtype<T, Shape>::value, T*>::type
-subtype_dynamic_cast_impl(target<T*>, Shape* pv)
-{
-    return T::class_kind == pv->kind ? static_cast<T*>(pv) : nullptr;
-}
-
-} // of namespace xtl
-
-int main()
+void test_subtype_dynamic_cast()
 {
     A a; const A ca;
     B b; const B cb;
@@ -211,7 +279,7 @@ int main()
     //b = xtl::subtype_cast<B>(a); // error
 
     A* qa = xtl::subtype_cast<A*>(&b);
-	const A* qaa= xtl::subtype_cast<const A*>(&cb);
+    const A* qaa= xtl::subtype_cast<const A*>(&cb);
     //B* qb = xtl::subtype_cast<B*>(&a); // error
     B* qb = xtl::subtype_dynamic_cast<B*>(qa);
     qa->foo();
@@ -300,87 +368,145 @@ int main()
     }
 
     static_assert(xtl::is_subtype<B,A>::value,"Subclassing");
+}
 
-    static_assert(xtl::is_subtype<int,boost::variant<double,float,int,unsigned int*>>::value, "Not a subtype");
+//----------------------------------------------------------------------------------------------------------------------
 
-    typedef boost::variant<double,float,int,unsigned int*> my_variant_1;
+// The following is also an attempt to handle tagged classes via XTL
+struct Shape
+{
+    enum Kind { KUnknown, KRectangle, KEllipse, KTriangle } kind;
+    static const Kind class_kind = KUnknown;
+    Shape(Kind k = KUnknown) : kind(k) {}
+    virtual void foo()       { std::cout <<       "Shape" << std::endl; }
+    virtual void foo() const { std::cout << "const Shape" << std::endl; }
+};
+
+struct Rectange : Shape { static const Kind class_kind = KRectangle; Rectange() : Shape(KRectangle) {} virtual void foo() { std::cout << "Rectangle" << std::endl; } virtual void foo() const { std::cout << "const Rectangle" << std::endl; } };
+struct Ellipse  : Shape { static const Kind class_kind = KEllipse;   Ellipse()  : Shape(KEllipse)   {} virtual void foo() { std::cout << "Ellipse"   << std::endl; } virtual void foo() const { std::cout << "const Ellipse"   << std::endl; } };
+struct Triangle : Shape { static const Kind class_kind = KTriangle;  Triangle() : Shape(KTriangle)  {} virtual void foo() { std::cout << "Triangle"  << std::endl; } virtual void foo() const { std::cout << "const Triangle"  << std::endl; } };
+
+namespace xtl
+{
+
+template <class T>
+typename std::enable_if<xtl::is_subtype<T, Shape>::value, T*>::type
+subtype_dynamic_cast_impl(target<T*>, Shape* pv)
+{
+    return T::class_kind == pv->kind ? static_cast<T*>(pv) : nullptr;
+}
+
+} // of namespace xtl
+
+#if 0
+void test_shape_subtyping()
+{
+    typedef Shape A;
+    typedef Rectange B;
+    typedef Ellipse C;
+    typedef Triangle D;
+    A a; const A ca;
+    B b; const B cb;
+    a = xtl::subtype_cast<A>(b);
+    a = xtl::subtype_cast<A>(cb);
+    //b = xtl::subtype_cast<B>(a); // error
+
+    A* qa = xtl::subtype_cast<A*>(&b);
+    const A* qaa= xtl::subtype_cast<const A*>(&cb);
+    //B* qb = xtl::subtype_cast<B*>(&a); // error
+    B* qb = xtl::subtype_dynamic_cast<B*>(qa);
+    qa->foo();
+    if (qb) qb->foo();
 
     std::cout << "===========" << std::endl;
     {
-        my_variant_1 v1 = xtl::subtype_cast<my_variant_1>(3.1415);
-        std::cout << '(' << v1.which() << ',' << v1 << ')' << std::endl;
+        A* pA = new A;
+        B* pB = new B;
+        C* pC = new C;
+        D* pD = new D;
+//        X* pX = new X;
+//        Y* pY = new Y;
+//        Z* pZ = new Z;
 
-        my_variant_1 v2 = xtl::subtype_cast<my_variant_1>(42);
-        std::cout << '(' << v2.which() << ',' << v2 << ')' << std::endl;
+        A* pa = xtl::subtype_cast<A*>(pA);
+        A* pb = xtl::subtype_cast<A*>(pB);
+        A* pc = xtl::subtype_cast<A*>(pC);
+        A* pdb= xtl::subtype_cast<A*>((B*)pD);
+        A* pdc= xtl::subtype_cast<A*>((C*)pD);
+//        A* px = xtl::subtype_cast<A*>(pX);
+//        A* py = xtl::subtype_cast<A*>(pY);
+//        A* pz = xtl::subtype_cast<A*>(pZ);
 
-        std::cout << "-----------" << std::endl;
+        if (A* p = xtl::subtype_dynamic_cast<A*>(pa)) p->foo();
+        if (B* p = xtl::subtype_dynamic_cast<B*>(pb)) p->foo();
+        if (C* p = xtl::subtype_dynamic_cast<C*>(pc)) p->foo();
+        if (D* p = xtl::subtype_dynamic_cast<D*>(pdb))p->foo();
+        if (D* p = xtl::subtype_dynamic_cast<D*>(pdc))p->foo();
+//        if (X* p = xtl::subtype_dynamic_cast<X*>(px)) p->foo();
+//        if (Y* p = xtl::subtype_dynamic_cast<Y*>(py)) p->foo();
+//        if (Z* p = xtl::subtype_dynamic_cast<Z*>(pz)) p->foo();
+        if (B* p = xtl::subtype_dynamic_cast<B*>(pdc))p->foo();
+        if (C* p = xtl::subtype_dynamic_cast<C*>(pdb))p->foo();
 
-        double* p1 = xtl::subtype_dynamic_cast<double*>(&v1); std::cout << '(' << p1 << ',' << (p1 ? *p1 : 99999) << ')' << std::endl;
-        float*  p2 = xtl::subtype_dynamic_cast<float* >(&v1); std::cout << '(' << p2 << ',' << (p2 ? *p2 : 88888) << ')' << std::endl;
-        int*    p3 = xtl::subtype_dynamic_cast<int*   >(&v1); std::cout << '(' << p3 << ',' << (p3 ? *p3 : 77777) << ')' << std::endl;
-
-        double* q1 = xtl::subtype_dynamic_cast<double*>(&v2); std::cout << '(' << q1 << ',' << (q1 ? *q1 : 66666) << ')' << std::endl;
-        float*  q2 = xtl::subtype_dynamic_cast<float* >(&v2); std::cout << '(' << q2 << ',' << (q2 ? *q2 : 55555) << ')' << std::endl;
-        int*    q3 = xtl::subtype_dynamic_cast<int*   >(&v2); std::cout << '(' << q3 << ',' << (q3 ? *q3 : 44444) << ')' << std::endl;
-
-        std::cout << "sizeof(intptr_t)"  << sizeof(std::intptr_t) << std::endl;
-        std::cout << "sizeof(v1.which_)" << sizeof(v1.which())    << std::endl;
-
+        if (const A* p = xtl::subtype_dynamic_cast<const A*>(pa)) p->foo();
+        if (const B* p = xtl::subtype_dynamic_cast<const B*>(pb)) p->foo();
+        if (const C* p = xtl::subtype_dynamic_cast<const C*>(pc)) p->foo();
+        if (const D* p = xtl::subtype_dynamic_cast<const D*>(pdb))p->foo();
+        if (const D* p = xtl::subtype_dynamic_cast<const D*>(pdc))p->foo();
+//        if (const X* p = xtl::subtype_dynamic_cast<const X*>(px)) p->foo();
+//        if (const Y* p = xtl::subtype_dynamic_cast<const Y*>(py)) p->foo();
+//        if (const Z* p = xtl::subtype_dynamic_cast<const Z*>(pz)) p->foo();
+        if (const B* p = xtl::subtype_dynamic_cast<const B*>(pdc))p->foo();
+        if (const C* p = xtl::subtype_dynamic_cast<const C*>(pdb))p->foo();
     }
-
-    std::cout << "===========" << std::endl;
     {
-        const my_variant_1 v1 = xtl::subtype_cast<my_variant_1>(3.1415);
-        std::cout << '(' << v1.which() << ',' << v1 << ')' << std::endl;
+        const A* pA = new A;
+        const B* pB = new B;
+        const C* pC = new C;
+        const D* pD = new D;
+//        const X* pX = new X;
+//        const Y* pY = new Y;
+//        const Z* pZ = new Z;
 
-        const my_variant_1 v2 = xtl::subtype_cast<my_variant_1>(42);
-        std::cout << '(' << v2.which() << ',' << v2 << ')' << std::endl;
+        const A* pa = xtl::subtype_cast<const A*>(pA);
+        const A* pb = xtl::subtype_cast<const A*>(pB);
+        const A* pc = xtl::subtype_cast<const A*>(pC);
+        const A* pdb= xtl::subtype_cast<const A*>((B*)pD);
+        const A* pdc= xtl::subtype_cast<const A*>((const C*)pD);
+//        const A* px = xtl::subtype_cast<const A*>(pX);
+//        const A* py = xtl::subtype_cast<const A*>(pY);
+//        const A* pz = xtl::subtype_cast<const A*>(pZ);
 
-        std::cout << "-----------" << std::endl;
+        if (const A* p = xtl::subtype_dynamic_cast<const A*>(pa)) p->foo();
+        if (const B* p = xtl::subtype_dynamic_cast<const B*>(pb)) p->foo();
+        if (const C* p = xtl::subtype_dynamic_cast<const C*>(pc)) p->foo();
+        if (const D* p = xtl::subtype_dynamic_cast<const D*>(pdb))p->foo();
+        if (const D* p = xtl::subtype_dynamic_cast<const D*>(pdc))p->foo();
+//        if (const X* p = xtl::subtype_dynamic_cast<const X*>(px)) p->foo();
+//        if (const Y* p = xtl::subtype_dynamic_cast<const Y*>(py)) p->foo();
+//        if (const Z* p = xtl::subtype_dynamic_cast<const Z*>(pz)) p->foo();
+        if (const B* p = xtl::subtype_dynamic_cast<const B*>(pdc))p->foo();
+        if (const C* p = xtl::subtype_dynamic_cast<const C*>(pdb))p->foo();
 
-        const double* p1 = xtl::subtype_dynamic_cast<const double*>(&v1); std::cout << '(' << p1 << ',' << (p1 ? *p1 : 99999) << ')' << std::endl;
-        const float*  p2 = xtl::subtype_dynamic_cast<const float* >(&v1); std::cout << '(' << p2 << ',' << (p2 ? *p2 : 88888) << ')' << std::endl;
-        const int*    p3 = xtl::subtype_dynamic_cast<const int*   >(&v1); std::cout << '(' << p3 << ',' << (p3 ? *p3 : 77777) << ')' << std::endl;
-
-        const double* q1 = xtl::subtype_dynamic_cast<const double*>(&v2); std::cout << '(' << q1 << ',' << (q1 ? *q1 : 66666) << ')' << std::endl;
-        const float*  q2 = xtl::subtype_dynamic_cast<const float* >(&v2); std::cout << '(' << q2 << ',' << (q2 ? *q2 : 55555) << ')' << std::endl;
-        const int*    q3 = xtl::subtype_dynamic_cast<const int*   >(&v2); std::cout << '(' << q3 << ',' << (q3 ? *q3 : 44444) << ')' << std::endl;
+        if (const A* p = xtl::subtype_dynamic_cast<const A*>(pa)) p->foo();
+        if (const B* p = xtl::subtype_dynamic_cast<const B*>(pb)) p->foo();
+        if (const C* p = xtl::subtype_dynamic_cast<const C*>(pc)) p->foo();
+        if (const D* p = xtl::subtype_dynamic_cast<const D*>(pdb))p->foo();
+        if (const D* p = xtl::subtype_dynamic_cast<const D*>(pdc))p->foo();
+//        if (const X* p = xtl::subtype_dynamic_cast<const X*>(px)) p->foo();
+//        if (const Y* p = xtl::subtype_dynamic_cast<const Y*>(py)) p->foo();
+//        if (const Z* p = xtl::subtype_dynamic_cast<const Z*>(pz)) p->foo();
+        if (const B* p = xtl::subtype_dynamic_cast<const B*>(pdc))p->foo();
+        if (const C* p = xtl::subtype_dynamic_cast<const C*>(pdb))p->foo();
     }
 
-    using namespace mch;
+    static_assert(xtl::is_subtype<B,A>::value,"Subclassing");
+}
+#endif
 
-    var<double> d;
-    var<float>  f;
-    var<int>    n;
-    var<unsigned int*> p;
-    std::cout << "===========" << std::endl;
-
-    my_variant_1 vars[3] = {42, 3.14f, 9.876};
-
-    for (int k = 0; k < 2; ++k)
-    for (int i = 0; i < 3; ++i)
-    {
-        Match(vars[i])
-        {
-            Case(mch::C<double>(d)) std::cout << "double " << d << std::endl; match0 += 1.0; break;
-            Case(mch::C<float> (f)) std::cout << "float  " << f << std::endl; match0 -= 1.0; break;
-            Case(mch::C<int>   (n)) std::cout << "int    " << n << std::endl; match0++;      break;
-        }
-        EndMatch
-    }
-
-    const my_variant_1 vars2[6] = {42, 3.14f, 9.876, 7, 2.72f, 1.2345};
-
-    for (int i = 0; i < 6; ++i)
-    {
-        Match(vars2[i])
-        {
-            Case(mch::C<double>(d)) std::cout << "double " << d << std::endl; break;
-            Case(mch::C<float> (f)) std::cout << "float  " << f << std::endl; break;
-            Case(mch::C<int>   (n)) std::cout << "int    " << n << std::endl; break;
-//            Case(mch::C<unsigned int*>(p)) std::cout << "unsigned int* " << p << "->" << *p << std::endl; break; // FIX: fails to compile
-        }
-        EndMatch
-    }
-
+int main()
+{
+    test_subtype_dynamic_cast();
+    test_variant_subtyping();
+    //    test_shape_subtyping();
 }
