@@ -298,8 +298,8 @@ void test_subtype_dynamic_cast()
         A* pa = xtl::subtype_cast<A*>(pA);
         A* pb = xtl::subtype_cast<A*>(pB);
         A* pc = xtl::subtype_cast<A*>(pC);
-        A* pdb= xtl::subtype_cast<A*>((B*)pD);
-        A* pdc= xtl::subtype_cast<A*>((C*)pD);
+        A* pdb= xtl::subtype_cast<A*>(static_cast<B*>(pD));
+        A* pdc= xtl::subtype_cast<A*>(static_cast<C*>(pD));
         A* px = xtl::subtype_cast<A*>(pX);
         A* py = xtl::subtype_cast<A*>(pY);
         A* pz = xtl::subtype_cast<A*>(pZ);
@@ -338,8 +338,8 @@ void test_subtype_dynamic_cast()
         const A* pa = xtl::subtype_cast<const A*>(pA);
         const A* pb = xtl::subtype_cast<const A*>(pB);
         const A* pc = xtl::subtype_cast<const A*>(pC);
-        const A* pdb= xtl::subtype_cast<const A*>((B*)pD);
-        const A* pdc= xtl::subtype_cast<const A*>((const C*)pD);
+        const A* pdb= xtl::subtype_cast<const A*>(static_cast<const B*>(pD));
+        const A* pdc= xtl::subtype_cast<const A*>(static_cast<const C*>(pD));
         const A* px = xtl::subtype_cast<const A*>(pX);
         const A* py = xtl::subtype_cast<const A*>(pY);
         const A* pz = xtl::subtype_cast<const A*>(pZ);
@@ -388,22 +388,27 @@ struct Triangle : Shape { static const Kind class_kind = KTriangle;  Triangle() 
 
 namespace xtl
 {
+    // Tell XTL that Shape hierarchy is XTL-polymorphic
+    template<>
+    struct is_poly_morphic<Shape>
+    {
+        static const bool value = true;
+    };
 
-template <class T>
-typename std::enable_if<xtl::is_subtype<T, Shape>::value, T*>::type
-subtype_dynamic_cast_impl(target<T*>, Shape* pv)
-{
-    return T::class_kind == pv->kind ? static_cast<T*>(pv) : nullptr;
-}
-
+    // Explains to XTL how to perform a subtype dynamic cast on a shape
+    template <class T>
+    typename std::enable_if<xtl::is_subtype<T, Shape>::value && !std::is_same<T, Shape>::value, T*>::type
+    subtype_dynamic_cast_impl(target<T*>, Shape* pv)
+    {
+        return T::class_kind == pv->kind ? static_cast<T*>(pv) : nullptr;
+    }
 } // of namespace xtl
 
-#if 0
 void test_shape_subtyping()
 {
-    typedef Shape A;
+    typedef Shape    A;
     typedef Rectange B;
-    typedef Ellipse C;
+    typedef Ellipse  C;
     typedef Triangle D;
     A a; const A ca;
     B b; const B cb;
@@ -424,89 +429,66 @@ void test_shape_subtyping()
         B* pB = new B;
         C* pC = new C;
         D* pD = new D;
-//        X* pX = new X;
-//        Y* pY = new Y;
-//        Z* pZ = new Z;
 
         A* pa = xtl::subtype_cast<A*>(pA);
         A* pb = xtl::subtype_cast<A*>(pB);
         A* pc = xtl::subtype_cast<A*>(pC);
-        A* pdb= xtl::subtype_cast<A*>((B*)pD);
-        A* pdc= xtl::subtype_cast<A*>((C*)pD);
-//        A* px = xtl::subtype_cast<A*>(pX);
-//        A* py = xtl::subtype_cast<A*>(pY);
-//        A* pz = xtl::subtype_cast<A*>(pZ);
+        A* pd = xtl::subtype_cast<A*>(pD);
 
         if (A* p = xtl::subtype_dynamic_cast<A*>(pa)) p->foo();
         if (B* p = xtl::subtype_dynamic_cast<B*>(pb)) p->foo();
         if (C* p = xtl::subtype_dynamic_cast<C*>(pc)) p->foo();
-        if (D* p = xtl::subtype_dynamic_cast<D*>(pdb))p->foo();
-        if (D* p = xtl::subtype_dynamic_cast<D*>(pdc))p->foo();
-//        if (X* p = xtl::subtype_dynamic_cast<X*>(px)) p->foo();
-//        if (Y* p = xtl::subtype_dynamic_cast<Y*>(py)) p->foo();
-//        if (Z* p = xtl::subtype_dynamic_cast<Z*>(pz)) p->foo();
-        if (B* p = xtl::subtype_dynamic_cast<B*>(pdc))p->foo();
-        if (C* p = xtl::subtype_dynamic_cast<C*>(pdb))p->foo();
+        if (D* p = xtl::subtype_dynamic_cast<D*>(pd)) p->foo();
 
         if (const A* p = xtl::subtype_dynamic_cast<const A*>(pa)) p->foo();
         if (const B* p = xtl::subtype_dynamic_cast<const B*>(pb)) p->foo();
         if (const C* p = xtl::subtype_dynamic_cast<const C*>(pc)) p->foo();
-        if (const D* p = xtl::subtype_dynamic_cast<const D*>(pdb))p->foo();
-        if (const D* p = xtl::subtype_dynamic_cast<const D*>(pdc))p->foo();
-//        if (const X* p = xtl::subtype_dynamic_cast<const X*>(px)) p->foo();
-//        if (const Y* p = xtl::subtype_dynamic_cast<const Y*>(py)) p->foo();
-//        if (const Z* p = xtl::subtype_dynamic_cast<const Z*>(pz)) p->foo();
-        if (const B* p = xtl::subtype_dynamic_cast<const B*>(pdc))p->foo();
-        if (const C* p = xtl::subtype_dynamic_cast<const C*>(pdb))p->foo();
+        if (const D* p = xtl::subtype_dynamic_cast<const D*>(pd)) p->foo();
     }
     {
         const A* pA = new A;
         const B* pB = new B;
         const C* pC = new C;
         const D* pD = new D;
-//        const X* pX = new X;
-//        const Y* pY = new Y;
-//        const Z* pZ = new Z;
 
         const A* pa = xtl::subtype_cast<const A*>(pA);
         const A* pb = xtl::subtype_cast<const A*>(pB);
         const A* pc = xtl::subtype_cast<const A*>(pC);
-        const A* pdb= xtl::subtype_cast<const A*>((B*)pD);
-        const A* pdc= xtl::subtype_cast<const A*>((const C*)pD);
-//        const A* px = xtl::subtype_cast<const A*>(pX);
-//        const A* py = xtl::subtype_cast<const A*>(pY);
-//        const A* pz = xtl::subtype_cast<const A*>(pZ);
+        const A* pd = xtl::subtype_cast<const A*>(pD);
 
         if (const A* p = xtl::subtype_dynamic_cast<const A*>(pa)) p->foo();
         if (const B* p = xtl::subtype_dynamic_cast<const B*>(pb)) p->foo();
         if (const C* p = xtl::subtype_dynamic_cast<const C*>(pc)) p->foo();
-        if (const D* p = xtl::subtype_dynamic_cast<const D*>(pdb))p->foo();
-        if (const D* p = xtl::subtype_dynamic_cast<const D*>(pdc))p->foo();
-//        if (const X* p = xtl::subtype_dynamic_cast<const X*>(px)) p->foo();
-//        if (const Y* p = xtl::subtype_dynamic_cast<const Y*>(py)) p->foo();
-//        if (const Z* p = xtl::subtype_dynamic_cast<const Z*>(pz)) p->foo();
-        if (const B* p = xtl::subtype_dynamic_cast<const B*>(pdc))p->foo();
-        if (const C* p = xtl::subtype_dynamic_cast<const C*>(pdb))p->foo();
+        if (const D* p = xtl::subtype_dynamic_cast<const D*>(pd)) p->foo();
 
         if (const A* p = xtl::subtype_dynamic_cast<const A*>(pa)) p->foo();
         if (const B* p = xtl::subtype_dynamic_cast<const B*>(pb)) p->foo();
         if (const C* p = xtl::subtype_dynamic_cast<const C*>(pc)) p->foo();
-        if (const D* p = xtl::subtype_dynamic_cast<const D*>(pdb))p->foo();
-        if (const D* p = xtl::subtype_dynamic_cast<const D*>(pdc))p->foo();
-//        if (const X* p = xtl::subtype_dynamic_cast<const X*>(px)) p->foo();
-//        if (const Y* p = xtl::subtype_dynamic_cast<const Y*>(py)) p->foo();
-//        if (const Z* p = xtl::subtype_dynamic_cast<const Z*>(pz)) p->foo();
-        if (const B* p = xtl::subtype_dynamic_cast<const B*>(pdc))p->foo();
-        if (const C* p = xtl::subtype_dynamic_cast<const C*>(pdb))p->foo();
+        if (const D* p = xtl::subtype_dynamic_cast<const D*>(pd)) p->foo();
     }
 
     static_assert(xtl::is_subtype<B,A>::value,"Subclassing");
+
+    const Shape* shapes[8] = {new Shape, new Rectange, new Ellipse, new Triangle,
+                              new Shape, new Rectange, new Ellipse, new Triangle};
+
+    for (int i = 0; i < 8; ++i)
+    {
+        Match(shapes[i])
+        {
+            Case(mch::C<Triangle>()) std::cout << "Triangle: " << std::endl; break;
+            Case(mch::C<Ellipse> ()) std::cout << "Ellipse:  " << std::endl; break;
+            Case(mch::C<Rectange>()) std::cout << "Rectange: " << std::endl; break;
+            Case(mch::C<Shape>()   ) std::cout << "Shape:    " << std::endl; break;
+        }
+        EndMatch
+    }
+
 }
-#endif
 
 int main()
 {
     test_subtype_dynamic_cast();
     test_variant_subtyping();
-    //    test_shape_subtyping();
+    test_shape_subtyping();
 }
