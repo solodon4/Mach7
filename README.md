@@ -175,6 +175,7 @@ Using Visual C++ (2010 or later)
 
  Commands supported so far:
 
+```
   * build [ pgo | tmp | (ver) ] [ filemask*.cpp ... ] - build given C++ files
   * build        - Build all examples using the most recent MS Visual C++ compiler installed
   * build syntax - Build all supported library options combination for syntax variations
@@ -184,15 +185,18 @@ Using Visual C++ (2010 or later)
   * build clean  - Clean all built examples
   * build test   -   Run all built examples
   * build check  -   Run those examples for which there are correct_output/*.out files and check that output is the same
+```
 
  Modifiers:
 
+```
   * pgo   - Perform Profile-Guided Optimization on produced executables
   * tmp   - Keep temporaries
   * (ver) - Use a specific version of Visual C++ to compiler the source code. (ver) can be one of the following:
    - 2010 - Visual C++ 10.0
    - 2012 - Visual C++ 11.0
    - 2013 - Visual C++ 12.0
+```
 
 The following batch files do some of these sub-commands directly and have since been integrated into build.bat:
 
