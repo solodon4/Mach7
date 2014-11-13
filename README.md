@@ -1,7 +1,7 @@
 Mach7: Pattern Matching for C++
 ===============================
 
-by Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+by [Yuriy Solodkyy](http://parasol.tamu.edu/~yuriys/), [Gabriel Dos Reis](http://parasol.tamu.edu/~gdr/), [Bjarne Stroustrup](http://parasol.tamu.edu/~bs/)
 
 
 License Agreement (BSD)
@@ -150,16 +150,12 @@ Building sources
 
 Using GCC (4.4 or later) or Clang (3.3 or later)
 
- * make
-    - builds .exe files from all the .cpp files in current directory.
- * make timings
-    - builds all combinations of encodings, syntax and benchmarks out of 
-      skeleton.cxx for timing purposes
- * make syntax
-    - builds all combinations of configuration flags supported by the library to 
-      make sure nothing was omitted
- * make test
-    - runs all the .exe files in the current folder
+    make         - builds .exe files from all the .cpp files in current directory.
+    make timings - builds all combinations of encodings, syntax and benchmarks 
+                   out of skeleton.cxx for timing purposes
+    make syntax  - builds all combinations of configuration flags supported by the 
+                   library to make sure nothing was omitted
+    make test    - runs all the .exe files in the current folder
 
 Using Visual C++ (2010 or later)
 
@@ -175,28 +171,25 @@ Using Visual C++ (2010 or later)
 
  Commands supported so far:
 
-```
-  * build [ pgo | tmp | (ver) ] [ filemask*.cpp ... ] - build given C++ files
-  * build        - Build all examples using the most recent MS Visual C++ compiler installed
-  * build syntax - Build all supported library options combination for syntax variations
-  * build timing - Build all supported library options combination for timing variations
-  * build cmp    - Build all executables for comparison with other languages
-  * build doc    - Build Mach7 documentation
-  * build clean  - Clean all built examples
-  * build test   -   Run all built examples
-  * build check  -   Run those examples for which there are correct_output/*.out files and check that output is the same
-```
+    build [ pgo | tmp | (ver) ] [ filemask*.cpp ... ] - build given C++ files
+    build        - Build all examples using the most recent MS Visual C++ compiler installed
+    build syntax - Build all supported library options combination for syntax variations
+    build timing - Build all supported library options combination for timing variations
+    build cmp    - Build all executables for comparison with other languages
+    build doc    - Build Mach7 documentation
+    build clean  - Clean all built examples
+    build test   - Run all built examples
+    build check  - Run those examples for which there are correct_output/*.out files and 
+                   check that output is the same
 
  Modifiers:
 
-```
-  * pgo   - Perform Profile-Guided Optimization on produced executables
-  * tmp   - Keep temporaries
-  * (ver) - Use a specific version of Visual C++ to compiler the source code. (ver) can be one of the following:
-   - 2010 - Visual C++ 10.0
-   - 2012 - Visual C++ 11.0
-   - 2013 - Visual C++ 12.0
-```
+    pgo   - Perform Profile-Guided Optimization on produced executables
+    tmp   - Keep temporaries
+    (ver) - Use a specific version of Visual C++ to compiler the source code. (ver) can be one of the following:
+          - 2010 - Visual C++ 10.0
+          - 2012 - Visual C++ 11.0
+          - 2013 - Visual C++ 12.0
 
 The following batch files do some of these sub-commands directly and have since been integrated into build.bat:
 
