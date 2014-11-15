@@ -3,6 +3,7 @@ Mach7: Pattern Matching for C++
 
 by [Yuriy Solodkyy](http://parasol.tamu.edu/~yuriys/), [Gabriel Dos Reis](http://parasol.tamu.edu/~gdr/), [Bjarne Stroustrup](http://parasol.tamu.edu/~bs/)
 
+<a href="https://parasol.tamu.edu/~yuriys/posters/Mach7.pdf"><img src="https://github.com/solodon4/Mach7/blob/master/media/posters/OpenPatternMatching-OOPSLA.jpg" width="100%"></a>
 
 License Agreement (BSD)
 -----------------------
