@@ -59,10 +59,10 @@ GCC_COLORS=always
 OS       = $(shell uname -s)
 CXX      = g++-4.8
 LIBS     = -lstdc++
-INCLUDES = 
+INCLUDES = -I/Users/solodon/Downloads/boost_1_56_0/
 CXXFLAGS_COMMON=$(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
 CXXFLAGS_GCC=-Wno-vla -ftrack-macro-expansion=4 -fdiagnostics-show-option
-CXXFLAGS_CLANG=-fmacro-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct
+CXXFLAGS_CLANG=-fmacro-backtrace-limit=0 -ftemplate-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct
 CXXFLAGS = $(CXXFLAGS_COMMON) $(CXXFLAGS_GCC)
 LIBFLAGS = $(LIBS)
 OCAMLLIB = /c/Program Files (x86)/OCaml/lib
@@ -305,11 +305,13 @@ clean:
 
 # A rule to create GraphViz .dot file with graph representation of header inclusions
 includes.dot:
-	grep -R --include=*.hpp "#include" * | sed -e "s/^/\"/g" -e "s/:/\"/g" -e "s/\/\/.*//g" -e "s/\"[A-Za-z0-9_\.\/-]*\//\"/g" -e "s/\(<.*>\)/\1\n\1 [color=red,shape=box]/g" -e "s/#include/ -> /g" -e "1 { s/^/digraph Includes {\nrankdir=TB;\nratio=0.44;\n/g }" -e "$$ { s/$$/\n}\n/g }" > includes.dot
+	grep -R --include=*.hpp "#include" * | sed -e "s/^/\"/g" -e "s/:/\"/g" -e "s/\/\/.*//g" -e "s/\"[A-Za-z0-9_\.\/-]*\//\"/g" -e "s/\(<.*>\)/\1\n\1 [color=red,shape=box]/g" -e "s/#include/ -> /g" > includes.dot
+
+# -e "1 { s/^/digraph Includes {\nrankdir=TB;\nratio=0.44;\n/g }" -e "$$ { s/$$/\n}\n/g }"
 
 # A rule to convert the above GraphViz .dot file into actual picture
 includes.png: includes.dot
-	dot.exe -Tpng -oincludes.png includes.dot
+	dot -Tpng -oincludes.png includes.dot
 
 # A rule to run set of tests
 test:
