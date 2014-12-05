@@ -245,7 +245,33 @@ void test_variant_subtyping()
         }
         EndMatch
     }
-    
+
+    // Match on 2 arguments
+
+    var<double> q;
+    var<float>  l;
+    var<int>    m;
+
+    for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 6; ++j)
+    {
+        Match(vars[i], vars2[j])
+        {
+            Case(mch::C<double>(d), mch::C<double>(q)) std::cout << "double " << d << "\t double " << q << std::endl; match0 += 1.0; break;
+            Case(mch::C<float> (f), mch::C<double>(q)) std::cout << "float  " << f << "\t double " << q << std::endl; match0 -= 1.0; break;
+            Case(mch::C<int>   (n), mch::C<double>(q)) std::cout << "int    " << n << "\t double " << q << std::endl; match0++;      break;
+
+            Case(mch::C<double>(d), mch::C<float>(l) ) std::cout << "double " << d << "\t float  " << l << std::endl; match0 += 1.0; break;
+            Case(mch::C<float> (f), mch::C<float>(l) ) std::cout << "float  " << f << "\t float  " << l << std::endl; match0 -= 1.0; break;
+            Case(mch::C<int>   (n), mch::C<float>(l) ) std::cout << "int    " << n << "\t float  " << l << std::endl; match0++;      break;
+
+            Case(mch::C<double>(d), mch::C<int>(m)   ) std::cout << "double " << d << "\t int    " << m << std::endl; match0 += 1.0; break;
+            Case(mch::C<float> (f), mch::C<int>(m)   ) std::cout << "float  " << f << "\t int    " << m << std::endl; match0 -= 1.0; break;
+            Case(mch::C<int>   (n), mch::C<int>(m)   ) std::cout << "int    " << n << "\t int    " << m << std::endl; match0++;      break;
+        }
+        EndMatch
+    }
+
 }
 
 //----------------------------------------------------------------------------------------------------------------------
