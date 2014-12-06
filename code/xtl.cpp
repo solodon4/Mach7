@@ -55,7 +55,6 @@ static_assert(xtl::is_subtype<int,int>::value,"No reflexivity");
 
 void test_variant_subtyping()
 {
-
     static_assert(xtl::is_subtype<int,boost::variant<double,float,int,unsigned int*>>::value, "Not a subtype");
 
     typedef boost::variant<double,float,int,unsigned int*> my_variant_1;
@@ -117,9 +116,9 @@ void test_variant_subtyping()
         {
             Match(vars[i])
             {
-                Case(mch::C<double>(d)) std::cout << "double " << d << std::endl; match0 += 1.0; break;
-                Case(mch::C<float> (f)) std::cout << "float  " << f << std::endl; match0 -= 1.0; break;
-                Case(mch::C<int>   (n)) std::cout << "int    " << n << std::endl; match0++;      break;
+                Case(C<double>(d)) std::cout << "double " << d << std::endl; match0 += 1.0; break;
+                Case(C<float> (f)) std::cout << "float  " << f << std::endl; match0 -= 1.0; break;
+                Case(C<int>   (n)) std::cout << "int    " << n << std::endl; match0++;      break;
             }
             EndMatch
         }
@@ -130,10 +129,10 @@ void test_variant_subtyping()
     {
         Match(vars2[i])
         {
-            Case(mch::C<double>(d)) std::cout << "double " << d << std::endl; break;
-            Case(mch::C<float> (f)) std::cout << "float  " << f << std::endl; break;
-            Case(mch::C<int>   (n)) std::cout << "int    " << n << std::endl; break;
-            //            Case(mch::C<unsigned int*>(p)) std::cout << "unsigned int* " << p << "->" << *p << std::endl; break; // FIX: fails to compile
+            Case(C<double>(d)) std::cout << "double " << d << std::endl; break;
+            Case(C<float> (f)) std::cout << "float  " << f << std::endl; break;
+            Case(C<int>   (n)) std::cout << "int    " << n << std::endl; break;
+//          Case(C<unsigned int*>(p)) std::cout << "unsigned int* " << p << "->" << *p << std::endl; break; // FIX: fails to compile
         }
         EndMatch
     }
@@ -149,21 +148,52 @@ void test_variant_subtyping()
     {
         Match(vars[i], vars2[j])
         {
-            Case(mch::C<double>(d), mch::C<double>(q)) std::cout << "double " << d << "\t double " << q << std::endl; match0 += 1.0; break;
-            Case(mch::C<float> (f), mch::C<double>(q)) std::cout << "float  " << f << "\t double " << q << std::endl; match0 -= 1.0; break;
-            Case(mch::C<int>   (n), mch::C<double>(q)) std::cout << "int    " << n << "\t double " << q << std::endl; match0++;      break;
+            Case(C<double>(d), C<double>(q)) std::cout << "double " << d << "\t double " << q << std::endl; match0 += 1.0; break;
+            Case(C<float> (f), C<double>(q)) std::cout << "float  " << f << "\t double " << q << std::endl; match0 -= 1.0; break;
+            Case(C<int>   (n), C<double>(q)) std::cout << "int    " << n << "\t double " << q << std::endl; match0++;      break;
 
-            Case(mch::C<double>(d), mch::C<float>(l) ) std::cout << "double " << d << "\t float  " << l << std::endl; match0 += 1.0; break;
-            Case(mch::C<float> (f), mch::C<float>(l) ) std::cout << "float  " << f << "\t float  " << l << std::endl; match0 -= 1.0; break;
-            Case(mch::C<int>   (n), mch::C<float>(l) ) std::cout << "int    " << n << "\t float  " << l << std::endl; match0++;      break;
+            Case(C<double>(d), C<float>(l) ) std::cout << "double " << d << "\t float  " << l << std::endl; match0 += 1.0; break;
+            Case(C<float> (f), C<float>(l) ) std::cout << "float  " << f << "\t float  " << l << std::endl; match0 -= 1.0; break;
+            Case(C<int>   (n), C<float>(l) ) std::cout << "int    " << n << "\t float  " << l << std::endl; match0++;      break;
 
-            Case(mch::C<double>(d), mch::C<int>(m)   ) std::cout << "double " << d << "\t int    " << m << std::endl; match0 += 1.0; break;
-            Case(mch::C<float> (f), mch::C<int>(m)   ) std::cout << "float  " << f << "\t int    " << m << std::endl; match0 -= 1.0; break;
-            Case(mch::C<int>   (n), mch::C<int>(m)   ) std::cout << "int    " << n << "\t int    " << m << std::endl; match0++;      break;
+            Case(C<double>(d), C<int>(m)   ) std::cout << "double " << d << "\t int    " << m << std::endl; match0 += 1.0; break;
+            Case(C<float> (f), C<int>(m)   ) std::cout << "float  " << f << "\t int    " << m << std::endl; match0 -= 1.0; break;
+            Case(C<int>   (n), C<int>(m)   ) std::cout << "int    " << n << "\t int    " << m << std::endl; match0++;      break;
         }
         EndMatch
     }
 
+}
+
+struct M { char   im = 0;   M(char   m) : im(m) {} };
+struct N { double in = 0.0; N(double n) : in(n) {} };
+typedef boost::variant<M, N> VM;
+
+void test_variant_mutation()
+{
+    using namespace mch;
+
+    VM vm[2] = { M{'A'}, N{3.1415926} };
+
+    for (size_t i = 0; i < 2; ++i)
+    {
+        Match(vm[i])
+        {
+            Case(C<M>()) match0.im = 'm';         break;
+            Case(C<N>()) match0.in = 2*match0.in; break;
+        }
+        EndMatch
+    }
+
+    for (size_t i = 0; i < 2; ++i)
+    {
+        Match(vm[i])
+        {
+            Case(C<M>()) std::cout << "M -> " << match0.im << std::endl; break;
+            Case(C<N>()) std::cout << "N -> " << match0.in << std::endl; break;
+        }
+        EndMatch
+    }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -408,5 +438,6 @@ int main()
 {
     test_subtype_dynamic_cast();
     test_variant_subtyping();
+    test_variant_mutation();
     test_shape_subtyping();
 }
