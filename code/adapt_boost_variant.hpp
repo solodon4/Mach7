@@ -42,6 +42,8 @@
 /// \see https://github.com/solodon4/SELL
 ///
 
+#pragma once
+
 #include "boost/variant.hpp"
 #include "type_switchN-patterns-xtl.hpp"
 
