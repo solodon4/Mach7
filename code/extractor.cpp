@@ -43,7 +43,10 @@
 ///
 
 #include "match.hpp"                // Support for Match statement
+#include "patterns/combinators.hpp" // Support for pattern combinators
 #include "patterns/constructor.hpp" // Support for constructor patterns
+#include "patterns/guard.hpp"       // Support for guard patterns
+#include "patterns/n+k.hpp"         // Support for n+k patterns          // FIX: Not sure why this had to be included to make Match on polar work below, investigate.
 
 #include <complex>
 #include <iostream>
@@ -71,21 +74,44 @@ typedef mch::view<std::complex<double>,plar> polar;
 
 int main()
 {
+    using namespace mch;
+
     std::complex<double> c(3.14, 2.15);
     double r;
     double i;
 
-    if (mch::C<std::complex<double>>(r,i)(c))
+    if (C<std::complex<double>>(r,i)(c))
         std::cout << '(' << r << ',' << i << ')' << std::endl;
 
-    if (mch::C<std::complex<double>, plar>(r,i)(c))
+    if (C<std::complex<double>, plar>(r,i)(c))
         std::cout << "The polar form of " << c << " is " << r << "*e^i*" << i << "rad " << std::polar(r,i) << std::endl;
 
-    if (mch::C<cartesian>(r,i)(c))
+    if (C<cartesian>(r,i)(c))
         std::cout << '(' << r << ',' << i << ')' << std::endl;
 
-    if (mch::C<polar>(r,i)(c))
+    if (C<polar>(r,i)(c))
         std::cout << "The polar form of " << c << " is " << r << "*e^i*" << i << "rad " << std::polar(r,i) << std::endl;
 
     std::cout << '(' << std::real(c) << ',' << std::imag(c) << ')' << std::endl;
+
+    Match(c)
+    {
+        Qua(cartesian, 0, 0) std::cout << "Null"             << std::endl; break;
+        Qua(cartesian, r, 0) std::cout << "Real number"      << std::endl; break;
+        Qua(cartesian, 0, i) std::cout << "Imaginary number" << std::endl; break;
+        Qua(cartesian, r, i) std::cout << "Complex number"   << std::endl; break;
+    }
+    EndMatch
+
+    var<double> R, F;
+    const double PI = 3.1415926;
+
+    Match(c)
+    {
+        Qua(polar, 0, _)                            std::cout << "Null"             << std::endl; break;
+        Qua(polar, R, F |= F >= -PI/2 && F <= PI/2) std::cout << "Real number"      << std::endl; break;
+        Qua(polar, R, F |= F <  -PI/2 || F >  PI/2) std::cout << "Imaginary number" << std::endl; break;
+        Qua(polar, R, F)                            std::cout << "Complex number"   << std::endl; break;
+    }
+    EndMatch
 }
