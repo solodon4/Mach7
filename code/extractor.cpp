@@ -94,24 +94,34 @@ int main()
 
     std::cout << '(' << std::real(c) << ',' << std::imag(c) << ')' << std::endl;
 
-    Match(c)
+    typedef std::complex<double> Cmplx;
+
+    const Cmplx values[] = {Cmplx(0,0), Cmplx(2,0), Cmplx(0,2), Cmplx(3.14, 2.15)};
+
+    for (size_t j = 0; j < XTL_ARR_SIZE(values); ++j)
     {
-        Qua(cartesian, 0, 0) std::cout << "Null"             << std::endl; break;
-        Qua(cartesian, r, 0) std::cout << "Real number"      << std::endl; break;
-        Qua(cartesian, 0, i) std::cout << "Imaginary number" << std::endl; break;
-        Qua(cartesian, r, i) std::cout << "Complex number"   << std::endl; break;
+        Match(values[j])
+        {
+            Qua(cartesian, 0, 0) std::cout << "Null"             << std::endl; break;
+            Qua(cartesian, r, 0) std::cout << "Real number"      << std::endl; break;
+            Qua(cartesian, 0, i) std::cout << "Imaginary number" << std::endl; break;
+            Qua(cartesian, r, i) std::cout << "Complex number"   << std::endl; break;
+        }
+        EndMatch
     }
-    EndMatch
 
     var<double> R, F;
     const double PI = 3.1415926;
 
-    Match(c)
+    for (size_t j = 0; j < XTL_ARR_SIZE(values); ++j)
     {
-        Qua(polar, 0, _)                            std::cout << "Null"             << std::endl; break;
-        Qua(polar, R, F |= F >= -PI/2 && F <= PI/2) std::cout << "Real number"      << std::endl; break;
-        Qua(polar, R, F |= F <  -PI/2 || F >  PI/2) std::cout << "Imaginary number" << std::endl; break;
-        Qua(polar, R, F)                            std::cout << "Complex number"   << std::endl; break;
+        Match(values[j])
+        {
+            Qua(polar, 0, _)                            std::cout << "Null"             << std::endl; break;
+            Qua(polar, R, F |= F == -PI/2 || F == PI/2) std::cout << "Real number"      << std::endl; break;
+            Qua(polar, R, F |= F == 0     || F == PI  ) std::cout << "Imaginary number" << std::endl; break;
+            Qua(polar, R, F)                            std::cout << "Complex number"   << std::endl; break;
+        }
+        EndMatch
     }
-    EndMatch
 }

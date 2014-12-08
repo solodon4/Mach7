@@ -187,7 +187,9 @@
     ///       was needlessly checking all the predicates after the matching clause. We
     ///       should probably make 0 the default just to help novices & avoid questions
     ///       about poor performance. (Sep 14, 2013)
-    #define XTL_FALL_THROUGH 0
+    /// \bug  Old Qua clauses seem to be putting break statements in the wrong place.
+    ///       Reverting back to 1 for now. (Dec 7, 2014) \see extractor.cpp for repro.
+    #define XTL_FALL_THROUGH 1
 #endif
 #define XTL_FALL_THROUGH_ONLY(...)     XTL_IF(XTL_NOT(XTL_FALL_THROUGH), XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
 #define XTL_NON_FALL_THROUGH_ONLY(...) XTL_IF(        XTL_FALL_THROUGH,  XTL_EMPTY(), XTL_EXPAND(__VA_ARGS__))
