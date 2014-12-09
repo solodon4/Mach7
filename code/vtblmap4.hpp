@@ -81,6 +81,7 @@
 #include <cstring>
 #include <cstdarg>
 #include "ptrtools.hpp"  // Helper functions to work with pointers
+#include "xtl.hpp"       // XTL subtyping definitions
 
 #if XTL_DUMP_PERFORMANCE
 // For print out purposes only

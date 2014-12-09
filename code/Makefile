@@ -57,13 +57,13 @@
 
 GCC_COLORS=always
 OS       = $(shell uname -s)
-CXX      = g++-4.8
+#CXX      = g++-4.8
 LIBS     = -lstdc++
 INCLUDES = -I/Users/solodon/Downloads/boost_1_56_0/
 CXXFLAGS_COMMON=$(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
 CXXFLAGS_GCC=-Wno-vla -ftrack-macro-expansion=4 -fdiagnostics-show-option
 CXXFLAGS_CLANG=-fmacro-backtrace-limit=0 -ftemplate-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct
-CXXFLAGS = $(CXXFLAGS_COMMON) $(CXXFLAGS_GCC)
+CXXFLAGS = $(CXXFLAGS_COMMON) $(CXXFLAGS_CLANG)
 LIBFLAGS = $(LIBS)
 OCAMLLIB = /c/Program Files (x86)/OCaml/lib
 #OCAMLLIB = C:\Program Files (x86)\OCaml\
@@ -312,6 +312,25 @@ includes.dot:
 # A rule to convert the above GraphViz .dot file into actual picture
 includes.png: includes.dot
 	dot -Tpng -oincludes.png includes.dot
+
+# Run those examples for which there are correct_output/*.out files and check that output is the same
+check:
+	@for file in *.exe; do \
+		name=`basename $$file .exe` ; \
+		name=`basename $$name .crash` ; \
+		if (ls correct_output/$$name.out >/dev/null 2>&1) ; then \
+			echo dummy >/dev/null 2>&1; \
+		else \
+			continue ; \
+		fi ; \
+		echo ======================================== [ $$file ] ; \
+		./$$file > $$name.out ; \
+		if (diff -q --strip-trailing-cr $$name.out correct_output/$$name.out) ; then \
+			echo Match >/dev/null 2>&1 ; \
+		else \
+			echo Dont match >/dev/null 2>&1 ; \
+		fi ; \
+	done ;
 
 # A rule to run set of tests
 test:
