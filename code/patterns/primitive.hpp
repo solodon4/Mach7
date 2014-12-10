@@ -327,9 +327,12 @@ struct var<T&>
     typedef typename std::remove_const<T>::type result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
 
     /// We may be applied to a value of a base type, so first we have to figure
-    /// out whether the dynamic type is actually T. We report match only if it is
+    /// out whether the dynamic type is actually T. We report match only if it is.
+    /// \note Having this overload only makes sense for polymorphic classes, hense enable_if, however we check that both
+    ///       are polymorphic as checking only T is not dependent on template arguments of this method.
     template <typename U>
-    bool operator()(const U& u) const
+    typename std::enable_if<std::is_polymorphic<U>::value && std::is_polymorphic<T>::value, bool>::type
+    operator()(const U& u) const
     {
         if (const T* t = dynamic_cast<const T*>(&u))
             return operator()(*t);
