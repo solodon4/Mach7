@@ -53,8 +53,10 @@
 
 static_assert(xtl::is_subtype<int,int>::value,"No reflexivity");
 
+/// Experimenting with extending XTL subtyping mechanism to also have an equivalent of checked downcast.
 void test_variant_subtyping()
 {
+    // Since any value that int can hold can be held inside that variant (semantic subtyping)
     static_assert(xtl::is_subtype<int,boost::variant<double,float,int,unsigned int*>>::value, "Not a subtype");
 
     typedef boost::variant<double,float,int,unsigned int*> my_variant_1;
@@ -167,8 +169,13 @@ void test_variant_subtyping()
 
 struct M { char   im = 0;   M(char   m) : im(m) {} };
 struct N { double in = 0.0; N(double n) : in(n) {} };
+
+std::ostream& operator<<(std::ostream& os, const M& m) { return os << m.im; } // Helper to allow printing of M
+std::ostream& operator<<(std::ostream& os, const N& n) { return os << n.in; } // Helper to allow printing of N
+
 typedef boost::variant<M, N> VM;
 
+/// Tests mutability of the subject and binding by reference
 void test_variant_mutation()
 {
     using namespace mch;
@@ -187,10 +194,20 @@ void test_variant_mutation()
 
     for (size_t i = 0; i < 2; ++i)
     {
+        var<M&> m; var<N&> n; // Demonstrates assignment to the actual subject via variable patterns of reference type
+
         Match(vm[i])
         {
-            Case(C<M>()) std::cout << "M -> " << match0.im << std::endl; break;
-            Case(C<N>()) std::cout << "N -> " << match0.in << std::endl; break;
+            Case(C<M>(m))
+                std::cout << "M -> " << match0.im << '=' << m << std::endl;
+                m = M{'X'};
+                std::cout << "M -> " << match0.im << '=' << m << std::endl;
+                break;
+            Case(C<N>(n))
+                std::cout << "N -> " << match0.in << '=' << n << std::endl;
+                n = N{42};
+                std::cout << "N -> " << match0.in << '=' << n << std::endl;
+                break;
         }
         EndMatch
     }
@@ -218,6 +235,7 @@ static_assert(!xtl::is_subtype<const A*, const B*>::value, "const A* <: const B*
 static_assert(!xtl::is_subtype<      A*, const B*>::value, "      A* <: const B*");
 static_assert(!xtl::is_subtype<const A*,       B*>::value, "const A* <:       B*");
 
+/// Tests new XTL functionaliy on subtyping induced by subclassing
 void test_subtype_dynamic_cast()
 {
     A a; const A ca;
@@ -352,6 +370,7 @@ namespace xtl
     }
 } // of namespace xtl
 
+/// Checks tagged classes can be expressed withing the XTL approach as well
 void test_shape_subtyping()
 {
     typedef Shape    A;

@@ -327,7 +327,7 @@ struct var<T&>
     typedef typename std::remove_const<T>::type result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
 
     /// We may be applied to a value of a base type, so first we have to figure
-    /// out whether they dynamic type is actually T. We report match only if it is
+    /// out whether the dynamic type is actually T. We report match only if it is
     template <typename U>
     bool operator()(const U& u) const
     {
@@ -372,6 +372,9 @@ struct var<T&>
         m_value = t;
         return t;
     }
+
+    /// We overload assignment to allow variables be assigned in the RHS
+    var& operator=(const T& t) {*m_value = t; return *this; }
 
     /// Helper conversion operator to let the variable be used in some places
     /// where T was allowed
