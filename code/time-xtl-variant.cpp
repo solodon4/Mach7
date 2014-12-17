@@ -24,37 +24,6 @@ int g_pn = 0;
 int g_qn = 0;
 int g_rn = 0;
 
-void count_with_mach7(VP const& vp, VM const& vm)
-{
-    using mch::C;
-
-    Match(vp, vm)
-    {
-        Case(C<P>(), C<M>()) ++g_pm; break;
-        Case(C<Q>(), C<M>()) ++g_qm; break;
-        Case(C<R>(), C<M>()) ++g_rm; break;
-        Case(C<P>(), C<N>()) ++g_pn; break;
-        Case(C<Q>(), C<N>()) ++g_qn; break;
-        Case(C<R>(), C<N>()) ++g_rn; break;
-    }
-    EndMatch
-}
-
-void count_with_visitor(VP const& vp, VM const& vm)
-{
-    struct increment : boost::static_visitor<>
-    {
-        void operator()(const P&, const M&) const { ++g_pm; }
-        void operator()(const Q&, const M&) const { ++g_qm; }
-        void operator()(const R&, const M&) const { ++g_rm; }
-        void operator()(const P&, const N&) const { ++g_pn; }
-        void operator()(const Q&, const N&) const { ++g_qn; }
-        void operator()(const R&, const N&) const { ++g_rn; }
-    };
-
-    apply_visitor(increment{}, vp, vm);
-}
-
 struct result
 {
     clock_t mach7;
@@ -71,7 +40,20 @@ result measure(const std::vector<VP>& vecp,
     {
         clock_t t0 = clock();
         for (const VP& vp : vecp) for (const VM& vm : vecm)
-            count_with_mach7(vp, vm);
+        {
+            using mch::C;
+
+            Match(vp, vm)
+            {
+                Case(C<P>(), C<M>()) ++g_pm; break;
+                Case(C<Q>(), C<M>()) ++g_qm; break;
+                Case(C<R>(), C<M>()) ++g_rm; break;
+                Case(C<P>(), C<N>()) ++g_pn; break;
+                Case(C<Q>(), C<N>()) ++g_qn; break;
+                Case(C<R>(), C<N>()) ++g_rn; break;
+            }
+            EndMatch
+        }
         clock_t t1 = clock();
         ans.mach7 = (t1 - t0);
     }
@@ -79,7 +61,19 @@ result measure(const std::vector<VP>& vecp,
     {
         clock_t t0 = clock();
         for (const VP& vp : vecp) for (const VM& vm : vecm)
-            count_with_visitor(vp, vm);
+        {
+            struct increment : boost::static_visitor<>
+            {
+                void operator()(const P&, const M&) const { ++g_pm; }
+                void operator()(const Q&, const M&) const { ++g_qm; }
+                void operator()(const R&, const M&) const { ++g_rm; }
+                void operator()(const P&, const N&) const { ++g_pn; }
+                void operator()(const Q&, const N&) const { ++g_qn; }
+                void operator()(const R&, const N&) const { ++g_rn; }
+            };
+            
+            apply_visitor(increment{}, vp, vm);
+        }
         clock_t t1 = clock();
         ans.visit = (t1 - t0);
     }
@@ -88,7 +82,20 @@ result measure(const std::vector<VP>& vecp,
     {
         clock_t t0 = clock();
         for (const VP& vp : vecp) for (const VM& vm : vecm)
-            count_with_mach7(vp, vm);
+        {
+            using mch::C;
+
+            Match(vp, vm)
+            {
+                Case(C<P>(), C<M>()) ++g_pm; break;
+                Case(C<Q>(), C<M>()) ++g_qm; break;
+                Case(C<R>(), C<M>()) ++g_rm; break;
+                Case(C<P>(), C<N>()) ++g_pn; break;
+                Case(C<Q>(), C<N>()) ++g_qn; break;
+                Case(C<R>(), C<N>()) ++g_rn; break;
+            }
+            EndMatch
+        }
         clock_t t1 = clock();
         ans.mach7 = (t1 - t0);
     }
