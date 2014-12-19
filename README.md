@@ -195,14 +195,14 @@ Using Visual C++ (2010 or later)
           - 2013 - Visual C++ 12.0
 
 The following batch files do some of these sub-commands directly and have since been integrated into build.bat:
-
+```
  * test-pm-timing.bat - builds all combinations of encodings, syntax and benchmarks out of skeleton.cxx for timing purposes (same as "make timings" for Visual C++)
  * test-pgo.bat - compiles and performs profile-guided optimizations on all files passed as arguments
  * test-pm.bat - builds sources varying amount of derived classes and virtual functions in them
  * test-pm-daily.bat - builds all files in the test suite
  * test-pm-daily-pgo.bat - builds all files in the test suite and performs profile-guided optimizations on them
  * ttt.bat - converts the summary of outputs into a latex definitions used in the performance table
-
+```
 Talks
 -------------
 
