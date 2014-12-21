@@ -7,12 +7,17 @@
 #include "adapt_boost_variant.hpp"
 #include "patterns/all.hpp"
 
-struct P { int i; };
-struct Q { int i; };
-struct R { int i; };
+#if defined(_MSC_VER)
+#define __attribute__(x)
+#define __builtin_expect(exp, val) exp
+#endif
 
-struct M { int i; };
-struct N { int i; };
+struct P { int i; P(int i) : i(i) {} };
+struct Q { int i; Q(int i) : i(i) {} };
+struct R { int i; R(int i) : i(i) {} };
+
+struct M { int i; M(int i) : i(i) {} };
+struct N { int i; N(int i) : i(i) {} };
 
 typedef boost::variant<P, Q, R> VP;
 typedef boost::variant<M, N> VM;
@@ -34,13 +39,18 @@ result measure(const std::vector<VP>& vecp,
                const std::vector<VM>& vecm,
                const bool mach7_first)
 {
-    result ans{};
+    result ans = {};
 
     if (mach7_first)
     {
         clock_t t0 = clock();
-        for (const VP& vp : vecp) for (const VM& vm : vecm)
+        for (std::vector<VP>::const_iterator pvp = vecp.begin(); pvp != vecp.end(); ++pvp)
+		{
+			const VP& vp = *pvp;
+
+		for (std::vector<VM>::const_iterator pvm = vecm.begin(); pvm != vecm.end(); ++pvm)
         {
+			const VM& vm = *pvm;
             using mch::C;
 #if 1
 			{
@@ -53,7 +63,7 @@ result measure(const std::vector<VP>& vecp,
 				};
 				auto&& subject_ref0 = vp;
 				auto const subject_ptr0 = mch::addr(subject_ref0);
-				typedef typename mch::underlying<decltype(*subject_ptr0)>::type source_type0;
+				typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(*subject_ptr0)>::type source_type0;
 				typedef source_type0 target_type0 __attribute__((unused));
 				enum 
 				{
@@ -65,7 +75,7 @@ result measure(const std::vector<VP>& vecp,
 				const void* __casted_ptr0 = 0;
 				auto&& subject_ref1 = vm;
 				auto const subject_ptr1 = mch::addr(subject_ref1);
-				typedef typename mch::underlying<decltype(*subject_ptr1)>::type source_type1;
+				typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(*subject_ptr1)>::type source_type1;
 				typedef source_type1 target_type1 __attribute__((unused));
 				enum 
 				{
@@ -93,12 +103,12 @@ result measure(const std::vector<VP>& vecp,
 							}
 						}
 						{
-							typedef typename mch::underlying<decltype(mch::filter(C<P>()))>::type type_of_pattern0;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(mch::filter(C<P>()))>::type type_of_pattern0;
 							static_assert(mch::is_pattern<type_of_pattern0>::value,"Case-clause expects patterns as its arguments");
-							typedef typename mch::underlying<type_of_pattern0>::type:: accepted_type_for<source_type0>::type target_type0;
-							typedef typename mch::underlying<decltype(mch::filter(C<M>()))>::type type_of_pattern1;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<type_of_pattern0>::type:: accepted_type_for<source_type0>::type target_type0;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(mch::filter(C<M>()))>::type type_of_pattern1;
 							static_assert(mch::is_pattern<type_of_pattern1>::value,"Case-clause expects patterns as its arguments");
-							typedef typename mch::underlying<type_of_pattern1>::type:: accepted_type_for<source_type1>::type target_type1;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<type_of_pattern1>::type:: accepted_type_for<source_type1>::type target_type1;
 							if ((__casted_ptr0 = mch::dynamic_cast_when_polymorphic<const target_type0*>(subject_ptr0)) != 0 && (__casted_ptr1 = mch::dynamic_cast_when_polymorphic<const target_type1*>(subject_ptr1)) != 0) 
 							{
 								static_assert(number_of_subjects == 2, "Number of targets in the case clause must be the same as the number of subjects in the Match statement");
@@ -124,12 +134,12 @@ result measure(const std::vector<VP>& vecp,
 							}
 						}
 						{
-							typedef typename mch::underlying<decltype(mch::filter(C<Q>()))>::type type_of_pattern0;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(mch::filter(C<Q>()))>::type type_of_pattern0;
 							static_assert(mch::is_pattern<type_of_pattern0>::value,"Case-clause expects patterns as its arguments");
-							typedef typename mch::underlying<type_of_pattern0>::type:: accepted_type_for<source_type0>::type target_type0;
-							typedef typename mch::underlying<decltype(mch::filter(C<M>()))>::type type_of_pattern1;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<type_of_pattern0>::type:: accepted_type_for<source_type0>::type target_type0;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(mch::filter(C<M>()))>::type type_of_pattern1;
 							static_assert(mch::is_pattern<type_of_pattern1>::value,"Case-clause expects patterns as its arguments");
-							typedef typename mch::underlying<type_of_pattern1>::type:: accepted_type_for<source_type1>::type target_type1;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<type_of_pattern1>::type:: accepted_type_for<source_type1>::type target_type1;
 							if ((__casted_ptr0 = mch::dynamic_cast_when_polymorphic<const target_type0*>(subject_ptr0)) != 0 && (__casted_ptr1 = mch::dynamic_cast_when_polymorphic<const target_type1*>(subject_ptr1)) != 0) 
 							{
 								static_assert(number_of_subjects == 2, "Number of targets in the case clause must be the same as the number of subjects in the Match statement");
@@ -155,12 +165,12 @@ result measure(const std::vector<VP>& vecp,
 							}
 						}
 						{
-							typedef typename mch::underlying<decltype(mch::filter(C<R>()))>::type type_of_pattern0;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(mch::filter(C<R>()))>::type type_of_pattern0;
 							static_assert(mch::is_pattern<type_of_pattern0>::value,"Case-clause expects patterns as its arguments");
-							typedef typename mch::underlying<type_of_pattern0>::type:: accepted_type_for<source_type0>::type target_type0;
-							typedef typename mch::underlying<decltype(mch::filter(C<M>()))>::type type_of_pattern1;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<type_of_pattern0>::type:: accepted_type_for<source_type0>::type target_type0;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(mch::filter(C<M>()))>::type type_of_pattern1;
 							static_assert(mch::is_pattern<type_of_pattern1>::value,"Case-clause expects patterns as its arguments");
-							typedef typename mch::underlying<type_of_pattern1>::type:: accepted_type_for<source_type1>::type target_type1;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<type_of_pattern1>::type:: accepted_type_for<source_type1>::type target_type1;
 							if ((__casted_ptr0 = mch::dynamic_cast_when_polymorphic<const target_type0*>(subject_ptr0)) != 0 && (__casted_ptr1 = mch::dynamic_cast_when_polymorphic<const target_type1*>(subject_ptr1)) != 0) 
 							{
 								static_assert(number_of_subjects == 2, "Number of targets in the case clause must be the same as the number of subjects in the Match statement");
@@ -186,12 +196,12 @@ result measure(const std::vector<VP>& vecp,
 							}
 						}
 						{
-							typedef typename mch::underlying<decltype(mch::filter(C<P>()))>::type type_of_pattern0;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(mch::filter(C<P>()))>::type type_of_pattern0;
 							static_assert(mch::is_pattern<type_of_pattern0>::value,"Case-clause expects patterns as its arguments");
-							typedef typename mch::underlying<type_of_pattern0>::type:: accepted_type_for<source_type0>::type target_type0;
-							typedef typename mch::underlying<decltype(mch::filter(C<N>()))>::type type_of_pattern1;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<type_of_pattern0>::type:: accepted_type_for<source_type0>::type target_type0;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(mch::filter(C<N>()))>::type type_of_pattern1;
 							static_assert(mch::is_pattern<type_of_pattern1>::value,"Case-clause expects patterns as its arguments");
-							typedef typename mch::underlying<type_of_pattern1>::type:: accepted_type_for<source_type1>::type target_type1;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<type_of_pattern1>::type:: accepted_type_for<source_type1>::type target_type1;
 							if ((__casted_ptr0 = mch::dynamic_cast_when_polymorphic<const target_type0*>(subject_ptr0)) != 0 && (__casted_ptr1 = mch::dynamic_cast_when_polymorphic<const target_type1*>(subject_ptr1)) != 0) 
 							{
 								static_assert(number_of_subjects == 2, "Number of targets in the case clause must be the same as the number of subjects in the Match statement");
@@ -217,12 +227,12 @@ result measure(const std::vector<VP>& vecp,
 							}
 						}
 						{
-							typedef typename mch::underlying<decltype(mch::filter(C<Q>()))>::type type_of_pattern0;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(mch::filter(C<Q>()))>::type type_of_pattern0;
 							static_assert(mch::is_pattern<type_of_pattern0>::value,"Case-clause expects patterns as its arguments");
-							typedef typename mch::underlying<type_of_pattern0>::type:: accepted_type_for<source_type0>::type target_type0;
-							typedef typename mch::underlying<decltype(mch::filter(C<N>()))>::type type_of_pattern1;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<type_of_pattern0>::type:: accepted_type_for<source_type0>::type target_type0;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(mch::filter(C<N>()))>::type type_of_pattern1;
 							static_assert(mch::is_pattern<type_of_pattern1>::value,"Case-clause expects patterns as its arguments");
-							typedef typename mch::underlying<type_of_pattern1>::type:: accepted_type_for<source_type1>::type target_type1;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<type_of_pattern1>::type:: accepted_type_for<source_type1>::type target_type1;
 							if ((__casted_ptr0 = mch::dynamic_cast_when_polymorphic<const target_type0*>(subject_ptr0)) != 0 && (__casted_ptr1 = mch::dynamic_cast_when_polymorphic<const target_type1*>(subject_ptr1)) != 0) 
 							{
 								static_assert(number_of_subjects == 2, "Number of targets in the case clause must be the same as the number of subjects in the Match statement");
@@ -248,12 +258,12 @@ result measure(const std::vector<VP>& vecp,
 							}
 						}
 						{
-							typedef typename mch::underlying<decltype(mch::filter(C<R>()))>::type type_of_pattern0;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(mch::filter(C<R>()))>::type type_of_pattern0;
 							static_assert(mch::is_pattern<type_of_pattern0>::value,"Case-clause expects patterns as its arguments");
-							typedef typename mch::underlying<type_of_pattern0>::type:: accepted_type_for<source_type0>::type target_type0;
-							typedef typename mch::underlying<decltype(mch::filter(C<N>()))>::type type_of_pattern1;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<type_of_pattern0>::type:: accepted_type_for<source_type0>::type target_type0;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(mch::filter(C<N>()))>::type type_of_pattern1;
 							static_assert(mch::is_pattern<type_of_pattern1>::value,"Case-clause expects patterns as its arguments");
-							typedef typename mch::underlying<type_of_pattern1>::type:: accepted_type_for<source_type1>::type target_type1;
+							typedef XTL_CPP0X_TYPENAME mch::underlying<type_of_pattern1>::type:: accepted_type_for<source_type1>::type target_type1;
 							if ((__casted_ptr0 = mch::dynamic_cast_when_polymorphic<const target_type0*>(subject_ptr0)) != 0 && (__casted_ptr1 = mch::dynamic_cast_when_polymorphic<const target_type1*>(subject_ptr1)) != 0) 
 							{
 								static_assert(number_of_subjects == 2, "Number of targets in the case clause must be the same as the number of subjects in the Match statement");
@@ -306,14 +316,20 @@ result measure(const std::vector<VP>& vecp,
             EndMatch
 #endif
         }
+		}
         clock_t t1 = clock();
         ans.mach7 = (t1 - t0);
     }
 
     {
         clock_t t0 = clock();
-        for (const VP& vp : vecp) for (const VM& vm : vecm)
+        for (std::vector<VP>::const_iterator pvp = vecp.begin(); pvp != vecp.end(); ++pvp)
+		{
+			const VP& vp = *pvp;
+
+		for (std::vector<VM>::const_iterator pvm = vecm.begin(); pvm != vecm.end(); ++pvm)
         {
+			const VM& vm = *pvm;
             struct increment : boost::static_visitor<>
             {
                 void operator()(const P&, const M&) const { ++g_pm; }
@@ -324,8 +340,9 @@ result measure(const std::vector<VP>& vecp,
                 void operator()(const R&, const N&) const { ++g_rn; }
             };
             
-            apply_visitor(increment{}, vp, vm);
+            apply_visitor(increment(), vp, vm);
         }
+		}
         clock_t t1 = clock();
         ans.visit = (t1 - t0);
     }
@@ -333,8 +350,13 @@ result measure(const std::vector<VP>& vecp,
     if (!mach7_first)
     {
         clock_t t0 = clock();
-        for (const VP& vp : vecp) for (const VM& vm : vecm)
+        for (std::vector<VP>::const_iterator pvp = vecp.begin(); pvp != vecp.end(); ++pvp)
+		{
+			const VP& vp = *pvp;
+
+		for (std::vector<VM>::const_iterator pvm = vecm.begin(); pvm != vecm.end(); ++pvm)
         {
+			const VM& vm = *pvm;
             using mch::C;
 
             Match(vp, vm)
@@ -348,6 +370,7 @@ result measure(const std::vector<VP>& vecp,
             }
             EndMatch
         }
+		}
         clock_t t1 = clock();
         ans.mach7 = (t1 - t0);
     }
@@ -364,16 +387,16 @@ void populate_data(std::vector<VP>& vec_vp,
 
     for(int i = 0; i != SIZE; ++i) {
         if (i % 3 == 0)
-            vec_vp.push_back(P{0});
+            vec_vp.push_back(P(40));
         else if (i % 3 == 1)
-            vec_vp.push_back(Q{0});
+            vec_vp.push_back(Q(41));
         else
-            vec_vp.push_back(R{0});
+            vec_vp.push_back(R(42));
 
         if (i % 2 == 0)
-            vec_vm.push_back(M{0});
+            vec_vm.push_back(M(53));
         else
-            vec_vm.push_back(N{0});
+            vec_vm.push_back(N(54));
     }
 }
 
@@ -393,6 +416,9 @@ int main()
     }
     
     std::cout << "mach7" "\t" "visit" << std::endl;
-    for (const result& r : results)
+    for (std::vector<result>::const_iterator p = results.begin(); p != results.end(); ++p)
+	{
+		const result& r = *p;
         std::cout << r.mach7 << "\t" << r.visit << std::endl;
+	}
 }
