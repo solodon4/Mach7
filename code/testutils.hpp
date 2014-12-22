@@ -57,7 +57,8 @@
 #include <typeinfo>
 #include <vector>
 #include "config.hpp"
-#include "timing.hpp"
+#include "metatools.hpp"    // Support of mch::underlying<T>::type
+#include "timing.hpp"       // Support of get_time_stamp and get_frequency
 
 #define NO_RANDOMIZATION
 
@@ -435,7 +436,7 @@ inline long long test(Object* (*make)(int), int (*match)(Object*,Object*,Object*
 
 template <typename R, typename A, R (&f1)(A), R (&f2)(A)>
 inline size_t get_timings1(
-        std::vector<A>&         arguments, 
+        std::vector<typename underlying<A>::type>& arguments,
         std::vector<long long>& timings1, 
         std::vector<long long>& timings2,
         R&                      a1,
@@ -475,7 +476,7 @@ inline size_t get_timings1(
 //------------------------------------------------------------------------------
 
 template <typename R, typename A, R (&f1)(A), R (&f2)(A)>
-inline verdict get_timings1(std::vector<A>& arguments)
+inline verdict get_timings1(std::vector<typename underlying<A>::type>& arguments)
 {
 	size_t N = 0;
     std::vector<long long> medians1(K); // Final verdict of medians for each of the K experiments with visitors
@@ -514,7 +515,7 @@ inline verdict get_timings1(std::vector<A>& arguments)
 
 template <typename R, typename A, R (&f1)(A,A), R (&f2)(A,A)>
 inline size_t get_timings2(
-        std::vector<A>&         arguments, 
+        std::vector<typename underlying<A>::type>& arguments,
         std::vector<long long>& timings1, 
         std::vector<long long>& timings2,
         R&                      a1,
@@ -554,7 +555,7 @@ inline size_t get_timings2(
 //------------------------------------------------------------------------------
 
 template <typename R, typename A, R (&f1)(A,A), R (&f2)(A,A)>
-inline verdict get_timings2(std::vector<A>& arguments)
+inline verdict get_timings2(std::vector<typename underlying<A>::type>& arguments)
 {
 	size_t N = 0;
     std::vector<long long> medians1(K); // Final verdict of medians for each of the K experiments with visitors
@@ -593,7 +594,7 @@ inline verdict get_timings2(std::vector<A>& arguments)
 
 template <typename R, typename A, R (&f1)(A,A,A), R (&f2)(A,A,A)>
 inline size_t get_timings3(
-        std::vector<A>&         arguments, 
+        std::vector<typename underlying<A>::type>& arguments,
         std::vector<long long>& timings1, 
         std::vector<long long>& timings2,
         R&                      a1,
@@ -633,7 +634,7 @@ inline size_t get_timings3(
 //------------------------------------------------------------------------------
 
 template <typename R, typename A, R (&f1)(A,A,A), R (&f2)(A,A,A)>
-inline verdict get_timings3(std::vector<A>& arguments)
+inline verdict get_timings3(std::vector<typename underlying<A>::type>& arguments)
 {
 	size_t N = 0;
     std::vector<long long> medians1(K); // Final verdict of medians for each of the K experiments with visitors
@@ -672,7 +673,7 @@ inline verdict get_timings3(std::vector<A>& arguments)
 
 template <typename R, typename A, R (&f1)(A,A,A,A), R (&f2)(A,A,A,A)>
 inline size_t get_timings4(
-        std::vector<A>&         arguments, 
+        std::vector<typename underlying<A>::type>& arguments,
         std::vector<long long>& timings1, 
         std::vector<long long>& timings2,
         R&                      a1,
@@ -712,7 +713,7 @@ inline size_t get_timings4(
 //------------------------------------------------------------------------------
 
 template <typename R, typename A, R (&f1)(A,A,A,A), R (&f2)(A,A,A,A)>
-inline verdict get_timings4(std::vector<A>& arguments)
+inline verdict get_timings4(std::vector<typename underlying<A>::type>& arguments)
 {
     size_t N = 0;
     std::vector<long long> medians1(K); // Final verdict of medians for each of the K experiments with visitors

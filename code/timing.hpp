@@ -127,7 +127,6 @@ namespace mch ///< Mach7 library namespace
     /// Returns how many time stamps are there in 1 second (frequency).
     inline time_stamp get_frequency()
     {
-        return 2530000000; // FIX: This ideally has to be MGz of computer we are running on as approximated below
         time_stamp cycles[2];
         cycles[0] = rdtsc();
         usleep(100000); // Sleep for 1/10th of a second
