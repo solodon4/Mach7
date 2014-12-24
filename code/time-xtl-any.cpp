@@ -73,7 +73,8 @@ int do_mach7_1(const VP& vp)
     }
     EndMatch
 
-	return -1;
+    XTL_ASSERT(!"Not exhaustive");
+    return -1;
 }
 XTL_TIMED_FUNC_END
 
@@ -98,6 +99,7 @@ int do_mach7_1v(const VP& vp)
     }
     EndMatch
 
+    XTL_ASSERT(!"Not exhaustive");
     return -1;
 }
 XTL_TIMED_FUNC_END
@@ -111,6 +113,7 @@ int do_visit_1(const VP& vp)
     if (const Q* q = boost::any_cast<Q>(&vp)) { return q->m_q; }
     if (const R* r = boost::any_cast<R>(&vp)) { return r->m_r; }
 
+    XTL_ASSERT(!"Not exhaustive");
     return -1;
 }
 XTL_TIMED_FUNC_END
@@ -168,21 +171,27 @@ XTL_TIMED_FUNC_END
 XTL_TIMED_FUNC_BEGIN
 int do_visit_2(const VP& vp1, const VP& vp2)
 {
-//    struct increment : boost::static_visitor<int>
-//    {
-//        int operator()(const P& match0, const P& match1) const { return 20*match0.m_p + match1.m_p; }
-//        int operator()(const P& match0, const Q& match1) const { return 20*match0.m_p + match1.m_q; }
-//        int operator()(const P& match0, const R& match1) const { return 20*match0.m_p + match1.m_r; }
-//        int operator()(const Q& match0, const P& match1) const { return 40*match0.m_q + match1.m_p; }
-//        int operator()(const Q& match0, const Q& match1) const { return 40*match0.m_q + match1.m_q; }
-//        int operator()(const Q& match0, const R& match1) const { return 40*match0.m_q + match1.m_r; }
-//        int operator()(const R& match0, const P& match1) const { return 60*match0.m_r + match1.m_p; }
-//        int operator()(const R& match0, const Q& match1) const { return 60*match0.m_r + match1.m_q; }
-//        int operator()(const R& match0, const R& match1) const { return 60*match0.m_r + match1.m_r; }
-//
-//    };
-//
-//    return apply_visitor(increment(), vp1, vp2);
+    if (const P* match0 = boost::any_cast<P>(&vp1))
+    {
+        if (const P* match1 = boost::any_cast<P>(&vp2)) { return 20*match0->m_p + match1->m_p; }
+        if (const Q* match1 = boost::any_cast<Q>(&vp2)) { return 20*match0->m_p + match1->m_q; }
+        if (const R* match1 = boost::any_cast<R>(&vp2)) { return 20*match0->m_p + match1->m_r; }
+    }
+    else
+    if (const Q* match0 = boost::any_cast<Q>(&vp1))
+    {
+        if (const P* match1 = boost::any_cast<P>(&vp2)) { return 20*match0->m_q + match1->m_p; }
+        if (const Q* match1 = boost::any_cast<Q>(&vp2)) { return 20*match0->m_q + match1->m_q; }
+        if (const R* match1 = boost::any_cast<R>(&vp2)) { return 20*match0->m_q + match1->m_r; }
+    }
+    else
+    if (const R* match0 = boost::any_cast<R>(&vp1))
+    {
+        if (const P* match1 = boost::any_cast<P>(&vp2)) { return 20*match0->m_r + match1->m_p; }
+        if (const Q* match1 = boost::any_cast<Q>(&vp2)) { return 20*match0->m_r + match1->m_q; }
+        if (const R* match1 = boost::any_cast<R>(&vp2)) { return 20*match0->m_r + match1->m_r; }
+    }
+
     return -1;
 }
 XTL_TIMED_FUNC_END
@@ -225,14 +234,14 @@ int main()
 
     verdict v1 = get_timings1<int,const VP&,do_visit_1,do_mach7_1>(arguments);
     verdict v1v= get_timings1<int,const VP&,do_visit_1,do_mach7_1v>(arguments);
-//    verdict v2 = get_timings2<int,const VP&,do_visit_2,do_mach7_2>(arguments);
-//    verdict v2v= get_timings2<int,const VP&,do_visit_2,do_mach7_2v>(arguments);
+    verdict v2 = get_timings2<int,const VP&,do_visit_2,do_mach7_2>(arguments);
+    verdict v2v= get_timings2<int,const VP&,do_visit_2,do_mach7_2v>(arguments);
 
     std::cout << std::endl;
     std::cout << "Verdict 1: \t" << v1 << std::endl;
     std::cout << "Verdict'1: \t" << v1v<< std::endl;
-//    std::cout << "Verdict 2: \t" << v2 << std::endl;
-//    std::cout << "Verdict'2: \t" << v2v<< std::endl;
+    std::cout << "Verdict 2: \t" << v2 << std::endl;
+    std::cout << "Verdict'2: \t" << v2v<< std::endl;
 
 }
 
