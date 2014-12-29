@@ -227,14 +227,18 @@ int main()
 
     verdict v1 = get_timings1<int,const VP&,do_visit_1,do_mach7_1>(arguments);
     verdict v1v= get_timings1<int,const VP&,do_visit_1,do_mach7_1v>(arguments);
+    verdict v1w= get_timings1<int,const VP&,do_mach7_1v,do_mach7_1>(arguments);
     verdict v2 = get_timings2<int,const VP&,do_visit_2,do_mach7_2>(arguments);
     verdict v2v= get_timings2<int,const VP&,do_visit_2,do_mach7_2v>(arguments);
+    verdict v2w= get_timings2<int,const VP&,do_mach7_2v,do_mach7_2>(arguments);
 
     std::cout << std::endl;
     std::cout << "Verdict 1: \t" << v1 << std::endl;
     std::cout << "Verdict'1: \t" << v1v<< std::endl;
+    std::cout << "Verdict\"1:\t" << v1w<< std::endl;
     std::cout << "Verdict 2: \t" << v2 << std::endl;
     std::cout << "Verdict'2: \t" << v2v<< std::endl;
+    std::cout << "Verdict\"2:\t" << v2w<< std::endl;
 
 }
 
