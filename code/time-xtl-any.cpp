@@ -43,14 +43,10 @@
 ///
 
 #include <iostream>
-#include "virpat.hpp"
 #include "testutils.hpp"
-
-#include "boost/variant.hpp"
-
 #include "type_switchN-patterns-xtl.hpp"
+#include "patterns/constructor.hpp"
 #include "adapt_boost_any.hpp"
-#include "patterns/all.hpp"
 
 struct P { int m_p; P(int i = 0) : m_p(i) {} };
 struct Q { int m_q; Q(int i = 0) : m_q(i) {} };
