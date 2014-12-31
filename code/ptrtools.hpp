@@ -72,7 +72,7 @@ namespace std
     /// provide std::addressof. The following workaround is borrowed from:
     /// http://en.cppreference.com/w/cpp/memory/addressof
     template <typename T>
-    T* addressof(T& arg) 
+    T* addressof(T& arg) noexcept
     {
         return reinterpret_cast<T*>(&const_cast<char&>(reinterpret_cast<const volatile char&>(arg)));
     }
@@ -89,36 +89,36 @@ namespace mch ///< Mach7 library namespace
 /// \note This default implementation assumes the vtbl-pointer is located at 
 ///       offset 0 from the address, pointed to by p and the user is responsible
 ///       to overload this function for class hierarchies, where this is not the case.
-inline std::intptr_t vtbl_of(const void* p)
+inline std::intptr_t vtbl_of(const void* p) noexcept
 {
     return *reinterpret_cast<const std::intptr_t*>(p);
 }
 
 //------------------------------------------------------------------------------
 
-template <typename T> inline const T* adjust_ptr(const void* p, std::ptrdiff_t offset) { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
-template <typename T> inline       T* adjust_ptr(      void* p, std::ptrdiff_t offset) { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)+offset); }
+template <typename T> inline const T* adjust_ptr(const void* p, std::ptrdiff_t offset) noexcept { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
+template <typename T> inline       T* adjust_ptr(      void* p, std::ptrdiff_t offset) noexcept { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)+offset); }
 
-template <typename T, typename S> inline auto adjust_ptr_if_polymorphic(const S* p, std::ptrdiff_t offset) -> typename std::enable_if< std::is_polymorphic<S>::value,const T*>::type { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
-template <typename T, typename S> inline auto adjust_ptr_if_polymorphic(const S* p, std::ptrdiff_t       ) -> typename std::enable_if<!std::is_polymorphic<S>::value,const T*>::type { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)); }
-template <typename T, typename S> inline auto adjust_ptr_if_polymorphic(      S* p, std::ptrdiff_t offset) -> typename std::enable_if< std::is_polymorphic<S>::value,      T*>::type { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)+offset); }
-template <typename T, typename S> inline auto adjust_ptr_if_polymorphic(      S* p, std::ptrdiff_t       ) -> typename std::enable_if<!std::is_polymorphic<S>::value,      T*>::type { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)); }
-
-//------------------------------------------------------------------------------
-
-template <typename T> inline const T* addr(const T* t) { return t; }
-template <typename T> inline       T* addr(      T* t) { return t; }
-template <typename T> inline const T* addr(const T& t) { return std::addressof(t); }
-template <typename T> inline       T* addr(      T& t) { return std::addressof(t); }
+template <typename T, typename S> inline auto adjust_ptr_if_polymorphic(const S* p, std::ptrdiff_t offset) noexcept -> typename std::enable_if< std::is_polymorphic<S>::value,const T*>::type { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)+offset); }
+template <typename T, typename S> inline auto adjust_ptr_if_polymorphic(const S* p, std::ptrdiff_t       ) noexcept -> typename std::enable_if<!std::is_polymorphic<S>::value,const T*>::type { return  reinterpret_cast<const T*>(reinterpret_cast<const char*>(p)); }
+template <typename T, typename S> inline auto adjust_ptr_if_polymorphic(      S* p, std::ptrdiff_t offset) noexcept -> typename std::enable_if< std::is_polymorphic<S>::value,      T*>::type { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)+offset); }
+template <typename T, typename S> inline auto adjust_ptr_if_polymorphic(      S* p, std::ptrdiff_t       ) noexcept -> typename std::enable_if<!std::is_polymorphic<S>::value,      T*>::type { return  reinterpret_cast<      T*>(reinterpret_cast<      char*>(p)); }
 
 //------------------------------------------------------------------------------
 
-template <typename T, typename U> inline const T* stat_cast(const U* p) { return static_cast<const T*>(p); }
-template <typename T, typename U> inline       T* stat_cast(      U* p) { return static_cast<      T*>(p); }
+template <typename T> inline const T* addr(const T* t) noexcept { return t; }
+template <typename T> inline       T* addr(      T* t) noexcept { return t; }
+template <typename T> inline const T* addr(const T& t) noexcept { return std::addressof(t); }
+template <typename T> inline       T* addr(      T& t) noexcept { return std::addressof(t); }
 
 //------------------------------------------------------------------------------
 
-template <typename T> const std::type_info& vtbl_typeid(std::intptr_t vtbl) 
+template <typename T, typename U> inline const T* stat_cast(const U* p) noexcept { return static_cast<const T*>(p); }
+template <typename T, typename U> inline       T* stat_cast(      U* p) noexcept { return static_cast<      T*>(p); }
+
+//------------------------------------------------------------------------------
+
+template <typename T> const std::type_info& vtbl_typeid(std::intptr_t vtbl) noexcept
 {
 #ifdef _MSC_VER
     // FIX: The SEH handler below works in debug but not in release builds
@@ -142,15 +142,15 @@ template <typename T> const std::type_info& vtbl_typeid(std::intptr_t vtbl)
 }
 
 template <typename T> 
-inline const std::type_info& vtbl_typeid(const void* p) 
+inline const std::type_info& vtbl_typeid(const void* p) noexcept
 {
     return vtbl_typeid<T>(*reinterpret_cast<const std::intptr_t*>(p)); 
 }
 
 struct polymorphic_dummy { virtual ~polymorphic_dummy(){} };
 
-inline const std::type_info& vtbl_typeid(std::intptr_t vtbl) { return vtbl_typeid<polymorphic_dummy>(vtbl); }
-inline const std::type_info& vtbl_typeid(const void* p)      { return vtbl_typeid<polymorphic_dummy>(p); }
+inline const std::type_info& vtbl_typeid(std::intptr_t vtbl) noexcept { return vtbl_typeid<polymorphic_dummy>(vtbl); }
+inline const std::type_info& vtbl_typeid(const void* p)      noexcept { return vtbl_typeid<polymorphic_dummy>(p); }
 
 //------------------------------------------------------------------------------
 
@@ -168,7 +168,7 @@ template <>         struct requires_bits<0>  { static const size_t value = 1; };
 /// Finds the number of trailing zeros in v.
 /// The following code to count trailing zeros was taken from:
 /// http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightFloatCast
-inline uint32_t trailing_zeros(uint32_t v)
+inline uint32_t trailing_zeros(uint32_t v) noexcept
 {
     static_assert(sizeof(v) == sizeof(float), "trailing_zeros function assumes float to be of same size as uint32_t");
 #ifdef _MSC_VER
@@ -190,7 +190,7 @@ inline uint32_t trailing_zeros(uint32_t v)
 /// Counts the number of bits set in v (the Brian Kernighan's way)
 /// The following code to count set bits was taken from:
 /// http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan
-inline unsigned int bits_set(std::intptr_t v)
+inline unsigned int bits_set(std::intptr_t v) noexcept
 {
     unsigned int c = 0; // c accumulates the total bits set in v
 
@@ -204,7 +204,7 @@ inline unsigned int bits_set(std::intptr_t v)
 
 /// Returns the amount of bits required to represent a given number.
 /// FIX: Optimize this draft function
-inline size_t req_bits(size_t v)
+inline size_t req_bits(size_t v) noexcept
 {
     size_t r = 1;   // r-1 will be lg(v)
 
@@ -333,7 +333,7 @@ const uint16_t morton<_>::spread4x2[16] =
 inline uint32_t interleave(
     register uint32_t x, ///< Interleave lower 16 bits of x and y, so the bits of x
     register uint32_t y  ///< are in the even positions and bits from y in the odd;
-)
+) noexcept
 {
     x &= 0xFFFF;
     y &= 0xFFFF;
@@ -359,7 +359,7 @@ inline uint32_t interleave(
 inline uint32_t interleave8x2(
     register uint32_t x, ///< Interleave lower 16 bits of x and y, so the bits of x
     register uint32_t y  ///< are in the even positions and bits from y in the odd;
-)
+) noexcept
 {
     return morton<>::spread8x2[x      & 0xFF]
          | morton<>::spread8x2[x >> 8 & 0xFF] << 16
@@ -373,7 +373,7 @@ inline uint32_t interleave8x2(
 inline uint32_t interleave4x2(
     register uint32_t x, ///< Interleave lower 16 bits of x and y, so the bits of x
     register uint32_t y  ///< are in the even positions and bits from y in the odd;
-)
+) noexcept
 {
     return morton<>::spread4x2[x      & 0x0F] 
          | morton<>::spread4x2[x >> 4 & 0x0F] << 8 
@@ -395,7 +395,7 @@ inline uint32_t interleave(
     register uint32_t x, ///< Interleave lower 10 bits of x, y and z, so the bits
     register uint32_t y, ///< of x are in the mod 0 positions, bits from y in mod 1
     register uint32_t z  ///< and bits from z in mod 2 positions;
-)
+) noexcept
 {
     x &= 0x03FF;
     y &= 0x03FF;
@@ -426,7 +426,7 @@ inline uint32_t interleave8x4(
     register uint32_t y,
     register uint32_t z,
     register uint32_t w
-)
+) noexcept
 {
     return morton<>::spread8x4[x      & 0xFF] 
          | morton<>::spread8x4[y      & 0xFF] << 1
@@ -442,7 +442,7 @@ inline uint32_t interleave4x4(
     register uint32_t y,
     register uint32_t z,
     register uint32_t w
-)
+) noexcept
 {
     return morton<>::spread4x4[x      & 0x0F] 
          | morton<>::spread4x4[x >> 4 & 0x0F] << 16     
@@ -465,7 +465,7 @@ inline uint32_t interleave(
     register uint32_t y,
     register uint32_t z,
     register uint32_t w
-)
+) noexcept
 {
     x &= 0xFF;                        // x = 00000000 00000000 00000000 ABCDEFGH
     y &= 0xFF;                        // y = 00000000 00000000 00000000 ABCDEFGH
@@ -495,7 +495,7 @@ inline uint32_t interleave(
 /// Interleaves bits of N numbers (aka Morton numbers).
 /// FIX: Replace condition on j to better handle odd numbers.
 template <typename T, size_t N>
-inline T interleave(const T (&vtbl)[N])
+inline T interleave(const T (&vtbl)[N]) noexcept
 {
     T result = 0;
     T bit    = 1;
@@ -519,16 +519,16 @@ inline T interleave(const T (&vtbl)[N])
 // 8x4 - 56% faster V= 61 M= 39 * - 68% slower V= 60 M=101   -306% slower V= 54 M=222 + - 70% slower V= 53 M= 92 *
 // 4x4 - 48% faster V= 65 M= 44   - 59% faster V= 60 M= 37 * -866% slower V= 52 M=508   -107% slower V= 55 M=114  
 
-inline intptr_t interleave(const intptr_t (&vtbl)[1]) { return vtbl[0]; }
-inline intptr_t interleave(const intptr_t (&vtbl)[2]) { return interleave8x2(vtbl[0],vtbl[1]); }
-inline intptr_t interleave(const intptr_t (&vtbl)[3]) { return interleave(vtbl[0],vtbl[1],vtbl[2]); }
+inline intptr_t interleave(const intptr_t (&vtbl)[1]) noexcept { return vtbl[0]; }
+inline intptr_t interleave(const intptr_t (&vtbl)[2]) noexcept { return interleave8x2(vtbl[0],vtbl[1]); }
+inline intptr_t interleave(const intptr_t (&vtbl)[3]) noexcept { return interleave(vtbl[0],vtbl[1],vtbl[2]); }
 #if defined(__GNUC__)
-inline intptr_t interleave(const intptr_t (&vtbl)[4]) { return interleave4x4(vtbl[0],vtbl[1],vtbl[2],vtbl[3]); }
+inline intptr_t interleave(const intptr_t (&vtbl)[4]) noexcept { return interleave4x4(vtbl[0],vtbl[1],vtbl[2],vtbl[3]); }
 #elif defined(_MSC_VER)
-inline intptr_t interleave(const intptr_t (&vtbl)[4]) { return interleave8x4(vtbl[0],vtbl[1],vtbl[2],vtbl[3]); }
+inline intptr_t interleave(const intptr_t (&vtbl)[4]) noexcept { return interleave8x4(vtbl[0],vtbl[1],vtbl[2],vtbl[3]); }
 #else
-inline intptr_t interleave(const intptr_t (&vtbl)[4]) { return interleave(vtbl[0],vtbl[1],vtbl[2],vtbl[3]); }
-//inline intptr_t interleave(const intptr_t (&vtbl)[4]) { return interleave(interleave(vtbl[0],vtbl[1]),interleave(vtbl[2],vtbl[3])); }
+inline intptr_t interleave(const intptr_t (&vtbl)[4]) noexcept { return interleave(vtbl[0],vtbl[1],vtbl[2],vtbl[3]); }
+//inline intptr_t interleave(const intptr_t (&vtbl)[4]) noexcept { return interleave(interleave(vtbl[0],vtbl[1]),interleave(vtbl[2],vtbl[3])); }
 #endif
 
 //------------------------------------------------------------------------------
