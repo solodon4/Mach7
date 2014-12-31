@@ -92,13 +92,13 @@ struct dynamic_cast_when_polymorphic_helper<S, typename std::enable_if<xtl::is_p
 {
     /// Behaves as dynamic_cast on pointers when argument is polymorphic.
     template <typename T>
-    static inline T go(S* s) { return dynamic_cast<T>(s); }
+    static inline T go(S* s) noexcept { return dynamic_cast<T>(s); }
 };
 
 /// Behaves as dynamic_cast on pointers when argument is polymorphic.
 /// Otherwises behaves as identity on pointers when the argument is not polymorphic.
 template <typename T, typename S>
-inline auto dynamic_cast_when_polymorphic(S* s) -> XTL_RETURN
+inline auto dynamic_cast_when_polymorphic(S* s) noexcept -> XTL_RETURN
 (
     dynamic_cast_when_polymorphic_helper<S>::template go<T>(s)
 )

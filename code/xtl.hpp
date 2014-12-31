@@ -150,7 +150,7 @@ namespace xtl
     //==============================================================================
 
     template <class T>
-    T* subtype_dynamic_cast_impl(target<T*>, T* p)
+    T* subtype_dynamic_cast_impl(target<T*>, T* p) noexcept
     {
         return p;
     }
@@ -169,7 +169,7 @@ namespace xtl
 
     template <class S, class T>
     //typename std::enable_if<is_subtype<S, T>::value, S*>::type
-    S subtype_dynamic_cast(T* t)
+    S subtype_dynamic_cast(T* t) noexcept
     {
         typename target<S>::type result = subtype_dynamic_cast_impl(target<S>(), t);
         //std::cout << "subtype_dynamic_cast<" << typeid(S).name() << ">(" << typeid(t).name() << ") = " << result << std::endl;
