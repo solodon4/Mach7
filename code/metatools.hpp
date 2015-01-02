@@ -211,7 +211,7 @@ inline R apply_member(      C* c, R (T::*method)()      )
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline const R& apply_member(const C* c, R T::*field) /*noexcept*/
+inline const R& apply_member(const C* c, R T::*field) noexcept
 {
     XTL_DEBUG_APPLY_MEMBER("data member to const instance ", c, field);
     return c->*field;
@@ -220,7 +220,7 @@ inline const R& apply_member(const C* c, R T::*field) /*noexcept*/
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline       R& apply_member(      C* c, R T::*field) /*noexcept*/
+inline       R& apply_member(      C* c, R T::*field) noexcept
 {
     XTL_DEBUG_APPLY_MEMBER("data member to non-const instance ", c, field);
     return c->*field;
