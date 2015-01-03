@@ -172,10 +172,10 @@ T preallocated<T,UID>::value;
 /// they are either unary function, nullary member function (implicit argument 
 /// this makes them unary effectively) or a data member (which can be treated
 /// in the same way as nullary member function).
-template <typename R, typename A1> inline R (    * unary(R (    *f)(A1)      ))(A1)     { return f; }
-template <typename R, typename A1> inline R (A1::* unary(R  A1::*f           ))         { return f; }
-template <typename R, typename A1> inline R (A1::* unary(R (A1::*f)(  )      ))()       { return f; }
-template <typename R, typename A1> inline R (A1::* unary(R (A1::*f)(  ) const))() const { return f; }
+template <typename R, typename A1> inline R (    * unary(R (    *f)(A1)      ) noexcept)(A1)     { return f; }
+template <typename R, typename A1> inline R (A1::* unary(R  A1::*f           ) noexcept)         { return f; }
+template <typename R, typename A1> inline R (A1::* unary(R (A1::*f)(  )      ) noexcept)()       { return f; }
+template <typename R, typename A1> inline R (A1::* unary(R (A1::*f)(  ) const) noexcept)() const { return f; }
 
 //------------------------------------------------------------------------------
 
@@ -184,7 +184,7 @@ template <typename R, typename A1> inline R (A1::* unary(R (A1::*f)(  ) const))(
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline R apply_member(const C* c, R (T::*method)() const)
+inline R apply_member(const C* c, R (T::*method)() const) noexcept_when(noexcept_of((c->*method)()))
 {
     XTL_DEBUG_APPLY_MEMBER("const member function to const instance ", c, method);
     return (c->*method)();
@@ -193,7 +193,7 @@ inline R apply_member(const C* c, R (T::*method)() const)
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline R apply_member(      C* c, R (T::*method)() const)
+inline R apply_member(      C* c, R (T::*method)() const) noexcept_when(noexcept_of((c->*method)()))
 {
     XTL_DEBUG_APPLY_MEMBER("const member function to non-const instance ", c, method);
     return (c->*method)();
@@ -202,7 +202,7 @@ inline R apply_member(      C* c, R (T::*method)() const)
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline R apply_member(      C* c, R (T::*method)()      )
+inline R apply_member(      C* c, R (T::*method)()      ) noexcept_when(noexcept_of((c->*method)()))
 {
     XTL_DEBUG_APPLY_MEMBER("non-const member function to non-const instance ", c, method);
     return (c->*method)();
@@ -229,7 +229,7 @@ inline       R& apply_member(      C* c, R T::*field) noexcept
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline R apply_member(const C* c, R (*func)(const T*))
+inline R apply_member(const C* c, R (*func)(const T*)) noexcept_when(noexcept_of((*func)(c)))
 {
     XTL_DEBUG_APPLY_MEMBER("external function taking const pointer to const instance ", c, func);
     return (*func)(c);
@@ -238,7 +238,7 @@ inline R apply_member(const C* c, R (*func)(const T*))
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline R apply_member(      C* c, R (*func)(const T*))
+inline R apply_member(      C* c, R (*func)(const T*)) noexcept_when(noexcept_of((*func)(c)))
 {
     XTL_DEBUG_APPLY_MEMBER("external function taking const pointer to non-const instance ", c, func);
     return (*func)(c);
@@ -247,7 +247,7 @@ inline R apply_member(      C* c, R (*func)(const T*))
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline R apply_member(      C* c, R (*func)(      T*))
+inline R apply_member(      C* c, R (*func)(      T*)) noexcept_when(noexcept_of((*func)(c)))
 {
     XTL_DEBUG_APPLY_MEMBER("external function taking non-const pointer to non-const instance ", c, func);
     return (*func)(c);
@@ -256,7 +256,7 @@ inline R apply_member(      C* c, R (*func)(      T*))
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline R apply_member(const C* c, R (*func)(const T&))
+inline R apply_member(const C* c, R (*func)(const T&)) noexcept_when(noexcept_of((*func)(*c)))
 {
     XTL_DEBUG_APPLY_MEMBER("external function taking const reference to const instance ", c, func);
     return (*func)(*c);
@@ -265,7 +265,7 @@ inline R apply_member(const C* c, R (*func)(const T&))
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline R apply_member(      C* c, R (*func)(const T&))
+inline R apply_member(      C* c, R (*func)(const T&)) noexcept_when(noexcept_of((*func)(*c)))
 {
     XTL_DEBUG_APPLY_MEMBER("external function taking const reference to non-const instance ", c, func);
     return (*func)(*c);
@@ -274,7 +274,7 @@ inline R apply_member(      C* c, R (*func)(const T&))
 //------------------------------------------------------------------------------
 
 template <class C, class T, typename R>
-inline R apply_member(      C* c, R (*func)(      T&))
+inline R apply_member(      C* c, R (*func)(      T&)) noexcept_when(noexcept_of((*func)(*c)))
 {
     XTL_DEBUG_APPLY_MEMBER("external function taking non-const reference to non-const instance ", c, func);
     return (*func)(*c);
@@ -286,7 +286,7 @@ inline R apply_member(      C* c, R (*func)(      T&))
 /// match a meta variable _ of type wildcard, that matches everything of
 /// any type. In this case we don't even want to invoke the underlain member!
 template <typename E, typename C, typename M>
-inline bool apply_expression(const E& e, const C* c, M m)
+inline bool apply_expression(const E& e, const C* c, M m) noexcept_when(noexcept_of(e(apply_member(c, m))))
 {
     #ifdef _MSC_VER
     #pragma warning( disable : 4800 )
@@ -296,7 +296,7 @@ inline bool apply_expression(const E& e, const C* c, M m)
 }
 
 template <typename E, typename C, typename M>
-inline bool apply_expression(const E& e,       C* c, M m)
+inline bool apply_expression(const E& e,       C* c, M m) noexcept_when(noexcept_of(e(apply_member(c, m))))
 {
     #ifdef _MSC_VER
     #pragma warning( disable : 4800 )
