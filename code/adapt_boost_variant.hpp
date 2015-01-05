@@ -59,10 +59,10 @@ namespace boost
     // Default implementation of vtbl_of grabs sizeof(intptr_t) bytes from the beginning
     // of the object, which on 64-bit machines is larger that size of variant's which member.
     template <class... Ts>
-    inline std::intptr_t vtbl_of(const boost::variant<Ts...>* p) { return p->which(); }
+    inline std::intptr_t vtbl_of(const boost::variant<Ts...>* p) noexcept { return p->which(); }
 #else
     template <VARIANT_P(class Ts)>
-    inline std::intptr_t vtbl_of(const boost::variant<VARIANT_P(Ts)>* p) { return p->which(); }
+    inline std::intptr_t vtbl_of(const boost::variant<VARIANT_P(Ts)>* p) noexcept { return p->which(); }
 #endif
 }
 
@@ -101,13 +101,13 @@ namespace xtl
 
 #if XTL_SUPPORT(variadics)
 	template <class... Ts, class S>
-    boost::variant<Ts...> subtype_cast_impl(target<boost::variant<Ts...>>, const S& s)
+    inline boost::variant<Ts...> subtype_cast_impl(target<boost::variant<Ts...>>, const S& s)
     {
         return boost::variant<Ts...>(s); // FIX: Actually this should be boost::variant<Ts...>(xtl::subtype_cast<Ti>(s)) where S <: Ti
     }
 #else
     template <VARIANT_P(class Ts), class S>
-    boost::variant<VARIANT_P(Ts)> subtype_cast_impl(target<boost::variant<VARIANT_P(Ts)>>, const S& s)
+    inline boost::variant<VARIANT_P(Ts)> subtype_cast_impl(target<boost::variant<VARIANT_P(Ts)>>, const S& s)
     {
         return boost::variant<VARIANT_P(Ts)>(s); // FIX: Actually this should be boost::variant<Ts...>(xtl::subtype_cast<Ti>(s)) where S <: Ti
     }
@@ -117,7 +117,7 @@ namespace xtl
     struct is_subtype_visitor : public boost::static_visitor<T*>
     {
         template <typename S>
-        T* operator()(S& s) const
+        inline T* operator()(S& s) const noexcept
         {
             return xtl::subtype_dynamic_cast<T*>(&s);
         }
@@ -125,32 +125,32 @@ namespace xtl
 
 #if XTL_SUPPORT(variadics)
     template <class T, class... Ts>
-    typename std::enable_if<xtl::is_subtype<T, boost::variant<Ts...>>::value, T*>::type
-    subtype_dynamic_cast_impl(target<T*>, boost::variant<Ts...>* pv)
+    inline typename std::enable_if<xtl::is_subtype<T, boost::variant<Ts...>>::value, T*>::type
+    subtype_dynamic_cast_impl(target<T*>, boost::variant<Ts...>* pv) noexcept
     {
         is_subtype_visitor<T> visitor;
         return boost::apply_visitor(visitor, *pv);
     }
 
     template <class T, class... Ts>
-    typename std::enable_if<xtl::is_subtype<T, boost::variant<Ts...>>::value, const T*>::type
-    subtype_dynamic_cast_impl(target<const T*>, const boost::variant<Ts...>* pv)
+    inline typename std::enable_if<xtl::is_subtype<T, boost::variant<Ts...>>::value, const T*>::type
+    subtype_dynamic_cast_impl(target<const T*>, const boost::variant<Ts...>* pv) noexcept
     {
         is_subtype_visitor<const T> visitor;
         return boost::apply_visitor(visitor, *pv);
     }
 #else
     template <class T, VARIANT_P(class Ts)>
-    typename std::enable_if<xtl::is_subtype<T, boost::variant<VARIANT_P(Ts)>>::value, T*>::type
-    subtype_dynamic_cast_impl(target<T*>, boost::variant<VARIANT_P(Ts)>* pv)
+    inline typename std::enable_if<xtl::is_subtype<T, boost::variant<VARIANT_P(Ts)>>::value, T*>::type
+    subtype_dynamic_cast_impl(target<T*>, boost::variant<VARIANT_P(Ts)>* pv) noexcept
     {
         is_subtype_visitor<T> visitor;
         return boost::apply_visitor(visitor, *pv);
     }
 
     template <class T, VARIANT_P(class Ts)>
-    typename std::enable_if<xtl::is_subtype<T, boost::variant<VARIANT_P(Ts)>>::value, const T*>::type
-    subtype_dynamic_cast_impl(target<const T*>, const boost::variant<VARIANT_P(Ts)>* pv)
+    inline typename std::enable_if<xtl::is_subtype<T, boost::variant<VARIANT_P(Ts)>>::value, const T*>::type
+    subtype_dynamic_cast_impl(target<const T*>, const boost::variant<VARIANT_P(Ts)>* pv) noexcept
     {
         is_subtype_visitor<const T> visitor;
         return boost::apply_visitor(visitor, *pv);

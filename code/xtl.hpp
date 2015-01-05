@@ -115,7 +115,7 @@ namespace xtl
     /// given arguments will be passed through dummy null-pointers.
     /// Default implementation just tries to cast one type to another.
     template <class T, class S>
-    T subtype_cast_impl(target<T>, const S& s)
+    inline T subtype_cast_impl(target<T>, const S& s)
     {
         return (T)s;
     }
@@ -139,7 +139,7 @@ namespace xtl
 //        return result;
 //    }
     template <class T, class S>
-    typename std::enable_if<is_subtype<typename std::remove_reference<S>::type, T>::value, typename target<T>::type>::type
+    inline typename std::enable_if<is_subtype<typename std::remove_reference<S>::type, T>::value, typename target<T>::type>::type
     subtype_cast(S&& s)
     {
         return subtype_cast_impl(target<T>(), std::forward<S>(s));
@@ -150,26 +150,26 @@ namespace xtl
     //==============================================================================
 
     template <class T>
-    T* subtype_dynamic_cast_impl(target<T*>, T* p) noexcept
+    inline T* subtype_dynamic_cast_impl(target<T*>, T* p) noexcept
     {
         return p;
     }
 
-    std::nullptr_t subtype_dynamic_cast_impl(...)
+    inline std::nullptr_t subtype_dynamic_cast_impl(...) noexcept
     {
         return nullptr;
     }
 
     template <class D, class B>
-    typename std::enable_if<std::is_base_of<B, D>::value, D*>::type
-    subtype_dynamic_cast_impl(target<D*>, B* p)
+    inline typename std::enable_if<std::is_base_of<B, D>::value, D*>::type
+    subtype_dynamic_cast_impl(target<D*>, B* p) noexcept
     {
         return dynamic_cast<D*>(p);
     }
 
     template <class S, class T>
-    //typename std::enable_if<is_subtype<S, T>::value, S*>::type
-    S subtype_dynamic_cast(T* t) noexcept
+    //inline typename std::enable_if<is_subtype<S, T>::value, S*>::type
+    inline S subtype_dynamic_cast(T* t) noexcept
     {
         typename target<S>::type result = subtype_dynamic_cast_impl(target<S>(), t);
         //std::cout << "subtype_dynamic_cast<" << typeid(S).name() << ">(" << typeid(t).name() << ") = " << result << std::endl;
