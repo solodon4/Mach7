@@ -130,7 +130,7 @@ ver:
 	@echo
 
 # A rule to build .o file out of a .cpp file
-%.o: %.cpp
+%.o: %.cpp *.hpp patterns/*.hpp
 	@echo --------------------------------------------------------------------------------
 	@echo Compiling $@ ...
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
