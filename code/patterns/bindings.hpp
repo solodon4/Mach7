@@ -46,6 +46,7 @@
 
 #include <cstddef>
 #include "../metatools.hpp"
+#include <tuple>
 
 namespace mch ///< Mach7 library namespace
 {
@@ -60,6 +61,31 @@ enum { default_layout = size_t(~0) };
 /// provide specializations for his hierarchy.
 template <typename type_being_matched, size_t layout = default_layout>
 struct bindings;
+
+struct MyClass { int a; float b; }; // User-defined class, which we are decomposing
+
+template <typename T>
+struct reflection
+{
+    template <size_t N>
+    struct member
+    {
+    };
+};
+
+template <>
+struct reflection<MyClass>
+{
+    template <size_t N, typename dummy = void> struct member {};
+    template <typename dummy> struct member<0,dummy> { static constexpr auto value = &MyClass::a; };
+    template <typename dummy> struct member<1,dummy> { static constexpr auto value = &MyClass::b; };
+};
+
+template <typename... T>
+struct reflection<std::tuple<T...>>
+{
+    template <size_t N> struct member { static constexpr auto value = static_cast<typename std::tuple_element<N, std::tuple<T...>>::type& (*)(std::tuple<T...>&)>(&std::get<N>); };
+};
 
 //------------------------------------------------------------------------------
 
