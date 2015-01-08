@@ -245,7 +245,7 @@ void test_subtype_dynamic_cast()
     //b = xtl::subtype_cast<B>(a); // error
 
     A* qa = xtl::subtype_cast<A*>(&b);
-    const A* qaa= xtl::subtype_cast<const A*>(&cb);
+    const A* qaa= xtl::subtype_cast<const A*>(&cb); XTL_UNUSED(qaa);
     //B* qb = xtl::subtype_cast<B*>(&a); // error
     B* qb = xtl::subtype_dynamic_cast<B*>(qa);
     qa->foo();
@@ -384,7 +384,7 @@ void test_shape_subtyping()
     //b = xtl::subtype_cast<B>(a); // error
 
     A* qa = xtl::subtype_cast<A*>(&b);
-    const A* qaa= xtl::subtype_cast<const A*>(&cb);
+    const A* qaa= xtl::subtype_cast<const A*>(&cb); XTL_UNUSED(qaa);
     //B* qb = xtl::subtype_cast<B*>(&a); // error
     B* qb = xtl::subtype_dynamic_cast<B*>(qa);
     qa->foo();
