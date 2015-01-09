@@ -56,12 +56,15 @@ namespace mch ///< Mach7 library namespace
 /// Predefined value representing a layout used by default when none is specified.
 enum { default_layout = size_t(~0) };
 
+//#define XTL_USE_GENERIC_BINDINGS // not working yet
+
+#if !defined(XTL_USE_GENERIC_BINDINGS)
 /// Traits like structure that will define which members should be matched at
 /// which positions. It is intentionally left undefined as user will have to
 /// provide specializations for his hierarchy.
 template <typename type_being_matched, size_t layout = default_layout>
 struct bindings;
-
+#else
 struct MyClass { int a; float b; }; // User-defined class, which we are decomposing
 
 template <typename T>
@@ -86,6 +89,35 @@ struct reflection<std::tuple<T...>>
 {
     template <size_t N> struct member { static constexpr auto value = static_cast<typename std::tuple_element<N, std::tuple<T...>>::type& (*)(std::tuple<T...>&)>(&std::get<N>); };
 };
+
+auto t = std::make_tuple(42, 3.14);
+auto v = reflection<decltype(t)>::member<0>::value(t); // static_cast<std::tuple_element<1, decltype(t)>::type& (*)(decltype(t)&)>(&std::get<1>);
+#endif
+
+//template <> template <> struct reflection<MyClass>::member<0> { static constexpr auto value = &MyClass::a; };
+//template <> template <> struct reflection<MyClass>::member<1> { static constexpr auto value = &MyClass::b; };
+//
+//template <typename... T> template <size_t N> struct reflection<std::tuple<T...>>::member { static constexpr auto value = 9; };
+
+//template <size_t N, typename T>
+//void member()
+//{
+//    static_assert(N + N !=  2*N, "This type does not provide bindings"); // Always assert, only specializations of this class should be used
+//};
+//
+//template <> inline decltype(unary(&MyClass::a)) member<0,MyClass>() { return unary(&MyClass::a); }
+//template <> inline decltype(unary(&MyClass::b)) member<1,MyClass>() { return unary(&MyClass::b); }
+
+
+//template <> struct bindings<MyClass>
+//{
+//    template <size_t N> static inline void member() { static_assert(N + N !=  2*N, "This type does not provide bindings"); }
+//    template <> static inline decltype(unary(&MyClass::a)) member<0>() { return unary(&MyClass::a); }
+//    template <> static inline decltype(unary(&MyClass::b)) member<1>() { return unary(&MyClass::b); }
+//};
+
+//    template <> template <> inline decltype(unary(&MyClass::a)) bindings<MyClass>::member<0>() { return unary(&MyClass::a); }
+//    template <> template <> inline decltype(unary(&MyClass::b)) bindings<MyClass>::member<1>() { return unary(&MyClass::b); }
 
 //------------------------------------------------------------------------------
 
@@ -119,6 +151,7 @@ struct target_of<view<T,L>>
 //------------------------------------------------------------------------------
 
 #if !defined(CM)
+  #if !defined(XTL_USE_GENERIC_BINDINGS)
     /// Macro to define member's position within decomposition of a given data type
     /// Example: CM(0,MyClass::member) or CM(1,external_func)
     /// \note Use this macro only inside specializations of #bindings
@@ -137,6 +170,17 @@ struct target_of<view<T,L>>
         {                                                           \
             return unary(&__VA_ARGS__);                             \
         }
+  #else
+    #define CM(Index,...) XTL_IF(XTL_NOT(Index),CM0(Index,__VA_ARGS__), CM1(Index,__VA_ARGS__))
+    #define CM0(Index,...)                                          \
+    template <size_t N, typename dummy = void> struct member {};    \
+    template <typename dummy> struct member<0,dummy> { static constexpr auto value = unary(&__VA_ARGS__); }; \
+    static inline decltype(member<0>::value) member##Index() noexcept { return member<0>::value; }
+
+    #define CM1(Index,...)                                           \
+    template <typename dummy> struct member<Index,dummy> { static constexpr auto value = unary(&__VA_ARGS__); }; \
+    static inline decltype(member<Index>::value) member##Index() noexcept { return member<Index>::value; }
+  #endif
 #else
     #error Macro CM used by the pattern-matching library has already been defined
 #endif
