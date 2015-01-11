@@ -172,10 +172,10 @@ T preallocated<T,UID>::value;
 /// they are either unary function, nullary member function (implicit argument 
 /// this makes them unary effectively) or a data member (which can be treated
 /// in the same way as nullary member function).
-template <typename R, typename A1> inline R (    * unary(R (    *f)(A1)      ) noexcept)(A1)     { return f; }
-template <typename R, typename A1> inline R (A1::* unary(R  A1::*f           ) noexcept)         { return f; }
-template <typename R, typename A1> inline R (A1::* unary(R (A1::*f)(  )      ) noexcept)()       { return f; }
-template <typename R, typename A1> inline R (A1::* unary(R (A1::*f)(  ) const) noexcept)() const { return f; }
+template <typename R, typename A1> constexpr R (    * unary(R (    *f)(A1)      ) noexcept)(A1)     { return f; }
+template <typename R, typename A1> constexpr R (A1::* unary(R  A1::*f           ) noexcept)         { return f; }
+template <typename R, typename A1> constexpr R (A1::* unary(R (A1::*f)(  )      ) noexcept)()       { return f; }
+template <typename R, typename A1> constexpr R (A1::* unary(R (A1::*f)(  ) const) noexcept)() const { return f; }
 
 //------------------------------------------------------------------------------
 
