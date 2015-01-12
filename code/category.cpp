@@ -138,8 +138,8 @@ const Either<S, T>* lift(const Either<X, Y>& e, S f(X), T g(Y))
 
 namespace mch 
 {
-template <class X, class Y> struct bindings<Left<X,Y> >   { CM(0,Left<X,Y>::x); };
-template <class X, class Y> struct bindings<Right<X,Y> >  { CM(0,Right<X,Y>::y); };
+    template <class X, class Y> struct bindings<Left<X,Y> >   { typedef Left<X,Y>  type; Members(type::x); }; // We use a typedef here because of comma in Left<X,Y>
+    template <class X, class Y> struct bindings<Right<X,Y> >  { typedef Right<X,Y> type; Members(type::y); }; // We use a typedef here because of comma in Right<X,Y>
 } // of namespace mch
 
 template<class X, class Y, class S, class T>

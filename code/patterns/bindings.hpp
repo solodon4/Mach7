@@ -63,13 +63,8 @@ template <typename type_being_matched, size_t layout = default_layout>
 struct bindings;
 
 #if !defined(XTL_USE_GENERIC_BINDINGS)
-#define XTL_USE_GENERIC_BINDINGS 1
-#endif
-
-#if XTL_USE_GENERIC_BINDINGS
-#define XTL_BINDINGS_BOILERPLATE template <size_t N, typename dummy = void> struct member {};
-#else
-#define XTL_BINDINGS_BOILERPLATE
+/// A temporary switch while we experiment with generic bindings to be able to generate both kinds
+#define XTL_USE_GENERIC_BINDINGS 0
 #endif
 
 struct MyClass { int a; float b; }; // User-defined class, which we are decomposing
@@ -156,8 +151,24 @@ struct target_of<view<T,L>>
 
 //------------------------------------------------------------------------------
 
+#if !defined(Members)
+#define CMa(I,...) CM(I,XTL_SELECT_ARG(I,__VA_ARGS__))
+  #if !XTL_USE_GENERIC_BINDINGS
+    #define Members(...)                                                              XTL_REPEAT(XTL_NARG(__VA_ARGS__),CMa,__VA_ARGS__)
+  #else
+    #define Members(...) template <size_t N, typename dummy = void> struct member {}; XTL_REPEAT(XTL_NARG(__VA_ARGS__),CMa,__VA_ARGS__)
+  #endif
+#else
+  #if XTL_MESSAGE_ENABLED
+    #error Macro Members, used by Mach7 pattern-matching library, has already been defined
+  #endif
+#endif
+
+//------------------------------------------------------------------------------
+
 #if !defined(CM)
   #if !XTL_USE_GENERIC_BINDINGS
+    /// \deprecated This macro is now deprecated, use Members(m1,..., mN) instead!
     /// Macro to define member's position within decomposition of a given data type
     /// Example: CM(0,MyClass::member) or CM(1,external_func)
     /// \note Use this macro only inside specializations of #bindings
@@ -182,7 +193,9 @@ struct target_of<view<T,L>>
     static inline decltype(member<Index>::value) member##Index() noexcept { return member<Index>::value; }
   #endif
 #else
-    #error Macro CM used by the pattern-matching library has already been defined
+  #if XTL_MESSAGE_ENABLED
+    #error Macro CM, used by Mach7 pattern-matching library, has already been defined
+  #endif
 #endif
 
 #if !defined(KS)
@@ -202,7 +215,9 @@ struct target_of<view<T,L>>
         }                                                           \
         bool kind_selector_dummy() const noexcept
 #else
-    #error Macro KS used by the pattern-matching library has already been defined
+  #if XTL_MESSAGE_ENABLED
+    #error Macro KS, used by Mach7 pattern-matching library, has already been defined
+  #endif
 #endif
 
 #if !defined(KV)
@@ -219,7 +234,9 @@ struct target_of<view<T,L>>
     ///       would be sufficient.
     #define KV(T, ...) typedef T root_type; enum { kind_value = __VA_ARGS__ }
 #else
-    #error Macro KV used by the pattern-matching library has already been defined
+  #if XTL_MESSAGE_ENABLED
+    #error Macro KV, used by Mach7 pattern-matching library, has already been defined
+  #endif
 #endif
 
 #if !defined(FQ)
@@ -234,7 +251,9 @@ struct target_of<view<T,L>>
     ///       would be sufficient.
     #define FQ(...) enum { fq = __VA_ARGS__ }
 #else
-    #error Macro FQ used by the pattern-matching library has already been defined
+  #if XTL_MESSAGE_ENABLED
+    #error Macro FQ, used by Mach7 pattern-matching library, has already been defined
+  #endif
 #endif
 
 #if !defined(FQS)
@@ -250,7 +269,9 @@ struct target_of<view<T,L>>
         }                                                           \
         bool frequency_dummy() const noexcept
 #else
-    #error Macro FQS used by the pattern-matching library has already been defined
+  #if XTL_MESSAGE_ENABLED
+    #error Macro FQS, used by Mach7 pattern-matching library, has already been defined
+  #endif
 #endif
 
 #if !defined(RS)
@@ -272,7 +293,9 @@ struct target_of<view<T,L>>
         }                                                           \
         bool raise_selector_dummy() const noexcept
 #else
-    #error Macro RS used by the pattern-matching library has already been defined
+  #if XTL_MESSAGE_ENABLED
+    #error Macro RS, used by Mach7 pattern-matching library, has already been defined
+  #endif
 #endif
 
 //------------------------------------------------------------------------------
@@ -284,7 +307,7 @@ struct target_of<view<T,L>>
 /// NOTE: We still need this at the moment as specialization of constr1 does
 ///       not handle different types e.g. when subject type is int but target is size_t.
 template <typename type_being_matched, size_t layout>
-struct bindings { XTL_BINDINGS_BOILERPLATE CM(0,identity<type_being_matched>); };
+struct bindings { Members(identity<type_being_matched>); };
 
 //------------------------------------------------------------------------------
 

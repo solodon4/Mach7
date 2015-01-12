@@ -56,11 +56,11 @@ struct OrExp  : BoolExp { OrExp (BoolExp* e1, BoolExp* e2) : e1(e1), e2(e2) {} B
 
 namespace mch ///< Mach7 library namespace
 {
-    template <> struct bindings<VarExp> { CM(0,VarExp::name); };
-    template <> struct bindings<ValExp> { CM(0,ValExp::value); };
-    template <> struct bindings<NotExp> { CM(0,NotExp::e); };
-    template <> struct bindings<AndExp> { CM(0,AndExp::e1); CM(1,AndExp::e2); };
-    template <> struct bindings<OrExp>  { CM(0, OrExp::e1); CM(1, OrExp::e2); };
+    template <> struct bindings<VarExp> { Members(VarExp::name);  };
+    template <> struct bindings<ValExp> { Members(ValExp::value); };
+    template <> struct bindings<NotExp> { Members(NotExp::e);     };
+    template <> struct bindings<AndExp> { Members(AndExp::e1, AndExp::e2); };
+    template <> struct bindings<OrExp>  { Members( OrExp::e1,  OrExp::e2); };
 } // of namespace mch
 
 using mch::C;
