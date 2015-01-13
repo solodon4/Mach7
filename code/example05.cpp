@@ -2,7 +2,7 @@
 //  Mach7: Pattern Matching Library for C++
 //
 //  Copyright 2011-2013, Texas A&M University.
-//  Copyright 2014 Yuriy Solodkyy.
+//  Copyright 2014-2015, Yuriy Solodkyy.
 //  All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without
@@ -61,12 +61,12 @@ namespace mch ///< Mach7 library namespace
     /// std::real<T>, std::imag<T>, std::abs<T> and std::arg<T>, which messed up our
     /// nice syntax, and which is why we had to take address of member-functions
     /// or do the explicit cast first:
-    template <typename T> struct bindings<std::complex<T>, cart> { CM(0,std::complex<T>::real); CM(1,std::complex<T>::imag); };
-    template <typename T> struct bindings<std::complex<T>, plar> { CM(0,(T (&)(const std::complex<T>&))std::abs<T>);  CM(1,(T (&)(const std::complex<T>&))std::arg<T>);  };
+    template <typename T> struct bindings<std::complex<T>, cart> { Members(std::complex<T>::real, std::complex<T>::imag); };
+    template <typename T> struct bindings<std::complex<T>, plar> { Members((T (&)(const std::complex<T>&))std::abs<T>, (T (&)(const std::complex<T>&))std::arg<T>); };
 #else
     /// Otherwise you should be able to write nicely like this:
-    template <typename T> struct bindings<std::complex<T>, cart> { CM(0,std::real<T>); CM(1,std::imag<T>); };
-    template <typename T> struct bindings<std::complex<T>, plar> { CM(0,std::abs<T>);  CM(1,std::arg<T>);  };
+    template <typename T> struct bindings<std::complex<T>, cart> { Members(std::real<T>, std::imag<T>); };
+    template <typename T> struct bindings<std::complex<T>, plar> { Members(std::abs<T> , std::arg<T>);  };
 #endif
 } // of namespace mch
 
