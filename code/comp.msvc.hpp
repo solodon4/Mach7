@@ -76,6 +76,14 @@
 
 //------------------------------------------------------------------------------
 
+#if _MSC_VER >= 1900
+/// Support of constexpr
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2235.pdf
+#define XTL_SUPPORT_constexpr 1
+#endif
+
+//------------------------------------------------------------------------------
+
 #if _MSC_VER >= 1800 /// Visual C++ 2013 supports deleted and defaulted functions
 /// Indicates support of defaulted and deleted functions.
 /// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2346.htm

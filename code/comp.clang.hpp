@@ -79,6 +79,14 @@
 
 //------------------------------------------------------------------------------
 
+#if __has_feature(cxx_constexpr)
+/// Support of constexpr
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2235.pdf
+#define XTL_SUPPORT_constexpr 1
+#endif
+
+//------------------------------------------------------------------------------
+
 #if __has_feature(cxx_defaulted_functions) && __has_feature(cxx_deleted_functions)
 /// Indicates support of defaulted and deleted functions.
 /// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2346.htm

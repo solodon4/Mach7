@@ -335,6 +335,11 @@
 
 //------------------------------------------------------------------------------
 
+#if !XTL_SUPPORT(constexpr)
+/// We do not turn it into inline because of constexpr values
+#define constexpr
+#endif
+
 #if XTL_SUPPORT(noexcept)
 /// Since noexcept might be a macro in our library, we need a different syntax for noexcept specification with condition
 #define noexcept_when(cond) noexcept(cond)
