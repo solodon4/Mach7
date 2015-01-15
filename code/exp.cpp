@@ -166,11 +166,11 @@ std::string to_str(const Expr* e)
 
 namespace mch ///< Mach7 library namespace
 {
-template <> struct bindings<Value>  { CM(0,Value::value); };
-template <> struct bindings<Plus>   { CM(0,Plus::exp1);   CM(1,Plus::exp2);   };
-template <> struct bindings<Minus>  { CM(0,Minus::exp1);  CM(1,Minus::exp2);  };
-template <> struct bindings<Times>  { CM(0,Times::exp1);  CM(1,Times::exp2);  };
-template <> struct bindings<Divide> { CM(0,Divide::exp1); CM(1,Divide::exp2); };
+template <> struct bindings<Value>  { Members(Value::value); };
+template <> struct bindings<Plus>   { Members(Plus::exp1  , Plus::exp2);   };
+template <> struct bindings<Minus>  { Members(Minus::exp1 , Minus::exp2);  };
+template <> struct bindings<Times>  { Members(Times::exp1 , Times::exp2);  };
+template <> struct bindings<Divide> { Members(Divide::exp1, Divide::exp2); };
 } // of namespace mch
 
 int myeval(const Expr* e)
