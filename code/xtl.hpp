@@ -46,6 +46,7 @@
 #pragma once
 
 #include <type_traits>
+#include "config.hpp"	// To emulate some of the language features on old compilers
 
 namespace xtl
 {
