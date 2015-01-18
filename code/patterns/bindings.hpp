@@ -78,6 +78,7 @@ struct reflection
     };
 };
 
+#if XTL_SUPPORT(constexpr)
 template <>
 struct reflection<MyClass>
 {
@@ -94,7 +95,7 @@ struct reflection<std::tuple<T...>>
 
 auto t = std::make_tuple(42, 3.14);
 auto v = reflection<decltype(t)>::member<0>::value(t); // static_cast<std::tuple_element<1, decltype(t)>::type& (*)(decltype(t)&)>(&std::get<1>);
-
+#endif
 //template <> template <> struct reflection<MyClass>::member<0> { static constexpr auto value = &MyClass::a; };
 //template <> template <> struct reflection<MyClass>::member<1> { static constexpr auto value = &MyClass::b; };
 //
@@ -155,8 +156,10 @@ struct target_of<view<T,L>>
 #define CMa(I,...) CM(I,XTL_SELECT_ARG(I,__VA_ARGS__))
   #if !XTL_USE_GENERIC_BINDINGS
     #define Members(...)                                                              XTL_REPEAT(XTL_NARG(__VA_ARGS__),CMa,__VA_ARGS__)
+    //#define Members(...) XTL_APPLY_VARIADIC_MACRO(XTL_REPEAT,((XTL_APPLY_VARIADIC_MACRO(XTL_NARG,(__VA_ARGS__)),CMa,__VA_ARGS__)))
   #else
     #define Members(...) template <size_t N, typename dummy = void> struct member {}; XTL_REPEAT(XTL_NARG(__VA_ARGS__),CMa,__VA_ARGS__)
+    //#define Members(...) template <size_t N, typename dummy = void> struct member {}; XTL_APPLY_VARIADIC_MACRO(XTL_REPEAT,(XTL_APPLY_VARIADIC_MACRO(XTL_NARG,((__VA_ARGS__))),CMa,__VA_ARGS__))
   #endif
 #else
   #if XTL_MESSAGE_ENABLED
@@ -307,7 +310,7 @@ struct target_of<view<T,L>>
 /// NOTE: We still need this at the moment as specialization of constr1 does
 ///       not handle different types e.g. when subject type is int but target is size_t.
 template <typename type_being_matched, size_t layout>
-struct bindings { Members(identity<type_being_matched>); };
+struct bindings { Members(mch::identity<type_being_matched>); };
 
 //------------------------------------------------------------------------------
 
