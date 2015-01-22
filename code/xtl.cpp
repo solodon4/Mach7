@@ -167,8 +167,8 @@ void test_variant_subtyping()
 
 }
 
-struct M { char   im = 0;   M(char   m) : im(m) {} };
-struct N { double in = 0.0; N(double n) : in(n) {} };
+struct M { char   im; M(char   m = 0)   : im(m) {} };
+struct N { double in; N(double n = 0.0) : in(n) {} };
 
 std::ostream& operator<<(std::ostream& os, const M& m) { return os << m.im; } // Helper to allow printing of M
 std::ostream& operator<<(std::ostream& os, const N& n) { return os << n.in; } // Helper to allow printing of N
@@ -180,7 +180,7 @@ void test_variant_mutation()
 {
     using namespace mch;
 
-    VM vm[2] = { M{'A'}, N{3.1415926} };
+    VM vm[2] = { M('A'), N(3.1415926) };
 
     for (size_t i = 0; i < 2; ++i)
     {
@@ -200,12 +200,12 @@ void test_variant_mutation()
         {
             Case(C<M>(m))
                 std::cout << "M -> " << match0.im << '=' << m << std::endl;
-                m = M{'X'};
+                m = M('X');
                 std::cout << "M -> " << match0.im << '=' << m << std::endl;
                 break;
             Case(C<N>(n))
                 std::cout << "N -> " << match0.in << '=' << n << std::endl;
-                n = N{42};
+                n = N(42);
                 std::cout << "N -> " << match0.in << '=' << n << std::endl;
                 break;
         }

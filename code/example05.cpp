@@ -159,7 +159,8 @@ void test_mixed(const std::complex<double>& v)
 
 int main()
 {
-    const std::complex<double> values[] = {{0,0}, {2,0}, {0,2}, {3.14, 2.15}};
+	typedef std::complex<double> cmpl;
+    const cmpl values[] = {cmpl(0,0), cmpl(2,0), cmpl(0,2), cmpl(3.14), cmpl(2.15)};
 
     for (size_t j = 0; j < XTL_ARR_SIZE(values); ++j)
     {
