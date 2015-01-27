@@ -153,7 +153,8 @@ struct target_of<view<T,L>>
 //------------------------------------------------------------------------------
 
 #if !defined(Members)
-  #define CMa(I,...) CM(I,XTL_SELECT_ARG(I,__VA_ARGS__))
+ #define CMa(I,...) CM(I,XTL_SELECT_ARG(I,__VA_ARGS__))
+ #if defined(_MSC_VER)
   // Note: We do this extra level of indirection with MembersN to be able to handle expansion of XTL_NARG in Visual C++ properly.
   #define MembersN(N,...) XTL_APPLY_VARIADIC_MACRO(XTL_REPEAT,(N,CMa,__VA_ARGS__))
   #if !XTL_USE_GENERIC_BINDINGS
@@ -161,6 +162,15 @@ struct target_of<view<T,L>>
   #else
     #define Members(...) template <size_t N, typename dummy = void> struct member {}; MembersN(XTL_NARG(__VA_ARGS__),__VA_ARGS__)
   #endif
+ #else
+  // FIX: for whatever reason the weaker workaround for Visual C++ doesn't work in Clang, which is normally not the case.
+  //      Hence an explicit general implementation for non-Visual C++ builds has to be preserved till fixed.
+  #if !XTL_USE_GENERIC_BINDINGS
+    #define Members(...)                                                              XTL_REPEAT(XTL_NARG(__VA_ARGS__),CMa,__VA_ARGS__)
+  #else
+    #define Members(...) template <size_t N, typename dummy = void> struct member {}; XTL_REPEAT(XTL_NARG(__VA_ARGS__),CMa,__VA_ARGS__)
+  #endif
+ #endif
 #else
   #if XTL_MESSAGE_ENABLED
     #error Macro Members, used by Mach7 pattern-matching library, has already been defined
