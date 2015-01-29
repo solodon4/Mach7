@@ -47,7 +47,7 @@
 #include "boost/variant.hpp"
 #include "type_switchN-patterns-xtl.hpp"
 #include "patterns/all.hpp"
-#include "adapt_boost_variant.hpp"
+#include "adapters/boost/adapt_boost_variant.hpp"
 
 //----------------------------------------------------------------------------------------------------------------------
 
