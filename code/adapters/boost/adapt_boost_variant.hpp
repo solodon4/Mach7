@@ -45,7 +45,7 @@
 #pragma once
 
 #include "boost/variant.hpp"
-#include "type_switchN-patterns-xtl.hpp"
+#include "../../type_switchN-patterns-xtl.hpp"
 
 //----------------------------------------------------------------------------------------------------------------------
 

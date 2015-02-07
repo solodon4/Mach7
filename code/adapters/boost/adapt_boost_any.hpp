@@ -44,7 +44,7 @@
 #pragma once
 
 #include "boost/any.hpp"
-#include "type_switchN-patterns-xtl.hpp"
+#include "../../type_switchN-patterns-xtl.hpp"
 
 
 // NOTE: We declare vtbl_of in boost namespace because we want it to be found
