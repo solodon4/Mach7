@@ -301,7 +301,7 @@ caml: cmp_ocaml.ml
 
 # A rule to clean all the intermediates and targets
 clean:
-	rm -rf $(TARGETS) $(OBJECTS) *.out *.stackdump *.cmi *.cmx *.obj *.csv time-*.exe syntax-*.exe cmp-*.exe cmp_*.exe cmp_*.hi cmp_*.o
+	rm -rf $(TARGETS) $(OBJECTS) *.out *.stackdump *.cmi *.cmx *.obj *.csv *.exe.dSYM time-*.exe syntax-*.exe cmp-*.exe cmp_*.exe cmp_*.hi cmp_*.o
 
 # A rule to create GraphViz .dot file with graph representation of header inclusions
 includes.dot:
