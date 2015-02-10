@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\memoized_cast.cpp">
+    <ClCompile Include="..\..\test\unit\memoized_cast.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

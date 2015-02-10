@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\lambda.cpp">
+    <ClCompile Include="..\..\test\time\lambda.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

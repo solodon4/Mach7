@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\ocaml_cmp_kind.cpp">
+    <ClCompile Include="..\..\test\time\ocaml_cmp_kind.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -30,7 +30,7 @@
     <ClInclude Include="..\..\vtblmap4.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\lambda.cpp" />
+    <ClCompile Include="..\..\test\time\lambda.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DB6120B6-F996-4A8A-94D6-46E75E0915DB}</ProjectGuid>

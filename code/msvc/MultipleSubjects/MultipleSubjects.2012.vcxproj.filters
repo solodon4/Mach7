@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\type_switchN.cpp">
+    <ClCompile Include="..\..\test\unit\type_switchN.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

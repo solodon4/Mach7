@@ -136,8 +136,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\numbers-new.cpp" />
-    <ClCompile Include="..\..\numbers.cpp">
+    <ClCompile Include="..\..\test\time\numbers-new.cpp" />
+    <ClCompile Include="..\..\test\time\numbers.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>

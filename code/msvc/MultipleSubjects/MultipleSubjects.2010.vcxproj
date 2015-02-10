@@ -136,7 +136,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\type_switchN.cpp" />
+    <ClCompile Include="..\..\test\unit\type_switchN.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\type_switchN.hpp" />
