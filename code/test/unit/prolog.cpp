@@ -492,27 +492,27 @@ bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
         // e.g. {<X,f(G)>};{} becomes {}; {X -> f(G)}
         if (Variable* v = dynamic_cast<Variable*>(p.first))
         {
-        if (occurs(*v,*p.second))
-        {
-            return false;
-        }
-        else
-        {
-            substitutions[v->name] = p.second;
+			if (occurs(*v,*p.second))
+			{
+				return false;
+			}
+			else
+			{
+				substitutions[v->name] = p.second;
 
-            // Substitute variable in existing terms in substitution
-            for (auto& x : substitutions)
-                x.second = subs(v,p.second,x.second);
+				// Substitute variable in existing terms in substitution
+				for (auto& x : substitutions)
+					x.second = subs(v,p.second,x.second);
 
-            // Substitute variable in the current instantiations set
-            for (auto& q : pairs)
-            {
-                q.first  = subs(v,p.second,q.first);
-                q.second = subs(v,p.second,q.second);
-            }
+				// Substitute variable in the current instantiations set
+				for (auto& q : pairs)
+				{
+					q.first  = subs(v,p.second,q.first);
+					q.second = subs(v,p.second,q.second);
+				}
 
-            continue;
-        }
+				continue;
+			}
         }
         
         return false; // None of the rules applies

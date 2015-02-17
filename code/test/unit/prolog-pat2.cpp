@@ -366,16 +366,16 @@ inline Comment*   K(const char*  v) { return new Comment(v); }
 
 namespace mch ///< Mach7 library namespace
 {
-template <> struct bindings<Atom>      { CM(0,Atom::value);     };
+template <> struct bindings<Atom>      { Members(Atom::value);     };
 template <> struct bindings<Number>    { };
-template <> struct bindings<Integer>   { CM(0,Integer::value);  };
-template <> struct bindings<Float>     { CM(0,Float::value);    };
-template <> struct bindings<String>    { CM(0,String::value);   };
-template <> struct bindings<Variable>  { CM(0,Variable::name);  };
-template <> struct bindings<Structure> { CM(1,Structure::arity); CM(0,Structure::name); CM(2,Structure::terms); }; // FIX: MSVC doesn't compile this unless we go in exactly that order!!!
-template <> struct bindings<List>      { CM(0,List::head);      CM(1,List::tail); };
-template <> struct bindings<Operator>  { CM(0,Operator::name);  };
-template <> struct bindings<Comment>   { CM(0,Comment::text);   };
+template <> struct bindings<Integer>   { Members(Integer::value);  };
+template <> struct bindings<Float>     { Members(Float::value);    };
+template <> struct bindings<String>    { Members(String::value);   };
+template <> struct bindings<Variable>  { Members(Variable::name);  };
+template <> struct bindings<Structure> { Members(Structure::name, Structure::arity, Structure::terms); };
+template <> struct bindings<List>      { Members(List::head,      List::tail); };
+template <> struct bindings<Operator>  { Members(Operator::name);  };
+template <> struct bindings<Comment>   { Members(Comment::text);   };
 } // of namespace mch
 
 //------------------------------------------------------------------------------

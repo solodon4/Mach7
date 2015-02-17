@@ -351,16 +351,16 @@ inline Comment*   K(const char*  v) { return new Comment(v); }
 
 namespace mch ///< Mach7 library namespace
 {
-template <> struct bindings<Atom>      { CM(0,Atom::value);     };
+template <> struct bindings<Atom>      { Members(Atom::value);     };
 template <> struct bindings<Number>    { };
-template <> struct bindings<Integer>   { CM(0,Integer::value);  };
-template <> struct bindings<Float>     { CM(0,Float::value);    };
-template <> struct bindings<String>    { CM(0,String::value);   };
-template <> struct bindings<Variable>  { CM(0,Variable::name);  };
-template <> struct bindings<Structure> { CM(1,Structure::arity); CM(0,Structure::name); CM(2,Structure::terms); }; // FIX: MSVC doesn't compile this unless we go in exactly that order!!!
-template <> struct bindings<List>      { CM(0,List::head);      CM(1,List::tail); };
-template <> struct bindings<Operator>  { CM(0,Operator::name);  };
-template <> struct bindings<Comment>   { CM(0,Comment::text);   };
+template <> struct bindings<Integer>   { Members(Integer::value);  };
+template <> struct bindings<Float>     { Members(Float::value);    };
+template <> struct bindings<String>    { Members(String::value);   };
+template <> struct bindings<Variable>  { Members(Variable::name);  };
+template <> struct bindings<Structure> { Members(Structure::name, Structure::arity, Structure::terms); };
+template <> struct bindings<List>      { Members(List::head,      List::tail); };
+template <> struct bindings<Operator>  { Members(Operator::name);  };
+template <> struct bindings<Comment>   { Members(Comment::text);   };
 } // of namespace mch
 
 //------------------------------------------------------------------------------
@@ -549,27 +549,27 @@ bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
         // e.g. {<X,f(G)>};{} becomes {}; {X -> f(G)}
         if (Variable* v = dynamic_cast<Variable*>(p.first))
         {
-        if (occurs(*v,*p.second))
-        {
-            return false;
-        }
-        else
-        {
-            substitutions[v->name] = p.second;
+			if (occurs(*v,*p.second))
+			{
+				return false;
+			}
+			else
+			{
+				substitutions[v->name] = p.second;
 
-            // Substitute variable in existing terms in substitution
-            for (auto& x : substitutions)
-                x.second = subs(v,p.second,x.second);
+				// Substitute variable in existing terms in substitution
+				for (auto& x : substitutions)
+					x.second = subs(v,p.second,x.second);
 
-            // Substitute variable in the current instantiations set
-            for (auto& q : pairs)
-            {
-                q.first  = subs(v,p.second,q.first);
-                q.second = subs(v,p.second,q.second);
-            }
+				// Substitute variable in the current instantiations set
+				for (auto& q : pairs)
+				{
+					q.first  = subs(v,p.second,q.first);
+					q.second = subs(v,p.second,q.second);
+				}
 
-            continue;
-        }
+				continue;
+			}
         }
 
         return false; // None of the rules applies
