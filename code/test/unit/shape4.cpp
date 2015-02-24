@@ -134,15 +134,15 @@ namespace mch ///< Mach7 library namespace
 {
 template <> struct bindings<Shape>    { KS(Shape::kind); };
 
-template <> struct bindings<Circle>   { KV(Shape,Shape::SK_Circle);  CM(0,Circle::get_center); CM(1,Circle::radius); };
-template <> struct bindings<Square>   { KV(Shape,Shape::SK_Square);  CM(0,Square::upper_left); CM(1,Square::side);   };
-template <> struct bindings<Triangle> { KV(Shape,Shape::SK_Triangle);CM(0,Triangle::first);    CM(1,Triangle::second); CM(2,Triangle::third); };
+template <> struct bindings<Circle>   { KV(Shape,Shape::SK_Circle);  Members(Circle::get_center,Circle::radius); };
+template <> struct bindings<Square>   { KV(Shape,Shape::SK_Square);  Members(Square::upper_left,Square::side);   };
+template <> struct bindings<Triangle> { KV(Shape,Shape::SK_Triangle);Members(Triangle::first,   Triangle::second, Triangle::third); };
 
 template <> struct bindings<ADTShape> { KS(ADTShape::kind); };
 
-template <> struct bindings<ADTShape,ADTShape::circle>   { KV(ADTShape,ADTShape::circle);  CM(0,ADTShape::center);     CM(1,ADTShape::radius); };
-template <> struct bindings<ADTShape,ADTShape::square>   { KV(ADTShape,ADTShape::square);  CM(0,ADTShape::upper_left); CM(1,ADTShape::size); };
-template <> struct bindings<ADTShape,ADTShape::triangle> { KV(ADTShape,ADTShape::triangle);CM(0,ADTShape::first);      CM(1,ADTShape::second); CM(2,ADTShape::third); };
+template <> struct bindings<ADTShape,ADTShape::circle>   { KV(ADTShape,ADTShape::circle);  Members(ADTShape::center,     ADTShape::radius); };
+template <> struct bindings<ADTShape,ADTShape::square>   { KV(ADTShape,ADTShape::square);  Members(ADTShape::upper_left, ADTShape::size); };
+template <> struct bindings<ADTShape,ADTShape::triangle> { KV(ADTShape,ADTShape::triangle);Members(ADTShape::first,      ADTShape::second, ADTShape::third); };
 } // of namespace mch
 
 int main()
