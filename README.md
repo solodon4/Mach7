@@ -184,7 +184,7 @@ Publications
 License
 -------
 
-Mach7 is distributed under [BSD License](LICENSE).
+Mach7 is licensed under the [BSD License](LICENSE).
 
 Support
 -------
