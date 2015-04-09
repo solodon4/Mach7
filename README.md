@@ -7,42 +7,6 @@ Mach7: Pattern Matching for C++
 
 by [Yuriy Solodkyy](http://parasol.tamu.edu/~yuriys/), [Gabriel Dos Reis](http://parasol.tamu.edu/~gdr/), [Bjarne Stroustrup](http://parasol.tamu.edu/~bs/)
 
-License Agreement (BSD)
------------------------
-
-```
-Mach7: Pattern Matching Library for C++
-
-Copyright 2011-2013, Texas A&M University.
-Copyright 2014 Yuriy Solodkyy.
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-
-    * Neither the names of Mach7 project nor the names of its contributors
-      may be used to endorse or promote products derived from this software
-      without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-```
-
 Abstract
 --------
 
@@ -216,6 +180,11 @@ Publications
  * Y.Solodkyy, G.Dos Reis, B.Stroustrup. "[Open Pattern Matching for C++](https://parasol.tamu.edu/~yuriys/papers/OPM13.pdf)" In Proceedings of the 12th international conference on Generative programming: concepts & experiences (GPCE '13). ACM, New York, NY, USA, pp. 33-42. [pdf](https://parasol.tamu.edu/~yuriys/papers/OPM13.pdf), [slides](https://parasol.tamu.edu/~yuriys/presentations/2013-10-27-GPCE-PatternMatching.pptx), [notes](https://parasol.tamu.edu/~yuriys/presentations/2013-10-27-GPCE-PatternMatching-Notes.pdf), [poster](https://parasol.tamu.edu/~yuriys/posters/Mach7.pdf), [project](http://parasol.tamu.edu/mach7/)
  * Y.Solodkyy. "[Simplifying the Analysis of C++ Programs](https://parasol.tamu.edu/~yuriys/papers/SOLODKYY-DISSERTATION-2013.pdf)" Ph.D. Thesis. Texas A&M University. August 2013. [slides](https://parasol.tamu.edu/~yuriys/presentations/2013-05-22-PhdDefense.pptx)
  * Y.Solodkyy, G.Dos Reis, B.Stroustrup. "[Open and Efficient Type Switch for C++](https://parasol.tamu.edu/~yuriys/papers/TS12.pdf)" In Proceedings of the ACM international conference on Object Oriented Programming Systems Languages and Applications (OOPSLA '12). ACM, New York, NY, USA, pp. 963-982. [pdf](https://parasol.tamu.edu/~yuriys/papers/TS12.pdf), [slides](https://parasol.tamu.edu/~yuriys/presentations/2012-10-25-OOPSLA-TypeSwitch.pptx), [notes](https://parasol.tamu.edu/~yuriys/presentations/2012-10-25-OOPSLA-TypeSwitch-Notes.pdf), [poster](https://parasol.tamu.edu/~yuriys/posters/Mach7.pdf), [extras](https://parasol.tamu.edu/~yuriys/pm/), [project](http://parasol.tamu.edu/mach7/)]
+
+License
+-------
+
+Mach7 is distributed under [BSD License](LICENSE).
 
 Support
 -------
