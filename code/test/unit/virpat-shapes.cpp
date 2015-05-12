@@ -169,14 +169,14 @@ namespace mch ///< Mach7 library namespace
 {
 template <> struct bindings<Shape>    {};
 
-template <> struct bindings<Circle>   { CM(0,Circle::center);     CM(1,Circle::radius); };
-template <> struct bindings<Square>   { CM(0,Square::upper_left); CM(1,Square::side);   };
-template <> struct bindings<Triangle> { CM(0,Triangle::first);    CM(1,Triangle::second); CM(2,Triangle::third); };
+template <> struct bindings<Circle>   { Members(Circle::center    , Circle::radius); };
+template <> struct bindings<Square>   { Members(Square::upper_left, Square::side);   };
+template <> struct bindings<Triangle> { Members(Triangle::first   , Triangle::second, Triangle::third); };
 
 // Members binding for std::pair and cloc C struct we use for unions case
 
-template <typename X, typename Y> 
-struct bindings<std::pair<X,Y>> { CM(0,std::pair<X,Y>::first);  CM(1,std::pair<X,Y>::second); };
+template <typename X, typename Y>
+struct bindings<std::pair<X,Y>> { typedef std::pair<X,Y> arg_type; Members(arg_type::first, arg_type::second); };
 } // of namespace mch
 
 //------------------------------------------------------------------------------
