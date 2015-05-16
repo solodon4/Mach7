@@ -66,7 +66,7 @@ struct shape_kind : OtherBase, Shape
 namespace mch ///< Mach7 library namespace
 {
 template <>         struct bindings<Shape>         { KS(Shape::m_kind); };
-template <size_t N> struct bindings<shape_kind<N>> { KV(Shape,tag<N>::value); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
+template <size_t N> struct bindings<shape_kind<N>> { KV(Shape,tag<N>::value); Members(shape_kind<N>::m_member0,shape_kind<N>::m_member1); };
 } // of namespace mch
 
 #elif XTL_DEFAULT_SYNTAX == 'F' || XTL_DEFAULT_SYNTAX == 'f'
@@ -83,7 +83,7 @@ template <>         struct bindings<Shape>         { KS(Shape::m_kind); KV(Shape
 // FIX:  Wonder though why it didn't instantiate them for base cases at least since
 //       we instantiate them explicitly in Case statements
 #define FOR_EACH_MAX NUMBER_OF_DERIVED-1
-#define FOR_EACH_N(N) template <> struct bindings<shape_kind<N>> { KV(Shape,tag<N>::value);  BCS(shape_kind<N>,Shape); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
+#define FOR_EACH_N(N) template <> struct bindings<shape_kind<N>> { KV(Shape,tag<N>::value);  BCS(shape_kind<N>,Shape); Members(shape_kind<N>::m_member0,shape_kind<N>::m_member1); };
 #include "loop_over_numbers.hpp"
 #undef  FOR_EACH_N
 #undef  FOR_EACH_MAX
