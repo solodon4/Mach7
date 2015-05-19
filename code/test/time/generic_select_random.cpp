@@ -71,7 +71,7 @@ template <size_t N> void shape_kind<N>::accept(ShapeVisitor& v) const { v.visit(
 
 namespace mch ///< Mach7 library namespace
 {
-template <size_t N> struct bindings<shape_kind<N>> { CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
+template <size_t N> struct bindings<shape_kind<N>> { Members(shape_kind<N>::m_member0,shape_kind<N>::m_member1); };
 } // of namespace mch
 
 //------------------------------------------------------------------------------

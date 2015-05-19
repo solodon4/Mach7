@@ -75,7 +75,7 @@ SKV(Shape,0); // Declare the smallest kind value for Shape hierarchy
 namespace mch ///< Mach7 library namespace
 {
 template <>         struct bindings<Shape>         { KS(Shape::m_kind); };
-template <size_t N> struct bindings<shape_kind<N>> { KV(Shape,N); CM(0,shape_kind<N>::m_member0); CM(1,shape_kind<N>::m_member1); };
+template <size_t N> struct bindings<shape_kind<N>> { KV(Shape,N); Members(shape_kind<N>::m_member0, shape_kind<N>::m_member1); };
 } // of namespace mch
 
 #if 1
