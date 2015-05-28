@@ -58,11 +58,13 @@
 ::            tmp   - Keep temporaries
 ::           <ver>  - Use a specific version of Visual C++ to compiler the source 
 ::                    code. <ver> can be one of the following:
-::                     - 2003 - Visual C++  7.1
-::                     - 2005 - Visual C++  8.0
-::                     - 2008 - Visual C++  9.0
-::                     - 2010 - Visual C++ 10.0
+::                     - 2015 - Visual C++ 14.0
+::                     - 2013 - Visual C++ 12.0
 ::                     - 2012 - Visual C++ 11.0
+::                     - 2010 - Visual C++ 10.0
+::                     - 2008 - Visual C++  9.0
+::                     - 2005 - Visual C++  8.0
+::                     - 2003 - Visual C++  7.1
 ::                                                                           
 
 @echo off
@@ -110,6 +112,8 @@ rem Parse modifiers
 if "%1" == "pgo"       shift && set PGO=1&&                          goto PARSE_CMD_LINE
 if "%1" == "repro"     shift && set REPRO=1&&                        goto PARSE_CMD_LINE
 if "%1" == "tmp"       shift && set KEEP_TMP=1&&                     goto PARSE_CMD_LINE
+if "%1" == "2015"      shift && set VS_COMN_TOOLS=%VS140COMNTOOLS%&& goto PARSE_CMD_LINE
+if "%1" == "2013"      shift && set VS_COMN_TOOLS=%VS120COMNTOOLS%&& goto PARSE_CMD_LINE
 if "%1" == "2012"      shift && set VS_COMN_TOOLS=%VS110COMNTOOLS%&& goto PARSE_CMD_LINE
 if "%1" == "2010"      shift && set VS_COMN_TOOLS=%VS100COMNTOOLS%&& goto PARSE_CMD_LINE
 if "%1" == "2008"      shift && set VS_COMN_TOOLS=%VS90COMNTOOLS%&&  goto PARSE_CMD_LINE
@@ -129,6 +133,8 @@ if not "%VS_COMN_TOOLS%" == "" goto PROCEED
 
 rem Detect most recent version of the Visual C++ installed :::::::::::::::::::::
 
+if not "%VS140COMNTOOLS%" == "" set VS_COMN_TOOLS=%VS140COMNTOOLS%&& goto PROCEED
+if not "%VS120COMNTOOLS%" == "" set VS_COMN_TOOLS=%VS120COMNTOOLS%&& goto PROCEED
 if not "%VS110COMNTOOLS%" == "" set VS_COMN_TOOLS=%VS110COMNTOOLS%&& goto PROCEED
 if not "%VS100COMNTOOLS%" == "" set VS_COMN_TOOLS=%VS100COMNTOOLS%&& goto PROCEED
 if not "%VS90COMNTOOLS%"  == "" set VS_COMN_TOOLS=%VS90COMNTOOLS%&&  goto PROCEED
@@ -139,6 +145,11 @@ echo ERROR: Unable to find installation of MS Visual C++ on this computer
 goto END
 
 :PROCEED :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+rem Recent versions of vsvars32.bat do not print the toolset used.
+if "%VS_COMN_TOOLS%"=="%VS140COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2015 x86 tools.
+if "%VS_COMN_TOOLS%"=="%VS120COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2013 x86 tools.
+if "%VS_COMN_TOOLS%"=="%VS110COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2012 x86 tools.
 
 rem Set-up Visual C++ Environment Variables
 call "%VS_COMN_TOOLS%vsvars32.bat"
