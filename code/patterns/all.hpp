@@ -45,7 +45,7 @@
 #pragma once
 
 #include "address.hpp"        // Address pattern
-#if !defined(_MSC_VER)
+#if XTL_SUPPORT(initializer_list)
 #include "any.hpp"            // Any (one-of) pattern
 #endif
 #include "combinators.hpp"    // Pattern combinators

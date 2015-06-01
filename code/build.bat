@@ -43,7 +43,7 @@
 ::
 :: Usage:
 ::
-::     build [ pgo | tmp | <ver> ] [ filemask*.cpp ... ]
+::     build [ pgo | repro | tmp | <ver> ] [ filemask*.cpp ... ]
 ::     build        - Build all examples using the most recent MS Visual C++ compiler installed
 ::     build unit   - Build all unit tests
 ::     build syntax - Build all supported library options combination for syntax variations
@@ -56,6 +56,7 @@
 ::
 :: Modifiers:
 ::            pgo   - Perform Profile-Guided Optimization on produced executables
+::            repro - In case of error, create and compile a pre-processed repro
 ::            tmp   - Keep temporaries
 ::           <ver>  - Use a specific version of Visual C++ to compiler the source 
 ::                    code. <ver> can be one of the following:
@@ -154,6 +155,8 @@ if "%VS_COMN_TOOLS%"=="%VS110COMNTOOLS%" echo Setting environment for using Micr
 
 rem Set-up Visual C++ Environment Variables
 call "%VS_COMN_TOOLS%vsvars32.bat"
+rem Dump versions of compiler passes
+%CXX% /Bv >> %logfile% 2>&1
 
 rem Account for a problem with some PGO flags described above.
 if "%PGO%"=="1" set CXXFLAGS=%CXXFLAGS% /GL 
@@ -400,6 +403,7 @@ goto END
 :BUILD_SYNTAX ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 setlocal
+cd test\unit
 set CF=%CXXFLAGS%
 set CXXFLAGS=%CF% /DXTL_FALL_THROUGH=0 /DXTL_USE_BRACES=1 /DXTL_DEFAULT_SYNTAX='S' & call :SUB_BUILD_FILE syntax.cxx syntax-rc0-ft0-br1-S-spe
 set CXXFLAGS=%CF% /DXTL_FALL_THROUGH=0 /DXTL_USE_BRACES=1 /DXTL_DEFAULT_SYNTAX='s' & call :SUB_BUILD_FILE syntax.cxx syntax-rc0-ft0-br1-S-gen
@@ -425,6 +429,7 @@ set CXXFLAGS=%CF% /DXTL_FALL_THROUGH=1 /DXTL_USE_BRACES=1 /DXTL_DEFAULT_SYNTAX='
 set CXXFLAGS=%CF% /DXTL_FALL_THROUGH=1 /DXTL_USE_BRACES=1 /DXTL_DEFAULT_SYNTAX='u' & call :SUB_BUILD_FILE syntax.cxx syntax-rc0-ft1-br1-U-gen
 set CXXFLAGS=%CF% /DXTL_FALL_THROUGH=1 /DXTL_USE_BRACES=1 /DXTL_DEFAULT_SYNTAX='K' & call :SUB_BUILD_FILE syntax.cxx syntax-rc0-ft1-br1-K-spe
 set CXXFLAGS=%CF% /DXTL_FALL_THROUGH=1 /DXTL_USE_BRACES=1 /DXTL_DEFAULT_SYNTAX='k' & call :SUB_BUILD_FILE syntax.cxx syntax-rc0-ft1-br1-K-gen
+cd ..\..
 endlocal
 goto END
 

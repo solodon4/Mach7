@@ -256,7 +256,7 @@
 /// note ] [ Note: As is the case with the typename prefix, the template prefix is allowed in cases where it is
 /// not strictly necessary; i.e., when the nested-name-specifier or the expression on the left of the -> or . is not
 /// dependent on a template-parameter, or the use does not appear in the scope of a template. -end note ]
-#if _MSC_VER < 1700
+#if _MSC_VER < 1900
 #define XTL_CPP0X_TYPENAME
 #endif
 

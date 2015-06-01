@@ -197,11 +197,10 @@ struct transparent_wrapper<T,typename std::enable_if<std::is_class<T>::value>::t
 {
 #if XTL_SUPPORT(inheriting_constructors)
     using T::T;
+#elif XTL_SUPPORT(ddf)
+    transparent_wrapper() = default;
 #else // Emulate to the extent possible
     transparent_wrapper() : T() {} // Assume T has default constructor
-#endif
-#if XTL_SUPPORT(ddf)
-    transparent_wrapper() = default;
 #endif
     explicit transparent_wrapper(const T&  t) noexcept : T(          t ) {}
     explicit transparent_wrapper(      T&& t) noexcept : T(std::move(t)) {}
