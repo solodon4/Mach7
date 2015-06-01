@@ -46,7 +46,7 @@
 
 #include <cstddef>
 #include "../metatools.hpp"
-#include <tuple>
+//#include <tuple>
 
 namespace mch ///< Mach7 library namespace
 {
@@ -78,7 +78,7 @@ struct reflection
     };
 };
 
-#if XTL_SUPPORT(constexpr)
+#if XTL_SUPPORT(constexpr) && 0 // Errors in VS 2015, but this was test code anyways
 template <>
 struct reflection<MyClass>
 {

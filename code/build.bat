@@ -207,8 +207,8 @@ if exist %filename%.exe (
     rem Error during compilation, prepare preprocessed file for troubleshooting
     echo ---------------------------------------- [ Preprocessed ] >> %logfile%
     <nul (set/p output=- repro )
-    echo [[ %CXX% %CXXFLAGS% /EP /P %1 ]] >> %logfile% 2>&1
-            %CXX% %CXXFLAGS% /EP /P %1    >> %logfile% 2>&1
+    echo [[ %CXX% %CXXFLAGS% /EP /P /Fi%filename%.i %1 ]] >> %logfile% 2>&1
+            %CXX% %CXXFLAGS% /EP /P /Fi%filename%.i %1    >> %logfile% 2>&1
     <nul (set/p output=- compiling )
     echo [[ %CXX% %CXXFLAGS% /TP %filename%.i ]] >> %logfile% 2>&1
             %CXX% %CXXFLAGS% /TP %filename%.i    >> %logfile% 2>&1
@@ -266,7 +266,7 @@ goto END
 :SUB_CLEAN :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 set CurDir=%CD%
 cd /D %1
-del *.obj *.exe *.pdb *.idb *.intermediate.manifest *.out cmp_haskell.hi cmp_haskell.o cmp_ocaml.cmi cmp_ocaml.cmx > nul 2>&1
+del *.i *.obj *.exe *.pdb *.idb *.intermediate.manifest *.out cmp_haskell.hi cmp_haskell.o cmp_ocaml.cmi cmp_ocaml.cmx > nul 2>&1
 cd /D %CurDir%
 goto END
 
@@ -377,6 +377,8 @@ goto END
 
 :BUILD_CMP :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+setlocal
+cd test\time
 call :SUB_BUILD_TIMING 0 p SEQ x86 cmp_cpp.cxx cmp
 call :SUB_BUILD_TIMING 0 f SEQ x86 cmp_cpp.cxx cmp
 call :SUB_BUILD_TIMING 1 f SEQ x86 cmp_cpp.cxx cmp
@@ -398,6 +400,8 @@ ocamlopt.opt unix.cmxa -o cmp_ocaml.exe cmp_ocaml.ml >> %logfile% 2>&1
 if errorlevel 1 <nul (set/p output=- ) & call :SUB_COLOR_TEXT 0C "error"
 echo.
 if "%KEEP_TMP%"=="" del cmp_ocaml.cmi cmp_ocaml.cmx cmp_ocaml.obj > nul 2>&1
+cd ..\..
+endlocal
 goto END
 
 :BUILD_SYNTAX ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
