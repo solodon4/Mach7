@@ -71,7 +71,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\prolog-pat2.cpp">
+    <ClCompile Include="..\..\test\unit\prolog-pat2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

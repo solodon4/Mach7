@@ -45,6 +45,7 @@
 ::
 ::     build [ pgo | tmp | <ver> ] [ filemask*.cpp ... ]
 ::     build        - Build all examples using the most recent MS Visual C++ compiler installed
+::     build unit   - Build all unit tests
 ::     build syntax - Build all supported library options combination for syntax variations
 ::     build timing - Build all supported library options combination for timing variations
 ::     build cmp    - Build all executables for comparison with other languages
@@ -79,9 +80,9 @@ rem NOTE: Specifying /GL in VC11 fails to link code that uses our decl_helper fo
 rem       However not specifying /GL fails when trying to do PGO.
 rem       Linker's /LTCG is used only when /GL is passed and vice versa.
 rem set CXXFLAGS=/nologo /W4 /EHsc /O2
-set CXXFLAGS=/wd4007 /Zi /nologo /EHsc /W4 /WX- /O2 /Ob2 /Oi /Ot /Oy-     /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
-rem          /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /Fp"Release\SyntheticSelectRandom.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb" 
-rem Slower: =/wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot      /GL /GF /Gm- /MT /GS- /Gy  /fp:precise /Zc:wchar_t /Zc:forScope /Gr           /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
+set CXXFLAGS=/I ..\.. /wd4007 /Zi /nologo /EHsc /W4 /WX- /O2 /Ob2 /Oi /Ot /Oy-     /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
+rem          /I ..\.. /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /Fp"Release\SyntheticSelectRandom.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb" 
+rem Slower: =/I ..\.. /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot      /GL /GF /Gm- /MT /GS- /Gy  /fp:precise /Zc:wchar_t /Zc:forScope /Gr           /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
 set LNKFLAGS=/INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST:NO /ALLOWISOLATION /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /ERRORREPORT:QUEUE 
 rem /OUT:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.exe" /INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST /ManifestFile:"Release\SyntheticSelectRandom.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /PGD:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pgd" /LTCG /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /MACHINE:X86 /ERRORREPORT:QUEUE 
 set M=X86
@@ -98,7 +99,7 @@ call :SUB_PARSE_DATE
 set logfile=build-%yy%-%mm%-%dd%-%hh%-%mn%.log
 
 :LOG_FILE_READY
-
+set logfile=%~dp0%logfile%
 echo. > %logfile%
 echo Mach7 Build Script >> %logfile%
 echo Version 1.0 from 2012-02-04 >> %logfile%
@@ -122,7 +123,7 @@ if "%1" == "2003"      shift && set VS_COMN_TOOLS=%VS71COMNTOOLS%&&  goto PARSE_
 
 rem Parse commands
 
-if "%1" == "clean"     del *.obj *.exe *.pdb *.idb *.intermediate.manifest *.out cmp_haskell.hi cmp_haskell.o cmp_ocaml.cmi cmp_ocaml.cmx > nul 2>&1 && goto END
+if "%1" == "clean"     call :SUB_CLEAN . && call :SUB_CLEAN test\unit && call :SUB_CLEAN test\time && goto END
 if "%1" == "check"     shift && goto CHECK
 if "%1" == "test"      shift && goto TEST
 if "%1" == "doc"       shift && goto DOXYGEN
@@ -160,6 +161,7 @@ if "%PGO%"=="1" set LNKFLAGS=%LNKFLAGS% /LTCG
 
 setlocal
 
+if "%1" == "unit"   shift && goto BUILD_UNIT
 if "%1" == "timing" shift && goto BUILD_TIMING
 if "%1" == "cmp"    shift && goto BUILD_CMP
 if "%1" == "syntax" shift && goto BUILD_SYNTAX
@@ -176,7 +178,7 @@ goto BUILD_ARG
 :BUILD_ALL :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 rem User didn't provide any arguments, assume all .cpp files in the current folder
-for %%i in (*.cpp) do call :SUB_BUILD_FILE "%%i"
+call :BUILD_UNIT
 call :BUILD_SYNTAX
 call :BUILD_CMP
 call :BUILD_TIMING
@@ -258,6 +260,13 @@ if not exist %~n1.*in %1
 if     exist %~n1.*in for %%i in (%~n1.*in) do echo. && echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ { "%%i" } && type "%%i" && echo. && echo ---------------------------------------- && %1 < "%%i"
 goto END
 
+:SUB_CLEAN :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+set CurDir=%CD%
+cd /D %1
+del *.obj *.exe *.pdb *.idb *.intermediate.manifest *.out cmp_haskell.hi cmp_haskell.o cmp_ocaml.cmi cmp_ocaml.cmx > nul 2>&1
+cd /D %CurDir%
+goto END
+
 :CHECK :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 if "%1" == "" goto CHECK_ALL
@@ -312,7 +321,16 @@ echo %date% %time%                                         >> %logfile%
 echo Complete:	%genres%/%cmplres%
 goto END
 
+:BUILD_UNIT ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+cd test\unit
+for %%i in (*.cpp) do call :SUB_BUILD_FILE "%%i"
+cd ..\.. 
+goto END
+
 :BUILD_TIMING ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+cd test\time
+for %%i in (*.cpp) do call :SUB_BUILD_FILE "%%i"
 
 for %%G in (x86 x64) do (
     rem Set up VC variables for x86 build
@@ -327,6 +345,7 @@ for %%G in (x86 x64) do (
     )
     endlocal
 )
+cd ..\.. 
 goto END
 
 :SUB_BUILD_TIMING ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
