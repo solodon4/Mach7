@@ -133,30 +133,32 @@ Using Visual C++ (2010 or later)
 
  Syntax:
 
-    build [ pgo | tmp | (ver) ] [ filemask*.cpp ... ]
+    build [ pgo | repro | tmp | <ver> ] [ filemask*.cpp ... ]
     build [ syntax | timing | cmp | doc | clean | test | check ]
 
  Commands supported so far:
 
     build [ pgo | tmp | (ver) ] [ filemask*.cpp ... ] - build given C++ files
     build        - Build all examples using the most recent MS Visual C++ compiler installed
+    build unit   - Build all unit tests
     build syntax - Build all supported library options combination for syntax variations
     build timing - Build all supported library options combination for timing variations
     build cmp    - Build all executables for comparison with other languages
     build doc    - Build Mach7 documentation
     build clean  - Clean all built examples
-    build test   - Run all built examples
-    build check  - Run those examples for which there are correct_output/*.out files and 
-                   check that output is the same
+    build test   -   Run all built examples
+    build check  -   Run those examples for which there are correct_output/*.out files and check that output is the same
 
  Modifiers:
-
-    pgo   - Perform Profile-Guided Optimization on produced executables
-    tmp   - Keep temporaries
-    (ver) - Use a specific version of Visual C++ to compiler the source code. (ver) can be one of the following:
-          - 2010 - Visual C++ 10.0
-          - 2012 - Visual C++ 11.0
-          - 2013 - Visual C++ 12.0
+           pgo   - Perform Profile-Guided Optimization on produced executables
+           repro - In case of error, create and compile a pre-processed repro
+           tmp   - Keep temporaries
+          <ver>  - Use a specific version of Visual C++ to compiler the source 
+                   code. <ver> can be one of the following:
+                    - 2015 - Visual C++ 14.0
+                    - 2013 - Visual C++ 12.0
+                    - 2012 - Visual C++ 11.0
+                    - 2010 - Visual C++ 10.0
 
 The following batch files do some of these sub-commands directly and have since been integrated into build.bat:
 ```
@@ -195,6 +197,10 @@ Known bugs and limitations
 --------------------------
 
 The library is not yet suitable for multi-threaded environment. Lock-free version of vtbl-map is in the works.
+
+Please refrain from using solution or project files checked in here. They are not in sync with most recent changes
+to directory structure and are difficult to maintain. They will ultimately be replaced with a less verbose system 
+(likely CMake), and in the meantime please use build.bat to build tests on Windows. 
 
 The following files crash GCC 4.4.5 on my Fedora 13 box:
     extractor.cpp, shape2.cpp, shape4.cpp, shape5.cpp, shape6.cpp, shape.cpp, numbers.cpp, category.cpp, exp.cpp
