@@ -146,10 +146,12 @@ Using Visual C++ (2010 or later)
     build cmp    - Build all executables for comparison with other languages
     build doc    - Build Mach7 documentation
     build clean  - Clean all built examples
-    build test   -   Run all built examples
-    build check  -   Run those examples for which there are correct_output/*.out files and check that output is the same
+    build test   - Run all built examples
+    build check  - Run those examples for which there are correct_output/*.out files and 
+                   check that output is the same
 
  Modifiers:
+
            pgo   - Perform Profile-Guided Optimization on produced executables
            repro - In case of error, create and compile a pre-processed repro
            tmp   - Keep temporaries
