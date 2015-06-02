@@ -70,21 +70,23 @@
 ::                                                                           
 
 @echo off
+set MACH7_ROOT=%~dp0
+set CurDir=%CD%
 setlocal
 if "%1" == "/?" findstr "^::" "%~f0" & goto END
 
 rem Set-up variables :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
 set CXX=cl.exe
 rem List of compiler options: http://technet.microsoft.com/en-us/library/fwkeyyhe(v=vs.110).aspx
 rem NOTE: Specifying /GL in VC11 fails to link code that uses our decl_helper for some reason.
 rem       However not specifying /GL fails when trying to do PGO.
 rem       Linker's /LTCG is used only when /GL is passed and vice versa.
 rem set CXXFLAGS=/nologo /W4 /EHsc /O2
-set CXXFLAGS=/I ..\.. /wd4007 /Zi /nologo /EHsc /W4 /WX- /O2 /Ob2 /Oi /Ot /Oy-     /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
-rem          /I ..\.. /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /Fp"Release\SyntheticSelectRandom.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb" 
-rem Slower: =/I ..\.. /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot      /GL /GF /Gm- /MT /GS- /Gy  /fp:precise /Zc:wchar_t /Zc:forScope /Gr           /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
-set LNKFLAGS=/INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST:NO /ALLOWISOLATION /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /ERRORREPORT:QUEUE 
+set CXXFLAGS=/I %MACH7_ROOT% /wd4007 /Zi /nologo /EHsc /W4 /WX- /O2 /Ob2 /Oi /Ot /Oy-     /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
+rem          /I %MACH7_ROOT% /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /Fp"Release\SyntheticSelectRandom.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb" 
+rem Slower: =/I %MACH7_ROOT% /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot      /GL /GF /Gm- /MT /GS- /Gy  /fp:precise /Zc:wchar_t /Zc:forScope /Gr           /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
+set LNKFLAGS=
+rem LNKFLAGS=/INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST:NO /ALLOWISOLATION /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /ERRORREPORT:QUEUE 
 rem /OUT:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.exe" /INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST /ManifestFile:"Release\SyntheticSelectRandom.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /PGD:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pgd" /LTCG /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /MACHINE:X86 /ERRORREPORT:QUEUE 
 set M=X86
 
@@ -100,7 +102,7 @@ call :SUB_PARSE_DATE
 set logfile=build-%yy%-%mm%-%dd%-%hh%-%mn%.log
 
 :LOG_FILE_READY
-set logfile=%~dp0%logfile%
+set logfile="%MACH7_ROOT%%logfile%"
 echo. > %logfile%
 echo Mach7 Build Script >> %logfile%
 echo Version 1.0 from 2012-02-04 >> %logfile%
@@ -124,7 +126,7 @@ if "%1" == "2003"      shift && set VS_COMN_TOOLS=%VS71COMNTOOLS%&&  goto PARSE_
 
 rem Parse commands
 
-if "%1" == "clean"     call :SUB_CLEAN . && call :SUB_CLEAN test\unit && call :SUB_CLEAN test\time && goto END
+if "%1" == "clean"     call :SUB_CLEAN "%MACH7_ROOT%" && call :SUB_CLEAN "%MACH7_ROOT%test\unit" && call :SUB_CLEAN "%MACH7_ROOT%test\time" && goto END
 if "%1" == "check"     shift && goto CHECK
 if "%1" == "test"      shift && goto TEST
 if "%1" == "doc"       shift && goto DOXYGEN
@@ -264,10 +266,9 @@ if     exist %~n1.*in for %%i in (%~n1.*in) do echo. && echo ~~~~~~~~~~~~~~~~~~~
 goto END
 
 :SUB_CLEAN :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-set CurDir=%CD%
 cd /D %1
-del *.i *.obj *.exe *.pdb *.idb *.intermediate.manifest *.out cmp_haskell.hi cmp_haskell.o cmp_ocaml.cmi cmp_ocaml.cmx > nul 2>&1
-cd /D %CurDir%
+del *.i *.obj *.exe *.pdb *.idb *.ilk *.intermediate.manifest *.out cmp_haskell.hi cmp_haskell.o cmp_ocaml.cmi cmp_ocaml.cmx > nul 2>&1
+cd /D "%CurDir%"
 goto END
 
 :CHECK :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -302,6 +303,7 @@ goto END
 :DOXYGEN :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 rem Build documentation
+cd /D "%MACH7_ROOT%"
 echo Generating HTML documentation ...
 if not exist doc md doc
 echo ----------------------------------------------------- >> %logfile%
@@ -311,7 +313,7 @@ echo ----------------------------------------------------- >> %logfile%
 if exist doc\html      rmdir /S /Q doc\html                >> %logfile% 2>&1
 if exist doc\mach7.chm erase /F doc\mach7.chm              >> %logfile% 2>&1
 cd doxygen
-doxygen mach7.dxg                                          >> ..\%logfile% 2>&1
+doxygen mach7.dxg                                          >> %logfile% 2>&1
 cd ..
 set genres=%errorlevel%
 echo Compiling HTML documentation ...
@@ -322,17 +324,18 @@ move doc\html\mach7.chm doc\mach7.chm                      >> %logfile% 2>&1
 echo ----------------------------------------------------- >> %logfile%
 echo %date% %time%                                         >> %logfile%
 echo Complete:	%genres%/%cmplres%
+cd /D "%CurDir%"
 goto END
 
 :BUILD_UNIT ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-cd test\unit
+cd /D "%MACH7_ROOT%test\unit"
 for %%i in (*.cpp) do call :SUB_BUILD_FILE "%%i"
-cd ..\.. 
+cd /D "%CurDir%" 
 goto END
 
 :BUILD_TIMING ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-cd test\time
+cd /D "%MACH7_ROOT%test\time"
 for %%i in (*.cpp) do call :SUB_BUILD_FILE "%%i"
 
 for %%G in (x86 x64) do (
@@ -348,7 +351,7 @@ for %%G in (x86 x64) do (
     )
     endlocal
 )
-cd ..\.. 
+cd /D "%CurDir%"
 goto END
 
 :SUB_BUILD_TIMING ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -378,7 +381,7 @@ goto END
 :BUILD_CMP :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 setlocal
-cd test\time
+cd /D "%MACH7_ROOT%test\time"
 call :SUB_BUILD_TIMING 0 p SEQ x86 cmp_cpp.cxx cmp
 call :SUB_BUILD_TIMING 0 f SEQ x86 cmp_cpp.cxx cmp
 call :SUB_BUILD_TIMING 1 f SEQ x86 cmp_cpp.cxx cmp
@@ -400,14 +403,14 @@ ocamlopt.opt unix.cmxa -o cmp_ocaml.exe cmp_ocaml.ml >> %logfile% 2>&1
 if errorlevel 1 <nul (set/p output=- ) & call :SUB_COLOR_TEXT 0C "error"
 echo.
 if "%KEEP_TMP%"=="" del cmp_ocaml.cmi cmp_ocaml.cmx cmp_ocaml.obj > nul 2>&1
-cd ..\..
+cd /D "%CurDir%"
 endlocal
 goto END
 
 :BUILD_SYNTAX ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 setlocal
-cd test\unit
+cd /D "%MACH7_ROOT%test\unit"
 set CF=%CXXFLAGS%
 set CXXFLAGS=%CF% /DXTL_FALL_THROUGH=0 /DXTL_USE_BRACES=1 /DXTL_DEFAULT_SYNTAX='S' & call :SUB_BUILD_FILE syntax.cxx syntax-rc0-ft0-br1-S-spe
 set CXXFLAGS=%CF% /DXTL_FALL_THROUGH=0 /DXTL_USE_BRACES=1 /DXTL_DEFAULT_SYNTAX='s' & call :SUB_BUILD_FILE syntax.cxx syntax-rc0-ft0-br1-S-gen
@@ -433,7 +436,7 @@ set CXXFLAGS=%CF% /DXTL_FALL_THROUGH=1 /DXTL_USE_BRACES=1 /DXTL_DEFAULT_SYNTAX='
 set CXXFLAGS=%CF% /DXTL_FALL_THROUGH=1 /DXTL_USE_BRACES=1 /DXTL_DEFAULT_SYNTAX='u' & call :SUB_BUILD_FILE syntax.cxx syntax-rc0-ft1-br1-U-gen
 set CXXFLAGS=%CF% /DXTL_FALL_THROUGH=1 /DXTL_USE_BRACES=1 /DXTL_DEFAULT_SYNTAX='K' & call :SUB_BUILD_FILE syntax.cxx syntax-rc0-ft1-br1-K-spe
 set CXXFLAGS=%CF% /DXTL_FALL_THROUGH=1 /DXTL_USE_BRACES=1 /DXTL_DEFAULT_SYNTAX='k' & call :SUB_BUILD_FILE syntax.cxx syntax-rc0-ft1-br1-K-gen
-cd ..\..
+cd /D "%CurDir%"
 endlocal
 goto END
 
