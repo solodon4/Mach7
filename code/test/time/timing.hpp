@@ -48,8 +48,13 @@
 // with when several are available.
 #if (!defined(XTL_TIMING_METHOD_1) && !defined(XTL_TIMING_METHOD_2) && !defined(XTL_TIMING_METHOD_3))
     #if   defined(_MSC_VER)
+      #if defined(_MSC_EXTENSIONS)
         /// This timing method would work on Windows systems starting from Windows 2000
         #define XTL_TIMING_METHOD_1
+      #else
+        /// TODO: Get MSVC equivalent of RDTSC asembly to avoid inclusion of windows headers incompatible with /Za
+        #define XTL_TIMING_METHOD_3
+      #endif
     #elif defined(__GNUC__)
         /// This timing method would work on any Pentium processor when compiled with GCC
         #define XTL_TIMING_METHOD_2
