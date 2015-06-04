@@ -195,6 +195,14 @@ Support
 
 Please contact Yuriy Solodkyy at yuriy.solodkyy@gmail.com with any questions regarding Mach7.
 
+Call for Help
+-------------
+
+We are looking for contributors to the project. If you are a student taking a 
+programming languages class or any other class that would require you to write 
+a small compiler or interpreter, we would love you try Mach7 for the job. We 
+promise to help with any issues you might have with the library.
+
 Known bugs and limitations
 --------------------------
 
