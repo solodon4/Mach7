@@ -59,7 +59,10 @@ GCC_COLORS=always
 OS       = $(shell uname -s)
 #CXX      = g++-4.8
 LIBS     = -lstdc++
-INCLUDES = -I/Users/solodon/Downloads/boost_1_56_0/
+ifndef BOOST
+BOOST    = /Users/solodon/Downloads/boost_1_56_0/
+endif
+INCLUDES = -I$(BOOST)
 CXXFLAGS_COMMON=$(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
 CXXFLAGS_GCC=-Wno-vla -ftrack-macro-expansion=4 -fdiagnostics-show-option
 CXXFLAGS_CLANG=-fmacro-backtrace-limit=0 -ftemplate-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct
@@ -157,11 +160,11 @@ ver:
 
 # A rule to build all the timing tests
 time:
-	$(MAKE) -C test/time
+	$(MAKE) -C test/time CXX=$(CXX) BOOST=$(BOOST)
 
 # A rule to build all the unit tests
 unit:
-	$(MAKE) -C test/unit
+	$(MAKE) -C test/unit CXX=$(CXX) BOOST=$(BOOST)
 
 # A rule to clean all the intermediates and targets
 clean:
