@@ -128,8 +128,8 @@ auto deref(typename mch::member_traits<F>::class_type const* p) -> decltype(*mch
 namespace mch ///< Mach7 library namespace
 {
 template <> struct bindings<Var> { Members(Var::name); };
-template <> struct bindings<Abs> { Members((deref<decltype(&Abs::var ), &Abs::var> ), (deref<decltype(&Abs::body), &Abs::body>)); };
-template <> struct bindings<App> { Members((deref<decltype(&App::func), &App::func>), (deref<decltype(&App::arg) , &App::arg> )); };
+template <> struct bindings<Abs> { Members((deref<decltype(&Abs::var ), &Abs::var >), (deref<decltype(&Abs::body), &Abs::body>)); };
+template <> struct bindings<App> { Members((deref<decltype(&App::func), &App::func>), (deref<decltype(&App::arg ), &App::arg >)); };
 } // of namespace mch
 
 //------------------------------------------------------------------------------
