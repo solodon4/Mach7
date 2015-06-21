@@ -59,7 +59,10 @@ GCC_COLORS=always
 OS       = $(shell uname -s)
 #CXX      = g++-4.8
 LIBS     = -lstdc++
-INCLUDES = -I../.. -I$(BOOST)
+INCLUDES = -I../..
+ifneq (,$(BOOST))
+	INCLUDES += -I$(BOOST)
+endif
 CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
 ifneq (,$(findstring g++,$(CXX)))
 	CXXFLAGS += -Wno-vla -ftrack-macro-expansion=4 -fdiagnostics-show-option
