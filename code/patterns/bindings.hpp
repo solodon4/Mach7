@@ -182,7 +182,7 @@ struct target_of<view<T,L>>
 #if !defined(CM)
   #if !XTL_USE_GENERIC_BINDINGS
     /// \deprecated This macro is now deprecated, use Members(m1,..., mN) instead!
-    /// Macro to define member's position within decomposition of a given data type
+    /// Internal macro used by Members(...) to define member's position within decomposition of a given data type
     /// Example: CM(0,MyClass::member) or CM(1,external_func)
     /// \note Use this macro only inside specializations of #bindings
     /// \note The macro should be followed by a semicolon!
