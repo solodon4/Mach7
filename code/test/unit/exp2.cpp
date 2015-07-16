@@ -106,12 +106,12 @@ int myeval(const IExpr* e)
     XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
-struct EExpr           { virtual void raise() const throw(EExpr) = 0; };
-struct EValue  : EExpr { virtual void raise() const throw(EValue ) { throw(*this); } int value; EValue (int v) : value(v) {} };
-struct EPlus   : EExpr { virtual void raise() const throw(EPlus  ) { throw(*this); } const EExpr* exp1; const EExpr* exp2; EPlus  (const EExpr* e1, const EExpr* e2) : exp1(e1), exp2(e2) {} };
-struct EMinus  : EExpr { virtual void raise() const throw(EMinus ) { throw(*this); } const EExpr* exp1; const EExpr* exp2; EMinus (const EExpr* e1, const EExpr* e2) : exp1(e1), exp2(e2) {} };
-struct ETimes  : EExpr { virtual void raise() const throw(ETimes ) { throw(*this); } const EExpr* exp1; const EExpr* exp2; ETimes (const EExpr* e1, const EExpr* e2) : exp1(e1), exp2(e2) {} };
-struct EDivide : EExpr { virtual void raise() const throw(EDivide) { throw(*this); } const EExpr* exp1; const EExpr* exp2; EDivide(const EExpr* e1, const EExpr* e2) : exp1(e1), exp2(e2) {} };
+struct EExpr           { virtual void raise() const = 0; };
+struct EValue  : EExpr { virtual void raise() const { throw(*this); } int value; EValue (int v) : value(v) {} };
+struct EPlus   : EExpr { virtual void raise() const { throw(*this); } const EExpr* exp1; const EExpr* exp2; EPlus  (const EExpr* e1, const EExpr* e2) : exp1(e1), exp2(e2) {} };
+struct EMinus  : EExpr { virtual void raise() const { throw(*this); } const EExpr* exp1; const EExpr* exp2; EMinus (const EExpr* e1, const EExpr* e2) : exp1(e1), exp2(e2) {} };
+struct ETimes  : EExpr { virtual void raise() const { throw(*this); } const EExpr* exp1; const EExpr* exp2; ETimes (const EExpr* e1, const EExpr* e2) : exp1(e1), exp2(e2) {} };
+struct EDivide : EExpr { virtual void raise() const { throw(*this); } const EExpr* exp1; const EExpr* exp2; EDivide(const EExpr* e1, const EExpr* e2) : exp1(e1), exp2(e2) {} };
 
 //struct EExpr           { virtual void raise() const = 0; };
 //struct EValue  : EExpr { virtual void raise() const { throw(*this); } int value; };
