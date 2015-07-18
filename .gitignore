@@ -52,6 +52,15 @@ Pods
 # Visual C++
 Debug/
 Release/
+ipch/
 *.pdb
 *.suo
 *.i
+*.ilk
+*.sdf
+
+# Generated files
+*.tab.?pp
+
+# Miscellaneous
+*.log
