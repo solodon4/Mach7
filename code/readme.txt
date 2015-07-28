@@ -42,7 +42,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Building sources
 ================
 
-Using GCC (4.4 or later) or Clang (5.1 or later)
+Using GCC (4.4 or later) or Clang (3.4 or later)
 ------------------------
  * make
     - builds .exe files from all the .cpp files in current directory.
