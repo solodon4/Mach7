@@ -44,6 +44,7 @@
 
 #pragma once
 
+#include <algorithm> // for std::min/std::max
 #include <ostream>
 #include <iomanip>
 
