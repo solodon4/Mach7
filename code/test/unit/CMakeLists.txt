@@ -1,5 +1,19 @@
-cmake_minimum_required(VERSION 3.3)
+# Version 3.2 is needed to be able to have support of target_compile_features for AppleClang
+cmake_minimum_required(VERSION 3.2.0 FATAL_ERROR)
+
+# Uncomment this to list the name of all the features that can be required belov in needed_features
+message("Your CMake version supports these C++ features:")
+get_property(known_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
+foreach(i ${known_features})
+message("${i}")
+endforeach()
+
+# To access Mach7 library headers
 include_directories(../..)
+
+# CMake would infer the options to pass to the compiler to ensure these features are supported (e.g. proper C++ version)
+set(needed_features
+cxx_auto_type)
 
 # these are all compiled the same way
 set(PROGRAMS
@@ -40,7 +54,9 @@ virpat-shapes
 )
 
 foreach(program ${PROGRAMS})
+  project(${program} CXX)
   add_executable(${program} ${program}.cpp)
+  target_compile_features(${program} PRIVATE ${needed_features})
 endforeach(program)
 
 add_executable(syntax syntax.cxx)
