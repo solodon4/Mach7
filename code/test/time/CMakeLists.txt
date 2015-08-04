@@ -78,6 +78,7 @@ foreach(program ${PROGRAMS})
   project(${program} CXX)
   add_executable(${program} ${program}.cpp)
   target_compile_features(${program} PRIVATE ${needed_features})
+  set_property(TARGET ${program} PROPERTY FOLDER "Tests/Time")
 endforeach(program)
 
 set(Boost_USE_STATIC_LIBS OFF) 

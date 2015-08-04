@@ -57,9 +57,13 @@ foreach(program ${PROGRAMS})
   project(${program} CXX)
   add_executable(${program} ${program}.cpp)
   target_compile_features(${program} PRIVATE ${needed_features})
+  set_property(TARGET ${program} PROPERTY FOLDER "Tests/Unit")
 endforeach(program)
 
+project(syntax CXX)
 add_executable(syntax syntax.cxx)
+target_compile_features(syntax PRIVATE ${needed_features})
+set_property(TARGET syntax PROPERTY FOLDER "Tests/Unit")
 
 set(Boost_USE_STATIC_LIBS OFF) 
 set(Boost_USE_MULTITHREADED OFF)  
