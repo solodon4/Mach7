@@ -2,11 +2,11 @@
 cmake_minimum_required(VERSION 3.2.0 FATAL_ERROR)
 
 # Uncomment this to list the name of all the features that can be required belov in needed_features
-message("Your CMake version supports these C++ features:")
-get_property(known_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
-foreach(i ${known_features})
-message("${i}")
-endforeach()
+# message("Your CMake version supports these C++ features:")
+# get_property(known_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
+# foreach(i ${known_features})
+# message("${i}")
+# endforeach()
 
 # To access Mach7 library headers
 include_directories(../..)
