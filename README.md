@@ -115,7 +115,23 @@ to help you get started on your own Mach7 project.
 Building sources
 ----------------
 
-Using GCC (4.4 or later) or Clang (3.3 or later)
+The library itself is header only and does not require building. To build unit and 
+timing tests we've accumulated over time several scripts, which we don't completely
+abandon in favor of newer ones as they maintain the flags the original experiments
+on the library were built with.
+
+Using CMake
+
+ CMake support is the most recent and is still very experimental at this point. To
+ build with cmake, perform the following commands from within Mach7 folder:
+
+    cd code/test
+    mkdir build
+    cd build
+    cmake ..
+    cmake --build .
+
+Using Makefiles for GCC (4.4 or later) or Clang (3.3 or later)
 
     make         - builds .exe files from all the .cpp files in current directory.
     make timings - builds all combinations of encodings, syntax and benchmarks 
