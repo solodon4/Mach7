@@ -120,7 +120,7 @@ timing tests we've accumulated over time several scripts, which we don't complet
 abandon in favor of newer ones as they maintain the flags the original experiments
 on the library were built with.
 
-Using CMake
+### Using CMake
 
  CMake support is the most recent and is still very experimental at this point. To
  build with cmake, perform the following commands from within Mach7 folder:
@@ -131,7 +131,7 @@ Using CMake
     cmake ..
     cmake --build .
 
-Using Makefiles for GCC (4.4 or later) or Clang (3.3 or later)
+### Using Makefiles for GCC (4.4 or later) or Clang (3.3 or later)
 
     make         - builds .exe files from all the .cpp files in current directory.
     make timings - builds all combinations of encodings, syntax and benchmarks 
@@ -140,19 +140,19 @@ Using Makefiles for GCC (4.4 or later) or Clang (3.3 or later)
                    library to make sure nothing was omitted
     make test    - runs all the .exe files in the current folder
 
-Using Visual C++ (2010 or later)
+### Using Visual C++ (2010 or later)
 
  Mach7 uses its own build.bat script to build all the examples and unit tests that come with it. The script assumes
  each .cpp file to be a standalone program. You can find the most up-to-date list of supported commands by running:
 
     build.bat /?
 
- Syntax:
+####  Syntax:
 
     build [ pgo | repro | tmp | <ver> ] [ filemask*.cpp ... ]
     build [ syntax | timing | cmp | doc | clean | test | check ]
 
- Commands supported so far:
+####  Commands supported so far:
 
     build [ pgo | tmp | (ver) ] [ filemask*.cpp ... ] - build given C++ files
     build        - Build all examples using the most recent MS Visual C++ compiler installed
@@ -166,7 +166,7 @@ Using Visual C++ (2010 or later)
     build check  - Run those examples for which there are correct_output/*.out files and 
                    check that output is the same
 
- Modifiers:
+####  Modifiers:
 
            pgo   - Perform Profile-Guided Optimization on produced executables
            repro - In case of error, create and compile a pre-processed repro
