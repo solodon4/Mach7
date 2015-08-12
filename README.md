@@ -120,7 +120,7 @@ timing tests we've accumulated over time several scripts, which we don't complet
 abandon in favor of newer ones as they maintain the flags the original experiments
 on the library were built with.
 
-### Using CMake
+#### Using CMake
 
  CMake support is the most recent and is still very experimental at this point. To
  build with cmake, perform the following commands from within Mach7 folder:
@@ -131,7 +131,7 @@ on the library were built with.
     cmake ..
     cmake --build .
 
-### Using Makefiles for GCC (4.4 or later) or Clang (3.3 or later)
+#### Using Makefiles for GCC (4.4 or later) or Clang (3.3 or later)
 
     make         - builds .exe files from all the .cpp files in current directory.
     make timings - builds all combinations of encodings, syntax and benchmarks 
@@ -140,19 +140,19 @@ on the library were built with.
                    library to make sure nothing was omitted
     make test    - runs all the .exe files in the current folder
 
-### Using Visual C++ (2010 or later)
+#### Using Visual C++ (2010 or later)
 
  Mach7 uses its own build.bat script to build all the examples and unit tests that come with it. The script assumes
  each .cpp file to be a standalone program. You can find the most up-to-date list of supported commands by running:
 
     build.bat /?
 
-####  Syntax:
+######  Syntax:
 
     build [ pgo | repro | tmp | <ver> ] [ filemask*.cpp ... ]
     build [ syntax | timing | cmp | doc | clean | test | check ]
 
-####  Commands supported so far:
+######  Commands supported so far:
 
     build [ pgo | tmp | (ver) ] [ filemask*.cpp ... ] - build given C++ files
     build        - Build all examples using the most recent MS Visual C++ compiler installed
@@ -166,7 +166,7 @@ on the library were built with.
     build check  - Run those examples for which there are correct_output/*.out files and 
                    check that output is the same
 
-####  Modifiers:
+######  Modifiers:
 
            pgo   - Perform Profile-Guided Optimization on produced executables
            repro - In case of error, create and compile a pre-processed repro
@@ -178,15 +178,6 @@ on the library were built with.
                     - 2012 - Visual C++ 11.0
                     - 2010 - Visual C++ 10.0
 
-The following batch files do some of these sub-commands directly and have since been integrated into build.bat:
-```
- * test-pm-timing.bat - builds all combinations of encodings, syntax and benchmarks out of skeleton.cxx for timing purposes (same as "make timings" for Visual C++)
- * test-pgo.bat - compiles and performs profile-guided optimizations on all files passed as arguments
- * test-pm.bat - builds sources varying amount of derived classes and virtual functions in them
- * test-pm-daily.bat - builds all files in the test suite
- * test-pm-daily-pgo.bat - builds all files in the test suite and performs profile-guided optimizations on them
- * ttt.bat - converts the summary of outputs into a latex definitions used in the performance table
-```
 Talks
 -------------
 
