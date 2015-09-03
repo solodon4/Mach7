@@ -20,7 +20,7 @@ and allow the use of open class hierarchies.
 Mach7 by Example
 ----------------
 
-Fibonacci numbers demonstrates [the use of patterns with built-in types](https://github.com/solodon4/Mach7/blob/master/code/numbers.cpp#L202-L216) in Mach7:
+Fibonacci numbers demonstrates [the use of patterns with built-in types](https://github.com/solodon4/Mach7/blob/master/code/test/time/numbers.cpp#L202-L216) in Mach7:
 
 ```C++
 // Fibonacci numbers
@@ -39,7 +39,7 @@ int fib(int n)
 }
 ```
 
-Lambda calculator demonstrates [use of pattern matching to decompose objects and nested patterns](https://github.com/solodon4/Mach7/blob/master/code/lambda.cpp#L97-L114):
+Lambda calculator demonstrates [use of pattern matching to decompose objects and nested patterns](https://github.com/solodon4/Mach7/blob/master/code/test/time/lambda.cpp#L97-L114):
 
 ```C++
 // Lambda calculator
@@ -64,7 +64,7 @@ Term* eval(Term* t)
 }
 ```
 
-It can also be used to demonstrate [relational matching on several arguments](https://github.com/solodon4/Mach7/blob/master/code/lambda.cpp#L123-L140):
+It can also be used to demonstrate [relational matching on several arguments](https://github.com/solodon4/Mach7/blob/master/code/test/time/lambda.cpp#L123-L140):
 
 ```C++
 bool operator==(const Term& left, const Term& right)
@@ -85,7 +85,7 @@ bool operator==(const Term& left, const Term& right)
 }
 ```
 
-Next example demonstrates that [the library can deal efficiently and in a type-safe manner with non-polymorphic classes](https://github.com/solodon4/Mach7/blob/master/code/xtl.cpp#L338-L361)
+Next example demonstrates that [the library can deal efficiently and in a type-safe manner with non-polymorphic classes](https://github.com/solodon4/Mach7/blob/master/code/test/unit/xtl.cpp#L338-L361)
 like boost::variant as well.
 
 ```C++
@@ -108,8 +108,8 @@ Breve syntax is not the only thing Mach7 has to offer - the generated code is
 
 For a more detailed set of examples, have a look at the code that was prepared for 
 [CppCon 2014 presentation](http://bit.ly/AcceptNoVisitors),
-and implemented using [visitors](https://github.com/solodon4/Mach7/blob/master/code/cppcon-visitors.cpp) as well as
-[pattern matching](https://github.com/solodon4/Mach7/blob/master/code/cppcon-matching.cpp). These are simple enough
+and implemented using [visitors](https://github.com/solodon4/Mach7/blob/master/code/test/unit/cppcon-visitors.cpp) as well as
+[pattern matching](https://github.com/solodon4/Mach7/blob/master/code/test/unit/cppcon-matching.cpp). These are simple enough
 to help you get started on your own Mach7 project.
 
 Building sources
