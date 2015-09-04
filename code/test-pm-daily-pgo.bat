@@ -48,6 +48,9 @@
 
 if "%1" == "/?" findstr "^::" "%~f0" & goto END
 
+if not "%VS140COMNTOOLS%" == "" call "%VS140COMNTOOLS%vsvars32.bat" && echo Using MS Visual C++ 14.0 && goto PROCEED
+if not "%VS120COMNTOOLS%" == "" call "%VS120COMNTOOLS%vsvars32.bat" && echo Using MS Visual C++ 12.0 && goto PROCEED
+if not "%VS110COMNTOOLS%" == "" call "%VS110COMNTOOLS%vsvars32.bat" && echo Using MS Visual C++ 11.0 && goto PROCEED
 if not "%VS100COMNTOOLS%" == "" call "%VS100COMNTOOLS%vsvars32.bat" && echo Using MS Visual C++ 10.0 && goto PROCEED
 if not "%VS90COMNTOOLS%"  == "" call "%VS90COMNTOOLS%vsvars32.bat"  && echo Using MS Visual C++ 9.0  && goto PROCEED
 if not "%VS80COMNTOOLS%"  == "" call "%VS80COMNTOOLS%vsvars32.bat"  && echo Using MS Visual C++ 8.0  && goto PROCEED
