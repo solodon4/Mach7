@@ -124,16 +124,6 @@ inline kind_to_kinds_map& get_kind_to_kinds_map() noexcept
     static kind_to_kinds_map k2k;
     return k2k;
 }
-/*
-template <typename T>
-struct kind_to_kinds_map_of
-{
-    static kind_to_kinds_map k2k;
-};
-
-template <typename T>
-kind_to_kinds_map kind_to_kinds_map_of<T>::k2k;
-*/
 
 /// Gets all the kinds of a class with static type T and dynamic type represented 
 /// by kind. The first element of the returned list will always be equal to kind,
