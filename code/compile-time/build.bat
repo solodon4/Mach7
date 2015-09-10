@@ -1,7 +1,44 @@
 ::
+::  Mach7: Pattern Matching Library for C++
+::
+::  Copyright 2011-2013, Texas A&M University.
+::  Copyright 2014 Yuriy Solodkyy.
+::  All rights reserved.
+::
+::  Redistribution and use in source and binary forms, with or without
+::  modification, are permitted provided that the following conditions are met:
+::
+::      * Redistributions of source code must retain the above copyright
+::        notice, this list of conditions and the following disclaimer.
+::
+::      * Redistributions in binary form must reproduce the above copyright
+::        notice, this list of conditions and the following disclaimer in the
+::        documentation and/or other materials provided with the distribution.
+::
+::      * Neither the names of Mach7 project nor the names of its contributors
+::        may be used to endorse or promote products derived from this software
+::        without specific prior written permission.
+::
+::  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+::  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+::  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+::  IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY
+::  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+::  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+::  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+::  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+::  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+::  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+::
 :: Script for building and testing C++ pattern matching library
 ::
-:: Written by Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+:: \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+::
+:: \see https://parasol.tamu.edu/mach7/
+:: \see https://github.com/solodon4/Mach7
+:: \see https://github.com/solodon4/SELL
+::
 :: Version 1.0 from 4th February 2012
 ::
 :: Usage:
@@ -21,15 +58,13 @@
 ::            tmp   - Keep temporaries
 ::           <ver>  - Use a specific version of Visual C++ to compiler the source 
 ::                    code. <ver> can be one of the following:
-::                     - 2003 - Visual C++  7.1
-::                     - 2005 - Visual C++  8.0
-::                     - 2008 - Visual C++  9.0
-::                     - 2010 - Visual C++ 10.0
+::                     - 2015 - Visual C++ 14.0
+::                     - 2013 - Visual C++ 12.0
 ::                     - 2012 - Visual C++ 11.0
-::                                                                           
-:: This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
-:: Copyright (C) 2011-2013 Texas A&M University.
-:: All rights reserved.
+::                     - 2010 - Visual C++ 10.0
+::                     - 2008 - Visual C++  9.0
+::                     - 2005 - Visual C++  8.0
+::                     - 2003 - Visual C++  7.1
 :: 
 
 @echo off
@@ -76,6 +111,8 @@ rem Parse modifiers
 
 if "%1" == "pgo"       shift && set PGO=1&&                          goto PARSE_CMD_LINE
 if "%1" == "tmp"       shift && set KEEP_TMP=1&&                     goto PARSE_CMD_LINE
+if "%1" == "2015"      shift && set VS_COMN_TOOLS=%VS140COMNTOOLS%&& goto PARSE_CMD_LINE
+if "%1" == "2013"      shift && set VS_COMN_TOOLS=%VS120COMNTOOLS%&& goto PARSE_CMD_LINE
 if "%1" == "2012"      shift && set VS_COMN_TOOLS=%VS110COMNTOOLS%&& goto PARSE_CMD_LINE
 if "%1" == "2010"      shift && set VS_COMN_TOOLS=%VS100COMNTOOLS%&& goto PARSE_CMD_LINE
 if "%1" == "2008"      shift && set VS_COMN_TOOLS=%VS90COMNTOOLS%&&  goto PARSE_CMD_LINE
@@ -95,6 +132,8 @@ if not "%VS_COMN_TOOLS%" == "" goto PROCEED
 
 rem Detect most recent version of the Visual C++ installed :::::::::::::::::::::
 
+if not "%VS140COMNTOOLS%" == "" set VS_COMN_TOOLS=%VS140COMNTOOLS%&& goto PROCEED
+if not "%VS120COMNTOOLS%" == "" set VS_COMN_TOOLS=%VS120COMNTOOLS%&& goto PROCEED
 if not "%VS110COMNTOOLS%" == "" set VS_COMN_TOOLS=%VS110COMNTOOLS%&& goto PROCEED
 if not "%VS100COMNTOOLS%" == "" set VS_COMN_TOOLS=%VS100COMNTOOLS%&& goto PROCEED
 if not "%VS90COMNTOOLS%"  == "" set VS_COMN_TOOLS=%VS90COMNTOOLS%&&  goto PROCEED
@@ -106,8 +145,15 @@ goto END
 
 :PROCEED :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+rem Recent versions of vsvars32.bat do not print the toolset used.
+if "%VS_COMN_TOOLS%"=="%VS140COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2015 x86 tools.
+if "%VS_COMN_TOOLS%"=="%VS120COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2013 x86 tools.
+if "%VS_COMN_TOOLS%"=="%VS110COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2012 x86 tools.
+
 rem Set-up Visual C++ Environment Variables
 call "%VS_COMN_TOOLS%vsvars32.bat"
+rem Dump versions of compiler passes
+%CXX% /Bv >> %logfile% 2>&1
 
 rem Account for a problem with some PGO flags described above.
 if "%PGO%"=="1" set CXXFLAGS=%CXXFLAGS% /GL 
@@ -199,6 +245,12 @@ echo.
 echo ======================================== [ %1 ]
 if not exist %~n1.*in %1
 if     exist %~n1.*in for %%i in (%~n1.*in) do echo. && echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ { "%%i" } && type "%%i" && echo. && echo ---------------------------------------- && %1 < "%%i"
+goto END
+
+:SUB_CLEAN :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+cd /D %1
+del *.i *.obj *.exe *.pdb *.idb *.ilk *.intermediate.manifest *.out cmp_haskell.hi cmp_haskell.o cmp_ocaml.cmi cmp_ocaml.cmx > nul 2>&1
+cd /D "%CurDir%"
 goto END
 
 :CHECK :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
