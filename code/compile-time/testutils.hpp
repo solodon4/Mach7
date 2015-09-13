@@ -29,7 +29,7 @@
 
 #define NO_RANDOMIZATION
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && _MSC_VER < 1800
     // Visual C++ 2010 and 2012 don't seem to provide implementation of std::cbrt
     namespace std
     {
