@@ -117,12 +117,12 @@ struct value
     template <typename S> struct accepted_type_for { typedef T type; };
 
     typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
-    explicit value(const T&  t) noexcept : m_value(          t ) {}
-    explicit value(      T&& t) noexcept : m_value(std::move(t)) {}
-    value(const value&  v) noexcept : m_value(          v.m_value ) {} ///< Copy constructor
-    value(      value&& v) noexcept : m_value(std::move(v.m_value)) {} ///< Move constructor
-    bool operator()(const T& t) const noexcept { return m_value == t; }
-    operator const result_type&() const noexcept { return m_value; }// FIX: avoid implicit conversion in lazy expressions
+    explicit constexpr value(const T&      t) noexcept : m_value(          t ) {}
+    explicit constexpr value(      T&&     t) noexcept : m_value(std::move(t)) {}
+             constexpr value(const value&  v) noexcept : m_value(          v.m_value ) {} ///< Copy constructor
+             constexpr value(      value&& v) noexcept : m_value(std::move(v.m_value)) {} ///< Move constructor
+    constexpr bool operator()(const T& t)   const noexcept { return m_value == t; }
+    constexpr operator const result_type&() const noexcept { return m_value; }// FIX: avoid implicit conversion in lazy expressions
     T m_value;
 };
 
