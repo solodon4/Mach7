@@ -97,11 +97,21 @@ verify > nul
 
 rem Prepare log file :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+rem We would like to have the toolset directly in the log file name, so we duplicate the later check here
+if "%1" == ""     set VS20XX=2015
+if "%1" == "2015" set VS20XX=2015
+if "%1" == "2013" set VS20XX=2013
+if "%1" == "2012" set VS20XX=2012
+if "%1" == "2010" set VS20XX=2010
+if "%1" == "2008" set VS20XX=2008
+if "%1" == "2005" set VS20XX=2005
+if "%1" == "2003" set VS20XX=2003
+
 rem Specific invokations of this script write log to common build.log file
-if not "%1" == "" set logfile=build.log&goto LOG_FILE_READY
+if not "%1" == "" set logfile=build-VS%VS20XX%.log&goto LOG_FILE_READY
 rem Build of everythings gets its own time-stamped log file
 call :SUB_PARSE_DATE 
-set logfile=build-%yy%-%mm%-%dd%-%hh%-%mn%.log
+set logfile=build-VS%VS20XX%-%yy%-%mm%-%dd%-%hh%-%mn%.log
 
 :LOG_FILE_READY
 set logfile="%MACH7_ROOT%%logfile%"
@@ -110,6 +120,7 @@ echo Mach7 Build Script >> %logfile%
 echo Version 1.0 from 2012-02-04 >> %logfile%
 echo. >> %logfile%
 echo Build log from %date% at %time% >> %logfile%
+echo Command line: %0 %* >> %logfile%
 
 :PARSE_CMD_LINE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
