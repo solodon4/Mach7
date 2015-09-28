@@ -407,7 +407,8 @@
 
 //------------------------------------------------------------------------------
 
-#define XTL_DELETED XTL_IF(XTL_SUPPORT(ddf),= delete,)
+#define XTL_DELETED   XTL_IF(XTL_SUPPORT(ddf),= delete,)
+#define XTL_DEFAULTED XTL_IF(XTL_SUPPORT(ddf),= default,{})
 
 //------------------------------------------------------------------------------
 
