@@ -53,9 +53,10 @@ int main()
 
     for (size_t i = 0, n = sizeof(values)/sizeof(values[0]); i < n; ++i)
     {
-#if 1
         mch::var<int> area_code;
         std::cout << values[i] << " is ";
+
+#if XTL_SUPPORT(initializer_list)        
         Match(values[i])
         {
             With(mch::any({0,2,4,6,8})) std::cout << "Even"; break;
@@ -63,8 +64,17 @@ int main()
             //With()                 std::cout << "UNRECOGNIZED"; break;
         }
         EndMatch
-        std::cout << std::endl;
 #else
+        static const int evens[] = {0,2,4,6,8};
+        static const int  odds[] = {1,3,5,7,9};
+        Match(values[i])
+        {
+            With(mch::any(std::begin(evens),std::end(evens))) std::cout << "even"; break;
+            With(mch::any(std::begin( odds),std::end( odds))) std::cout << "odd";  break;
+            //With()                 std::cout << "UNRECOGNIZED"; break;
+        }
+        EndMatch
 #endif
+        std::cout << std::endl;
     }
 }

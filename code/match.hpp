@@ -295,8 +295,8 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 #define XTL_SUBCLAUSE_FIRST           XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(false)) XTL_NON_USE_BRACES_ONLY({)
 #define XTL_SUBCLAUSE_OPEN(T,...)                                     XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true,   XTL_LIKELY(mch::C<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
 #define XTL_SUBCLAUSE_CONTINUE(...) } XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(mch::C<target_type,target_layout>(__VA_ARGS__).match_structure(matched)))) {
-//#define XTL_SUBCLAUSE_PATTERN(...)} XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(filter(__VA_ARGS__)(*matched)))) {
-#define XTL_SUBCLAUSE_PATTERN(...)                                    XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(filter(__VA_ARGS__)(*matched)))) {
+//#define XTL_SUBCLAUSE_PATTERN(...)} XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(mch::filter(__VA_ARGS__)(*matched)))) {
+#define XTL_SUBCLAUSE_PATTERN(...)                                    XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(mch::filter(__VA_ARGS__)(*matched)))) {
 #define XTL_SUBCLAUSE_CLOSE         }                            XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(is_inside_case_clause) break;)
 #define XTL_SUBCLAUSE_LAST            XTL_NON_USE_BRACES_ONLY(}) XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(is_inside_case_clause) break;)
 
