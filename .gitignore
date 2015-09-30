@@ -58,6 +58,23 @@ ipch/
 *.i
 *.ilk
 *.sdf
+*.obj
+*.user
+*.aps
+*.pch
+*.vspscc
+*.vssscc
+*_i.c
+*_p.c
+*.ncb
+*.tlb
+*.tlh
+*.bak
+*.[Cc]ache
+*.lib
+*.sbr
+*.opensdf
+*.unsuccessfulbuild
 
 # Generated files
 *.tab.?pp
