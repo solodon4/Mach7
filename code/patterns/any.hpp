@@ -46,12 +46,20 @@
 
 #include "common.hpp"
 #include <algorithm>
+#if XTL_SUPPORT(initializer_list)
+#include <initializer_list>
+#else
+#include <vector>
+#endif
+
+// TODO: Make 3 versions of one_of pattern: initializer_list, variadic and array based, each enabled independently based on compiler support via any() overloading
 
 namespace mch ///< Mach7 library namespace
 {
 
 //------------------------------------------------------------------------------
 
+#if XTL_SUPPORT(initializer_list)
 /// One-of pattern
 template <typename T>
 struct one_of
@@ -71,6 +79,27 @@ struct one_of
 
     std::initializer_list<T> m_elements;
 };
+#else
+/// One-of pattern
+template <typename T>
+struct one_of
+{
+    one_of(const T* b, const T* e) : m_elements(b,e) {}
+
+    /// Type function returning a type that will be accepted by the pattern for
+    /// a given subject type S. We use type function instead of an associated 
+    /// type, because there is no a single accepted type for a #wildcard pattern
+    /// for example. Requirement of #Pattern concept.
+    template <typename S> struct accepted_type_for { typedef T type; };
+
+    bool operator()(const T& s) const noexcept 
+    {
+        return std::find(m_elements.begin(),m_elements.end(),s) != m_elements.end(); 
+    }
+
+    std::vector<T> m_elements;
+};
+#endif
 
 //------------------------------------------------------------------------------
 
@@ -79,6 +108,7 @@ template <typename T> struct is_pattern_<one_of<T>> { static const bool value = 
 
 //------------------------------------------------------------------------------
 
+#if XTL_SUPPORT(initializer_list)
 /// Convenience function for creating any pattern out of initializer list holding 
 /// the set of acceptable values.
 template <typename T>
@@ -86,6 +116,15 @@ inline one_of<T> any(std::initializer_list<T>&& init) noexcept
 {
     return one_of<T>(std::move(init));
 }
+#else
+/// Convenience function for creating any pattern out of initializer list holding 
+/// the set of acceptable values.
+template <typename T>
+inline one_of<T> any(const T* b, const T* e) noexcept 
+{
+    return one_of<T>(b,e);
+}
+#endif
 
 //------------------------------------------------------------------------------
 
