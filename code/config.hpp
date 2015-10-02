@@ -342,14 +342,14 @@
 
 #if XTL_SUPPORT(noexcept)
 /// Since noexcept might be a macro in our library, we need a different syntax for noexcept specification with condition
-#define noexcept_when(cond) noexcept(cond)
+#define noexcept_when(...) noexcept(__VA_ARGS__)
 /// We also need to distinguish between noexcept operator and noexcept specifier
-#define noexcept_of(expr)   noexcept(expr)
+#define noexcept_of(...)   noexcept(__VA_ARGS__)
 #else
 /// We just ignore noexcept specification when noexcept is not supported
-#define noexcept_when(cond)
+#define noexcept_when(...)
 /// When noexcept is not supported, false for the result of noexcept operator seems to be a safer bet.
-#define noexcept_of(expr)   false
+#define noexcept_of(...)   false
 /// Turn noexcept into throw() for compilers not supporting it
 #define noexcept throw()
 #endif

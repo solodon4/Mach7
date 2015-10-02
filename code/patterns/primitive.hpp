@@ -118,10 +118,10 @@ struct value
     template <typename S> struct accepted_type_for { typedef T type; };
 
     typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
-    constexpr explicit value(const T&      t) noexcept_when(noexcept_of(std::is_nothrow_copy_constructible<T>::value)) : m_value(          t ) {}
-    constexpr explicit value(      T&&     t) noexcept_when(noexcept_of(std::is_nothrow_move_constructible<T>::value)) : m_value(std::move(t)) {}
-    constexpr          value(const value&  v) noexcept_when(noexcept_of(std::is_nothrow_copy_constructible<T>::value)) : m_value(          v.m_value ) {} ///< Copy constructor
-    constexpr          value(      value&& v) noexcept_when(noexcept_of(std::is_nothrow_move_constructible<T>::value)) : m_value(std::move(v.m_value)) {} ///< Move constructor
+    constexpr explicit value(const T&      t) noexcept_when(std::is_nothrow_copy_constructible<T>::value) : m_value(          t ) {}
+    constexpr explicit value(      T&&     t) noexcept_when(std::is_nothrow_move_constructible<T>::value) : m_value(std::move(t)) {}
+    constexpr          value(const value&  v) noexcept_when(std::is_nothrow_copy_constructible<T>::value) : m_value(          v.m_value ) {} ///< Copy constructor
+    constexpr          value(      value&& v) noexcept_when(std::is_nothrow_move_constructible<T>::value) : m_value(std::move(v.m_value)) {} ///< Move constructor
     constexpr bool operator()(const T& t)   const noexcept { return m_value == t; }
     constexpr operator const result_type&() const noexcept { return m_value; }// FIX: avoid implicit conversion in lazy expressions
     T m_value;
@@ -179,8 +179,8 @@ template <typename T, typename Cond = void>
 struct transparent_wrapper
 {
              transparent_wrapper() XTL_DEFAULTED;
-    explicit transparent_wrapper(const T&  t) noexcept_when(noexcept_of(std::is_nothrow_copy_constructible<T>::value)) : m_value(          t ) {}
-    explicit transparent_wrapper(      T&& t) noexcept_when(noexcept_of(std::is_nothrow_move_constructible<T>::value)) : m_value(std::move(t)) {}
+    explicit transparent_wrapper(const T&  t) noexcept_when(std::is_nothrow_copy_constructible<T>::value) : m_value(          t ) {}
+    explicit transparent_wrapper(      T&& t) noexcept_when(std::is_nothrow_move_constructible<T>::value) : m_value(std::move(t)) {}
 
     mutable T m_value;
 
@@ -195,8 +195,8 @@ struct transparent_wrapper<T,typename std::enable_if<std::is_class<T>::value>::t
     using T::T;
 #endif
              transparent_wrapper() XTL_DEFAULTED;
-    explicit transparent_wrapper(const T&  t) noexcept_when(noexcept_of(std::is_nothrow_copy_constructible<T>::value)) : T(          t ) {}
-    explicit transparent_wrapper(      T&& t) noexcept_when(noexcept_of(std::is_nothrow_move_constructible<T>::value)) : T(std::move(t)) {}
+    explicit transparent_wrapper(const T&  t) noexcept_when(std::is_nothrow_copy_constructible<T>::value) : T(          t ) {}
+    explicit transparent_wrapper(      T&& t) noexcept_when(std::is_nothrow_move_constructible<T>::value) : T(std::move(t)) {}
 
     T& value() const noexcept { return *const_cast<T*>(static_cast<const T*>(this)); }
     T& value()       noexcept { return *this; }
@@ -210,9 +210,9 @@ struct var : transparent_wrapper<T>
 #if XTL_SUPPORT(inheriting_constructors)
     using base::base;
 #endif
-             var()            noexcept_when(noexcept_of(std::is_nothrow_default_constructible<T>::value)) : base() {}
-    explicit var(const T&  t) noexcept_when(noexcept_of(std::is_nothrow_copy_constructible<T>::value)) : base(          t ) {}
-    explicit var(      T&& t) noexcept_when(noexcept_of(std::is_nothrow_move_constructible<T>::value)) : base(std::move(t)) {}
+             var()            noexcept_when(std::is_nothrow_default_constructible<T>::value) : base() {}
+    explicit var(const T&  t) noexcept_when(std::is_nothrow_copy_constructible<T>::value) : base(          t ) {}
+    explicit var(      T&& t) noexcept_when(std::is_nothrow_move_constructible<T>::value) : base(std::move(t)) {}
 //    var(const var&  v) noexcept : m_value(          v.m_value ) {} ///< Copy constructor
 //    var(      var&& v) noexcept : m_value(std::move(v.m_value)) {} ///< Move constructor
 
@@ -225,7 +225,7 @@ struct var : transparent_wrapper<T>
     typedef T result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
 
     /// We report that matching succeeded and bind the value
-    bool operator()(const T& t) const noexcept_when(noexcept_of(std::is_nothrow_copy_assignable<T>::value))
+    bool operator()(const T& t) const noexcept_when(std::is_nothrow_copy_assignable<T>::value)
     {
         base::value() = t;
         return true;
@@ -236,13 +236,13 @@ struct var : transparent_wrapper<T>
     /// but then check that the values are equal. This often helps when trying
     /// to match a negative value against an unsigned variable.
     template <typename U>
-    bool operator()(const U& u) const noexcept_when(noexcept_of((std::is_nothrow_assignable<T,U>::value)))
+    bool operator()(const U& u) const noexcept_when(std::is_nothrow_assignable<T,U>::value)
     {
         base::value() = u;
         return base::value() == u;
     }
 
-    var& operator=(const T& t) noexcept_when(noexcept_of(std::is_nothrow_copy_assignable<T>::value))
+    var& operator=(const T& t) noexcept_when(std::is_nothrow_copy_assignable<T>::value)
     {
         base::value() = t;
         return *this;
@@ -426,7 +426,7 @@ struct ref0
     //operator       result_type&() const noexcept { return m_var; }
 
     /// We report that matching succeeded and bind the value
-    bool operator()(const T& t) const noexcept_when(noexcept_of(std::is_nothrow_copy_assignable<T>::value))
+    bool operator()(const T& t) const noexcept_when(std::is_nothrow_copy_assignable<T>::value)
     {
         m_var = t;
         return true;
@@ -437,7 +437,7 @@ struct ref0
     /// but then check that the values are equal. This often helps when trying 
     /// to match a negative value against an unsigned variable.
     template <typename U>
-    bool operator()(const U& u) const noexcept_when(noexcept_of((std::is_nothrow_assignable<T,U>::value)))
+    bool operator()(const U& u) const noexcept_when(std::is_nothrow_assignable<T,U>::value)
     {
         m_var = u;
         return m_var == u;
@@ -467,7 +467,7 @@ struct ref1
     template <typename S> struct accepted_type_for : P::template accepted_type_for<S> {};
 
     /// We report that matching succeeded and bind the value
-    template <typename T> bool operator()(T&& t) const { return m_pat(std::forward<T>(t)); }
+    template <typename T> bool operator()(T&& t) const noexcept_when(noexcept_of(m_pat(std::forward<T>(t)))) { return m_pat(std::forward<T>(t)); }
 
     /// Member that will hold matching value in case of successful matching
     P& m_pat;
@@ -488,7 +488,7 @@ struct ref2 : ref1<E>
 
     typedef typename E::result_type result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
 
-    operator const result_type&() const noexcept { return eval(this->m_pat); } // FIX: avoid implicit conversion in lazy expressions
+    operator const result_type&() const noexcept_when(noexcept_of(eval(this->m_pat))) { return eval(this->m_pat); } // FIX: avoid implicit conversion in lazy expressions
 };
 
 //------------------------------------------------------------------------------
