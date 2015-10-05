@@ -66,13 +66,13 @@ struct conjunction
     static_assert(!is_var<P1>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
     static_assert(!is_var<P2>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
-    conjunction(const P1&  p1, const P2&  p2) noexcept : m_p1(          p1 ), m_p2(          p2 ) {}
-    conjunction(      P1&& p1, const P2&  p2) noexcept : m_p1(std::move(p1)), m_p2(          p2 ) {}
-    conjunction(const P1&  p1,       P2&& p2) noexcept : m_p1(          p1 ), m_p2(std::move(p2)) {}
-    conjunction(      P1&& p1,       P2&& p2) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)) {}
-    conjunction(const conjunction&  c) noexcept : m_p1(          c.m_p1 ), m_p2(          c.m_p2 ) {} ///< Copy constructor    
-    conjunction(      conjunction&& c) noexcept : m_p1(std::move(c.m_p1)), m_p2(std::move(c.m_p2)) {} ///< Move constructor
-    conjunction& operator=(const conjunction&); ///< Assignment is not allowed for this class
+    constexpr conjunction(const P1&  p1, const P2&  p2) noexcept_when(std::is_nothrow_copy_constructible<P1>::value && std::is_nothrow_copy_constructible<P2>::value) : m_p1(          p1 ), m_p2(          p2 ) {}
+    constexpr conjunction(      P1&& p1, const P2&  p2) noexcept_when(std::is_nothrow_move_constructible<P1>::value && std::is_nothrow_copy_constructible<P2>::value) : m_p1(std::move(p1)), m_p2(          p2 ) {}
+    constexpr conjunction(const P1&  p1,       P2&& p2) noexcept_when(std::is_nothrow_copy_constructible<P1>::value && std::is_nothrow_move_constructible<P2>::value) : m_p1(          p1 ), m_p2(std::move(p2)) {}
+    constexpr conjunction(      P1&& p1,       P2&& p2) noexcept_when(std::is_nothrow_move_constructible<P1>::value && std::is_nothrow_move_constructible<P2>::value) : m_p1(std::move(p1)), m_p2(std::move(p2)) {}
+    constexpr conjunction(const conjunction&  c)        noexcept_when(std::is_nothrow_copy_constructible<P1>::value && std::is_nothrow_copy_constructible<P2>::value) : m_p1(          c.m_p1 ), m_p2(          c.m_p2 ) {} ///< Copy constructor    
+    constexpr conjunction(      conjunction&& c)        noexcept_when(std::is_nothrow_move_constructible<P1>::value && std::is_nothrow_move_constructible<P2>::value) : m_p1(std::move(c.m_p1)), m_p2(std::move(c.m_p2)) {} ///< Move constructor
+    conjunction& operator=(const conjunction&) XTL_DELETED; ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
@@ -91,7 +91,7 @@ struct conjunction
     /// We parameterize over accepted type since the actually accepted type is 
     /// a function of the subject type.
     template <typename T>
-    bool operator()(const T& subject) const { return m_p1(subject) && m_p2(subject); }
+    constexpr bool operator()(const T& subject) const { return m_p1(subject) && m_p2(subject); }
 
     P1 m_p1; ///< The 1st pattern in conjunction
     P2 m_p2; ///< The 2nd pattern in conjunction
@@ -114,13 +114,13 @@ struct disjunction
     static_assert(!is_var<P1>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
     static_assert(!is_var<P2>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
-    disjunction(const P1&  p1, const P2&  p2) noexcept : m_p1(          p1 ), m_p2(          p2 ) {}
-    disjunction(      P1&& p1, const P2&  p2) noexcept : m_p1(std::move(p1)), m_p2(          p2 ) {}
-    disjunction(const P1&  p1,       P2&& p2) noexcept : m_p1(          p1 ), m_p2(std::move(p2)) {}
-    disjunction(      P1&& p1,       P2&& p2) noexcept : m_p1(std::move(p1)), m_p2(std::move(p2)) {}
-    disjunction(const disjunction&  c) noexcept : m_p1(          c.m_p1 ), m_p2(          c.m_p2 ) {} ///< Copy constructor    
-    disjunction(      disjunction&& c) noexcept : m_p1(std::move(c.m_p1)), m_p2(std::move(c.m_p2)) {} ///< Move constructor
-    disjunction& operator=(const disjunction&); ///< Assignment is not allowed for this class
+    constexpr disjunction(const P1&  p1, const P2&  p2) noexcept_when(std::is_nothrow_copy_constructible<P1>::value && std::is_nothrow_copy_constructible<P2>::value) : m_p1(          p1 ), m_p2(          p2 ) {}
+    constexpr disjunction(      P1&& p1, const P2&  p2) noexcept_when(std::is_nothrow_move_constructible<P1>::value && std::is_nothrow_copy_constructible<P2>::value) : m_p1(std::move(p1)), m_p2(          p2 ) {}
+    constexpr disjunction(const P1&  p1,       P2&& p2) noexcept_when(std::is_nothrow_copy_constructible<P1>::value && std::is_nothrow_move_constructible<P2>::value) : m_p1(          p1 ), m_p2(std::move(p2)) {}
+    constexpr disjunction(      P1&& p1,       P2&& p2) noexcept_when(std::is_nothrow_move_constructible<P1>::value && std::is_nothrow_move_constructible<P2>::value) : m_p1(std::move(p1)), m_p2(std::move(p2)) {}
+    constexpr disjunction(const disjunction&  c)        noexcept_when(std::is_nothrow_copy_constructible<P1>::value && std::is_nothrow_copy_constructible<P2>::value) : m_p1(          c.m_p1 ), m_p2(          c.m_p2 ) {} ///< Copy constructor    
+    constexpr disjunction(      disjunction&& c)        noexcept_when(std::is_nothrow_move_constructible<P1>::value && std::is_nothrow_move_constructible<P2>::value) : m_p1(std::move(c.m_p1)), m_p2(std::move(c.m_p2)) {} ///< Move constructor
+    disjunction& operator=(const disjunction&) XTL_DELETED; ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
@@ -142,7 +142,7 @@ struct disjunction
     /// We parameterize over accepted type since the actually accepted type is 
     /// a function of the subject type.
     template <typename T>
-    bool operator()(const T& subject) const { return m_p1(subject) || m_p2(subject); }
+    constexpr bool operator()(const T& subject) const { return m_p1(subject) || m_p2(subject); }
 
     P1 m_p1; ///< The 1st pattern of disjunction combinator
     P2 m_p2; ///< The 2nd pattern of disjunction combinator
@@ -163,11 +163,11 @@ struct negation
     static_assert(is_pattern<P1>::value, "Argument P1 of a negation-pattern must be a pattern");
     static_assert(!is_var<P1>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
-    negation(const P1&  p1) noexcept : m_p1(p1) {}
-    negation(      P1&& p1) noexcept : m_p1(std::move(p1)) {}
-    negation(const negation&  c) noexcept : m_p1(          c.m_p1 ) {} ///< Copy constructor    
-    negation(      negation&& c) noexcept : m_p1(std::move(c.m_p1)) {} ///< Move constructor
-    negation& operator=(const negation&); ///< Assignment is not allowed for this class
+    constexpr negation(const P1&  p1) noexcept_when(std::is_nothrow_copy_constructible<P1>::value) : m_p1(p1) {}
+    constexpr negation(      P1&& p1) noexcept_when(std::is_nothrow_move_constructible<P1>::value) : m_p1(std::move(p1)) {}
+    constexpr negation(const negation&  c) noexcept : m_p1(          c.m_p1 ) {} ///< Copy constructor    
+    constexpr negation(      negation&& c) noexcept : m_p1(std::move(c.m_p1)) {} ///< Move constructor
+    negation& operator=(const negation&) XTL_DELETED; ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
@@ -178,7 +178,7 @@ struct negation
     /// We parameterize over accepted type since the actually accepted type is 
     /// a function of the subject type.
     template <typename T>
-    bool operator()(const T& subject) const { return !m_p1(subject); }
+    constexpr bool operator()(const T& subject) const { return !m_p1(subject); }
 
     P1 m_p1; ///< The argument pattern of negation combinator
 };
