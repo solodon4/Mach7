@@ -111,7 +111,7 @@ rem Specific invokations of this script write log to common build.log file
 if not "%1" == "" set logfile=build-VS%VS20XX%.log&goto LOG_FILE_READY
 rem Build of everythings gets its own time-stamped log file
 call :SUB_PARSE_DATE 
-set logfile=build-VS%VS20XX%-%yy%-%mm%-%dd%-%hh%-%mn%.log
+set logfile=build-%yy%-%mm%-%dd%-%hh%-%mn%-VS%VS20XX%.log
 
 :LOG_FILE_READY
 set logfile="%MACH7_ROOT%%logfile%"
