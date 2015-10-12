@@ -54,9 +54,11 @@ namespace mch ///< Mach7 library namespace
 template <typename A>
 struct predicate
 {
-    explicit predicate(bool (&g)(A)) noexcept : f(g) {}
-    predicate(const predicate&  e) noexcept : f(e.f) {} ///< Copy constructor    
-    predicate& operator=(const predicate&); ///< Assignment is not allowed for this class
+    constexpr explicit predicate(bool (&g)(A))        noexcept : f(g) {}
+    constexpr          predicate(const predicate&  e) noexcept : f(          e.f ) {} ///< Copy constructor
+    constexpr          predicate(      predicate&& e) noexcept : f(std::move(e.f)) {} ///< Move constructor
+
+    predicate& operator=(const predicate&) XTL_DELETED; ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
