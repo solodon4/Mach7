@@ -467,7 +467,7 @@ struct ref1
     template <typename S> struct accepted_type_for : P::template accepted_type_for<S> {};
 
     /// We report that matching succeeded and bind the value
-    template <typename T> bool operator()(T&& t) const noexcept_when(noexcept_of(m_pat(std::forward<T>(t)))) { return m_pat(std::forward<T>(t)); }
+    template <typename T> bool operator()(T&& t) const noexcept_when(noexcept_of(this->m_pat(std::forward<T>(t)))) { return m_pat(std::forward<T>(t)); }
 
     /// Member that will hold matching value in case of successful matching
     P& m_pat;

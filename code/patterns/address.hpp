@@ -57,11 +57,12 @@ struct address
     static_assert(is_pattern<P1>::value, "Argument P1 of an address pattern must be a pattern");
     static_assert(!is_var<P1>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
-    explicit address(const P1&  p) noexcept : m_p1(          p ) {}
-    explicit address(      P1&& p) noexcept : m_p1(std::move(p)) {}
-    address(const address&  e) noexcept : m_p1(          e.m_p1 ) {} ///< Copy constructor
-    address(      address&& e) noexcept : m_p1(std::move(e.m_p1)) {} ///< Move constructor
-    address& operator=(const address&); ///< Assignment is not allowed for this class
+    constexpr explicit address(const P1&       p) noexcept_when(std::is_nothrow_copy_constructible<P1>::value) : m_p1(          p ) {}
+    constexpr explicit address(      P1&&      p) noexcept_when(std::is_nothrow_move_constructible<P1>::value) : m_p1(std::move(p)) {}
+    constexpr          address(const address&  e) noexcept_when(std::is_nothrow_copy_constructible<P1>::value) : m_p1(          e.m_p1 ) {} ///< Copy constructor
+    constexpr          address(      address&& e) noexcept_when(std::is_nothrow_move_constructible<P1>::value) : m_p1(std::move(e.m_p1)) {} ///< Move constructor
+
+    address& operator=(const address&) XTL_DELETED; ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
@@ -89,11 +90,12 @@ struct deref
     static_assert(is_pattern<P1>::value, "Argument P1 of an deref pattern must be a pattern");
     static_assert(!is_var<P1>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
-    explicit deref(const P1&  p) noexcept : m_p1(          p ) {}
-    explicit deref(      P1&& p) noexcept : m_p1(std::move(p)) {}
-    deref(const deref&  e) noexcept : m_p1(          e.m_p1 ) {} ///< Copy constructor
-    deref(      deref&& e) noexcept : m_p1(std::move(e.m_p1)) {} ///< Move constructor
-    deref& operator=(const deref&); ///< Assignment is not allowed for this class
+    constexpr explicit deref(const P1&     p) noexcept_when(std::is_nothrow_copy_constructible<P1>::value) : m_p1(          p ) {}
+    constexpr explicit deref(      P1&&    p) noexcept_when(std::is_nothrow_move_constructible<P1>::value) : m_p1(std::move(p)) {}
+    constexpr          deref(const deref&  e) noexcept_when(std::is_nothrow_copy_constructible<P1>::value) : m_p1(          e.m_p1 ) {} ///< Copy constructor
+    constexpr          deref(      deref&& e) noexcept_when(std::is_nothrow_move_constructible<P1>::value) : m_p1(std::move(e.m_p1)) {} ///< Move constructor
+
+    deref& operator=(const deref&) XTL_DELETED; ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 

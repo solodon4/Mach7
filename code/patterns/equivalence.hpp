@@ -54,13 +54,13 @@ namespace mch ///< Mach7 library namespace
 template <typename E1>
 struct equivalence
 {
-    static_assert(is_expression<E1>::value, "Argument E of an equivalence pattern must be a lazy expression");
+    static_assert(is_expression<E1>::value, "Argument E1 of an equivalence pattern must be a lazy expression");
     static_assert(!is_var<E1>::value,       "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
-    constexpr explicit equivalence(const E1&           e) noexcept : m_e1(          e ) {}
-    constexpr explicit equivalence(      E1&&          e) noexcept : m_e1(std::move(e)) {}
-    constexpr          equivalence(const equivalence&  e) noexcept : m_e1(          e.m_e1 ) {} ///< Copy constructor
-    constexpr          equivalence(      equivalence&& e) noexcept : m_e1(std::move(e.m_e1)) {} ///< Move constructor
+    constexpr explicit equivalence(const E1&           e) noexcept_when(std::is_nothrow_copy_constructible<E1>::value) : m_e1(          e ) {}
+    constexpr explicit equivalence(      E1&&          e) noexcept_when(std::is_nothrow_move_constructible<E1>::value) : m_e1(std::move(e)) {}
+    constexpr          equivalence(const equivalence&  e) noexcept_when(std::is_nothrow_copy_constructible<E1>::value) : m_e1(          e.m_e1 ) {} ///< Copy constructor
+    constexpr          equivalence(      equivalence&& e) noexcept_when(std::is_nothrow_move_constructible<E1>::value) : m_e1(std::move(e.m_e1)) {} ///< Move constructor
 
     equivalence& operator=(const equivalence&) XTL_DELETED; ///< Assignment is not allowed for this class
 
