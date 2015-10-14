@@ -68,21 +68,25 @@
 :: 
 
 @echo off
+set MACH7_ROOT=%~dp0
+set CurDir=%CD%
 setlocal
 if "%1" == "/?" findstr "^::" "%~f0" & goto END
 
 rem Set-up variables :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
 set CXX=cl.exe
+set MACH7_INC=/I %MACH7_ROOT% 
+if not "%BOOST%" == "" set MACH7_INC=%MACH7_INC% /I %BOOST%
 rem List of compiler options: http://technet.microsoft.com/en-us/library/fwkeyyhe(v=vs.110).aspx
 rem NOTE: Specifying /GL in VC11 fails to link code that uses our decl_helper for some reason.
 rem       However not specifying /GL fails when trying to do PGO.
 rem       Linker's /LTCG is used only when /GL is passed and vice versa.
 rem set CXXFLAGS=/nologo /W4 /EHsc /O2
-set CXXFLAGS=/Bt /wd4007 /Zi /nologo /EHsc /W4 /WX- /O2 /Ob2 /Oi /Ot /Oy-     /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
-rem          /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /Fp"Release\SyntheticSelectRandom.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb" 
-rem Slower: =/wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot      /GL /GF /Gm- /MT /GS- /Gy  /fp:precise /Zc:wchar_t /Zc:forScope /Gr           /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
-set LNKFLAGS=/INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST:NO /ALLOWISOLATION /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /ERRORREPORT:QUEUE 
+set CXXFLAGS=/Bt %MACH7_INC% /wd4007 /Zi /nologo /EHsc /W4 /WX- /O2 /Ob2 /Oi /Ot /Oy-     /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
+rem          %MACH7_INC% /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /Fp"Release\SyntheticSelectRandom.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb" 
+rem Slower: =%MACH7_INC% /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot      /GL /GF /Gm- /MT /GS- /Gy  /fp:precise /Zc:wchar_t /Zc:forScope /Gr           /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
+set LNKFLAGS=
+rem LNKFLAGS=/INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST:NO /ALLOWISOLATION /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /ERRORREPORT:QUEUE 
 rem /OUT:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.exe" /INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST /ManifestFile:"Release\SyntheticSelectRandom.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /PGD:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pgd" /LTCG /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /MACHINE:X86 /ERRORREPORT:QUEUE 
 set M=X86
 
@@ -91,19 +95,30 @@ verify > nul
 
 rem Prepare log file :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+rem We would like to have the toolset directly in the log file name, so we duplicate the later check here
+if "%1" == ""     set VS20XX=2015
+if "%1" == "2015" set VS20XX=2015
+if "%1" == "2013" set VS20XX=2013
+if "%1" == "2012" set VS20XX=2012
+if "%1" == "2010" set VS20XX=2010
+if "%1" == "2008" set VS20XX=2008
+if "%1" == "2005" set VS20XX=2005
+if "%1" == "2003" set VS20XX=2003
+
 rem Specific invokations of this script write log to common build.log file
-if not "%1" == "" set logfile=build.log&goto LOG_FILE_READY
+if not "%1" == "" set logfile=build-VS%VS20XX%.log&goto LOG_FILE_READY
 rem Build of everythings gets its own time-stamped log file
 call :SUB_PARSE_DATE 
-set logfile=build-%yy%-%mm%-%dd%-%hh%-%mn%.log
+set logfile=build-%yy%-%mm%-%dd%-%hh%-%mn%-VS%VS20XX%.log
 
 :LOG_FILE_READY
-
+set logfile="%MACH7_ROOT%%logfile%"
 echo. > %logfile%
 echo Mach7 Build Script >> %logfile%
 echo Version 1.0 from 2012-02-04 >> %logfile%
 echo. >> %logfile%
 echo Build log from %date% at %time% >> %logfile%
+echo Command line: %0 %* >> %logfile%
 
 :PARSE_CMD_LINE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -249,7 +264,7 @@ goto END
 
 :SUB_CLEAN :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 cd /D %1
-del *.i *.obj *.exe *.pdb *.idb *.ilk *.intermediate.manifest *.out cmp_haskell.hi cmp_haskell.o cmp_ocaml.cmi cmp_ocaml.cmx > nul 2>&1
+del *.i *.obj *.exe *.pdb *.idb *.ilk *.pgd *.pgc *.intermediate.manifest *.out cmp_haskell.hi cmp_haskell.o cmp_ocaml.cmi cmp_ocaml.cmx > nul 2>&1
 cd /D "%CurDir%"
 goto END
 
