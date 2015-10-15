@@ -1,4 +1,4 @@
-<a href="https://github.com/solodon4/Mach7/blob/master/media/posters/OpenPatternMatching-OOPSLA-1.pdf?raw=true">
+<a href="http://bit.ly/OPMPoster">
   <img src="https://raw.githubusercontent.com/solodon4/Mach7/master/media/posters/OpenPatternMatching-OOPSLA%20(1280x989).jpg" width="100%">
 </a>
 
@@ -104,7 +104,7 @@ void print(const boost::variant<double,float,int>& v)
 ```
 
 Breve syntax is not the only thing Mach7 has to offer - the generated code is 
-[faster than Visitors](https://parasol.tamu.edu/~yuriys/posters/Mach7.pdf)!
+[faster than Visitors](http://bit.ly/OPM13Poster)!
 
 For a more detailed set of examples, have a look at the code that was prepared for 
 [CppCon 2014 presentation](http://bit.ly/AcceptNoVisitors),
@@ -187,10 +187,10 @@ Talks
 Publications
 ------------
 
- * Y.Solodkyy, G.Dos Reis, B.Stroustrup. "[Open Pattern Matching for C++: Extended Abstract](https://parasol.tamu.edu/~yuriys/papers/OPM13EA.pdf)" In Proceedings of the 2013 companion publication for conference on Systems, programming, & applications: software for humanity (SPLASH '13). ACM, New York, NY, USA, pp. 97-98. [pdf](https://parasol.tamu.edu/~yuriys/papers/OPM13EA.pdf), [slides](https://parasol.tamu.edu/~yuriys/presentations/2013-10-27-GPCE-PatternMatching.pptx), [notes](https://parasol.tamu.edu/~yuriys/presentations/2013-10-27-GPCE-PatternMatching-Notes.pdf), [poster](https://parasol.tamu.edu/~yuriys/posters/Mach7.pdf), [project](http://parasol.tamu.edu/mach7/)
- * Y.Solodkyy, G.Dos Reis, B.Stroustrup. "[Open Pattern Matching for C++](https://parasol.tamu.edu/~yuriys/papers/OPM13.pdf)" In Proceedings of the 12th international conference on Generative programming: concepts & experiences (GPCE '13). ACM, New York, NY, USA, pp. 33-42. [pdf](https://parasol.tamu.edu/~yuriys/papers/OPM13.pdf), [slides](https://parasol.tamu.edu/~yuriys/presentations/2013-10-27-GPCE-PatternMatching.pptx), [notes](https://parasol.tamu.edu/~yuriys/presentations/2013-10-27-GPCE-PatternMatching-Notes.pdf), [poster](https://parasol.tamu.edu/~yuriys/posters/Mach7.pdf), [project](http://parasol.tamu.edu/mach7/)
- * Y.Solodkyy. "[Simplifying the Analysis of C++ Programs](http://bit.ly/PhdThesis)" Ph.D. Thesis. Texas A&M University. August 2013. [pdf](https://parasol.tamu.edu/~yuriys/papers/SOLODKYY-DISSERTATION-2013.pdf), [slides](http://bit.ly/SolodkyyThesisSlides)
- * Y.Solodkyy, G.Dos Reis, B.Stroustrup. "[Open and Efficient Type Switch for C++](http://bit.ly/TS-OOPSLA12)" In Proceedings of the ACM international conference on Object Oriented Programming Systems Languages and Applications (OOPSLA '12). ACM, New York, NY, USA, pp. 963-982. [pdf](http://bit.ly/TS-OOPSLA12), [slides](https://parasol.tamu.edu/~yuriys/presentations/2012-10-25-OOPSLA-TypeSwitch.pptx), [notes](https://parasol.tamu.edu/~yuriys/presentations/2012-10-25-OOPSLA-TypeSwitch-Notes.pdf), [poster](https://parasol.tamu.edu/~yuriys/posters/Mach7.pdf), [extras](https://parasol.tamu.edu/~yuriys/pm/), [project](http://parasol.tamu.edu/mach7/)]
+ * Y.Solodkyy, G.Dos Reis, B.Stroustrup. "[Open Pattern Matching for C++: Extended Abstract](http://bit.ly/OPM13EA)" In Proceedings of the 2013 companion publication for conference on Systems, programming, & applications: software for humanity (SPLASH '13). ACM, New York, NY, USA, pp. 97-98. [pdf](http://bit.ly/OPM13EA), [slides](http://bit.ly/OPM13Slides), [notes](http://bit.ly/OPM13Notes), [poster](http://bit.ly/OPM13Poster), [project](http://bit.ly/Mach7)
+ * Y.Solodkyy, G.Dos Reis, B.Stroustrup. "[Open Pattern Matching for C++](http://bit.ly/OPM-GPCE13)" In Proceedings of the 12th international conference on Generative programming: concepts & experiences (GPCE '13). ACM, New York, NY, USA, pp. 33-42. [pdf](http://bit.ly/OPM-GPCE13), [slides](http://bit.ly/OPM13Slides), [notes](http://bit.ly/OPM13Notes), [poster](http://bit.ly/OPM13Poster), [project](http://bit.ly/Mach7)
+ * Y.Solodkyy. "[Simplifying the Analysis of C++ Programs](http://bit.ly/PhdThesis)" Ph.D. Thesis. Texas A&M University. August 2013. [pdf](http://bit.ly/SolodkyyThesis), [slides](http://bit.ly/SolodkyyThesisSlides)
+ * Y.Solodkyy, G.Dos Reis, B.Stroustrup. "[Open and Efficient Type Switch for C++](http://bit.ly/TS-OOPSLA12)" In Proceedings of the ACM international conference on Object Oriented Programming Systems Languages and Applications (OOPSLA '12). ACM, New York, NY, USA, pp. 963-982. [pdf](http://bit.ly/TS-OOPSLA12), [slides](http://bit.ly/TS12Slides), [notes](http://bit.ly/TS12Notes), [poster](http://bit.ly/OPM13Poster), [extras](http://bit.ly/TS12Extras), [project](http://bit.ly/Mach7)]
 
 License
 -------
