@@ -94,11 +94,12 @@ struct expr<F,E1>
     static_assert(is_expression<E1>::value, "Argument E1 of a unary expression-pattern must be a lazy expression");
     static_assert(!is_var<E1>::value,       "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
-    explicit expr(const E1&  e1) noexcept : m_e1(          e1 ) {}
-    explicit expr(      E1&& e1) noexcept : m_e1(std::move(e1)) {}
-    expr(const expr&  e) noexcept : m_e1(          e.m_e1 ) {} ///< Copy constructor    
-    expr(      expr&& e) noexcept : m_e1(std::move(e.m_e1)) {} ///< Move constructor
-    expr& operator=(const expr&); ///< Assignment is not allowed for this class
+    constexpr explicit expr(const E1&   e1) noexcept : m_e1(          e1 ) {}
+    constexpr explicit expr(      E1&&  e1) noexcept : m_e1(std::move(e1)) {}
+    constexpr          expr(const expr&  e) noexcept : m_e1(          e.m_e1 ) {} ///< Copy constructor    
+    constexpr          expr(      expr&& e) noexcept : m_e1(std::move(e.m_e1)) {} ///< Move constructor
+
+    expr& operator=(const expr&) XTL_DELETED; ///< Assignment is not allowed for this class
 
     typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>()))>::type result_type;    ///< Type of result when used in expression. Requirement of #LazyExpression concept // We needed to add remove_const here as MSVC was returning const T
 
@@ -127,14 +128,15 @@ struct expr
     static_assert(!is_var<E1>::value,       "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
     static_assert(!is_var<E2>::value,       "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
-    expr(const E1&  e1, const E2&  e2) noexcept : m_e1(          e1 ), m_e2(          e2 ) {}
-    expr(      E1&& e1, const E2&  e2) noexcept : m_e1(std::move(e1)), m_e2(          e2 ) {}
-    expr(const E1&  e1,       E2&& e2) noexcept : m_e1(          e1 ), m_e2(std::move(e2)) {}
-    expr(      E1&& e1,       E2&& e2) noexcept : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
-    expr(const expr&  e) noexcept : m_e1(          e.m_e1 ), m_e2(          e.m_e2 ) {} ///< Copy constructor
-    expr(      expr&& e) noexcept : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {} ///< Move constructor
-    expr& operator=(const expr&); ///< Assignment is not allowed for this class
+    constexpr expr(const E1&  e1, const E2&  e2) noexcept : m_e1(          e1 ), m_e2(          e2 ) {}
+    constexpr expr(      E1&& e1, const E2&  e2) noexcept : m_e1(std::move(e1)), m_e2(          e2 ) {}
+    constexpr expr(const E1&  e1,       E2&& e2) noexcept : m_e1(          e1 ), m_e2(std::move(e2)) {}
+    constexpr expr(      E1&& e1,       E2&& e2) noexcept : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
+    constexpr expr(const expr&  e) noexcept : m_e1(          e.m_e1 ), m_e2(          e.m_e2 ) {} ///< Copy constructor
+    constexpr expr(      expr&& e) noexcept : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {} ///< Move constructor
 
+    expr& operator=(const expr&) XTL_DELETED; ///< Assignment is not allowed for this class
+ 
     typedef typename std::remove_const<decltype(F()(std::declval<typename E1::result_type>(),std::declval<typename E2::result_type>()))>::type result_type;    ///< Type of result when used in expression. Requirement of #LazyExpression concept // We needed to add remove_const here as MSVC was returning const T
 
     /// Type function returning a type that will be accepted by the pattern for
