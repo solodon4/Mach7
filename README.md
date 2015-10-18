@@ -115,6 +115,11 @@ to help you get started on your own Mach7 project.
 Building sources
 ----------------
 
+If you haven't done so yet, get a copy of this [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+repo locally by executing:
+
+    git clone https://github.com/solodon4/Mach7.git
+
 The library itself is header only and does not require building. To build unit and 
 timing tests we've accumulated over time several scripts, which we don't completely
 abandon in favor of newer ones as they maintain the flags the original experiments
@@ -212,6 +217,13 @@ promise to help with any issues you might have with the library.
 
 Known bugs and limitations
 --------------------------
+
+Right now, there are several experimental headers that one would need to include to enable one or the other syntax 
+to work. This is a work in progress, so before you start working with a particular syntax, check examples with that
+syntax and make note of which of headers they include. We will clear this eventually leaving only one header, but at 
+the moment it is a mess, and the most intuitive match.hpp is probably not the header you want as it represents older
+experiments. The most recent experimentation and the header you are prpobably looking for is
+[type_switchN-patterns.hpp](https://github.com/solodon4/Mach7/blob/master/code/type_switchN-patterns.hpp).
 
 The library is not yet suitable for multi-threaded environment. Lock-free version of vtbl-map is in the works.
 
