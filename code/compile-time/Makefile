@@ -1,13 +1,45 @@
 #
+#  Mach7: Pattern Matching Library for C++
+#
+#  Copyright 2011-2013, Texas A&M University.
+#  Copyright 2014 Yuriy Solodkyy.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in the
+#        documentation and/or other materials provided with the distribution.
+#
+#      * Neither the names of Mach7 project nor the names of its contributors
+#        may be used to endorse or promote products derived from this software
+#        without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+#  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+#  IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY
+#  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#
 # \file
 #
 # Makefile for building and testing pattern matching library.
 #
 # \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 #
-# This file is a part of Mach7 library (http://parasol.tamu.edu/mach7/).
-# Copyright (C) 2011-2013 Texas A&M University.
-# All rights reserved.
+# \see https://parasol.tamu.edu/mach7/
+# \see https://github.com/solodon4/Mach7
+# \see https://github.com/solodon4/SELL
 #
 
 #
@@ -23,10 +55,14 @@
 #     make test   - Run the test suite
 #
 
+GCC_COLORS=always
 OS       = $(shell uname -s)
 LIBS     = -lstdc++
 INCLUDES = 
-CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -time -s -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++0x \
+ifneq (,$(BOOST))
+	INCLUDES += -I$(BOOST)
+endif
+CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -time -s -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
 #-fno-omit-frame-pointer \
 #-fno-rtti
 LIBFLAGS = $(LIBS)
@@ -95,7 +131,7 @@ ver:
 	@echo
 
 # A rule to build .o file out of a .cpp file
-%.o: %.cpp
+%.o: %.cpp *.hpp patterns/*.hpp
 	@echo --------------------------------------------------------------------------------
 	@echo Compiling $@ ...
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
@@ -274,7 +310,7 @@ includes.dot:
 
 # A rule to convert the above GraphViz .dot file into actual picture
 includes.png: includes.dot
-	dot.exe -Tpng -oincludes.png includes.dot
+	dot -Tpng -oincludes.png includes.dot
 
 # A rule to run set of tests
 test:
