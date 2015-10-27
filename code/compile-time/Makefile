@@ -58,13 +58,20 @@
 GCC_COLORS=always
 OS       = $(shell uname -s)
 LIBS     = -lstdc++
-INCLUDES = 
+INCLUDES = -I.. -I../test/time 
 ifneq (,$(BOOST))
 	INCLUDES += -I$(BOOST)
 endif
 CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -time -s -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
 #-fno-omit-frame-pointer \
 #-fno-rtti
+ifneq (,$(findstring g++,$(CXX)))
+	CXXFLAGS += -Wno-vla -ftrack-macro-expansion=4 -fdiagnostics-show-option -D__NO_INLINE__ 
+endif
+ifneq (,$(findstring clang,$(CXX)))
+	CXXFLAGS += -fmacro-backtrace-limit=0 -ftemplate-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct
+endif
+
 LIBFLAGS = $(LIBS)
 OCAMLLIB = /c/Program Files (x86)/OCaml/lib
 #OCAMLLIB = C:\Program Files (x86)\OCaml\
