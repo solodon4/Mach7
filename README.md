@@ -205,7 +205,7 @@ Mach7 is licensed under the [BSD License](LICENSE).
 Support
 -------
 
-Please contact Yuriy Solodkyy at yuriy.solodkyy@gmail.com with any questions regarding Mach7.
+Please contact [Yuriy Solodkyy](mailto:yuriy.solodkyy+mach7support@gmail.com) with any questions regarding Mach7.
 
 Call for Help
 -------------
