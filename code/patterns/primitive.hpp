@@ -454,6 +454,9 @@ struct ref1
 {
     static_assert(is_pattern<P>::value, "ref1<P> can only be instantiated on classes P modeling Pattern concept");
 
+    /// Member that will hold matching value in case of successful matching
+    P& m_pat;
+
     explicit ref1(P& pat)         noexcept : m_pat(pat)     {}
              ref1(const ref1&  v) noexcept : m_pat(v.m_pat) {} ///< Copy constructor
              ref1(      ref1&& v) noexcept : m_pat(v.m_pat) {} ///< Move constructor
@@ -467,10 +470,7 @@ struct ref1
     template <typename S> struct accepted_type_for : P::template accepted_type_for<S> {};
 
     /// We report that matching succeeded and bind the value
-    template <typename T> bool operator()(T&& t) const noexcept_when(noexcept_of(this->m_pat(std::forward<T>(t)))) { return m_pat(std::forward<T>(t)); }
-
-    /// Member that will hold matching value in case of successful matching
-    P& m_pat;
+    template <typename T> bool operator()(T&& t) const noexcept_when(noexcept_of(m_pat(std::forward<T>(t)))) { return m_pat(std::forward<T>(t)); }
 };
 
 //------------------------------------------------------------------------------
@@ -480,6 +480,9 @@ struct ref2 : ref1<E>
 {
     static_assert(is_expression<E>::value, "ref2<E> can only be instantiated on classes E modeling LazyExpression concept");
 
+    /// Bring in name from the base class as qualifying with this-> doesn't work in noexcept expression in GCC.
+    using ref1<E>::m_pat;
+
     explicit ref2(E& e)           noexcept : ref1<E>(e)            {}
              ref2(const ref2&  v) noexcept : ref1<E>(          v ) {} ///< Copy constructor
              ref2(      ref2&& v) noexcept : ref1<E>(std::move(v)) {} ///< Move constructor
@@ -488,7 +491,7 @@ struct ref2 : ref1<E>
 
     typedef typename E::result_type result_type;   ///< Type of result when used in expression. Requirement of #LazyExpression concept
 
-    operator const result_type&() const noexcept_when(noexcept_of(eval(this->m_pat))) { return eval(this->m_pat); } // FIX: avoid implicit conversion in lazy expressions
+    operator const result_type&() const noexcept_when(noexcept_of(eval(m_pat))) { return eval(m_pat); } // FIX: avoid implicit conversion in lazy expressions
 };
 
 //------------------------------------------------------------------------------
