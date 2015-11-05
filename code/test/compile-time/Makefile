@@ -55,7 +55,7 @@
 GCC_COLORS=always
 OS       = $(shell uname -s)
 LIBS     = -lstdc++
-INCLUDES = -I.. -I../test/time 
+INCLUDES = -I../.. -I../../test/time 
 ifneq (,$(BOOST))
 	INCLUDES += -I$(BOOST)
 endif

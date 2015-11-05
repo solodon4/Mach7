@@ -68,14 +68,14 @@
 :: 
 
 @echo off
-set MACH7_ROOT=%~dp0
+set MACH7_ROOT=%~dp0..\..\
 set CurDir=%CD%
 setlocal
 if "%1" == "/?" findstr "^::" "%~f0" & goto END
 
 rem Set-up variables :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 set CXX=cl.exe
-set MACH7_INC=/I %MACH7_ROOT%..\ /I %MACH7_ROOT%..\test\time\ 
+set MACH7_INC=/I %MACH7_ROOT% /I %MACH7_ROOT%test\time\ 
 if not "%BOOST%" == "" set MACH7_INC=%MACH7_INC% /I %BOOST%
 rem List of compiler options: http://technet.microsoft.com/en-us/library/fwkeyyhe(v=vs.110).aspx
 rem NOTE: Specifying /GL in VC11 fails to link code that uses our decl_helper for some reason.
