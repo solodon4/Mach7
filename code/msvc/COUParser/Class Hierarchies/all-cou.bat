@@ -51,6 +51,10 @@
 
 if "%1" == "/?" findstr "^::" "%~f0" & goto END
 
+rem couparser.exe must be available via PATH variable
+where couparser.exe
+if errorlevel 1 echo ERROR: You need to build couparser.exe first with project in ..\parser directory && goto END
+
 set logfile="%~dp0%~n0.log"
 echo %date% %time% > %logfile%
 

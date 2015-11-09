@@ -42,19 +42,25 @@
 # \see https://github.com/solodon4/SELL
 #
 
+
+GCC_COLORS=always
+OS      = $(shell uname -s)
 TARGETS = couparser.exe
 SOURCES = $(shell ls *.cpp) cou.tab.cpp cou.yy.cpp
-OS      = $(shell uname -s)
-CXX     = g++
-EXTRAFLAGS = -Wall -Wno-long-long -ftemplate-depth-250
-
-ifeq ($(OS),Darwin)
-EXTRAFLAGS = $(EXTRAFLAGS) -Wno-long-double
+#CXX     = g++
+LIBS     = -lstdc++
+INCLUDES = -I../..
+ifneq (,$(BOOST))
+	INCLUDES += -I$(BOOST)
+endif
+CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=gnu++0x
+ifneq (,$(findstring g++,$(CXX)))
+	CXXFLAGS += -Wno-vla -ftrack-macro-expansion=4 -fdiagnostics-show-option -D__NO_INLINE__ 
+endif
+ifneq (,$(findstring clang,$(CXX)))
+	CXXFLAGS += -fmacro-backtrace-limit=0 -ftemplate-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct
 endif
 
-INCLUDES = 
-LIBS     = -lstdc++
-CXXFLAGS = $(INCLUDES) -Wall -time -O2 -DNDEBUG -std=c++0x $(EXTRAFLAGS)
 LIBFLAGS = $(LIBS)
 AR       = ar
 
@@ -75,6 +81,7 @@ DEP_FILES = $(SOURCES:.cpp=.dep)
 
 all: $(TARGETS)
 
+# A rule to build .exe file out of a .o file
 %.exe: $(OBJECTS)
 	@echo --------------------------------------------------------------------------------
 	@echo Linking $@ ...
@@ -85,7 +92,8 @@ all: $(TARGETS)
 	@echo
 	@echo
 
-%.o: %.cpp
+# A rule to build .o file out of a .cpp file
+%.o: %.cpp *.hpp
 	@echo --------------------------------------------------------------------------------
 	@echo Compiling $@ ...
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
