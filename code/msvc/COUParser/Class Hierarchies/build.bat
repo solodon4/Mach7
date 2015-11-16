@@ -19,16 +19,15 @@
 @echo off
 
 if "%1" == "/?" findstr "^::" "%~f0" & goto END
-
+if "%MACH7%" == "" echo Warning: Environment variable MACH7 must be set to library path of Mach7 library (available here: https://github.com/solodon4/Mach7). Assuming ..\..\.. && set MACH7=..\..\..
 rem Set-up variables :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
 set CXX=cl.exe
 rem Debug version of compiler flags
-rem CXXFLAGS=/D "XTL_VIRTUAL=virtual" /D "XTL_PROFILING=1" /D "XTL_MAX_LOG_INC=1" /D "XTL_LEAKED_NEW_LOCATIONS" /Zi /nologo /EHsc /W3 /WX- /Od /RTC1        /Oy-         /Gm  /MTd /GS       /fp:precise /Zc:wchar_t /Zc:forScope /Gd /analyze- /errorReport:queue /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_UNICODE" /D "UNICODE"  /I%BOOST% /IC:\Projects\PatternMatching\
+rem CXXFLAGS=/D "XTL_VIRTUAL=virtual" /D "XTL_PROFILING=1" /D "XTL_MAX_LOG_INC=1" /D "XTL_LEAKED_NEW_LOCATIONS" /Zi /nologo /EHsc /W3 /WX- /Od /RTC1        /Oy-         /Gm  /MTd /GS       /fp:precise /Zc:wchar_t /Zc:forScope /Gd /analyze- /errorReport:queue /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_UNICODE" /D "UNICODE" /I%MACH7% /I%MACH7%/test/time
 rem Release version of compiler flags
-set CXXFLAGS=/D "XTL_VIRTUAL=virtual" /D "XTL_PROFILING=1" /D "XTL_MAX_LOG_INC=1"                               /Zi /nologo /EHsc /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT  /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /I%BOOST% /IC:\Projects\PatternMatching\
+set CXXFLAGS=/D "XTL_VIRTUAL=virtual" /D "XTL_PROFILING=1" /D "XTL_MAX_LOG_INC=1"                               /Zi /nologo /EHsc /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT  /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /I%MACH7% /I%MACH7%/test/time
 rem          /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /Fp"Release\SyntheticSelectRandom.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb" 
-rem Slower: =/Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot      /GL /GF /Gm- /MT /GS- /Gy  /fp:precise /Zc:wchar_t /Zc:forScope /Gr           /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /I%BOOST% 
+rem Slower: =/Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot      /GL /GF /Gm- /MT /GS- /Gy  /fp:precise /Zc:wchar_t /Zc:forScope /Gr           /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /I%MACH7% /I%MACH7%/test/time 
 rem Debug version of linker flags
 rem LNKFLAGS=/INCREMENTAL    /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST    /ALLOWISOLATION /SUBSYSTEM:CONSOLE /DEBUG                  /TLBID:1 /DYNAMICBASE    /NXCOMPAT /ERRORREPORT:QUEUE 
 rem Release version of linker flags
