@@ -94,10 +94,10 @@ struct expr<F,E1>
     static_assert(is_expression<E1>::value, "Argument E1 of a unary expression-pattern must be a lazy expression");
     static_assert(!is_var<E1>::value,       "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
-    constexpr explicit expr(const E1&   e1) noexcept : m_e1(          e1 ) {}
-    constexpr explicit expr(      E1&&  e1) noexcept : m_e1(std::move(e1)) {}
-    constexpr          expr(const expr&  e) noexcept : m_e1(          e.m_e1 ) {} ///< Copy constructor    
-    constexpr          expr(      expr&& e) noexcept : m_e1(std::move(e.m_e1)) {} ///< Move constructor
+    constexpr explicit expr(const E1&   e1) noexcept_when(std::is_nothrow_copy_constructible<E1>::value) : m_e1(          e1 ) {}
+    constexpr explicit expr(      E1&&  e1) noexcept_when(std::is_nothrow_move_constructible<E1>::value) : m_e1(std::move(e1)) {}
+    constexpr          expr(const expr&  e) noexcept_when(std::is_nothrow_copy_constructible<E1>::value) : m_e1(          e.m_e1 ) {} ///< Copy constructor    
+    constexpr          expr(      expr&& e) noexcept_when(std::is_nothrow_move_constructible<E1>::value) : m_e1(std::move(e.m_e1)) {} ///< Move constructor
 
     expr& operator=(const expr&) XTL_DELETED; ///< Assignment is not allowed for this class
 
@@ -128,12 +128,12 @@ struct expr
     static_assert(!is_var<E1>::value,       "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
     static_assert(!is_var<E2>::value,       "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
-    constexpr expr(const E1&  e1, const E2&  e2) noexcept : m_e1(          e1 ), m_e2(          e2 ) {}
-    constexpr expr(      E1&& e1, const E2&  e2) noexcept : m_e1(std::move(e1)), m_e2(          e2 ) {}
-    constexpr expr(const E1&  e1,       E2&& e2) noexcept : m_e1(          e1 ), m_e2(std::move(e2)) {}
-    constexpr expr(      E1&& e1,       E2&& e2) noexcept : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
-    constexpr expr(const expr&  e) noexcept : m_e1(          e.m_e1 ), m_e2(          e.m_e2 ) {} ///< Copy constructor
-    constexpr expr(      expr&& e) noexcept : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {} ///< Move constructor
+    constexpr expr(const E1&  e1, const E2&  e2) noexcept_when(std::is_nothrow_copy_constructible<E1>::value && std::is_nothrow_copy_constructible<E2>::value) : m_e1(          e1 ), m_e2(          e2 ) {}
+    constexpr expr(      E1&& e1, const E2&  e2) noexcept_when(std::is_nothrow_move_constructible<E1>::value && std::is_nothrow_copy_constructible<E2>::value) : m_e1(std::move(e1)), m_e2(          e2 ) {}
+    constexpr expr(const E1&  e1,       E2&& e2) noexcept_when(std::is_nothrow_copy_constructible<E1>::value && std::is_nothrow_move_constructible<E2>::value) : m_e1(          e1 ), m_e2(std::move(e2)) {}
+    constexpr expr(      E1&& e1,       E2&& e2) noexcept_when(std::is_nothrow_move_constructible<E1>::value && std::is_nothrow_move_constructible<E2>::value) : m_e1(std::move(e1)), m_e2(std::move(e2)) {}
+    constexpr expr(const expr&  e) noexcept_when(std::is_nothrow_copy_constructible<E1>::value && std::is_nothrow_copy_constructible<E2>::value) : m_e1(          e.m_e1 ), m_e2(          e.m_e2 ) {} ///< Copy constructor
+    constexpr expr(      expr&& e) noexcept_when(std::is_nothrow_move_constructible<E1>::value && std::is_nothrow_move_constructible<E2>::value) : m_e1(std::move(e.m_e1)), m_e2(std::move(e.m_e2)) {} ///< Move constructor
 
     expr& operator=(const expr&) XTL_DELETED; ///< Assignment is not allowed for this class
  
