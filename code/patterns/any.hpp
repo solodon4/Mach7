@@ -64,7 +64,7 @@ namespace mch ///< Mach7 library namespace
 template <typename T>
 struct one_of
 {
-    one_of(std::initializer_list<T>&& init) : m_elements(std::move(init)) {}
+    one_of(std::initializer_list<T>&& init) noexcept : m_elements(std::move(init)) {}
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
@@ -84,7 +84,7 @@ struct one_of
 template <typename T>
 struct one_of
 {
-    one_of(const T* b, const T* e) : m_elements(b,e) {}
+    one_of(const T* b, const T* e) noexcept : m_elements(b,e) {}
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
