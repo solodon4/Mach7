@@ -163,10 +163,10 @@ struct negation
     static_assert(is_pattern<P1>::value, "Argument P1 of a negation-pattern must be a pattern");
     static_assert(!is_var<P1>::value,    "Attempting to host var<> directly. Use filter() to wrap it into ref2<>");
 
-    constexpr negation(const P1&  p1) noexcept_when(std::is_nothrow_copy_constructible<P1>::value) : m_p1(p1) {}
-    constexpr negation(      P1&& p1) noexcept_when(std::is_nothrow_move_constructible<P1>::value) : m_p1(std::move(p1)) {}
-    constexpr negation(const negation&  c) noexcept : m_p1(          c.m_p1 ) {} ///< Copy constructor    
-    constexpr negation(      negation&& c) noexcept : m_p1(std::move(c.m_p1)) {} ///< Move constructor
+    constexpr negation(const P1&  p1)      noexcept_when(std::is_nothrow_copy_constructible<P1>::value) : m_p1(p1) {}
+    constexpr negation(      P1&& p1)      noexcept_when(std::is_nothrow_move_constructible<P1>::value) : m_p1(std::move(p1)) {}
+    constexpr negation(const negation&  c) noexcept_when(std::is_nothrow_copy_constructible<P1>::value) : m_p1(          c.m_p1 ) {} ///< Copy constructor    
+    constexpr negation(      negation&& c) noexcept_when(std::is_nothrow_move_constructible<P1>::value) : m_p1(std::move(c.m_p1)) {} ///< Move constructor
     negation& operator=(const negation&) XTL_DELETED; ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
