@@ -56,11 +56,11 @@ struct existential
 {
     static_assert(is_pattern<P1>::value, "Argument P1 of an existential quantifier pattern must be a pattern");
 
-    explicit existential(const P1&  p) noexcept : m_p1(          p ) {}
-    explicit existential(      P1&& p) noexcept : m_p1(std::move(p)) {}
-    existential(const existential&  e) noexcept : m_p1(          e.m_p1 ) {} ///< Copy constructor
-    existential(      existential&& e) noexcept : m_p1(std::move(e.m_p1)) {} ///< Move constructor
-    existential& operator=(const existential&); ///< Assignment is not allowed for this class
+    constexpr explicit existential(const P1&  p)          noexcept_when(std::is_nothrow_copy_constructible<P1>::value) : m_p1(          p ) {}
+    constexpr explicit existential(      P1&& p)          noexcept_when(std::is_nothrow_move_constructible<P1>::value) : m_p1(std::move(p)) {}
+    constexpr          existential(const existential&  e) noexcept_when(std::is_nothrow_copy_constructible<P1>::value) : m_p1(          e.m_p1 ) {} ///< Copy constructor
+    constexpr          existential(      existential&& e) noexcept_when(std::is_nothrow_move_constructible<P1>::value) : m_p1(std::move(e.m_p1)) {} ///< Move constructor
+    existential& operator=(const existential&) XTL_DELETED; ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
@@ -107,11 +107,11 @@ struct universal
 {
     static_assert(is_pattern<P1>::value, "Argument P1 of an universal quantifier pattern must be a pattern");
 
-    explicit universal(const P1&  p1) noexcept : m_p1(          p1 ) {}
-    explicit universal(      P1&& p1) noexcept : m_p1(std::move(p1)) {}
-    universal(const universal&  e) noexcept : m_p1(          e.m_p1 ) {} ///< Copy constructor
-    universal(      universal&& e) noexcept : m_p1(std::move(e.m_p1)) {} ///< Move constructor
-    universal& operator=(const universal&); ///< Assignment is not allowed for this class
+    constexpr explicit universal(const P1&  p1)       noexcept_when(std::is_nothrow_copy_constructible<P1>::value) : m_p1(          p1 ) {}
+    constexpr explicit universal(      P1&& p1)       noexcept_when(std::is_nothrow_move_constructible<P1>::value) : m_p1(std::move(p1)) {}
+    constexpr          universal(const universal&  e) noexcept_when(std::is_nothrow_copy_constructible<P1>::value) : m_p1(          e.m_p1 ) {} ///< Copy constructor
+    constexpr          universal(      universal&& e) noexcept_when(std::is_nothrow_move_constructible<P1>::value) : m_p1(std::move(e.m_p1)) {} ///< Move constructor
+    universal& operator=(const universal&) XTL_DELETED; ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
