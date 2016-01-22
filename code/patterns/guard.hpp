@@ -58,13 +58,15 @@ struct guard
     static_assert(is_pattern<P1>::value,    "Argument P1 of a guard-pattern must be a pattern");
     static_assert(is_expression<E2>::value, "Argument E2 of a guard-pattern must be a lazy expression");
 
-    guard(const P1&  p1, const E2&  e2) noexcept : m_p1(p1), m_e2(e2) {}
-    guard(const P1&  p1,       E2&& e2) noexcept : m_p1(p1), m_e2(std::move(e2)) {}
-    guard(      P1&& p1, const E2&  e2) noexcept : m_p1(std::move(p1)), m_e2(e2) {}
-    guard(      P1&& p1,       E2&& e2) noexcept : m_p1(std::move(p1)), m_e2(std::move(e2)) {}
-    guard(const guard&  e) noexcept : m_p1(          e.m_p1 ), m_e2(          e.m_e2 ) {} ///< Copy constructor
-    guard(      guard&& e) noexcept : m_p1(std::move(e.m_p1)), m_e2(std::move(e.m_e2)) {} ///< Move constructor
-    guard& operator=(const guard&); ///< Assignment is not allowed for this class
+    constexpr guard(const P1&  p1, const E2&  e2) noexcept_when(std::is_nothrow_copy_constructible<P1>::value && std::is_nothrow_copy_constructible<E2>::value) : m_p1(          p1 ), m_e2(          e2 ) {}
+    constexpr guard(      P1&& p1, const E2&  e2) noexcept_when(std::is_nothrow_move_constructible<P1>::value && std::is_nothrow_copy_constructible<E2>::value) : m_p1(std::move(p1)), m_e2(          e2 ) {}
+    constexpr guard(const P1&  p1,       E2&& e2) noexcept_when(std::is_nothrow_copy_constructible<P1>::value && std::is_nothrow_move_constructible<E2>::value) : m_p1(          p1 ), m_e2(std::move(e2)) {}
+    constexpr guard(      P1&& p1,       E2&& e2) noexcept_when(std::is_nothrow_move_constructible<P1>::value && std::is_nothrow_move_constructible<E2>::value) : m_p1(std::move(p1)), m_e2(std::move(e2)) {}
+
+    constexpr guard(const guard&  e)              noexcept_when(std::is_nothrow_copy_constructible<P1>::value && std::is_nothrow_copy_constructible<E2>::value) : m_p1(          e.m_p1 ), m_e2(          e.m_e2 ) {} ///< Copy constructor
+    constexpr guard(      guard&& e)              noexcept_when(std::is_nothrow_move_constructible<P1>::value && std::is_nothrow_move_constructible<E2>::value) : m_p1(std::move(e.m_p1)), m_e2(std::move(e.m_e2)) {} ///< Move constructor
+
+    guard& operator=(const guard&) XTL_DELETED; ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
