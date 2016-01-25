@@ -81,11 +81,13 @@ struct regex1 : std::regex
     /// for example. Requirement of #Pattern concept.
     template <typename S> struct accepted_type_for { typedef std::string type; };
 
-    regex1(const char* re, const P1&  p1) noexcept : std::regex(re), m_p1(          p1 ) {}
-    regex1(const char* re,       P1&& p1) noexcept : std::regex(re), m_p1(std::move(p1)) {}
-    regex1(const regex1&  src) noexcept : std::regex(src), m_p1(          src.m_p1 ) {} ///< Copy constructor    
-    regex1(      regex1&& src) noexcept : std::regex(src), m_p1(std::move(src.m_p1)) {} ///< Move constructor
-    regex1& operator=(const regex1&); ///< Assignment is not allowed for this class
+    regex1(const char* re, const P1&  p1) noexcept_when(std::is_nothrow_copy_constructible<P1>::value) : std::regex(re), m_p1(          p1 ) {}
+    regex1(const char* re,       P1&& p1) noexcept_when(std::is_nothrow_move_constructible<P1>::value) : std::regex(re), m_p1(std::move(p1)) {}
+
+    regex1(const regex1&  src)            noexcept_when(std::is_nothrow_copy_constructible<P1>::value) : std::regex(src), m_p1(          src.m_p1 ) {} ///< Copy constructor    
+    regex1(      regex1&& src)            noexcept_when(std::is_nothrow_move_constructible<P1>::value) : std::regex(src), m_p1(std::move(src.m_p1)) {} ///< Move constructor
+
+    regex1& operator=(const regex1&) XTL_DELETED; ///< Assignment is not allowed for this class
 
     bool operator()(const std::string& s) const noexcept { return operator()(s.c_str()); }
     bool operator()(const char*        s) const noexcept
@@ -120,13 +122,15 @@ struct regex2 : std::regex
     /// for example. Requirement of #Pattern concept.
     template <typename S> struct accepted_type_for { typedef std::string type; };
 
-    regex2(const char* re, const P1&  p1, const P2&  p2) noexcept : std::regex(re), m_p1(          p1 ), m_p2(          p2 ) {}
-    regex2(const char* re,       P1&& p1, const P2&  p2) noexcept : std::regex(re), m_p1(std::move(p1)), m_p2(          p2 ) {}
-    regex2(const char* re, const P1&  p1,       P2&& p2) noexcept : std::regex(re), m_p1(          p1 ), m_p2(std::move(p2)) {}
-    regex2(const char* re,       P1&& p1,       P2&& p2) noexcept : std::regex(re), m_p1(std::move(p1)), m_p2(std::move(p2)) {}
-    regex2(const regex2&  src) noexcept : std::regex(src), m_p1(          src.m_p1 ), m_p2(          src.m_p2 ) {} ///< Copy constructor    
-    regex2(      regex2&& src) noexcept : std::regex(src), m_p1(std::move(src.m_p1)), m_p2(std::move(src.m_p2)) {} ///< Move constructor
-    regex2& operator=(const regex2&); ///< Assignment is not allowed for this class
+    regex2(const char* re, const P1&  p1, const P2&  p2) noexcept_when(std::is_nothrow_copy_constructible<P1>::value && std::is_nothrow_copy_constructible<P2>::value) : std::regex(re), m_p1(          p1 ), m_p2(          p2 ) {}
+    regex2(const char* re,       P1&& p1, const P2&  p2) noexcept_when(std::is_nothrow_move_constructible<P1>::value && std::is_nothrow_copy_constructible<P2>::value) : std::regex(re), m_p1(std::move(p1)), m_p2(          p2 ) {}
+    regex2(const char* re, const P1&  p1,       P2&& p2) noexcept_when(std::is_nothrow_copy_constructible<P1>::value && std::is_nothrow_move_constructible<P2>::value) : std::regex(re), m_p1(          p1 ), m_p2(std::move(p2)) {}
+    regex2(const char* re,       P1&& p1,       P2&& p2) noexcept_when(std::is_nothrow_move_constructible<P1>::value && std::is_nothrow_move_constructible<P2>::value) : std::regex(re), m_p1(std::move(p1)), m_p2(std::move(p2)) {}
+
+    regex2(const regex2&  src)                           noexcept_when(std::is_nothrow_copy_constructible<P1>::value && std::is_nothrow_copy_constructible<P2>::value) : std::regex(src), m_p1(          src.m_p1 ), m_p2(          src.m_p2 ) {} ///< Copy constructor    
+    regex2(      regex2&& src)                           noexcept_when(std::is_nothrow_move_constructible<P1>::value && std::is_nothrow_move_constructible<P2>::value) : std::regex(src), m_p1(std::move(src.m_p1)), m_p2(std::move(src.m_p2)) {} ///< Move constructor
+
+    regex2& operator=(const regex2&) XTL_DELETED; ///< Assignment is not allowed for this class
 
     bool operator()(const std::string& s) const noexcept { return operator()(s.c_str()); }
     bool operator()(const char*        s) const noexcept
@@ -169,17 +173,19 @@ struct regex3 : std::regex
     /// for example. Requirement of #Pattern concept.
     template <typename S> struct accepted_type_for { typedef std::string type; };
 
-    regex3(const char* re, const P1&  p1, const P2&  p2, const P3&  p3) noexcept : std::regex(re), m_p1(          p1 ), m_p2(          p2 ), m_p3(          p3 ) {}
-    regex3(const char* re,       P1&& p1, const P2&  p2, const P3&  p3) noexcept : std::regex(re), m_p1(std::move(p1)), m_p2(          p2 ), m_p3(          p3 ) {}
-    regex3(const char* re, const P1&  p1,       P2&& p2, const P3&  p3) noexcept : std::regex(re), m_p1(          p1 ), m_p2(std::move(p2)), m_p3(          p3 ) {}
-    regex3(const char* re,       P1&& p1,       P2&& p2, const P3&  p3) noexcept : std::regex(re), m_p1(std::move(p1)), m_p2(std::move(p2)), m_p3(          p3 ) {}
-    regex3(const char* re, const P1&  p1, const P2&  p2,       P3&& p3) noexcept : std::regex(re), m_p1(          p1 ), m_p2(          p2 ), m_p3(std::move(p3)) {}
-    regex3(const char* re,       P1&& p1, const P2&  p2,       P3&& p3) noexcept : std::regex(re), m_p1(std::move(p1)), m_p2(          p2 ), m_p3(std::move(p3)) {}
-    regex3(const char* re, const P1&  p1,       P2&& p2,       P3&& p3) noexcept : std::regex(re), m_p1(          p1 ), m_p2(std::move(p2)), m_p3(std::move(p3)) {}
-    regex3(const char* re,       P1&& p1,       P2&& p2,       P3&& p3) noexcept : std::regex(re), m_p1(std::move(p1)), m_p2(std::move(p2)), m_p3(std::move(p3)) {}
-    regex3(const regex3&  src) noexcept : std::regex(src), m_p1(          src.m_p1 ), m_p2(          src.m_p2 ), m_p3(          src.m_p3 ) {} ///< Copy constructor    
-    regex3(      regex3&& src) noexcept : std::regex(src), m_p1(std::move(src.m_p1)), m_p2(std::move(src.m_p2)), m_p3(std::move(src.m_p3)) {} ///< Move constructor
-    regex3& operator=(const regex3&); ///< Assignment is not allowed for this class
+    regex3(const char* re, const P1&  p1, const P2&  p2, const P3&  p3) noexcept_when(std::is_nothrow_copy_constructible<P1>::value && std::is_nothrow_copy_constructible<P2>::value && std::is_nothrow_copy_constructible<P3>::value) : std::regex(re), m_p1(          p1 ), m_p2(          p2 ), m_p3(          p3 ) {}
+    regex3(const char* re,       P1&& p1, const P2&  p2, const P3&  p3) noexcept_when(std::is_nothrow_move_constructible<P1>::value && std::is_nothrow_copy_constructible<P2>::value && std::is_nothrow_copy_constructible<P3>::value) : std::regex(re), m_p1(std::move(p1)), m_p2(          p2 ), m_p3(          p3 ) {}
+    regex3(const char* re, const P1&  p1,       P2&& p2, const P3&  p3) noexcept_when(std::is_nothrow_copy_constructible<P1>::value && std::is_nothrow_move_constructible<P2>::value && std::is_nothrow_copy_constructible<P3>::value) : std::regex(re), m_p1(          p1 ), m_p2(std::move(p2)), m_p3(          p3 ) {}
+    regex3(const char* re,       P1&& p1,       P2&& p2, const P3&  p3) noexcept_when(std::is_nothrow_move_constructible<P1>::value && std::is_nothrow_move_constructible<P2>::value && std::is_nothrow_copy_constructible<P3>::value) : std::regex(re), m_p1(std::move(p1)), m_p2(std::move(p2)), m_p3(          p3 ) {}
+    regex3(const char* re, const P1&  p1, const P2&  p2,       P3&& p3) noexcept_when(std::is_nothrow_copy_constructible<P1>::value && std::is_nothrow_copy_constructible<P2>::value && std::is_nothrow_move_constructible<P3>::value) : std::regex(re), m_p1(          p1 ), m_p2(          p2 ), m_p3(std::move(p3)) {}
+    regex3(const char* re,       P1&& p1, const P2&  p2,       P3&& p3) noexcept_when(std::is_nothrow_move_constructible<P1>::value && std::is_nothrow_copy_constructible<P2>::value && std::is_nothrow_move_constructible<P3>::value) : std::regex(re), m_p1(std::move(p1)), m_p2(          p2 ), m_p3(std::move(p3)) {}
+    regex3(const char* re, const P1&  p1,       P2&& p2,       P3&& p3) noexcept_when(std::is_nothrow_copy_constructible<P1>::value && std::is_nothrow_move_constructible<P2>::value && std::is_nothrow_move_constructible<P3>::value) : std::regex(re), m_p1(          p1 ), m_p2(std::move(p2)), m_p3(std::move(p3)) {}
+    regex3(const char* re,       P1&& p1,       P2&& p2,       P3&& p3) noexcept_when(std::is_nothrow_move_constructible<P1>::value && std::is_nothrow_move_constructible<P2>::value && std::is_nothrow_move_constructible<P3>::value) : std::regex(re), m_p1(std::move(p1)), m_p2(std::move(p2)), m_p3(std::move(p3)) {}
+
+    regex3(const regex3&  src)                                          noexcept_when(std::is_nothrow_copy_constructible<P1>::value && std::is_nothrow_copy_constructible<P2>::value && std::is_nothrow_copy_constructible<P3>::value) : std::regex(src), m_p1(          src.m_p1 ), m_p2(          src.m_p2 ), m_p3(          src.m_p3 ) {} ///< Copy constructor    
+    regex3(      regex3&& src)                                          noexcept_when(std::is_nothrow_move_constructible<P1>::value && std::is_nothrow_move_constructible<P2>::value && std::is_nothrow_move_constructible<P3>::value) : std::regex(src), m_p1(std::move(src.m_p1)), m_p2(std::move(src.m_p2)), m_p3(std::move(src.m_p3)) {} ///< Move constructor
+
+    regex3& operator=(const regex3&) XTL_DELETED; ///< Assignment is not allowed for this class
 
     bool operator()(const std::string& s) const noexcept { return operator()(s.c_str()); }
     bool operator()(const char*        s) const noexcept
