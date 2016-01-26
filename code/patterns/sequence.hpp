@@ -55,9 +55,13 @@ namespace mch ///< Mach7 library namespace
 template <typename I>
 struct sequence
 {
-    sequence(const I& b, const I& e) : m_begin(b), m_end(e) {}
-    sequence(I&& b, I&& e) noexcept : m_begin(std::move(b)), m_end(std::move(e)) {}
-    sequence(sequence&& src) noexcept : m_begin(std::move(src.m_begin)), m_end(std::move(src.m_end)) {}
+    constexpr sequence(const I&  b, const I&  e) noexcept_when(std::is_nothrow_copy_constructible<I>::value) : m_begin(          b ), m_end(          e ) {}
+    constexpr sequence(      I&& b,       I&& e) noexcept_when(std::is_nothrow_move_constructible<I>::value) : m_begin(std::move(b)), m_end(std::move(e)) {}
+
+    constexpr sequence(const sequence&  src) noexcept_when(std::is_nothrow_copy_constructible<I>::value) : m_begin(          src.m_begin ), m_end(          src.m_end ) {} ///< Copy constructor
+    constexpr sequence(      sequence&& src) noexcept_when(std::is_nothrow_move_constructible<I>::value) : m_begin(std::move(src.m_begin)), m_end(std::move(src.m_end)) {} ///< Move constructor
+
+    sequence& operator=(const sequence&) XTL_DELETED; ///< Assignment is not allowed for this class
 
     /// Type function returning a type that will be accepted by the pattern for
     /// a given subject type S. We use type function instead of an associated 
