@@ -83,6 +83,32 @@ struct constr0
     ///@}
 };
 
+/// Constructor/Type pattern of 0 arguments -- specialization for const T
+template <typename T, size_t layout>
+struct constr0<const T, layout>
+{
+  /// Type function returning a type that will be accepted by the pattern for
+  /// a given subject type S. We use type function instead of an associated 
+  /// type, because there is no a single accepted type for a #wildcard pattern
+  /// for example. Requirement of #Pattern concept.
+  template <typename S> struct accepted_type_for { typedef const T type; };
+
+  ///@{
+  /// Constructor patterns can be uniformly matched against pointers and 
+  /// references to polymorphic objects. This uniformity is needed for 
+  /// composability of constructor patterns, since application operators
+  /// return a pointer to indicate whether pattern was accepted or refuted.
+  /// The following set of application operators distinguishes:
+  ///  - the arguments passed by reference from those passed by pointers
+  ///  - whether the target type matches the subject type (to avoid dynamic_cast)
+  ///  - const from non-const arguments to propagate constness further.
+  template <typename U> const T* operator()(const U* u) const noexcept { return dynamic_cast<const T*>(u); }
+  template <typename U> const T* operator()(const U& u) const noexcept { return operator()(&u); }
+  const T* operator()(const T* t) const noexcept { return t; }
+  const T* operator()(const T& t) const noexcept { return &t; }
+  ///@}
+};
+
 //------------------------------------------------------------------------------
 
 /// Constructor/Type pattern of 1 arguments
