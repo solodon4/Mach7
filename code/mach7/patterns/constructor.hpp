@@ -164,7 +164,7 @@ struct constr1
 /// FIX: Add extra condition that makes sure the type of first subcomponent is
 ///      not the same as the type itself!
 template <typename T, size_t layout, typename P1>
-struct constr1<T,layout,P1,typename std::enable_if<std::is_same<T,typename P1::template accepted_type_for<T>::type>::value>::type>
+struct constr1<T,layout,P1,typename std::enable_if<std::is_same<T,typename P1::template accepted_type_for<T>::type>::value && !std::is_const<T>::value>::type>
 {
     static_assert(is_pattern<P1>::value, "Argument P1 of constructor-pattern must be a pattern");
 
@@ -217,6 +217,55 @@ struct constr1<T,layout,P1,typename std::enable_if<std::is_same<T,typename P1::t
     ///@}
 
     P1 m_p1; ///< Pattern representing 1st operand
+};
+
+// 'overload' for const T
+template <typename T, size_t layout, typename P1>
+struct constr1<T, layout, P1, typename std::enable_if<std::is_same<T, typename P1::template accepted_type_for<T>::type>::value && std::is_const<T>::value>::type>
+{
+  static_assert(is_pattern<P1>::value, "Argument P1 of constructor-pattern must be a pattern");
+
+  /// Type function returning a type that will be accepted by the pattern for
+  /// a given subject type S. We use type function instead of an associated 
+  /// type, because there is no a single accepted type for a #wildcard pattern
+  /// for example. Requirement of #Pattern concept.
+  template <typename S> struct accepted_type_for { typedef T type; };
+
+  constexpr explicit constr1(const P1&  p1)       noexcept_when(std::is_nothrow_copy_constructible<P1>::value) : m_p1(p1) {}
+  constexpr explicit constr1(P1&& p1)       noexcept_when(std::is_nothrow_move_constructible<P1>::value) : m_p1(std::move(p1)) {}
+
+  constexpr          constr1(const constr1&  src) noexcept_when(std::is_nothrow_copy_constructible<P1>::value) : m_p1(src.m_p1) {} ///< Copy constructor
+  constexpr          constr1(constr1&& src) noexcept_when(std::is_nothrow_move_constructible<P1>::value) : m_p1(std::move(src.m_p1)) {} ///< Move constructor
+
+  constr1& operator=(const constr1&) XTL_DELETED; ///< Assignment is not allowed for this class
+
+                                                  /// Helper function that does the actual structural matching once we have
+                                                  /// uncovered a value of the target type. Applies to a const argument!
+
+  /// Helper function that does the actual structural matching once we have
+  /// uncovered a value of the target type. Applies to a non-const argument!
+  T* match_structure(T* t) const
+  {
+    XTL_ASSERT(t); // This helper function assumes t cannot be a nullptr
+    return m_p1(*t) ? t : 0;
+  }
+
+  ///@{
+  /// Constructor patterns can be uniformly matched against pointers and 
+  /// references to polymorphic objects. This uniformity is needed for 
+  /// composability of constructor patterns, since application operators
+  /// return a pointer to indicate whether pattern was accepted or refuted.
+  /// The following set of application operators distinguishes:
+  ///  - the arguments passed by reference from those passed by pointers
+  ///  - whether the target type matches the subject type (to avoid dynamic_cast)
+  ///  - const from non-const arguments to propagate constness further.
+  template <typename U>       T* operator()(U* u) const { return operator()(dynamic_cast<      T*>(u)); }
+  template <typename U>       T* operator()(U& u) const { return operator()(&u); }
+  T* operator()(T* t) const { return t ? match_structure(t) : 0; }
+  T* operator()(T& t) const { return match_structure(&t); } // and don't check it here to save on performance
+                                                            ///@}
+
+  P1 m_p1; ///< Pattern representing 1st operand
 };
 
 //------------------------------------------------------------------------------
