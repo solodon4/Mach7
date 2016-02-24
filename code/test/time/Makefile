@@ -60,8 +60,8 @@ OS       = $(shell uname -s)
 #CXX      = g++-4.8
 LIBS     = -lstdc++
 INCLUDES = -I../../mach7
-ifneq (,$(BOOST))
-	INCLUDES += -I$(BOOST)
+ifneq (,$(BOOST_ROOT))
+	INCLUDES += -I$(BOOST_ROOT)
 endif
 CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
 ifneq (,$(findstring g++,$(CXX)))
