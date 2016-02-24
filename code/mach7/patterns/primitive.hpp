@@ -251,6 +251,12 @@ struct var : transparent_wrapper<T>
     /// Helper conversion operator to let the variable be used in some places
     /// where T was allowed
     operator const result_type&() const noexcept { return base::value(); }
+    
+    /// Helper operator to access the subobjects of the variable
+    const result_type* operator->() const noexcept { return &base::value(); }
+
+    /// Helper operator to access the subobjects of the variable
+    const result_type& operator*() const noexcept { return base::value(); }
 };
 
 //------------------------------------------------------------------------------
@@ -380,7 +386,13 @@ struct var<T&>
     /// \note If you get assertion here, it means you are trying to use the 
     ///       value of this reference variable before it was bound (i.e. used 
     ///       in pattern matching context to get its value).
-    operator const result_type&() const noexcept { XTL_ASSERT(m_value); return *m_value; }
+    operator T&() const noexcept { XTL_ASSERT(m_value); return *m_value; }
+
+    /// Helper operator to access the subobjects of the variable
+    T* operator->() const noexcept { XTL_ASSERT(m_value); return m_value; }
+
+    /// Helper operator to access the subobjects of the variable
+    T& operator*() const noexcept { XTL_ASSERT(m_value); return *m_value; }
 
     /// Member that will hold matching value in case of successful matching
     mutable T* m_value;
