@@ -323,8 +323,8 @@ inline auto operator<<(std::ostream& os, E&& e) throw()
     template <typename T,  typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(const mch::expr<F1,E1,E2>& e, const mch::value<T>&       c) noexcept -> XTL_RETURN(mch::make_expr<FF>(e,c))                       \
     template <typename T,  typename F1, typename E1, typename E2> inline auto XTL_CONCATENATE(operator,S)(const mch::value<T>&       c, const mch::expr<F1,E1,E2>& e) noexcept -> XTL_RETURN(mch::make_expr<FF>(c,e))
 #endif
-//#include "../loop_over_operators.hpp"
-#include "../operators_preprocessed.hpp"
+//#include "loop_over_operators.hpp"
+#include "operators_preprocessed.hpp"
 #undef  FOR_EACH_BINARY_OPERATOR
 #undef  FOR_EACH_UNARY_OPERATOR
 ///@}

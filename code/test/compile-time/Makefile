@@ -55,7 +55,7 @@
 GCC_COLORS=always
 OS       = $(shell uname -s)
 LIBS     = -lstdc++
-INCLUDES = -I../.. -I../../test/time 
+INCLUDES = -I../../mach7 -I../../test/time 
 ifneq (,$(BOOST))
 	INCLUDES += -I$(BOOST)
 endif
@@ -63,7 +63,8 @@ CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -time -s -O2 -DNDEBUG -DXTL_MESSA
 #-fno-omit-frame-pointer \
 #-fno-rtti
 ifneq (,$(findstring g++,$(CXX)))
-	CXXFLAGS += -Wno-vla -ftrack-macro-expansion=4 -fdiagnostics-show-option -D__NO_INLINE__ 
+	CXXFLAGS += -Wno-vla -ftrack-macro-expansion=4 -fdiagnostics-show-option
+# Workaround for MinGW bug: -D__NO_INLINE__
 endif
 ifneq (,$(findstring clang,$(CXX)))
 	CXXFLAGS += -fmacro-backtrace-limit=0 -ftemplate-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct

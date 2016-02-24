@@ -59,13 +59,14 @@ GCC_COLORS=always
 OS       = $(shell uname -s)
 #CXX      = g++-4.8
 LIBS     = -lstdc++
-INCLUDES = -I../..
+INCLUDES = -I../../mach7
 ifneq (,$(BOOST))
 	INCLUDES += -I$(BOOST)
 endif
 CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
 ifneq (,$(findstring g++,$(CXX)))
 	CXXFLAGS += -Wno-vla -ftrack-macro-expansion=4 -fdiagnostics-show-option
+# Workaround for MinGW bug: -D__NO_INLINE__
 endif
 ifneq (,$(findstring clang,$(CXX)))
 	CXXFLAGS += -fmacro-backtrace-limit=0 -ftemplate-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct
