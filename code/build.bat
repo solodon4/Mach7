@@ -266,8 +266,10 @@ goto TEST_ARG
 
 :TEST_ALL ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-rem User didn't provide any arguments, assume all .exe files in the current folder
+rem User didn't provide any arguments, assume all .exe files in test sub-folder
+cd /D "%MACH7_ROOT%test\unit"
 for %%i in (*.exe) do call :SUB_TEST_FILE "%%i"
+cd /D "%CurDir%"
 goto END
 
 :SUB_TEST_FILE :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
