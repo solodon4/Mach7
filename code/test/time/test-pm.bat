@@ -57,7 +57,7 @@ echo Version 1.0 from 2011-04-30 >> %logfile%
 echo. >> %logfile%
 echo Test from %date% at %time% >> %logfile%
 
-set OPTIONS=-I"%BOOST%" -Wall -O3 -DNDEBUG -std=c++0x -DNO_RANDOMIZATION
+set OPTIONS=-I"%BOOST_ROOT%" -Wall -O3 -DNDEBUG -std=c++0x -DNO_RANDOMIZATION
 
 if "%1" == "" goto TEST_ALL
 

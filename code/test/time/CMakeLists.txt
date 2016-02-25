@@ -84,7 +84,7 @@ endforeach(program)
 set(Boost_USE_STATIC_LIBS OFF) 
 set(Boost_USE_MULTITHREADED OFF)  
 set(Boost_USE_STATIC_RUNTIME OFF) 
-find_package(Boost 1.54.0 QUIET COMPONENTS any variant HINTS $ENV{BOOST}) 
+find_package(Boost 1.54.0 QUIET COMPONENTS any variant HINTS $ENV{BOOST_ROOT}) 
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
