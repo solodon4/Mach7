@@ -60,8 +60,8 @@ OS       = $(shell uname -s)
 #CXX      = g++-4.8
 LIBS     = -lstdc++
 INCLUDES =
-ifneq (,$(BOOST))
-	INCLUDES += -I$(BOOST)
+ifneq (,$(BOOST_ROOT))
+	INCLUDES += -I$(BOOST_ROOT)
 endif
 CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
 ifneq (,$(findstring g++,$(CXX)))
@@ -164,11 +164,11 @@ ver:
 
 # A rule to build all the timing tests
 time:
-	$(MAKE) -C test/time CXX=$(CXX) BOOST=$(BOOST)
+	$(MAKE) -C test/time CXX=$(CXX) BOOST_ROOT=$(BOOST_ROOT)
 
 # A rule to build all the unit tests
 unit:
-	$(MAKE) -C test/unit CXX=$(CXX) BOOST=$(BOOST)
+	$(MAKE) -C test/unit CXX=$(CXX) BOOST_ROOT=$(BOOST_ROOT)
 
 # A rule to clean all the intermediates and targets
 clean:

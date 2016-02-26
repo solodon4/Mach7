@@ -56,8 +56,8 @@ GCC_COLORS=always
 OS       = $(shell uname -s)
 LIBS     = -lstdc++
 INCLUDES = -I../../mach7 -I../../test/time 
-ifneq (,$(BOOST))
-	INCLUDES += -I$(BOOST)
+ifneq (,$(BOOST_ROOT))
+	INCLUDES += -I$(BOOST_ROOT)
 endif
 CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -time -s -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
 #-fno-omit-frame-pointer \
