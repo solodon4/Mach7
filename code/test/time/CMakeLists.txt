@@ -29,6 +29,7 @@ numbers
 numbers-new
 ocaml_cmp
 ocaml_cmp_kind
+shape2
 shape3
 synthetic
 synthetic_dynamic_cast
