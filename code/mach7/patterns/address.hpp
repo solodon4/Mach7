@@ -45,9 +45,19 @@
 #pragma once
 
 #include "primitive.hpp" // FIX: Ideally this should be common.hpp, but GCC seem to disagree: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=55460
+#include <memory>
 
 namespace mch ///< Mach7 library namespace
 {
+
+template <typename T>
+struct is_dereferencable_proxy : std::is_pointer<T> {};
+
+template <typename T>
+struct is_dereferencable_proxy<std::unique_ptr<T>> : std::true_type {};
+
+template <typename T>
+struct is_dereferencable_proxy<std::shared_ptr<T>> : std::true_type {};
 
 //------------------------------------------------------------------------------
 
@@ -71,8 +81,8 @@ struct address
     template <typename S> struct accepted_type_for; // Intentionally no definition
     template <typename S> struct accepted_type_for<S*> { typedef typename P1::template accepted_type_for<S>::type* type; };
 
-    template <typename T> bool operator()(const T* t) const { return t && m_p1(*t); }
-    template <typename T> bool operator()(      T* t) const { return t && m_p1(*t); }
+    template <typename T, typename std::enable_if<is_dereferencable_proxy<typename std::decay<T>::type>::value>::type* = nullptr>
+    bool operator()(T&& t) const { return t && m_p1(*std::forward<T>(t)); }
 
     P1 m_p1;
 };
