@@ -11,8 +11,7 @@
 ///
 
 #include <iostream>
-#include "type_switchN-patterns.hpp"
-#include "patterns/all.hpp"
+#include <mach7/type_switchN-patterns.hpp>
 #include "testutils.hpp"
 
 //------------------------------------------------------------------------------

@@ -11,8 +11,8 @@
 ///
 
 #include <iostream>
-#include "type_switchN-patterns.hpp"
-#include "patterns/all.hpp"
+#include <mach7/type_switchN-patterns.hpp> // Support for N-ary Match statement on patterns
+#include <mach7/patterns/primitive.hpp>    // Wildcard, variable and value patterns
 #include "testutils.hpp"
 
 //------------------------------------------------------------------------------
