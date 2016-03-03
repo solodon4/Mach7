@@ -43,7 +43,7 @@
 ///
 
 #include "testshape.hpp"
-#include "match.hpp"
+#include <mach7/match.hpp>                 // Support for Match statement
 
 //------------------------------------------------------------------------------
 

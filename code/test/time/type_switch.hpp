@@ -49,8 +49,8 @@
 
 #pragma once
 
-#include "vtblmap.hpp"
-#include "metatools.hpp"
+#include <mach7/vtblmap.hpp>               // Support for vtbl-pointer map
+#include <mach7/metatools.hpp>             // Support for various meta-programming tools used by Mach7 
 
 //------------------------------------------------------------------------------
 

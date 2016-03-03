@@ -47,7 +47,7 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
-#include "match.hpp"
+#include <mach7/match.hpp> // Support for Match statement
 #include "timing.hpp"
 
 #if !defined(NUMBER_OF_VFUNCS)

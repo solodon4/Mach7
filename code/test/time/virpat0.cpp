@@ -44,7 +44,7 @@
 
 #include <utility>
 #include <ostream>
-#include "config.hpp"
+#include <mach7/config.hpp>                // Mach7 configuration
 #include "timing.hpp"
 
 //------------------------------------------------------------------------------

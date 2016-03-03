@@ -45,7 +45,7 @@
 #define XTL_TIMING_METHOD_3
 
 #include "testshape.hpp"
-#include "match.hpp"
+#include <mach7/match.hpp>
 #include "timing.hpp"
 
 //------------------------------------------------------------------------------

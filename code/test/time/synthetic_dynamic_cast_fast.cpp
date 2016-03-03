@@ -43,8 +43,8 @@
 ///
 
 #include "testshape.hpp"
-#include "config.hpp"
-#include "ptrtools.hpp"
+#include <mach7/config.hpp>                // Mach7 configuration
+#include <mach7/ptrtools.hpp>              // Mach7 pointer tools
 
 //------------------------------------------------------------------------------
 

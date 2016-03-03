@@ -43,7 +43,7 @@
 ///
 
 #include "testshape.hpp"
-#include "type_switchN.hpp"
+#include <mach7/type_switchN.hpp>          // Support for N-ary type switch statement
 #include "testrepeat.hpp"
 
 #undef  NUMBER_OF_DERIVED

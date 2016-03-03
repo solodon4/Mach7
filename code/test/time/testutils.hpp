@@ -56,9 +56,9 @@
 #include <string>
 #include <typeinfo>
 #include <vector>
-#include "config.hpp"
-#include "metatools.hpp"    // Support of mch::underlying<T>::type
-#include "timing.hpp"       // Support of get_time_stamp and get_frequency
+#include <mach7/config.hpp>                // Mach7 configuration
+#include <mach7/metatools.hpp>             // Support of mch::underlying<T>::type
+#include "timing.hpp"                      // Support of get_time_stamp and get_frequency
 
 #define NO_RANDOMIZATION
 

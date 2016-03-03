@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 3.2.0 FATAL_ERROR)
 # endforeach()
 
 # To access Mach7 library headers
-include_directories(../../mach7)
+include_directories(../..)
 
 # CMake would infer the options to pass to the compiler to ensure these features are supported (e.g. proper C++ version)
 set(needed_features

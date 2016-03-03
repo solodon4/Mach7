@@ -42,8 +42,8 @@
 /// \see https://github.com/solodon4/SELL
 ///
 
-#include "match.hpp"                // Support for Match statement
-#include "patterns/constructor.hpp" // Support for constructor patterns
+#include <mach7/match.hpp>                 // Support for Match statement
+#include <mach7/patterns/constructor.hpp>  // Support for constructor patterns
 //#define XTL_TIMING_METHOD_2 1
 #include "timing.hpp"
 

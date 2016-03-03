@@ -57,9 +57,9 @@ fib (2*n+1) = (fib(n+1))^2 + (fib n   )^2
 
 #define XTL_DEFAULT_SYNTAX 'S'
 
-#include "type_switchN-patterns.hpp" // Support for Match statement
-#include "patterns/constructor.hpp"  // Support for constructor patterns
-#include "patterns/n+k.hpp"          // Support for n+k patterns
+#include <mach7/type_switchN-patterns.hpp> // Support for Match statement
+#include <mach7/patterns/constructor.hpp>  // Support for constructor patterns
+#include <mach7/patterns/n+k.hpp>          // Support for n+k patterns
 
 #include <math.h>
 #include <iostream>

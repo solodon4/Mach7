@@ -261,7 +261,7 @@ struct var_of : expression_pattern
 /// which positions. It is intentionally left undefined as user will have to
 /// provide specializations for his hierarchy.
 //template <typename type_being_matched> struct bindings;
-#include "patterns/bindings.hpp"
+#include <mach7/patterns/bindings.hpp>     // Mach7 support for bindings on arbitrary UDT
 
 //------------------------------------------------------------------------------
 

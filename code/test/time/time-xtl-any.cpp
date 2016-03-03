@@ -44,9 +44,9 @@
 
 #include <iostream>
 #include "testutils.hpp"
-#include "type_switchN-patterns-xtl.hpp"
-#include "patterns/constructor.hpp"
-#include "adapters/boost/adapt_boost_any.hpp"
+#include <mach7/type_switchN-patterns-xtl.hpp> // Support for N-ary Match statement on patterns with arbitrary subtyping relation
+#include <mach7/patterns/constructor.hpp>      // Support for constructor patterns
+#include <mach7/adapters/boost/adapt_boost_any.hpp> // Mach7 adaptors for boost::any
 
 struct P { int m_p; P(int i = 0) : m_p(i) {} };
 struct Q { int m_q; Q(int i = 0) : m_q(i) {} };

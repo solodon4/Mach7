@@ -43,7 +43,7 @@
 ///
 
 #include "testshape.hpp"
-#include "config.hpp"
+#include <mach7/config.hpp>
 
 //------------------------------------------------------------------------------
 

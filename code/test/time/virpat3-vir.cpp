@@ -44,7 +44,7 @@
 
 #include <iostream>
 #include "virpat.hpp"
-#include "config.hpp"
+#include <mach7/config.hpp>                // Mach7 configuration
 #include "timing.hpp"
 
 //------------------------------------------------------------------------------

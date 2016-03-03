@@ -44,7 +44,7 @@
 
 #include "testshape.hpp"
 #include "testutils.hpp"
-#include "type_switchN.hpp"
+#include <mach7/type_switchN.hpp>          // Support for N-ary type switch statement
 
 //------------------------------------------------------------------------------
 
