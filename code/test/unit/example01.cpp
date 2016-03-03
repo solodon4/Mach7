@@ -43,7 +43,7 @@
 ///
 
 #include <utility>
-#include "match.hpp"                // Support for Match statement
+#include <mach7/match.hpp>                 // Support for Match statement
 
 //------------------------------------------------------------------------------
 

@@ -51,7 +51,7 @@
 #include <utility>
 #include <vector>
 
-#include "config.hpp"
+#include <mach7/config.hpp>                // Mach7 configuration
 
 //------------------------------------------------------------------------------
 
@@ -343,9 +343,10 @@ inline Comment*   K(const char*  v) { return new Comment(v); }
 
 //------------------------------------------------------------------------------
 
-#include "type_switchN-patterns.hpp"
-#include "patterns/constructor.hpp"
-#include "patterns/primitive.hpp"
+#include <mach7/type_switchN-patterns.hpp> // Support for N-ary Match statement on patterns
+#include <mach7/patterns/bindings.hpp>     // Mach7 support for bindings on arbitrary UDT
+#include <mach7/patterns/constructor.hpp>  // Support for constructor patterns
+#include <mach7/patterns/primitive.hpp>    // Wildcard, variable and value patterns
 
 //------------------------------------------------------------------------------
 

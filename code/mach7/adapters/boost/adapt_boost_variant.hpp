@@ -44,8 +44,8 @@
 
 #pragma once
 
-#include "boost/variant.hpp"
-#include "../../type_switchN-patterns-xtl.hpp"
+#include <boost/variant.hpp>
+#include <mach7/type_switchN-patterns-xtl.hpp> // Support for N-ary Match statement on patterns with arbitrary subtyping relation
 
 //----------------------------------------------------------------------------------------------------------------------
 

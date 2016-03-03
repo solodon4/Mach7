@@ -42,7 +42,7 @@
 /// \see https://github.com/solodon4/SELL
 ///
 
-#include "patterns/all.hpp"
+#include <mach7/patterns/all.hpp>
 #include <iostream>
 #include <typeinfo>
 

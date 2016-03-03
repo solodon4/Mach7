@@ -44,7 +44,7 @@
 
 #include <iostream>
 #include <iomanip>
-#include "memoized_cast.hpp"
+#include <mach7/memoized_cast.hpp>         // Support for memoized dynamic_cast
 
 #define INHERIT_VIRTUALLY virtual
 

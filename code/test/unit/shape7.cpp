@@ -42,8 +42,9 @@
 /// \see https://github.com/solodon4/SELL
 ///
 
-#include "match.hpp"                // Support for Match statement
-#include "patterns/primitive.hpp"   // Support for primitive patterns
+#include <mach7/match.hpp>                 // Support for Match statement
+#include <mach7/patterns/primitive.hpp>    // Wildcard, variable and value patterns
+
 #include <iostream>
 #include <utility>
 #include <vector>

@@ -12,8 +12,8 @@
 /// At the moment some of the nodes do not have their own kind, so we use polymorphic encoding
 #define XTL_DEFAULT_SYNTAX 'P'
 
-#include "match.hpp"
-#include <ipr/interface>  // Pivot interfaces
+#include <mach7/match.hpp>                 // Support for Match statement
+#include <ipr/interface>                   // Pivot interfaces
 
 using namespace ipr;
 

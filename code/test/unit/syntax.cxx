@@ -42,10 +42,12 @@
 /// \see https://github.com/solodon4/SELL
 ///
 
-#include "match.hpp"                // Support for Match statement
-#include "patterns/combinators.hpp" // Support for pattern combinators
-#include "patterns/constructor.hpp" // Support for constructor patterns
-#include "patterns/guard.hpp"       // Support for guard patterns
+#include <mach7/match.hpp>                 // Support for Match statement
+#include <mach7/patterns/bindings.hpp>     // Mach7 support for bindings on arbitrary UDT
+#include <mach7/patterns/combinators.hpp>  // Support for pattern combinators
+#include <mach7/patterns/constructor.hpp>  // Support for constructor patterns
+#include <mach7/patterns/guard.hpp>        // Support for guard patterns
+#include <mach7/patterns/primitive.hpp>    // Wildcard, variable and value patterns
 
 #include <cstdlib>
 #include <iostream>
@@ -366,7 +368,7 @@ size_t do_match_2_que(const Shape& s, size_t)
 //------------------------------------------------------------------------------
 
 // Clang wouldn't see operator<< otherwise if we include this earlier
-#include "patterns/n+k.hpp"         // Support for n+k patterns
+#include <mach7/patterns/n+k.hpp>          // Generalized n+k patterns
 
 //------------------------------------------------------------------------------
                           

@@ -44,7 +44,7 @@
 
 #pragma once
 
-#include "patterns/bindings.hpp"
+#include <mach7/patterns/bindings.hpp>     // Mach7 support for bindings on arbitrary UDT
 #include "shape.hpp"
 
 // Members binding for Shape hierarchy

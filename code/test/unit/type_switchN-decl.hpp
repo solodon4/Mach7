@@ -49,8 +49,8 @@
 
 #pragma once
 
-#include "vtblmap4.hpp"
-#include "metatools.hpp"
+#include <mach7/metatools.hpp>             // Support for various meta-programming tools used by Mach7
+#include <mach7/vtblmap4.hpp>              // Support for vtbl-pointer map
 
 namespace mch ///< Mach7 library namespace
 {

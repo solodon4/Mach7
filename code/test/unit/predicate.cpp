@@ -42,8 +42,11 @@
 /// \see https://github.com/solodon4/SELL
 ///
 
-#include "type_switchN-patterns.hpp"
-#include "patterns/all.hpp"
+#include <mach7/type_switchN-patterns.hpp> // Support for N-ary Match statement on patterns
+#include <mach7/patterns/n+k.hpp>          // Generalized n+k patterns
+#include <mach7/patterns/predicate.hpp>    // Support for predicate patterns
+#include <mach7/patterns/primitive.hpp>    // Wildcard, variable and value patterns
+
 #include <iostream>
 
 bool is_odd(int a)  { return a%2==1; } 

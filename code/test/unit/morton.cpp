@@ -44,7 +44,8 @@
 
 #include <iostream>
 #include <iomanip>
-#include "ptrtools.hpp"
+#include <mach7/ptrtools.hpp>              // Mach7 pointer tools
+
 
 template <typename T, size_t N>
 inline T my_interleave(const T (&vtbl)[N])

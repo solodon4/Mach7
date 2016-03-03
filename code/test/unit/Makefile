@@ -59,7 +59,7 @@ GCC_COLORS=always
 OS       = $(shell uname -s)
 #CXX      = g++-4.8
 LIBS     = -lstdc++
-INCLUDES = -I../../mach7
+INCLUDES = -I../..
 ifneq (,$(BOOST_ROOT))
 	INCLUDES += -I$(BOOST_ROOT)
 endif

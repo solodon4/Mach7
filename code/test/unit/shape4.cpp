@@ -44,7 +44,7 @@
 
 #include <iostream>
 #include <utility>
-#include "match.hpp"
+#include <mach7/match.hpp>                 // Support for Match statement
 
 typedef std::pair<double,double> loc;
 struct cloc { double first; double second; };

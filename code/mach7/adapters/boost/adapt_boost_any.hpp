@@ -43,9 +43,8 @@
 ///
 #pragma once
 
-#include "boost/any.hpp"
-#include "../../type_switchN-patterns-xtl.hpp"
-
+#include <boost/any.hpp>
+#include <mach7/type_switchN-patterns-xtl.hpp> // Support for N-ary Match statement on patterns with arbitrary subtyping relation
 
 // NOTE: We declare vtbl_of in boost namespace because we want it to be found
 //       via two-phase name lookup due to its argument boost::variant

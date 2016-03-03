@@ -79,8 +79,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
-#include "ptrtools.hpp"  // Helper functions to work with pointers
-#include "config.hpp"    // Various compiler/platform dependent macros
+#include <mach7/config.hpp>                // Mach7 configuration
+#include <mach7/ptrtools.hpp>              // Mach7 pointer tools
 
 #if XTL_DUMP_PERFORMANCE
 // For print out purposes only

@@ -45,8 +45,7 @@
 
 #include <iostream>
 #include <iomanip>
-
-#include "type_switchN.hpp"
+#include <mach7/type_switchN.hpp>          // Support for N-ary type switch statement
 
 // NOTE: This doesn't compile only from MSVC IDE, if we compile it from command line, it is also accepted.
 #ifdef _MSC_VER

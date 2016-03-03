@@ -50,7 +50,7 @@
 #pragma once
 
 #include "vtblmap3st-2.hpp"
-#include "metatools.hpp"
+#include <mach7/metatools.hpp>             // Support for various meta-programming tools used by Mach7
 
 //------------------------------------------------------------------------------
 

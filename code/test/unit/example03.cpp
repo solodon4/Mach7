@@ -47,7 +47,7 @@
 // Enable declarations in case clauses, which are disabled by default
 #define XTL_CLAUSE_DECL 1
 
-#include "match.hpp"                // Support for Match statement
+#include <mach7/match.hpp>                 // Support for Match statement
 
 //------------------------------------------------------------------------------
 

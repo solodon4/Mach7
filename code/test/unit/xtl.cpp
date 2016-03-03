@@ -44,10 +44,12 @@
 ///
 
 #include <iostream>
-#include "boost/variant.hpp"
-#include "type_switchN-patterns-xtl.hpp"
-#include "patterns/all.hpp"
-#include "adapters/boost/adapt_boost_variant.hpp"
+#include <boost/variant.hpp>
+
+#include <mach7/type_switchN-patterns-xtl.hpp> // Support for N-ary Match statement on patterns with arbitrary subtyping relation
+#include <mach7/adapters/boost/adapt_boost_variant.hpp> // Mach7 adapters for boost::variant
+#include <mach7/patterns/constructor.hpp>  // Support for constructor patterns
+#include <mach7/patterns/primitive.hpp>    // Wildcard, variable and value patterns
 
 //----------------------------------------------------------------------------------------------------------------------
 

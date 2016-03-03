@@ -52,7 +52,7 @@
 #include <utility>
 #include <vector>
 
-#include "config.hpp"
+#include <mach7/config.hpp>                // Mach7 configuration
 
 #if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && (XTL_GCC_VERSION >= 40600)
     #define XTL_RANGE_FOR 1
@@ -351,16 +351,17 @@ inline Comment*   K(const char*  v) { return new Comment(v); }
 
 //------------------------------------------------------------------------------
 
-#include "type_switchN-patterns.hpp"
-#include "patterns/address.hpp"        // Address pattern
-#include "patterns/combinators.hpp"    // Pattern combinators
-#include "patterns/constructor.hpp"    // Constructor pattern
-#include "patterns/equivalence.hpp"    // Equivalence pattern
-#include "patterns/guard.hpp"          // Guard pattern
-#include "patterns/n+k.hpp"            // n+k pattern
-#include "patterns/primitive.hpp"      // Value, Variable and Wildcard patterns
-#include "patterns/quantifiers.hpp"    // Quantifiers
-//#include "patterns/sequence.hpp"       // Sequence pattern
+#include <mach7/type_switchN-patterns.hpp> // Support for N-ary Match statement on patterns
+#include <mach7/patterns/address.hpp>      // Address and dereference combinators
+#include <mach7/patterns/bindings.hpp>     // Mach7 support for bindings on arbitrary UDT
+#include <mach7/patterns/combinators.hpp>  // Support for pattern combinators &&, || and !
+#include <mach7/patterns/constructor.hpp>  // Support for constructor patterns
+#include <mach7/patterns/equivalence.hpp>  // Equivalence combinator +
+#include <mach7/patterns/guard.hpp>        // Support for guard patterns
+#include <mach7/patterns/n+k.hpp>          // Generalized n+k patterns
+#include <mach7/patterns/primitive.hpp>    // Wildcard, variable and value patterns
+#include <mach7/patterns/quantifiers.hpp>  // Support for quantifier combinators
+#include <mach7/patterns/sequence.hpp>     // Sequence pattern
 
 //------------------------------------------------------------------------------
 

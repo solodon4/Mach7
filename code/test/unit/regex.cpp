@@ -42,11 +42,12 @@
 /// \see https://github.com/solodon4/SELL
 ///
 
-#include "match.hpp"                // Support for Match statement
-#include "patterns/combinators.hpp" // Support for pattern combinators
-#include "patterns/guard.hpp"       // Support for guard patterns
-#include "patterns/n+k.hpp"         // Support for n+k patterns
-#include "patterns/regex.hpp"       // Support for regular expression patterns
+#include <mach7/match.hpp>                 // Support for Match statement
+#include <mach7/patterns/combinators.hpp>  // Support for pattern combinators &&, || and !
+#include <mach7/patterns/guard.hpp>        // Support for guard patterns
+#include <mach7/patterns/n+k.hpp>          // Generalized n+k patterns
+#include <mach7/patterns/primitive.hpp>    // Wildcard, variable and value patterns
+#include <mach7/patterns/regex.hpp>        // Regular expression patterns
 
 #include <iostream>
 
