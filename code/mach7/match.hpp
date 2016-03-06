@@ -293,8 +293,8 @@ template <class T> inline void ignore_unused_warning(T const&) {}
         XTL_UNUSED(matched);
 
 #define XTL_SUBCLAUSE_FIRST           XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(false)) XTL_NON_USE_BRACES_ONLY({)
-#define XTL_SUBCLAUSE_OPEN(T,...)                                     XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true,   XTL_LIKELY(mch::C<target_type,target_layout>(__VA_ARGS__).match_structure(matched) != 0))) {
-#define XTL_SUBCLAUSE_CONTINUE(...) } XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(mch::C<target_type,target_layout>(__VA_ARGS__).match_structure(matched) != 0))) {
+#define XTL_SUBCLAUSE_OPEN(T,...)                                     XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true,   XTL_LIKELY(mch::C<target_type,target_layout>(__VA_ARGS__).match_structure(matched) != nullptr))) {
+#define XTL_SUBCLAUSE_CONTINUE(...) } XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(mch::C<target_type,target_layout>(__VA_ARGS__).match_structure(matched) != nullptr))) {
 //#define XTL_SUBCLAUSE_PATTERN(...)} XTL_NON_FALL_THROUGH_ONLY(else) XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(mch::filter(__VA_ARGS__)(*matched)))) {
 #define XTL_SUBCLAUSE_PATTERN(...)                                    XTL_STATIC_IF(XTL_IF(XTL_IS_EMPTY(__VA_ARGS__), true, XTL_UNLIKELY(mch::filter(__VA_ARGS__)(*matched)))) {
 #define XTL_SUBCLAUSE_CLOSE         }                            XTL_NON_FALL_THROUGH_ONLY(XTL_STATIC_IF(is_inside_case_clause) break;)
@@ -401,7 +401,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
             XTL_CLAUSE_COMMON(C);                                              \
             enum { target_label = XTL_COUNTER-__base_counter };                \
             __casted_ptr = dynamic_cast<const target_type*>(subject_ptr);      \
-            if (XTL_UNLIKELY(__casted_ptr != 0))                               \
+            if (XTL_UNLIKELY(__casted_ptr != nullptr))                         \
             {                                                                  \
                 if (XTL_LIKELY((__switch_info.target == 0)))                   \
                 {                                                              \
