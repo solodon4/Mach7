@@ -45,18 +45,27 @@
 
 #pragma once
 
-#include <type_traits>
-#include <utility>
-#include "config.hpp"	// To emulate some of the language features on old compilers
+#include <cstddef>      // std::nullptr_t
+#include <type_traits>  // std::enable_if
+//#include <utility>
+//#include "config.hpp"	// To emulate some of the language features on old compilers
 
 namespace xtl
 {
     template <class T, class U, class C = void> struct is_subtype : std::is_same<T,U> {};
 
-    template <class T, class S> struct is_subtype<const S*, const T*> : is_subtype<S,T> {};
-    template <class T, class S> struct is_subtype<      S*, const T*> : is_subtype<S,T> {};
-    template <class T, class S> struct is_subtype<const S*,       T*> : std::false_type {};
-    template <class T, class S> struct is_subtype<      S*,       T*> : is_subtype<S,T> {};
+    template <class T>          struct is_subtype<const std::nullptr_t, const T*> : std::true_type {};
+    template <class T>          struct is_subtype<const std::nullptr_t,       T*> : std::true_type {};
+    template <class T>          struct is_subtype<      std::nullptr_t, const T*> : std::true_type {};
+    template <class T>          struct is_subtype<      std::nullptr_t,       T*> : std::true_type {};
+    template <class S>          struct is_subtype<const S*, const void*> : std::true_type  {};
+    template <class S>          struct is_subtype<      S*, const void*> : std::true_type  {};
+    template <class S>          struct is_subtype<const S*,       void*> : std::false_type {};
+    template <class S>          struct is_subtype<      S*,       void*> : std::true_type  {};
+    template <class S, class T> struct is_subtype<const S*, const    T*> : is_subtype<S,T> {};
+    template <class S, class T> struct is_subtype<      S*, const    T*> : is_subtype<S,T> {};
+    template <class S, class T> struct is_subtype<const S*,          T*> : std::false_type {};
+    template <class S, class T> struct is_subtype<      S*,          T*> : is_subtype<S,T> {};
 
     // Derived class is a subtype of a base class
     template <class D, class B>

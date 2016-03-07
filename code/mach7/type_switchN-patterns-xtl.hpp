@@ -49,8 +49,7 @@
 
 #pragma once
 
-#include "xtl.hpp"     // Support for is_subtype etc.
-
+#include <xtl/xtl.hpp>   // XTL subtyping definitions
 #include "vtblmap4.hpp"
 #include "metatools.hpp"
 
