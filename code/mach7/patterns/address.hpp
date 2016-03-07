@@ -45,6 +45,7 @@
 #pragma once
 
 #include "primitive.hpp" // FIX: Ideally this should be common.hpp, but GCC seem to disagree: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=55460
+#include <memory>
 
 namespace mch ///< Mach7 library namespace
 {
@@ -70,9 +71,12 @@ struct address
     /// for example. Requirement of #Pattern concept.
     template <typename S> struct accepted_type_for; // Intentionally no definition
     template <typename S> struct accepted_type_for<S*> { typedef typename P1::template accepted_type_for<S>::type* type; };
+    template <typename S> struct accepted_type_for<std::unique_ptr<S>> { typedef std::unique_ptr<typename P1::template accepted_type_for<S>::type> type; };
+    template <typename S> struct accepted_type_for<std::shared_ptr<S>> { typedef std::shared_ptr<typename P1::template accepted_type_for<S>::type> type; };
 
-    template <typename T> bool operator()(const T* t) const { return t && m_p1(*t); }
-    template <typename T> bool operator()(      T* t) const { return t && m_p1(*t); }
+    template <typename T> bool operator()(T* t) const { return t && m_p1(*t); }
+    template <typename T> bool operator()(std::unique_ptr<T> const& t) const { return t && m_p1(*t); }
+    template <typename T> bool operator()(std::shared_ptr<T> const& t) const { return t && m_p1(*t); }
 
     P1 m_p1;
 };
