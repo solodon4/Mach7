@@ -1,8 +1,7 @@
 //
-//  Mach7: Pattern Matching Library for C++
+//  XTL: eXtensible Typing Library
 //
-//  Copyright 2011-2013, Texas A&M University.
-//  Copyright 2014 Yuriy Solodkyy.
+//  Copyright 2005 Texas A&M University.
 //  All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without
@@ -36,10 +35,9 @@
 /// A minimal version of the XTL library definitions required to support subtyping.
 ///
 /// \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
+/// \author Jaakko Jarvi <jarvi@cs.tamu.edu>
 ///
 /// \see https://parasol.tamu.edu/xtl/
-/// \see https://parasol.tamu.edu/mach7/
-/// \see https://github.com/solodon4/Mach7
 /// \see https://github.com/solodon4/SELL
 ///
 
@@ -47,21 +45,27 @@
 
 #include <cstddef>      // std::nullptr_t
 #include <type_traits>  // std::enable_if
-//#include <utility>
-//#include "config.hpp"	// To emulate some of the language features on old compilers
 
 namespace xtl
 {
+    // In almost all type systems that define a subtyping relation, it is reflexive (meaning A<:A for any type A)
+    // and transitive (meaning that if A<:B and B<:C then A<:C). This makes it a preorder on types.
+    // While we can't provide transitivity on the level of a library, we guarantee reflexivity.
     template <class T, class U, class C = void> struct is_subtype : std::is_same<T,U> {};
 
+    // std::nullptr_t is a subtype of all pointer types since nullptr is a value of any pointer type
     template <class T>          struct is_subtype<const std::nullptr_t, const T*> : std::true_type {};
     template <class T>          struct is_subtype<const std::nullptr_t,       T*> : std::true_type {};
     template <class T>          struct is_subtype<      std::nullptr_t, const T*> : std::true_type {};
     template <class T>          struct is_subtype<      std::nullptr_t,       T*> : std::true_type {};
+
+    // void* is a supertype of all pointer types since all pointer types are convertible to it
     template <class S>          struct is_subtype<const S*, const void*> : std::true_type  {};
     template <class S>          struct is_subtype<      S*, const void*> : std::true_type  {};
     template <class S>          struct is_subtype<const S*,       void*> : std::false_type {};
     template <class S>          struct is_subtype<      S*,       void*> : std::true_type  {};
+
+    // Two pointers are in subtyping relations when types pointed to are
     template <class S, class T> struct is_subtype<const S*, const    T*> : is_subtype<S,T> {};
     template <class S, class T> struct is_subtype<      S*, const    T*> : is_subtype<S,T> {};
     template <class S, class T> struct is_subtype<const S*,          T*> : std::false_type {};
@@ -188,4 +192,3 @@ namespace xtl
     }
 
 } // of namespace xtl
-

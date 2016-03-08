@@ -47,34 +47,40 @@
 #include <xtl/xtl.hpp>   // XTL subtyping definitions
 #include <memory>
 
-//----------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 namespace xtl
 {
+    // Establish shubtyping relationship between unique_ptr<T> <: T*
     template <class S, class T>
     struct is_subtype<std::unique_ptr<S>,T*>
     {
         static const bool value = is_subtype<S*,T*>::value;
     };
 
+    // Implement the conversion from subtype unique_ptr<T> to the super type T*
 	template <class T, class S>
     inline T* subtype_cast_impl(target<T*>, const std::unique_ptr<S>& s)
     {
         return xtl::subtype_cast<T*>(s.get());
     }
 
+    // Since nullptr is a valid value for all pointer-types, we establish the
+    // subtyping relation between nullptr_t <: unique_ptr<T> for any T
     template <class T>
     struct is_subtype<std::nullptr_t, std::unique_ptr<T>>
     {
         static const bool value = true;
     };
 
+    // Might not be needed in a real-world use, but for completeness also const nullptr_t
     template <class T>
     struct is_subtype<const std::nullptr_t, std::unique_ptr<T>>
     {
         static const bool value = true;
     };
 
+    // Implements the conversion from subtype nullptr_t to super type unique_ptr<T>
 	template <class T>
     inline std::unique_ptr<T> subtype_cast_impl(target<std::unique_ptr<T>>, const std::nullptr_t& s)
     {
@@ -82,4 +88,45 @@ namespace xtl
     }
 }
 
-//----------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+namespace xtl
+{
+    // Establish shubtyping relationship between shared_ptr<T> <: T*
+    template <class S, class T>
+    struct is_subtype<std::shared_ptr<S>,T*>
+    {
+        static const bool value = is_subtype<S*,T*>::value;
+    };
+
+    // Implement the conversion from subtype shared_ptr<T> to the super type T*
+	template <class T, class S>
+    inline T* subtype_cast_impl(target<T*>, const std::shared_ptr<S>& s)
+    {
+        return xtl::subtype_cast<T*>(s.get());
+    }
+
+    // Since nullptr is a valid value for all pointer-types, we establish the
+    // subtyping relation between nullptr_t <: shared_ptr<T> for any T
+    template <class T>
+    struct is_subtype<std::nullptr_t, std::shared_ptr<T>>
+    {
+        static const bool value = true;
+    };
+
+    // Might not be needed in a real-world use, but for completeness also const nullptr_t
+    template <class T>
+    struct is_subtype<const std::nullptr_t, std::shared_ptr<T>>
+    {
+        static const bool value = true;
+    };
+
+    // Implements the conversion from subtype nullptr_t to super type shared_ptr<T>
+	template <class T>
+    inline std::shared_ptr<T> subtype_cast_impl(target<std::shared_ptr<T>>, const std::nullptr_t& s)
+    {
+        return std::shared_ptr<T>(nullptr);
+    }
+}
+
+//------------------------------------------------------------------------------

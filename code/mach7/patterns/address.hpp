@@ -72,12 +72,6 @@ struct address
     template <typename S> struct accepted_type_for; // Intentionally no definition
     template <typename S> struct accepted_type_for<S*> { typedef typename P1::template accepted_type_for<S>::type* type; };
 
-    //template <typename T> bool operator()(const T* t) const { return t && m_p1(*t); }
-    //template <typename T> bool operator()(      T* t) const { return t && m_p1(*t); }
-
-//    template <typename T, typename std::enable_if<xtl::is_subtype<typename underlying<T>::type, const void*>::value>::type* = nullptr>
-//    bool operator()(T&& t) const { return t && m_p1(*std::forward<T>(t)); }
-
     // Address pattern only accepts pointer-like types. We don't use enable_if on this function because there is no
     // really other overloads to pick from, so we instead assert the relationship under which this method is enabled
     // in order to generate a more meaningful error message to the user.
