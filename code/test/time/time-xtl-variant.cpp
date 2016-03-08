@@ -42,6 +42,17 @@
 /// \see https://github.com/solodon4/SELL
 ///
 
+#ifndef HAS_BOOST
+
+#include <iostream>
+
+int main() {
+    std::cout << "This test requires Boost!\n";
+    return 1;
+}
+
+#else
+
 #include <iostream>
 #include "testutils.hpp"
 #include "type_switchN-patterns-xtl.hpp"
@@ -239,3 +250,5 @@ int main()
 }
 
 //------------------------------------------------------------------------------
+
+#endif
