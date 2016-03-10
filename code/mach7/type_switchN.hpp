@@ -116,6 +116,8 @@ enum { default_layout = size_t(~0) };
 
 /// Helper macro for #Match
 #define MatchN(N, ...) {                                                       \
+        XTL_WARNING_PUSH                                                       \
+        XTL_WARNING_IGNORE_NAME_HIDING                                         \
         struct match_uid_type {};                                              \
         enum { is_inside_case_clause = 0, number_of_subjects = N };            \
         enum { __base_counter = XTL_COUNTER };                                 \
@@ -136,17 +138,6 @@ enum { default_layout = size_t(~0) };
     /// General Match statement supporting multiple scrutiny (subjects)
     #define Match(...) MatchN(XTL_NARG(__VA_ARGS__),__VA_ARGS__)
 #endif
-
-/// A set of macros handling specific number of subjects passed to #Match(...).
-//#define Match0()                        static_assert(false,"Match statement has to have at least 1 scrutiny");
-//#define Match1(x0)                      MatchN(1,x0)
-//#define Match2(x0,x1)                   MatchN(2,x0,x1)                  
-//#define Match3(x0,x1,x2)                MatchN(3,x0,x1,x2)               
-//#define Match4(x0,x1,x2,x3)             MatchN(4,x0,x1,x2,x3)            
-//#define Match5(x0,x1,x2,x3,x4)          MatchN(5,x0,x1,x2,x3,x4)         
-//#define Match6(x0,x1,x2,x3,x4,x5)       MatchN(6,x0,x1,x2,x3,x4,x5)      
-//#define Match7(x0,x1,x2,x3,x4,x5,x6)    MatchN(7,x0,x1,x2,x3,x4,x5,x6)   
-//#define Match8(x0,x1,x2,x3,x4,x5,x6,x7) MatchN(8,x0,x1,x2,x3,x4,x5,x6,x7)
 
 #define XTL_DYN_CAST_FROM(i,...) (__casted_ptr##i = dynamic_cast<const XTL_SELECT_ARG(i,__VA_ARGS__)*>(subject_ptr##i)) != 0
 #define XTL_ASSIGN_OFFSET(i,...) __switch_info.offset[i] = intptr_t(__casted_ptr##i)-intptr_t(subject_ptr##i);
@@ -179,17 +170,6 @@ enum { default_layout = size_t(~0) };
     #define Case(...) CaseN(XTL_NARG(__VA_ARGS__), __VA_ARGS__);
 #endif
 
-/// A set of macros handling specific number of subjects passed to #Match(...).
-//#define Case0()                        static_assert(false,"Case clause has to have at least 1 target");
-//#define Case1(x0)                      CaseN(1,x0)
-//#define Case2(x0,x1)                   CaseN(2,x0,x1)                  
-//#define Case3(x0,x1,x2)                CaseN(3,x0,x1,x2)               
-//#define Case4(x0,x1,x2,x3)             CaseN(4,x0,x1,x2,x3)            
-//#define Case5(x0,x1,x2,x3,x4)          CaseN(5,x0,x1,x2,x3,x4)         
-//#define Case6(x0,x1,x2,x3,x4,x5)       CaseN(6,x0,x1,x2,x3,x4,x5)      
-//#define Case7(x0,x1,x2,x3,x4,x5,x6)    CaseN(7,x0,x1,x2,x3,x4,x5,x6)   
-//#define Case8(x0,x1,x2,x3,x4,x5,x6,x7) CaseN(8,x0,x1,x2,x3,x4,x5,x6,x7)
-
 #define Otherwise()                                                            \
             static_assert(is_inside_case_clause, "Otherwise() must follow actual clauses! If you are trying to use it as a default sub-clause, use When() instead"); \
         }                                                                      \
@@ -198,16 +178,6 @@ enum { default_layout = size_t(~0) };
             if (XTL_LIKELY(__switch_info.target == 0))                         \
                 __switch_info.target = target_label;                           \
         case target_label:
-
-//#define Otherwise0() static_assert(false,"Otherwise clause has to have at least 1 target");
-//#define Otherwise1() OtherwiseN(1)
-//#define Otherwise2() OtherwiseN(2)
-//#define Otherwise3() OtherwiseN(3)
-//#define Otherwise4() OtherwiseN(4)
-//#define Otherwise5() OtherwiseN(5)
-//#define Otherwise6() OtherwiseN(6)
-//#define Otherwise7() OtherwiseN(7)
-//#define Otherwise8() OtherwiseN(8)
 
 /// General EndMatch statement
 #define EndMatch                                                               \
@@ -219,16 +189,8 @@ enum { default_layout = size_t(~0) };
             __switch_info.target = target_label;                               \
             case target_label: ;                                               \
         }                                                                      \
-        }}
-
-//#define EndMatch0 static_assert(false,"Invalid EndMatch");
-//#define EndMatch1 EndMatchN(1)
-//#define EndMatch2 EndMatchN(2)
-//#define EndMatch3 EndMatchN(3)
-//#define EndMatch4 EndMatchN(4)
-//#define EndMatch5 EndMatchN(5)
-//#define EndMatch6 EndMatchN(6)
-//#define EndMatch7 EndMatchN(7)
-//#define EndMatch8 EndMatchN(8)
+        }                                                                      \
+        XTL_WARNING_POP                                                        \
+        }
 
 //------------------------------------------------------------------------------

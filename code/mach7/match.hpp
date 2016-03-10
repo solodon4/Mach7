@@ -282,6 +282,8 @@ template <class T> inline void ignore_unused_warning(T const&) {}
 /// - matched refers the subject by default (used for When sub-clauses)
 /// - the subject cannot be a nullptr - we assert at run-time (debug) if it is
 #define XTL_MATCH_PREAMBULA(s)                                                 \
+        XTL_WARNING_PUSH                                                       \
+        XTL_WARNING_IGNORE_NAME_HIDING                                         \
         struct match_uid_type {};                                              \
         auto&&     subject_ref = s;                                            \
         auto const subject_ptr = mch::addr(subject_ref);                       \
@@ -446,7 +448,9 @@ template<>                        struct target_disambiguator<int>    { typedef 
         enum { target_label = XTL_COUNTER-__base_counter };                    \
         XTL_SET_TYPES_NUM_ESTIMATE(target_label-1);                            \
         if (XTL_UNLIKELY((__casted_ptr == 0 && __switch_info.target == 0))) { __switch_info.target = target_label; } \
-        case target_label: ; }}
+        case target_label: ; }                                                 \
+        XTL_WARNING_POP                                                        \
+        }
 
 //------------------------------------------------------------------------------
 
@@ -480,7 +484,9 @@ template<>                        struct target_disambiguator<int>    { typedef 
 #define OtherwiseK(...)                                                        \
         } XTL_NON_FALL_THROUGH_ONLY(break;) }                                  \
         default: { XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__)) {
-#define EndMatchK       XTL_SUBCLAUSE_LAST } }}
+#define EndMatchK       XTL_SUBCLAUSE_LAST } }                                 \
+        XTL_WARNING_POP                                                        \
+        }
 
 //------------------------------------------------------------------------------
 
@@ -511,7 +517,9 @@ template<>                        struct target_disambiguator<int>    { typedef 
 #define OtherwiseU(...)                                                        \
         } XTL_NON_FALL_THROUGH_ONLY(break;) }                                  \
         default: { XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__)) {
-#define EndMatchU       XTL_SUBCLAUSE_LAST } }}
+#define EndMatchU       XTL_SUBCLAUSE_LAST } }                                 \
+        XTL_WARNING_POP                                                        \
+        }
 
 //------------------------------------------------------------------------------
 
@@ -541,7 +549,9 @@ template<>                        struct target_disambiguator<int>    { typedef 
 #define CaseE(...)      QuaE(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenE(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseE(...) XTL_CLAUSE_OTHERWISE(CaseE,__VA_ARGS__)
-#define EndMatchE       XTL_NON_USE_BRACES_ONLY(}) } catch (...) {} }
+#define EndMatchE       XTL_NON_USE_BRACES_ONLY(}) } catch (...) {}            \
+        XTL_WARNING_POP                                                        \
+        }
 
 //------------------------------------------------------------------------------
 
@@ -572,7 +582,9 @@ template<>                        struct target_disambiguator<int>    { typedef 
 #define CaseX(...)      QuaX(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenX(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseX(...) XTL_CLAUSE_OTHERWISE(CaseX,__VA_ARGS__)
-#define EndMatchX       XTL_NON_USE_BRACES_ONLY(}) } catch (...) {} }
+#define EndMatchX       XTL_NON_USE_BRACES_ONLY(}) } catch (...) {}            \
+        XTL_WARNING_POP                                                        \
+        }
 
 //------------------------------------------------------------------------------
 
@@ -626,7 +638,9 @@ template<>                        struct target_disambiguator<int>    { typedef 
 #define CaseF(...)      QuaF(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenF(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseF(...) XTL_CLAUSE_OTHERWISE(CaseF,__VA_ARGS__)
-#define EndMatchF       XTL_SUBCLAUSE_LAST }}}
+#define EndMatchF       XTL_SUBCLAUSE_LAST }}                                  \
+        XTL_WARNING_POP                                                        \
+        }
 
 //------------------------------------------------------------------------------
 
@@ -665,7 +679,9 @@ template<>                        struct target_disambiguator<int>    { typedef 
 #define CaseS(...)      QuaS(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenS(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseS(...) XTL_CLAUSE_OTHERWISE(CaseS,__VA_ARGS__)
-#define EndMatchS       XTL_SUBCLAUSE_LAST }}}}
+#define EndMatchS       XTL_SUBCLAUSE_LAST }}}                                 \
+        XTL_WARNING_POP                                                        \
+        }
 
 #else
 
@@ -695,8 +711,9 @@ template<>                        struct target_disambiguator<int>    { typedef 
 #define CaseS(...)      QuaS(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())) XTL_APPLY_VARIADIC_MACRO(XTL_DECL_BOUND_VARS,(__VA_ARGS__))
 #define WhenS(...)      XTL_SUBCLAUSE_CONTINUE(__VA_ARGS__)
 #define OtherwiseS(...) XTL_CLAUSE_OTHERWISE(CaseS,__VA_ARGS__)
-#define EndMatchS       XTL_SUBCLAUSE_LAST }}} XTL_STATIC_WHILE(false);
-
+#define EndMatchS       XTL_SUBCLAUSE_LAST }}                                  \
+        XTL_WARNING_POP                                                        \
+        } XTL_STATIC_WHILE(false);
 #endif
 
 //------------------------------------------------------------------------------
@@ -808,7 +825,9 @@ if (true) {
 #define EndMatchQ       XTL_SUBCLAUSE_LAST }}}                                 \
         enum { target_label = XTL_COUNTER-__base_counter };                    \
         if (!processed) switch_traits::on_end(subject_ptr, local_data, target_label); \
-        case switch_traits::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::exit: ; }}
+        case switch_traits::XTL_CPP0X_TEMPLATE CaseLabel<target_label>::exit: ; } \
+        XTL_WARNING_POP                                                        \
+        }
 
 //------------------------------------------------------------------------------
 

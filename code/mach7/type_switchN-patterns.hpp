@@ -71,6 +71,7 @@ vtbl_map<N,T> preallocated<vtbl_map<N,T>,UID>::value(deferred_constant<vtbl_coun
 template <typename S, typename C = void>
 struct dynamic_cast_when_polymorphic_helper
 {
+    /// Behaves as identity on pointers when the argument is not polymorphic.
     template <typename T>
     static inline const S* go(const S* s) { return s; }
 };
@@ -78,27 +79,15 @@ struct dynamic_cast_when_polymorphic_helper
 template <typename S>
 struct dynamic_cast_when_polymorphic_helper<S, typename std::enable_if<std::is_polymorphic<S>::value>::type> 
 {
+    /// Behaves as dynamic_cast on pointers when argument is polymorphic.
     template <typename T>
-    static inline T go(const S* s) { return dynamic_cast<T>(s); }
+    static inline T go(S* s) noexcept { return dynamic_cast<T>(s); }
 };
-/*
-/// Behaves as dynamic_cast on pointers when argument is polymorphic.
-template <typename T, typename S>
-inline auto dynamic_cast_when_polymorphic(const S* s) -> std::enable_if< std::is_polymorphic<S>::value,T>
-{
-    return dynamic_cast<T>(s);
-}
 
+/// Behaves as dynamic_cast on pointers when argument is polymorphic.
 /// Otherwises behaves as identity on pointers when the argument is not polymorphic.
 template <typename T, typename S>
-inline auto dynamic_cast_when_polymorphic(const S* s) -> std::enable_if<!std::is_polymorphic<S>::value,T>
-{
-    return s;
-}
-*/
-
-template <typename T, typename S>
-inline auto dynamic_cast_when_polymorphic(const S* s) -> XTL_RETURN
+inline auto dynamic_cast_when_polymorphic(S* s) noexcept -> XTL_RETURN
 (
     dynamic_cast_when_polymorphic_helper<S>::template go<T>(s)
 )
@@ -179,6 +168,8 @@ struct type_switch_info_offset_helper<false, SwitchInfo>
 
 /// Helper macro for #Match
 #define MatchN(N, ...) {                                                       \
+        XTL_WARNING_PUSH                                                       \
+        XTL_WARNING_IGNORE_NAME_HIDING                                         \
         struct match_uid_type {};                                              \
         enum {                                                                 \
             is_inside_case_clause = 0,                                         \
@@ -269,6 +260,8 @@ struct type_switch_info_offset_helper<false, SwitchInfo>
             __switch_info.target = target_label;                               \
             case target_label: ;                                               \
         }                                                                      \
-        }}
+        }                                                                      \
+        XTL_WARNING_POP                                                        \
+        }
 
 //------------------------------------------------------------------------------

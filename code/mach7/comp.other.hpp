@@ -266,6 +266,10 @@
     /// Macro that disables warning on manipulating pointers with reinterpret_cast
     #define  XTL_WARNING_IGNORE_STRICT_ALIASING
 #endif
+#if !defined(XTL_WARNING_IGNORE_NAME_HIDING)
+    /// Macro that disables name hiding warnings
+    #define XTL_WARNING_IGNORE_NAME_HIDING
+#endif
 
 //------------------------------------------------------------------------------
 

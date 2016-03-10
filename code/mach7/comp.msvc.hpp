@@ -240,6 +240,8 @@
 #define XTL_WARNING_IGNORE_CONSTANT_CONDITIONAL XTL_PRAGMA(warning( disable : 4127 )) // warning C4127: conditional expression is constant
 /// Macro that disables warning on manipulating pointers with reinterpret_cast
 #define XTL_WARNING_IGNORE_STRICT_ALIASING      
+/// Macro that disables name hiding warnings
+#define XTL_WARNING_IGNORE_NAME_HIDING          XTL_PRAGMA(warning( disable : 4456 )) // warning C4456: declaration of 'target_type0' hides previous local declaration
 
 #pragma warning( disable : 4351 ) // warning C4351: new behavior: elements of array ... will be default initialized
 

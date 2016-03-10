@@ -175,6 +175,8 @@ struct type_switch_info_offset_helper<false, SwitchInfo>
 
 /// Helper macro for #Match
 #define MatchN(N, ...) {                                                       \
+        XTL_WARNING_PUSH                                                       \
+        XTL_WARNING_IGNORE_NAME_HIDING                                         \
         struct match_uid_type {};                                              \
         enum {                                                                 \
             is_inside_case_clause = 0,                                         \
@@ -264,6 +266,8 @@ struct type_switch_info_offset_helper<false, SwitchInfo>
             __switch_info.target = target_label;                               \
             case target_label: ;                                               \
         }                                                                      \
-        }}
+        }                                                                      \
+        XTL_WARNING_POP                                                        \
+        }
 
 //------------------------------------------------------------------------------
