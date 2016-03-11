@@ -78,7 +78,7 @@ namespace xtl
     template <typename T>
     struct is_poly_morphic // Ignore weirdness in name for now, workaround of a Visual C++ 2010 compiler bug.
     {
-        static const bool value = false; // Most of the types do not exhibit polymorphic behavior, those that do will have to specialize
+        static const bool value = std::is_polymorphic<T>::value; // Most of the types do not exhibit polymorphic behavior, those that do will have to specialize
     };
 
     template <typename T>
