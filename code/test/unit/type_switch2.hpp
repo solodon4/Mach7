@@ -89,6 +89,8 @@ enum { default_layout = size_t(~0) };
 ///       that having default here is quite a bit faster than having case 0
 ///       because one less branch should be generated
 #define Match2(s0,s1) {                                                        \
+        XTL_WARNING_PUSH                                                       \
+        XTL_WARNING_IGNORE_NAME_HIDING                                         \
         struct match_uid_type {};                                              \
         enum { is_inside_case_clause = 0 };                                    \
         enum { __base_counter = XTL_COUNTER };                                 \
@@ -137,7 +139,9 @@ enum { default_layout = size_t(~0) };
             __switch_info.target = target_label;                               \
             case target_label: ;                                               \
         }                                                                      \
-        }}
+        }                                                                      \
+        XTL_WARNING_POP                                                        \
+        }
 
 //------------------------------------------------------------------------------
 

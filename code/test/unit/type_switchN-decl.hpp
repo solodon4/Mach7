@@ -116,6 +116,8 @@ enum { default_layout = size_t(~0) };
 
 /// Helper macro for #Match
 #define MatchN(N, ...) {                                                       \
+        XTL_WARNING_PUSH                                                       \
+        XTL_WARNING_IGNORE_NAME_HIDING                                         \
         struct match_uid_type {};                                              \
         enum { is_inside_case_clause = 0, number_of_subjects = N };            \
         enum { __base_counter = XTL_COUNTER };                                 \
@@ -203,6 +205,8 @@ template<>                        struct target_disambiguator<int>    { typedef 
             __switch_info.target = target_label;                               \
             case target_label: ;                                               \
         }                                                                      \
-        }}
+        }                                                                      \
+        XTL_WARNING_POP                                                        \
+        }
 
 //------------------------------------------------------------------------------

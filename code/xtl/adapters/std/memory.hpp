@@ -59,7 +59,7 @@ namespace xtl
     };
 
     // Implement the conversion from subtype unique_ptr<T> to the super type T*
-	template <class T, class S>
+    template <class T, class S>
     inline T* subtype_cast_impl(target<T*>, const std::unique_ptr<S>& s)
     {
         return xtl::subtype_cast<T*>(s.get());
@@ -81,8 +81,8 @@ namespace xtl
     };
 
     // Implements the conversion from subtype nullptr_t to super type unique_ptr<T>
-	template <class T>
-    inline std::unique_ptr<T> subtype_cast_impl(target<std::unique_ptr<T>>, const std::nullptr_t& s)
+    template <class T>
+    inline std::unique_ptr<T> subtype_cast_impl(target<std::unique_ptr<T>>, const std::nullptr_t&)
     {
         return std::unique_ptr<T>(nullptr);
     }
