@@ -223,7 +223,7 @@ to work. This is a work in progress, so before you start working with a particul
 syntax and make note of which of headers they include. We will clear this eventually leaving only one header, but at 
 the moment it is a mess, and the most intuitive match.hpp is probably not the header you want as it represents older
 experiments. The most recent experimentation and the header you are prpobably looking for is
-[type_switchN-patterns.hpp](https://github.com/solodon4/Mach7/blob/master/code/type_switchN-patterns.hpp).
+[mach7/type_switchN-patterns-xtl.hpp](https://github.com/solodon4/Mach7/blob/master/code/mach7/type_switchN-patterns-xtl.hpp).
 
 The library is not yet suitable for multi-threaded environment. Lock-free version of vtbl-map is in the works.
 
