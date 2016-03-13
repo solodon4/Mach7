@@ -1,0 +1,11 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+before_install: cd code
+script: make
+notifications:
+  email:
+    recipients: yuriy.solodkyy+travis.mach7@gmail.com
+    on_success: change
+    on_failure: always
