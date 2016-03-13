@@ -164,7 +164,7 @@ struct constr1
 /// FIX: Add extra condition that makes sure the type of first subcomponent is
 ///      not the same as the type itself!
 template <typename T, size_t layout, typename P1>
-struct constr1<T,layout,P1,typename std::enable_if<std::is_same<T,typename P1::template accepted_type_for<T>::type>::value>::type>
+struct constr1<T,layout,P1,typename std::enable_if<std::is_same<T,typename underlying<typename P1::template accepted_type_for<T>::type>::type>::value>::type>
 {
     static_assert(is_pattern<P1>::value, "Argument P1 of constructor-pattern must be a pattern");
 
