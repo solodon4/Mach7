@@ -55,22 +55,23 @@
 GCC_COLORS=always
 OS       = $(shell uname -s)
 LIBS     = -lstdc++
-INCLUDES = -I../.. -I../../test/time 
+INCLUDES = -I../.. -I../../test/time
 ifneq (,$(BOOST_ROOT))
 	INCLUDES += -I$(BOOST_ROOT)
 endif
-CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -time -s -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
+CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -time -s -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++0x
 #-fno-omit-frame-pointer \
 #-fno-rtti
 ifneq (,$(findstring g++,$(CXX)))
-	CXXFLAGS += -Wno-vla -ftrack-macro-expansion=4 -fdiagnostics-show-option
+	CXXFLAGS += -Wno-vla -fdiagnostics-show-option
 # Workaround for MinGW bug: -D__NO_INLINE__
+# Not supported by clang on Travis CI machines: -ftrack-macro-expansion=4
 endif
 ifneq (,$(findstring clang,$(CXX)))
 	CXXFLAGS += -fmacro-backtrace-limit=0 -ftemplate-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct
 endif
 
-LIBFLAGS = $(LIBS)
+LIBFLAGS =
 OCAMLLIB = /c/Program Files (x86)/OCaml/lib
 #OCAMLLIB = C:\Program Files (x86)\OCaml\
 FLEXLINKFLAGS=-L/mingw/lib -L/mingw/lib/gcc/mingw32/4.6.1
@@ -83,21 +84,21 @@ SOURCES  = $(shell ls *.cpp)
 # Create a list of object files from the source file lists.
 OBJECTS  = ${SOURCES:.cpp=.o}
 # Create a list of targets.
-TARGETS  = ${SOURCES:.cpp=.exe}     
+TARGETS  = ${SOURCES:.cpp=.exe}
 
-# A phony target is one that is not really the name of a file; rather it is just 
+# A phony target is one that is not really the name of a file; rather it is just
 # a name for a recipe to be executed when you make an explicit request.
 
 .PHONY: all clean default doc ver
 
-# Phony targets can have prerequisites. When one phony target is a prerequisite 
+# Phony targets can have prerequisites. When one phony target is a prerequisite
 # of another, it serves as a subroutine of the other.
 
 # Build all files in current folder
 all: default
 
-# A phony target should not be a prerequisite of a real target file; if it is, 
-# its recipe will be run every time make goes to update that file. 
+# A phony target should not be a prerequisite of a real target file; if it is,
+# its recipe will be run every time make goes to update that file.
 
 # Build all targets by default
 default: 	$(TARGETS)
@@ -163,7 +164,7 @@ ver:
 
 # A rule to clean all the intermediates and targets
 clean:
-	rm -rf $(TARGETS) $(OBJECTS) *.out *.stackdump *.cmi *.cmx *.obj *.csv time-*.exe syntax-*.exe cmp-*.exe cmp_*.exe cmp_*.hi cmp_*.o
+	rm -rf $(TARGETS) $(OBJECTS) *.out *.stackdump *.cmi *.cmx *.obj *.csv *.exe.dSYM time-*.exe syntax-*.exe cmp-*.exe cmp_*.exe cmp_*.hi cmp_*.o
 
 # A rule to create GraphViz .dot file with graph representation of header inclusions
 includes.dot:
@@ -195,4 +196,4 @@ test:
 	      ./$$file; \
 	    fi \
 	done ; \
-	echo -n 
+	echo -n

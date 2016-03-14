@@ -57,22 +57,22 @@
 
 GCC_COLORS=always
 OS       = $(shell uname -s)
-#CXX      = g++-4.8
 LIBS     = -lstdc++
 INCLUDES = -I../..
 ifneq (,$(BOOST_ROOT))
 	INCLUDES += -I$(BOOST_ROOT)
 endif
-CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
+CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++0x
 ifneq (,$(findstring g++,$(CXX)))
-	CXXFLAGS += -Wno-vla -ftrack-macro-expansion=4 -fdiagnostics-show-option
+	CXXFLAGS += -Wno-vla -fdiagnostics-show-option
 # Workaround for MinGW bug: -D__NO_INLINE__
+# Not supported by clang on Travis CI machines: -ftrack-macro-expansion=4
 endif
 ifneq (,$(findstring clang,$(CXX)))
 	CXXFLAGS += -fmacro-backtrace-limit=0 -ftemplate-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct
 endif
 
-LIBFLAGS = $(LIBS)
+LIBFLAGS =
 OCAMLLIB = /c/Program Files (x86)/OCaml/lib
 #OCAMLLIB = C:\Program Files (x86)\OCaml\
 FLEXLINKFLAGS=-L/mingw/lib -L/mingw/lib/gcc/mingw32/4.6.1
@@ -85,21 +85,21 @@ SOURCES  = $(shell ls *.cpp)
 # Create a list of object files from the source file lists.
 OBJECTS  = ${SOURCES:.cpp=.o}
 # Create a list of targets.
-TARGETS  = ${SOURCES:.cpp=.exe}     
+TARGETS  = ${SOURCES:.cpp=.exe}
 
-# A phony target is one that is not really the name of a file; rather it is just 
+# A phony target is one that is not really the name of a file; rather it is just
 # a name for a recipe to be executed when you make an explicit request.
 
 .PHONY: all clean cmp default doc syntax tags test timing ver
 
-# Phony targets can have prerequisites. When one phony target is a prerequisite 
+# Phony targets can have prerequisites. When one phony target is a prerequisite
 # of another, it serves as a subroutine of the other.
 
 # Build all files in current folder as well as all combinations for syntax, timing and comparison
 all: default syntax
 
-# A phony target should not be a prerequisite of a real target file; if it is, 
-# its recipe will be run every time make goes to update that file. 
+# A phony target should not be a prerequisite of a real target file; if it is,
+# its recipe will be run every time make goes to update that file.
 
 # Build all targets by default
 default: 	$(TARGETS)
@@ -295,17 +295,23 @@ oldsyntax: syntax.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_REDUNDANCY_CHECKING_XXX -DXTL_FALL_THROUGH=1 -DXTL_USE_BRACES=1 -DXTL_DEFAULT_SYNTAX=\'k\' -o syntax-rc0-ft1-br1-gen-k.exe syntax.cxx
 
 # A rule to build all executables for comparison with other languages
-cmp: cmp_cpp.cxx cmp_ocaml.ml cmp_haskell.hs
+cmp: cmp_cpp.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'p\' -DXTL_SEQ_TEST -o cmp-non-generic-poly-seq.exe cmp_cpp.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'k\' -DXTL_SEQ_TEST -o cmp-non-generic-kind-seq.exe cmp_cpp.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'f\' -DXTL_SEQ_TEST -o cmp-fwd-generic-kind-seq.exe cmp_cpp.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'P\' -DXTL_SEQ_TEST -o cmp-non-special-poly-seq.exe cmp_cpp.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'K\' -DXTL_SEQ_TEST -o cmp-non-special-kind-seq.exe cmp_cpp.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'F\' -DXTL_SEQ_TEST -o cmp-fwd-special-kind-seq.exe cmp_cpp.cxx
-	ghc -O --make cmp_haskell
 
-caml: cmp_ocaml.ml 
-	ocamlopt.opt unix.cmxa -o cmp_ocaml.exe cmp_ocaml.ml
+# A rule to build Haskell executables for comparison with other languages
+# TODO: Make a generic .hs rule
+hs: exp.hs
+	ghc -O --make exp
+
+# A rule to build OCaml executables for comparison with other languages
+# TODO: Make a generic .ml rule
+caml: exp.ml
+	ocamlopt.opt unix.cmxa -o exp.ml.exe exp.ml
 
 # A rule to clean all the intermediates and targets
 clean:
@@ -313,8 +319,7 @@ clean:
 
 # A rule to create GraphViz .dot file with graph representation of header inclusions
 includes.dot:
-	grep -R --include=*.hpp "#include" * | sed -e "s/^/\"/g" -e "s/:/\"/g" -e "s/\/\/.*//g" -e "s/\"[A-Za-z0-9_\.\/-]*\//\"/g" -e "s/\(<.*>\)/\1\n\1 [color=red,shape=box]/g" -e "s/#include/ -> /g" > includes.dot
-
+	grep -R --include=*.?pp "#include" * | sed -e "s/^/\"/g" -e "s/:/\"/g" -e "s/\/\/.*//g" -e "s/\"[A-Za-z0-9_\.\/-]*\//\"/g" -e "s/\(<.*>\)/\1\n\1 [color=red,shape=box]/g" -e "s/#include/ -> /g" > includes.dot
 # -e "1 { s/^/digraph Includes {\nrankdir=TB;\nratio=0.44;\n/g }" -e "$$ { s/$$/\n}\n/g }"
 
 # A rule to convert the above GraphViz .dot file into actual picture
@@ -362,4 +367,4 @@ test:
 	      ./$$file; \
 	    fi \
 	done ; \
-	echo -n 
+	echo -n

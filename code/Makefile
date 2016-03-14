@@ -57,13 +57,12 @@
 
 GCC_COLORS=always
 OS       = $(shell uname -s)
-#CXX      = g++-4.8
 LIBS     = -lstdc++
 INCLUDES =
 ifneq (,$(BOOST_ROOT))
 	INCLUDES += -I$(BOOST_ROOT)
 endif
-CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
+CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++0x
 ifneq (,$(findstring g++,$(CXX)))
 	CXXFLAGS += -Wno-vla -ftrack-macro-expansion=4 -fdiagnostics-show-option
 endif
@@ -71,7 +70,7 @@ ifneq (,$(findstring clang,$(CXX)))
 	CXXFLAGS += -fmacro-backtrace-limit=0 -ftemplate-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct
 endif
 
-LIBFLAGS = $(LIBS)
+LIBFLAGS =
 OCAMLLIB = /c/Program Files (x86)/OCaml/lib
 #OCAMLLIB = C:\Program Files (x86)\OCaml\
 FLEXLINKFLAGS=-L/mingw/lib -L/mingw/lib/gcc/mingw32/4.6.1
@@ -84,21 +83,21 @@ SOURCES  = $(shell ls *.cpp)
 # Create a list of object files from the source file lists.
 OBJECTS  = ${SOURCES:.cpp=.o}
 # Create a list of targets.
-TARGETS  = ${SOURCES:.cpp=.exe}     
+TARGETS  = ${SOURCES:.cpp=.exe}
 
-# A phony target is one that is not really the name of a file; rather it is just 
+# A phony target is one that is not really the name of a file; rather it is just
 # a name for a recipe to be executed when you make an explicit request.
 
 .PHONY: all clean cmp default doc syntax tags test timing ver
 
-# Phony targets can have prerequisites. When one phony target is a prerequisite 
+# Phony targets can have prerequisites. When one phony target is a prerequisite
 # of another, it serves as a subroutine of the other.
 
 # Build all files in current folder as well as all combinations for syntax, timing and comparison
 all: default unit time
 
-# A phony target should not be a prerequisite of a real target file; if it is, 
-# its recipe will be run every time make goes to update that file. 
+# A phony target should not be a prerequisite of a real target file; if it is,
+# its recipe will be run every time make goes to update that file.
 
 # Build all targets by default
 default: 	$(TARGETS)
@@ -227,4 +226,4 @@ test:
 	      ./$$file; \
 	    fi \
 	done ; \
-	echo -n 
+	echo -n

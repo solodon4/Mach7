@@ -57,22 +57,22 @@
 
 GCC_COLORS=always
 OS       = $(shell uname -s)
-#CXX      = g++-4.8
 LIBS     = -lstdc++
 INCLUDES = -I../..
 ifneq (,$(BOOST_ROOT))
 	INCLUDES += -I$(BOOST_ROOT)
 endif
-CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++11
+CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++0x
 ifneq (,$(findstring g++,$(CXX)))
-	CXXFLAGS += -Wno-vla -ftrack-macro-expansion=4 -fdiagnostics-show-option
+	CXXFLAGS += -Wno-vla -fdiagnostics-show-option
 # Workaround for MinGW bug: -D__NO_INLINE__
+# Not supported by clang on Travis CI machines: -ftrack-macro-expansion=4
 endif
 ifneq (,$(findstring clang,$(CXX)))
 	CXXFLAGS += -fmacro-backtrace-limit=0 -ftemplate-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct
 endif
 
-LIBFLAGS = $(LIBS)
+LIBFLAGS =
 OCAMLLIB = /c/Program Files (x86)/OCaml/lib
 #OCAMLLIB = C:\Program Files (x86)\OCaml\
 FLEXLINKFLAGS=-L/mingw/lib -L/mingw/lib/gcc/mingw32/4.6.1
@@ -295,15 +295,21 @@ oldsyntax: syntax.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_REDUNDANCY_CHECKING_XXX -DXTL_FALL_THROUGH=1 -DXTL_USE_BRACES=1 -DXTL_DEFAULT_SYNTAX=\'k\' -o syntax-rc0-ft1-br1-gen-k.exe syntax.cxx
 
 # A rule to build all executables for comparison with other languages
-cmp: cmp_cpp.cxx cmp_ocaml.ml cmp_haskell.hs
+cmp: cmp_cpp.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'p\' -DXTL_SEQ_TEST -o cmp-non-generic-poly-seq.exe cmp_cpp.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'k\' -DXTL_SEQ_TEST -o cmp-non-generic-kind-seq.exe cmp_cpp.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'f\' -DXTL_SEQ_TEST -o cmp-fwd-generic-kind-seq.exe cmp_cpp.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'P\' -DXTL_SEQ_TEST -o cmp-non-special-poly-seq.exe cmp_cpp.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'K\' -DXTL_SEQ_TEST -o cmp-non-special-kind-seq.exe cmp_cpp.cxx
 	$(CXX) $(CXXFLAGS) -DXTL_DEFAULT_SYNTAX=\'F\' -DXTL_SEQ_TEST -o cmp-fwd-special-kind-seq.exe cmp_cpp.cxx
+
+# A rule to build Haskell executables for comparison with other languages
+# TODO: Make a generic .hs rule
+hs: cmp_haskell.hs
 	ghc -O --make cmp_haskell
 
+# A rule to build OCaml executables for comparison with other languages
+# TODO: Make a generic .ml rule
 caml: cmp_ocaml.ml 
 	ocamlopt.opt unix.cmxa -o cmp_ocaml.exe cmp_ocaml.ml
 
