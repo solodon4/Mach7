@@ -45,6 +45,7 @@
 
 #include <cstddef>      // std::nullptr_t
 #include <type_traits>  // std::enable_if
+#include <utility>      // std::forward
 
 namespace xtl
 {
