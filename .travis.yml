@@ -13,6 +13,7 @@ addons:
     - boost-latest
     packages:
     - g++-4.8
+    - clang-3.5
     - libboost-dev
 before_install: cd code
 install:
@@ -21,7 +22,6 @@ before_script:
     - uname -a
     - printenv
     - clang++ --version 2>&1 | grep clang
-    - g++ --version 2>&1 | grep g++
     - grep "#define BOOST_VERSION " /usr/include/boost/version.hpp
 script: make --keep-going
 notifications:
