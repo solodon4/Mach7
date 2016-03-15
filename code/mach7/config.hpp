@@ -363,17 +363,15 @@
 /// Emulate std::is_nothrow_copy_constructible<T> by assuming stuff it is applied to always throws
 namespace std
 {
-    template <typename T>
-    struct is_nothrow_copy_constructible
-    {
-        static const bool value = false; // TODO: Optimize for easily-detectible cases like POD etc.
-    };
-
-    template <typename T>
-    struct is_nothrow_move_constructible
-    {
-        static const bool value = false; // TODO: Optimize for easily-detectible cases like POD etc.
-    };
+    // TODO: Optimize for easily-detectible cases like POD etc.
+    template <typename T> struct is_nothrow_default_constructible { static const bool value = false; };
+    template <typename T> struct is_nothrow_copy_constructible    { static const bool value = false; };
+    template <typename T> struct is_nothrow_move_constructible    { static const bool value = false; };
+    template <typename T> struct is_nothrow_constructible         { static const bool value = false; };
+    template <typename T> struct is_nothrow_destructible          { static const bool value = false; };
+    template <typename T> struct is_nothrow_copy_assignable       { static const bool value = false; };
+    template <typename T> struct is_nothrow_move_assignable       { static const bool value = false; };
+    template <typename T> struct is_nothrow_assignable            { static const bool value = false; };
 }
 #endif
 
