@@ -364,14 +364,14 @@
 namespace std
 {
     // TODO: Optimize for easily-detectible cases like POD etc.
-    template <typename T> struct is_nothrow_default_constructible { static const bool value = false; };
-    template <typename T> struct is_nothrow_copy_constructible    { static const bool value = false; };
-    template <typename T> struct is_nothrow_move_constructible    { static const bool value = false; };
-    template <typename T> struct is_nothrow_constructible         { static const bool value = false; };
-    template <typename T> struct is_nothrow_destructible          { static const bool value = false; };
-    template <typename T> struct is_nothrow_copy_assignable       { static const bool value = false; };
-    template <typename T> struct is_nothrow_move_assignable       { static const bool value = false; };
-    template <typename T> struct is_nothrow_assignable            { static const bool value = false; };
+  //template <class T, class... Args> struct is_nothrow_constructible         { static const bool value = false; };
+    template <class T>                struct is_nothrow_default_constructible { static const bool value = false; };
+    template <class T>                struct is_nothrow_copy_constructible    { static const bool value = false; };
+    template <class T>                struct is_nothrow_move_constructible    { static const bool value = false; };
+    template <class T, class U>       struct is_nothrow_assignable            { static const bool value = false; };
+    template <class T>                struct is_nothrow_copy_assignable       { static const bool value = false; };
+    template <class T>                struct is_nothrow_move_assignable       { static const bool value = false; };
+    template <class T>                struct is_nothrow_destructible          { static const bool value = false; };
 }
 #endif
 
