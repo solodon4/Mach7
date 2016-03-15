@@ -145,6 +145,12 @@
 
 //------------------------------------------------------------------------------
 
+#if !defined(XTL_SUPPORT_std_is_nothrow_copy_constructible)
+#define XTL_SUPPORT_std_is_nothrow_copy_constructible 0
+#endif
+
+//------------------------------------------------------------------------------
+
 #if !defined(XTL_MSC_ONLY)
     #define XTL_MSC_ONLY(...)
     #define XTL_NON_MSC_ONLY(...) __VA_ARGS__

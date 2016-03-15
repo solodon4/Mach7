@@ -359,6 +359,24 @@
 #define nullptr 0
 #endif
 
+#if !XTL_SUPPORT(std_is_nothrow_copy_constructible)
+/// Emulate std::is_nothrow_copy_constructible<T> by assuming stuff it is applied to always throws
+namespace std
+{
+    template <typename T>
+    struct is_nothrow_copy_constructible
+    {
+        static const bool value = false; // TODO: Optimize for easily-detectible cases like POD etc.
+    };
+
+    template <typename T>
+    struct is_nothrow_move_constructible
+    {
+        static const bool value = false; // TODO: Optimize for easily-detectible cases like POD etc.
+    };
+}
+#endif
+
 //------------------------------------------------------------------------------
 
 #if defined(_DEBUG)

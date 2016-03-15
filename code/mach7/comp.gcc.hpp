@@ -154,6 +154,12 @@
 
 //------------------------------------------------------------------------------
 
+#if XTL_GCC_VERSION >= 40700
+#define XTL_SUPPORT_std_is_nothrow_copy_constructible 1
+#endif
+
+//------------------------------------------------------------------------------
+
 #define XTL_GCC_ONLY(...)     __VA_ARGS__
 #define XTL_NON_GCC_ONLY(...)
 

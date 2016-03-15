@@ -153,6 +153,12 @@
 
 //------------------------------------------------------------------------------
 
+#if _MSC_VER >= 1700 /// Visual C++ 2012 supports std::is_nothrow_copy_constructible<T>
+#define XTL_SUPPORT_std_is_nothrow_copy_constructible 1
+#endif
+
+//------------------------------------------------------------------------------
+
 #define XTL_MSC_ONLY(...)     __VA_ARGS__
 #define XTL_NON_MSC_ONLY(...)
 

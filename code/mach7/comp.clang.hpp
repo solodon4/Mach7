@@ -52,6 +52,8 @@
 
 //------------------------------------------------------------------------------
 
+#define XTL_CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
+
 #define XTL_GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 
 
@@ -150,6 +152,12 @@
 
 #if !defined(XTL_SUPPORT_vla)
 #define XTL_SUPPORT_vla 1
+#endif
+
+//------------------------------------------------------------------------------
+
+#if XTL_CLANG_VERSION >= 30100
+#define XTL_SUPPORT_std_is_nothrow_copy_constructible 1
 #endif
 
 //------------------------------------------------------------------------------
