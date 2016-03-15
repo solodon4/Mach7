@@ -5,17 +5,18 @@ os:
 compiler:
   - g++
   - clang++
+sudo: required
 addons:
   apt:
     sources:
     - boost-latest
     packages:
-    - gcc-4.8
-    - g++-4.8
+    - gcc-4.7
+    - g++-4.7
 before_install: cd code
 install:
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-script: make
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.7" CC="gcc-4.7"; fi
+script: make --keep-going
 notifications:
   email:
     recipients: yuriy.solodkyy+travis.mach7@gmail.com
