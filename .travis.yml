@@ -18,11 +18,16 @@ addons:
     - libboost-dev
 before_install: cd code
 install:
-  - if [[ "$CXX" == g++ ]];                                 then export CXX="g++-4.8"; fi
-  - if [[ "$CXX" == clang && "$TRAVIS_OS_NAME" == "osx" ]]; then export CXX="clang++-3.5"; fi
+  - if [[ "$CXX" == g++ ]];                                   then export CXX="g++-4.8"; fi
+  - if [[ "$CXX" == clang++ && "$TRAVIS_OS_NAME" == "osx" ]]; then export CXX="clang++-3.5"; fi
 before_script:
     - uname -a
     - printenv
+    - which clang++
+    - which clang++3.4
+    - which clang++3.5
+    - which clang++3.6
+    - which clang++3.7
     - clang++ --version 2>&1 | grep clang
 script: make --keep-going
 notifications:
