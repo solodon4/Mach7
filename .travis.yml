@@ -24,10 +24,6 @@ before_script:
     - uname -a
     - printenv
     - which clang++
-    - which clang++3.4
-    - which clang++3.5
-    - which clang++3.6
-    - which clang++3.7
     - clang++ --version 2>&1 | grep clang
 script: make --keep-going
 notifications:
