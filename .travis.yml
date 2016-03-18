@@ -18,7 +18,7 @@ addons:
     - libboost-dev
 before_install: cd code
 install:
-  - if [[ "$TRAVIS_OS_NAME" == linux && "$CXX" == g++     ]]; then export CXX="g++-4.8"; fi
+  - if [[ "$CXX" == g++ ]]; then export CXX="g++-4.8"; fi
 before_script:
     - uname -a
     - printenv
