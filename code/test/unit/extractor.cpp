@@ -49,30 +49,10 @@
 #include <mach7/patterns/guard.hpp>        // Support for guard patterns
 #include <mach7/patterns/n+k.hpp>          // Generalized n+k patterns
 #include <mach7/patterns/primitive.hpp>    // Wildcard, variable and value patterns
+#include <mach7/adapters/std/complex.hpp>  // Mach7 bindings for std::complex<T>
 
-#include <complex>
+
 #include <iostream>
-
-enum { cart = mch::default_layout, plar = 1 };
-
-namespace mch ///< Mach7 library namespace
-{
-#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && XTL_GCC_VERSION > 40700
-/// C++ 11 introduced a weird overload for numeric types T for 
-/// std::real<T>, std::imag<T>, std::abs<T> and std::arg<T>, which messed up our
-/// nice syntax, and which is why we had to take address of member-functions
-/// or do the explicit cast first:
-template <typename T> struct bindings<std::complex<T>, cart> { Members(std::complex<T>::real,std::complex<T>::imag); };
-template <typename T> struct bindings<std::complex<T>, plar> { Members((T (&)(const std::complex<T>&))std::abs<T>,(T (&)(const std::complex<T>&))std::arg<T>);  };
-#else
-/// Otherwise you should be able to write nicely like this:
-template <typename T> struct bindings<std::complex<T>, cart> { Members(std::real<T>, std::imag<T>); };
-template <typename T> struct bindings<std::complex<T>, plar> { Members(std::abs<T> , std::arg<T>);  };
-#endif
-} // of namespace mch
-
-typedef mch::view<std::complex<double>,cart> cartesian;
-typedef mch::view<std::complex<double>,plar> polar;
 
 int main()
 {

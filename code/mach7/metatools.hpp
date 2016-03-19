@@ -166,16 +166,28 @@ T preallocated<T,UID>::value;
 
 //------------------------------------------------------------------------------
 
-/// Helper function to help disambiguate a unary version of a given function when 
+///@{
+/// Helper function to help disambiguate a unary version of a given function when
 /// overloads with different arity are available.
 /// All of the members we work with so far through #bindings are unary:
-/// they are either unary function, nullary member function (implicit argument 
+/// they are either unary function, nullary member function (implicit argument
 /// this makes them unary effectively) or a data member (which can be treated
 /// in the same way as nullary member function).
+///
+/// \note
+/// If you get an error: no matching function for call to 'unary(<unresolved overloaded function type>)'
+/// you might be dealing with an overload set you are trying to take an address of, for example:
+/// \code{.cpp}
+///     auto f = unary(&std::real<double>); // This was OK till C++11 introduced several overloads of std::real
+///     auto g = &(double (&)(const std::complex<double>&))std::real<double>; // This is one way to workaround the issue
+///     auto h = unary(&std::complex<double>::real); // In case of complex, we know there is a member function too
+/// \endcode
+///
 template <typename R, typename A1> constexpr R (    * unary(R (    *f)(A1)      ) noexcept)(A1)     { return f; }
 template <typename R, typename A1> constexpr R (A1::* unary(R  A1::*f           ) noexcept)         { return f; }
 template <typename R, typename A1> constexpr R (A1::* unary(R (A1::*f)(  )      ) noexcept)()       { return f; }
 template <typename R, typename A1> constexpr R (A1::* unary(R (A1::*f)(  ) const) noexcept)() const { return f; }
+///@}
 
 //------------------------------------------------------------------------------
 
