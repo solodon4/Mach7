@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/solodon4/Mach7/master/media/posters/OpenPatternMatching-OOPSLA%20(1280x989).jpg" width="100%">
 </a>
 
-Mach7: Pattern Matching for C++
+Mach7: Pattern Matching for C++ [![Build Status](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7)
 ===============================
 
 by [Yuriy Solodkyy](http://parasol.tamu.edu/~yuriys/), [Gabriel Dos Reis](http://parasol.tamu.edu/~gdr/), [Bjarne Stroustrup](http://parasol.tamu.edu/~bs/)
@@ -114,6 +114,7 @@ to help you get started on your own Mach7 project.
 
 Building sources
 ----------------
+[![Build Status](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7)
 
 If you haven't done so yet, get a copy of this [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 repo locally by executing:
