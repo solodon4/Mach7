@@ -183,17 +183,17 @@
 //------------------------------------------------------------------------------
 
 #if __has_builtin(__builtin_assume)
-#define XTL_ASSUME(expr) __builtin_assume(expr)
+#define XTL_ASSUME(expr) //__builtin_assume(expr)
 #endif
 #if __has_builtin(__builtin_unreachable)
 #define XTL_UNREACHABLE  __builtin_unreachable()
 #endif
 
 #if !XTL_TRACE_LIKELINESS
-    /// Macros to use compiler's branch hinting. 
-    /// \note These macros are only to be used in Case macro expansion, not in 
+    /// Macros to use compiler's branch hinting.
+    /// \note These macros are only to be used in Case macro expansion, not in
     ///       user's code since they explicitly expect a pointer argument
-    /// \note We use ... (__VA_ARGS__ parameters) to allow expressions 
+    /// \note We use ... (__VA_ARGS__ parameters) to allow expressions
     ///       containing comma as argument. Essentially this is a one arg macro
 #if __has_builtin(__builtin_expect)
     #define   XTL_LIKELY(...) (__builtin_expect((long int)(__VA_ARGS__), 1))
@@ -209,7 +209,7 @@
 #endif
 #if __has_attribute(always_inline)
 /// A macro that is supposed to be put before the function definition whose body must be inlined
-#define XTL_FORCE_INLINE_BEGIN __attribute__ ((always_inline)) static inline 
+#define XTL_FORCE_INLINE_BEGIN __attribute__ ((always_inline)) static inline
 /// A macro that is supposed to be put after  the function definition whose body must be inlined
 #define XTL_FORCE_INLINE_END
 #endif
