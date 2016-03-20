@@ -10,16 +10,13 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
-    - llvm-toolchain-precise-3.4
     - boost-latest
     packages:
     - g++-4.8
-    - clang-3.4
     - libboost-dev
 before_install: cd code
 install:
   - if [[ "$CXX" == g++ ]];                                     then export CXX="g++-4.8"; fi
-  - if [[ "$CXX" == clang++ && "$TRAVIS_OS_NAME" == "linux" ]]; then export CXX="clang++-3.4"; fi
 before_script:
     - uname -a
     - printenv
