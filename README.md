@@ -112,9 +112,19 @@ and implemented using [visitors](https://github.com/solodon4/Mach7/blob/master/c
 [pattern matching](https://github.com/solodon4/Mach7/blob/master/code/test/unit/cppcon-matching.cpp). These are simple enough
 to help you get started on your own Mach7 project.
 
+Continuous Integration
+----------------------
+
+We use [Travis CI](https://travis-ci.org/solodon4/Mach7) for continuous integration 
+and currently have all check-ins validated in the following configurations:
+
+| [![Build Status](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7) | G++ | Clang |
+|-------|-----|-------|
+| Linux | 4.8 | 3.4   |
+| OSX   | 4.8 | 3.5   |
+
 Building sources
 ----------------
-[![Build Status](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7)
 
 If you haven't done so yet, get a copy of this [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 repo locally by executing:
@@ -126,7 +136,7 @@ timing tests we've accumulated over time several scripts, which we don't complet
 abandon in favor of newer ones as they maintain the flags the original experiments
 on the library were built with.
 
-#### Using CMake
+#### Using CMake (3.2 or later)
 
  CMake support is the most recent and is still very experimental at this point. To
  build with cmake, perform the following commands from within Mach7 folder:
@@ -136,6 +146,8 @@ on the library were built with.
     cd build
     cmake ..
     cmake --build .
+
+ Version 3.2 is needed in order to be able to have support of target_compile_features for AppleClang
 
 #### Using Makefiles for GCC (4.4 or later) or Clang (3.3 or later)
 
