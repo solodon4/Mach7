@@ -270,56 +270,8 @@
 
 //------------------------------------------------------------------------------
 
-#if _MSC_VER == 1700
-    /// Visual C++ 2012 has check that we do not redefine noexcept, but doesn't implement it yet
-    #define _ALLOW_KEYWORD_MACROS 1
-#endif
-
-//------------------------------------------------------------------------------
-
-#if defined(_DEBUG)
-#if defined(_MSC_VER)
-#include "debug.hpp"
-
-// Enable memory leak tracing in debug builds
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
-
-/// \def XTL_LEAKED_NEW_LOCATIONS
-/// Tracing locations of leaked new operators should be enabled
-/// explicitly since it redefines new with macro and may cause
-/// errors in the application using this library, for example, when
-/// the user overrides new operator.
-#if defined(XTL_LEAKED_NEW_LOCATIONS)
-#ifndef DBG_NEW
-#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
-#define new DBG_NEW
-#endif
-#endif
-
-/// \note The following declaration attempts to call _CrtDumpMemoryLeaks
-///       as late as possible, however the order of initialization of
-///       static variables in different translation units is not defined,
-///       in which case you may still have false reports of memory leaks
-///       on allocations within initializations of global and static
-///       variables that happened before this one. Debug those separately
-///       from Visual C++ IDE by breaking on their allocation number:
-///       set {,,msvcr100d.dll}_crtBreakAlloc in Watch window to leaked
-///       allocation number.
-///
-/// \note By default, _CrtDumpMemoryLeaks outputs the memory-leak report
-///       to the Debug pane of the Output window. When debugger is not
-///       attached, call the following somewhere to redirect report to std_err.
-///       _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
-///       _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
-///
-/// \see  For more information on Finding Memory Leaks Using the CRT Library,
-///       see http://msdn.microsoft.com/en-us/library/x98tx3cf(v=vs.100).aspx
-static mch::call_on_last_instance<decltype(_CrtDumpMemoryLeaks),_CrtDumpMemoryLeaks> dummy_to_call_leak_dumping_at_exit;
-#endif
-
-#include <iostream>            // We refer to std::cerr in debug mode
-#endif
+/// Visual C++ has check that we do not redefine noexcept, constexpr and other 
+/// keywords, which defeats the idea of emulating them silently for old compilers
+#define _ALLOW_KEYWORD_MACROS 1
 
 //------------------------------------------------------------------------------

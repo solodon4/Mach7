@@ -73,6 +73,9 @@
 
 #pragma once
 
+#include <cppft/config.hpp> // C++ feature testing and feature emulation
+#include "macros.hpp"       // Tools for preprocessor meta-programming
+
 //------------------------------------------------------------------------------
 
 #if !defined(XTL_DUMP_PERFORMANCE)
@@ -308,71 +311,6 @@
     /// and alloca in MSVC. The full array will be allocated for those compilers
     /// not providing any similar means.
     #define XTL_MAX_STACK_LOG_SIZE 18
-#endif
-
-//------------------------------------------------------------------------------
-
-// This part re-defines various language facilities that can be emulated or
-// ignored in older compilers in order to support more compilers for the type
-// switching functionality, which does not require C++11.
-
-#if defined(_MSC_VER)
-#include "comp.msvc.hpp"    // Microsoft Visual C++ workarounds
-#elif defined(__clang__)
-#include "comp.clang.hpp"   // Clang workarounds
-#elif defined(__GNUC__)
-#include "comp.gcc.hpp"     // GNU C++ workarounds
-#endif
-
-#include "comp.other.hpp"   // Default workarounds for anything not handled by specialized configs
-#include "macros.hpp"       // Tools for preprocessor meta-programming
-
-//------------------------------------------------------------------------------
-
-// Somewhat more centralized way of checking for a support by compiler of some
-// language feature.
-#define XTL_SUPPORT(feature) XTL_SUPPORT_##feature
-
-//------------------------------------------------------------------------------
-
-#if !XTL_SUPPORT(constexpr)
-/// We do not turn it into inline because of constexpr values
-#define constexpr
-#endif
-
-#if XTL_SUPPORT(noexcept)
-/// Since noexcept might be a macro in our library, we need a different syntax for noexcept specification with condition
-#define noexcept_when(...) noexcept(__VA_ARGS__)
-/// We also need to distinguish between noexcept operator and noexcept specifier
-#define noexcept_of(...)   noexcept(__VA_ARGS__)
-#else
-/// We just ignore noexcept specification when noexcept is not supported
-#define noexcept_when(...)
-/// When noexcept is not supported, false for the result of noexcept operator seems to be a safer bet.
-#define noexcept_of(...)   false
-/// Turn noexcept into throw() for compilers not supporting it
-#define noexcept throw()
-#endif
-
-#if !XTL_SUPPORT(nullptr)
-/// Turn nullptr into 0 for compilers not supporting it
-#define nullptr 0
-#endif
-
-#if !XTL_SUPPORT(std_is_nothrow_copy_constructible)
-/// Emulate std::is_nothrow_copy_constructible<T> by assuming stuff it is applied to always throws
-namespace std
-{
-    // TODO: Optimize for easily-detectible cases like POD etc.
-  //template <class T, class... Args> struct is_nothrow_constructible         { static const bool value = false; };
-    template <class T>                struct is_nothrow_default_constructible { static const bool value = false; };
-    template <class T>                struct is_nothrow_copy_constructible    { static const bool value = false; };
-    template <class T>                struct is_nothrow_move_constructible    { static const bool value = false; };
-    template <class T, class U>       struct is_nothrow_assignable            { static const bool value = false; };
-    template <class T>                struct is_nothrow_copy_assignable       { static const bool value = false; };
-    template <class T>                struct is_nothrow_move_assignable       { static const bool value = false; };
-    template <class T>                struct is_nothrow_destructible          { static const bool value = false; };
-}
 #endif
 
 //------------------------------------------------------------------------------

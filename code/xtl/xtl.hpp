@@ -43,6 +43,7 @@
 
 #pragma once
 
+#include <cppft/config.hpp> // C++ feature testing and feature emulation
 #include <cstddef>      // std::nullptr_t
 #include <type_traits>  // std::enable_if
 #include <utility>      // std::forward
