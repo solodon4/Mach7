@@ -72,6 +72,7 @@
 @echo off
 set MACH7_ROOT=%~dp0
 set CurDir=%CD%
+set /A "result=0"
 setlocal
 if "%1" == "/?" findstr "^::" "%~f0" & goto END
 
@@ -108,7 +109,7 @@ if "%1" == "2005" set VS20XX=2005
 if "%1" == "2003" set VS20XX=2003
 
 rem Specific invokations of this script write log to common build.log file
-if not "%1" == "" set logfile=build-VS%VS20XX%.log&goto LOG_FILE_READY
+rem if not "%1" == "" set logfile=build-VS%VS20XX%.log&goto LOG_FILE_READY
 rem Build of everythings gets its own time-stamped log file
 call :SUB_PARSE_DATE 
 set logfile=build-%yy%-%mm%-%dd%-%hh%-%mn%-VS%VS20XX%.log
@@ -190,7 +191,7 @@ if "%1" == ""                goto BUILD_ALL
 rem Iterate through all the arguments that were passed and build them
 for %%i in (%1) do call :SUB_BUILD_FILE "%%i"
 shift
-if "%1" == "" goto END
+if "%1" == "" echo There were %result% errors & exit /B %result%
 goto BUILD_ARG
 
 :BUILD_ALL :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -202,7 +203,8 @@ call :BUILD_CMP
 call :BUILD_TIMING
 call :CHECK_ALL
 echo Build log has been saved to %logfile%
-goto END
+echo There were %result% errors
+exit /B %result%
 
 :SUB_BUILD_FILE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -217,6 +219,7 @@ if exist %filename%.exe (
     echo [[ %CXX% %CXXFLAGS% %1 /Fo%filename%.obj /Fe%filename%.exe /link %LNKFLAGS% /MACHINE:%M% ]] >> %logfile% 2>&1
             %CXX% %CXXFLAGS% %1 /Fo%filename%.obj /Fe%filename%.exe /link %LNKFLAGS% /MACHINE:%M%    >> %logfile% 2>&1
     if not ERRORLEVEL 1 goto PGO
+    set /A "result+=1"
     <nul (set/p output=- ) & call :SUB_COLOR_TEXT 0C "error"
     if not "%REPRO%"=="1" goto HANDLE_TEMPORARIES
     rem Error during compilation, prepare preprocessed file for troubleshooting
@@ -311,7 +314,7 @@ if not exist correct_output/%filename%.out goto END
 <nul (set/p output= %filename%.out 	) 
 %1 > current.out 2>&1
 fc current.out correct_output/%~n1.out | FIND "FC: no dif" > nul 
-if errorlevel 1 (<nul (set/p output= ) & call :SUB_COLOR_TEXT 0C "differ") else (<nul (set/p output= OK))
+if errorlevel 1 (<nul (set/p output= ) & call :SUB_COLOR_TEXT 0C "differ" & set /A "result+=1") else (<nul (set/p output= OK))
 echo.
 goto END
 
@@ -364,7 +367,7 @@ for %%G in (x86 x64) do (
             )
         )
     )
-    endlocal
+    endlocal&set result=%result%
 )
 cd /D "%CurDir%"
 goto END
@@ -390,7 +393,7 @@ if "%M%" == "x64" set B=64
 rem set PGO=1
 set CXXFLAGS=/DXTL_VISITOR_FORWARDING=%1 /DXTL_DEFAULT_SYNTAX='%S%' /DXTL_%3_TEST %CXXFLAGS% 
 call :SUB_BUILD_FILE %5 %6-%B%-%F%-%G%-%E%-%3
-endlocal
+endlocal&set result=%result%
 goto END
 
 :BUILD_CMP :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -419,7 +422,7 @@ if errorlevel 1 <nul (set/p output=- ) & call :SUB_COLOR_TEXT 0C "error"
 echo.
 if "%KEEP_TMP%"=="" del cmp_ocaml.cmi cmp_ocaml.cmx cmp_ocaml.obj > nul 2>&1
 cd /D "%CurDir%"
-endlocal
+endlocal&set result=%result%
 goto END
 
 :BUILD_SYNTAX ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -452,7 +455,7 @@ set CXXFLAGS=%CF% /DXTL_FALL_THROUGH=1 /DXTL_USE_BRACES=1 /DXTL_DEFAULT_SYNTAX='
 set CXXFLAGS=%CF% /DXTL_FALL_THROUGH=1 /DXTL_USE_BRACES=1 /DXTL_DEFAULT_SYNTAX='K' & call :SUB_BUILD_FILE syntax.cxx syntax-rc0-ft1-br1-K-spe
 set CXXFLAGS=%CF% /DXTL_FALL_THROUGH=1 /DXTL_USE_BRACES=1 /DXTL_DEFAULT_SYNTAX='k' & call :SUB_BUILD_FILE syntax.cxx syntax-rc0-ft1-br1-K-gen
 cd /D "%CurDir%"
-endlocal
+endlocal&set result=%result%
 goto END
 
 :SUB_PARSE_DATE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
