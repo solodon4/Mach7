@@ -406,21 +406,27 @@ call :SUB_BUILD_TIMING 1 f SEQ x86 cmp_cpp.cxx cmp
 call :SUB_BUILD_TIMING 0 P SEQ x86 cmp_cpp.cxx cmp
 call :SUB_BUILD_TIMING 0 F SEQ x86 cmp_cpp.cxx cmp
 call :SUB_BUILD_TIMING 1 F SEQ x86 cmp_cpp.cxx cmp
+where ghc
+if errorlevel 1 echo Warning: No Haskell compiler in the PATH. Skipping & goto skip_haskell
 echo ======================================== [ cmp_haskell.exe ] >> %logfile%
 <nul (set/p output=Working on cmp_haskell.exe	- compiling ) 
 ghc -O --make cmp_haskell >> %logfile% 2>&1
-if errorlevel 1 <nul (set/p output=- ) & call :SUB_COLOR_TEXT 0C "error"
+if errorlevel 1 <nul (set/p output=- ) & call :SUB_COLOR_TEXT 0C "error" & set /A "result+=1"
 echo.
 if "%KEEP_TMP%"=="" del cmp_haskell.hi cmp_haskell.o > nul 2>&1
+:skip_haskell
+where ocamlopt.opt
+if errorlevel 1 echo Warning: No Caml compiler in the PATH. Skipping & goto skip_ocaml
 echo ======================================== [ cmp_ocaml.exe ] >> %logfile%
 set OCAMLPATH=C:\Program Files (x86)\Objective Caml
 set OCAMLLIB=%OCAMLPATH%\lib
 set PATH=%OCAMLPATH%\bin;C:\Program Files (x86)\flexdll;%PATH%
 <nul (set/p output=Working on cmp_ocaml.exe	- compiling ) 
 ocamlopt.opt unix.cmxa -o cmp_ocaml.exe cmp_ocaml.ml >> %logfile% 2>&1
-if errorlevel 1 <nul (set/p output=- ) & call :SUB_COLOR_TEXT 0C "error"
+if errorlevel 1 <nul (set/p output=- ) & call :SUB_COLOR_TEXT 0C "error" & set /A "result+=1"
 echo.
 if "%KEEP_TMP%"=="" del cmp_ocaml.cmi cmp_ocaml.cmx cmp_ocaml.obj > nul 2>&1
+:skip_ocaml
 cd /D "%CurDir%"
 endlocal&set result=%result%
 goto END
