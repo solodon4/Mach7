@@ -7,4 +7,9 @@ environment:
 
 build_script:
   - cd code
-  - build.bat
+  - build.bat x64
+
+artifacts: 
+
+  # pushing all build-*.log files in code directory 
+  - path: code\build-*.log 
