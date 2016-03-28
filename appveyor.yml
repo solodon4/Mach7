@@ -9,6 +9,10 @@ build_script:
   - cd code
   - build.bat x64
 
+test_script:
+  - build.bat check
+  - build.bat test
+    
 artifacts: 
 
   # pushing all build-*.log files in code directory 
