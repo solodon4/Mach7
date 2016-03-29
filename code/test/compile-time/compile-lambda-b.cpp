@@ -30,9 +30,9 @@ struct App : Term { Term* func; Term* arg;  App(Term* f, Term* a) : func(f), arg
 
 namespace mch ///< Mach7 library namespace
 {
-template <> struct bindings<Var> { CM(0,Var::name); };
-template <> struct bindings<Abs> { CM(0,Abs::var);  CM(1,Abs::body); };
-template <> struct bindings<App> { CM(0,App::func); CM(1,App::arg);  };
+template <> struct bindings<Var> { Members(Var::name); };
+template <> struct bindings<Abs> { Members(Abs::var, Abs::body); };
+template <> struct bindings<App> { Members(App::func,App::arg);  };
 } // of namespace mch
 
 //------------------------------------------------------------------------------
