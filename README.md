@@ -151,6 +151,24 @@ on the library were built with.
 
 #### Using Makefiles for GCC (4.4 or later) or Clang (3.3 or later)
 
+ To build and run unit tests:
+ 
+ ```
+ cd $MACH7_ROOT/code/test/unit
+ make
+ make test
+ ```
+ 
+ Similarly, to build and run all timing tests: 
+ 
+ ```
+ cd $MACH7_ROOT/code/test/time
+ make
+ make test
+ ```
+ 
+ Makefile synopsis:
+ 
     make         - builds .exe files from all the .cpp files in current directory.
     make timings - builds all combinations of encodings, syntax and benchmarks 
                    out of skeleton.cxx for timing purposes
