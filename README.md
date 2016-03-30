@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/solodon4/Mach7/master/media/posters/OpenPatternMatching-OOPSLA%20(1280x989).jpg" width="100%">
 </a>
 
-Mach7: Pattern Matching for C++ [![Build Status](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7)
+Mach7: Pattern Matching for C++ [![Build Status: Linux, OSX](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7) [![Build Status: Windows](https://ci.appveyor.com/project/solodon4/mach7)](https://ci.appveyor.com/api/projects/status/github/solodon4/mach7?branch=master&svg=true)
 ===============================
 
 by [Yuriy Solodkyy](http://parasol.tamu.edu/~yuriys/), [Gabriel Dos Reis](http://parasol.tamu.edu/~gdr/), [Bjarne Stroustrup](http://parasol.tamu.edu/~bs/)
@@ -150,31 +150,50 @@ on the library were built with.
  Version 3.2 is needed in order to be able to have support of target_compile_features for AppleClang
 
 #### Using Makefiles for GCC (4.4 or later) or Clang (3.3 or later)
+ 
+Top-level Makefile synopisis:
+ 
+    make         - build all library tests
+    make all     - same as above right now
+    make unit    - build all unit tests
+    make time    - build all timing tests
+    make cmpl    - build all tests for timing the compilation times of the library
+    make clean   - clean all built targets and intermediaries
+    make test    - run all the built tests
+    make check   - run those tests for which there are correct_output/*.out files and check that the output is the same
+    make doc     - build Mach7 documentation (requires doxygen)
+    make includes.png - build graph representation of header inclusions (requires graphviz dot)
 
- To build and run unit tests:
+To see a list of more specific targets supported by other makefiles, see comments inside them. 
+
+To build a particular file, say test/unit/example05.cpp, build a target with 
+the same filename and extension .exe instead of .cpp (even on Unix family OS).
+For example:
+
+ ```
+ cd $MACH7_ROOT/code/test/unit
+ make example05.exe
+ ```
+
+Lower-level makefiles support most of the phony targets of the top-level makefile, 
+to which the top-level makefile forwards the corresponding calls. For example:
+
+To build and run just the unit tests:
  
  ```
  cd $MACH7_ROOT/code/test/unit
  make
+ make check
  make test
  ```
  
- Similarly, to build and run all timing tests: 
+Similarly, to build and run all the timing tests:
  
  ```
  cd $MACH7_ROOT/code/test/time
  make
  make test
  ```
- 
- Makefile synopsis:
- 
-    make         - builds .exe files from all the .cpp files in current directory.
-    make timings - builds all combinations of encodings, syntax and benchmarks 
-                   out of skeleton.cxx for timing purposes
-    make syntax  - builds all combinations of configuration flags supported by the 
-                   library to make sure nothing was omitted
-    make test    - runs all the .exe files in the current folder
 
 #### Using Visual C++ (2010 or later)
 
@@ -190,7 +209,7 @@ on the library were built with.
 
 ######  Commands supported so far:
 
-    build [ pgo | tmp | (ver) ] [ filemask*.cpp ... ] - build given C++ files
+    build [ pgo | repro | tmp | <ver> | <arch> ] [ filemask*.cpp ... ] - build given C++ files
     build        - Build all examples using the most recent MS Visual C++ compiler installed
     build unit   - Build all unit tests
     build syntax - Build all supported library options combination for syntax variations
@@ -209,10 +228,16 @@ on the library were built with.
            tmp   - Keep temporaries
           <ver>  - Use a specific version of Visual C++ to compiler the source 
                    code. <ver> can be one of the following:
+                    - 2016 - Visual C++ 15.0
                     - 2015 - Visual C++ 14.0
                     - 2013 - Visual C++ 12.0
                     - 2012 - Visual C++ 11.0
                     - 2010 - Visual C++ 10.0
+                    - 2008 - Visual C++  9.0
+                    - 2005 - Visual C++  8.0
+                    - 2003 - Visual C++  7.1
+                      0000 - Do not use any VS to set up the environment, I will set it up by myself
+          <arch> - Target architecture. Can be one of the following: x86, x64, arm
 
 Talks
 -------------

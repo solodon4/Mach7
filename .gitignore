@@ -49,6 +49,9 @@ DerivedData
 # Pods - for those of you who use CocoaPods
 Pods
 
+# Visual Studio Code
+browse.VC.db
+
 # Visual C++
 Debug/
 Release/

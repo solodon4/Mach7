@@ -38,6 +38,7 @@
 # \author Yuriy Solodkyy <yuriy.solodkyy@gmail.com>
 #
 # \see https://parasol.tamu.edu/mach7/
+# \see https://parasol.tamu.edu/xtl/
 # \see https://github.com/solodon4/Mach7
 # \see https://github.com/solodon4/SELL
 #
@@ -46,13 +47,14 @@
 # Usage:
 #     make        - Build all .cpp files in the current folder
 #     make all    - Build all the targets and documentation
-#     make syntax - Build all supported library options combination for syntax variations
-#     make timing - Build all supported configurations for timing the library
-#     make cmp    - Build all executables for comparison with other languages
+#     make unit   - Build all unit tests
+#     make time   - Build all supported configurations for timing the library
+#     make cmpl   - Build all supported configurations for timing the compilation times of the library
 #     make clean  - Clean all targets
 #     make doc    - Build Mach7 documentation
 #     make includes.png - Build graph representation of header inclusions
 #     make test   - Run the test suite
+#     make check  - Run those tests for which there are correct_output/*.out files and check that the output is the same
 #
 
 GCC_COLORS=always
@@ -88,19 +90,19 @@ TARGETS  = ${SOURCES:.cpp=.exe}
 # A phony target is one that is not really the name of a file; rather it is just
 # a name for a recipe to be executed when you make an explicit request.
 
-.PHONY: all clean cmp default doc syntax tags test timing ver
+.PHONY: all clean cmp default doc syntax tags check test time unit cmpl ver
 
 # Phony targets can have prerequisites. When one phony target is a prerequisite
 # of another, it serves as a subroutine of the other.
 
-# Build all files in current folder as well as all combinations for syntax, timing and comparison
-all: default unit time
+# Build all tests
+all: default
 
 # A phony target should not be a prerequisite of a real target file; if it is,
 # its recipe will be run every time make goes to update that file.
 
-# Build all targets by default
-default: 	$(TARGETS)
+# Build all tests by default
+default: unit time cmpl
 
 # Setting .SECONDARY to blank disables deletion of intermediate files by make
 #.SECONDARY:
@@ -161,6 +163,10 @@ ver:
 #	@echo Instrumenting parser $@ ...
 #	sed -f ypp.sed $< > $@
 
+# A rule to build all the compilation timing tests
+cmpl:
+	$(MAKE) -C test/compile-time CXX=$(CXX) BOOST_ROOT=$(BOOST_ROOT)
+
 # A rule to build all the timing tests
 time:
 	$(MAKE) -C test/time CXX=$(CXX) BOOST_ROOT=$(BOOST_ROOT)
@@ -173,12 +179,12 @@ unit:
 clean:
 	$(MAKE) -C test/unit clean
 	$(MAKE) -C test/time clean
+	$(MAKE) -C test/compile-time clean
 	rm -rf $(TARGETS) $(OBJECTS) *.out *.stackdump *.cmi *.cmx *.obj *.csv *.exe.dSYM time-*.exe syntax-*.exe cmp-*.exe cmp_*.exe cmp_*.hi cmp_*.o
 
 # A rule to create GraphViz .dot file with graph representation of header inclusions
 includes.dot:
-	grep -R --include=*.hpp "#include" * | sed -e "s/^/\"/g" -e "s/:/\"/g" -e "s/\/\/.*//g" -e "s/\"[A-Za-z0-9_\.\/-]*\//\"/g" -e "s/\(<.*>\)/\1\n\1 [color=red,shape=box]/g" -e "s/#include/ -> /g" > includes.dot
-
+	grep -R --include=*.?pp "#include" * | sed -e "s/^/\"/g" -e "s/:/\"/g" -e "s/\/\/.*//g" -e "s/\"[A-Za-z0-9_\.\/-]*\//\"/g" -e "s/\(<.*>\)/\1\n\1 [color=red,shape=box]/g" -e "s/#include/ -> /g" > includes.dot
 # -e "1 { s/^/digraph Includes {\nrankdir=TB;\nratio=0.44;\n/g }" -e "$$ { s/$$/\n}\n/g }"
 
 # A rule to convert the above GraphViz .dot file into actual picture
@@ -187,43 +193,10 @@ includes.png: includes.dot
 
 # Run those examples for which there are correct_output/*.out files and check that output is the same
 check:
-	@for file in *.exe; do \
-		name=`basename $$file .exe` ; \
-		name=`basename $$name .crash` ; \
-		if (ls correct_output/$$name.out >/dev/null 2>&1) ; then \
-			echo dummy >/dev/null 2>&1; \
-		else \
-			continue ; \
-		fi ; \
-		echo ======================================== [ $$file ] ; \
-		./$$file > $$name.out ; \
-		if (diff -q --strip-trailing-cr $$name.out correct_output/$$name.out) ; then \
-			echo Match >/dev/null 2>&1 ; \
-		else \
-			echo Dont match >/dev/null 2>&1 ; \
-		fi ; \
-	done ;
+	$(MAKE) -C test/unit check
+	$(MAKE) -C test/time check
 
 # A rule to run set of tests
 test:
-	@for file in *.exe; do \
-	    name=`basename $$file .exe` ; \
-	    name=`basename $$name .crash` ; \
-	    if (ls $$name.crash.exe >/dev/null 2>&1) ; then \
-	        continue ; \
-	    fi ; \
-	    echo ======================================== [ $$file ] ; \
-	    if (ls $$name.*in >/dev/null 2>&1) ; then \
-	        for f in $$name.*in; do \
-	            echo ; \
-	            echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ { "$$f" } ; \
-	            cat "$$f" ; \
-	            echo ; \
-	            echo ---------------------------------------- ; \
-	            ./$$file < "$$f" ; \
-	        done ; \
-	    else \
-	      ./$$file; \
-	    fi \
-	done ; \
-	echo -n
+	$(MAKE) -C test/unit test
+	$(MAKE) -C test/time test
