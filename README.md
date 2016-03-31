@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/solodon4/Mach7/master/media/posters/OpenPatternMatching-OOPSLA%20(1280x989).jpg" width="100%">
 </a>
 
-Mach7: Pattern Matching for C++ [![Build Status: Linux, OSX](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7) [![Build Status: Windows](https://ci.appveyor.com/project/solodon4/mach7)](https://ci.appveyor.com/api/projects/status/github/solodon4/mach7?branch=master&svg=true)
+Mach7: Pattern Matching for C++ [![Build Status: Linux, OSX](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7) [![Build Status: Windows](https://ci.appveyor.com/api/projects/status/github/solodon4/mach7?branch=master&svg=true)](https://ci.appveyor.com/project/solodon4/mach7)
 ===============================
 
 by [Yuriy Solodkyy](http://parasol.tamu.edu/~yuriys/), [Gabriel Dos Reis](http://parasol.tamu.edu/~gdr/), [Bjarne Stroustrup](http://parasol.tamu.edu/~bs/)
@@ -39,7 +39,7 @@ int fib(int n)
 }
 ```
 
-Lambda calculator demonstrates [use of pattern matching to decompose objects and nested patterns](https://github.com/solodon4/Mach7/blob/master/code/test/time/lambda.cpp#L97-L114):
+Lambda calculator demonstrates [use of pattern matching to decompose objects and nested patterns](https://github.com/solodon4/Mach7/blob/master/code/test/time/lambda.cpp#L101-L118):
 
 ```C++
 // Lambda calculator
@@ -64,7 +64,7 @@ Term* eval(Term* t)
 }
 ```
 
-It can also be used to demonstrate [relational matching on several arguments](https://github.com/solodon4/Mach7/blob/master/code/test/time/lambda.cpp#L123-L140):
+It can also be used to demonstrate [relational matching on several arguments](https://github.com/solodon4/Mach7/blob/master/code/test/time/lambda.cpp#L127-L144):
 
 ```C++
 bool operator==(const Term& left, const Term& right)
@@ -115,10 +115,10 @@ to help you get started on your own Mach7 project.
 Continuous Integration
 ----------------------
 
-We use [Travis CI](https://travis-ci.org/solodon4/Mach7) for continuous integration 
+We use [Travis CI](https://travis-ci.org/solodon4/Mach7) and [AppVeyor](https://ci.appveyor.com/project/solodon4/mach7) for continuous integration 
 and currently have all check-ins validated in the following configurations:
 
-| [![Build Status](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7) | G++ | Clang |
+| [![Build Status](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7) | [G++](http://gcc.gnu.org/) | [Clang](http://clang.llvm.org/) |
 |-------|-----|-------|
 | Linux | 4.8 | 3.4   |
 | OSX   | 4.8 | 3.5   |
@@ -138,7 +138,7 @@ on the library were built with.
 
 #### Using CMake (3.2 or later)
 
- CMake support is the most recent and is still very experimental at this point. To
+ [CMake](https://cmake.org/) support is the most recent and is still very experimental at this point. To
  build with cmake, perform the following commands from within Mach7 folder:
 
     cd code/test
@@ -197,8 +197,11 @@ Similarly, to build and run all the timing tests:
 
 #### Using Visual C++ (2010 or later)
 
- Mach7 uses its own build.bat script to build all the examples and unit tests that come with it. The script assumes
- each .cpp file to be a standalone program. You can find the most up-to-date list of supported commands by running:
+ Mach7 uses its own [build.bat](https://github.com/solodon4/Mach7/blob/master/code/build.bat) 
+ script to build all the examples and unit tests that come with it. The script 
+ assumes each .cpp file to be a standalone program. You can find 
+ [the most up-to-date list of supported commands](https://github.com/solodon4/Mach7/blob/master/code/build.bat#L43-L73) 
+ by running:
 
     build.bat /?
 
