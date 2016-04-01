@@ -523,11 +523,11 @@ T& vtblmap<T>::update(intptr_t vtbl0, intptr_t vtbl1)
 
                 XTL_ASSERT(st);
 
-                if (intptr_t vtbl0 = st->vtbl[0])
+                if (intptr_t vt0 = st->vtbl[0])
                 {
-                    intptr_t vtbl1 = st->vtbl[1];
-                    XTL_ASSERT(vtbl1);
-                    XTL_BIT_SET(cache_histogram, interleave(vtbl0 >> j0, vtbl1 >> j1) & cache_mask); // Mark the entry for each vtbl
+                    intptr_t vt1 = st->vtbl[1];
+                    XTL_ASSERT(vt1);
+                    XTL_BIT_SET(cache_histogram, interleave(vt0 >> j0, vt1 >> j1) & cache_mask); // Mark the entry for each vtbl
                 }
             }
 

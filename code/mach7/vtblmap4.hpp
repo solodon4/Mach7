@@ -1010,10 +1010,10 @@ T& vtbl_map<N,T>::update(const intptr_t (&vtbl)[N])
         XTL_ASSERT(st);
 
         for (size_t s = 0; s < N; s++)
-            if (intptr_t vtbl = st->vtbl[s])
+            if (intptr_t vt = st->vtbl[s])
             {
-                diff[s] |= prev[s] ^ vtbl;
-                prev[s] = vtbl;
+                diff[s] |= prev[s] ^ vt;
+                prev[s] = vt;
             }
     }
 
