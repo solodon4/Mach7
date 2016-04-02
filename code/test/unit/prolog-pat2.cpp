@@ -411,7 +411,7 @@ std::ostream& operator<<(std::ostream& os, const Term& t)
     Case(C<Structure>(s)) 
         os << s << '(';
 #if XTL_RANGE_FOR
-        for (auto t : match0.terms) os << *t << ',';
+        for (auto tt : match0.terms) os << *tt << ',';
 #else
         std::transform(
             match0.terms.begin(), 

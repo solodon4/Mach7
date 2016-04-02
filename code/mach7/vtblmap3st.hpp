@@ -446,10 +446,10 @@ T& vtblmap<T>::update(intptr_t vtbl)
     {
         XTL_ASSERT(descriptor->cache[i]);
 
-        if (intptr_t vtbl = descriptor->cache[i]->vtbl)
+        if (intptr_t vt = descriptor->cache[i]->vtbl)
         {
-            diff |= prev ^ vtbl;
-            prev = vtbl;
+            diff |= prev ^ vt;
+            prev = vt;
         }
     }
 
@@ -493,8 +493,8 @@ T& vtblmap<T>::update(intptr_t vtbl)
             {
                 XTL_ASSERT(descriptor->cache[c]);
 
-                if (intptr_t vtbl = descriptor->cache[c]->vtbl)
-                    XTL_BIT_SET(cache_histogram, (vtbl >> j) & cache_mask); // Mark the entry for each vtbl
+                if (intptr_t vt = descriptor->cache[c]->vtbl)
+                    XTL_BIT_SET(cache_histogram, (vt >> j) & cache_mask); // Mark the entry for each vtbl
             }
 
             size_t entries = 0;

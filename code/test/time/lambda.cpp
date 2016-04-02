@@ -383,8 +383,8 @@ bool equal_terms(const Term& left, const Term& right)
 Term* random_term(int n)
 {
     static Var* variables[] = {new Var("a"), new Var("b"), new Var("c"), new Var("d"), new Var("e"), new Var("f")};
-    const int N = XTL_ARR_SIZE(variables);
-    Var* v = variables[rand()%N];
+    const int NN = XTL_ARR_SIZE(variables);
+    Var* v = variables[rand()%NN];
 
     if (n < 3)
     {
@@ -392,7 +392,7 @@ Term* random_term(int n)
         {
         case 0: return v;
         case 1: return new Abs(v,v);
-        case 2: return new App(new Abs(v,v),variables[rand()%N]);
+        case 2: return new App(new Abs(v,v),variables[rand()%NN]);
         }
     }
     else

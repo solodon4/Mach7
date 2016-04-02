@@ -115,7 +115,7 @@ const size_t K = 100;   // Number of experiment repetitions. Each experiment is 
 
 struct verdict
 {
-    verdict(size_t N, long long v = 0, long long m = 0) : iterations(N), vis_time(v), mat_time(m) {}
+    verdict(size_t n, long long v = 0, long long m = 0) : iterations(n), vis_time(v), mat_time(m) {}
 	size_t    iterations; ///< The number of iterations both timings represent
     long long vis_time;   ///< Time of the existing technique
     long long mat_time;   ///< Time of new (our) technique
@@ -125,7 +125,7 @@ struct verdict
 
 inline std::ostream& operator<<(std::ostream& os, const verdict& r)
 {
-	size_t    N = r.iterations;
+	size_t    n = r.iterations;
     long long v = r.vis_time;
     long long m = r.mat_time;
 
@@ -134,12 +134,12 @@ inline std::ostream& operator<<(std::ostream& os, const verdict& r)
     else
     if (XTL_UNLIKELY(v <= m))
         return os << std::setw(3) << int(m*100/v-100) << "% slower" 
-                  << " V=" << std::setw(3) << cycles(v)/N 
-                  << " M=" << std::setw(3) << cycles(m)/N;
+                  << " V=" << std::setw(3) << cycles(v)/n 
+                  << " M=" << std::setw(3) << cycles(m)/n;
     else
         return os << std::setw(3) << int(v*100/m-100) << "% faster"
-                  << " V=" << std::setw(3) << cycles(v)/N 
-                  << " M=" << std::setw(3) << cycles(m)/N;
+                  << " V=" << std::setw(3) << cycles(v)/n 
+                  << " M=" << std::setw(3) << cycles(m)/n;
 }
 
 //------------------------------------------------------------------------------
@@ -180,7 +180,7 @@ inline void statistics(std::vector<T>& measurements, T& min, T& max, T& avg, T& 
 
 //------------------------------------------------------------------------------
 
-inline long long display(const char* name, std::vector<long long>& timings, size_t N)
+inline long long display(const char* name, std::vector<long long>& timings, size_t n)
 {
     long long min, max, avg, med, dev;
 
@@ -198,7 +198,7 @@ inline long long display(const char* name, std::vector<long long>& timings, size
             timings.begin(), 
             timings.end(), 
             std::ostream_iterator<long long>(file, ", "), 
-            [N](long long t) { return cycles(t)/N; }
+            [n](long long t) { return cycles(t)/n; }
         );
 #endif
         file << "End" << std::endl;
@@ -214,11 +214,11 @@ inline long long display(const char* name, std::vector<long long>& timings, size
               << std::setw(4) << microseconds(dev)
 #if   defined(XTL_TIMING_METHOD_1) || defined(XTL_TIMING_METHOD_2)
               << " Cycles/iteration: ["
-              << std::setw(4) << cycles(min)/N << " --" 
-              << std::setw(5) << cycles(avg)/N << "/" 
-              << std::setw(4) << cycles(med)/N << " --"
-              << std::setw(5) << cycles(max)/N << "]"
-			  << " Cycles/" << std::setw(7) << N << " iterations ["
+              << std::setw(4) << cycles(min)/n << " --" 
+              << std::setw(5) << cycles(avg)/n << "/" 
+              << std::setw(4) << cycles(med)/n << " --"
+              << std::setw(5) << cycles(max)/n << "]"
+			  << " Cycles/" << std::setw(7) << n << " iterations ["
               << std::setw(7) << (min) << " --" 
               << std::setw(8) << (avg) << "/" 
               << std::setw(7) << (med) << " --"
@@ -445,21 +445,21 @@ inline size_t get_timings1(
 {
     XTL_ASSERT(timings1.size() == timings2.size());
 
-    size_t N = arguments.size();
-    size_t M = timings1.size();
+    size_t NN = arguments.size();
+    size_t MM = timings1.size();
 
-    for (size_t m = 0; m < M; ++m)
+    for (size_t m = 0; m < MM; ++m)
     {
         time_stamp liStart1 = get_time_stamp();
 
-        for (size_t i = 0; i < N; ++i)
+        for (size_t i = 0; i < NN; ++i)
             a1 += f1(arguments[i]);
 
         time_stamp liFinish1 = get_time_stamp();
 
         time_stamp liStart2 = get_time_stamp();
 
-        for (size_t i = 0; i < N; ++i)
+        for (size_t i = 0; i < NN; ++i)
             a2 += f2(arguments[i]);
 
         time_stamp liFinish2 = get_time_stamp();
@@ -470,7 +470,7 @@ inline size_t get_timings1(
         timings2[m] = liFinish2-liStart2;
     }
 
-	return N; // Number of iterations per measurement
+	return NN; // Number of iterations per measurement
 }
 
 //------------------------------------------------------------------------------
@@ -478,7 +478,7 @@ inline size_t get_timings1(
 template <typename R, typename A, R (&f1)(A), R (&f2)(A)>
 inline verdict get_timings1(std::vector<typename underlying<A>::type>& arguments)
 {
-	size_t N = 0;
+	size_t NN = 0;
     std::vector<long long> medians1(K); // Final verdict of medians for each of the K experiments with visitors
     std::vector<long long> medians2(K); // Final verdict of medians for each of the K experiments with matching
     std::vector<long long> timings1(M); 
@@ -488,12 +488,12 @@ inline verdict get_timings1(std::vector<typename underlying<A>::type>& arguments
 
     for (size_t k = 0; k < K; ++k)
     {
-        N = get_timings1<R,A,f1,f2>(arguments, timings1, timings2, a1, a2);
-        medians1[k] = display("F1", timings1, N);
-        medians2[k] = display("F2", timings2, N);
+        NN = get_timings1<R,A,f1,f2>(arguments, timings1, timings2, a1, a2);
+        medians1[k] = display("F1", timings1, NN);
+        medians2[k] = display("F2", timings2, NN);
         
         std::ios_base::fmtflags fmt = std::cout.flags(); // use cout flags function to save original format
-        std::cout << "\t\t" << verdict(N, medians1[k], medians2[k]) << "\t\t" 
+        std::cout << "\t\t" << verdict(NN, medians1[k], medians2[k]) << "\t\t" 
                   << " a1=" << std::setw(8) << std::hex << a1 
                   << " a2=" << std::setw(8) << std::hex << a2 
                   << std::endl;
@@ -508,7 +508,7 @@ inline verdict get_timings1(std::vector<typename underlying<A>::type>& arguments
 
     std::sort(medians1.begin(), medians1.end());
     std::sort(medians2.begin(), medians2.end());
-    return verdict(N,medians1[K/2],medians2[K/2]);
+    return verdict(NN,medians1[K/2],medians2[K/2]);
 }
 
 //------------------------------------------------------------------------------
@@ -524,21 +524,21 @@ inline size_t get_timings2(
 {
     XTL_ASSERT(timings1.size() == timings2.size());
 
-    size_t N = arguments.size();
-    size_t M = timings1.size();
+    size_t NN = arguments.size();
+    size_t MM = timings1.size();
 
-    for (size_t m = 0; m < M; ++m)
+    for (size_t m = 0; m < MM; ++m)
     {
         time_stamp liStart1 = get_time_stamp();
 
-        for (size_t i = 0; i < N-1; i += 2)
+        for (size_t i = 0; i < NN-1; i += 2)
             a1 += f1(arguments[i],arguments[i+1]);
 
         time_stamp liFinish1 = get_time_stamp();
 
         time_stamp liStart2 = get_time_stamp();
 
-        for (size_t i = 0; i < N-1; i += 2)
+        for (size_t i = 0; i < NN-1; i += 2)
             a2 += f2(arguments[i],arguments[i+1]);
 
         time_stamp liFinish2 = get_time_stamp();
@@ -549,7 +549,7 @@ inline size_t get_timings2(
         timings2[m] = liFinish2-liStart2;
     }
 
-	return N/2; // Number of iterations per measurement
+	return NN/2; // Number of iterations per measurement
 }
 
 //------------------------------------------------------------------------------
@@ -557,7 +557,7 @@ inline size_t get_timings2(
 template <typename R, typename A, R (&f1)(A,A), R (&f2)(A,A)>
 inline verdict get_timings2(std::vector<typename underlying<A>::type>& arguments)
 {
-	size_t N = 0;
+	size_t NN = 0;
     std::vector<long long> medians1(K); // Final verdict of medians for each of the K experiments with visitors
     std::vector<long long> medians2(K); // Final verdict of medians for each of the K experiments with matching
     std::vector<long long> timings1(M); 
@@ -567,12 +567,12 @@ inline verdict get_timings2(std::vector<typename underlying<A>::type>& arguments
 
     for (size_t k = 0; k < K; ++k)
     {
-        N = get_timings2<R,A,f1,f2>(arguments, timings1, timings2, a1, a2);
-        medians1[k] = display("F1", timings1, N);
-        medians2[k] = display("F2", timings2, N);
+        NN = get_timings2<R,A,f1,f2>(arguments, timings1, timings2, a1, a2);
+        medians1[k] = display("F1", timings1, NN);
+        medians2[k] = display("F2", timings2, NN);
         
         std::ios_base::fmtflags fmt = std::cout.flags(); // use cout flags function to save original format
-        std::cout << "\t\t" << verdict(N, medians1[k], medians2[k]) << "\t\t" 
+        std::cout << "\t\t" << verdict(NN, medians1[k], medians2[k]) << "\t\t" 
                   << " a1=" << std::setw(8) << std::hex << a1 
                   << " a2=" << std::setw(8) << std::hex << a2 
                   << std::endl;
@@ -587,7 +587,7 @@ inline verdict get_timings2(std::vector<typename underlying<A>::type>& arguments
 
     std::sort(medians1.begin(), medians1.end());
     std::sort(medians2.begin(), medians2.end());
-    return verdict(N,medians1[K/2],medians2[K/2]);
+    return verdict(NN,medians1[K/2],medians2[K/2]);
 }
 
 //------------------------------------------------------------------------------
@@ -603,21 +603,21 @@ inline size_t get_timings3(
 {
     XTL_ASSERT(timings1.size() == timings2.size());
 
-    size_t N = arguments.size();
-    size_t M = timings1.size();
+    size_t NN = arguments.size();
+    size_t MM = timings1.size();
 
-    for (size_t m = 0; m < M; ++m)
+    for (size_t m = 0; m < MM; ++m)
     {
         time_stamp liStart1 = get_time_stamp();
 
-        for (size_t i = 0; i < N-2; i += 3)
+        for (size_t i = 0; i < NN-2; i += 3)
             a1 += f1(arguments[i],arguments[i+1],arguments[i+2]);
 
         time_stamp liFinish1 = get_time_stamp();
 
         time_stamp liStart2 = get_time_stamp();
 
-        for (size_t i = 0; i < N-2; i += 3)
+        for (size_t i = 0; i < NN-2; i += 3)
             a2 += f2(arguments[i],arguments[i+1],arguments[i+2]);
 
         time_stamp liFinish2 = get_time_stamp();
@@ -628,7 +628,7 @@ inline size_t get_timings3(
         timings2[m] = liFinish2-liStart2;
     }
 
-	return N/3; // Number of iterations per measurement
+	return NN/3; // Number of iterations per measurement
 }
 
 //------------------------------------------------------------------------------
@@ -636,7 +636,7 @@ inline size_t get_timings3(
 template <typename R, typename A, R (&f1)(A,A,A), R (&f2)(A,A,A)>
 inline verdict get_timings3(std::vector<typename underlying<A>::type>& arguments)
 {
-	size_t N = 0;
+	size_t NN = 0;
     std::vector<long long> medians1(K); // Final verdict of medians for each of the K experiments with visitors
     std::vector<long long> medians2(K); // Final verdict of medians for each of the K experiments with matching
     std::vector<long long> timings1(M); 
@@ -646,12 +646,12 @@ inline verdict get_timings3(std::vector<typename underlying<A>::type>& arguments
 
     for (size_t k = 0; k < K; ++k)
     {
-        N = get_timings3<R,A,f1,f2>(arguments, timings1, timings2, a1, a2);
-        medians1[k] = display("F1", timings1, N);
-        medians2[k] = display("F2", timings2, N);
+        NN = get_timings3<R,A,f1,f2>(arguments, timings1, timings2, a1, a2);
+        medians1[k] = display("F1", timings1, NN);
+        medians2[k] = display("F2", timings2, NN);
         
         std::ios_base::fmtflags fmt = std::cout.flags(); // use cout flags function to save original format
-        std::cout << "\t\t" << verdict(N, medians1[k], medians2[k]) << "\t\t" 
+        std::cout << "\t\t" << verdict(NN, medians1[k], medians2[k]) << "\t\t" 
                   << " a1=" << std::setw(8) << std::hex << a1 
                   << " a2=" << std::setw(8) << std::hex << a2 
                   << std::endl;
@@ -666,7 +666,7 @@ inline verdict get_timings3(std::vector<typename underlying<A>::type>& arguments
 
     std::sort(medians1.begin(), medians1.end());
     std::sort(medians2.begin(), medians2.end());
-    return verdict(N,medians1[K/2],medians2[K/2]);
+    return verdict(NN,medians1[K/2],medians2[K/2]);
 }
 
 //------------------------------------------------------------------------------
@@ -682,21 +682,21 @@ inline size_t get_timings4(
 {
     XTL_ASSERT(timings1.size() == timings2.size());
 
-    size_t N = arguments.size();
-    size_t M = timings1.size();
+    size_t NN = arguments.size();
+    size_t MM = timings1.size();
 
-    for (size_t m = 0; m < M; ++m)
+    for (size_t m = 0; m < MM; ++m)
     {
         time_stamp liStart1 = get_time_stamp();
 
-        for (size_t i = 0; i < N-3; i += 4)
+        for (size_t i = 0; i < NN-3; i += 4)
             a1 += f1(arguments[i],arguments[i+1],arguments[i+2],arguments[i+3]);
 
         time_stamp liFinish1 = get_time_stamp();
 
         time_stamp liStart2 = get_time_stamp();
 
-        for (size_t i = 0; i < N-3; i += 4)
+        for (size_t i = 0; i < NN-3; i += 4)
             a2 += f2(arguments[i],arguments[i+1],arguments[i+2],arguments[i+3]);
 
         time_stamp liFinish2 = get_time_stamp();
@@ -707,7 +707,7 @@ inline size_t get_timings4(
         timings2[m] = liFinish2-liStart2;
     }
 
-	return N/4; // Number of iterations per measurement
+	return NN/4; // Number of iterations per measurement
 }
 
 //------------------------------------------------------------------------------
@@ -715,7 +715,7 @@ inline size_t get_timings4(
 template <typename R, typename A, R (&f1)(A,A,A,A), R (&f2)(A,A,A,A)>
 inline verdict get_timings4(std::vector<typename underlying<A>::type>& arguments)
 {
-    size_t N = 0;
+    size_t NN = 0;
     std::vector<long long> medians1(K); // Final verdict of medians for each of the K experiments with visitors
     std::vector<long long> medians2(K); // Final verdict of medians for each of the K experiments with matching
     std::vector<long long> timings1(M); 
@@ -725,12 +725,12 @@ inline verdict get_timings4(std::vector<typename underlying<A>::type>& arguments
 
     for (size_t k = 0; k < K; ++k)
     {
-        N = get_timings4<R,A,f1,f2>(arguments, timings1, timings2, a1, a2);
-        medians1[k] = display("F1", timings1, N);
-        medians2[k] = display("F2", timings2, N);
+        NN = get_timings4<R,A,f1,f2>(arguments, timings1, timings2, a1, a2);
+        medians1[k] = display("F1", timings1, NN);
+        medians2[k] = display("F2", timings2, NN);
         
         std::ios_base::fmtflags fmt = std::cout.flags(); // use cout flags function to save original format
-        std::cout << "\t\t" << verdict(N, medians1[k], medians2[k]) << "\t\t" 
+        std::cout << "\t\t" << verdict(NN, medians1[k], medians2[k]) << "\t\t" 
                   << " a1=" << std::setw(8) << std::hex << a1 
                   << " a2=" << std::setw(8) << std::hex << a2 
                   << std::endl;
@@ -745,7 +745,7 @@ inline verdict get_timings4(std::vector<typename underlying<A>::type>& arguments
 
     std::sort(medians1.begin(), medians1.end());
     std::sort(medians2.begin(), medians2.end());
-    return verdict(N,medians1[K/2],medians2[K/2]);
+    return verdict(NN,medians1[K/2],medians2[K/2]);
 }
 
 //------------------------------------------------------------------------------

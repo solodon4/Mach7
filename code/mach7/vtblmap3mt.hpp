@@ -628,8 +628,8 @@ ReStart:
             // Iterate over vtbl in old cache and see where they are mapped with log size i and offset j
             for (cache_descriptor* d = dsc; d; d = d->predecessor)
                 for (cache_descriptor::stored_type* p = d->own_entries_begin; p != d->own_entries_end; ++p)
-                    if (intptr_t vtbl = p->vtbl)
-                        XTL_BIT_SET(cache_histogram, (vtbl >> j) & cache_mask); // Mark the entry for each vtbl
+                    if (intptr_t vt = p->vtbl)
+                        XTL_BIT_SET(cache_histogram, (vt >> j) & cache_mask); // Mark the entry for each vtbl
 
             size_t entries = 0;
 

@@ -299,7 +299,7 @@ size_t do_match_1_case(const Shape& s, size_t)
     Match(s)
       XTL_USE_BRACES_ONLY({)
         Case(Circle,c,r)     std::cout << "Circle("   << c << ',' << r << ')'             << std::endl;
-        Case(Square,c,s)     std::cout << "Square("   << c << ',' << s << ')'             << std::endl;
+        Case(Square,c,l)     std::cout << "Square("   << c << ',' << l << ')'             << std::endl;
         Case(Triangle,x,y,z) std::cout << "Triangle(" << x << ',' << y << ',' << z << ')' << std::endl;
       XTL_USE_BRACES_ONLY(})
     EndMatch
@@ -315,7 +315,7 @@ size_t do_match_2_case(const Shape& s, size_t)
     Match(s)
       XTL_USE_BRACES_ONLY({)
         Case(Circle,c,r)     std::cout << "Circle("   << c << ',' << r << ')'             << std::endl;
-        Case(Square,c,s)     std::cout << "Square("   << c << ',' << s << ')'             << std::endl;
+        Case(Square,c,l)     std::cout << "Square("   << c << ',' << l << ')'             << std::endl;
         Case(Triangle,x,y,z) std::cout << "Triangle(" << x << ',' << y << ',' << z << ')' << std::endl;
         Otherwise()          std::cout << "Other()"                                       << std::endl;
       XTL_USE_BRACES_ONLY(})
@@ -589,12 +589,12 @@ int main(int argc, const char* argv[])
         test(funcs[i].func,*shapes[2]);
     }
     else
-    for (int i = 1; i < N; ++i)
+    for (int j = 1; j < N; ++j)
     {
-        std::cout << "------------------- " << funcs[i].name << " -------------------" << std::endl;
-        test(funcs[i].func,*shapes[0]);
-        test(funcs[i].func,*shapes[1]);
-        test(funcs[i].func,*shapes[2]);
+        std::cout << "------------------- " << funcs[j].name << " -------------------" << std::endl;
+        test(funcs[j].func,*shapes[0]);
+        test(funcs[j].func,*shapes[1]);
+        test(funcs[j].func,*shapes[2]);
     }
 }
 

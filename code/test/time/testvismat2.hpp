@@ -65,15 +65,15 @@ size_t run_timings(
 {
     XTL_ASSERT(timingsM.size() == timingsV.size());
 
-    size_t N = shapes.size();
-    size_t M = timingsV.size();
+    size_t NN = shapes.size();
+    size_t MM = timingsV.size();
 
-    for (size_t m = 0; m < M; ++m)
+    for (size_t m = 0; m < MM; ++m)
     {
         unsigned char j = 0;
         time_stamp liStart1 = get_time_stamp();
 
-        for (size_t i = 0; i < N-1; i += 2)
+        for (size_t i = 0; i < NN-1; i += 2)
             aV += do_visit(*shapes[i],*shapes[i+1],some_numbers[j++]);
 
         time_stamp liFinish1 = get_time_stamp();
@@ -82,7 +82,7 @@ size_t run_timings(
 
         time_stamp liStart2 = get_time_stamp();
 
-        for (size_t i = 0; i < N-1; i += 2)
+        for (size_t i = 0; i < NN-1; i += 2)
             aM += do_match(*shapes[i],*shapes[i+1],some_numbers[j++]);
 
         time_stamp liFinish2 = get_time_stamp();
@@ -93,7 +93,7 @@ size_t run_timings(
         timingsM[m] = liFinish2-liStart2;
     }
 
-    return N/2; // Number of iterations per measurement
+    return NN/2; // Number of iterations per measurement
 }
 
 //------------------------------------------------------------------------------

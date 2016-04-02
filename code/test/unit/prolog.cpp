@@ -374,9 +374,9 @@ std::ostream& operator<<(std::ostream& os, const Term& t)
 
 //------------------------------------------------------------------------------
 
-bool operator==(const Term& a, const Term& b)
+bool operator==(const Term& aa, const Term& bb)
 {
-    Match(a,b)
+    Match(aa,bb)
     {
     Case(const Atom&      a, const Atom&      b) return a.value == b.value;
     Case(const Integer&   a, const Integer&   b) return a.value == b.value;

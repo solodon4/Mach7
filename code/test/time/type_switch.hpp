@@ -98,6 +98,8 @@
 ///       that having default here is quite a bit faster than having case 0
 ///       because one less branch should be generated
 #define Match(s) {                                                             \
+        XTL_WARNING_PUSH                                                       \
+        XTL_WARNING_IGNORE_NAME_HIDING                                         \
         XTL_MATCH_PREAMBULA(s)                                                 \
         enum { __base_counter = XTL_COUNTER };                                 \
         static_assert(std::is_polymorphic<source_type>::value, "Type of subject should be polymorphic when you use MatchP");\
@@ -137,7 +139,9 @@
             __switch_info.target = target_label;                               \
             case target_label: ;                                               \
         }                                                                      \
-        }}
+        }                                                                      \
+        XTL_WARNING_POP                                                        \
+        }
 
 //------------------------------------------------------------------------------
 
