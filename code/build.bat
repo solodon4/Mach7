@@ -131,28 +131,28 @@ echo Command line: %0 %* >> %logfile%
 
 rem Parse modifiers
 
-if "%1" == "pgo"       shift && set PGO=1&&                          goto PARSE_CMD_LINE
-if "%1" == "repro"     shift && set REPRO=1&&                        goto PARSE_CMD_LINE
-if "%1" == "tmp"       shift && set KEEP_TMP=1&&                     goto PARSE_CMD_LINE
-if "%1" == "2016"      shift && set VS_COMN_TOOLS=%VS150COMNTOOLS%&& goto PARSE_CMD_LINE
-if "%1" == "2015"      shift && set VS_COMN_TOOLS=%VS140COMNTOOLS%&& goto PARSE_CMD_LINE
-if "%1" == "2013"      shift && set VS_COMN_TOOLS=%VS120COMNTOOLS%&& goto PARSE_CMD_LINE
-if "%1" == "2012"      shift && set VS_COMN_TOOLS=%VS110COMNTOOLS%&& goto PARSE_CMD_LINE
-if "%1" == "2010"      shift && set VS_COMN_TOOLS=%VS100COMNTOOLS%&& goto PARSE_CMD_LINE
-if "%1" == "2008"      shift && set VS_COMN_TOOLS=%VS90COMNTOOLS%&&  goto PARSE_CMD_LINE
-if "%1" == "2005"      shift && set VS_COMN_TOOLS=%VS80COMNTOOLS%&&  goto PARSE_CMD_LINE
-if "%1" == "2003"      shift && set VS_COMN_TOOLS=%VS71COMNTOOLS%&&  goto PARSE_CMD_LINE
-if "%1" == "0000"      shift && set VS_COMN_TOOLS=0000&&             goto PARSE_CMD_LINE
-if "%1" == "x86"       shift && set ARCH=x86&&                       goto PARSE_CMD_LINE
-if "%1" == "x64"       shift && set ARCH=x64&&                       goto PARSE_CMD_LINE
-if "%1" == "arm"       shift && set ARCH=arm&&                       goto PARSE_CMD_LINE
+if /I "%1" == "pgo"       shift && set PGO=1&&                          goto PARSE_CMD_LINE
+if /I "%1" == "repro"     shift && set REPRO=1&&                        goto PARSE_CMD_LINE
+if /I "%1" == "tmp"       shift && set KEEP_TMP=1&&                     goto PARSE_CMD_LINE
+if    "%1" == "2016"      shift && set VS_COMN_TOOLS=%VS150COMNTOOLS%&& goto PARSE_CMD_LINE
+if    "%1" == "2015"      shift && set VS_COMN_TOOLS=%VS140COMNTOOLS%&& goto PARSE_CMD_LINE
+if    "%1" == "2013"      shift && set VS_COMN_TOOLS=%VS120COMNTOOLS%&& goto PARSE_CMD_LINE
+if    "%1" == "2012"      shift && set VS_COMN_TOOLS=%VS110COMNTOOLS%&& goto PARSE_CMD_LINE
+if    "%1" == "2010"      shift && set VS_COMN_TOOLS=%VS100COMNTOOLS%&& goto PARSE_CMD_LINE
+if    "%1" == "2008"      shift && set VS_COMN_TOOLS=%VS90COMNTOOLS%&&  goto PARSE_CMD_LINE
+if    "%1" == "2005"      shift && set VS_COMN_TOOLS=%VS80COMNTOOLS%&&  goto PARSE_CMD_LINE
+if    "%1" == "2003"      shift && set VS_COMN_TOOLS=%VS71COMNTOOLS%&&  goto PARSE_CMD_LINE
+if    "%1" == "0000"      shift && set VS_COMN_TOOLS=0000&&             goto PARSE_CMD_LINE
+if /I "%1" == "x86"       shift && set ARCH=x86&&                       goto PARSE_CMD_LINE
+if /I "%1" == "x64"       shift && set ARCH=x64&&                       goto PARSE_CMD_LINE
+if /I "%1" == "arm"       shift && set ARCH=arm&&                       goto PARSE_CMD_LINE
 
 rem Parse commands
 
-if "%1" == "clean"     call :SUB_CLEAN "%MACH7_ROOT%" && call :SUB_CLEAN "%MACH7_ROOT%test\unit" && call :SUB_CLEAN "%MACH7_ROOT%test\time" && goto END
-if "%1" == "check"     shift && goto CHECK
-if "%1" == "test"      shift && goto TEST
-if "%1" == "doc"       shift && goto DOXYGEN
+if /I "%1" == "clean"     call :SUB_CLEAN "%MACH7_ROOT%" && call :SUB_CLEAN "%MACH7_ROOT%test\unit" && call :SUB_CLEAN "%MACH7_ROOT%test\time" && goto END
+if /I "%1" == "check"     shift && goto CHECK
+if /I "%1" == "test"      shift && goto TEST
+if /I "%1" == "doc"       shift && goto DOXYGEN
 
 rem Subsequent commands require Visual C++ environment variables to be set up.
 
@@ -194,11 +194,11 @@ if "%PGO%"=="1" set LNKFLAGS=%LNKFLAGS% /LTCG
 
 setlocal
 
-if "%1" == "unit"   shift && goto BUILD_UNIT
-if "%1" == "timing" shift && goto BUILD_TIMING
-if "%1" == "cmp"    shift && goto BUILD_CMP
-if "%1" == "syntax" shift && goto BUILD_SYNTAX
-if "%1" == ""                goto BUILD_ALL
+if /I "%1" == "unit"   shift && goto BUILD_UNIT
+if /I "%1" == "timing" shift && goto BUILD_TIMING
+if /I "%1" == "cmp"    shift && goto BUILD_CMP
+if /I "%1" == "syntax" shift && goto BUILD_SYNTAX
+if    "%1" == ""                goto BUILD_ALL
 
 :BUILD_ARG :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
