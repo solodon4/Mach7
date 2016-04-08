@@ -1,0 +1,129 @@
+toolsets = gnu vs2010 vs2012 vs2013;
+gnu.makefile = "gnumake/GNUmakefile";
+vs2010.solutionfile = "vs2010/Mach7.sln";
+vs2012.solutionfile = "vs2012/Mach7.sln";
+vs2013.solutionfile = "vs2013/Mach7.sln";
+
+configuration BoostDebug : Debug {}
+configuration BoostRelease : Release {}
+
+template cxx-compile-base {
+    includedirs = @srcdir/../mach7;
+
+    if ($(toolset) == gnu) {
+        cxx-compiler-options = "-std=c++11";
+    }
+}
+
+template unit-test : cxx-compile-base {
+    sources { unit/$(id).cpp }
+}
+
+template time-test : cxx-compile-base {
+    sources { time/$(id).cpp }
+}
+
+template requires-boost {
+    if ($(config) == BoostDebug || $(config) == BoostRelease)
+        defines += HAS_BOOST;
+}
+
+program algebraic : unit-test {}
+program category : unit-test {}
+program cppcon-matching : unit-test {}
+program cppcon-visitors : unit-test {}
+program example01 : unit-test {}
+program example02 : unit-test {}
+program example03 : unit-test {}
+program example04 : unit-test {}
+program exp : unit-test {}
+program exp2 : unit-test {}
+program expr : unit-test {}
+program expr_meta : unit-test {}
+program filter : unit-test {}
+program memoized_cast : unit-test {}
+program morton : unit-test {}
+program non_unique_problem : unit-test {}
+program non_unique_workaround : unit-test {}
+program pattern_composition : unit-test {}
+program predicate : unit-test {}
+program prolog : unit-test {}
+program prolog-pat : unit-test {}
+program prolog-pat2 : unit-test {}
+program regex : unit-test {}
+program shape4 : unit-test {}
+program shape5 : unit-test {}
+program shape6 : unit-test {}
+program shape7 : unit-test {}
+program shape8 : unit-test {}
+program type_switch2 : unit-test {}
+program type_switch3 : unit-test {}
+program type_switchN : unit-test {}
+program type_switchN-decl : unit-test {}
+program type_switchN-patterns : unit-test {}
+program virpat-shapes : unit-test {}
+
+program exception_select_random : time-test {}
+program generic_select_kind : time-test {}
+program generic_select_random : time-test {}
+program hierarchy2 : time-test {}
+program hierarchy2a : time-test {}
+program hierarchy2b : time-test {}
+program lambda : time-test {}
+program lambda-vir : time-test {}
+program numbers : time-test {}
+program numbers-new : time-test {}
+program ocaml_cmp : time-test {}
+program ocaml_cmp_kind : time-test {}
+program shape3 : time-test {}
+program synthetic : time-test {}
+program synthetic_dynamic_cast : time-test {}
+program synthetic_dynamic_cast_binary : time-test {}
+program synthetic_dynamic_cast_cohen : time-test {}
+program synthetic_dynamic_cast_fast : time-test {}
+program synthetic_dynamic_cast_switch : time-test {}
+program synthetic_select : time-test {}
+program synthetic_select_kind : time-test {}
+program synthetic_select_random : time-test {}
+program synthetic_select1 : time-test {}
+program synthetic_select2 : time-test {}
+program synthetic_select3 : time-test {}
+program synthetic_select4 : time-test {}
+program time-pat-factorial0 : time-test {}
+program time-pat-factorial1 : time-test {}
+program time-pat-factorial2 : time-test {}
+program time-pat-fibonacci : time-test {}
+program time-pat-gcd1 : time-test {}
+program time-pat-gcd2 : time-test {}
+program time-pat-gcd3 : time-test {}
+program time-pat-power : time-test {}
+program time-vir-factorial0 : time-test {}
+program time-vir-factorial1 : time-test {}
+program time-vir-factorial2 : time-test {}
+program time-vir-factorial3 : time-test {}
+program time-vir-factorial4 : time-test {}
+program time-vir-fibonacci : time-test {}
+program time-vir-gcd1 : time-test {}
+program time-vir-gcd2 : time-test {}
+program time-vir-gcd3 : time-test {}
+program time-vir-power : time-test {}
+program time_type_switch1 : time-test {}
+program time_type_switch2 : time-test {}
+program time_type_switch3 : time-test {}
+program time_type_switch4 : time-test {}
+program type_switch : time-test {}
+program virpat : time-test {}
+program virpat0 : time-test {}
+program virpat1 : time-test {}
+program virpat2 : time-test {}
+program virpat3-pat : time-test {}
+program virpat3-vir : time-test {}
+
+program syntax : cxx-compile-base {
+    sources { unit/syntax.cxx }
+}
+
+// XXX
+program xtl : unit-test, requires-boost {}
+program time-xtl-any : time-test, requires-boost {}
+program time-xtl-variant : time-test, requires-boost {}

@@ -43,6 +43,17 @@
 /// \see https://github.com/solodon4/SELL
 ///
 
+#ifndef HAS_BOOST
+
+#include <iostream>
+
+int main() {
+    std::cout << "This test requires Boost!\n";
+    return 1;
+}
+
+#else
+
 #include <iostream>
 #include <boost/variant.hpp>
 
@@ -462,3 +473,5 @@ int main()
     test_variant_mutation();
     test_shape_subtyping();
 }
+
+#endif
