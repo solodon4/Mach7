@@ -61,11 +61,11 @@ struct Divide : Expr
 
 namespace mch ///< Mach7 library namespace
 {
-template <> struct bindings<Value> { CM(0,Value::value); };
-template <> struct bindings<Plus>  { CM(0,Plus::e1);   CM(1,Plus::e2);   };
-template <> struct bindings<Minus> { CM(0,Minus::e1);  CM(1,Minus::e2);  };
-template <> struct bindings<Times> { CM(0,Times::e1);  CM(1,Times::e2);  };
-template <> struct bindings<Divide>{ CM(0,Divide::e1); CM(1,Divide::e2); };
+template <> struct bindings<Value> { Members(Value::value); };
+template <> struct bindings<Plus>  { Members(Plus::e1   , Plus::e2);   };
+template <> struct bindings<Minus> { Members(Minus::e1  , Minus::e2);  };
+template <> struct bindings<Times> { Members(Times::e1  , Times::e2);  };
+template <> struct bindings<Divide>{ Members(Divide::e1 , Divide::e2); };
 } // of namespace mch
 
 //------------------------------------------------------------------------------
