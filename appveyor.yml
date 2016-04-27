@@ -38,6 +38,7 @@ environment:
     - vs_version: 2013
     - vs_version: 2012
     - vs_version: 2010
+    - vs_version: 2008
 
 platform:
   - x86
@@ -46,7 +47,7 @@ platform:
 build_script:
   - set
   - cd code
-  - build.bat $env:vs_version $env:PLATFORM
+  - build.bat %vs_version% %Platform%
 
 test_script:
   - build.bat check
@@ -54,4 +55,6 @@ test_script:
 
 artifacts:
   # pushing all build-*.log files in code directory 
-  - path: code\build-*.log 
+  - path: Mach7\code\build-*.log
+    name: build_logs
+    type: zip
