@@ -29,26 +29,29 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-os:
-  - Visual Studio 2015
-  - Visual Studio 2013
-  - Visual Studio 2012
-  - Visual Studio 2010
-
 # Boost is already installed on AppVeyor.
 environment:
   BOOST_ROOT: C:\Libraries\boost_1_59_0
   BOOST_LIBRARYDIR: C:\Libraries\boost_1_59_0\lib64-msvc-14.0
+  matrix:
+    - vs_version: 2015
+    - vs_version: 2013
+    - vs_version: 2012
+    - vs_version: 2010
+
+platform:
+  - x86
+  - x64
 
 build_script:
+  - set
   - cd code
-  - build.bat x64
+  - build.bat $env:vs_version $env:PLATFORM
 
 test_script:
   - build.bat check
   - build.bat test
-    
-artifacts: 
 
+artifacts:
   # pushing all build-*.log files in code directory 
   - path: code\build-*.log 
