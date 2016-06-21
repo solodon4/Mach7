@@ -264,7 +264,12 @@ Mach7 is licensed under the [BSD License](LICENSE).
 Support
 -------
 
-Please contact [Yuriy Solodkyy](mailto:yuriy.solodkyy+mach7support@gmail.com) with any questions regarding Mach7.
+If you have any question about Mach7 or have trouble using it, the best way to get answers is to post an 
+[issue](https://github.com/solodon4/Mach7/issues) and label it as Question. This will ensure that the answer 
+might help others with a similar question. I get notifications about new issues and usually respond within 
+same day. If you prefer not to discuss your question on GitHub, feel free to send me a  
+[private email](mailto:yuriy.solodkyy+mach7support@gmail.com) (note there is a 
+[+](https://gmail.googleblog.com/2008/03/2-hidden-ways-to-get-more-from-your.html) in the email address).
 
 Call for Help
 -------------

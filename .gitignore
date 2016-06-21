@@ -50,6 +50,7 @@ DerivedData
 Pods
 
 # Visual Studio Code
+.vscode/
 browse.VC.db
 
 # Visual C++
