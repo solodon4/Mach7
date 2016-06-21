@@ -42,12 +42,21 @@ int fib(int n)
 Lambda calculator demonstrates [use of pattern matching to decompose objects and nested patterns](https://github.com/solodon4/Mach7/blob/master/code/test/time/lambda.cpp#L101-L118):
 
 ```C++
-// Lambda calculator
+// Declare C++ equivalent of an Algebraic Data Type Term and its 3 variants: 
 struct Term       { virtual ~Term() {}     };
 struct Var : Term { std::string name;      };
 struct Abs : Term { Var&  var;  Term& body;};
 struct App : Term { Term& func; Term& arg; };
 
+// Tell Mach7 library which members should be bound in which binding positions
+namespace mch
+{
+    template <> struct bindings<Var> { Members(Var::name); };
+    template <> struct bindings<Abs> { Members(Abs::var , Abs::body); };
+    template <> struct bindings<App> { Members(App::func, App::arg);  };
+}
+
+// Implement fully-functional lambda-calculator
 Term* eval(Term* t)
 {
     var<const Var&> v; 
@@ -265,8 +274,10 @@ Support
 -------
 
 If you have any question about Mach7 or have trouble using it, the best way to get answers is to post an 
-[issue](https://github.com/solodon4/Mach7/issues) and label it as Question. This will ensure that the answer 
-might help others with a similar question. I get notifications about new issues and usually respond within 
+[issue](https://github.com/solodon4/Mach7/issues) and label it as 
+[Question](https://github.com/solodon4/Mach7/issues?q=label%3Aquestion). This will contribute to our 
+[poor man's FAQ](https://github.com/solodon4/Mach7/issues?q=label%3Aquestion) and hopefully help others 
+with a similar question. I get notifications about new issues and usually respond within the 
 same day. If you prefer not to discuss your question on GitHub, feel free to send me a  
 [private email](mailto:yuriy.solodkyy+mach7support@gmail.com) (note there is a 
 [+](https://gmail.googleblog.com/2008/03/2-hidden-ways-to-get-more-from-your.html) in the email address).
