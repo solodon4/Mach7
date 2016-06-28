@@ -143,7 +143,7 @@ struct type_switch_info_offset_helper<false, SwitchInfo>
 /// Common definitions generated at the beginning of #Match statement for a 
 /// subject s in position N
 #define XTL_MATCH_SUBJECT(N,s)                                                 \
-        auto&&     subject_ref##N = s;                                         \
+        auto&&     subject_ref##N = mch::subject(s);                           \
         auto const subject_ptr##N = mch::addr(subject_ref##N);                 \
         typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(*subject_ptr##N)>::type source_type##N; \
         typedef source_type##N target_type##N XTL_UNUSED_TYPEDEF;              \

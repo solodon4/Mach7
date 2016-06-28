@@ -278,7 +278,7 @@ If you have any question about Mach7 or have trouble using it, the best way to g
 [Question](https://github.com/solodon4/Mach7/issues?q=label%3Aquestion). This will contribute to our 
 [poor man's FAQ](https://github.com/solodon4/Mach7/issues?q=label%3Aquestion) and hopefully help others 
 with a similar question. I get notifications about new issues and usually respond within the 
-same day. If you prefer not to discuss your question on GitHub, feel free to send me a  
+same day. If you prefer not to discuss your question on GitHub, feel free to send me a 
 [private email](mailto:yuriy.solodkyy+mach7support@gmail.com) (note there is a 
 [+](https://gmail.googleblog.com/2008/03/2-hidden-ways-to-get-more-from-your.html) in the email address).
 

@@ -105,4 +105,32 @@ inline auto eval(const E&) noexcept
 
 //------------------------------------------------------------------------------
 
+///@{
+/// Helper function that is used by the library to indicate that a value is used as
+/// a subject i.e. in RHS and thus should not be treated as a lazy expression, but
+/// rather as an eager one. Users seem to be doing this in nested Match-statements
+/// where the subject of the inner Match-statement is a variable bound in the 
+/// outer one.
+/// 
+/// In most cases it simply forwards to the underlying value...
+template <typename T>
+inline typename std::enable_if<!is_expression<T>::value, T&&>::type subject(T&& t) noexcept
+{
+    return std::forward<T>(t);
+}
+
+//------------------------------------------------------------------------------
+
+/// ... but in the case of a LazyExpression it evaluates it first.
+/// \note We couldn't have simply called eval always because it is not defined 
+///       for non-LazyExpression's
+template <typename T>
+inline auto subject(T&& t) noexcept -> typename std::enable_if<is_expression<T>::value, decltype(eval(std::forward<T>(t)))>::type
+{
+    return eval(std::forward<T>(t));
+}
+///@}
+
+//------------------------------------------------------------------------------
+
 } // of namespace mch
