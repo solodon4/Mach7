@@ -44,7 +44,7 @@
 
 #include <iostream>
 #include <mach7/type_switchN-patterns.hpp> // Support for N-ary Match statement on patterns
-#include <mach7/patterns/address.hpp>      // Address and dereference combinators
+// FIX: including dereference combinator here (not needed) makes dereference fail to compile in the RHS below
 #include <mach7/patterns/bindings.hpp>     // Mach7 support for bindings on arbitrary UDT
 #include <mach7/patterns/constructor.hpp>  // Support for constructor patterns
 #include <mach7/patterns/primitive.hpp>    // Wildcard, variable and value patterns
@@ -60,6 +60,7 @@ struct Expr
 };
 
 typedef std::unique_ptr<Expr> ExprPtr;
+typedef std::unique_ptr<const Expr> ConstExprPtr;
 
 struct Value : Expr
 {
@@ -97,29 +98,72 @@ struct Divide : Expr
 
 //------------------------------------------------------------------------------
 
+// TODO: Make these 0/1 be controlled by common XTL_TEST_VARIATION_1 etc. so that
+//       the harness always builds all combinations.
+#if 1 // Easier to understand version:
+template <typename C>
+const Expr* get_e1(const C* subject)
+{
+    return subject->e1.get();
+}
+
+template <typename C>
+const Expr* get_e2(const C* subject)
+{
+    return subject->e2.get();
+}
+
 namespace mch ///< Mach7 library namespace
 {
 template <> struct bindings<Value> { Members(Value::value); };
-template <> struct bindings<Plus>  { Members(Plus::e1  , Plus::e2);   };
-template <> struct bindings<Minus> { Members(Minus::e1 , Minus::e2);  };
-template <> struct bindings<Times> { Members(Times::e1 , Times::e2);  };
-template <> struct bindings<Divide>{ Members(Divide::e1, Divide::e2); };
+template <> struct bindings<Plus>  { Members(get_e1<Plus>  , get_e2<Plus>);   };
+template <> struct bindings<Minus> { Members(get_e1<Minus> , get_e2<Minus>);  };
+template <> struct bindings<Times> { Members(get_e1<Times> , get_e2<Times>);  };
+template <> struct bindings<Divide>{ Members(get_e1<Divide>, get_e2<Divide>); };
 } // of namespace mch
+
+#else // slightly more generic one
+
+template <typename C, ExprPtr C::*f>
+const Expr* accessor(const C* subject)
+{
+    return (subject->*f).get();
+}
+
+namespace mch ///< Mach7 library namespace
+{
+template <> struct bindings<Value> { Members(Value::value); };
+template <> struct bindings<Plus>  { Members((accessor<Plus,  &Plus::e1>)  , (accessor<Plus,  &Plus::e2>));   };
+template <> struct bindings<Minus> { Members((accessor<Minus, &Minus::e1>) , (accessor<Minus, &Minus::e2>));  };
+template <> struct bindings<Times> { Members((accessor<Times, &Times::e1>) , (accessor<Times, &Times::e2>));  };
+template <> struct bindings<Divide>{ Members((accessor<Divide,&Divide::e1>), (accessor<Divide,&Divide::e2>)); };
+} // of namespace mch
+
+#endif
 
 //------------------------------------------------------------------------------
 
+// std::unique_ptr is non-copyable type, hence we can't have a var<ExprPtr> as it 
+// will try to copy from the subject on match. Instead we can bind by reference
+// the unique_ptr itself. The RHS below becomes truly ugly with no perfect proxies 
+// support in the language.
+//    var<const ExprPtr&> e1, e2;
+//    ...
+//    Case(C<Plus>  (e1,e2)) return evl(*e1.m_value->get()) + evl(*e2.m_value->get());
+// by choosing bindings to expose pointer instead of std::unique_ptr we can now bind
+// as we did before to regular pointers.
 int evl(const Expr& e)
 {
-    var<const Expr&> e1, e2;
+    var<const Expr*> e1, e2; // NOTE: binding to regular pointer, not std::unique_ptr
     var<int> n;
 
     Match(e)
     {
-        Case(C<Value> (n)      ) return n;
-        Case(C<Plus>  (&e1,&e2)) return evl(e1) + evl(e2);
-        Case(C<Minus> (&e1,&e2)) return evl(e1) - evl(e2);
-        Case(C<Times> (&e1,&e2)) return evl(e1) * evl(e2);
-        Case(C<Divide>(&e1,&e2)) return evl(e1) / evl(e2);
+        Case(C<Value> (n)    ) return n;
+        Case(C<Plus>  (e1,e2)) return evl(*e1) + evl(*e2);
+        Case(C<Minus> (e1,e2)) return evl(*e1) - evl(*e2);
+        Case(C<Times> (e1,e2)) return evl(*e1) * evl(*e2);
+        Case(C<Divide>(e1,e2)) return evl(*e1) / evl(*e2);
     }
     EndMatch
 
