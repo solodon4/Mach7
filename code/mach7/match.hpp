@@ -399,7 +399,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
         XTL_SUBCLAUSE_CLOSE }}                                                 \
         XTL_REDUNDANCY_CATCH(XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()))        \
         {                                                                      \
-            typedef XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()) C;               \
+            typedef XTL_APPLY_VARIADIC_MACRO(XTL_SELECT_ARG_0,(__VA_ARGS__,XTL_EMPTY())) C; \
             XTL_CLAUSE_COMMON(C);                                              \
             enum { target_label = XTL_COUNTER-__base_counter };                \
             __casted_ptr = dynamic_cast<const target_type*>(subject_ptr);      \
@@ -467,7 +467,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
         XTL_SUBCLAUSE_CLOSE }                                                  \
         if (XTL_UNLIKELY((size_t(__kind_selector) == size_t(mch::bindings<XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())>::kind_value)))) \
         {                                                                      \
-            typedef XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()) C;               \
+            typedef XTL_APPLY_VARIADIC_MACRO(XTL_SELECT_ARG_0,(__VA_ARGS__,XTL_EMPTY())) C; \
         case mch::bindings<C>::kind_value:                                     \
             XTL_CLAUSE_COMMON(C);                                              \
             auto matched = mch::stat_cast<target_type>(subject_ptr);           \
@@ -503,7 +503,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
         XTL_SUBCLAUSE_CLOSE }                                                  \
         if (XTL_UNLIKELY((size_t(__kind_selector) == size_t(mch::bindings<source_type,XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())>::kind_value)))) \
         {                                                                      \
-            enum { L = XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()) };            \
+            enum { L = XTL_APPLY_VARIADIC_MACRO(XTL_SELECT_ARG_0,(__VA_ARGS__,XTL_EMPTY())) }; \
         case mch::bindings<source_type,L>::kind_value:                         \
             typedef source_type target_type;                                   \
             enum { target_layout = L, is_inside_case_clause = 1 };             \
@@ -536,9 +536,9 @@ template<>                        struct target_disambiguator<int>    { typedef 
 
 /// Macro that defines the case statement for the above switch
 #define QuaE(...) }}                                                           \
-        catch (XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())& __matched)           \
+        catch (XTL_APPLY_VARIADIC_MACRO(XTL_SELECT_ARG_0,(__VA_ARGS__,XTL_EMPTY()))& __matched) \
         {                                                                      \
-            typedef XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()) C;               \
+            typedef XTL_APPLY_VARIADIC_MACRO(XTL_SELECT_ARG_0,(__VA_ARGS__,XTL_EMPTY())) C; \
             XTL_CLAUSE_COMMON(C);                                              \
             auto matched = &__matched;                                         \
             XTL_CLAUSE_DECL_ONLY(C(*matched));                                 \
@@ -623,7 +623,7 @@ template<>                        struct target_disambiguator<int>    { typedef 
         XTL_SUBCLAUSE_CLOSE }                                                  \
         if (XTL_UNLIKELY(mch::is_base_and_derived_kinds<source_type>(mch::remapped<XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY())>::lbl, __most_derived_kind_selector))) \
         {                                                                      \
-            typedef XTL_SELECT_ARG_0(__VA_ARGS__,XTL_EMPTY()) C;               \
+            typedef XTL_APPLY_VARIADIC_MACRO(XTL_SELECT_ARG_0,(__VA_ARGS__,XTL_EMPTY())) C; \
         case mch::remapped<C>::lbl:                                            \
             XTL_CLAUSE_COMMON(C);                                              \
             auto matched = mch::stat_cast<target_type>(subject_ptr);           \
