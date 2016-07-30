@@ -86,6 +86,14 @@ struct gcd_functor
     )
 };
 
+#if defined(_MSC_VER) && _MSC_VER >= 1900
+// FIX: This is a workaround, not a solution
+// There is likely a bug in Visual C++ that makes gcd Expression maker ambiguous
+// with 2 regular gcd overloads. To avoid the bug, we name Expression maker Gcd
+// and call it as such to avoid overload resolution issue.
+#define gcd Gcd
+#endif
+
 template <typename E1, typename E2> auto gcd(E1&& e1, E2&& e2) -> XTL_RETURN_ENABLE_IF
 (
     is_expression<E1>::value || is_expression<E2>::value, 
