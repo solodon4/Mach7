@@ -347,10 +347,10 @@ private:
         #endif
 
         /// We need to declare this placement delete operator since we overload new.
-        void operator delete(void* p, size_t) { ::delete(static_cast<char*>(p)); } // We cast to char* to avoid warning on deleting void*, which is undefined
+        void operator delete(void* p, size_t) { ::delete[](static_cast<char*>(p)); } // We cast to char* to avoid warning on deleting void*, which is undefined
 
         /// We also provide non-placement delete operator since it doesn't really depend on extra arguments.
-        void operator delete(void* p)         { ::delete(static_cast<char*>(p)); } // We cast to char* to avoid warning on deleting void*, which is undefined
+        void operator delete(void* p)         { ::delete[](static_cast<char*>(p)); } // We cast to char* to avoid warning on deleting void*, which is undefined
 
         /// Creates new cache_descriptor based on parameters k and l of the hashing function
         cache_descriptor(
