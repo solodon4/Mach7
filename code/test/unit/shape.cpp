@@ -75,7 +75,16 @@ double area(const Shape& shape)
     XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
 }
 
-loc center(/*const*/ Shape& shape)
+// FIX: Normally this test is supposed to test non-const subject, however this
+//      renders error in VS2012 and VS2013, so we just workaround it here to
+//      use const as I don't have fix for those compilers yet.
+#if defined(_MSC_VER) && (1700 <= _MSC_VER && _MSC_VER < 1900)
+    #define WORKAROUND_CONST const
+#else
+    #define WORKAROUND_CONST
+#endif
+
+loc center(WORKAROUND_CONST Shape& shape)
 {
     mch::var<loc> c;
 
@@ -137,7 +146,7 @@ void foo(Shape* s)
         std::cout << "Triangle with corners " << x << ',' << y << ',' << z << std::endl;
 }
 
-void bar(ADTShape& s)
+void bar(WORKAROUND_CONST ADTShape& s)
 {
     mch::var<cloc>  x,y,z;
     mch::var<double> a;

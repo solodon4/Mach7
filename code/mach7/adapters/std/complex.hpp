@@ -67,7 +67,19 @@ namespace mch ///< Mach7 library namespace
     /// complex we have to either take address of a corresponding member-function
     /// or do an explicit cast first to shrink the overload set:
     template <typename T> struct bindings<std::complex<T>, cart> { Members(std::complex<T>::real, std::complex<T>::imag); };
-    template <typename T> struct bindings<std::complex<T>, plar> { Members((T (&)(const std::complex<T>&))std::abs<T>, (T (&)(const std::complex<T>&))std::arg<T>); };
+    template <typename T> struct bindings<std::complex<T>, plar>
+    {
+#if defined(_MSC_VER) && _MSC_VER==1800
+        // VS2013 gets an ICE here when casting to reference, so we workaround
+        // it with taking an address instead which Members handels as well.
+        // We could have used address version and not have to check for VC, but
+        // now that i've spent time figuring out the cause, i might as well
+        // leave a trace of that investigation here for similar issues in the futre.
+        Members((T (*)(const std::complex<T>&))&std::abs<T>, (T (*)(const std::complex<T>&))&std::arg<T>);
+#else
+        Members((T (&)(const std::complex<T>&))std::abs<T>, (T (&)(const std::complex<T>&))std::arg<T>);
+#endif
+    };
     ///@}
 } // of namespace mch
 
