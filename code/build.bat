@@ -182,9 +182,13 @@ if "%VS_COMN_TOOLS%"=="%VS150COMNTOOLS%" echo Setting environment for using Micr
 if "%VS_COMN_TOOLS%"=="%VS140COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2015 %ARCH% tools.
 if "%VS_COMN_TOOLS%"=="%VS120COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2013 %ARCH% tools.
 if "%VS_COMN_TOOLS%"=="%VS110COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2012 %ARCH% tools.
+if "%VS_COMN_TOOLS%"=="%VS100COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2010 %ARCH% tools.
 
 rem Set-up Visual C++ Environment Variables
-if not "%VS_COMN_TOOLS%"=="0000" call "%VS_COMN_TOOLS%..\..\VC\vcvarsall.bat" %ARCH%
+if not "%VS_COMN_TOOLS%"=="0000" call "%VS_COMN_TOOLS%..\..\VC\vcvarsall.bat" %ARCH% >> %logfile% 2>&1
+where cl.exe > nul 2>&1
+if errorlevel 1 if /I %ARCH% == x64 set ARCH=x86_amd64& echo Warning: Unable to find x64 native toolset. Trying x86 to x64 cross compiler & goto proceed
+if errorlevel 1 echo Error: There was a problem setting up the environment for this toolset & goto end
 rem Dump versions of compiler passes
 %CXX% /Bv >> %logfile% 2>&1
 

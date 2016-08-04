@@ -53,8 +53,10 @@ test_script:
   - build.bat check
   - build.bat test
 
-artifacts:
-  # pushing all build-*.log files in code directory 
-  - path: code\build-*.log
-    name: build_logs
-    type: zip
+artifacts: 
+  - path: 'code\build-*.log'
+    name: Logs 
+
+on_failure: 
+  - 7z a failure_logs.zip code\build-*.log
+  - appveyor PushArtifact failure_logs.zip
