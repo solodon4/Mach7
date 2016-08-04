@@ -358,7 +358,14 @@ template <> struct bindings<Integer>   { Members(Integer::value);  };
 template <> struct bindings<Float>     { Members(Float::value);    };
 template <> struct bindings<String>    { Members(String::value);   };
 template <> struct bindings<Variable>  { Members(Variable::name);  };
+#if defined(_MSC_VER) && _MSC_VER < 1800
+// There is bug in VS2010 and VS2012 that is unable to find overload for unary(&Structure::arity)).
+// We workaround it here by providing a global function that can access the required property.
+size_t Structure_arity(const Structure& s) { return s.arity(); }
+template <> struct bindings<Structure> { Members(Structure::name, Structure_arity, Structure::terms); };
+#else
 template <> struct bindings<Structure> { Members(Structure::name, Structure::arity, Structure::terms); };
+#endif
 template <> struct bindings<List>      { Members(List::head,      List::tail); };
 template <> struct bindings<Operator>  { Members(Operator::name);  };
 template <> struct bindings<Comment>   { Members(Comment::text);   };
@@ -450,7 +457,7 @@ bool occurs(const Term& what, const Term& where)
     Match(where)
     {
     Case(C<Structure>())
-#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && (XTL_GCC_VERSION >= 40600)
+#if XTL_SUPPORT(range_for)
         for (auto t : match0.terms)
             if (occurs(what,*t))
                 return true;
@@ -481,7 +488,7 @@ Term* subs(const Term* what, Term* with, Term* where)
     Match(where)
     {
     Case(C<Structure>())
-#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && (XTL_GCC_VERSION >= 40600)
+#if XTL_SUPPORT(range_for)
         for (auto& t : match0.terms)
             t = subs(what,with,t);
 #else
@@ -537,6 +544,7 @@ bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
             return false;
         }
         }
+
         // Orient rule: If the first expressions of the pair is not a variable 
         // and the second is, just switch the expression (we will need this 
         // step to instantiate variables): e.g.  <t,X> becomes <X,t>
@@ -558,6 +566,7 @@ bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
 			{
 				substitutions[v->name] = p.second;
 
+#if XTL_SUPPORT(range_for)
 				// Substitute variable in existing terms in substitution
 				for (auto& x : substitutions)
 					x.second = subs(v,p.second,x.second);
@@ -568,7 +577,18 @@ bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
 					q.first  = subs(v,p.second,q.first);
 					q.second = subs(v,p.second,q.second);
 				}
+#else
+    			// Substitute variable in existing terms in substitution
+				for (auto i = substitutions.begin(); i != substitutions.end(); ++i)
+					i->second = subs(v,p.second,i->second);
 
+				// Substitute variable in the current instantiations set
+				for (auto q = pairs.begin(); q != pairs.end(); ++q)
+				{
+					q->first  = subs(v,p.second,q->first);
+					q->second = subs(v,p.second,q->second);
+				}
+#endif
 				continue;
 			}
         }
@@ -591,7 +611,7 @@ void unify(Term* t1, Term* t2)
     pairs.push_back(term_pair(t1,t2));
 
     if (unify(pairs, substitutions))
-#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && (XTL_GCC_VERSION >= 40600)
+#if XTL_SUPPORT(range_for)
         for (const auto& x : substitutions)
             std::cout << std::setw(8) << x.first << " -> " << *x.second << std::endl;
 #else

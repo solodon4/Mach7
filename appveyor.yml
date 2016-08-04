@@ -38,7 +38,7 @@ environment:
     - vs_version: 2013
     - vs_version: 2012
     - vs_version: 2010
-    - vs_version: 2008
+#   - vs_version: 2008
 
 platform:
   - x86
@@ -55,6 +55,6 @@ test_script:
 
 artifacts:
   # pushing all build-*.log files in code directory 
-  - path: Mach7\code\build-*.log
+  - path: code\build-*.log
     name: build_logs
     type: zip

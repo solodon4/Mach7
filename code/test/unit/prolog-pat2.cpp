@@ -54,13 +54,6 @@
 
 #include <mach7/config.hpp>                // Mach7 configuration
 
-#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && (XTL_GCC_VERSION >= 40600)
-    #define XTL_RANGE_FOR 1
-#else
-    #define XTL_RANGE_FOR 0
-#endif
-
-
 //------------------------------------------------------------------------------
 
 /// The word-like entities in the Prolog language are called Terms. 
@@ -373,7 +366,14 @@ template <> struct bindings<Integer>   { Members(Integer::value);  };
 template <> struct bindings<Float>     { Members(Float::value);    };
 template <> struct bindings<String>    { Members(String::value);   };
 template <> struct bindings<Variable>  { Members(Variable::name);  };
+#if defined(_MSC_VER) && _MSC_VER < 1800
+// There is bug in VS2010 and VS2012 that is unable to find overload for unary(&Structure::arity)).
+// We workaround it here by providing a global function that can access the required property.
+size_t Structure_arity(const Structure& s) { return s.arity(); }
+template <> struct bindings<Structure> { Members(Structure::name, Structure_arity, Structure::terms); };
+#else
 template <> struct bindings<Structure> { Members(Structure::name, Structure::arity, Structure::terms); };
+#endif
 template <> struct bindings<List>      { Members(List::head,      List::tail); };
 template <> struct bindings<Operator>  { Members(Operator::name);  };
 template <> struct bindings<Comment>   { Members(Comment::text);   };
@@ -410,7 +410,7 @@ std::ostream& operator<<(std::ostream& os, const Term& t)
         os << "exist integer " << m;
     Case(C<Structure>(s)) 
         os << s << '(';
-#if XTL_RANGE_FOR
+#if XTL_SUPPORT(range_for)
         for (auto tt : match0.terms) os << *tt << ',';
 #else
         std::transform(
@@ -494,7 +494,7 @@ bool occurs(const Term& what, const Term& where)
     Match(where)
     {
     Case(C<Structure>())
-#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && (XTL_GCC_VERSION >= 40600)
+#if XTL_SUPPORT(range_for)
         for (auto t : match0.terms)
             if (occurs(what,*t))
                 return true;
@@ -525,7 +525,7 @@ Term* subs(const Term* what, Term* with, Term* where)
     Match(where)
     {
     Case(C<Structure>())
-#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && (XTL_GCC_VERSION >= 40600)
+#if XTL_SUPPORT(range_for)
         for (auto& t : match0.terms)
             t = subs(what,with,t);
 #else
@@ -593,7 +593,7 @@ DoAgain:
             {
                 substitutions[s] = &match1;
 
-#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && (XTL_GCC_VERSION >= 40600)
+#if XTL_SUPPORT(range_for)
                 // Substitute variable in existing terms in substitution
                 for (auto& x : substitutions)
                     x.second = subs(&match0,&match1,x.second);
@@ -642,7 +642,7 @@ void unify(Term* t1, Term* t2)
     pairs.push_back(term_pair(t1,t2));
 
     if (unify(pairs, substitutions))
-#if defined(_MSC_VER) && _MSC_VER >= 1700 || defined(__GNUC__) && (XTL_GCC_VERSION >= 40600)
+#if XTL_SUPPORT(range_for)
         for (const auto& x : substitutions)
             std::cout << std::setw(8) << x.first << " -> " << *x.second << std::endl;
 #else

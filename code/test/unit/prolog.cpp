@@ -190,6 +190,7 @@ struct Structure : Term
 {
     Structure(const char* n) : name(n) {}
     Structure(const char* n, Term** b, Term** e) : name(n), terms(b,e) {}
+    size_t arity() const { return terms.size(); }
     std::string name;
     std::vector<Term*> terms;
 };
@@ -405,9 +406,15 @@ bool occurs(const Term& what, const Term& where)
     Match(where)
     {
     Case(const Structure& a)
+#if XTL_SUPPORT(range_for)
         for (auto t : a.terms)
             if (occurs(what,*t))
                 return true;
+#else
+        for (auto t = a.terms.begin(); t != a.terms.end(); ++t)
+            if (occurs(what,**t))
+                return true;
+#endif
         return false;
     Case(const List&      a) 
         return occurs(what,*a.head) || occurs(what,*a.tail);
@@ -427,9 +434,15 @@ Term* subs(const Term* what, Term* with, Term* where)
     Match(where)
     {
     Case(Structure& a)
+#if XTL_SUPPORT(range_for)
         for (auto& t : a.terms)
             t = subs(what,with,t);
         return &a;
+#else
+        for (auto t = a.terms.begin(); t != a.terms.end(); ++t)
+            *t = subs(what,with,*t);
+        return &a;
+#endif
     Case(List&      a) 
         a.head = subs(what,with,a.head);
         a.tail = static_cast<List*>(subs(what,with,a.tail));
@@ -466,9 +479,9 @@ bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
         if (Structure* s1 = dynamic_cast<Structure*>(p.first))
         if (Structure* s2 = dynamic_cast<Structure*>(p.second))
         {
-        if (s1->terms.size() == s2->terms.size() && s1->name == s2->name)
+        if (s1->arity() == s2->arity() && s1->name == s2->name)
         {
-            for (size_t i = 0, n = s1->terms.size(); i < n; ++i)
+            for (size_t i = 0, n = s1->arity(); i < n; ++i)
                 pairs.push_back(term_pair(s1->terms[i],s2->terms[i]));
 
             continue;
@@ -500,6 +513,7 @@ bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
 			{
 				substitutions[v->name] = p.second;
 
+#if XTL_SUPPORT(range_for)
 				// Substitute variable in existing terms in substitution
 				for (auto& x : substitutions)
 					x.second = subs(v,p.second,x.second);
@@ -510,7 +524,18 @@ bool unify(std::list<term_pair>& pairs, substitution_map& substitutions)
 					q.first  = subs(v,p.second,q.first);
 					q.second = subs(v,p.second,q.second);
 				}
+#else
+    			// Substitute variable in existing terms in substitution
+				for (auto i = substitutions.begin(); i != substitutions.end(); ++i)
+					i->second = subs(v,p.second,i->second);
 
+				// Substitute variable in the current instantiations set
+				for (auto q = pairs.begin(); q != pairs.end(); ++q)
+				{
+					q->first  = subs(v,p.second,q->first);
+					q->second = subs(v,p.second,q->second);
+				}
+#endif
 				continue;
 			}
         }
@@ -533,8 +558,13 @@ void unify(Term* t1, Term* t2)
     pairs.push_back(term_pair(t1,t2));
 
     if (unify(pairs, substitutions))
+#if XTL_SUPPORT(range_for)
         for (const auto& x : substitutions)
             std::cout << std::setw(8) << x.first << " -> " << *x.second << std::endl;
+#else
+        for (auto p = substitutions.begin(); p != substitutions.end(); ++p)
+            std::cout << std::setw(8) << p->first << " -> " << *p->second << std::endl;
+#endif
     else
         std::cout << "\tERROR: Unable to unify" << std::endl;
 

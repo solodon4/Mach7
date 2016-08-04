@@ -45,6 +45,8 @@
 #pragma once
 
 // MS Visual C++ workarounds
+// For a good summary of compiler versions that support a particular C++ feature
+// \see http://www.italiancpp.org/wp-content/uploads/2014/03/CppISO-Feb2014-r1.pdf
 
 #if !defined(_MSC_VER)
 #error This file must only be compiled by Microsoft Visual C++ compiler
@@ -122,6 +124,14 @@
 /// Support of the dedicated name for a null pointer: nullptr
 /// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2431.pdf
 #define XTL_SUPPORT_nullptr 1
+#endif
+
+//------------------------------------------------------------------------------
+
+#if _MSC_VER >= 1700 /// Visual C++ 2012 supports range for
+/// Support of C++11 range-based for loop
+/// \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2009/n2930.html
+#define XTL_SUPPORT_range_for 1
 #endif
 
 //------------------------------------------------------------------------------
