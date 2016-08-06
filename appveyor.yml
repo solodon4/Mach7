@@ -29,6 +29,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# NOTE: Before checking changes to this script in, validate them at: 
+#       https://ci.appveyor.com/tools/validate-yaml
+
 # Boost is already installed on AppVeyor.
 environment:
   BOOST_ROOT: C:\Libraries\boost_1_59_0
@@ -46,12 +49,12 @@ platform:
   - x64
 
 build_script:
-  - echo Current Directory: %CD%
-  - echo Started: %DATE% at %TIME%
+  - echo Current Directory is %CD%
+  - echo Started on %DATE% at %TIME%
   - set
   - cd code
   - build.bat %vs_version% %Platform%
-  - echo Finished: %DATE% at %TIME%
+  - echo Finished on %DATE% at %TIME%
 
 test_script:
   - build.bat check
