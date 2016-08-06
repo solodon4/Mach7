@@ -62,7 +62,12 @@ test_script:
 
 artifacts: 
   - path: 'code\build-*.log'
-    name: Logs 
+    name: build-logs
+    type: zip
+
+  - path: 'code\*.nativecodeanalysis.xml'
+    name: analysis-logs
+    type: zip
 
 on_failure: 
   - 7z a failure_logs.zip 'code\build-*.log'

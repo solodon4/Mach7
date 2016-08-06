@@ -132,6 +132,11 @@ and currently have all check-ins validated in the following configurations:
 | Linux | 4.8 | 3.4   |
 | OSX   | 4.8 | 3.5   |
 
+| [![Build Status: Visual C++](https://ci.appveyor.com/api/projects/status/github/solodon4/mach7?branch=master&svg=true)](https://ci.appveyor.com/project/solodon4/mach7) | 2015 | 2013 | 2012 | 2010 | /analyze |
+|-------|------|------|------|------|------|
+| x86   |      |      |      |      |      |
+| x64   |      |      |      |  N/A |      |
+
 Building sources
 ----------------
 
