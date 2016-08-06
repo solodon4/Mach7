@@ -39,15 +39,19 @@ environment:
     - vs_version: 2012
     - vs_version: 2010
 #   - vs_version: 2008
+    - vs_version: analyze
 
 platform:
   - x86
   - x64
 
 build_script:
+  - echo Current Directory: %CD%
+  - echo Started: %DATE% at %TIME%
   - set
   - cd code
   - build.bat %vs_version% %Platform%
+  - echo Finished: %DATE% at %TIME%
 
 test_script:
   - build.bat check
@@ -58,5 +62,5 @@ artifacts:
     name: Logs 
 
 on_failure: 
-  - 7z a failure_logs.zip code\build-*.log
+  - 7z a failure_logs.zip 'code\build-*.log'
   - appveyor PushArtifact failure_logs.zip

@@ -55,9 +55,10 @@
 ::     build check  -   Run those examples for which there are correct_output/*.out files and check that output is the same
 ::
 :: Modifiers:
-::            pgo   - Perform Profile-Guided Optimization on produced executables
-::            repro - In case of error, create and compile a pre-processed repro
-::            tmp   - Keep temporaries
+::           analyze- Run compiler with /analyze option to perform static analysis
+::           pgo    - Perform Profile-Guided Optimization on produced executables
+::           repro  - In case of error, create and compile a pre-processed repro
+::           tmp    - Keep temporaries
 ::           <ver>  - Use a specific version of Visual C++ to compiler the source 
 ::                    code. <ver> can be one of the following:
 ::                     - 2016 - Visual C++ 15.0
@@ -88,9 +89,9 @@ rem NOTE: Specifying /GL in VC11 fails to link code that uses our decl_helper fo
 rem       However not specifying /GL fails when trying to do PGO.
 rem       Linker's /LTCG is used only when /GL is passed and vice versa.
 rem set CXXFLAGS=/nologo /W4 /EHsc /O2
-set CXXFLAGS=%MACH7_INC% /wd4007 /Zi /nologo /EHsc /W4 /WX- /O2 /Ob2 /Oi /Ot /Oy-     /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
-rem          %MACH7_INC% /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /analyze- /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /Fp"Release\SyntheticSelectRandom.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb" 
-rem Slower: =%MACH7_INC% /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot      /GL /GF /Gm- /MT /GS- /Gy  /fp:precise /Zc:wchar_t /Zc:forScope /Gr           /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
+set CXXFLAGS=%MACH7_INC% /wd4007 /Zi /nologo /EHsc /W4 /WX- /O2 /Ob2 /Oi /Ot /Oy-     /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
+rem          %MACH7_INC% /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /Fp"Release\SyntheticSelectRandom.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb" 
+rem Slower: =%MACH7_INC% /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot      /GL /GF /Gm- /MT /GS- /Gy  /fp:precise /Zc:wchar_t /Zc:forScope /Gr /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
 set LNKFLAGS=
 rem LNKFLAGS=/INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST:NO /ALLOWISOLATION /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /ERRORREPORT:QUEUE 
 rem /OUT:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.exe" /INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST /ManifestFile:"Release\SyntheticSelectRandom.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /PGD:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pgd" /LTCG /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /MACHINE:%ARCH% /ERRORREPORT:QUEUE 
@@ -131,6 +132,7 @@ echo Command line: %0 %* >> %logfile%
 
 rem Parse modifiers
 
+if /I "%1" == "analyze"   shift && set CL=/analyze %CL%&&               goto PARSE_CMD_LINE
 if /I "%1" == "pgo"       shift && set PGO=1&&                          goto PARSE_CMD_LINE
 if /I "%1" == "repro"     shift && set REPRO=1&&                        goto PARSE_CMD_LINE
 if /I "%1" == "tmp"       shift && set KEEP_TMP=1&&                     goto PARSE_CMD_LINE
@@ -188,7 +190,7 @@ rem Set-up Visual C++ Environment Variables
 if not "%VS_COMN_TOOLS%"=="0000" call "%VS_COMN_TOOLS%..\..\VC\vcvarsall.bat" %ARCH% >> %logfile% 2>&1
 where cl.exe > nul 2>&1
 if errorlevel 1 if /I %ARCH% == x64 set ARCH=x86_amd64& echo Warning: Unable to find x64 native toolset. Trying x86 to x64 cross compiler & goto proceed
-if errorlevel 1 echo Error: There was a problem setting up the environment for this toolset & goto end
+if errorlevel 1 verify > nul & echo Error: There was a problem setting up the environment for this toolset & goto end
 rem Dump versions of compiler passes
 %CXX% /Bv >> %logfile% 2>&1
 
