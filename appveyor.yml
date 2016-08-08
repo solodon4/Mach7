@@ -37,13 +37,13 @@ environment:
   BOOST_ROOT: C:\Libraries\boost_1_59_0
   BOOST_LIBRARYDIR: C:\Libraries\boost_1_59_0\lib64-msvc-14.0
   matrix:
-    - vs_version: 2015
-    - vs_version: 2013
-    - vs_version: 2012
-    - vs_version: 2010
-#   - vs_version: 2008
-    - vs_version: analyze
-    - vs_version: cmake -G "MinGW Makefiles"
+    - toolset: 2015
+    - toolset: 2013
+    - toolset: 2012
+    - toolset: 2010
+#   - toolset: 2008
+    - toolset: analyze
+    - toolset: cmake -G "MinGW Makefiles"
 
 platform:
   - x86
@@ -54,8 +54,9 @@ build_script:
   - echo Started on %DATE% at %TIME%
   - set
   - cd code
-  - build.bat %vs_version% %Platform%
+  - build.bat %toolset% %Platform%
   - echo Finished on %DATE% at %TIME%
+  - cd /D %APPVEYOR_BUILD_FOLDER%
 
 after_build:
   - 7z a build-logs.zip    'code\build-*.log'
