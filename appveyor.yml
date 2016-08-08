@@ -37,7 +37,7 @@ environment:
   BOOST_ROOT: C:\Libraries\boost_1_59_0
   BOOST_LIBRARYDIR: C:\Libraries\boost_1_59_0\lib64-msvc-14.0
   matrix:
-    - toolset: cmake -G "MinGW Makefiles"
+    - toolset: cmake -G "MSYS Makefiles"
     - toolset: 2015
     - toolset: 2013
     - toolset: 2012
