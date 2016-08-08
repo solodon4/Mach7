@@ -37,24 +37,36 @@ environment:
   BOOST_ROOT: C:\Libraries\boost_1_59_0
   BOOST_LIBRARYDIR: C:\Libraries\boost_1_59_0\lib64-msvc-14.0
   matrix:
+    - toolset: cmake -G "MinGW Makefiles"
     - toolset: 2015
     - toolset: 2013
     - toolset: 2012
     - toolset: 2010
 #   - toolset: 2008
     - toolset: analyze
-    - toolset: cmake -G "MinGW Makefiles"
 
 platform:
   - x86
   - x64
+
+before_build:
+  # Remove sh.exe from the path otherwise CMake will complain:
+  # "sh.exe was found in your PATH, here: C:/Program Files/Git/usr/bin/sh.exe"
+  # and the MinGW build will not work (the Visual Studio build does not care).
+  # See http://help.appveyor.com/discussions/problems/3193-cmake-building-for-mingw-issue-with-git-shexe
+  # The entire directory containing sh.exe could be removed from the PATH environment:
+  # - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+  # However, this will also remove all other programs in this directory from the PATH.
+  # In particular "patch" is still required.
+  # So, just rename sh.exe:
+  - ren "C:\Program Files\Git\usr\bin\sh.exe" _sh.exe
 
 build_script:
   - echo Current Directory is %CD%
   - echo Started on %DATE% at %TIME%
   - set
   - cd code
-  - build.bat %toolset% %Platform%
+  - build.bat %Platform% %toolset%
   - echo Finished on %DATE% at %TIME%
 
 after_build:
@@ -76,6 +88,9 @@ artifacts:
   - path: cmake-logs.zip
     name: CMake Logs
 
+  - path: failure-logs.zip
+    name: Failures Logs
+
 on_failure:
-  - 7z a failure_logs.zip code\build-*.log
-  - appveyor PushArtifact failure_logs.zip
+  - if exist build-*.log 7z a failure-logs.zip build-*.log
+  - if exist failure-logs.zip appveyor PushArtifact failure-logs.zip
