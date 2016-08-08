@@ -135,11 +135,11 @@ if /I "%1" == "arm"       shift && set ARCH=arm&&                       goto PAR
 
 rem Parse commands
 
-if /I "%1" == "clean"     call :SUB_CLEAN "%MACH7_ROOT%" && call :SUB_CLEAN "%MACH7_ROOT%test\unit" && call :SUB_CLEAN "%MACH7_ROOT%test\time" && goto END
+if /I "%1" == "clean"     call :SUB_CLEAN "%MACH7_ROOT%" && call :SUB_CLEAN "%MACH7_ROOT%test\unit" && call :SUB_CLEAN "%MACH7_ROOT%test\time" & goto END
 if /I "%1" == "check"     shift && goto CHECK
 if /I "%1" == "test"      shift && goto TEST
 if /I "%1" == "doc"       shift && goto DOXYGEN
-if /I "%1" == "make"      shift && call %1 %2 %3 %4 %5 %6 %7 %8 %9&& goto END
+if /I "%1" == "make"      shift && call %1 %2 %3 %4 %5 %6 %7 %8 %9& goto END
 if /I "%1" == "cmake"     shift && goto BUILD_WITH_CMAKE
 
 rem Subsequent commands require Visual C++ environment variables to be set up.
