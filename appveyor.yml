@@ -43,6 +43,7 @@ environment:
     - vs_version: 2010
 #   - vs_version: 2008
     - vs_version: analyze
+    - vs_version: cmake -G "MinGW Makefiles"
 
 platform:
   - x86
@@ -56,18 +57,24 @@ build_script:
   - build.bat %vs_version% %Platform%
   - echo Finished on %DATE% at %TIME%
 
+after_build:
+  - 7z a build-logs.zip    'code\build-*.log'
+  - 7z a analysis-logs.zip 'code\*.nativecodeanalysis.xml'
+  - 7z a cmake-logs.zip    'code\test\build\CMakeFiles\*.log'
+
 test_script:
   - build.bat check
   - build.bat test
 
 artifacts: 
-  - path: 'code\build-*.log'
-    name: build-logs
-    type: zip
+  - path: build-logs.zip
+    name: Build Logs
 
-  - path: 'code\*.nativecodeanalysis.xml'
-    name: analysis-logs
-    type: zip
+  - path: analysis-logs.zip
+    name: Analysis Logs
+
+  - path: cmake-logs.zip
+    name: CMake Logs
 
 on_failure: 
   - 7z a failure_logs.zip 'code\build-*.log'

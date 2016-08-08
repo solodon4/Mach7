@@ -80,22 +80,6 @@ set /A "result=0"
 setlocal
 if "%1" == "/?" findstr "^::" "%~f0" & goto END
 
-rem Set-up variables :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-set CXX=cl.exe
-set MACH7_INC=/I %MACH7_ROOT%
-if not "%BOOST_ROOT%" == "" set MACH7_INC=%MACH7_INC% /I %BOOST_ROOT%
-rem List of compiler options: http://technet.microsoft.com/en-us/library/fwkeyyhe(v=vs.110).aspx
-rem NOTE: Specifying /GL in VC11 fails to link code that uses our decl_helper for some reason.
-rem       However not specifying /GL fails when trying to do PGO.
-rem       Linker's /LTCG is used only when /GL is passed and vice versa.
-rem set CXXFLAGS=/nologo /W4 /EHsc /O2
-set CXXFLAGS=%MACH7_INC% /wd4007 /Zi /nologo /EHsc /W4 /WX- /O2 /Ob2 /Oi /Ot /Oy-     /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
-rem          %MACH7_INC% /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /Fp"Release\SyntheticSelectRandom.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb" 
-rem Slower: =%MACH7_INC% /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot      /GL /GF /Gm- /MT /GS- /Gy  /fp:precise /Zc:wchar_t /Zc:forScope /Gr /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
-set LNKFLAGS=
-rem LNKFLAGS=/INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST:NO /ALLOWISOLATION /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /ERRORREPORT:QUEUE 
-rem /OUT:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.exe" /INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST /ManifestFile:"Release\SyntheticSelectRandom.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /PGD:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pgd" /LTCG /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /MACHINE:%ARCH% /ERRORREPORT:QUEUE 
-
 rem Reset ERRORLEVEL in case previous command failed
 verify > nul
 
@@ -123,7 +107,7 @@ set logfile=build-%yy%-%mm%-%dd%-%hh%-%mn%-VS%VS20XX%.log
 set logfile="%MACH7_ROOT%%logfile%"
 echo. > %logfile%
 echo Mach7 Build Script >> %logfile%
-echo Version 1.0 from 2012-02-04 >> %logfile%
+echo Version 1.0.63 from 2016-08-06 >> %logfile%
 echo. >> %logfile%
 echo Build log from %date% at %time% >> %logfile%
 echo Command line: %0 %* >> %logfile%
@@ -155,6 +139,8 @@ if /I "%1" == "clean"     call :SUB_CLEAN "%MACH7_ROOT%" && call :SUB_CLEAN "%MA
 if /I "%1" == "check"     shift && goto CHECK
 if /I "%1" == "test"      shift && goto TEST
 if /I "%1" == "doc"       shift && goto DOXYGEN
+if /I "%1" == "make"      shift && call %1 %2 %3 %4 %5 %6 %7 %8 %9&& goto END
+if /I "%1" == "cmake"     shift && goto BUILD_WITH_CMAKE
 
 rem Subsequent commands require Visual C++ environment variables to be set up.
 
@@ -175,6 +161,21 @@ echo ERROR: Unable to find installation of MS Visual C++ on this computer
 goto END
 
 :PROCEED :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+set CXX=cl.exe
+set MACH7_INC=/I %MACH7_ROOT%
+if not "%BOOST_ROOT%" == "" set MACH7_INC=%MACH7_INC% /I %BOOST_ROOT%
+rem List of compiler options: http://technet.microsoft.com/en-us/library/fwkeyyhe(v=vs.110).aspx
+rem NOTE: Specifying /GL in VC11 fails to link code that uses our decl_helper for some reason.
+rem       However not specifying /GL fails when trying to do PGO.
+rem       Linker's /LTCG is used only when /GL is passed and vice versa.
+rem set CXXFLAGS=/nologo /W4 /EHsc /O2
+set CXXFLAGS=%MACH7_INC% /wd4007 /Zi /nologo /EHsc /W4 /WX- /O2 /Ob2 /Oi /Ot /Oy-     /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
+rem          %MACH7_INC% /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /Fp"Release\SyntheticSelectRandom.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb" 
+rem Slower: =%MACH7_INC% /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot      /GL /GF /Gm- /MT /GS- /Gy  /fp:precise /Zc:wchar_t /Zc:forScope /Gr /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
+set LNKFLAGS=
+rem LNKFLAGS=/INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST:NO /ALLOWISOLATION /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /ERRORREPORT:QUEUE 
+rem /OUT:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.exe" /INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST /ManifestFile:"Release\SyntheticSelectRandom.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /PGD:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pgd" /LTCG /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /MACHINE:%ARCH% /ERRORREPORT:QUEUE 
 
 if "%ARCH%" == "" set ARCH=x86
 set M=%ARCH%
@@ -476,6 +477,16 @@ set CXXFLAGS=%CF% /DXTL_FALL_THROUGH=1 /DXTL_USE_BRACES=1 /DXTL_DEFAULT_SYNTAX='
 set CXXFLAGS=%CF% /DXTL_FALL_THROUGH=1 /DXTL_USE_BRACES=1 /DXTL_DEFAULT_SYNTAX='k' & call :SUB_BUILD_FILE syntax.cxx syntax-rc0-ft1-br1-K-gen
 cd /D "%CurDir%"
 endlocal&set result=%result%
+goto END
+
+:BUILD_WITH_CMAKE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+setlocal
+cd /D %MACH7_ROOT%test
+if not exist build mkdir build
+cd build
+cmake %1 %2 %3 %4 %5 %6 %7 %8 %9 "%MACH7_ROOT%test"
+cmake --build .
+endlocal
 goto END
 
 :SUB_PARSE_DATE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

@@ -25,6 +25,8 @@ example01
 example02
 example03
 example04
+example04-smart-ptr
+example04-smart-ptr-bind-ptr
 example05
 exp
 exp2
@@ -77,6 +79,7 @@ find_package(Boost 1.54.0 QUIET COMPONENTS any variant HINTS $ENV{BOOST_ROOT})
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
+    add_executable(smart_ptr smart_ptr.cpp)
     add_executable(xtl xtl.cpp) 
     target_link_libraries(progname ${Boost_LIBRARIES})
 endif()
