@@ -56,12 +56,11 @@ build_script:
   - cd code
   - build.bat %toolset% %Platform%
   - echo Finished on %DATE% at %TIME%
-  - cd /D %APPVEYOR_BUILD_FOLDER%
 
 after_build:
-  - if exist code\build-*.log                 7z a build-logs.zip    code\build-*.log
-  - if exist code\*.nativecodeanalysis.xml    7z a analysis-logs.zip code\*.nativecodeanalysis.xml
-  - if exist code\test\build\CMakeFiles\*.log 7z a cmake-logs.zip    code\test\build\CMakeFiles\*.log
+  - if exist build-*.log                 7z a build-logs.zip    build-*.log
+  - if exist *.nativecodeanalysis.xml    7z a analysis-logs.zip *.nativecodeanalysis.xml
+  - if exist test\build\CMakeFiles\*.log 7z a cmake-logs.zip    test\build\CMakeFiles\*.log
 
 test_script:
   - build.bat check
