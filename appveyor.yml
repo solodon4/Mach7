@@ -59,9 +59,9 @@ build_script:
   - cd /D %APPVEYOR_BUILD_FOLDER%
 
 after_build:
-  - 7z a build-logs.zip    code\build-*.log
-  - 7z a analysis-logs.zip code\*.nativecodeanalysis.xml
-  - 7z a cmake-logs.zip    code\test\build\CMakeFiles\*.log
+  - if exist code\build-*.log                 7z a build-logs.zip    code\build-*.log
+  - if exist code\*.nativecodeanalysis.xml    7z a analysis-logs.zip code\*.nativecodeanalysis.xml
+  - if exist code\test\build\CMakeFiles\*.log 7z a cmake-logs.zip    code\test\build\CMakeFiles\*.log
 
 test_script:
   - build.bat check
