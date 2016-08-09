@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/solodon4/Mach7/master/media/posters/OpenPatternMatching-OOPSLA%20(1280x989).jpg" width="100%">
 </a>
 
-Mach7: Pattern Matching for C++ [![Build Status: Linux, OSX](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7) [![Build Status: Windows](https://ci.appveyor.com/api/projects/status/github/solodon4/mach7?branch=master&svg=true)](https://ci.appveyor.com/project/solodon4/mach7) [![Coverity Scan Build Status](https://scan.coverity.com/projects/9814/badge.svg](https://scan.coverity.com/projects/solodon4-mach7)
+Mach7: Pattern Matching for C++ [![Build Status: Linux, OSX](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7) [![Build Status: Windows](https://ci.appveyor.com/api/projects/status/github/solodon4/mach7?branch=master&svg=true)](https://ci.appveyor.com/project/solodon4/mach7) [![Coverity Scan Build Status](https://scan.coverity.com/projects/9814/badge.svg)](https://scan.coverity.com/projects/solodon4-mach7)
 ===============================
 
 by [Yuriy Solodkyy](http://parasol.tamu.edu/~yuriys/), [Gabriel Dos Reis](http://parasol.tamu.edu/~gdr/), [Bjarne Stroustrup](http://parasol.tamu.edu/~bs/)
