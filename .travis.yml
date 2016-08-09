@@ -6,7 +6,20 @@ compiler:
   - g++
   - clang++
 sudo: required
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "gfyEnfki5JHvDiRLgW20BnOUvY19Ok7ShgRAyHaRdrpKyIizufNE9XCRceyqR0vGGo24JPcGUoa4kvrevCxRLm4W2vqQBY5nQDUb0dkaZhhTe50OnVbvTOfbtjy7fGs065RakEXKyiIUTSFi3MfDmyku6dyt7XixxaSZT2zGyx4EJwlIABCc6toNRRKj1ZX+51Dl9NtStJ1oxdhY5LQ18PGxtvCe4B3iAaM0cQaGRHzOo13BUDVGoZ34mjsJdE3lV+SxQ+vIzCAp+kEjpjJ5kBiD/vFNngoaGIR4ZQwrH2dJF9EW6F/w4dIs/BmFyCgwX0Lo7mKGFoiJ/rDsPzvY2gopcY0DqTSPb3pGuKf0P4PVLqkeH2B2dBQaWEDRFeW9Unc2uwIszsWWNLOPhMTsYe6qhGUOukDAdRjCb9jMxSQX3fv9VOR7lPfDAHeq4IQsdWc/zZUmzfH+bmKj6xk3kHqDBhrvDwH74cFyAVFSZ4UKrVjc3v1ZBLSSwKgTyK2ekpSg9UprR5QVARcSciHAEJ3sqZvmeazFlpFqKFdZvqxCOdcJw8ul5OiNKwZBcqSqotx2ofd5BWsVsKsG1My1qMxpronYgOARp5FrwmXpHdFQrpQkec34cF88JkAy43DHgpBbDQzo8REMH9pEkHIQ03DhF88cE8uc5uRMsWAW0HQ="
 addons:
+  coverity_scan:
+    project:
+      name: "solodon4/Mach7"
+      description: "Build submitted via Travis CI"
+    notification_email: yuriy.solodkyy+github@gmail.com
+    build_command_prepend: "make clean"
+    build_command: "make -j 4"
+    branch_pattern: master
   apt:
     sources:
     - ubuntu-toolchain-r-test
