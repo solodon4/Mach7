@@ -16,10 +16,10 @@ addons:
     project:
       name: "solodon4/Mach7"
       description: "Build submitted via Travis CI"
-    notification_email: yuriy.solodkyy+github@gmail.com
+    notification_email: yuriy.solodkyy+coverity_scan@gmail.com
     build_command_prepend: "make clean"
     build_command: "make -j 4"
-    branch_pattern: master
+    branch_pattern: coverity_scan
   apt:
     sources:
     - ubuntu-toolchain-r-test
@@ -29,7 +29,8 @@ addons:
     - libboost-dev
 before_install: cd code
 install:
-  - if [[ "$CXX" == g++ ]];                                     then export CXX="g++-4.8"; fi
+    - if [ "$TRAVIS_BRANCH" = "coverity_scan" ] && ! [ "$TRAVIS_OS_NAME" = "linux" -a "$CC" = "gcc" ]; then exit ; fi
+    - if [[ "$CXX" == g++ ]]; then export CXX="g++-4.8"; fi
 before_script:
     - uname -a
     - printenv
