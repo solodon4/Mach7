@@ -200,6 +200,13 @@ struct type_switch_info_offset_helper<false, SwitchInfo>
         typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(mch::filter(XTL_SELECT_ARG(i,__VA_ARGS__)))>::type type_of_pattern##i; \
         static_assert(mch::is_pattern<type_of_pattern##i>::value,"Case-clause expects patterns as its arguments"); \
         typedef XTL_CPP0X_TYPENAME mch::underlying<type_of_pattern##i>::type::/*XTL_CPP0X_TEMPLATE*/ accepted_type_for<source_type##i>::type target_type##i;
+
+// used for CaseInT
+#define XTL_DECLARE_TARGET_TYPES_TEMPLATE(i,...)                                        \
+        typedef XTL_CPP0X_TYPENAME mch::underlying<decltype(mch::filter(XTL_SELECT_ARG(i,__VA_ARGS__)))>::type type_of_pattern##i; \
+        static_assert(mch::is_pattern<type_of_pattern##i>::value,"Case-clause expects patterns as its arguments"); \
+        typedef XTL_CPP0X_TYPENAME mch::underlying<type_of_pattern##i>::type::/*XTL_CPP0X_TEMPLATE*/template accepted_type_for<source_type##i>::type target_type##i;
+
 #define XTL_DYN_CAST_FROM(i,...) (__casted_ptr##i = mch::dynamic_cast_when_polymorphic<const target_type##i*>(subject_ptr##i)) != 0
 //#define XTL_ASSIGN_OFFSET(i,...) XTL_STATIC_IF(is_polymorphic##i) __switch_info.offset[polymorphic_index##i] = intptr_t(__casted_ptr##i)-intptr_t(subject_ptr##i);
 #define XTL_ASSIGN_OFFSET(i,...) mch::type_switch_info_offset_helper<is_polymorphic##i,decltype(__switch_info)>::set_offset(__switch_info, polymorphic_index##i, intptr_t(__casted_ptr##i)-intptr_t(subject_ptr##i));
@@ -229,6 +236,24 @@ struct type_switch_info_offset_helper<false, SwitchInfo>
             XTL_REPEAT(N, XTL_ADJUST_PTR_FROM, __VA_ARGS__)                    \
             if (XTL_REPEAT_WITH(&&, N, XTL_MATCH_PATTERN_TO_TARGET, __VA_ARGS__)) {
             
+// copy for CaseInT
+#define CaseNT(N, ...)                                                          \
+        }}}                                                                    \
+        {                                                                      \
+        XTL_REPEAT(N, XTL_DECLARE_TARGET_TYPES_TEMPLATE, __VA_ARGS__)          \
+        if (XTL_REPEAT_WITH(&&, N, XTL_DYN_CAST_FROM, __VA_ARGS__))            \
+        {                                                                      \
+            static_assert(number_of_subjects == N, "Number of targets in the case clause must be the same as the number of subjects in the Match statement"); \
+            enum { target_label = XTL_COUNTER-__base_counter, is_inside_case_clause = 1 }; \
+            XTL_STATIC_IF(number_of_polymorphic_subjects)                      \
+            if (XTL_LIKELY(__switch_info.target == 0))                         \
+            {                                                                  \
+                __switch_info.target = target_label;                           \
+                XTL_REPEAT(N, XTL_ASSIGN_OFFSET, XTL_EMPTY())                  \
+            }                                                                  \
+        case target_label:                                                     \
+            XTL_REPEAT(N, XTL_ADJUST_PTR_FROM, __VA_ARGS__)                    \
+            if (XTL_REPEAT_WITH(&&, N, XTL_MATCH_PATTERN_TO_TARGET, __VA_ARGS__)) {
 
 #if defined(_MSC_VER)
     /// FIX: For some reason we need to make this extra hoop to make MSVC preprocessor do what we want
@@ -238,6 +263,8 @@ struct type_switch_info_offset_helper<false, SwitchInfo>
 #else
     /// General Case statement supporting multiple targets
     #define Case(...) CaseN(XTL_NARG(__VA_ARGS__), __VA_ARGS__);
+
+    #define CaseInT(...) CaseNT(XTL_NARG(__VA_ARGS__), __VA_ARGS__);
 #endif
 
 #define Otherwise()                                                            \
