@@ -258,6 +258,8 @@
     #define XTL_CPP0X_TYPENAME
 #endif
 
-#define XTL_CPP0X_TEMPLATE
+#if XTL_GCC_VERSION <  40800
+    #define XTL_CPP0X_TEMPLATE
+#endif
 
 //------------------------------------------------------------------------------

@@ -42,31 +42,33 @@
 # \see https://github.com/solodon4/SELL
 #
 
-TARGETS = red-black-tree.exe
-SOURCES = $(shell ls *.cpp)
-OS      = $(shell uname -s)
-CXX     = g++
-EXTRAFLAGS = -Wall -Wno-long-long  -ftemplate-depth-250
-
-ifeq ($(OS),Darwin)
-EXTRAFLAGS = $(EXTRAFLAGS) -Wno-long-double
+GCC_COLORS=always
+OS       = $(shell uname -s)
+LIBS     = -lstdc++
+INCLUDES = -I../..
+CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=gnu++0x
+ifneq (,$(findstring g++,$(CXX)))
+	CXXFLAGS += -Wno-vla -fdiagnostics-show-option
+# Workaround for MinGW bug: -D__NO_INLINE__
+# Not supported by clang on Travis CI machines: -ftrack-macro-expansion=4
+endif
+ifneq (,$(findstring clang,$(CXX)))
+	CXXFLAGS += -fmacro-backtrace-limit=0 -ftemplate-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct
 endif
 
-INCLUDES = -I../..
-LIBS     = -lstdc++
-CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -time -O2 -DNDEBUG -std=gnu++0x $(EXTRAFLAGS)
-LIBFLAGS = $(LIBS)
+LIBFLAGS =
 AR       = ar
 
 .SUFFIXES: .cpp .o
 
+# Create a list of source files.
+SOURCES = $(shell ls *.cpp)
 # Create a list of object files from the source file lists.
-OBJECTS  = ${SOURCES:.cpp=.o}
-
+OBJECTS = ${SOURCES:.cpp=.o}
+# Create a list of targets.
+TARGETS = red-black-tree.exe
+# Create a list of dependency files.
 DEP_FILES = $(SOURCES:.cpp=.dep)
-
-# Setting .SECONDARY to blank disables deletion of intermediate files by make
-.SECONDARY:
 
 #include $(DEP_FILES)
 
@@ -74,11 +76,17 @@ DEP_FILES = $(SOURCES:.cpp=.dep)
 
 all: $(TARGETS)
 
+# Setting .SECONDARY to blank disables deletion of intermediate files by make
+#.SECONDARY:
+
 # A rule to build .exe file out of a .o file
 %.exe: $(OBJECTS)
+	@echo "SOURCES=" $(SOURCES)
+	@echo "OBJECTS=" $(OBJECTS)
+	@echo "TARGETS=" $(TARGETS)
 	@echo --------------------------------------------------------------------------------
 	@echo Linking $@ ...
-	$(CXX) -o $@ *.o $(LIBFLAGS)
+	$(CXX) -o $@ $(LIBFLAGS) $(OBJECTS) $(LIBS)
 	@echo ================================================================================
 	@echo Done building $@
 	@echo ================================================================================
@@ -111,13 +119,15 @@ all: $(TARGETS)
 #	@echo Instrumenting parser $@ ...
 #	sed -f ypp.sed $< > $@
 
+# A rule to clean all the intermediates and targets
 clean:
-	rm -rf $(TARGETS) $(OBJECTS) $(DEP_FILES) *.output *.tab.cpp *.tab.hpp *.yy.cpp
+	rm -rf $(TARGETS) $(OBJECTS) $(DEP_FILES) *.output *.tab.cpp *.tab.hpp *.yy.cpp includes.dot includes.png
 
 # A rule to create GraphViz .dot file with graph representation of header inclusions
 includes.dot:
-	grep -R --include=*.hpp "#include" * | sed -e "s/^/\"/g" -e "s/:/\"/g" -e "s/\/\/.*//g" -e "s/\"[A-Za-z0-9_\.\/-]*\//\"/g" -e "s/\(<.*>\)/\1\n\1 [color=red,shape=box]/g" -e "s/#include/ -> /g" -e "1 { s/^/digraph Includes {\nrankdir=TB;\nratio=0.44;\n/g }" -e "$$ { s/$$/\n}\n/g }" > includes.dot
+	grep -R --include=*.?pp "#include" * | sed -e "s/^/\"/g" -e "s/:/\"/g" -e "s/\/\/.*//g" -e "s/\"[A-Za-z0-9_\.\/-]*\//\"/g" -e "s/\(<.*>\)/\1\n\1 [color=red,shape=box]/g" -e "s/#include/ -> /g" > includes.dot
+# -e "1 { s/^/digraph Includes {\nrankdir=TB;\nratio=0.44;\n/g }" -e "$$ { s/$$/\n}\n/g }"
 
 # A rule to convert the above GraphViz .dot file into actual picture
 includes.png: includes.dot
-	dot.exe -Tpng -oincludes.png includes.dot
+	dot -Tpng -oincludes.png includes.dot

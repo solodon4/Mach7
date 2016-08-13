@@ -1,5 +1,5 @@
 #include <algorithm>
-#include "config.hpp"
+#include <mach7/config.hpp>                // Mach7 configuration
 
 /// The source code for the class is adopted from http://en.wikipedia.org/wiki/Red-black_tree
 class node
