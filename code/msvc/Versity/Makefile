@@ -52,18 +52,21 @@
 #     make test   - Run the test suite
 #
 
-OS      = $(shell uname -s)
-CXX     = g++
-EXTRAFLAGS = -Wall -Wno-long-long  -ftemplate-depth-250
-
-ifeq ($(OS),Darwin)
-EXTRAFLAGS = $(EXTRAFLAGS) -Wno-long-double
+GCC_COLORS=always
+OS       = $(shell uname -s)
+LIBS     = -lstdc++
+INCLUDES = -I../..
+CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=gnu++0x
+ifneq (,$(findstring g++,$(CXX)))
+	CXXFLAGS += -Wno-vla -fdiagnostics-show-option
+# Workaround for MinGW bug: -D__NO_INLINE__
+# Not supported by clang on Travis CI machines: -ftrack-macro-expansion=4
+endif
+ifneq (,$(findstring clang,$(CXX)))
+	CXXFLAGS += -fmacro-backtrace-limit=0 -ftemplate-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct
 endif
 
-INCLUDES = -Imach7
-LIBS     = -lstdc++
-CXXFLAGS = $(INCLUDES) -Wall -time -O2 -DNDEBUG -std=gnu++0x $(EXTRAFLAGS)
-LIBFLAGS = $(LIBS)
+LIBFLAGS =
 AR       = ar
 
 .SUFFIXES: .cpp .o
@@ -77,27 +80,27 @@ TARGETS = versity.exe
 # Create a list of dependency files.
 DEP_FILES = $(SOURCES:.cpp=.dep)
 
-# Setting .SECONDARY to blank disables deletion of intermediate files by make
-#.SECONDARY:
-
 #include $(DEP_FILES)
 
-# A phony target is one that is not really the name of a file; rather it is just 
+# A phony target is one that is not really the name of a file; rather it is just
 # a name for a recipe to be executed when you make an explicit request.
 
 .PHONY: all clean cmp default doc syntax tags test timing ver
 
-# Phony targets can have prerequisites. When one phony target is a prerequisite 
+# Phony targets can have prerequisites. When one phony target is a prerequisite
 # of another, it serves as a subroutine of the other.
 
 # Build all files in current folder
 all: default 
 
-# A phony target should not be a prerequisite of a real target file; if it is, 
-# its recipe will be run every time make goes to update that file. 
+# A phony target should not be a prerequisite of a real target file; if it is,
+# its recipe will be run every time make goes to update that file.
 
 # Build all targets by default
 default: 	$(TARGETS)
+
+# Setting .SECONDARY to blank disables deletion of intermediate files by make
+#.SECONDARY:
 
 # A rule to build .exe file out of a .o file
 %.exe: $(OBJECTS)
@@ -145,11 +148,12 @@ clean:
 
 # A rule to create GraphViz .dot file with graph representation of header inclusions
 includes.dot:
-	grep -R --include=*.hpp "#include" * | sed -e "s/^/\"/g" -e "s/:/\"/g" -e "s/\/\/.*//g" -e "s/\"[A-Za-z0-9_\.\/-]*\//\"/g" -e "s/\(<.*>\)/\1\n\1 [color=red,shape=box]/g" -e "s/#include/ -> /g" -e "1 { s/^/digraph Includes {\nrankdir=TB;\nratio=0.44;\n/g }" -e "$$ { s/$$/\n}\n/g }" > includes.dot
+	grep -R --include=*.?pp "#include" * | sed -e "s/^/\"/g" -e "s/:/\"/g" -e "s/\/\/.*//g" -e "s/\"[A-Za-z0-9_\.\/-]*\//\"/g" -e "s/\(<.*>\)/\1\n\1 [color=red,shape=box]/g" -e "s/#include/ -> /g" > includes.dot
+# -e "1 { s/^/digraph Includes {\nrankdir=TB;\nratio=0.44;\n/g }" -e "$$ { s/$$/\n}\n/g }"
 
 # A rule to convert the above GraphViz .dot file into actual picture
 includes.png: includes.dot
-	dot.exe -Tpng -oincludes.png includes.dot
+	dot -Tpng -oincludes.png includes.dot
 
 # A rule to run set of tests
 test:
@@ -173,4 +177,4 @@ test:
 	      ./$$file; \
 	    fi \
 	done ; \
-	echo -n 
+	echo -n

@@ -43,15 +43,13 @@
 ///
 
 #include "versity-bindings.hpp"
-#include "type_switchN-patterns.hpp"
-#include "patterns/address.hpp"        // Address pattern
-#include "patterns/combinators.hpp"    // Pattern combinators
-#include "patterns/constructor.hpp"    // Constructor pattern
-#include "patterns/equivalence.hpp"    // Equivalence pattern
-#include "patterns/guard.hpp"          // Guard pattern
-#include "patterns/n+k.hpp"            // n+k pattern
-//#include "patterns/primitive.hpp"      // Value, Variable and Wildcard patterns
-//#include "patterns/quantifiers.hpp"    // Quantifiers
+#include <mach7/type_switchN-patterns.hpp> // Support for N-ary Match statement on patterns
+#include <mach7/patterns/address.hpp>      // Address and dereference combinators
+#include <mach7/patterns/combinators.hpp>  // Support for pattern combinators
+#include <mach7/patterns/constructor.hpp>  // Support for constructor patterns
+#include <mach7/patterns/equivalence.hpp>  // Equivalence combinator +
+#include <mach7/patterns/guard.hpp>        // Support for guard patterns
+#include <mach7/patterns/n+k.hpp>          // Generalized n+k patterns
 
 //------------------------------------------------------------------------------
 

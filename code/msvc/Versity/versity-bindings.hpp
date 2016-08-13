@@ -1,6 +1,6 @@
 #pragma once
 
-#include "patterns/bindings.hpp"       // Bindings specification
+#include <mach7/patterns/bindings.hpp>     // Mach7 support for bindings on arbitrary UDT
 #include "versity-types.hpp"
 
 //------------------------------------------------------------------------------
