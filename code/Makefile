@@ -102,7 +102,7 @@ all: default
 # its recipe will be run every time make goes to update that file.
 
 # Build all tests by default
-default: unit time cmpl
+default: unit time cmpl examples
 
 # Setting .SECONDARY to blank disables deletion of intermediate files by make
 #.SECONDARY:
@@ -174,6 +174,11 @@ time:
 # A rule to build all the unit tests
 unit:
 	$(MAKE) -C test/unit CXX=$(CXX) BOOST_ROOT=$(BOOST_ROOT)
+
+# A rule to build all the examples
+examples:
+	$(MAKE) -C test/examples/RedBlackTree CXX=$(CXX) BOOST_ROOT=$(BOOST_ROOT)
+	$(MAKE) -C test/examples/Versity      CXX=$(CXX) BOOST_ROOT=$(BOOST_ROOT)
 
 # A rule to clean all the intermediates and targets
 clean:
