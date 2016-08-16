@@ -48,6 +48,25 @@
 
 //------------------------------------------------------------------------------
 
+#if !defined(NDEBUG)
+#include <cassert> // Support for assert() macro
+#endif
+
+//------------------------------------------------------------------------------
+
+#if !defined(XTL_ASSERT)
+  #if !defined(NDEBUG)
+    /// By default just pass it to the standard library's assert, but user can override this
+    #define XTL_ASSERT(...) assert(__VA_ARGS__)
+  #else
+    /// Since we bother to provide assume, we assume this default would be better than
+    /// whatever assert does in non-debug builds
+    #define XTL_ASSERT(...) XTL_ASSUME(__VA_ARGS__)
+  #endif
+#endif
+
+//------------------------------------------------------------------------------
+
 // This part re-defines various language facilities that can be emulated or
 // ignored in older compilers in order to support more compilers for the type
 // switching functionality, which does not require C++11.

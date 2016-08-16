@@ -133,8 +133,8 @@ static bool trace_likeliness(bool c, const char* text, const char* file)
 
 //------------------------------------------------------------------------------
 
-#if defined(_DEBUG)
 #if defined(_MSC_VER)
+#if defined(_DEBUG) // This is MSVC-specific macro
 
 // Enable memory leak tracing in debug builds
 #define _CRTDBG_MAP_ALLOC
@@ -150,8 +150,8 @@ static bool trace_likeliness(bool c, const char* text, const char* file)
 #ifndef DBG_NEW
 #define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
 #define new DBG_NEW
-#endif
-#endif
+#endif // DBG_NEW
+#endif // defined(XTL_LEAKED_NEW_LOCATIONS)
 
 /// \note The following declaration attempts to call _CrtDumpMemoryLeaks
 ///       as late as possible, however the order of initialization of
@@ -172,9 +172,7 @@ static bool trace_likeliness(bool c, const char* text, const char* file)
 /// \see  For more information on Finding Memory Leaks Using the CRT Library,
 ///       see http://msdn.microsoft.com/en-us/library/x98tx3cf(v=vs.100).aspx
 static mch::call_on_last_instance<decltype(_CrtDumpMemoryLeaks),_CrtDumpMemoryLeaks> dummy_to_call_leak_dumping_at_exit;
-#endif
-
-#include <iostream>            // We refer to std::cerr in debug mode
-#endif
+#endif // defined(_DEBUG)
+#endif // defined(_MSC_VER)
 
 //------------------------------------------------------------------------------

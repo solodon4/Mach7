@@ -315,22 +315,16 @@
 
 //------------------------------------------------------------------------------
 
-#if defined(_DEBUG)
+#if !defined(NDEBUG)
     /// Helper function to be used within XTL_ASSERT only that allows one to pass an explanation
     inline bool xtl_failure(const char*, bool condition) { return condition; }
 
     #define XTL_DEBUG_ONLY(...) __VA_ARGS__
-    /// Our own version of assert macro because of the fact that normal assert was 
-    /// not always removed in the release builds.
-    #define XTL_ASSERT(...) if (!(__VA_ARGS__)) { std::cerr << #__VA_ARGS__ " in file " << __FILE__ << '[' << __LINE__ << ']' << std::endl; std::abort(); }
 #else
     /// In release builds, xtl_failure is a macro that ignores its explanation argument
     #define xtl_failure(text, condition) condition
 
     #define XTL_DEBUG_ONLY(...)
-    /// Our own version of assert macro because of the fact that normal assert was 
-    /// not always removed in the release builds.
-    #define XTL_ASSERT(...) XTL_ASSUME(__VA_ARGS__)
 #endif
 
 /// Our own version of assert macro because of the fact that normal assert was 

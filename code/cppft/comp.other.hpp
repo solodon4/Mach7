@@ -44,6 +44,10 @@
 
 #pragma once
 
+#if !defined(XTL_ASSERT)
+#error This file should not be included directly. Please #include <cppft/config.hpp> instead
+#endif
+
 // Default/other compiler workarounds
 // For a good summary of compiler versions that support a particular C++ feature
 // \see http://www.italiancpp.org/wp-content/uploads/2014/03/CppISO-Feb2014-r1.pdf
@@ -220,7 +224,7 @@
 #endif
 
 #if !defined(XTL_UNREACHABLE)
-    #define  XTL_UNREACHABLE  XTL_ASSUME(0)
+    #define  XTL_UNREACHABLE  { XTL_ASSERT(!"Unreachable code"); XTL_ASSUME(0); }
 #endif
 
 //------------------------------------------------------------------------------

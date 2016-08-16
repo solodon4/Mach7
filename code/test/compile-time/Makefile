@@ -59,7 +59,8 @@ INCLUDES = -I../.. -I../../test/time
 ifneq (,$(BOOST_ROOT))
 	INCLUDES += -I$(BOOST_ROOT)
 endif
-CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -time -s -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=c++0x
+# Note: using -std=c++0x instead of -std=gnu++0x fails in standard headers on MinGW
+CXXFLAGS = $(INCLUDES) -Wall -Wextra -pedantic -time -s -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=gnu++0x
 #-fno-omit-frame-pointer \
 #-fno-rtti
 ifneq (,$(findstring g++,$(CXX)))
@@ -68,7 +69,7 @@ ifneq (,$(findstring g++,$(CXX)))
 # Not supported by clang on Travis CI machines: -ftrack-macro-expansion=4
 endif
 ifneq (,$(findstring clang,$(CXX)))
-	CXXFLAGS += -fmacro-backtrace-limit=0 -ftemplate-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct
+	CXXFLAGS += -ftime-report -fmacro-backtrace-limit=0 -ftemplate-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct
 endif
 
 LIBFLAGS =

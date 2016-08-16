@@ -44,6 +44,10 @@
 
 #pragma once
 
+#if !defined(XTL_ASSERT)
+#error This file should not be included directly. Please #include <cppft/config.hpp> instead
+#endif
+
 // Clang C++ workarounds
 // For a good summary of compiler versions that support a particular C++ feature
 // \see http://www.italiancpp.org/wp-content/uploads/2014/03/CppISO-Feb2014-r1.pdf
@@ -196,7 +200,7 @@
 #define XTL_ASSUME(expr) //__builtin_assume(expr)
 #endif
 #if __has_builtin(__builtin_unreachable)
-#define XTL_UNREACHABLE  __builtin_unreachable()
+#define XTL_UNREACHABLE  { XTL_ASSERT(!"Unreachable code"); __builtin_unreachable(); }
 #endif
 
 #if !XTL_TRACE_LIKELINESS

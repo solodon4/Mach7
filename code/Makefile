@@ -185,6 +185,8 @@ clean:
 	$(MAKE) -C test/unit clean
 	$(MAKE) -C test/time clean
 	$(MAKE) -C test/compile-time clean
+	$(MAKE) -C test/examples/RedBlackTree clean
+	$(MAKE) -C test/examples/Versity      clean
 	rm -rf $(TARGETS) $(OBJECTS) *.out *.stackdump *.cmi *.cmx *.obj *.csv *.exe.dSYM time-*.exe syntax-*.exe cmp-*.exe cmp_*.exe cmp_*.hi cmp_*.o
 
 # A rule to create GraphViz .dot file with graph representation of header inclusions
