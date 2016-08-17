@@ -181,6 +181,7 @@ int myeval(const Expr* e)
     Case(Minus, a,b) return myeval(a) - myeval(b);
     Case(Times, a,b) return myeval(a) * myeval(b);
     Case(Divide,a,b) return myeval(a) / myeval(b);
+    Otherwise()      return 0; // Just to avoid undefined behavior for tests with visitors.
     }
     EndMatch
 
@@ -367,23 +368,23 @@ int main()
     Expr* a = new Value(17);
     Expr* b = new Value(25);
     Expr* c = new Plus(a,b);
-    std::cout << myeval(c)   << std::endl;
+    std::cout << myeval(c) << std::endl;
     std::cout << to_str(c) << std::endl;
 
     // Mix of original operations with first extension
     Expr* d1 = new Mod(b,c);
-    std::cout << myeval(d1)       << std::endl;
+    std::cout << myeval(d1)     << std::endl;
     std::cout << to_str_ex1(d1) << std::endl;
     Expr* e1 = new Minus(c,d1);
-    std::cout << myeval(e1)       << std::endl;
+    std::cout << myeval(e1)     << std::endl;
     std::cout << to_str_ex1(e1) << std::endl;
 
     // Mix of original operations with second extension
     Expr* d2 = new Min(b,c);
-    std::cout << myeval(d2)       << std::endl;
+    std::cout << myeval(d2)     << std::endl;
     std::cout << to_str_ex2(d2) << std::endl;
     Expr* e2 = new Minus(c,d2);
-    std::cout << myeval(e2)       << std::endl;
+    std::cout << myeval(e2)     << std::endl;
     std::cout << to_str_ex2(e2) << std::endl;
 
     // Mix of operations from first and second extension
