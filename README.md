@@ -137,6 +137,13 @@ and currently have all check-ins validated in the following configurations:
 | x86   |      |      |      |      |      |
 | x64   |      |      |      |  N/A |      |
 
+Branches
+--------
+
+ * master - main development branch
+ * release - cleaned-up branch with non-essential files deleted. FI from but does not RI back to master to avoid deletion of files there. Don't do any actual editing in this branch.
+ * coverity_scan - any push to this branch triggers its build and analysis by Coverity in Travis CI
+
 Building sources
 ----------------
 
