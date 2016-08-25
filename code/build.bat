@@ -116,7 +116,7 @@ echo Command line: %0 %* >> %logfile%
 
 rem Parse modifiers
 
-if /I "%1" == "analyze"   shift && set CL=/analyze /analyze:plugin "%MACH7_ROOT%packages\Microsoft.CppCoreCheck\build\native\x86\EspXEngine.dll" %CL%&& goto PARSE_CMD_LINE
+if /I "%1" == "analyze"   shift && set CL=/analyze /analyze:plugin "%MACH7_ROOT%packages\Microsoft.CppCoreCheck\build\native\%ARCH%\EspXEngine.dll" %CL%&& goto PARSE_CMD_LINE
 if /I "%1" == "pgo"       shift && set PGO=1&&                          goto PARSE_CMD_LINE
 if /I "%1" == "repro"     shift && set REPRO=1&&                        goto PARSE_CMD_LINE
 if /I "%1" == "tmp"       shift && set KEEP_TMP=1&&                     goto PARSE_CMD_LINE
