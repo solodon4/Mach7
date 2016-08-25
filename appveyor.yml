@@ -51,6 +51,8 @@ platform:
   - x64
 
 before_build:
+  # Install nuget packages used for static analysis
+  - nuget install Microsoft.CppCoreCheck -ExcludeVersion -o code\packages
   # Remove sh.exe from the path otherwise CMake will complain:
   # "sh.exe was found in your PATH, here: C:/Program Files/Git/usr/bin/sh.exe"
   # and the MinGW build will not work (the Visual Studio build does not care).

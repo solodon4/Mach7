@@ -79,6 +79,7 @@ ipch/
 *.sbr
 *.opensdf
 *.unsuccessfulbuild
+*.nativecodeanalysis.xml
 
 # Generated files
 *.tab.?pp

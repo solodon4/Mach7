@@ -107,7 +107,7 @@ set logfile=build-%yy%-%mm%-%dd%-%hh%-%mn%-VS%VS20XX%.log
 set logfile="%MACH7_ROOT%%logfile%"
 echo. > %logfile%
 echo Mach7 Build Script >> %logfile%
-echo Version 1.0.63 from 2016-08-06 >> %logfile%
+echo Version 1.0.89 from 2016-08-24 >> %logfile%
 echo. >> %logfile%
 echo Build log from %date% at %time% >> %logfile%
 echo Command line: %0 %* >> %logfile%
@@ -116,7 +116,7 @@ echo Command line: %0 %* >> %logfile%
 
 rem Parse modifiers
 
-if /I "%1" == "analyze"   shift && set CL=/analyze %CL%&&               goto PARSE_CMD_LINE
+if /I "%1" == "analyze"   shift && set CL=/analyze /analyze:plugin "%MACH7_ROOT%packages\Microsoft.CppCoreCheck\build\native\x86\EspXEngine.dll" %CL%&& goto PARSE_CMD_LINE
 if /I "%1" == "pgo"       shift && set PGO=1&&                          goto PARSE_CMD_LINE
 if /I "%1" == "repro"     shift && set REPRO=1&&                        goto PARSE_CMD_LINE
 if /I "%1" == "tmp"       shift && set KEEP_TMP=1&&                     goto PARSE_CMD_LINE
@@ -192,8 +192,12 @@ if not "%VS_COMN_TOOLS%"=="0000" call "%VS_COMN_TOOLS%..\..\VC\vcvarsall.bat" %A
 where cl.exe > nul 2>&1
 if errorlevel 1 if /I %ARCH% == x64 set ARCH=x86_amd64& echo Warning: Unable to find x64 native toolset. Trying x86 to x64 cross compiler & goto proceed
 if errorlevel 1 verify > nul & echo Error: There was a problem setting up the environment for this toolset & goto end
+rem Dump environment variables
+set >> %logfile% 2>&1
 rem Dump versions of compiler passes
 %CXX% /Bv >> %logfile% 2>&1
+rem Used by CppCoreCheck to not report warnings in system folders
+set CAExcludePath=%INCLUDE%
 
 rem Account for a problem with some PGO flags described above.
 if "%PGO%"=="1" set CXXFLAGS=%CXXFLAGS% /GL 
@@ -306,7 +310,7 @@ goto END
 
 :SUB_CLEAN :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 cd /D %1
-del *.i *.obj *.exe *.pdb *.idb *.ilk *.pgd *.pgc *.intermediate.manifest *.out cmp_haskell.hi cmp_haskell.o cmp_ocaml.cmi cmp_ocaml.cmx > nul 2>&1
+del *.i *.obj *.exe *.pdb *.idb *.ilk *.pgd *.pgc *.intermediate.manifest *.nativecodeanalysis.xml *.out cmp_haskell.hi cmp_haskell.o cmp_ocaml.cmi cmp_ocaml.cmx > nul 2>&1
 cd /D "%CurDir%"
 goto END
 
