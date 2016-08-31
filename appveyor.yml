@@ -71,11 +71,16 @@ build_script:
   - cd code
   - build.bat %Platform% %toolset%
   - echo Finished on %DATE% at %TIME%
+  - echo Current Directory is %CD%
 
 after_build:
+  - echo Current Directory after build is %CD%
   - if exist build-*.log                 7z a build-logs.zip    build-*.log
   - if exist *.nativecodeanalysis.xml    7z a analysis-logs.zip *.nativecodeanalysis.xml
   - if exist test\build\CMakeFiles\*.log 7z a cmake-logs.zip    test\build\CMakeFiles\*.log
+  - if exist build-logs.zip    appveyor PushArtifact build-logs.zip
+  - if exist analysis-logs.zip appveyor PushArtifact analysis-logs.zip
+  - if exist cmake-logs.zip    appveyor PushArtifact cmake-logs.zip
 
 test_script:
   - build.bat check
@@ -95,5 +100,6 @@ artifacts:
     name: Failures Logs
 
 on_failure:
+  - echo Current Directory on failure is %CD%
   - if exist build-*.log 7z a failure-logs.zip build-*.log
   - if exist failure-logs.zip appveyor PushArtifact failure-logs.zip
