@@ -61,7 +61,7 @@
 ::           tmp    - Keep temporaries
 ::           <ver>  - Use a specific version of Visual C++ to compiler the source 
 ::                    code. <ver> can be one of the following:
-::                     - 2016 - Visual C++ 15.0
+::                     - 2017 - Visual C++ 15.0
 ::                     - 2015 - Visual C++ 14.0
 ::                     - 2013 - Visual C++ 12.0
 ::                     - 2012 - Visual C++ 11.0
@@ -86,8 +86,8 @@ verify > nul
 rem Prepare log file :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 rem We would like to have the toolset directly in the log file name, so we duplicate the later check here
-if "%1" == ""     set VS20XX=2015
-if "%1" == "2016" set VS20XX=2016
+if "%1" == ""     set VS20XX=2017
+if "%1" == "2017" set VS20XX=2017
 if "%1" == "2015" set VS20XX=2015
 if "%1" == "2013" set VS20XX=2013
 if "%1" == "2012" set VS20XX=2012
@@ -120,7 +120,7 @@ if /I "%1" == "analyze"   shift && set CL=/analyze /analyze:plugin "%MACH7_ROOT%
 if /I "%1" == "pgo"       shift && set PGO=1&&                          goto PARSE_CMD_LINE
 if /I "%1" == "repro"     shift && set REPRO=1&&                        goto PARSE_CMD_LINE
 if /I "%1" == "tmp"       shift && set KEEP_TMP=1&&                     goto PARSE_CMD_LINE
-if    "%1" == "2016"      shift && set VS_COMN_TOOLS=%VS150COMNTOOLS%&& goto PARSE_CMD_LINE
+if    "%1" == "2017"      shift && set VS_COMN_TOOLS=%VS150COMNTOOLS%&& goto PARSE_CMD_LINE
 if    "%1" == "2015"      shift && set VS_COMN_TOOLS=%VS140COMNTOOLS%&& goto PARSE_CMD_LINE
 if    "%1" == "2013"      shift && set VS_COMN_TOOLS=%VS120COMNTOOLS%&& goto PARSE_CMD_LINE
 if    "%1" == "2012"      shift && set VS_COMN_TOOLS=%VS110COMNTOOLS%&& goto PARSE_CMD_LINE
@@ -181,7 +181,7 @@ if "%ARCH%" == "" set ARCH=x86
 set M=%ARCH%
 
 rem Recent versions of vsvars32.bat do not print the toolset used.
-if "%VS_COMN_TOOLS%"=="%VS150COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2016 %ARCH% tools.
+if "%VS_COMN_TOOLS%"=="%VS150COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2017 %ARCH% tools.
 if "%VS_COMN_TOOLS%"=="%VS140COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2015 %ARCH% tools.
 if "%VS_COMN_TOOLS%"=="%VS120COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2013 %ARCH% tools.
 if "%VS_COMN_TOOLS%"=="%VS110COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2012 %ARCH% tools.

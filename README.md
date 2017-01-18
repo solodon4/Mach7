@@ -172,7 +172,7 @@ on the library were built with.
 
 #### Using Makefiles for GCC (4.4 or later) or Clang (3.3 or later)
  
-Top-level Makefile synopisis:
+Top-level Makefile synopsis:
  
     make         - build all library tests
     make all     - same as above right now
@@ -250,9 +250,9 @@ Similarly, to build and run all the timing tests:
            pgo   - Perform Profile-Guided Optimization on produced executables
            repro - In case of error, create and compile a pre-processed repro
            tmp   - Keep temporaries
-          <ver>  - Use a specific version of Visual C++ to compiler the source 
+          <ver>  - Use a specific version of Visual Studio to compile the source 
                    code. <ver> can be one of the following:
-                    - 2016 - Visual C++ 15.0
+                    - 2017 - Visual C++ 15.0
                     - 2015 - Visual C++ 14.0
                     - 2013 - Visual C++ 12.0
                     - 2012 - Visual C++ 11.0
@@ -309,7 +309,7 @@ Right now, there are several experimental headers that one would need to include
 to work. This is a work in progress, so before you start working with a particular syntax, check examples with that
 syntax and make note of which of headers they include. We will clear this eventually leaving only one header, but at 
 the moment it is a mess, and the most intuitive match.hpp is probably not the header you want as it represents older
-experiments. The most recent experimentation and the header you are prpobably looking for is
+experiments. The most recent experimentation and the header you are probably looking for is
 [mach7/type_switchN-patterns-xtl.hpp](https://github.com/solodon4/Mach7/blob/master/code/mach7/type_switchN-patterns-xtl.hpp).
 
 The library is not yet suitable for multi-threaded environment. Lock-free version of vtbl-map is in the works.

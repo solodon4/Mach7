@@ -89,7 +89,7 @@
 
 //------------------------------------------------------------------------------
 
-#if !XTL_SUPPORT(constexpr)
+#if !XTL_SUPPORT(constexpr) && !defined(constexpr)
 /// We do not turn it into inline because of constexpr values
 #define constexpr
 #endif
@@ -108,9 +108,14 @@
 #define noexcept throw()
 #endif
 
-#if !XTL_SUPPORT(nullptr)
+#if !XTL_SUPPORT(nullptr) && !defined(nullptr)
 /// Turn nullptr into 0 for compilers not supporting it
 #define nullptr 0
+#endif
+
+#if !XTL_SUPPORT(static_assert) && !defined(static_assert)
+/// Emulate static_assert with a typedef trick
+#define static_assert(cond,text) typedef char __STATIC_ASSERT__[(cond) ? 1 : -1]
 #endif
 
 #if !XTL_SUPPORT(std_is_nothrow_copy_constructible)
