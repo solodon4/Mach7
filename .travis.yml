@@ -30,12 +30,14 @@ addons:
 before_install: cd code
 install:
     - if [ "$TRAVIS_BRANCH" = "coverity_scan" ] && ! [ "$TRAVIS_OS_NAME" = "linux" -a "$CC" = "gcc" ]; then exit ; fi
-    - if [[ "$CXX" == g++ ]]; then export CXX="g++-4.8"; fi
+#    - if [[ "$CXX" == g++ ]]; then export CXX="g++-4.8"; fi
 before_script:
     - uname -a
     - printenv
     - which clang++
     - clang++ --version 2>&1 | grep clang
+    - which g++
+    - g++ --version
 script: make --keep-going
 notifications:
   email:
