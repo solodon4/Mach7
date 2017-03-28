@@ -59,10 +59,10 @@ namespace boost
     // Default implementation of vtbl_of grabs sizeof(intptr_t) bytes from the beginning
     // of the object, which on 64-bit machines is larger that size of variant's which member.
     template <class... Ts>
-    inline std::intptr_t vtbl_of(const boost::variant<Ts...>* p) noexcept { return p->which(); }
+    inline std::intptr_t vtbl_of(const boost::variant<Ts...>* p) noexcept { return p->which() + 1; }
 #else
     template <VARIANT_P(class Ts)>
-    inline std::intptr_t vtbl_of(const boost::variant<VARIANT_P(Ts)>* p) noexcept { return p->which(); }
+    inline std::intptr_t vtbl_of(const boost::variant<VARIANT_P(Ts)>* p) noexcept { return p->which() + 1; }
 #endif
 }
 
