@@ -5,7 +5,7 @@
 Mach7: Pattern Matching for C++ [![Build Status: Linux, OSX](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7) [![Build Status: Windows](https://ci.appveyor.com/api/projects/status/github/solodon4/mach7?branch=master&svg=true)](https://ci.appveyor.com/project/solodon4/mach7) [![Coverity Scan Build Status](https://scan.coverity.com/projects/9814/badge.svg)](https://scan.coverity.com/projects/solodon4-mach7)
 ===============================
 
-by [Yuriy Solodkyy](http://parasol.tamu.edu/~yuriys/), [Gabriel Dos Reis](http://parasol.tamu.edu/~gdr/), [Bjarne Stroustrup](http://parasol.tamu.edu/~bs/)
+by [Yuriy Solodkyy](https://github.com/solodon4), [Gabriel Dos Reis](https://github.com/GabrielDosReis), [Bjarne Stroustrup](https://github.com/BjarneStroustrup)
 
 Abstract
 --------
@@ -276,6 +276,15 @@ Publications
  * Y.Solodkyy, G.Dos Reis, B.Stroustrup. "[Open Pattern Matching for C++](http://bit.ly/OPM-GPCE13)" In Proceedings of the 12th international conference on Generative programming: concepts & experiences (GPCE '13). ACM, New York, NY, USA, pp. 33-42. [pdf](http://bit.ly/OPM-GPCE13), [slides](http://bit.ly/OPM13Slides), [notes](http://bit.ly/OPM13Notes), [poster](http://bit.ly/OPM13Poster), [project](http://bit.ly/Mach7)
  * Y.Solodkyy. "[Simplifying the Analysis of C++ Programs](http://bit.ly/PhdThesis)" Ph.D. Thesis. Texas A&M University. August 2013. [pdf](http://bit.ly/SolodkyyThesis), [slides](http://bit.ly/SolodkyyThesisSlides)
  * Y.Solodkyy, G.Dos Reis, B.Stroustrup. "[Open and Efficient Type Switch for C++](http://bit.ly/TS-OOPSLA12)" In Proceedings of the ACM international conference on Object Oriented Programming Systems Languages and Applications (OOPSLA '12). ACM, New York, NY, USA, pp. 963-982. [pdf](http://bit.ly/TS-OOPSLA12), [slides](http://bit.ly/TS12Slides), [notes](http://bit.ly/TS12Notes), [poster](http://bit.ly/OPM13Poster), [extras](http://bit.ly/TS12Extras), [project](http://bit.ly/Mach7)]
+
+Others about Mach7
+------------------
+ * 2016-02-27: [Andrzej's C++ blog](https://akrzemi1.wordpress.com/?s=Mach7): [Another polymorphism](https://akrzemi1.wordpress.com/2016/02/27/another-polymorphism/)
+
+Projects using Mach7
+--------------------
+ * [Yodl](https://github.com/forflo/yodl): a VHDL frontend for Yosys
+ * [Arrow](https://github.com/arrow-lang/arrow): Arrow is a fast (as or faster than C) general-purpose programming language. It does not employ a garbage collector and has minimal runtime overhead.
 
 License
 -------
