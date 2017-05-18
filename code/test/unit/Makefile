@@ -60,7 +60,7 @@ OS       = $(shell uname -s)
 LIBS     = -lstdc++
 INCLUDES = -I../..
 ifneq (,$(BOOST_ROOT))
-	INCLUDES += -I$(BOOST_ROOT) /DHAS_BOOST
+	INCLUDES += -I$(BOOST_ROOT) -DHAS_BOOST
 endif
 CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -DXTL_MESSAGE_ENABLED=0 -std=c++0x
 ifneq (,$(findstring g++,$(CXX)))
