@@ -1,6 +1,17 @@
 // This unit test is based on Mach7 issue #73 by @Rupsbant
 // See https://github.com/solodon4/Mach7/issues/73 for details
 
+#ifndef HAS_BOOST
+
+#include <iostream>
+
+int main() {
+    std::cout << "This test requires Boost!\n";
+    return 1;
+}
+
+#else
+
 #include <stdio.h>
 #include <mach7/adapters/boost/adapt_boost_variant.hpp>
 #include <mach7/patterns/constructor.hpp> 
@@ -48,3 +59,5 @@ int main() {
   if (3 != test<8>()) { ++result; printf("Invalid result of test<8>()\n"); }
   return result;
 }
+
+#endif // HAS_BOOST

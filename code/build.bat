@@ -164,7 +164,7 @@ goto END
 
 set CXX=cl.exe
 set MACH7_INC=/I %MACH7_ROOT%
-if not "%BOOST_ROOT%" == "" set MACH7_INC=%MACH7_INC% /I %BOOST_ROOT%
+if not "%BOOST_ROOT%" == "" set MACH7_INC=%MACH7_INC% /I %BOOST_ROOT% /DHAS_BOOST
 rem List of compiler options: http://technet.microsoft.com/en-us/library/fwkeyyhe(v=vs.110).aspx
 rem NOTE: Specifying /GL in VC11 fails to link code that uses our decl_helper for some reason.
 rem       However not specifying /GL fails when trying to do PGO.
