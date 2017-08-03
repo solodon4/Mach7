@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/solodon4/Mach7/master/media/posters/OpenPatternMatching-OOPSLA%20(1280x989).jpg" width="100%">
 </a>
 
-Mach7: Pattern Matching for C++ [![Build Status: Linux, OSX](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7) [![Build Status: Windows](https://ci.appveyor.com/api/projects/status/github/solodon4/mach7?branch=master&svg=true)](https://ci.appveyor.com/project/solodon4/mach7) [![Coverity Scan Build Status](https://scan.coverity.com/projects/9814/badge.svg)](https://scan.coverity.com/projects/solodon4-mach7)
+Mach7: Pattern Matching for C++ [![Build Status: Linux, OSX](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7) [![Build Status: Windows](https://ci.appveyor.com/api/projects/status/github/solodon4/mach7?branch=master&svg=true)](https://ci.appveyor.com/project/solodon4/mach7)
 ===============================
 
 by [Yuriy Solodkyy](https://github.com/solodon4), [Gabriel Dos Reis](https://github.com/GabrielDosReis), [Bjarne Stroustrup](https://github.com/BjarneStroustrup)
@@ -94,7 +94,7 @@ bool operator==(const Term& left, const Term& right)
 }
 ```
 
-Next example demonstrates that [the library can deal efficiently and in a type-safe manner with non-polymorphic classes](https://github.com/solodon4/Mach7/blob/master/code/test/unit/xtl.cpp#L338-L361)
+Next example demonstrates that [the library can deal efficiently and in a type-safe manner with non-polymorphic classes](https://github.com/solodon4/Mach7/blob/master/code/test/unit/xtl.cpp#L354-L383)
 like boost::variant as well.
 
 ```C++
@@ -140,9 +140,8 @@ and currently have all check-ins validated in the following configurations:
 Branches
 --------
 
- * master - main development branch
+ * master  - main development branch
  * release - cleaned-up branch with non-essential files deleted. FI from but does not RI back to master to avoid deletion of files there. Don't do any actual editing in this branch.
- * coverity_scan - any push to this branch triggers its build and analysis by Coverity in Travis CI
 
 Building sources
 ----------------
@@ -326,9 +325,5 @@ The library is not yet suitable for multi-threaded environment. Lock-free versio
 Please refrain from using solution or project files checked in here. They are not in sync with most recent changes
 to directory structure and are difficult to maintain. They will ultimately be replaced with a less verbose system 
 (likely CMake), and in the meantime please use build.bat to build tests on Windows. 
-
-The following files crash GCC 4.4.5 on my Fedora 13 box:
-    extractor.cpp, shape2.cpp, shape4.cpp, shape5.cpp, shape6.cpp, shape.cpp, numbers.cpp, category.cpp, exp.cpp
-If they do on yours too, just delete them, they are all test cases anyways.
 
 For the most up-to-date list of known issues see [Mach7 Issues](https://github.com/solodon4/Mach7/issues).
