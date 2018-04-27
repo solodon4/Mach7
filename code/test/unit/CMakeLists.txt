@@ -28,6 +28,7 @@ example04
 example04-smart-ptr
 example04-smart-ptr-bind-ptr
 example05
+example06-smart-ptr
 exp
 exp2
 expr
