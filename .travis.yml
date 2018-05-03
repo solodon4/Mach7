@@ -30,7 +30,6 @@ addons:
 before_install:
   - cd code
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update;                fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap homebrew/versions; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gcc48;         fi
 
 install:

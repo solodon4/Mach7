@@ -59,16 +59,15 @@ struct Nat
     virtual ~Nat() {}
 };
 
-typedef std::unique_ptr<Nat> NatPtr;
-
 struct O : Nat
 {
 };
 
 struct S : Nat
 {
-    S(Nat* n) : e(n) {}
-    NatPtr e;
+    S(const Nat* n) : e(n) {}
+   ~S() { if (e) delete e; }
+    const Nat* e;
 };
 
 //------------------------------------------------------------------------------
@@ -97,13 +96,38 @@ int evl(const Nat& n)
 
 //------------------------------------------------------------------------------
 
+// Add two inductively defined Nat
+const Nat* plus(const Nat* n, const Nat* m)
+{
+	var<const Nat*> a;
+	var<const Nat*> b;
+
+    Match(n, m)
+    {
+
+      Case(_, C<O>())        return n; // m + 0 = m
+      Case(C<O>(), _)        return m; // 0 + m = m
+      Case(C<S>(a), C<S>(b)) return new S(new S(plus(a, b))); // S n + S m = S (S (n + m))
+      Otherwise()            return nullptr;
+    }
+    EndMatch
+
+    XTL_UNREACHABLE; // To avoid warning that control may reach end of a non-void function
+}
+
+//------------------------------------------------------------------------------
+
 int main()
 {
-    NatPtr a(new S(new S(new O)));
-    NatPtr b(new S(new O));
+    Nat* a = new S(new S(new O));
+    Nat* b = new S(new O);
 
     std::cout << evl(*a) << std::endl;
     std::cout << evl(*b) << std::endl;
+
+    const Nat* c = plus(a,b);
+
+    std::cout << evl(*c) << std::endl;
 }
 
 //------------------------------------------------------------------------------
