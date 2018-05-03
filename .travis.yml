@@ -30,7 +30,7 @@ addons:
 before_install:
   - cd code
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update;                fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gcc48;         fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gcc@4.8;       fi
 
 install:
     - if [ "$TRAVIS_BRANCH" = "coverity_scan" ] && ! [ "$TRAVIS_OS_NAME" = "linux" -a "$CC" = "gcc" ]; then exit ; fi
