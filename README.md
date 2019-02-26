@@ -129,13 +129,13 @@ and currently have all check-ins validated in the following configurations:
 
 | [![Build Status](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7) | [G++](http://gcc.gnu.org/) | [Clang](http://clang.llvm.org/) |
 |-------|-----|-------|
-| Linux | 4.8 | 3.4   |
-| OSX   | 4.8 | 3.5   |
+| Linux | 4.9 | 3.4   |
+| OSX   | 4.9 | 3.5   |
 
 | [![Build Status: Visual C++](https://ci.appveyor.com/api/projects/status/github/solodon4/mach7?branch=master&svg=true)](https://ci.appveyor.com/project/solodon4/mach7) | 2017 | 2015 | 2013 | 2012 | 2010 | /analyze |
-|-------|--------|------|------|------|------|------|
-| x86   |OK\Boost|  OK  |  OK  |  OK  |  OK  |  OK  |
-| x64   |OK\Boost|  OK  |  OK  |  OK  |  N/A |  OK  |
+|-------|------|------|------|------|------|------|
+| x86   |  OK  |  OK  |  OK  |  OK  |  OK  |  OK  |
+| x64   |  OK  |  OK  |  OK  |  OK  |  N/A |  OK  |
 
 Branches
 --------

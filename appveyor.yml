@@ -32,15 +32,13 @@
 # NOTE: Before checking changes to this script in, validate them at:
 #       https://ci.appveyor.com/tools/validate-yaml
 
-# Boost is already installed on AppVeyor, but not on Visual Studio 2017 image
+# Boost is already installed on AppVeyor
 environment:
-  BOOST_ROOT: C:\Libraries\boost_1_67_0
-  BOOST_LIBRARYDIR: C:\Libraries\boost_1_67_0\lib64-msvc-14.0
+  BOOST_ROOT: C:\Libraries\boost_1_69_0
+  BOOST_LIBRARYDIR: C:\Libraries\boost_1_69_0\lib64-msvc-14.0
   matrix:
     - toolset: 2017
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      BOOST_ROOT:
-      BOOST_LIBRARYDIR:
     - toolset: 2015
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - toolset: 2013
