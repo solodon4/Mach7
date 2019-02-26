@@ -25,16 +25,16 @@ addons:
     - ubuntu-toolchain-r-test
     - boost-latest
     packages:
-    - g++-4.8
+    - g++-4.9
     - libboost-dev
 before_install:
   - cd code
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update;                fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gcc@4.8;       fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gcc@4.9;       fi
 
 install:
     - if [ "$TRAVIS_BRANCH" = "coverity_scan" ] && ! [ "$TRAVIS_OS_NAME" = "linux" -a "$CC" = "gcc" ]; then exit ; fi
-    - if [[ "$CXX" == g++ ]]; then export CXX="g++-4.8"; fi
+    - if [[ "$CXX" == g++ ]]; then export CXX="g++-4.9"; fi
 before_script:
     - uname -a
     - printenv
