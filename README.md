@@ -161,11 +161,10 @@ on the library were built with.
  [CMake](https://cmake.org/) support is the most recent and is still very experimental at this point. To
  build with cmake, perform the following commands from within Mach7 folder:
 
-    cd code/test
-    mkdir build
+    cmake -H. -Bbuild 
     cd build
-    cmake ..
-    cmake --build .
+    make -j10
+    sudo make install #should work for linux and mac ox, will copy headers files into /usr/local/include/ 
 
  Version 3.2 is needed in order to be able to have support of target_compile_features for AppleClang
 

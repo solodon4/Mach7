@@ -1,0 +1,15 @@
+# - Config file for the Mach7 package
+# It defines the following variables
+#  MACH7_INCLUDE_DIRS - include directories for Mach7
+#  MACH7_LIBRARIES    - libraries to link against
+
+# Compute paths
+get_filename_component(MACH7_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(MACH7_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+include("${MACH7_CMAKE_DIR}/Mach7Targets.cmake")
+# message("Mach7Config.cmake.in MACH7_CMAKE_DIR:" ${MACH7_CMAKE_DIR})
+
+# These are IMPORTED targets created by Mach7Targets.cmake
+set(MACH7_LIBRARIES Mach7)
