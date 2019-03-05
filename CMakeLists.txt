@@ -1,6 +1,10 @@
 # Version 3.2 is needed to be able to have support of target_compile_features for AppleClang
 cmake_minimum_required(VERSION 3.2.0 FATAL_ERROR)
 
+# Sets the name of the project, and stores it in the variable PROJECT_NAME. When called from the top-level CMakeLists.txt also stores the project name in the variable CMAKE_PROJECT_NAME.
+project(Mach7)
+
+# Adds a subdirectory to the build. The source_dir specifies the directory in which the source CMakeLists.txt and code files are located.
 project(Mach7)
 
 add_subdirectory(code/test)
@@ -31,6 +35,8 @@ install(FILES
     DESTINATION lib/cmake/Mach7)
 
 
+# for linux: copy header files to /usr/local/ by default
+# for windows: copy header fiels to c:/Program Files by default
 install(
     DIRECTORY ${CMAKE_SOURCE_DIR}/code/mach7/
     DESTINATION include/mach7)

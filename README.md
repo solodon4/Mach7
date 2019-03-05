@@ -162,11 +162,7 @@ on the library were built with.
  build with cmake, perform the following commands from within Mach7 folder:
 
     cmake -H. -Bbuild 
-    cd build
-    make -j10
-    sudo make install #should work for linux and mac ox, will copy headers files into /usr/local/include/ 
-
- Version 3.2 is needed in order to be able to have support of target_compile_features for AppleClang
+    cmake --build build --target install
 
 #### Using Makefiles for GCC (4.4 or later) or Clang (3.3 or later)
  
