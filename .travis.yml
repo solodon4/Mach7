@@ -107,7 +107,7 @@ before_script:
     - sudo cmake --version
 
 script: 
-    - make --keep-going -j100
+    - make --keep-going
     - cd ..
     - cmake -H. -Bbuild 
     - sudo cmake --build build --target install -j 100
