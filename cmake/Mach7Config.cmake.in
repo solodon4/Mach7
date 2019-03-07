@@ -1,0 +1,5 @@
+# https://stackoverflow.com/questions/47718485/install-and-export-interface-only-library-cmake
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/Mach7Targets.cmake")
+check_required_components("@PROJECT_NAME@")

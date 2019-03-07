@@ -161,13 +161,20 @@ on the library were built with.
  [CMake](https://cmake.org/) support is the most recent and is still very experimental at this point. To
  build with cmake, perform the following commands from within Mach7 folder:
 
-    cd code/test
-    mkdir build
-    cd build
-    cmake ..
-    cmake --build .
+    cmake -H. -Bbuild 
+    cmake --build build --target install
+    
+Note: this requires administrative privileges under all systems, if you don't like this, try commands below:
 
- Version 3.2 is needed in order to be able to have support of target_compile_features for AppleClang
+    cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=/wherever/doesn't/require/administrative/priviege
+    cmake --build build --target install
+    
+But please make sure msvc/clang/gcc is able to find the path your provide above when
+including Mach7's headers in your own project:
+
+- MSVC: https://stackoverflow.com/questions/335408/where-does-visual-studio-look-for-c-header-files
+- Gcc/Clang: -I
+- CMake: https://stackoverflow.com/questions/13703647/how-to-properly-add-include-directories-with-cmake 
 
 #### Using Makefiles for GCC (4.4 or later) or Clang (3.3 or later)
  
