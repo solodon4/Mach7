@@ -1,10 +1,68 @@
 language: cpp
-os:
-  - linux
-  - osx
-compiler:
-  - g++
-  - clang++
+branches:
+  only:
+  - gh-pages
+  - /.*/
+
+matrix:
+  include:
+
+    # Linux clang
+    - os: linux
+      sudo: required
+      env: BUILD_TYPE=Debug SANITIZE=undefined CMAKE_GENERATOR="Unix Makefiles"
+      compiler: clang
+
+    - os: linux
+      sudo: required
+      env: BUILD_TYPE=Debug SANITIZE=address CMAKE_GENERATOR="Unix Makefiles"
+      compiler: clang
+
+    - os: linux
+      sudo: required
+      env: BUILD_TYPE=Release CMAKE_GENERATOR="Unix Makefiles"
+      compiler: clang
+
+    # Linux gcc
+    - os: linux
+      sudo: false
+      env: BUILD_TYPE=Debug SANITIZE=undefined CMAKE_GENERATOR="Unix Makefiles"
+      compiler: gcc
+
+    - os: linux
+      sudo: required
+      env: BUILD_TYPE=Debug SANITIZE=address CMAKE_GENERATOR="Unix Makefiles"
+      compiler: gcc
+
+    - os: linux
+      sudo: false
+      env: BUILD_TYPE=Release CMAKE_GENERATOR="Unix Makefiles"
+      compiler: gcc
+
+    # OSX clang
+    - os: osx
+      osx_image: xcode10
+      env: BUILD_TYPE=Debug CMAKE_GENERATOR="Xcode"
+      compiler: clang
+
+    - os: osx
+      osx_image: xcode10
+      env: BUILD_TYPE=Release CMAKE_GENERATOR="Xcode"
+      compiler: clang
+
+    # OSX gcc
+    - os: osx
+      osx_image: xcode10
+      env: BUILD_TYPE=Release CMAKE_GENERATOR="Xcode"
+      compiler: gcc
+
+    - os: osx
+      osx_image: xcode10
+      env: BUILD_TYPE=Debug CMAKE_GENERATOR="Xcode"
+      compiler: gcc
+
+
+
 sudo: required
 env:
   global:
@@ -43,9 +101,19 @@ before_script:
     - which g++
     - g++ --version
     - $CXX --version
-script: make --keep-going
+    - sudo pip install --upgrade pip
+    - sudo pip install --upgrade cmake
+    - cmake --version
+    - sudo cmake --version
+
+script: 
+    - make --keep-going
+    - cd ..
+    - cmake -H. -Bbuild 
+    - sudo cmake --build build --target install -j 100
 notifications:
   email:
     recipients: yuriy.solodkyy+travis.mach7@gmail.com
     on_success: change
     on_failure: always
+
