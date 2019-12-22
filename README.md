@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/solodon4/Mach7/master/media/posters/OpenPatternMatching-OOPSLA%20(1280x989).jpg" width="100%">
 </a>
 
-Mach7: Pattern Matching for C++ [![Build Status: Linux, OSX](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7) [![Build Status: Windows](https://ci.appveyor.com/api/projects/status/github/solodon4/mach7?branch=master&svg=true)](https://ci.appveyor.com/project/solodon4/mach7)
+Mach7: Pattern Matching for C++ [![Build Status: Linux, OSX](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7) [![Build Status: Windows](https://ci.appveyor.com/api/projects/status/github/solodon4/mach7?branch=master&svg=true)](https://ci.appveyor.com/project/solodon4/mach7) ![](https://github.com/solodon4/Mach7/workflows/Mach7%20CI/badge.svg)
 ===============================
 
 by [Yuriy Solodkyy](https://github.com/solodon4), [Gabriel Dos Reis](https://github.com/GabrielDosReis), [Bjarne Stroustrup](https://github.com/BjarneStroustrup)
@@ -11,10 +11,10 @@ Abstract
 --------
 
 Pattern matching is an abstraction mechanism that can greatly simplify source code.
-Commonly, pattern matching is built into a language to provide better syntax, faster 
-code, correctness guarantees and improved diagnostics. Mach7 is a library solution 
-to pattern matching in C++ that maintains many of these features. All the patterns 
-in Mach7 are user-definable, can be stored in variables, passed among functions, 
+Commonly, pattern matching is built into a language to provide better syntax, faster
+code, correctness guarantees and improved diagnostics. Mach7 is a library solution
+to pattern matching in C++ that maintains many of these features. All the patterns
+in Mach7 are user-definable, can be stored in variables, passed among functions,
 and allow the use of open class hierarchies.
 
 Mach7 by Example
@@ -42,7 +42,7 @@ int fib(int n)
 Lambda calculator demonstrates [use of pattern matching to decompose objects and nested patterns](https://github.com/solodon4/Mach7/blob/master/code/test/time/lambda.cpp#L101-L118):
 
 ```C++
-// Declare C++ equivalent of an Algebraic Data Type Term and its 3 variants: 
+// Declare C++ equivalent of an Algebraic Data Type Term and its 3 variants:
 struct Term       { virtual ~Term() {}     };
 struct Var : Term { std::string name;      };
 struct Abs : Term { Var&  var;  Term& body;};
@@ -59,7 +59,7 @@ namespace mch
 // Implement fully-functional lambda-calculator
 Term* eval(Term* t)
 {
-    var<const Var&> v; 
+    var<const Var&> v;
     var<const Term&> b,a;
 
     Match(*t)
@@ -68,7 +68,7 @@ Term* eval(Term* t)
       Case(C<Abs>())               return &match0;
       Case(C<App>(C<Abs>(v,b),a))  return eval(subs(b,v,a));
       Otherwise() cerr << "error"; return nullptr ;
-    } 
+    }
     EndMatch
 }
 ```
@@ -112,10 +112,10 @@ void print(const boost::variant<double,float,int>& v)
 }
 ```
 
-Breve syntax is not the only thing Mach7 has to offer - the generated code is 
+Breve syntax is not the only thing Mach7 has to offer - the generated code is
 [faster than Visitors](http://bit.ly/OPM13Poster)!
 
-For a more detailed set of examples, have a look at the code that was prepared for 
+For a more detailed set of examples, have a look at the code that was prepared for
 [CppCon 2014 presentation](http://bit.ly/AcceptNoVisitors),
 and implemented using [visitors](https://github.com/solodon4/Mach7/blob/master/code/test/unit/cppcon-visitors.cpp) as well as
 [pattern matching](https://github.com/solodon4/Mach7/blob/master/code/test/unit/cppcon-matching.cpp). These are simple enough
@@ -124,7 +124,7 @@ to help you get started on your own Mach7 project.
 Continuous Integration
 ----------------------
 
-We use [Travis CI](https://travis-ci.org/solodon4/Mach7) and [AppVeyor](https://ci.appveyor.com/project/solodon4/mach7) for continuous integration 
+We use [Travis CI](https://travis-ci.org/solodon4/Mach7) and [AppVeyor](https://ci.appveyor.com/project/solodon4/mach7) for continuous integration
 and currently have all check-ins validated in the following configurations:
 
 | [![Build Status](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7) | [G++](http://gcc.gnu.org/) | [Clang](http://clang.llvm.org/) |
@@ -151,7 +151,7 @@ repo locally by executing:
 
     git clone https://github.com/solodon4/Mach7.git
 
-The library itself is header only and does not require building. To build unit and 
+The library itself is header only and does not require building. To build unit and
 timing tests we've accumulated over time several scripts, which we don't completely
 abandon in favor of newer ones as they maintain the flags the original experiments
 on the library were built with.
@@ -161,25 +161,25 @@ on the library were built with.
  [CMake](https://cmake.org/) support is the most recent and is still very experimental at this point. To
  build with cmake, perform the following commands from within Mach7 folder:
 
-    cmake -H. -Bbuild 
+    cmake -H. -Bbuild
     cmake --build build --target install
-    
+
 Note: this requires administrative privileges under all systems, if you don't like this, try commands below:
 
     cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=/wherever/doesn't/require/administrative/priviege
     cmake --build build --target install
-    
+
 But please make sure msvc/clang/gcc is able to find the path your provide above when
 including Mach7's headers in your own project:
 
 - MSVC: https://stackoverflow.com/questions/335408/where-does-visual-studio-look-for-c-header-files
 - Gcc/Clang: -I
-- CMake: https://stackoverflow.com/questions/13703647/how-to-properly-add-include-directories-with-cmake 
+- CMake: https://stackoverflow.com/questions/13703647/how-to-properly-add-include-directories-with-cmake
 
 #### Using Makefiles for GCC (4.4 or later) or Clang (3.3 or later)
- 
+
 Top-level Makefile synopsis:
- 
+
     make         - build all library tests
     make all     - same as above right now
     make unit    - build all unit tests
@@ -191,9 +191,9 @@ Top-level Makefile synopsis:
     make doc     - build Mach7 documentation (requires doxygen)
     make includes.png - build graph representation of header inclusions (requires graphviz dot)
 
-To see a list of more specific targets supported by other makefiles, see comments inside them. 
+To see a list of more specific targets supported by other makefiles, see comments inside them.
 
-To build a particular file, say test/unit/example05.cpp, build a target with 
+To build a particular file, say test/unit/example05.cpp, build a target with
 the same filename and extension .exe instead of .cpp (even on Unix family OS).
 For example:
 
@@ -202,20 +202,20 @@ For example:
  make example05.exe
  ```
 
-Lower-level makefiles support most of the phony targets of the top-level makefile, 
+Lower-level makefiles support most of the phony targets of the top-level makefile,
 to which the top-level makefile forwards the corresponding calls. For example:
 
 To build and run just the unit tests:
- 
+
  ```
  cd $MACH7_ROOT/code/test/unit
  make
  make check
  make test
  ```
- 
+
 Similarly, to build and run all the timing tests:
- 
+
  ```
  cd $MACH7_ROOT/code/test/time
  make
@@ -224,10 +224,10 @@ Similarly, to build and run all the timing tests:
 
 #### Using Visual C++ (2010 or later)
 
- Mach7 uses its own [build.bat](https://github.com/solodon4/Mach7/blob/master/code/build.bat) 
- script to build all the examples and unit tests that come with it. The script 
- assumes each .cpp file to be a standalone program. You can find 
- [the most up-to-date list of supported commands](https://github.com/solodon4/Mach7/blob/master/code/build.bat#L43-L73) 
+ Mach7 uses its own [build.bat](https://github.com/solodon4/Mach7/blob/master/code/build.bat)
+ script to build all the examples and unit tests that come with it. The script
+ assumes each .cpp file to be a standalone program. You can find
+ [the most up-to-date list of supported commands](https://github.com/solodon4/Mach7/blob/master/code/build.bat#L43-L73)
  by running:
 
     build.bat /?
@@ -248,7 +248,7 @@ Similarly, to build and run all the timing tests:
     build doc    - Build Mach7 documentation
     build clean  - Clean all built examples
     build test   - Run all built examples
-    build check  - Run those examples for which there are correct_output/*.out files and 
+    build check  - Run those examples for which there are correct_output/*.out files and
                    check that output is the same
 
 ######  Modifiers:
@@ -256,7 +256,7 @@ Similarly, to build and run all the timing tests:
            pgo   - Perform Profile-Guided Optimization on produced executables
            repro - In case of error, create and compile a pre-processed repro
            tmp   - Keep temporaries
-          <ver>  - Use a specific version of Visual Studio to compile the source 
+          <ver>  - Use a specific version of Visual Studio to compile the source
                    code. <ver> can be one of the following:
                     - 2017 - Visual C++ 15.0
                     - 2015 - Visual C++ 14.0
@@ -300,29 +300,29 @@ Mach7 is licensed under the [BSD License](LICENSE).
 Support
 -------
 
-If you have any question about Mach7 or have trouble using it, the best way to get answers is to post an 
-[issue](https://github.com/solodon4/Mach7/issues) and label it as 
-[Question](https://github.com/solodon4/Mach7/issues?q=label%3Aquestion). This will contribute to our 
-[poor man's FAQ](https://github.com/solodon4/Mach7/issues?q=label%3Aquestion) and hopefully help others 
-with a similar question. I get notifications about new issues and usually respond within the 
-same day. If you prefer not to discuss your question on GitHub, feel free to send me a 
-[private email](mailto:yuriy.solodkyy+mach7support@gmail.com) (note there is a 
+If you have any question about Mach7 or have trouble using it, the best way to get answers is to post an
+[issue](https://github.com/solodon4/Mach7/issues) and label it as
+[Question](https://github.com/solodon4/Mach7/issues?q=label%3Aquestion). This will contribute to our
+[poor man's FAQ](https://github.com/solodon4/Mach7/issues?q=label%3Aquestion) and hopefully help others
+with a similar question. I get notifications about new issues and usually respond within the
+same day. If you prefer not to discuss your question on GitHub, feel free to send me a
+[private email](mailto:yuriy.solodkyy+mach7support@gmail.com) (note there is a
 [+](https://gmail.googleblog.com/2008/03/2-hidden-ways-to-get-more-from-your.html) in the email address).
 
 Call for Help
 -------------
 
-We are looking for contributors to the project. If you are a student taking a 
-programming languages class or any other class that would require you to write 
-a small compiler or interpreter, we would love you try Mach7 for the job. We 
+We are looking for contributors to the project. If you are a student taking a
+programming languages class or any other class that would require you to write
+a small compiler or interpreter, we would love you try Mach7 for the job. We
 promise to help with any issues you might have with the library.
 
 Known bugs and limitations
 --------------------------
 
-Right now, there are several experimental headers that one would need to include to enable one or the other syntax 
+Right now, there are several experimental headers that one would need to include to enable one or the other syntax
 to work. This is a work in progress, so before you start working with a particular syntax, check examples with that
-syntax and make note of which of headers they include. We will clear this eventually leaving only one header, but at 
+syntax and make note of which of headers they include. We will clear this eventually leaving only one header, but at
 the moment it is a mess, and the most intuitive match.hpp is probably not the header you want as it represents older
 experiments. The most recent experimentation and the header you are probably looking for is
 [mach7/type_switchN-patterns-xtl.hpp](https://github.com/solodon4/Mach7/blob/master/code/mach7/type_switchN-patterns-xtl.hpp).
@@ -330,7 +330,7 @@ experiments. The most recent experimentation and the header you are probably loo
 The library is not yet suitable for multi-threaded environment. Lock-free version of vtbl-map is in the works.
 
 Please refrain from using solution or project files checked in here. They are not in sync with most recent changes
-to directory structure and are difficult to maintain. They will ultimately be replaced with a less verbose system 
-(likely CMake), and in the meantime please use build.bat to build tests on Windows. 
+to directory structure and are difficult to maintain. They will ultimately be replaced with a less verbose system
+(likely CMake), and in the meantime please use build.bat to build tests on Windows.
 
 For the most up-to-date list of known issues see [Mach7 Issues](https://github.com/solodon4/Mach7/issues).
