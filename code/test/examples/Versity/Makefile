@@ -59,7 +59,7 @@ INCLUDES = -I../../..
 ifneq (,$(BOOST_ROOT))
 	INCLUDES += -I$(BOOST_ROOT) -DHAS_BOOST
 endif
-CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=gnu++0x
+CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=gnu++0x
 ifneq (,$(findstring g++,$(CXX)))
 	CXXFLAGS += -Wno-vla -fdiagnostics-show-option
 # Workaround for MinGW bug: -D__NO_INLINE__
@@ -94,7 +94,7 @@ DEP_FILES = $(SOURCES:.cpp=.dep)
 # of another, it serves as a subroutine of the other.
 
 # Build all files in current folder
-all: default 
+all: default
 
 # A phony target should not be a prerequisite of a real target file; if it is,
 # its recipe will be run every time make goes to update that file.

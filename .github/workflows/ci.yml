@@ -11,9 +11,12 @@ jobs:
     - uses: actions/checkout@master
       with:
         fetch-depth: 1
-    - name: cd code
-      run:  cd code
-    - name: make
-      run:  make
-    - name: make check
-      run:  make check
+    - name: Build Makefile
+      run: |
+        pwd
+        ls -alF
+        cd code
+        pwd
+        ls -alF
+        make
+        make check

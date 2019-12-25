@@ -62,7 +62,7 @@ INCLUDES = -I../..
 ifneq (,$(BOOST_ROOT))
 	INCLUDES += -I$(BOOST_ROOT) -DHAS_BOOST
 endif
-CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -DXTL_MESSAGE_ENABLED=0 -std=c++0x
+CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -DXTL_MESSAGE_ENABLED=0 -std=c++0x
 ifneq (,$(findstring g++,$(CXX)))
 	CXXFLAGS += -Wno-vla -fdiagnostics-show-option
 # Workaround for MinGW bug: -D__NO_INLINE__

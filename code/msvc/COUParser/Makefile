@@ -53,9 +53,9 @@ INCLUDES = -I../..
 ifneq (,$(BOOST_ROOT))
 	INCLUDES += -I$(BOOST_ROOT) -DHAS_BOOST
 endif
-CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=gnu++0x
+CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=gnu++0x
 ifneq (,$(findstring g++,$(CXX)))
-	CXXFLAGS += -Wno-vla -ftrack-macro-expansion=4 -fdiagnostics-show-option -D__NO_INLINE__ 
+	CXXFLAGS += -Wno-vla -ftrack-macro-expansion=4 -fdiagnostics-show-option -D__NO_INLINE__
 endif
 ifneq (,$(findstring clang,$(CXX)))
 	CXXFLAGS += -fmacro-backtrace-limit=0 -ftemplate-backtrace-limit=0 -Wno-vla-extension -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-anonymous-struct

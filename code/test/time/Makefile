@@ -63,7 +63,7 @@ ifneq (,$(BOOST_ROOT))
 	INCLUDES += -I$(BOOST_ROOT) -DHAS_BOOST
 endif
 # Note: using -std=c++0x instead of -std=gnu++0x fails in standard headers on MinGW
-CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -v -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=gnu++0x
+CXXFLAGS = $(INCLUDES) -g -Wall -Wextra -pedantic -O2 -DNDEBUG -DXTL_MESSAGE_ENABLED=0 -std=gnu++0x
 ifneq (,$(findstring g++,$(CXX)))
 	CXXFLAGS += -Wno-vla -fdiagnostics-show-option
 # Workaround for MinGW bug: -D__NO_INLINE__
@@ -86,21 +86,21 @@ SOURCES  = $(shell ls *.cpp)
 # Create a list of object files from the source file lists.
 OBJECTS  = ${SOURCES:.cpp=.o}
 # Create a list of targets.
-TARGETS  = ${SOURCES:.cpp=.exe}     
+TARGETS  = ${SOURCES:.cpp=.exe}
 
-# A phony target is one that is not really the name of a file; rather it is just 
+# A phony target is one that is not really the name of a file; rather it is just
 # a name for a recipe to be executed when you make an explicit request.
 
 .PHONY: all clean cmp default doc syntax tags test timing ver
 
-# Phony targets can have prerequisites. When one phony target is a prerequisite 
+# Phony targets can have prerequisites. When one phony target is a prerequisite
 # of another, it serves as a subroutine of the other.
 
 # Build all files in current folder as well as all combinations for syntax, timing and comparison
 all: default timing cmp
 
-# A phony target should not be a prerequisite of a real target file; if it is, 
-# its recipe will be run every time make goes to update that file. 
+# A phony target should not be a prerequisite of a real target file; if it is,
+# its recipe will be run every time make goes to update that file.
 
 # Build all targets by default
 default: 	$(TARGETS)
@@ -311,7 +311,7 @@ hs: cmp_haskell.hs
 
 # A rule to build OCaml executables for comparison with other languages
 # TODO: Make a generic .ml rule
-caml: cmp_ocaml.ml 
+caml: cmp_ocaml.ml
 	ocamlopt.opt unix.cmxa -o cmp_ocaml.exe cmp_ocaml.ml
 
 # A rule to clean all the intermediates and targets
@@ -369,4 +369,4 @@ test:
 	      ./$$file; \
 	    fi \
 	done ; \
-	echo -n 
+	echo -n
