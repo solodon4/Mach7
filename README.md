@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/solodon4/Mach7/master/media/posters/OpenPatternMatching-OOPSLA%20(1280x989).jpg" width="100%">
 </a>
 
-Mach7: Pattern Matching for C++ [![Build Status: Linux, OSX](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7) [![Build Status: Windows](https://ci.appveyor.com/api/projects/status/github/solodon4/mach7?branch=master&svg=true)](https://ci.appveyor.com/project/solodon4/mach7) ![](https://github.com/solodon4/Mach7/workflows/Mach7%20CI/badge.svg)
+Mach7: Pattern Matching for C++ [![Build Status: Linux, OSX](https://travis-ci.org/solodon4/Mach7.svg?branch=master)](https://travis-ci.org/solodon4/Mach7) [![Build Status: Windows](https://ci.appveyor.com/api/projects/status/github/solodon4/mach7?branch=master&svg=true)](https://ci.appveyor.com/project/solodon4/mach7) [![Build Status: GitHub Actions](https://github.com/solodon4/Mach7/workflows/CI/badge.svg)](https://github.com/solodon4/Mach7/actions)
 ===============================
 
 by [Yuriy Solodkyy](https://github.com/solodon4), [Gabriel Dos Reis](https://github.com/GabrielDosReis), [Bjarne Stroustrup](https://github.com/BjarneStroustrup)
@@ -136,6 +136,8 @@ and currently have all check-ins validated in the following configurations:
 |-------|------|------|------|------|------|------|
 | x86   |  OK  |  OK  |  OK  |  OK  |  OK  |  OK  |
 | x64   |  OK  |  OK  |  OK  |  OK  |  N/A |  OK  |
+
+[![Build Status: GitHub Actions](https://github.com/solodon4/Mach7/workflows/CI/badge.svg)](https://github.com/solodon4/Mach7/actions)
 
 Branches
 --------

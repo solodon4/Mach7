@@ -1,4 +1,4 @@
-name: Mach7 CI
+name: CI
 
 on: [push]
 
@@ -12,7 +12,11 @@ jobs:
       with:
         fetch-depth: 1
     - name: Build Makefile
+      env: # Currently BOOST_ROOT is defined but not installed: https://github.com/actions/virtual-environments/issues/83
+        BOOST_ROOT:
       run: |
+        echo BOOST_ROOT=${BOOST_ROOT}
+        ls -lR ${BOOST_ROOT}
         pwd
         ls -alF
         cd code

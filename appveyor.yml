@@ -37,6 +37,8 @@ environment:
   BOOST_ROOT: C:\Libraries\boost_1_69_0
   BOOST_LIBRARYDIR: C:\Libraries\boost_1_69_0\lib64-msvc-14.0
   matrix:
+    - toolset: 2019
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     - toolset: 2017
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     - toolset: 2015

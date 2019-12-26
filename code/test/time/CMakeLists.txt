@@ -16,7 +16,7 @@ set(needed_features
 cxx_auto_type)
 
 # these are all compiled the same way
-set(PROGRAMS 
+set(PROGRAMS
 exception_select_random
 generic_select_kind
 generic_select_random
@@ -82,14 +82,15 @@ foreach(program ${PROGRAMS})
   set_property(TARGET ${program} PROPERTY FOLDER "Tests/Time")
 endforeach(program)
 
-set(Boost_USE_STATIC_LIBS OFF) 
-set(Boost_USE_MULTITHREADED OFF)  
-set(Boost_USE_STATIC_RUNTIME OFF) 
-find_package(Boost 1.54.0 QUIET COMPONENTS any variant HINTS $ENV{BOOST_ROOT}) 
+set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_MULTITHREADED OFF)
+set(Boost_USE_STATIC_RUNTIME OFF)
+find_package(Boost 1.54.0 QUIET COMPONENTS any variant HINTS $ENV{BOOST_ROOT})
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
-    add_executable(time-xtl-any time-xtl-any.cpp) 
+    add_executable(time-xtl-any time-xtl-any.cpp)
+    target_link_libraries(time-xtl-any ${Boost_LIBRARIES})
     add_executable(time-xtl-variant time-xtl-variant.cpp)
-    target_link_libraries(progname ${Boost_LIBRARIES})
+    target_link_libraries(time-xtl-variant ${Boost_LIBRARIES})
 endif()
