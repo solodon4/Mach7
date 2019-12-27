@@ -14,8 +14,8 @@ jobs:
     - name: Build Makefile
       env: # Currently BOOST_ROOT is defined but not installed: https://github.com/actions/virtual-environments/issues/83
         BOOST_ROOT:
-      run: | # Also no bison at the moment: https://github.com/actions/virtual-environments/issues/86
-        sudo apt install bison
+      run: | # Also no flex/bison at the moment: https://github.com/actions/virtual-environments/issues/86
+        sudo apt install flex bison
         pwd
         cd code
         make

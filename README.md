@@ -132,10 +132,10 @@ and currently have all check-ins validated in the following configurations:
 | Linux | 4.9 | 3.4   |
 | OSX   | 4.9 | 3.5   |
 
-| [![Build Status: Visual C++](https://ci.appveyor.com/api/projects/status/github/solodon4/mach7?branch=master&svg=true)](https://ci.appveyor.com/project/solodon4/mach7) | 2017 | 2015 | 2013 | 2012 | 2010 | /analyze |
-|-------|------|------|------|------|------|------|
-| x86   |  OK  |  OK  |  OK  |  OK  |  OK  |  OK  |
-| x64   |  OK  |  OK  |  OK  |  OK  |  N/A |  OK  |
+| [![Build Status: Visual C++](https://ci.appveyor.com/api/projects/status/github/solodon4/mach7?branch=master&svg=true)](https://ci.appveyor.com/project/solodon4/mach7) | 2019 | 2017 | 2015 | 2013 | 2012 | 2010 | /analyze |
+|-------|------|------|------|------|------|------|------|
+| x86   | Fail |  OK  |  OK  |  OK  |  OK  |  OK  |  OK  |
+| x64   | Fail |  OK  |  OK  |  OK  |  OK  |  N/A |  OK  |
 
 [![Build Status: GitHub Actions](https://github.com/solodon4/Mach7/workflows/CI/badge.svg)](https://github.com/solodon4/Mach7/actions)
 
@@ -260,6 +260,7 @@ Similarly, to build and run all the timing tests:
            tmp   - Keep temporaries
           <ver>  - Use a specific version of Visual Studio to compile the source
                    code. <ver> can be one of the following:
+                    - 2019 - Visual C++ 16.0
                     - 2017 - Visual C++ 15.0
                     - 2015 - Visual C++ 14.0
                     - 2013 - Visual C++ 12.0
