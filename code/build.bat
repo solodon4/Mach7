@@ -59,8 +59,9 @@
 ::           pgo    - Perform Profile-Guided Optimization on produced executables
 ::           repro  - In case of error, create and compile a pre-processed repro
 ::           tmp    - Keep temporaries
-::           <ver>  - Use a specific version of Visual C++ to compiler the source 
+::           <ver>  - Use a specific version of Visual C++ to compiler the source
 ::                    code. <ver> can be one of the following:
+::                     - 2019 - Visual C++ 16.0
 ::                     - 2017 - Visual C++ 15.0
 ::                     - 2015 - Visual C++ 14.0
 ::                     - 2013 - Visual C++ 12.0
@@ -71,7 +72,7 @@
 ::                     - 2003 - Visual C++  7.1
 ::                       0000 - Do not use any VS to set up the environment, I will set it up by myself
 ::           <arch> - Target architecture. Can be one of the following: x86, x64, arm
-::                                                                           
+::
 
 @echo off
 set MACH7_ROOT=%~dp0
@@ -86,7 +87,8 @@ verify > nul
 rem Prepare log file :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 rem We would like to have the toolset directly in the log file name, so we duplicate the later check here
-if "%1" == ""     set VS20XX=2017
+if "%1" == ""     set VS20XX=2019
+if "%1" == "2019" set VS20XX=2019
 if "%1" == "2017" set VS20XX=2017
 if "%1" == "2015" set VS20XX=2015
 if "%1" == "2013" set VS20XX=2013
@@ -100,7 +102,7 @@ if "%1" == "0000" set VS20XX=0000
 rem Specific invokations of this script write log to common build.log file
 rem if not "%1" == "" set logfile=build-VS%VS20XX%.log&goto LOG_FILE_READY
 rem Build of everythings gets its own time-stamped log file
-call :SUB_PARSE_DATE 
+call :SUB_PARSE_DATE
 set logfile=build-%yy%-%mm%-%dd%-%hh%-%mn%-VS%VS20XX%.log
 
 :LOG_FILE_READY
@@ -120,6 +122,7 @@ if /I "%1" == "analyze"   shift && set CL=/analyze /analyze:plugin "%MACH7_ROOT%
 if /I "%1" == "pgo"       shift && set PGO=1&&                          goto PARSE_CMD_LINE
 if /I "%1" == "repro"     shift && set REPRO=1&&                        goto PARSE_CMD_LINE
 if /I "%1" == "tmp"       shift && set KEEP_TMP=1&&                     goto PARSE_CMD_LINE
+if    "%1" == "2019"      shift && set VS_COMN_TOOLS=%VS160COMNTOOLS%&& goto PARSE_CMD_LINE
 if    "%1" == "2017"      shift && set VS_COMN_TOOLS=%VS150COMNTOOLS%&& goto PARSE_CMD_LINE
 if    "%1" == "2015"      shift && set VS_COMN_TOOLS=%VS140COMNTOOLS%&& goto PARSE_CMD_LINE
 if    "%1" == "2013"      shift && set VS_COMN_TOOLS=%VS120COMNTOOLS%&& goto PARSE_CMD_LINE
@@ -170,17 +173,18 @@ rem NOTE: Specifying /GL in VC11 fails to link code that uses our decl_helper fo
 rem       However not specifying /GL fails when trying to do PGO.
 rem       Linker's /LTCG is used only when /GL is passed and vice versa.
 rem set CXXFLAGS=/nologo /W4 /EHsc /O2
-set CXXFLAGS=%MACH7_INC% /wd4007 /Zi /nologo /EHsc /W4 /WX- /O2 /Ob2 /Oi /Ot /Oy-     /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
-rem          %MACH7_INC% /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /Fp"Release\SyntheticSelectRandom.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb" 
-rem Slower: =%MACH7_INC% /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot      /GL /GF /Gm- /MT /GS- /Gy  /fp:precise /Zc:wchar_t /Zc:forScope /Gr /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" 
+set CXXFLAGS=%MACH7_INC% /wd4007 /Zi /nologo /EHsc /W4 /WX- /O2 /Ob2 /Oi /Ot /Oy-     /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS"
+rem          %MACH7_INC% /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot /Oy- /GL /GF /Gm- /MT /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Gr /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /Fp"Release\SyntheticSelectRandom.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb"
+rem Slower: =%MACH7_INC% /wd4007 /Zi /nologo       /W3 /WX- /O2 /Ob2 /Oi /Ot      /GL /GF /Gm- /MT /GS- /Gy  /fp:precise /Zc:wchar_t /Zc:forScope /Gr /errorReport:queue /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS"
 set LNKFLAGS=
-rem LNKFLAGS=/INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST:NO /ALLOWISOLATION /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /ERRORREPORT:QUEUE 
-rem /OUT:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.exe" /INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST /ManifestFile:"Release\SyntheticSelectRandom.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /PGD:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pgd" /LTCG /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /MACHINE:%ARCH% /ERRORREPORT:QUEUE 
+rem LNKFLAGS=/INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST:NO /ALLOWISOLATION /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /ERRORREPORT:QUEUE
+rem /OUT:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.exe" /INCREMENTAL:NO /NOLOGO "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MANIFEST /ManifestFile:"Release\SyntheticSelectRandom.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /PGD:"C:\Projects\PatternMatching\Release\SyntheticSelectRandom.pgd" /LTCG /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /MACHINE:%ARCH% /ERRORREPORT:QUEUE
 
 if "%ARCH%" == "" set ARCH=x86
 set M=%ARCH%
 
 rem Recent versions of vsvars32.bat do not print the toolset used.
+if "%VS_COMN_TOOLS%"=="%VS160COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2019 %ARCH% tools.
 if "%VS_COMN_TOOLS%"=="%VS150COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2017 %ARCH% tools.
 if "%VS_COMN_TOOLS%"=="%VS140COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2015 %ARCH% tools.
 if "%VS_COMN_TOOLS%"=="%VS120COMNTOOLS%" echo Setting environment for using Microsoft Visual Studio 2013 %ARCH% tools.
@@ -200,7 +204,7 @@ rem Used by CppCoreCheck to not report warnings in system folders
 set CAExcludePath=%INCLUDE%
 
 rem Account for a problem with some PGO flags described above.
-if "%PGO%"=="1" set CXXFLAGS=%CXXFLAGS% /GL 
+if "%PGO%"=="1" set CXXFLAGS=%CXXFLAGS% /GL
 if "%PGO%"=="1" set LNKFLAGS=%LNKFLAGS% /LTCG
 
 setlocal
@@ -236,9 +240,9 @@ exit /B %result%
 rem Subroutine that builds a particular file
 if "%2" == "" (set filename=%~n1) else (set filename=%2)
 echo ======================================== [ %filename%.exe ] >> %logfile%
-<nul (set/p output=Working on %filename%.exe	) 
+<nul (set/p output=Working on %filename%.exe	)
 if exist %filename%.exe (
-    <nul (set/p output=- exe exist ) 
+    <nul (set/p output=- exe exist )
 ) else (
     <nul (set/p output=- compiling )
     echo [[ %CXX% %CXXFLAGS% %1 /Fo%filename%.obj /Fe%filename%.exe /link %LNKFLAGS% /MACHINE:%M% ]] >> %logfile% 2>&1
@@ -260,7 +264,7 @@ if exist %filename%.exe (
 :PGO
 if "%PGO%"=="" goto HANDLE_TEMPORARIES
 if exist %filename%-pgo.exe (
-    <nul (set/p output=- pgo exists) 
+    <nul (set/p output=- pgo exists)
 ) else (
     <nul (set/p output=- instrumenting )
     echo [[ %CXX% %CXXFLAGS% %1 /Fo%filename%-pgo.obj /Fe%filename%-pgo.exe /link %LNKFLAGS% /MACHINE:%M% /PGD:"%filename%-pgo.pgd" /LTCG:PGINSTRUMENT ]] >> %logfile% 2>&1
@@ -336,9 +340,9 @@ goto END
 
 set filename=%~n1
 if not exist correct_output/%filename%.out goto END
-<nul (set/p output= %filename%.out 	) 
+<nul (set/p output= %filename%.out 	)
 %1 > current.out 2>&1
-fc current.out correct_output/%~n1.out | FIND "FC: no dif" > nul 
+fc current.out correct_output/%~n1.out | FIND "FC: no dif" > nul
 if errorlevel 1 (<nul (set/p output= ) & call :SUB_COLOR_TEXT 0C "differ" & set /A "result+=1") else (<nul (set/p output= OK))
 echo.
 goto END
@@ -373,7 +377,7 @@ goto END
 :BUILD_UNIT ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 cd /D "%MACH7_ROOT%test\unit"
 for %%i in (*.cpp) do call :SUB_BUILD_FILE "%%i"
-cd /D "%CurDir%" 
+cd /D "%CurDir%"
 goto END
 
 :BUILD_TIMING ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -410,7 +414,7 @@ if "%S%" == "F"   set G=special& set E=knfw
 if "%M%" == "x86" set B=32
 if "%M%" == "x64" set B=64
 rem set PGO=1
-set CXXFLAGS=/DXTL_VISITOR_FORWARDING=%1 /DXTL_DEFAULT_SYNTAX='%S%' /DXTL_%3_TEST %CXXFLAGS% 
+set CXXFLAGS=/DXTL_VISITOR_FORWARDING=%1 /DXTL_DEFAULT_SYNTAX='%S%' /DXTL_%3_TEST %CXXFLAGS%
 call :SUB_BUILD_FILE %5 %6-%B%-%F%-%G%-%E%-%3
 endlocal&set result=%result%
 goto END
@@ -428,7 +432,7 @@ call :SUB_BUILD_TIMING 1 F SEQ %ARCH% cmp_cpp.cxx cmp
 where ghc
 if errorlevel 1 echo Warning: No Haskell compiler in the PATH. Skipping & goto skip_haskell
 echo ======================================== [ cmp_haskell.exe ] >> %logfile%
-<nul (set/p output=Working on cmp_haskell.exe	- compiling ) 
+<nul (set/p output=Working on cmp_haskell.exe	- compiling )
 ghc -O --make cmp_haskell >> %logfile% 2>&1
 if errorlevel 1 <nul (set/p output=- ) & call :SUB_COLOR_TEXT 0C "error" & set /A "result+=1"
 echo.
@@ -440,7 +444,7 @@ echo ======================================== [ cmp_ocaml.exe ] >> %logfile%
 set OCAMLPATH=C:\Program Files (x86)\Objective Caml
 set OCAMLLIB=%OCAMLPATH%\lib
 set PATH=%OCAMLPATH%\bin;C:\Program Files (x86)\flexdll;%PATH%
-<nul (set/p output=Working on cmp_ocaml.exe	- compiling ) 
+<nul (set/p output=Working on cmp_ocaml.exe	- compiling )
 ocamlopt.opt unix.cmxa -o cmp_ocaml.exe cmp_ocaml.ml >> %logfile% 2>&1
 if errorlevel 1 <nul (set/p output=- ) & call :SUB_COLOR_TEXT 0C "error" & set /A "result+=1"
 echo.
@@ -495,7 +499,7 @@ goto END
 
 :SUB_PARSE_DATE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-rem The following code has been derived from: 
+rem The following code has been derived from:
 rem  - Date Parsing: http://ss64.com/nt/syntax-getdate.html
 rem  - Time Parsing: http://ss64.com/nt/syntax-gettime.html
 
