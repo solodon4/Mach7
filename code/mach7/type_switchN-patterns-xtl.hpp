@@ -271,3 +271,4 @@ struct type_switch_info_offset_helper<false, SwitchInfo>
         }
 
 //------------------------------------------------------------------------------
+#undef dynamic_cast
